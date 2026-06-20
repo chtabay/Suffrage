@@ -3,18 +3,107 @@
 @tailwind utilities;
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --ink: #16213a;
+  --cream: #fbf6ec;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html,
+body {
+  margin: 0;
+  padding: 0;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
+  font-family: var(--font-body), "Plus Jakarta Sans", system-ui, sans-serif;
+  color: #16213a;
+  background-color: #fbf6ec;
+  background-image: radial-gradient(#e4dbc6 1.4px, transparent 1.4px);
+  background-size: 22px 22px;
+  -webkit-font-smoothing: antialiased;
+}
+
+button,
+input {
+  font-family: inherit;
+}
+
+@keyframes popIn {
+  0% {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes stamp {
+  0% {
+    opacity: 0;
+    transform: scale(1.5) rotate(-8deg);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(0.92) rotate(-4deg);
+  }
+  100% {
+    transform: scale(1) rotate(-4deg);
+  }
+}
+
+@keyframes growBar {
+  0% {
+    transform: scaleX(0);
+  }
+  100% {
+    transform: scaleX(1);
+  }
+}
+
+/* Hover « néo-brutaliste » : la teinte de l'ombre au survol est passée via --sh-hover. */
+.dc-lift {
+  transition:
+    transform 0.12s ease,
+    box-shadow 0.12s ease;
+}
+.dc-lift:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: var(--sh-hover, 7px 7px 0 #16213a) !important;
+}
+.dc-bright:hover {
+  filter: brightness(1.07);
+}
+.dc-dim:hover {
+  filter: brightness(0.98);
+}
+.dc-paper:hover {
+  background: #fff !important;
+}
+.dc-cream:hover {
+  background: #fbf6ec !important;
+}
+
+@media (max-width: 860px) {
+  .create-grid {
+    grid-template-columns: 1fr !important;
+  }
+  .sticky-side {
+    position: static !important;
+    top: auto !important;
+  }
+}
+
+@media (max-width: 600px) {
+  .pad {
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+  }
+  .hero {
+    font-size: 40px !important;
+  }
+  .winner {
+    font-size: 26px !important;
+    word-break: break-word;
+  }
 }

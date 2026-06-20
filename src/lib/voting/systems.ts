@@ -1,0 +1,175 @@
+import type { SystemDef } from "./types";
+
+/** Palette des candidats (cyclée). */
+export const CAND_COLORS = [
+  "#FF5E5B",
+  "#2E8BFF",
+  "#17B8A6",
+  "#FFB627",
+  "#9B5BD6",
+  "#E84AA8",
+  "#5DBB2E",
+  "#FF8A3D",
+];
+
+/** Mentions du jugement majoritaire (de la pire à la meilleure). */
+export const GRADES = [
+  "À rejeter",
+  "Insuffisant",
+  "Passable",
+  "Assez bien",
+  "Bien",
+  "Très bien",
+];
+
+export const GRADE_COLORS = [
+  "#d23b3b",
+  "#e8743b",
+  "#e6a528",
+  "#8cb83a",
+  "#3fae6b",
+  "#1f8a4c",
+];
+
+/** Nombre de circonscriptions (suffrage indirect). */
+export const DISTRICTS = 5;
+
+export const candColor = (i: number) => CAND_COLORS[i % CAND_COLORS.length];
+
+/** Catalogue des 10 systèmes de vote présentés. */
+export const SYSTEMS: Record<string, SystemDef> = {
+  fptp: {
+    key: "fptp",
+    name: "Majoritaire à un tour",
+    family: "Suffrage direct · 1 tour",
+    color: "#FF5E5B",
+    tint: "#FFE3E2",
+    icon: "🥇",
+    tagline: "Le plus de voix gagne.",
+    how: "Chacun vote pour un seul candidat. Celui qui réunit le plus de voix l'emporte, même sans majorité absolue.",
+    pros: ["Très simple à comprendre", "Résultat immédiat", "Un seul passage aux urnes"],
+    cons: ["Un gagnant rejeté par 60 % des votants", "Pousse au « vote utile »", "Écrase les petites options"],
+  },
+  runoff: {
+    key: "runoff",
+    name: "Majoritaire à deux tours",
+    family: "Suffrage direct · 2 tours",
+    color: "#FF8A3D",
+    tint: "#FFE7D2",
+    icon: "🔁",
+    tagline: "Majorité absolue ou second tour.",
+    how: "Si personne n'atteint 50 %, les deux meilleurs s'affrontent au second tour. Le vainqueur final a forcément la majorité absolue.",
+    pros: ["Le gagnant dépasse 50 %", "On peut voter « du cœur » au 1er tour", "Système familier"],
+    cons: ["Deux scrutins à organiser", "Le 3e peut être un meilleur consensus", "Reports de voix imprévisibles"],
+  },
+  condorcet: {
+    key: "condorcet",
+    name: "Condorcet simple",
+    family: "Classement · duels",
+    color: "#5B5BD6",
+    tint: "#E1E1F7",
+    icon: "⚔️",
+    tagline: "Le champion de tous les duels.",
+    how: "Chacun classe les options. On simule tous les duels en tête-à-tête : le vainqueur est celui qui bat tous les autres.",
+    pros: ["Désigne le vrai consensus", "Insensible au « vote utile »", "Très difficile à manipuler"],
+    cons: ["Parfois aucun vainqueur (paradoxe)", "Bulletin plus long à remplir", "Dépouillement complexe"],
+  },
+  condorcet_random: {
+    key: "condorcet_random",
+    name: "Condorcet randomisé",
+    family: "Classement · duels + tirage",
+    color: "#9B5BD6",
+    tint: "#ECE0F7",
+    icon: "🎲",
+    tagline: "Condorcet, et le hasard tranche les blocages.",
+    how: "Comme Condorcet, mais quand les duels tournent en rond (A>B>C>A), on tire au sort le gagnant parmi le cercle bloqué.",
+    pros: ["Toujours un résultat", "Garde la logique de consensus", "Décourage les blocages tactiques"],
+    cons: ["Une part d'aléatoire assumée", "Difficile à expliquer", "Peut surprendre en cas de paradoxe"],
+  },
+  mj: {
+    key: "mj",
+    name: "Jugement majoritaire",
+    family: "Mention · médiane",
+    color: "#17B8A6",
+    tint: "#D5F4EF",
+    icon: "⚖️",
+    tagline: "On note, la mention majoritaire gagne.",
+    how: "Chacun attribue une mention à chaque option (de « À rejeter » à « Très bien »). L'option dont la mention médiane est la plus haute gagne.",
+    pros: ["Exprime la nuance, pas juste un choix", "Limite le vote tactique", "Mesure l'adhésion réelle"],
+    cons: ["Notion de médiane peu intuitive", "Bulletin plus long", "Beaucoup d'ex æquo possibles"],
+  },
+  approval: {
+    key: "approval",
+    name: "Vote par approbation",
+    family: "Cases à cocher",
+    color: "#2E8BFF",
+    tint: "#D7E9FF",
+    icon: "✅",
+    tagline: "Cochez tous ceux qui vous conviennent.",
+    how: "Chacun coche autant d'options qu'il approuve. Celle qui est approuvée par le plus de monde gagne.",
+    pros: ["Très simple", "Favorise les options consensuelles", "Aucun vote utile"],
+    cons: ["Ne hiérarchise pas les préférences", "Sensible au seuil que chacun se fixe", "Peu utilisé, peu connu"],
+  },
+  borda: {
+    key: "borda",
+    name: "Méthode de Borda",
+    family: "Classement · points",
+    color: "#E84AA8",
+    tint: "#FBDDEE",
+    icon: "🏅",
+    tagline: "Des points selon le rang.",
+    how: "Chacun classe les options. Le 1er rapporte n-1 points, le 2e n-2, etc. On additionne : le plus de points gagne.",
+    pros: ["Récompense le consensus large", "Tient compte de tout le classement", "Simple à calculer"],
+    cons: ["Très sensible aux candidatures « clones »", "Manipulable par classement tactique", "Peut écarter un favori clivant"],
+  },
+  proportional: {
+    key: "proportional",
+    name: "Représentation proportionnelle",
+    family: "Sièges · d'Hondt",
+    color: "#5DBB2E",
+    tint: "#DEF3CE",
+    icon: "🥧",
+    tagline: "Des sièges au prorata des voix.",
+    how: "Au lieu d'un seul gagnant, on répartit des sièges proportionnellement aux voix (méthode d'Hondt). Idéal pour une assemblée.",
+    pros: ["Reflète fidèlement les opinions", "Donne une place aux minorités", "Peu de voix « perdues »"],
+    cons: ["Pas de gagnant unique clair", "Peut imposer des coalitions", "Le seuil exclut les plus petits"],
+  },
+  indirect: {
+    key: "indirect",
+    name: "Grands électeurs",
+    family: "Suffrage indirect",
+    color: "#C9A227",
+    tint: "#F4EAC2",
+    icon: "🏛️",
+    tagline: "On vote par circonscription.",
+    how: "Les votants sont répartis en circonscriptions. Chacune désigne un champion local — selon le décompte de votre choix — qui rafle ses grands électeurs. Le total des électeurs fait le gagnant.",
+    pros: ["Équilibre les territoires", "Résultat net et structuré", "Limite la fraude à grande échelle"],
+    cons: ["Le perdant du vote populaire peut gagner", "Voix « gâchées » dans les bastions", "Dépend du découpage"],
+  },
+  list: {
+    key: "list",
+    name: "Scrutin de liste",
+    family: "Listes · prime majoritaire",
+    color: "#3FA7C4",
+    tint: "#D6EEF5",
+    icon: "📋",
+    tagline: "La liste en tête prend la moitié des sièges, le reste à la proportionnelle.",
+    how: "On vote pour une liste entière (comme aux municipales françaises). La liste arrivée en tête reçoit d'office la moitié des sièges — la prime majoritaire — puis l'autre moitié est répartie à la proportionnelle entre toutes les listes au-dessus de 5 %, prime comprise.",
+    pros: ["Donne une majorité stable pour gouverner", "Représente quand même les minorités", "Un seul bulletin, très simple"],
+    cons: ["Sur-représente fortement la liste gagnante", "La tête de liste concentre le pouvoir", "Le seuil de 5 % élimine les petites listes"],
+  },
+};
+
+/** Ordre d'affichage des fiches systèmes. */
+export const SYSTEM_ORDER = [
+  "fptp",
+  "runoff",
+  "condorcet",
+  "condorcet_random",
+  "mj",
+  "approval",
+  "borda",
+  "proportional",
+  "list",
+  "indirect",
+];

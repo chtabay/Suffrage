@@ -1,0 +1,97 @@
+// Types du moteur de scrutin — portés depuis la maquette Scrutin.dc.html.
+
+export type CountingMethod =
+  | "majority"
+  | "condorcet"
+  | "mj"
+  | "approval"
+  | "borda"
+  | "proportional"
+  | "list";
+
+export type Suffrage = "direct" | "indirect";
+export type ElectorSplit = "wta" | "prop";
+export type Qualif = "top2" | "thr10";
+
+/** Configuration compositionnelle d'un mode de scrutin. */
+export interface Recipe {
+  suffrage: Suffrage;
+  counting: CountingMethod;
+  rounds: 1 | 2;
+  qualif: Qualif;
+  random: boolean;
+  /** Décompte interne à chaque circonscription (suffrage indirect). */
+  localCounting: CountingMethod;
+  electorSplit: ElectorSplit;
+  threshold: number;
+}
+
+export interface Option {
+  icon: string;
+  name: string;
+}
+
+/** Un bulletin normalisé : classement complet + mentions + circonscription. */
+export interface Ballot {
+  ranking: number[];
+  grades: Record<number, number>;
+  district: number;
+}
+
+export type BallotMode = "single" | "approve" | "rank" | "grade";
+
+export interface SystemDef {
+  key: string;
+  name: string;
+  family: string;
+  color: string;
+  tint: string;
+  icon: string;
+  tagline: string;
+  how: string;
+  pros: string[];
+  cons: string[];
+}
+
+export interface ResultBar {
+  idx: number;
+  name: string;
+  icon: string;
+  color: string;
+  value: number;
+  valColor: string;
+  valueLabel: string;
+  pct: number;
+}
+
+export interface ResultStep {
+  n: number;
+  text: string;
+}
+
+export interface ComputeResult {
+  color: string;
+  methodName: string;
+  hasWinner?: boolean;
+  noWinner?: boolean;
+  noWinnerLabel?: string;
+  winnerName?: string;
+  winnerIcon?: string;
+  bars: ResultBar[];
+  tallyLabel: string;
+  steps: ResultStep[];
+  counterfactual: string;
+}
+
+/** Description résolue d'une recette (nom, couleur, avantages/inconvénients…). */
+export interface RecipeDescription {
+  color: string;
+  icon: string;
+  family: string;
+  decisiveLabel: string;
+  shortName: string;
+  name: string;
+  how: string;
+  pros: string[];
+  cons: string[];
+}
