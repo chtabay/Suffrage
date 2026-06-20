@@ -1,6 +1,7 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useRef, useState } from "react";
+import { createPoll } from "@/lib/db/polls";
 import {
   compute,
   methodMode,
@@ -27,6 +28,8 @@ export interface ScrutinState {
   myGrades: Record<number, number>;
   result: ComputeResult | null;
   shared: boolean;
+  shareUrl: string | null;
+  sharing: boolean;
 }
 
 const DEFAULT_RECIPE: Recipe = {
@@ -57,6 +60,8 @@ const INITIAL: ScrutinState = {
   myGrades: {},
   result: null,
   shared: false,
+  shareUrl: null,
+  sharing: false,
 };
 
 const scrollTop = () => {
@@ -65,8 +70,13 @@ const scrollTop = () => {
 
 const ADD_ICONS = ["🎯", "⭐", "🔥", "🌟", "🎪", "🎨"];
 
+// Toute modification de la définition du scrutin invalide le lien de partage.
+const CLEAR_SHARE = { shareUrl: null, shared: false } as const;
+
 export function useScrutin() {
   const [state, setState] = useState<ScrutinState>(INITIAL);
+  const stateRef = useRef(state);
+  stateRef.current = state;
 
   const go = useCallback((screen: Screen) => {
     setState((s) => ({ ...s, screen }));
@@ -89,23 +99,23 @@ export function useScrutin() {
       r.suffrage = "indirect";
       r.localCounting = "majority";
     }
-    setState((s) => ({ ...s, recipe: r, screen: "create" }));
+    setState((s) => ({ ...s, recipe: r, screen: "create", ...CLEAR_SHARE }));
     scrollTop();
   }, []);
 
   const setRecipe = useCallback((patch: Partial<Recipe>) => {
-    setState((s) => ({ ...s, recipe: { ...s.recipe, ...patch } }));
+    setState((s) => ({ ...s, recipe: { ...s.recipe, ...patch }, ...CLEAR_SHARE }));
   }, []);
 
   const setQuestion = useCallback((question: string) => {
-    setState((s) => ({ ...s, question }));
+    setState((s) => ({ ...s, question, ...CLEAR_SHARE }));
   }, []);
 
   const setOptionName = useCallback((i: number, name: string) => {
     setState((s) => {
       const options = s.options.slice();
       options[i] = { ...options[i], name };
-      return { ...s, options };
+      return { ...s, options, ...CLEAR_SHARE };
     });
   }, []);
 
@@ -113,7 +123,7 @@ export function useScrutin() {
     setState((s) =>
       s.options.length <= 2
         ? s
-        : { ...s, options: s.options.filter((_, j) => j !== i), ballots: [] },
+        : { ...s, options: s.options.filter((_, j) => j !== i), ballots: [], ...CLEAR_SHARE },
     );
   }, []);
 
@@ -124,6 +134,7 @@ export function useScrutin() {
         ...s,
         options: [...s.options, { icon: ADD_ICONS[idx % ADD_ICONS.length], name: "Nouvelle option" }],
         ballots: [],
+        ...CLEAR_SHARE,
       };
     });
   }, []);
@@ -210,7 +221,31 @@ export function useScrutin() {
     scrollTop();
   }, []);
 
-  const share = useCallback(() => setState((s) => ({ ...s, shared: true })), []);
+  // « Partager » : persiste le scrutin (question + options + recette) et copie le lien /v/[token].
+  const share = useCallback(async () => {
+    const copy = async (url: string) => {
+      try {
+        await navigator.clipboard?.writeText(url);
+      } catch {
+        /* presse-papiers indisponible : le lien reste affiché à l'écran */
+      }
+    };
+    const s = stateRef.current;
+    if (s.shareUrl) {
+      await copy(s.shareUrl);
+      setState((p) => ({ ...p, shared: true }));
+      return;
+    }
+    setState((p) => ({ ...p, sharing: true }));
+    try {
+      const token = await createPoll(s.question, s.options, s.recipe);
+      const url = `${window.location.origin}/v/${token}`;
+      await copy(url);
+      setState((p) => ({ ...p, shareUrl: url, shared: true, sharing: false }));
+    } catch {
+      setState((p) => ({ ...p, sharing: false }));
+    }
+  }, []);
 
   return {
     state,

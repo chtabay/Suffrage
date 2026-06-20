@@ -1,11 +1,9 @@
 "use client";
 
 import { describeRecipe, methodMode, operativeMethod } from "@/lib/voting/engine";
-import { GRADES, GRADE_COLORS, candColor } from "@/lib/voting/systems";
 import type { ScrutinController } from "@/lib/voting/useScrutin";
-import { CORAL, CREAM, FONT_BODY, FONT_DISPLAY, GREEN, INK, MUTED, lift } from "./theme";
-
-const PICKED = "#FFF4DF";
+import BallotCard from "./BallotCard";
+import { CORAL, FONT_DISPLAY, GREEN, INK, MUTED, lift } from "./theme";
 
 const INSTRUCTIONS: Record<string, string> = {
   single: "Choisissez une seule option.",
@@ -19,50 +17,8 @@ export default function VoteScreen({ ctrl }: { ctrl: ScrutinController }) {
     ctrl;
   const resolved = describeRecipe(state.recipe);
   const mode = methodMode(operativeMethod(state.recipe));
-  const opts = state.options;
   const ballotCount = state.ballots.length;
   const noBallots = ballotCount === 0;
-
-  const optionRow = (i: number, children: React.ReactNode, onClick: () => void, bg: string) => (
-    <button
-      key={i}
-      onClick={onClick}
-      className="dc-dim"
-      style={{
-        display: "flex",
-        alignItems: "center",
-        gap: 13,
-        textAlign: "left",
-        cursor: "pointer",
-        border: `2.5px solid ${INK}`,
-        background: bg,
-        padding: "13px 15px",
-        borderRadius: 13,
-        fontFamily: FONT_BODY,
-      }}
-    >
-      {children}
-    </button>
-  );
-
-  const iconBox = (i: number, size = 38, radius = 10) => (
-    <span
-      style={{
-        width: size,
-        height: size,
-        flex: "none",
-        borderRadius: radius,
-        border: `2px solid ${INK}`,
-        background: candColor(i),
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        fontSize: 19,
-      }}
-    >
-      {opts[i].icon}
-    </span>
-  );
 
   return (
     <div className="pad" style={{ maxWidth: 880, margin: "0 auto", padding: "40px 24px 100px" }}>
@@ -122,192 +78,22 @@ export default function VoteScreen({ ctrl }: { ctrl: ScrutinController }) {
           marginTop: 22,
         }}
       >
-        {mode === "single" && (
-          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-            {opts.map((o, i) =>
-              optionRow(
-                i,
-                <>
-                  {iconBox(i)}
-                  <span style={{ fontWeight: 700, fontSize: 16, flex: 1, color: INK }}>{o.name}</span>
-                  <span
-                    style={{
-                      width: 24,
-                      height: 24,
-                      flex: "none",
-                      borderRadius: "50%",
-                      border: `2.5px solid ${INK}`,
-                      background: state.myChoice === i ? INK : "transparent",
-                    }}
-                  />
-                </>,
-                () => setChoice(i),
-                state.myChoice === i ? PICKED : CREAM,
-              ),
-            )}
-          </div>
-        )}
-
-        {mode === "approve" && (
-          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-            {opts.map((o, i) => {
-              const on = state.myApproved.includes(i);
-              return optionRow(
-                i,
-                <>
-                  {iconBox(i)}
-                  <span style={{ fontWeight: 700, fontSize: 16, flex: 1, color: INK }}>{o.name}</span>
-                  <span
-                    style={{
-                      width: 26,
-                      height: 26,
-                      flex: "none",
-                      borderRadius: 7,
-                      border: `2.5px solid ${INK}`,
-                      background: on ? GREEN : "transparent",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      color: "#fff",
-                      fontWeight: 800,
-                      fontSize: 15,
-                    }}
-                  >
-                    {on ? "✓" : ""}
-                  </span>
-                </>,
-                () => toggleApprove(i),
-                on ? PICKED : CREAM,
-              );
-            })}
-          </div>
-        )}
-
-        {mode === "rank" && (
-          <div>
-            <div style={{ fontWeight: 700, fontSize: 13, color: MUTED, marginBottom: 9 }}>
-              Cliquez dans l'ordre de vos préférences
-            </div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 9 }}>
-              {opts.map((o, i) => {
-                const pos = state.myRank.indexOf(i);
-                return optionRow(
-                  i,
-                  <>
-                    <span
-                      style={{
-                        width: 30,
-                        height: 30,
-                        flex: "none",
-                        borderRadius: "50%",
-                        border: `2.5px solid ${INK}`,
-                        background: pos >= 0 ? resolved.color : "#fff",
-                        color: pos >= 0 ? "#fff" : "#9aa3bd",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        fontWeight: 800,
-                        fontSize: 15,
-                        fontFamily: FONT_DISPLAY,
-                      }}
-                    >
-                      {pos >= 0 ? pos + 1 : "·"}
-                    </span>
-                    <span
-                      style={{
-                        width: 34,
-                        height: 34,
-                        flex: "none",
-                        borderRadius: 9,
-                        border: `2px solid ${INK}`,
-                        background: candColor(i),
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        fontSize: 17,
-                      }}
-                    >
-                      {o.icon}
-                    </span>
-                    <span style={{ fontWeight: 700, fontSize: 15.5, flex: 1, color: INK }}>{o.name}</span>
-                  </>,
-                  () => rank(i),
-                  pos >= 0 ? PICKED : CREAM,
-                );
-              })}
-            </div>
-            <button
-              onClick={resetRank}
-              style={{
-                marginTop: 11,
-                fontWeight: 600,
-                fontSize: 13,
-                cursor: "pointer",
-                border: `2px solid ${INK}`,
-                background: CREAM,
-                color: INK,
-                padding: "8px 14px",
-                borderRadius: 9,
-              }}
-            >
-              Recommencer le classement
-            </button>
-          </div>
-        )}
-
-        {mode === "grade" && (
-          <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-            {opts.map((o, i) => (
-              <div key={i}>
-                <div style={{ display: "flex", alignItems: "center", gap: 11, marginBottom: 8 }}>
-                  <span
-                    style={{
-                      width: 34,
-                      height: 34,
-                      flex: "none",
-                      borderRadius: 9,
-                      border: `2px solid ${INK}`,
-                      background: candColor(i),
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      fontSize: 17,
-                    }}
-                  >
-                    {o.icon}
-                  </span>
-                  <span style={{ fontWeight: 700, fontSize: 16, color: INK }}>{o.name}</span>
-                </div>
-                <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-                  {GRADES.map((gl, gi) => {
-                    const sel = (state.myGrades[i] ?? null) === gi;
-                    return (
-                      <button
-                        key={gi}
-                        onClick={() => setGrade(i, gi)}
-                        style={{
-                          flex: 1,
-                          minWidth: 78,
-                          cursor: "pointer",
-                          border: `2px solid ${INK}`,
-                          background: sel ? GRADE_COLORS[gi] : "#fff",
-                          color: sel ? "#fff" : INK,
-                          padding: "8px 6px",
-                          borderRadius: 9,
-                          fontWeight: 700,
-                          fontSize: 12.5,
-                          lineHeight: 1.1,
-                        }}
-                      >
-                        {gl}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
+        <BallotCard
+          mode={mode}
+          options={state.options}
+          color={resolved.color}
+          draft={{
+            choice: state.myChoice,
+            approved: state.myApproved,
+            rank: state.myRank,
+            grades: state.myGrades,
+          }}
+          onChoice={setChoice}
+          onToggle={toggleApprove}
+          onRank={rank}
+          onResetRank={resetRank}
+          onGrade={setGrade}
+        />
 
         <button
           onClick={addMyVote}
