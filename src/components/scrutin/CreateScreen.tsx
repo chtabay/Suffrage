@@ -137,7 +137,7 @@ function buildAxes(r: Recipe, setRecipe: (p: Partial<Recipe>) => void): Axis[] {
 }
 
 export default function CreateScreen({ ctrl }: { ctrl: ScrutinController }) {
-  const { state, setRecipe, setQuestion, setOptionName, removeOption, addOption, launch } = ctrl;
+  const { state, setRecipe, setQuestion, setDescription, setOptionName, removeOption, addOption, launch } = ctrl;
   const resolved = describeRecipe(state.recipe);
   const axes = buildAxes(state.recipe, setRecipe);
 
@@ -194,6 +194,26 @@ export default function CreateScreen({ ctrl }: { ctrl: ScrutinController }) {
                 borderRadius: 11,
                 background: CREAM,
                 outline: "none",
+              }}
+            />
+            <textarea
+              value={state.description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Contexte (facultatif) — ex : anniv de Marie, budget 25 €/pers, plutôt centre-ville"
+              rows={2}
+              style={{
+                width: "100%",
+                marginTop: 10,
+                fontFamily: FONT_BODY,
+                fontSize: 14.5,
+                fontWeight: 500,
+                padding: "10px 13px",
+                border: `2px solid ${INK}`,
+                borderRadius: 11,
+                background: CREAM,
+                outline: "none",
+                resize: "vertical",
+                boxSizing: "border-box",
               }}
             />
             <div style={{ fontWeight: 700, fontSize: 13, color: MUTED, margin: "18px 0 9px" }}>LES OPTIONS</div>

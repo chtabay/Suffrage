@@ -13,7 +13,9 @@ export async function generateMetadata({
   if (!meta) return { title: "Scrutin — vote" };
   const method = describeRecipe(meta.recipe).name;
   const title = `Vote : ${meta.question}`;
-  const description = `Votez en ligne — méthode « ${method} ». Résultat calculé pour de vrai.`;
+  const description = meta.description?.trim()
+    ? meta.description.trim().slice(0, 200)
+    : `Votez en ligne — méthode « ${method} ». Résultat calculé pour de vrai.`;
   return {
     title,
     description,

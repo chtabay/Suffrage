@@ -18,6 +18,7 @@ export interface DistrictDraft {
 export interface ScrutinState {
   screen: Screen;
   question: string;
+  description: string;
   options: Option[];
   recipe: Recipe;
   access: AccessMode;
@@ -41,6 +42,7 @@ export interface ScrutinState {
 const INITIAL: ScrutinState = {
   screen: "home",
   question: "On part où pour le week-end ?",
+  description: "",
   options: [
     { icon: "🏔️", name: "La montagne" },
     { icon: "🏖️", name: "Le bord de mer" },
@@ -71,12 +73,15 @@ const INITIAL: ScrutinState = {
 
 function makeInitial(draft?: ScrutinDraft): ScrutinState {
   if (!draft) return INITIAL;
-  const prefilled = Boolean(draft.question || draft.options || draft.recipe || draft.closesAt);
+  const prefilled = Boolean(
+    draft.question || draft.options || draft.recipe || draft.closesAt || draft.description,
+  );
   const recipe = draft.recipe ?? INITIAL.recipe;
   return {
     ...INITIAL,
     screen: "create",
     question: draft.question ?? INITIAL.question,
+    description: draft.description ?? INITIAL.description,
     options: draft.options ?? INITIAL.options,
     recipe,
     closesAt: draft.closesAt ?? INITIAL.closesAt,
@@ -147,6 +152,10 @@ export function useScrutin(draft?: ScrutinDraft) {
 
   const setQuestion = useCallback((question: string) => {
     setState((s) => ({ ...s, question, ...CLEAR_SHARE }));
+  }, []);
+
+  const setDescription = useCallback((description: string) => {
+    setState((s) => ({ ...s, description, ...CLEAR_SHARE }));
   }, []);
 
   const setOptionName = useCallback((i: number, name: string) => {
@@ -252,6 +261,7 @@ export function useScrutin(draft?: ScrutinDraft) {
 
       const toISO = (str: string) => (str ? new Date(str).toISOString() : null);
       const { token, secret } = await createPoll(s.question, s.options, s.recipe, {
+        description: s.description,
         hideResults: s.hideResults,
         accessMode: s.access,
         districts: districtsPayload,
@@ -294,6 +304,7 @@ export function useScrutin(draft?: ScrutinDraft) {
     selectSystemRecipe,
     setRecipe,
     setQuestion,
+    setDescription,
     setOptionName,
     removeOption,
     addOption,

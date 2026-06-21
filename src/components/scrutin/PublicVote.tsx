@@ -31,7 +31,7 @@ import InstallInline from "@/components/pwa/InstallInline";
 import BallotCard, { EMPTY_DRAFT, type BallotDraft } from "./BallotCard";
 import ResultCard from "./ResultCard";
 import ResultShare from "./ResultShare";
-import { CORAL, CREAM, FONT_BODY, FONT_DISPLAY, GREEN, INK, MUTED, REDTXT, YELLOW, lift } from "./theme";
+import { CORAL, CREAM, FONT_BODY, FONT_DISPLAY, GREEN, INK, MUTED, REDTXT, SUBINK, YELLOW, lift } from "./theme";
 
 const INSTRUCTIONS: Record<string, string> = {
   single: "Choisissez une seule option.",
@@ -767,6 +767,11 @@ export default function PublicVote({
       >
         {poll.question}
       </h1>
+      {poll.description && (
+        <p style={{ fontSize: 15.5, color: SUBINK, lineHeight: 1.5, margin: "12px 0 0", whiteSpace: "pre-wrap" }}>
+          {poll.description}
+        </p>
+      )}
       <p style={{ fontSize: 15, color: MUTED, margin: "8px 0 0" }}>{INSTRUCTIONS[mode]}</p>
 
       <div

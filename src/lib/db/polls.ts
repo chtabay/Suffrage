@@ -14,6 +14,7 @@ export interface PollRow {
   id: string;
   token: string;
   question: string;
+  description: string | null;
   options: Option[];
   recipe: Recipe;
   created_at: string;
@@ -48,7 +49,7 @@ export interface VoterContext {
 }
 
 const POLL_COLS =
-  "id, token, question, options, recipe, created_at, status, hide_results, access_mode, districts, opens_at, closes_at, close_on_complete, quorum";
+  "id, token, question, description, options, recipe, created_at, status, hide_results, access_mode, districts, opens_at, closes_at, close_on_complete, quorum";
 
 /** SHA-256 hex (mêmes octets que sha256(convert_to(...,'UTF8')) côté Postgres). */
 async function sha256Hex(input: string): Promise<string> {
@@ -57,6 +58,7 @@ async function sha256Hex(input: string): Promise<string> {
 }
 
 export interface CreatePollOptions {
+  description?: string | null;
   hideResults?: boolean;
   accessMode?: AccessMode;
   districts?: District[] | null;
@@ -83,6 +85,7 @@ export async function createPoll(
     .from("scrutin_polls")
     .insert({
       question,
+      description: opts.description?.trim() || null,
       options,
       recipe,
       created_by: null,

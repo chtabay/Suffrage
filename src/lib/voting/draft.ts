@@ -8,6 +8,7 @@ const DRAFT_ICONS = ["📌", "⭐", "🔥", "🌟", "🎯", "🎪", "🎨", "�
 
 export interface ScrutinDraft {
   question?: string;
+  description?: string;
   options?: Option[];
   recipe?: Recipe;
   closesAt?: string;
@@ -26,6 +27,9 @@ export function parseDraft(params: RawParams): ScrutinDraft {
 
   const title = first(params.title);
   if (title && title.trim()) draft.question = title.trim().slice(0, 200);
+
+  const description = first(params.description);
+  if (description && description.trim()) draft.description = description.trim().slice(0, 500);
 
   const opts = first(params.options);
   if (opts) {
@@ -68,6 +72,7 @@ export function parseDraft(params: RawParams): ScrutinDraft {
 
 export interface DraftInput {
   title?: string;
+  description?: string;
   options?: string[];
   method?: string;
   deadline?: string;
@@ -79,6 +84,7 @@ export interface DraftInput {
 export function buildNewUrl(base: string, d: DraftInput): string {
   const p = new URLSearchParams();
   if (d.title) p.set("title", d.title);
+  if (d.description) p.set("description", d.description);
   if (d.options && d.options.length) p.set("options", d.options.join("|"));
   if (d.method) p.set("method", d.method);
   if (d.deadline) p.set("deadline", d.deadline);
