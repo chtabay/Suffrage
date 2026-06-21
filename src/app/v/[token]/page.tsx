@@ -5,9 +5,9 @@ export default async function VotePage({
   searchParams,
 }: {
   params: Promise<{ token: string }>;
-  searchParams: Promise<{ k?: string }>;
+  searchParams: Promise<{ k?: string; u?: string }>;
 }) {
   const { token } = await params;
-  const { k } = await searchParams;
-  return <PublicVote token={token} adminKey={k ?? null} />;
+  const { k, u } = await searchParams;
+  return <PublicVote token={token} adminKey={k ?? null} voterToken={u ?? null} />;
 }

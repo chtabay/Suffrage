@@ -59,6 +59,68 @@ function CopyRow({ url, label, hint }: { url: string; label: string; hint?: stri
   );
 }
 
+function VoterRow({ label, url }: { label: string; url: string }) {
+  const [copied, setCopied] = useState(false);
+  const copy = async () => {
+    try {
+      await navigator.clipboard?.writeText(url);
+      setCopied(true);
+    } catch {
+      /* ignore */
+    }
+  };
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+      <div
+        style={{
+          width: 96,
+          flex: "none",
+          fontWeight: 700,
+          fontSize: 13,
+          overflow: "hidden",
+          textOverflow: "ellipsis",
+          whiteSpace: "nowrap",
+        }}
+      >
+        {label}
+      </div>
+      <input
+        readOnly
+        value={url}
+        onFocus={(e) => e.currentTarget.select()}
+        style={{
+          flex: 1,
+          minWidth: 120,
+          fontFamily: FONT_BODY,
+          fontSize: 12.5,
+          fontWeight: 600,
+          padding: "8px 10px",
+          border: `2px solid ${INK}`,
+          borderRadius: 9,
+          background: CREAM,
+          outline: "none",
+        }}
+      />
+      <button
+        onClick={copy}
+        style={{
+          flex: "none",
+          fontWeight: 700,
+          fontSize: 12.5,
+          cursor: "pointer",
+          border: `2px solid ${INK}`,
+          background: copied ? GREEN : YELLOW,
+          color: copied ? "#fff" : INK,
+          padding: "8px 12px",
+          borderRadius: 9,
+        }}
+      >
+        {copied ? "✓" : "Copier"}
+      </button>
+    </div>
+  );
+}
+
 export default function LaunchedScreen({ ctrl }: { ctrl: ScrutinController }) {
   const { state, newScrutin, go } = ctrl;
   const voteUrl = state.shareUrl ?? "";
@@ -133,6 +195,20 @@ export default function LaunchedScreen({ ctrl }: { ctrl: ScrutinController }) {
           >
             ✓ Enregistré dans « Mes scrutins » sur cet appareil.
           </div>
+
+          {state.voterLinks.length > 0 && (
+            <div style={{ marginTop: 18 }}>
+              <div style={{ fontWeight: 700, fontSize: 12, color: MUTED, marginBottom: 7 }}>
+                🎟️ LIENS NOMINATIFS — {state.voterLinks.length} votant{state.voterLinks.length > 1 ? "s" : ""} (un par
+                personne)
+              </div>
+              <div style={{ display: "flex", flexDirection: "column", gap: 8, maxHeight: 280, overflowY: "auto" }}>
+                {state.voterLinks.map((v, i) => (
+                  <VoterRow key={i} label={v.label} url={v.url} />
+                ))}
+              </div>
+            </div>
+          )}
 
           <div style={{ display: "flex", gap: 11, marginTop: 20, flexWrap: "wrap" }}>
             <a

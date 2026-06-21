@@ -2,7 +2,19 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
-import { addBallot, getBallots, getPollByToken, type PollRow } from "@/lib/db/polls";
+import {
+  addBallot,
+  castInvitedBallot,
+  closePoll,
+  getBallots,
+  getPollByToken,
+  getVoterContext,
+  getVoters,
+  reopenPoll,
+  type PollRow,
+  type Voter,
+  type VoterContext,
+} from "@/lib/db/polls";
 import {
   compute,
   describeRecipe,
@@ -16,7 +28,7 @@ import {
 import type { Ballot, BallotMode, ComputeResult } from "@/lib/voting/types";
 import BallotCard, { EMPTY_DRAFT, type BallotDraft } from "./BallotCard";
 import ResultCard from "./ResultCard";
-import { CORAL, CREAM, FONT_DISPLAY, GREEN, INK, MUTED, YELLOW, lift } from "./theme";
+import { CORAL, CREAM, FONT_BODY, FONT_DISPLAY, GREEN, INK, MUTED, REDTXT, YELLOW, lift } from "./theme";
 
 const INSTRUCTIONS: Record<string, string> = {
   single: "Choisissez une seule option.",
@@ -33,7 +45,10 @@ function draftToBallot(mode: BallotMode, draft: BallotDraft, n: number): Ballot 
   return normalizeFromGrades(draft.grades, n, seed);
 }
 
-type View = "loading" | "notfound" | "vote" | "results" | "organizer";
+const electorsOf = (p: PollRow): number[] | undefined => (p.districts ? p.districts.map((d) => d.electors) : undefined);
+const voterCanSeeResults = (p: PollRow) => p.status === "closed" || !p.hide_results;
+
+type View = "loading" | "notfound" | "needsInvite" | "vote" | "thanks" | "results" | "organizer" | "closed";
 
 function Header() {
   return (
@@ -77,60 +92,199 @@ function Header() {
   );
 }
 
-export default function PublicVote({ token, adminKey }: { token: string; adminKey?: string | null }) {
+const card = {
+  background: "#fff",
+  border: `2.5px solid ${INK}`,
+  borderRadius: 16,
+  padding: 18,
+  boxShadow: `5px 5px 0 ${INK}`,
+} as const;
+
+function Shell({ children }: { children: React.ReactNode }) {
+  return (
+    <>
+      <Header />
+      <div className="pad" style={{ maxWidth: 880, margin: "0 auto", padding: "32px 24px 100px" }}>
+        {children}
+      </div>
+    </>
+  );
+}
+
+function VoterLinkRow({ v }: { v: Voter & { url: string } }) {
+  const [copied, setCopied] = useState(false);
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+      <span
+        title={v.voted ? "A voté" : "En attente"}
+        style={{ flex: "none", fontSize: 14, color: v.voted ? GREEN : MUTED, fontWeight: 800 }}
+      >
+        {v.voted ? "✓" : "•"}
+      </span>
+      <span
+        style={{
+          width: 92,
+          flex: "none",
+          fontWeight: 700,
+          fontSize: 13,
+          overflow: "hidden",
+          textOverflow: "ellipsis",
+          whiteSpace: "nowrap",
+        }}
+      >
+        {v.label}
+      </span>
+      <input
+        readOnly
+        value={v.url}
+        onFocus={(e) => e.currentTarget.select()}
+        style={{
+          flex: 1,
+          minWidth: 110,
+          fontFamily: FONT_BODY,
+          fontSize: 12,
+          fontWeight: 600,
+          padding: "7px 9px",
+          border: `2px solid ${INK}`,
+          borderRadius: 9,
+          background: CREAM,
+          outline: "none",
+        }}
+      />
+      <button
+        onClick={async () => {
+          try {
+            await navigator.clipboard?.writeText(v.url);
+            setCopied(true);
+          } catch {
+            /* ignore */
+          }
+        }}
+        style={{
+          flex: "none",
+          fontWeight: 700,
+          fontSize: 12,
+          cursor: "pointer",
+          border: `2px solid ${INK}`,
+          background: copied ? GREEN : YELLOW,
+          color: copied ? "#fff" : INK,
+          padding: "7px 11px",
+          borderRadius: 9,
+        }}
+      >
+        {copied ? "✓" : "Copier"}
+      </button>
+    </div>
+  );
+}
+
+export default function PublicVote({
+  token,
+  adminKey,
+  voterToken,
+}: {
+  token: string;
+  adminKey?: string | null;
+  voterToken?: string | null;
+}) {
   const [view, setView] = useState<View>("loading");
   const [poll, setPoll] = useState<PollRow | null>(null);
+  const [voter, setVoter] = useState<VoterContext | null>(null);
   const [draft, setDraft] = useState<BallotDraft>(EMPTY_DRAFT);
   const [submitting, setSubmitting] = useState(false);
-  const [justVoted, setJustVoted] = useState(false);
   const [result, setResult] = useState<ComputeResult | null>(null);
   const [ballotCount, setBallotCount] = useState(0);
+  const [voters, setVoters] = useState<Voter[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [working, setWorking] = useState(false);
 
-  const loadResults = useCallback(async (p: PollRow, asView: View = "results") => {
+  const loadResults = useCallback(async (p: PollRow) => {
     const ballots = await getBallots(p.id);
     setBallotCount(ballots.length);
-    setResult(compute({ recipe: p.recipe, options: p.options, ballots }));
-    setView(asView);
+    setResult(compute({ recipe: p.recipe, options: p.options, ballots, districtElectors: electorsOf(p) }));
   }, []);
+
+  const refreshOrganizer = useCallback(
+    async (p: PollRow) => {
+      await loadResults(p);
+      if (p.access_mode === "invite" && adminKey) {
+        const vs = await getVoters(token, adminKey).catch(() => [] as Voter[]);
+        setVoters(vs);
+      }
+    },
+    [adminKey, token, loadResults],
+  );
 
   useEffect(() => {
     let alive = true;
-    getPollByToken(token)
-      .then((p) => {
+    (async () => {
+      try {
+        const p = await getPollByToken(token);
         if (!alive) return;
         if (!p) {
           setView("notfound");
           return;
         }
         setPoll(p);
-        if (adminKey) loadResults(p, "organizer");
-        else setView("vote");
-      })
-      .catch(() => alive && setView("notfound"));
+
+        if (adminKey) {
+          await refreshOrganizer(p);
+          if (alive) setView("organizer");
+          return;
+        }
+        if (p.access_mode === "invite") {
+          if (!voterToken) {
+            setView("needsInvite");
+            return;
+          }
+          const vc = await getVoterContext(voterToken);
+          if (!alive) return;
+          if (!vc || vc.poll_token !== token) {
+            setView("needsInvite");
+            return;
+          }
+          setVoter(vc);
+          if (p.status === "closed") {
+            await loadResults(p);
+            if (alive) setView("closed");
+          } else if (vc.voted) {
+            if (voterCanSeeResults(p)) {
+              await loadResults(p);
+              if (alive) setView("results");
+            } else if (alive) setView("thanks");
+          } else if (alive) setView("vote");
+          return;
+        }
+        // accès ouvert
+        if (p.status === "closed") {
+          await loadResults(p);
+          if (alive) setView("closed");
+        } else if (alive) {
+          setView("vote");
+        }
+      } catch {
+        if (alive) setView("notfound");
+      }
+    })();
     return () => {
       alive = false;
     };
-  }, [token, adminKey, loadResults]);
+  }, [token, adminKey, voterToken, refreshOrganizer, loadResults]);
 
+  // ---------- états simples ----------
   if (view === "loading") {
     return (
-      <>
-        <Header />
-        <div className="pad" style={{ maxWidth: 880, margin: "0 auto", padding: "60px 24px", color: MUTED }}>
-          Chargement du scrutin…
-        </div>
-      </>
+      <Shell>
+        <div style={{ color: MUTED, padding: "28px 0" }}>Chargement du scrutin…</div>
+      </Shell>
     );
   }
-
   if (view === "notfound" || !poll) {
     return (
-      <>
-        <Header />
-        <div className="pad" style={{ maxWidth: 880, margin: "0 auto", padding: "60px 24px", textAlign: "center" }}>
+      <Shell>
+        <div style={{ textAlign: "center", padding: "28px 0" }}>
           <h1 style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 28 }}>Scrutin introuvable</h1>
-          <p style={{ color: MUTED, marginTop: 8 }}>Ce lien de vote n'existe pas ou a expiré.</p>
+          <p style={{ color: MUTED, marginTop: 8 }}>Ce lien n'existe pas ou a expiré.</p>
           <Link
             href="/"
             style={{
@@ -149,12 +303,276 @@ export default function PublicVote({ token, adminKey }: { token: string; adminKe
             Créer mon scrutin →
           </Link>
         </div>
-      </>
+      </Shell>
     );
   }
 
   const desc = describeRecipe(poll.recipe);
   const mode = methodMode(operativeMethod(poll.recipe));
+  const voteShareUrl =
+    typeof window !== "undefined" ? `${window.location.origin}/v/${poll.token}` : `/v/${poll.token}`;
+
+  const statusPill = (
+    <span
+      style={{
+        display: "inline-flex",
+        alignItems: "center",
+        gap: 6,
+        background: poll.status === "open" ? GREEN : INK,
+        color: "#fff",
+        border: `2px solid ${INK}`,
+        borderRadius: 20,
+        padding: "4px 11px",
+        fontWeight: 700,
+        fontSize: 12,
+      }}
+    >
+      {poll.status === "open" ? "● Ouvert" : "■ Clôturé"}
+    </span>
+  );
+
+  // ---------- organisateur ----------
+  if (view === "organizer") {
+    const votedCount = voters.filter((v) => v.voted).length;
+    const origin = typeof window !== "undefined" ? window.location.origin : "";
+    const toggleClose = async () => {
+      if (!adminKey) return;
+      setWorking(true);
+      try {
+        if (poll.status === "open") await closePoll(token, adminKey);
+        else await reopenPoll(token, adminKey);
+        const fresh = await getPollByToken(token);
+        if (fresh) {
+          setPoll(fresh);
+          await refreshOrganizer(fresh);
+        }
+      } finally {
+        setWorking(false);
+      }
+    };
+    return (
+      <Shell>
+        <div
+          style={{
+            background: "#fff4e0",
+            border: `2px solid ${INK}`,
+            borderRadius: 14,
+            padding: "14px 16px",
+            fontWeight: 700,
+            fontSize: 13.5,
+            color: "#2c3447",
+            lineHeight: 1.5,
+            display: "flex",
+            gap: 10,
+            alignItems: "center",
+            flexWrap: "wrap",
+          }}
+        >
+          <span>🔑 Vous administrez ce scrutin.</span>
+          {statusPill}
+        </div>
+
+        <div style={{ ...card, marginTop: 16 }}>
+          <div style={{ fontWeight: 700, fontSize: 12, color: MUTED, marginBottom: 7 }}>
+            {poll.access_mode === "invite" ? "LIEN DU SCRUTIN (les votants utilisent leur lien nominatif)" : "LIEN DE VOTE À PARTAGER"}
+          </div>
+          <div style={{ display: "flex", gap: 9, flexWrap: "wrap" }}>
+            <input
+              readOnly
+              value={voteShareUrl}
+              onFocus={(e) => e.currentTarget.select()}
+              style={{
+                flex: 1,
+                minWidth: 220,
+                fontFamily: FONT_DISPLAY,
+                fontSize: 14,
+                fontWeight: 600,
+                padding: "11px 13px",
+                border: `2px solid ${INK}`,
+                borderRadius: 11,
+                background: CREAM,
+                outline: "none",
+              }}
+            />
+            <a
+              href={voteShareUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                textDecoration: "none",
+                fontFamily: FONT_DISPLAY,
+                fontWeight: 700,
+                fontSize: 14,
+                border: `2.5px solid ${INK}`,
+                background: YELLOW,
+                color: INK,
+                padding: "11px 16px",
+                borderRadius: 11,
+              }}
+            >
+              Ouvrir →
+            </a>
+          </div>
+          <div style={{ display: "flex", gap: 11, marginTop: 14, flexWrap: "wrap", alignItems: "center" }}>
+            <button
+              onClick={() => refreshOrganizer(poll)}
+              className="dc-lift"
+              style={{
+                fontFamily: FONT_DISPLAY,
+                fontWeight: 700,
+                fontSize: 14,
+                cursor: "pointer",
+                border: `2.5px solid ${INK}`,
+                background: "#fff",
+                color: INK,
+                padding: "11px 16px",
+                borderRadius: 11,
+                ...lift(`3px 3px 0 ${INK}`, `4px 4px 0 ${INK}`),
+              }}
+            >
+              ↻ Rafraîchir
+            </button>
+            <button
+              onClick={toggleClose}
+              disabled={working}
+              className="dc-lift"
+              style={{
+                fontFamily: FONT_DISPLAY,
+                fontWeight: 700,
+                fontSize: 14,
+                cursor: working ? "default" : "pointer",
+                border: `2.5px solid ${INK}`,
+                background: poll.status === "open" ? CORAL : GREEN,
+                color: "#fff",
+                padding: "11px 16px",
+                borderRadius: 11,
+                opacity: working ? 0.7 : 1,
+                ...lift(`3px 3px 0 ${INK}`, `4px 4px 0 ${INK}`),
+              }}
+            >
+              {poll.status === "open" ? "🔒 Clôturer le vote" : "↺ Rouvrir le vote"}
+            </button>
+          </div>
+          {poll.hide_results && (
+            <div style={{ marginTop: 10, fontSize: 12.5, color: MUTED }}>
+              Résultats cachés aux votants jusqu'à la clôture (vous, vous les voyez).
+            </div>
+          )}
+        </div>
+
+        {poll.access_mode === "invite" && (
+          <div style={{ ...card, marginTop: 16 }}>
+            <div style={{ fontWeight: 800, fontFamily: FONT_DISPLAY, fontSize: 15, marginBottom: 4 }}>
+              Votants — {votedCount}/{voters.length} ont voté
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 8, marginTop: 10, maxHeight: 320, overflowY: "auto" }}>
+              {voters.map((v) => (
+                <VoterLinkRow key={v.token} v={{ ...v, url: `${origin}/v/${token}?u=${v.token}` }} />
+              ))}
+              {voters.length === 0 && <div style={{ color: MUTED, fontSize: 14 }}>Aucun votant inscrit.</div>}
+            </div>
+          </div>
+        )}
+
+        <div style={{ marginTop: 16 }}>
+          {result ? (
+            <ResultCard result={result} question={poll.question} ballotCount={ballotCount} />
+          ) : (
+            <div style={{ ...card, color: MUTED, fontSize: 15 }}>Aucun bulletin pour l'instant.</div>
+          )}
+        </div>
+      </Shell>
+    );
+  }
+
+  // ---------- invitation requise ----------
+  if (view === "needsInvite") {
+    return (
+      <Shell>
+        <div style={{ ...card, textAlign: "center" }}>
+          <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 22 }}>🎟️ Scrutin sur invitation</div>
+          <p style={{ color: MUTED, marginTop: 8, lineHeight: 1.5 }}>
+            Ce vote est réservé aux personnes invitées. Utilisez le <strong>lien personnel</strong> qui
+            vous a été envoyé.
+          </p>
+        </div>
+      </Shell>
+    );
+  }
+
+  // ---------- merci (résultats cachés) ----------
+  if (view === "thanks") {
+    return (
+      <Shell>
+        <div style={{ ...card, textAlign: "center" }}>
+          <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 24, color: "#1f6b34" }}>
+            ✓ Vote enregistré
+          </div>
+          <p style={{ color: MUTED, marginTop: 8, lineHeight: 1.5 }}>
+            Merci{voter ? ` ${voter.label}` : ""} ! Les résultats seront visibles à la clôture du scrutin.
+          </p>
+        </div>
+      </Shell>
+    );
+  }
+
+  // ---------- clôturé (résultats révélés) ----------
+  if (view === "closed") {
+    return (
+      <Shell>
+        <div
+          style={{
+            ...card,
+            display: "flex",
+            gap: 10,
+            alignItems: "center",
+            flexWrap: "wrap",
+            marginBottom: 16,
+          }}
+        >
+          <span style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 18 }}>🔒 Vote clôturé</span>
+          <span style={{ color: MUTED, fontSize: 14 }}>Le scrutin est terminé, voici le résultat.</span>
+        </div>
+        {result ? (
+          <ResultCard result={result} question={poll.question} ballotCount={ballotCount} />
+        ) : (
+          <div style={{ ...card, color: MUTED }}>Aucun bulletin n'a été déposé.</div>
+        )}
+      </Shell>
+    );
+  }
+
+  // ---------- résultats (votant) ----------
+  if (view === "results" && result) {
+    const footer = (
+      <Link
+        href="/"
+        style={{
+          display: "inline-block",
+          marginTop: 18,
+          textAlign: "center",
+          textDecoration: "none",
+          fontFamily: FONT_DISPLAY,
+          fontWeight: 700,
+          fontSize: 15,
+          border: `2.5px solid ${INK}`,
+          background: YELLOW,
+          color: INK,
+          padding: "12px 18px",
+          borderRadius: 12,
+        }}
+      >
+        Créer mon scrutin →
+      </Link>
+    );
+    return (
+      <Shell>
+        <ResultCard result={result} question={poll.question} ballotCount={ballotCount} footer={footer} />
+      </Shell>
+    );
+  }
+
+  // ---------- vote ----------
   const ballotValid = draftToBallot(mode, draft, poll.options.length) !== null;
 
   const submit = async () => {
@@ -163,9 +581,29 @@ export default function PublicVote({ token, adminKey }: { token: string; adminKe
     setSubmitting(true);
     setError(null);
     try {
-      await addBallot(poll.id, ballot);
-      setJustVoted(true);
-      await loadResults(poll);
+      if (poll.access_mode === "invite" && voterToken) {
+        ballot.district = voter?.district ?? ballot.district;
+        const r = await castInvitedBallot(voterToken, ballot);
+        if (r === "ok") {
+          if (voterCanSeeResults(poll)) {
+            await loadResults(poll);
+            setView("results");
+          } else setView("thanks");
+        } else if (r === "already") {
+          setView("thanks");
+        } else if (r === "closed") {
+          await loadResults(poll);
+          setView("closed");
+        } else {
+          setError("Lien de vote invalide.");
+        }
+      } else {
+        await addBallot(poll.id, ballot);
+        if (voterCanSeeResults(poll)) {
+          await loadResults(poll);
+          setView("results");
+        } else setView("thanks");
+      }
     } catch {
       setError("Impossible d'enregistrer le bulletin. Réessayez.");
     } finally {
@@ -173,293 +611,107 @@ export default function PublicVote({ token, adminKey }: { token: string; adminKe
     }
   };
 
-  if (view === "organizer") {
-    const voteShareUrl =
-      typeof window !== "undefined" ? `${window.location.origin}/v/${poll.token}` : `/v/${poll.token}`;
-    return (
-      <>
-        <Header />
-        <div className="pad" style={{ maxWidth: 880, margin: "0 auto", padding: "32px 24px 100px" }}>
-          <div
-            style={{
-              background: "#fff4e0",
-              border: `2px solid ${INK}`,
-              borderRadius: 14,
-              padding: "14px 16px",
-              fontWeight: 700,
-              fontSize: 13.5,
-              color: "#2c3447",
-              lineHeight: 1.5,
-            }}
-          >
-            🔑 Vous administrez ce scrutin. Cette page vous est réservée — partagez plutôt le lien de
-            vote ci-dessous.
-          </div>
-
-          <div
-            style={{
-              marginTop: 16,
-              background: "#fff",
-              border: `2.5px solid ${INK}`,
-              borderRadius: 16,
-              padding: 18,
-              boxShadow: `5px 5px 0 ${INK}`,
-            }}
-          >
-            <div style={{ fontWeight: 700, fontSize: 12, color: MUTED, marginBottom: 7 }}>
-              LIEN DE VOTE À PARTAGER
-            </div>
-            <div style={{ display: "flex", gap: 9, flexWrap: "wrap" }}>
-              <input
-                readOnly
-                value={voteShareUrl}
-                onFocus={(e) => e.currentTarget.select()}
-                style={{
-                  flex: 1,
-                  minWidth: 220,
-                  fontFamily: FONT_DISPLAY,
-                  fontSize: 14,
-                  fontWeight: 600,
-                  padding: "11px 13px",
-                  border: `2px solid ${INK}`,
-                  borderRadius: 11,
-                  background: CREAM,
-                  outline: "none",
-                }}
-              />
-              <a
-                href={voteShareUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{
-                  textDecoration: "none",
-                  fontFamily: FONT_DISPLAY,
-                  fontWeight: 700,
-                  fontSize: 14,
-                  border: `2.5px solid ${INK}`,
-                  background: YELLOW,
-                  color: INK,
-                  padding: "11px 16px",
-                  borderRadius: 11,
-                }}
-              >
-                Ouvrir →
-              </a>
-            </div>
-            <div style={{ display: "flex", gap: 11, marginTop: 14, flexWrap: "wrap", alignItems: "center" }}>
-              <button
-                onClick={() => loadResults(poll, "organizer")}
-                className="dc-lift"
-                style={{
-                  fontFamily: FONT_DISPLAY,
-                  fontWeight: 700,
-                  fontSize: 14,
-                  cursor: "pointer",
-                  border: `2.5px solid ${INK}`,
-                  background: "#fff",
-                  color: INK,
-                  padding: "11px 16px",
-                  borderRadius: 11,
-                  ...lift(`3px 3px 0 ${INK}`, `4px 4px 0 ${INK}`),
-                }}
-              >
-                ↻ Rafraîchir
-              </button>
-              <span style={{ fontSize: 12.5, color: MUTED, fontWeight: 600 }}>⏳ Clôture du vote — bientôt</span>
-            </div>
-          </div>
-
-          <div style={{ marginTop: 16 }}>
-            {result ? (
-              <ResultCard result={result} question={poll.question} ballotCount={ballotCount} />
-            ) : (
-              <div
-                style={{
-                  background: "#fff",
-                  border: `2.5px solid ${INK}`,
-                  borderRadius: 16,
-                  padding: 22,
-                  boxShadow: `5px 5px 0 ${INK}`,
-                  color: MUTED,
-                  fontSize: 15,
-                }}
-              >
-                Aucun bulletin pour l'instant. Partagez le lien de vote pour lancer la collecte.
-              </div>
-            )}
-          </div>
-        </div>
-      </>
-    );
-  }
-
-  if (view === "results" && result) {
-    const footer = (
-      <>
-        {justVoted && (
-          <div
-            style={{
-              marginTop: 20,
-              background: "#e9f8e2",
-              border: `2px solid ${INK}`,
-              borderRadius: 12,
-              padding: "12px 14px",
-              fontWeight: 700,
-              fontSize: 13.5,
-              color: "#1f6b34",
-            }}
-          >
-            ✓ Merci, votre bulletin a bien été enregistré.
-          </div>
-        )}
-        <div style={{ display: "flex", gap: 11, marginTop: 16, flexWrap: "wrap" }}>
-          <button
-            onClick={() => loadResults(poll)}
-            className="dc-lift"
-            style={{
-              flex: 1,
-              minWidth: 150,
-              fontFamily: FONT_DISPLAY,
-              fontWeight: 700,
-              fontSize: 15,
-              cursor: "pointer",
-              border: `2.5px solid ${INK}`,
-              background: "#fff",
-              color: INK,
-              padding: 13,
-              borderRadius: 12,
-              ...lift(`4px 4px 0 ${INK}`, `6px 6px 0 ${INK}`),
-            }}
-          >
-            ↻ Rafraîchir les résultats
-          </button>
-          <Link
-            href="/"
-            style={{
-              flex: 1,
-              minWidth: 150,
-              textAlign: "center",
-              textDecoration: "none",
-              fontFamily: FONT_DISPLAY,
-              fontWeight: 700,
-              fontSize: 15,
-              border: `2.5px solid ${INK}`,
-              background: YELLOW,
-              color: INK,
-              padding: 13,
-              borderRadius: 12,
-            }}
-          >
-            Créer mon scrutin →
-          </Link>
-        </div>
-      </>
-    );
-    return (
-      <>
-        <Header />
-        <div className="pad" style={{ maxWidth: 880, margin: "0 auto", padding: "32px 24px 100px" }}>
-          <ResultCard result={result} question={poll.question} ballotCount={ballotCount} footer={footer} />
-        </div>
-      </>
-    );
-  }
-
-  // view === "vote"
   return (
-    <>
-      <Header />
-      <div className="pad" style={{ maxWidth: 880, margin: "0 auto", padding: "32px 24px 100px" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
-          <div
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: 8,
-              background: desc.color,
-              color: "#fff",
-              border: `2.5px solid ${INK}`,
-              borderRadius: 30,
-              padding: "6px 14px",
-              fontWeight: 700,
-              fontSize: 13,
-              boxShadow: `3px 3px 0 ${INK}`,
-            }}
-          >
-            <span>{desc.icon}</span>
-            {desc.name}
-          </div>
-        </div>
-
-        <h1
-          style={{
-            fontFamily: FONT_DISPLAY,
-            fontWeight: 800,
-            fontSize: "clamp(26px,4vw,40px)",
-            letterSpacing: "-0.025em",
-            margin: "14px 0 0",
-            lineHeight: 1.05,
-          }}
-        >
-          {poll.question}
-        </h1>
-        <p style={{ fontSize: 15, color: MUTED, margin: "8px 0 0" }}>{INSTRUCTIONS[mode]}</p>
-
+    <Shell>
+      <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
         <div
           style={{
-            background: "#fff",
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 8,
+            background: desc.color,
+            color: "#fff",
             border: `2.5px solid ${INK}`,
-            borderRadius: 20,
-            padding: 22,
-            boxShadow: `5px 5px 0 ${INK}`,
-            marginTop: 22,
+            borderRadius: 30,
+            padding: "6px 14px",
+            fontWeight: 700,
+            fontSize: 13,
+            boxShadow: `3px 3px 0 ${INK}`,
           }}
         >
-          <BallotCard
-            mode={mode}
-            options={poll.options}
-            color={desc.color}
-            draft={draft}
-            onChoice={(i) => setDraft((d) => ({ ...d, choice: i }))}
-            onToggle={(i) =>
-              setDraft((d) => ({
-                ...d,
-                approved: d.approved.includes(i) ? d.approved.filter((x) => x !== i) : [...d.approved, i],
-              }))
-            }
-            onRank={(i) => setDraft((d) => (d.rank.includes(i) ? d : { ...d, rank: [...d.rank, i] }))}
-            onResetRank={() => setDraft((d) => ({ ...d, rank: [] }))}
-            onGrade={(i, gi) => setDraft((d) => ({ ...d, grades: { ...d.grades, [i]: gi } }))}
-          />
-
-          {error && <div style={{ marginTop: 12, color: "#d23b3b", fontWeight: 700, fontSize: 13 }}>{error}</div>}
-
-          <button
-            onClick={submit}
-            disabled={!ballotValid || submitting}
-            className="dc-lift"
-            style={{
-              marginTop: 20,
-              width: "100%",
-              fontFamily: FONT_DISPLAY,
-              fontWeight: 700,
-              fontSize: 16,
-              cursor: !ballotValid || submitting ? "default" : "pointer",
-              border: `2.5px solid ${INK}`,
-              background: GREEN,
-              color: "#fff",
-              padding: 14,
-              borderRadius: 13,
-              opacity: !ballotValid || submitting ? 0.5 : 1,
-              ...lift(`4px 4px 0 ${INK}`, `6px 6px 0 ${INK}`),
-            }}
-          >
-            {submitting ? "Enregistrement…" : "✓ Voter"}
-          </button>
+          <span>{desc.icon}</span>
+          {desc.name}
         </div>
+        {voter && (
+          <span style={{ fontSize: 13, fontWeight: 700, color: MUTED }}>
+            Vous votez en tant que <span style={{ color: INK }}>{voter.label}</span>
+          </span>
+        )}
+      </div>
+
+      <h1
+        style={{
+          fontFamily: FONT_DISPLAY,
+          fontWeight: 800,
+          fontSize: "clamp(26px,4vw,40px)",
+          letterSpacing: "-0.025em",
+          margin: "14px 0 0",
+          lineHeight: 1.05,
+        }}
+      >
+        {poll.question}
+      </h1>
+      <p style={{ fontSize: 15, color: MUTED, margin: "8px 0 0" }}>{INSTRUCTIONS[mode]}</p>
+
+      <div
+        style={{
+          background: "#fff",
+          border: `2.5px solid ${INK}`,
+          borderRadius: 20,
+          padding: 22,
+          boxShadow: `5px 5px 0 ${INK}`,
+          marginTop: 22,
+        }}
+      >
+        <BallotCard
+          mode={mode}
+          options={poll.options}
+          color={desc.color}
+          draft={draft}
+          onChoice={(i) => setDraft((d) => ({ ...d, choice: i }))}
+          onToggle={(i) =>
+            setDraft((d) => ({
+              ...d,
+              approved: d.approved.includes(i) ? d.approved.filter((x) => x !== i) : [...d.approved, i],
+            }))
+          }
+          onRank={(i) => setDraft((d) => (d.rank.includes(i) ? d : { ...d, rank: [...d.rank, i] }))}
+          onResetRank={() => setDraft((d) => ({ ...d, rank: [] }))}
+          onGrade={(i, gi) => setDraft((d) => ({ ...d, grades: { ...d.grades, [i]: gi } }))}
+        />
+
+        {error && <div style={{ marginTop: 12, color: REDTXT, fontWeight: 700, fontSize: 13 }}>{error}</div>}
 
         <button
-          onClick={() => loadResults(poll)}
+          onClick={submit}
+          disabled={!ballotValid || submitting}
+          className="dc-lift"
+          style={{
+            marginTop: 20,
+            width: "100%",
+            fontFamily: FONT_DISPLAY,
+            fontWeight: 700,
+            fontSize: 16,
+            cursor: !ballotValid || submitting ? "default" : "pointer",
+            border: `2.5px solid ${INK}`,
+            background: GREEN,
+            color: "#fff",
+            padding: 14,
+            borderRadius: 13,
+            opacity: !ballotValid || submitting ? 0.5 : 1,
+            ...lift(`4px 4px 0 ${INK}`, `6px 6px 0 ${INK}`),
+          }}
+        >
+          {submitting ? "Enregistrement…" : "✓ Voter"}
+        </button>
+      </div>
+
+      {voterCanSeeResults(poll) && (
+        <button
+          onClick={async () => {
+            await loadResults(poll);
+            setView("results");
+          }}
           style={{
             marginTop: 16,
             width: "100%",
@@ -476,7 +728,7 @@ export default function PublicVote({ token, adminKey }: { token: string; adminKe
         >
           Voir les résultats sans voter →
         </button>
-      </div>
-    </>
+      )}
+    </Shell>
   );
 }

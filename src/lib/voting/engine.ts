@@ -229,6 +229,8 @@ export interface ComputeCtx {
   recipe: Recipe;
   options: Option[];
   ballots: Ballot[];
+  /** Grands électeurs par circonscription (mode invitation) ; sinon répartition auto. */
+  districtElectors?: number[];
 }
 
 type Fmt = (v: number, idx: number) => string;
@@ -357,13 +359,18 @@ export function compute(ctx: ComputeCtx): ComputeResult | null {
 
   // ===== SUFFRAGE INDIRECT (grands électeurs) =====
   if (r.suffrage === "indirect") {
-    const D = DISTRICTS;
+    const elec = ctx.districtElectors;
+    const D = elec ? elec.length : DISTRICTS;
     const dB = Array.from({ length: D }, () => [] as Ballot[]);
-    ballots.forEach((b) => dB[b.district ?? 0].push(b));
+    ballots.forEach((b) => {
+      const d = b.district ?? 0;
+      if (dB[d]) dB[d].push(b);
+    });
     const electors = Array(n).fill(0);
-    dB.forEach((db) => {
+    dB.forEach((db, di) => {
       if (!db.length) return;
-      const seats = Math.max(1, Math.round((10 * db.length) / total));
+      const seats = elec ? elec[di] ?? 0 : Math.max(1, Math.round((10 * db.length) / total));
+      if (seats <= 0) return;
       const t = tally(r.localCounting, db, all, r.random);
       if (r.electorSplit === "prop") {
         const fp = firstPrefs(db, n);
