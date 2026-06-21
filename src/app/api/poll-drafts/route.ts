@@ -3,7 +3,7 @@ import { buildNewUrl } from "@/lib/voting/draft";
 import { publicMethodToSystem } from "@/lib/voting/methods";
 
 // API publique sans état : transforme un brouillon structuré en URL /new prête à ouvrir.
-// POST /api/poll-drafts  { title, options[], method, deadline, source, why } -> { draft_url }
+// POST /api/poll-drafts  { title, description?, options[], method, deadline, source, why } -> { draft_url }
 
 const CORS = {
   "Access-Control-Allow-Origin": "*",
@@ -19,10 +19,12 @@ export function GET(req: Request) {
   const origin = new URL(req.url).origin;
   return NextResponse.json(
     {
-      usage: "POST un JSON { title, options[], method, deadline, source, why } et recevez { draft_url }.",
+      usage:
+        "POST un JSON { title, description?, options[], method, deadline, source, why } et recevez { draft_url }.",
       methods_doc: `${origin}/ai`,
       example: {
         title: "On part où ce week-end ?",
+        description: "Budget 80 €/pers, départ vendredi soir.",
         options: ["La montagne", "Le bord de mer", "La campagne"],
         method: "majority_judgment",
         source: "api",
@@ -42,6 +44,7 @@ export async function POST(req: Request) {
   const b = (body ?? {}) as Record<string, unknown>;
 
   const title = typeof b.title === "string" ? b.title.trim().slice(0, 200) : undefined;
+  const description = typeof b.description === "string" ? b.description.trim().slice(0, 500) : undefined;
   const options = Array.isArray(b.options)
     ? b.options
         .filter((o): o is string => typeof o === "string")
@@ -56,7 +59,7 @@ export async function POST(req: Request) {
   const why = typeof b.why === "string" ? b.why.trim().slice(0, 280) : undefined;
 
   const origin = new URL(req.url).origin;
-  const draft_url = buildNewUrl(origin, { title, options, method, deadline, source, why });
+  const draft_url = buildNewUrl(origin, { title, description, options, method, deadline, source, why });
 
   return NextResponse.json(
     {

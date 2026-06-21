@@ -86,10 +86,11 @@ export default function AiDocPage() {
         <h2 style={{ fontFamily: display, fontWeight: 800, fontSize: 24, marginTop: 34 }}>Format du lien</h2>
         <div style={{ ...card, marginTop: 12 }}>
           <code style={code}>
-            https://suffrage.vercel.app/new?title=...&amp;options=A|B|C&amp;method=...&amp;deadline=...&amp;source=...&amp;why=...
+            https://suffrage.vercel.app/new?title=...&amp;description=...&amp;options=A|B|C&amp;method=...&amp;deadline=...&amp;source=...&amp;why=...
           </code>
           <ul style={{ margin: "14px 0 0", paddingLeft: 18, fontSize: 14.5, lineHeight: 1.6, color: "#2c3447" }}>
             <li><b>title</b> — la question posée.</li>
+            <li><b>description</b> — contexte facultatif (lieu, budget, échéance…), affiché sous la question et dans l&apos;aperçu de partage.</li>
             <li><b>options</b> — 2 à 8 options séparées par <code style={{ fontFamily: mono }}>|</code> (ex. <code style={{ fontFamily: mono }}>Italien|Japonais|Indien</code>).</li>
             <li><b>method</b> — une clé du tableau ci-dessous (défaut : <code style={{ fontFamily: mono }}>simple_vote</code>).</li>
             <li><b>deadline</b> — date ISO 8601, ex. <code style={{ fontFamily: mono }}>2026-07-01T20:00</code> (optionnel, défaut : +7 jours).</li>
@@ -146,6 +147,7 @@ Content-Type: application/json
 
 {
   "title": "On part où ce week-end ?",
+  "description": "Budget 80 €/pers, départ vendredi soir.",
   "options": ["La montagne", "Le bord de mer", "La campagne"],
   "method": "majority_judgment",
   "source": "mon-agent",
