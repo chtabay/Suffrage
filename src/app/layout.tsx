@@ -1,5 +1,6 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Bricolage_Grotesque, Plus_Jakarta_Sans } from "next/font/google";
+import InstallFab from "@/components/pwa/InstallFab";
 import "./globals.css";
 
 const display = Bricolage_Grotesque({
@@ -20,6 +21,10 @@ export const metadata: Metadata = {
     "Concevez votre mode de scrutin (majoritaire, deux tours, Condorcet, jugement majoritaire, grands électeurs…), comparez avantages et inconvénients, puis dépouillez pour de vrai.",
 };
 
+export const viewport: Viewport = {
+  themeColor: "#16213A",
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -27,7 +32,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="fr">
-      <body className={`${display.variable} ${body.variable}`}>{children}</body>
+      <body className={`${display.variable} ${body.variable}`}>
+        {children}
+        <InstallFab />
+      </body>
     </html>
   );
 }

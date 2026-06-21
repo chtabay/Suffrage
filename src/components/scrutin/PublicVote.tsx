@@ -27,6 +27,7 @@ import {
   operativeMethod,
 } from "@/lib/voting/engine";
 import type { Ballot, BallotMode, ComputeResult } from "@/lib/voting/types";
+import InstallInline from "@/components/pwa/InstallInline";
 import BallotCard, { EMPTY_DRAFT, type BallotDraft } from "./BallotCard";
 import ResultCard from "./ResultCard";
 import { CORAL, CREAM, FONT_BODY, FONT_DISPLAY, GREEN, INK, MUTED, REDTXT, YELLOW, lift } from "./theme";
@@ -598,6 +599,7 @@ export default function PublicVote({
             Merci{voter ? ` ${voter.label}` : ""} ! Les résultats seront visibles à la clôture du scrutin.
           </p>
         </div>
+        <InstallInline />
       </Shell>
     );
   }
