@@ -5,6 +5,7 @@ import CreateScreen from "./CreateScreen";
 import GalleryScreen from "./GalleryScreen";
 import HomeScreen from "./HomeScreen";
 import LaunchedScreen from "./LaunchedScreen";
+import MesScrutinsScreen from "./MesScrutinsScreen";
 import Nav from "./Nav";
 
 export default function ScrutinApp() {
@@ -17,6 +18,7 @@ export default function ScrutinApp() {
       {screen === "gallery" && <GalleryScreen ctrl={ctrl} />}
       {screen === "create" && <CreateScreen ctrl={ctrl} />}
       {screen === "launched" && <LaunchedScreen ctrl={ctrl} />}
+      {screen === "mine" && <MesScrutinsScreen ctrl={ctrl} />}
     </div>
   );
 }

@@ -33,7 +33,7 @@ function draftToBallot(mode: BallotMode, draft: BallotDraft, n: number): Ballot 
   return normalizeFromGrades(draft.grades, n, seed);
 }
 
-type View = "loading" | "notfound" | "vote" | "results";
+type View = "loading" | "notfound" | "vote" | "results" | "organizer";
 
 function Header() {
   return (
@@ -77,7 +77,7 @@ function Header() {
   );
 }
 
-export default function PublicVote({ token }: { token: string }) {
+export default function PublicVote({ token, adminKey }: { token: string; adminKey?: string | null }) {
   const [view, setView] = useState<View>("loading");
   const [poll, setPoll] = useState<PollRow | null>(null);
   const [draft, setDraft] = useState<BallotDraft>(EMPTY_DRAFT);
@@ -86,6 +86,13 @@ export default function PublicVote({ token }: { token: string }) {
   const [result, setResult] = useState<ComputeResult | null>(null);
   const [ballotCount, setBallotCount] = useState(0);
   const [error, setError] = useState<string | null>(null);
+
+  const loadResults = useCallback(async (p: PollRow, asView: View = "results") => {
+    const ballots = await getBallots(p.id);
+    setBallotCount(ballots.length);
+    setResult(compute({ recipe: p.recipe, options: p.options, ballots }));
+    setView(asView);
+  }, []);
 
   useEffect(() => {
     let alive = true;
@@ -97,20 +104,14 @@ export default function PublicVote({ token }: { token: string }) {
           return;
         }
         setPoll(p);
-        setView("vote");
+        if (adminKey) loadResults(p, "organizer");
+        else setView("vote");
       })
       .catch(() => alive && setView("notfound"));
     return () => {
       alive = false;
     };
-  }, [token]);
-
-  const loadResults = useCallback(async (p: PollRow) => {
-    const ballots = await getBallots(p.id);
-    setBallotCount(ballots.length);
-    setResult(compute({ recipe: p.recipe, options: p.options, ballots }));
-    setView("results");
-  }, []);
+  }, [token, adminKey, loadResults]);
 
   if (view === "loading") {
     return (
@@ -171,6 +172,126 @@ export default function PublicVote({ token }: { token: string }) {
       setSubmitting(false);
     }
   };
+
+  if (view === "organizer") {
+    const voteShareUrl =
+      typeof window !== "undefined" ? `${window.location.origin}/v/${poll.token}` : `/v/${poll.token}`;
+    return (
+      <>
+        <Header />
+        <div className="pad" style={{ maxWidth: 880, margin: "0 auto", padding: "32px 24px 100px" }}>
+          <div
+            style={{
+              background: "#fff4e0",
+              border: `2px solid ${INK}`,
+              borderRadius: 14,
+              padding: "14px 16px",
+              fontWeight: 700,
+              fontSize: 13.5,
+              color: "#2c3447",
+              lineHeight: 1.5,
+            }}
+          >
+            🔑 Vous administrez ce scrutin. Cette page vous est réservée — partagez plutôt le lien de
+            vote ci-dessous.
+          </div>
+
+          <div
+            style={{
+              marginTop: 16,
+              background: "#fff",
+              border: `2.5px solid ${INK}`,
+              borderRadius: 16,
+              padding: 18,
+              boxShadow: `5px 5px 0 ${INK}`,
+            }}
+          >
+            <div style={{ fontWeight: 700, fontSize: 12, color: MUTED, marginBottom: 7 }}>
+              LIEN DE VOTE À PARTAGER
+            </div>
+            <div style={{ display: "flex", gap: 9, flexWrap: "wrap" }}>
+              <input
+                readOnly
+                value={voteShareUrl}
+                onFocus={(e) => e.currentTarget.select()}
+                style={{
+                  flex: 1,
+                  minWidth: 220,
+                  fontFamily: FONT_DISPLAY,
+                  fontSize: 14,
+                  fontWeight: 600,
+                  padding: "11px 13px",
+                  border: `2px solid ${INK}`,
+                  borderRadius: 11,
+                  background: CREAM,
+                  outline: "none",
+                }}
+              />
+              <a
+                href={voteShareUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  textDecoration: "none",
+                  fontFamily: FONT_DISPLAY,
+                  fontWeight: 700,
+                  fontSize: 14,
+                  border: `2.5px solid ${INK}`,
+                  background: YELLOW,
+                  color: INK,
+                  padding: "11px 16px",
+                  borderRadius: 11,
+                }}
+              >
+                Ouvrir →
+              </a>
+            </div>
+            <div style={{ display: "flex", gap: 11, marginTop: 14, flexWrap: "wrap", alignItems: "center" }}>
+              <button
+                onClick={() => loadResults(poll, "organizer")}
+                className="dc-lift"
+                style={{
+                  fontFamily: FONT_DISPLAY,
+                  fontWeight: 700,
+                  fontSize: 14,
+                  cursor: "pointer",
+                  border: `2.5px solid ${INK}`,
+                  background: "#fff",
+                  color: INK,
+                  padding: "11px 16px",
+                  borderRadius: 11,
+                  ...lift(`3px 3px 0 ${INK}`, `4px 4px 0 ${INK}`),
+                }}
+              >
+                ↻ Rafraîchir
+              </button>
+              <span style={{ fontSize: 12.5, color: MUTED, fontWeight: 600 }}>⏳ Clôture du vote — bientôt</span>
+            </div>
+          </div>
+
+          <div style={{ marginTop: 16 }}>
+            {result ? (
+              <ResultCard result={result} question={poll.question} ballotCount={ballotCount} />
+            ) : (
+              <div
+                style={{
+                  background: "#fff",
+                  border: `2.5px solid ${INK}`,
+                  borderRadius: 16,
+                  padding: 22,
+                  boxShadow: `5px 5px 0 ${INK}`,
+                  color: MUTED,
+                  fontSize: 15,
+                }}
+              >
+                Aucun bulletin pour l'instant. Partagez le lien de vote pour lancer la collecte.
+              </div>
+            )}
+          </div>
+        </div>
+      </>
+    );
+  }
 
   if (view === "results" && result) {
     const footer = (

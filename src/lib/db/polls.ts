@@ -11,16 +11,31 @@ export interface PollRow {
   created_at: string;
 }
 
-/** Enregistre un scrutin et renvoie son token de partage. */
-export async function createPoll(question: string, options: Option[], recipe: Recipe): Promise<string> {
+/** SHA-256 hex (mêmes octets que sha256(convert_to(...,'UTF8')) côté Postgres). */
+async function sha256Hex(input: string): Promise<string> {
+  const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(input));
+  return [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+
+/**
+ * Enregistre un scrutin et renvoie son token de partage + le secret d'admin.
+ * Le secret reste chez le créateur ; seul son hash est stocké en base.
+ */
+export async function createPoll(
+  question: string,
+  options: Option[],
+  recipe: Recipe,
+): Promise<{ token: string; secret: string }> {
   const supabase = createClient();
+  const secret = crypto.randomUUID();
+  const admin_hash = await sha256Hex(secret);
   const { data, error } = await supabase
     .from("scrutin_polls")
-    .insert({ question, options, recipe, created_by: null })
+    .insert({ question, options, recipe, created_by: null, admin_hash })
     .select("token")
     .single();
   if (error) throw error;
-  return data.token as string;
+  return { token: data.token as string, secret };
 }
 
 /** Charge un scrutin par son token (null si introuvable). */
@@ -53,4 +68,18 @@ export async function getBallots(pollId: string): Promise<Ballot[]> {
     .eq("poll_id", pollId);
   if (error) throw error;
   return (data ?? []) as Ballot[];
+}
+
+/**
+ * Rattache au compte connecté les scrutins anonymes créés sur cet appareil,
+ * en présentant leur secret d'admin. Renvoie le nombre réclamé.
+ */
+export async function claimPolls(creds: { token: string; secret: string }[]): Promise<number> {
+  const supabase = createClient();
+  let claimed = 0;
+  for (const c of creds) {
+    const { data, error } = await supabase.rpc("claim_poll", { p_token: c.token, p_secret: c.secret });
+    if (!error && data === true) claimed += 1;
+  }
+  return claimed;
 }

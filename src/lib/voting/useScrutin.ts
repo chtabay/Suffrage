@@ -1,10 +1,11 @@
 "use client";
 
 import { useCallback, useRef, useState } from "react";
+import { addLocalPoll } from "@/lib/db/localPolls";
 import { createPoll } from "@/lib/db/polls";
 import type { Option, Recipe } from "./types";
 
-export type Screen = "home" | "gallery" | "create" | "launched";
+export type Screen = "home" | "gallery" | "create" | "launched" | "mine";
 
 export interface ScrutinState {
   screen: Screen;
@@ -12,6 +13,7 @@ export interface ScrutinState {
   options: Option[];
   recipe: Recipe;
   shareUrl: string | null;
+  adminUrl: string | null;
   launching: boolean;
   error: string | null;
 }
@@ -38,6 +40,7 @@ const INITIAL: ScrutinState = {
   ],
   recipe: { ...DEFAULT_RECIPE },
   shareUrl: null,
+  adminUrl: null,
   launching: false,
   error: null,
 };
@@ -48,8 +51,8 @@ const scrollTop = () => {
 
 const ADD_ICONS = ["🎯", "⭐", "🔥", "🌟", "🎪", "🎨"];
 
-// Toute modification de la définition du scrutin invalide le lien déjà lancé.
-const CLEAR_SHARE = { shareUrl: null, error: null } as const;
+// Toute modification de la définition du scrutin invalide les liens déjà lancés.
+const CLEAR_SHARE = { shareUrl: null, adminUrl: null, error: null } as const;
 
 export function useScrutin() {
   const [state, setState] = useState<ScrutinState>(INITIAL);
@@ -114,14 +117,21 @@ export function useScrutin() {
     });
   }, []);
 
-  // Lance le scrutin : persiste la définition et bascule sur l'écran de partage.
+  // Lance le scrutin : persiste la définition, l'enregistre localement, et bascule sur le partage.
   const launch = useCallback(async () => {
     const s = stateRef.current;
     setState((p) => ({ ...p, launching: true, error: null }));
     try {
-      const token = await createPoll(s.question, s.options, s.recipe);
-      const url = `${window.location.origin}/v/${token}`;
-      setState((p) => ({ ...p, shareUrl: url, launching: false, screen: "launched" }));
+      const { token, secret } = await createPoll(s.question, s.options, s.recipe);
+      const origin = window.location.origin;
+      addLocalPoll({ token, secret, question: s.question, createdAt: Date.now() });
+      setState((p) => ({
+        ...p,
+        shareUrl: `${origin}/v/${token}`,
+        adminUrl: `${origin}/v/${token}?k=${secret}`,
+        launching: false,
+        screen: "launched",
+      }));
       scrollTop();
     } catch {
       setState((p) => ({ ...p, launching: false, error: "Impossible de lancer le scrutin. Réessayez." }));
@@ -129,7 +139,7 @@ export function useScrutin() {
   }, []);
 
   const newScrutin = useCallback(() => {
-    setState((s) => ({ ...s, screen: "create", shareUrl: null, error: null }));
+    setState((s) => ({ ...s, screen: "create", shareUrl: null, adminUrl: null, error: null }));
     scrollTop();
   }, []);
 

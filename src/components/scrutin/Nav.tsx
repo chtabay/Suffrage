@@ -56,6 +56,23 @@ export default function Nav({ ctrl }: { ctrl: ScrutinController }) {
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
           <button
+            onClick={() => go("mine")}
+            className="dc-paper"
+            style={{
+              fontFamily: FONT_BODY,
+              fontWeight: 600,
+              fontSize: 14,
+              cursor: "pointer",
+              border: `2px solid ${INK}`,
+              background: CREAM,
+              color: INK,
+              padding: "9px 15px",
+              borderRadius: 10,
+            }}
+          >
+            Mes scrutins
+          </button>
+          <button
             onClick={() => go("gallery")}
             className="dc-paper"
             style={{

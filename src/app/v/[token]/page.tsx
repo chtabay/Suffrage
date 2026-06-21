@@ -1,6 +1,13 @@
 import PublicVote from "@/components/scrutin/PublicVote";
 
-export default async function VotePage({ params }: { params: Promise<{ token: string }> }) {
+export default async function VotePage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ token: string }>;
+  searchParams: Promise<{ k?: string }>;
+}) {
   const { token } = await params;
-  return <PublicVote token={token} />;
+  const { k } = await searchParams;
+  return <PublicVote token={token} adminKey={k ?? null} />;
 }
