@@ -3,7 +3,7 @@ import { buildNewUrl } from "@/lib/voting/draft";
 import { publicMethodToSystem } from "@/lib/voting/methods";
 
 // API publique sans état : transforme un brouillon structuré en URL /new prête à ouvrir.
-// POST /api/poll-drafts  { title, description?, options[], method, deadline, source, why } -> { draft_url }
+// POST /api/poll-drafts  { title, description?, options[], media?[], method, deadline, source, why } -> { draft_url }
 
 const CORS = {
   "Access-Control-Allow-Origin": "*",
@@ -20,12 +20,13 @@ export function GET(req: Request) {
   return NextResponse.json(
     {
       usage:
-        "POST un JSON { title, description?, options[], method, deadline, source, why } et recevez { draft_url }.",
+        "POST un JSON { title, description?, options[], media?[], method, deadline, source, why } et recevez { draft_url }.",
       methods_doc: `${origin}/ai`,
       example: {
         title: "On part où ce week-end ?",
         description: "Budget 80 €/pers, départ vendredi soir.",
         options: ["La montagne", "Le bord de mer", "La campagne"],
+        media: ["https://exemple.com/montagne.jpg", "", "https://exemple.com/campagne.jpg"],
         method: "majority_judgment",
         source: "api",
       },
@@ -52,6 +53,9 @@ export async function POST(req: Request) {
         .filter(Boolean)
         .slice(0, 12)
     : undefined;
+  const media = Array.isArray(b.media)
+    ? b.media.map((m) => (typeof m === "string" ? m : "")).slice(0, 12)
+    : undefined;
   const methodInput = typeof b.method === "string" ? b.method : undefined;
   const method = methodInput && publicMethodToSystem(methodInput) ? methodInput : undefined;
   const deadline = typeof b.deadline === "string" ? b.deadline.slice(0, 40) : undefined;
@@ -59,7 +63,7 @@ export async function POST(req: Request) {
   const why = typeof b.why === "string" ? b.why.trim().slice(0, 280) : undefined;
 
   const origin = new URL(req.url).origin;
-  const draft_url = buildNewUrl(origin, { title, description, options, method, deadline, source, why });
+  const draft_url = buildNewUrl(origin, { title, description, options, media, method, deadline, source, why });
 
   return NextResponse.json(
     {

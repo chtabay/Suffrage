@@ -21,6 +21,13 @@ export interface ScrutinDraft {
 type RawParams = Record<string, string | string[] | undefined>;
 const first = (v: string | string[] | undefined): string | undefined => (Array.isArray(v) ? v[0] : v);
 
+/** N'accepte qu'une URL http(s) (les illustrations deviennent cliquables côté votant). */
+export const safeUrl = (u: string | undefined): string | undefined => {
+  if (!u) return undefined;
+  const t = u.trim();
+  return /^https?:\/\//i.test(t) ? t.slice(0, 500) : undefined;
+};
+
 /** Convertit les paramètres d'URL /new en brouillon (toujours un objet, possiblement vide). */
 export function parseDraft(params: RawParams): ScrutinDraft {
   const draft: ScrutinDraft = {};
@@ -41,6 +48,16 @@ export function parseDraft(params: RawParams): ScrutinDraft {
     if (names.length >= 2) {
       draft.options = names.map((name, i) => ({ icon: DRAFT_ICONS[i % DRAFT_ICONS.length], name: name.slice(0, 80) }));
     }
+  }
+
+  // Illustrations par option : paramètre séparé `media`, aligné par index (séparateur |).
+  const media = first(params.media);
+  if (media && draft.options) {
+    const urls = media.split("|");
+    draft.options = draft.options.map((o, i) => {
+      const u = safeUrl(urls[i]);
+      return u ? { ...o, url: u } : o;
+    });
   }
 
   const method = first(params.method);
@@ -74,6 +91,8 @@ export interface DraftInput {
   title?: string;
   description?: string;
   options?: string[];
+  /** URLs d'illustration alignées par index sur `options` (chaîne vide = aucune). */
+  media?: string[];
   method?: string;
   deadline?: string;
   source?: string;
@@ -86,6 +105,9 @@ export function buildNewUrl(base: string, d: DraftInput): string {
   if (d.title) p.set("title", d.title);
   if (d.description) p.set("description", d.description);
   if (d.options && d.options.length) p.set("options", d.options.join("|"));
+  if (d.media && d.media.some((u) => safeUrl(u))) {
+    p.set("media", d.media.map((u) => safeUrl(u) ?? "").join("|"));
+  }
   if (d.method) p.set("method", d.method);
   if (d.deadline) p.set("deadline", d.deadline);
   if (d.source) p.set("source", d.source);

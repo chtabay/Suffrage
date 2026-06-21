@@ -84,7 +84,7 @@ export default function BallotCard({
 
   // Illustration facultative d'un choix. stopPropagation : ouvrir le média ne vote pas.
   const media = (url?: string) => {
-    if (!url) return null;
+    if (!url || !/^https?:\/\//i.test(url)) return null;
     const open = (e: React.MouseEvent) => {
       e.stopPropagation();
       window.open(url, "_blank", "noopener,noreferrer");

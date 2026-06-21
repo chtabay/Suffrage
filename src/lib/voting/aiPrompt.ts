@@ -16,13 +16,14 @@ export function buildAiPrompt(question: string, options: Option[], source: strin
 - un titre court et clair ;
 - si le contexte aide à voter (lieu, budget, échéance…), un court descriptif facultatif ;
 - 2 à 8 options (reformule/fusionne si besoin), avec un emoji par option ;
+- facultatif : pour une option, une URL d'illustration http(s) (image, vidéo, document) qui aide à choisir ;
 - UNE méthode de vote parmi : ${methods} — et une phrase expliquant POURQUOI elle convient à CE cas ;
 - une URL Suffrage prête à ouvrir, au format (remplace les valeurs, n'utilise pas cet exemple tel quel) :
-${APP_URL}/new?title=...&description=...&options=Option1|Option2|Option3&method=...&source=${source}&why=...
+${APP_URL}/new?title=...&description=...&options=Option1|Option2|Option3&media=url1||url3&method=...&source=${source}&why=...
 
-Encode correctement les valeurs pour l'URL, mets ta justification dans le paramètre "why", et n'inclus aucune donnée sensible (e-mails, identifiants…).
+Le paramètre "media" est facultatif : une URL par option, dans le MÊME ordre que "options", séparées par | (laisse vide une option sans illustration). Encode correctement les valeurs pour l'URL, mets ta justification dans le paramètre "why", et n'inclus aucune donnée sensible (e-mails, identifiants…).
 
-Si tu peux faire des requêtes HTTP, tu peux aussi appeler POST ${APP_URL}/api/poll-drafts avec { title, description, options, method, deadline, source, why } : il renverra { draft_url }.`;
+Si tu peux faire des requêtes HTTP, tu peux aussi appeler POST ${APP_URL}/api/poll-drafts avec { title, description, options, media, method, deadline, source, why } (media = tableau d'URLs aligné sur options) : il renverra { draft_url }.`;
 
   if (!hasContext) {
     // Lancement « à froid » (rail d'accueil) : aucun sujet connu.
