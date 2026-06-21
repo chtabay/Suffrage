@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { describeRecipe } from "@/lib/voting/engine";
 import { candColor } from "@/lib/voting/systems";
 import type { CountingMethod, Recipe } from "@/lib/voting/types";
@@ -8,7 +9,7 @@ import AdvancedSettings from "./AdvancedSettings";
 import AiHelper from "./AiHelper";
 import ClosureLine from "./ClosureLine";
 import PrefillPanel from "./PrefillPanel";
-import { CREAM, FONT_BODY, FONT_DISPLAY, GREENTXT, INK, MUTED, REDTXT, lift } from "./theme";
+import { CREAM, FONT_BODY, FONT_DISPLAY, GREENTXT, INK, MUTED, REDTXT, YELLOW, lift } from "./theme";
 
 interface AxisOption {
   label: string;
@@ -137,7 +138,8 @@ function buildAxes(r: Recipe, setRecipe: (p: Partial<Recipe>) => void): Axis[] {
 }
 
 export default function CreateScreen({ ctrl }: { ctrl: ScrutinController }) {
-  const { state, setRecipe, setQuestion, setDescription, setOptionName, removeOption, addOption, launch } = ctrl;
+  const { state, setRecipe, setQuestion, setDescription, setOptionName, setOptionUrl, removeOption, addOption, launch } = ctrl;
+  const [urlRows, setUrlRows] = useState<Record<number, boolean>>({});
   const resolved = describeRecipe(state.recipe);
   const axes = buildAxes(state.recipe, setRecipe);
 
@@ -218,58 +220,100 @@ export default function CreateScreen({ ctrl }: { ctrl: ScrutinController }) {
             />
             <div style={{ fontWeight: 700, fontSize: 13, color: MUTED, margin: "18px 0 9px" }}>LES OPTIONS</div>
             <div style={{ display: "flex", flexDirection: "column", gap: 9 }}>
-              {state.options.map((opt, i) => (
-                <div key={i} style={{ display: "flex", alignItems: "center", gap: 9 }}>
-                  <div
-                    style={{
-                      width: 34,
-                      height: 34,
-                      flex: "none",
-                      borderRadius: 9,
-                      border: `2px solid ${INK}`,
-                      background: candColor(i),
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      fontSize: 17,
-                    }}
-                  >
-                    {opt.icon}
+              {state.options.map((opt, i) => {
+                const urlOpen = urlRows[i] || Boolean(opt.url);
+                return (
+                  <div key={i} style={{ display: "flex", flexDirection: "column", gap: 7 }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 9 }}>
+                      <div
+                        style={{
+                          width: 34,
+                          height: 34,
+                          flex: "none",
+                          borderRadius: 9,
+                          border: `2px solid ${INK}`,
+                          background: candColor(i),
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          fontSize: 17,
+                        }}
+                      >
+                        {opt.icon}
+                      </div>
+                      <input
+                        value={opt.name}
+                        onChange={(e) => setOptionName(i, e.target.value)}
+                        style={{
+                          flex: 1,
+                          minWidth: 0,
+                          fontFamily: FONT_BODY,
+                          fontSize: 14.5,
+                          fontWeight: 600,
+                          padding: "9px 11px",
+                          border: `2px solid ${INK}`,
+                          borderRadius: 9,
+                          background: CREAM,
+                          outline: "none",
+                        }}
+                      />
+                      <button
+                        onClick={() => setUrlRows((m) => ({ ...m, [i]: !urlOpen }))}
+                        title="Associer une illustration (image, vidéo, document)"
+                        aria-label="Associer une illustration"
+                        style={{
+                          width: 34,
+                          height: 34,
+                          flex: "none",
+                          border: `2px solid ${INK}`,
+                          background: opt.url ? YELLOW : "#fff",
+                          borderRadius: 9,
+                          cursor: "pointer",
+                          fontSize: 15,
+                          lineHeight: 1,
+                        }}
+                      >
+                        🔗
+                      </button>
+                      <button
+                        onClick={() => removeOption(i)}
+                        style={{
+                          width: 34,
+                          height: 34,
+                          flex: "none",
+                          border: `2px solid ${INK}`,
+                          background: "#fff",
+                          borderRadius: 9,
+                          cursor: "pointer",
+                          fontSize: 16,
+                          color: REDTXT,
+                          lineHeight: 1,
+                        }}
+                      >
+                        ×
+                      </button>
+                    </div>
+                    {urlOpen && (
+                      <input
+                        value={opt.url ?? ""}
+                        onChange={(e) => setOptionUrl(i, e.target.value)}
+                        placeholder="https://… — image, vidéo ou document (facultatif)"
+                        style={{
+                          fontFamily: FONT_BODY,
+                          fontSize: 13,
+                          fontWeight: 500,
+                          padding: "8px 11px",
+                          border: `2px solid ${INK}`,
+                          borderRadius: 9,
+                          background: CREAM,
+                          outline: "none",
+                          boxSizing: "border-box",
+                        }}
+                      />
+                    )}
                   </div>
-                  <input
-                    value={opt.name}
-                    onChange={(e) => setOptionName(i, e.target.value)}
-                    style={{
-                      flex: 1,
-                      fontFamily: FONT_BODY,
-                      fontSize: 14.5,
-                      fontWeight: 600,
-                      padding: "9px 11px",
-                      border: `2px solid ${INK}`,
-                      borderRadius: 9,
-                      background: CREAM,
-                      outline: "none",
-                    }}
-                  />
-                  <button
-                    onClick={() => removeOption(i)}
-                    style={{
-                      width: 34,
-                      height: 34,
-                      flex: "none",
-                      border: `2px solid ${INK}`,
-                      background: "#fff",
-                      borderRadius: 9,
-                      cursor: "pointer",
-                      fontSize: 16,
-                      color: REDTXT,
-                      lineHeight: 1,
-                    }}
-                  >
-                    ×
-                  </button>
-                </div>
-              ))}
+                );
+              })}
             </div>
             <button
               onClick={addOption}
@@ -288,6 +332,11 @@ export default function CreateScreen({ ctrl }: { ctrl: ScrutinController }) {
             >
               + Ajouter une option
             </button>
+            <div style={{ fontSize: 12, color: MUTED, marginTop: 12, lineHeight: 1.45 }}>
+              🔗 associez une image, une vidéo ou un document à un choix.{" "}
+              <span style={{ color: INK, fontWeight: 700 }}>✨ Une IA peut proposer titres, options et illustrations</span>{" "}
+              — voir « Préparer avec une IA ».
+            </div>
           </div>
 
           {/* axes */}

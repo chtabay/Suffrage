@@ -166,6 +166,14 @@ export function useScrutin(draft?: ScrutinDraft) {
     });
   }, []);
 
+  const setOptionUrl = useCallback((i: number, url: string) => {
+    setState((s) => {
+      const options = s.options.slice();
+      options[i] = { ...options[i], url: url.trim() || undefined };
+      return { ...s, options, ...CLEAR_SHARE };
+    });
+  }, []);
+
   const removeOption = useCallback((i: number) => {
     setState((s) =>
       s.options.length <= 2 ? s : { ...s, options: s.options.filter((_, j) => j !== i), ...CLEAR_SHARE },
@@ -306,6 +314,7 @@ export function useScrutin(draft?: ScrutinDraft) {
     setQuestion,
     setDescription,
     setOptionName,
+    setOptionUrl,
     removeOption,
     addOption,
     setAccess,

@@ -29,6 +29,8 @@ export interface Recipe {
 export interface Option {
   icon: string;
   name: string;
+  /** Illustration facultative associée au choix (image, vidéo, document…). */
+  url?: string;
 }
 
 /** Un bulletin normalisé : classement complet + mentions + circonscription. */

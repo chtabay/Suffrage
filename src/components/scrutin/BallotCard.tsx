@@ -80,6 +80,45 @@ export default function BallotCard({
     </span>
   );
 
+  const isImage = (u: string) => /\.(png|jpe?g|gif|webp|avif|svg)(\?|$)/i.test(u);
+
+  // Illustration facultative d'un choix. stopPropagation : ouvrir le média ne vote pas.
+  const media = (url?: string) => {
+    if (!url) return null;
+    const open = (e: React.MouseEvent) => {
+      e.stopPropagation();
+      window.open(url, "_blank", "noopener,noreferrer");
+    };
+    if (isImage(url)) {
+      return (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={url}
+          alt=""
+          onClick={open}
+          style={{
+            width: 40,
+            height: 40,
+            flex: "none",
+            objectFit: "cover",
+            borderRadius: 8,
+            border: `2px solid ${INK}`,
+            cursor: "zoom-in",
+          }}
+        />
+      );
+    }
+    return (
+      <span
+        onClick={open}
+        title="Voir l'illustration"
+        style={{ flex: "none", fontSize: 13, fontWeight: 700, color: INK, textDecoration: "underline", cursor: "pointer" }}
+      >
+        🔗 voir
+      </span>
+    );
+  };
+
   if (mode === "single") {
     return (
       <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
@@ -89,6 +128,7 @@ export default function BallotCard({
             <>
               {iconBox(i)}
               <span style={{ fontWeight: 700, fontSize: 16, flex: 1, color: INK }}>{o.name}</span>
+              {media(o.url)}
               <span
                 style={{
                   width: 24,
@@ -118,6 +158,7 @@ export default function BallotCard({
             <>
               {iconBox(i)}
               <span style={{ fontWeight: 700, fontSize: 16, flex: 1, color: INK }}>{o.name}</span>
+              {media(o.url)}
               <span
                 style={{
                   width: 26,
@@ -193,6 +234,7 @@ export default function BallotCard({
                   {o.icon}
                 </span>
                 <span style={{ fontWeight: 700, fontSize: 15.5, flex: 1, color: INK }}>{o.name}</span>
+                {media(o.url)}
               </>,
               () => onRank(i),
               pos >= 0 ? PICKED : CREAM,
@@ -241,7 +283,8 @@ export default function BallotCard({
             >
               {o.icon}
             </span>
-            <span style={{ fontWeight: 700, fontSize: 16, color: INK }}>{o.name}</span>
+            <span style={{ fontWeight: 700, fontSize: 16, flex: 1, color: INK }}>{o.name}</span>
+            {media(o.url)}
           </div>
           <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
             {GRADES.map((gl, gi) => {
