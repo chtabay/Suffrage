@@ -16,9 +16,17 @@ const body = Plus_Jakarta_Sans({
 });
 
 export const metadata: Metadata = {
+  // Indispensable : sans base absolue, l'image Open Graph est résolue sur
+  // localhost en prod et WhatsApp/réseaux n'affichent pas l'aperçu.
+  metadataBase: new URL("https://suffrage.vercel.app"),
   title: "Scrutin — Votez vraiment comme il faut",
   description:
     "Concevez votre mode de scrutin (majoritaire, deux tours, Condorcet, jugement majoritaire, grands électeurs…), comparez avantages et inconvénients, puis dépouillez pour de vrai.",
+  openGraph: {
+    type: "website",
+    siteName: "Scrutin",
+    locale: "fr_FR",
+  },
 };
 
 export const viewport: Viewport = {
