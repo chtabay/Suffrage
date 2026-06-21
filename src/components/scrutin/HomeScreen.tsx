@@ -114,10 +114,27 @@ export default function HomeScreen({ ctrl }: { ctrl: ScrutinController }) {
         </div>
       </div>
 
-      {/* Préparer avec une IA — relais mobile (le rail latéral est masqué sous 1300px) */}
-      <div className="ai-home-inline" style={{ marginTop: 28 }}>
-        <AiHelper ctrl={ctrl} />
-      </div>
+      {/* IA (mobile) : simple ligne d'accès rapide vers la section en bas — pas de mur avant le cœur de l'app */}
+      <a
+        href="#ia-prep"
+        className="ai-home-inline"
+        style={{
+          marginTop: 22,
+          textAlign: "center",
+          background: PAPER,
+          border: `2px solid ${INK}`,
+          borderRadius: 12,
+          padding: "11px 14px",
+          fontFamily: FONT_BODY,
+          fontWeight: 700,
+          fontSize: 14,
+          color: INK,
+          textDecoration: "none",
+          boxShadow: `3px 3px 0 ${INK}`,
+        }}
+      >
+        ✨ Pressé ? Laissez une IA préparer le vote →
+      </a>
 
       {/* étapes */}
       <div
@@ -237,6 +254,11 @@ export default function HomeScreen({ ctrl }: { ctrl: ScrutinController }) {
             );
           })}
         </div>
+      </div>
+
+      {/* IA — section complète (mobile ; desktop = rail latéral), cible du lien rapide */}
+      <div id="ia-prep" className="ai-home-inline" style={{ marginTop: 56, scrollMarginTop: 80 }}>
+        <AiHelper ctrl={ctrl} />
       </div>
     </div>
   );
