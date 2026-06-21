@@ -108,8 +108,17 @@ input {
   }
 }
 
+/* Rail latéral des assistants : desktop large uniquement. En dessous, c'est le
+   bloc « Préparer avec une IA » inline de l'accueil (.ai-home-inline) qui prend le relais. */
+.ai-home-inline {
+  display: none;
+}
+
 @media (max-width: 1300px) {
   .ai-side-rail {
     display: none !important;
+  }
+  .ai-home-inline {
+    display: block;
   }
 }

@@ -3,6 +3,7 @@
 import { SYSTEMS, SYSTEM_ORDER } from "@/lib/voting/systems";
 import type { ScrutinController } from "@/lib/voting/useScrutin";
 import AiSideRail from "./AiSideRail";
+import AiHelper from "./AiHelper";
 import { CORAL, FONT_BODY, FONT_DISPLAY, GREEN, INK, MUTED, PAPER, SUBINK, lift } from "./theme";
 
 const STEP_COLORS = ["#FF5E5B", "#5B5BD6", "#17B8A6"];
@@ -45,7 +46,7 @@ export default function HomeScreen({ ctrl }: { ctrl: ScrutinController }) {
           }}
         >
           <span style={{ width: 9, height: 9, borderRadius: "50%", background: GREEN, display: "inline-block" }} />
-          Le Tricount des décisions de groupe
+          Décider à plusieurs, simplement
         </div>
         <h1
           className="hero"
@@ -111,6 +112,11 @@ export default function HomeScreen({ ctrl }: { ctrl: ScrutinController }) {
             Comparer les méthodes
           </button>
         </div>
+      </div>
+
+      {/* Préparer avec une IA — relais mobile (le rail latéral est masqué sous 1300px) */}
+      <div className="ai-home-inline" style={{ marginTop: 28 }}>
+        <AiHelper ctrl={ctrl} />
       </div>
 
       {/* étapes */}
