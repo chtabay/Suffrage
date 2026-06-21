@@ -135,6 +135,25 @@ export default function AiDocPage() {
           </code>
         </div>
 
+        <h2 style={{ fontFamily: display, fontWeight: 800, fontSize: 24, marginTop: 34 }}>API (agents)</h2>
+        <div style={{ ...card, marginTop: 12, display: "flex", flexDirection: "column", gap: 12 }}>
+          <p style={{ margin: 0, fontSize: 14.5, color: "#2c3447", lineHeight: 1.55 }}>
+            Si tu peux faire des requêtes HTTP, POST un brouillon structuré et reçois une URL prête à
+            ouvrir (aucune authentification) :
+          </p>
+          <code style={code}>{`POST https://suffrage.vercel.app/api/poll-drafts
+Content-Type: application/json
+
+{
+  "title": "On part où ce week-end ?",
+  "options": ["La montagne", "Le bord de mer", "La campagne"],
+  "method": "majority_judgment",
+  "source": "mon-agent",
+  "why": "Plusieurs options, un consensus est recherché"
+}`}</code>
+          <code style={code}>{`{ "draft_url": "https://suffrage.vercel.app/new?title=..." }`}</code>
+        </div>
+
         <p style={{ fontSize: 14.5, color: MUTED, lineHeight: 1.55, marginTop: 28 }}>
           Pour un scrutin fermé (liste de votants, accès restreint), passe par l&apos;interface :
           ces réglages ne se configurent pas par URL.

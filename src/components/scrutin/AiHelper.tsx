@@ -1,34 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { buildAiPrompt } from "@/lib/voting/aiPrompt";
+import { ASSISTANTS, copyAiPrompt, openAssistant } from "@/lib/ai/assistants";
 import type { ScrutinController } from "@/lib/voting/useScrutin";
 import { CREAM, FONT_BODY, FONT_DISPLAY, INK, MUTED } from "./theme";
-
-const ASSISTANTS: { key: string; label: string; url: (p: string) => string }[] = [
-  { key: "chatgpt", label: "ChatGPT", url: (p) => `https://chatgpt.com/?q=${encodeURIComponent(p)}` },
-  { key: "claude", label: "Claude", url: (p) => `https://claude.ai/new?q=${encodeURIComponent(p)}` },
-  { key: "gemini", label: "Gemini", url: () => `https://gemini.google.com/app` },
-];
 
 export default function AiHelper({ ctrl }: { ctrl: ScrutinController }) {
   const { state } = ctrl;
   const [copied, setCopied] = useState(false);
-
-  const copy = async (prompt: string) => {
-    try {
-      await navigator.clipboard?.writeText(prompt);
-      setCopied(true);
-    } catch {
-      /* presse-papiers indisponible */
-    }
-  };
-
-  const prepare = async (a: (typeof ASSISTANTS)[number]) => {
-    const prompt = buildAiPrompt(state.question, state.options, a.key);
-    await copy(prompt);
-    window.open(a.url(prompt), "_blank", "noopener,noreferrer");
-  };
 
   const btn = {
     fontFamily: FONT_BODY,
@@ -57,11 +36,22 @@ export default function AiHelper({ ctrl }: { ctrl: ScrutinController }) {
       </div>
       <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
         {ASSISTANTS.map((a) => (
-          <button key={a.key} onClick={() => prepare(a)} style={{ ...btn, background: INK, color: "#fff" }}>
+          <button
+            key={a.key}
+            onClick={() => openAssistant(a, state.question, state.options)}
+            style={{ ...btn, display: "flex", alignItems: "center", gap: 8, background: INK, color: "#fff" }}
+          >
+            <span style={{ width: 12, height: 12, borderRadius: "50%", background: a.color, flex: "none" }} />
             Préparer avec {a.label}
           </button>
         ))}
-        <button onClick={() => copy(buildAiPrompt(state.question, state.options, "ai"))} style={{ ...btn, background: CREAM, color: INK }}>
+        <button
+          onClick={() => {
+            copyAiPrompt(state.question, state.options);
+            setCopied(true);
+          }}
+          style={{ ...btn, background: CREAM, color: INK }}
+        >
           {copied ? "✓ Prompt copié" : "Copier le prompt"}
         </button>
       </div>

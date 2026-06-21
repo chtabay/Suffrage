@@ -2,6 +2,7 @@
 
 import { SYSTEMS, SYSTEM_ORDER } from "@/lib/voting/systems";
 import type { ScrutinController } from "@/lib/voting/useScrutin";
+import AiSideRail from "./AiSideRail";
 import { CORAL, FONT_BODY, FONT_DISPLAY, GREEN, INK, MUTED, PAPER, SUBINK, lift } from "./theme";
 
 const STEP_COLORS = ["#FF5E5B", "#5B5BD6", "#17B8A6"];
@@ -27,6 +28,7 @@ export default function HomeScreen({ ctrl }: { ctrl: ScrutinController }) {
   const { go, selectSystemRecipe } = ctrl;
   return (
     <div className="pad" style={{ maxWidth: 1120, margin: "0 auto", padding: "64px 24px 90px" }}>
+      <AiSideRail />
       <div style={{ animation: "popIn 0.5s ease both" }}>
         <div
           style={{

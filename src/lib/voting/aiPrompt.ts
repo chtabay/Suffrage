@@ -23,5 +23,7 @@ Ta mission :
 - génère une URL Suffrage prête à ouvrir, au format :
 ${APP_URL}/new?title=...&options=Option1|Option2|Option3&method=...&source=${source}&why=...
 
-Encode correctement les valeurs pour l'URL, mets ta justification dans le paramètre "why", et n'inclus aucune donnée sensible (e-mails, identifiants…).`;
+Encode correctement les valeurs pour l'URL, mets ta justification dans le paramètre "why", et n'inclus aucune donnée sensible (e-mails, identifiants…).
+
+Si tu peux faire des requêtes HTTP, tu peux aussi appeler POST ${APP_URL}/api/poll-drafts avec { title, options, method, deadline, source, why } : il renverra { draft_url }.`;
 }

@@ -107,3 +107,9 @@ input {
     word-break: break-word;
   }
 }
+
+@media (max-width: 1300px) {
+  .ai-side-rail {
+    display: none !important;
+  }
+}
