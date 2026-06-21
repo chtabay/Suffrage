@@ -5,6 +5,7 @@ import { candColor } from "@/lib/voting/systems";
 import type { CountingMethod, Recipe } from "@/lib/voting/types";
 import type { ScrutinController } from "@/lib/voting/useScrutin";
 import AdvancedSettings from "./AdvancedSettings";
+import AiHelper from "./AiHelper";
 import ClosureLine from "./ClosureLine";
 import PrefillPanel from "./PrefillPanel";
 import { CREAM, FONT_BODY, FONT_DISPLAY, GREENTXT, INK, MUTED, REDTXT, lift } from "./theme";
@@ -307,6 +308,7 @@ export default function CreateScreen({ ctrl }: { ctrl: ScrutinController }) {
 
           <ClosureLine ctrl={ctrl} />
           <AdvancedSettings ctrl={ctrl} />
+          <AiHelper ctrl={ctrl} />
         </div>
 
         {/* DROITE : système résolu en direct */}
