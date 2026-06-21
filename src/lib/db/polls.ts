@@ -21,6 +21,10 @@ export interface PollRow {
   hide_results: boolean;
   access_mode: AccessMode;
   districts: District[] | null;
+  opens_at: string | null;
+  closes_at: string | null;
+  close_on_complete: boolean;
+  quorum: number | null;
 }
 
 export interface VoterInput {
@@ -43,7 +47,8 @@ export interface VoterContext {
   district: number | null;
 }
 
-const POLL_COLS = "id, token, question, options, recipe, created_at, status, hide_results, access_mode, districts";
+const POLL_COLS =
+  "id, token, question, options, recipe, created_at, status, hide_results, access_mode, districts, opens_at, closes_at, close_on_complete, quorum";
 
 /** SHA-256 hex (mêmes octets que sha256(convert_to(...,'UTF8')) côté Postgres). */
 async function sha256Hex(input: string): Promise<string> {
@@ -55,6 +60,10 @@ export interface CreatePollOptions {
   hideResults?: boolean;
   accessMode?: AccessMode;
   districts?: District[] | null;
+  opensAt?: string | null;
+  closesAt?: string | null;
+  closeOnComplete?: boolean;
+  quorum?: number | null;
 }
 
 /**
@@ -81,6 +90,10 @@ export async function createPoll(
       hide_results: opts.hideResults ?? false,
       access_mode: opts.accessMode ?? "open",
       districts: opts.districts ?? null,
+      opens_at: opts.opensAt ?? null,
+      closes_at: opts.closesAt ?? null,
+      close_on_complete: opts.closeOnComplete ?? false,
+      quorum: opts.quorum ?? null,
     })
     .select("token")
     .single();
@@ -98,6 +111,16 @@ export async function getPollByToken(token: string): Promise<PollRow | null> {
     .maybeSingle();
   if (error) throw error;
   return (data as PollRow | null) ?? null;
+}
+
+export type Phase = "scheduled" | "open" | "closed";
+
+/** Phase effective d'un scrutin (statut manuel + bornes temporelles). */
+export function pollPhase(p: PollRow, now: number = Date.now()): Phase {
+  if (p.status === "closed") return "closed";
+  if (p.closes_at && now >= Date.parse(p.closes_at)) return "closed";
+  if (p.opens_at && now < Date.parse(p.opens_at)) return "scheduled";
+  return "open";
 }
 
 /** Dépose un bulletin (mode ouvert). Bloqué par RLS si le scrutin est clos ou sur invitation. */

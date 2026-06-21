@@ -10,6 +10,7 @@ import {
   getPollByToken,
   getVoterContext,
   getVoters,
+  pollPhase,
   reopenPoll,
   type PollRow,
   type Voter,
@@ -48,7 +49,16 @@ function draftToBallot(mode: BallotMode, draft: BallotDraft, n: number): Ballot 
 const electorsOf = (p: PollRow): number[] | undefined => (p.districts ? p.districts.map((d) => d.electors) : undefined);
 const voterCanSeeResults = (p: PollRow) => p.status === "closed" || !p.hide_results;
 
-type View = "loading" | "notfound" | "needsInvite" | "vote" | "thanks" | "results" | "organizer" | "closed";
+type View =
+  | "loading"
+  | "notfound"
+  | "needsInvite"
+  | "scheduled"
+  | "vote"
+  | "thanks"
+  | "results"
+  | "organizer"
+  | "closed";
 
 function Header() {
   return (
@@ -178,6 +188,53 @@ function VoterLinkRow({ v }: { v: Voter & { url: string } }) {
   );
 }
 
+function fmtDateTime(iso: string) {
+  return new Date(iso).toLocaleString("fr-FR", { dateStyle: "long", timeStyle: "short" });
+}
+
+function Countdown({ closesAt, onExpire }: { closesAt: string; onExpire: () => void }) {
+  const [now, setNow] = useState<number | null>(null);
+  const target = Date.parse(closesAt);
+  useEffect(() => {
+    setNow(Date.now());
+    const id = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(id);
+  }, []);
+  useEffect(() => {
+    if (now !== null && now >= target) onExpire();
+  }, [now, target, onExpire]);
+  if (now === null) return null;
+  const total = Math.max(0, Math.floor((target - now) / 1000));
+  const d = Math.floor(total / 86400);
+  const h = Math.floor((total % 86400) / 3600);
+  const m = Math.floor((total % 3600) / 60);
+  const s = total % 60;
+  const label = d > 0 ? `${d} j ${h} h ${m} min` : h > 0 ? `${h} h ${m} min ${s} s` : `${m} min ${s} s`;
+  return (
+    <div style={{ marginTop: 12, fontSize: 13, fontWeight: 700, color: MUTED }}>⏲ Clôture dans {label}</div>
+  );
+}
+
+function QuorumBanner({ quorum, count }: { quorum: number; count: number }) {
+  if (count >= quorum) return null;
+  return (
+    <div
+      style={{
+        background: "#fff4e0",
+        border: `2px solid ${INK}`,
+        borderRadius: 12,
+        padding: "12px 14px",
+        fontWeight: 700,
+        fontSize: 13.5,
+        color: "#8a5a00",
+        marginBottom: 14,
+      }}
+    >
+      ⚠️ Quorum non atteint : {count} / {quorum} bulletins — résultat non validé.
+    </div>
+  );
+}
+
 export default function PublicVote({
   token,
   adminKey,
@@ -226,6 +283,7 @@ export default function PublicVote({
           return;
         }
         setPoll(p);
+        const phase = pollPhase(p);
 
         if (adminKey) {
           await refreshOrganizer(p);
@@ -244,9 +302,11 @@ export default function PublicVote({
             return;
           }
           setVoter(vc);
-          if (p.status === "closed") {
+          if (phase === "closed") {
             await loadResults(p);
             if (alive) setView("closed");
+          } else if (phase === "scheduled") {
+            if (alive) setView("scheduled");
           } else if (vc.voted) {
             if (voterCanSeeResults(p)) {
               await loadResults(p);
@@ -256,9 +316,11 @@ export default function PublicVote({
           return;
         }
         // accès ouvert
-        if (p.status === "closed") {
+        if (phase === "closed") {
           await loadResults(p);
           if (alive) setView("closed");
+        } else if (phase === "scheduled") {
+          if (alive) setView("scheduled");
         } else if (alive) {
           setView("vote");
         }
@@ -312,14 +374,15 @@ export default function PublicVote({
   const voteShareUrl =
     typeof window !== "undefined" ? `${window.location.origin}/v/${poll.token}` : `/v/${poll.token}`;
 
+  const phase = pollPhase(poll);
   const statusPill = (
     <span
       style={{
         display: "inline-flex",
         alignItems: "center",
         gap: 6,
-        background: poll.status === "open" ? GREEN : INK,
-        color: "#fff",
+        background: phase === "open" ? GREEN : phase === "scheduled" ? YELLOW : INK,
+        color: phase === "scheduled" ? INK : "#fff",
         border: `2px solid ${INK}`,
         borderRadius: 20,
         padding: "4px 11px",
@@ -327,7 +390,7 @@ export default function PublicVote({
         fontSize: 12,
       }}
     >
-      {poll.status === "open" ? "● Ouvert" : "■ Clôturé"}
+      {phase === "open" ? "● Ouvert" : phase === "scheduled" ? "◷ Programmé" : "■ Clôturé"}
     </span>
   );
 
@@ -458,6 +521,11 @@ export default function PublicVote({
               Résultats cachés aux votants jusqu'à la clôture (vous, vous les voyez).
             </div>
           )}
+          {poll.closes_at && (
+            <div style={{ marginTop: 6, fontSize: 12.5, color: MUTED }}>
+              ⏲ Clôture automatique le {fmtDateTime(poll.closes_at)}.
+            </div>
+          )}
         </div>
 
         {poll.access_mode === "invite" && (
@@ -476,7 +544,10 @@ export default function PublicVote({
 
         <div style={{ marginTop: 16 }}>
           {result ? (
-            <ResultCard result={result} question={poll.question} ballotCount={ballotCount} />
+            <>
+              {poll.quorum != null && <QuorumBanner quorum={poll.quorum} count={ballotCount} />}
+              <ResultCard result={result} question={poll.question} ballotCount={ballotCount} />
+            </>
           ) : (
             <div style={{ ...card, color: MUTED, fontSize: 15 }}>Aucun bulletin pour l'instant.</div>
           )}
@@ -494,6 +565,21 @@ export default function PublicVote({
           <p style={{ color: MUTED, marginTop: 8, lineHeight: 1.5 }}>
             Ce vote est réservé aux personnes invitées. Utilisez le <strong>lien personnel</strong> qui
             vous a été envoyé.
+          </p>
+        </div>
+      </Shell>
+    );
+  }
+
+  if (view === "scheduled") {
+    return (
+      <Shell>
+        <div style={{ ...card, textAlign: "center" }}>
+          <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 22 }}>⏳ Vote pas encore ouvert</div>
+          <p style={{ color: MUTED, marginTop: 8, lineHeight: 1.5 }}>
+            « {poll.question} »
+            <br />
+            Ouverture le <strong>{poll.opens_at ? fmtDateTime(poll.opens_at) : "—"}</strong>.
           </p>
         </div>
       </Shell>
@@ -534,7 +620,10 @@ export default function PublicVote({
           <span style={{ color: MUTED, fontSize: 14 }}>Le scrutin est terminé, voici le résultat.</span>
         </div>
         {result ? (
-          <ResultCard result={result} question={poll.question} ballotCount={ballotCount} />
+          <>
+            {poll.quorum != null && <QuorumBanner quorum={poll.quorum} count={ballotCount} />}
+            <ResultCard result={result} question={poll.question} ballotCount={ballotCount} />
+          </>
         ) : (
           <div style={{ ...card, color: MUTED }}>Aucun bulletin n'a été déposé.</div>
         )}
@@ -567,6 +656,7 @@ export default function PublicVote({
     );
     return (
       <Shell>
+        {poll.quorum != null && <QuorumBanner quorum={poll.quorum} count={ballotCount} />}
         <ResultCard result={result} question={poll.question} ballotCount={ballotCount} footer={footer} />
       </Shell>
     );
@@ -705,6 +795,10 @@ export default function PublicVote({
           {submitting ? "Enregistrement…" : "✓ Voter"}
         </button>
       </div>
+
+      {poll.closes_at && (
+        <Countdown closesAt={poll.closes_at} onExpire={() => loadResults(poll).then(() => setView("closed"))} />
+      )}
 
       {voterCanSeeResults(poll) && (
         <button

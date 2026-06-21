@@ -22,6 +22,10 @@ export interface ScrutinState {
   hideResults: boolean;
   voterNames: string;
   districts: DistrictDraft[];
+  opensAt: string;
+  closesAt: string;
+  quorum: number | null;
+  closeOnComplete: boolean;
   shareUrl: string | null;
   adminUrl: string | null;
   voterLinks: { label: string; url: string }[];
@@ -57,6 +61,10 @@ const INITIAL: ScrutinState = {
     { name: "Circonscription 1", electors: 3, voterNames: "" },
     { name: "Circonscription 2", electors: 2, voterNames: "" },
   ],
+  opensAt: "",
+  closesAt: "",
+  quorum: null,
+  closeOnComplete: false,
   shareUrl: null,
   adminUrl: null,
   voterLinks: [],
@@ -110,12 +118,23 @@ export function useScrutin() {
       r.suffrage = "indirect";
       r.localCounting = "majority";
     }
-    setState((s) => ({ ...s, recipe: r, screen: "create", ...CLEAR_SHARE }));
+    setState((s) => ({
+      ...s,
+      recipe: r,
+      screen: "create",
+      access: key === "indirect" ? "invite" : s.access,
+      ...CLEAR_SHARE,
+    }));
     scrollTop();
   }, []);
 
   const setRecipe = useCallback((patch: Partial<Recipe>) => {
-    setState((s) => ({ ...s, recipe: { ...s.recipe, ...patch }, ...CLEAR_SHARE }));
+    setState((s) => ({
+      ...s,
+      recipe: { ...s.recipe, ...patch },
+      access: patch.suffrage === "indirect" ? "invite" : s.access,
+      ...CLEAR_SHARE,
+    }));
   }, []);
 
   const setQuestion = useCallback((question: string) => {
@@ -158,6 +177,22 @@ export function useScrutin() {
 
   const setVoterNames = useCallback((voterNames: string) => {
     setState((s) => ({ ...s, voterNames, ...CLEAR_SHARE }));
+  }, []);
+
+  const setOpensAt = useCallback((opensAt: string) => {
+    setState((s) => ({ ...s, opensAt, ...CLEAR_SHARE }));
+  }, []);
+
+  const setClosesAt = useCallback((closesAt: string) => {
+    setState((s) => ({ ...s, closesAt, ...CLEAR_SHARE }));
+  }, []);
+
+  const setQuorum = useCallback((quorum: number | null) => {
+    setState((s) => ({ ...s, quorum, ...CLEAR_SHARE }));
+  }, []);
+
+  const toggleCloseOnComplete = useCallback(() => {
+    setState((s) => ({ ...s, closeOnComplete: !s.closeOnComplete, ...CLEAR_SHARE }));
   }, []);
 
   const setDistrictField = useCallback(
@@ -207,10 +242,15 @@ export function useScrutin() {
         }
       }
 
+      const toISO = (str: string) => (str ? new Date(str).toISOString() : null);
       const { token, secret } = await createPoll(s.question, s.options, s.recipe, {
         hideResults: s.hideResults,
         accessMode: s.access,
         districts: districtsPayload,
+        opensAt: toISO(s.opensAt),
+        closesAt: toISO(s.closesAt),
+        closeOnComplete: s.closeOnComplete,
+        quorum: s.quorum,
       });
       const origin = window.location.origin;
 
@@ -252,6 +292,10 @@ export function useScrutin() {
     setAccess,
     toggleHideResults,
     setVoterNames,
+    setOpensAt,
+    setClosesAt,
+    setQuorum,
+    toggleCloseOnComplete,
     setDistrictField,
     addDistrict,
     removeDistrict,

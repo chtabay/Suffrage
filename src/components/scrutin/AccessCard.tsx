@@ -20,20 +20,70 @@ const inputStyle = {
   outline: "none",
 } as const;
 
+function Toggle({ on, label, onClick }: { on: boolean; label: string; onClick: () => void }) {
+  return (
+    <button
+      onClick={onClick}
+      style={{
+        width: "100%",
+        textAlign: "left",
+        display: "flex",
+        alignItems: "center",
+        gap: 10,
+        cursor: "pointer",
+        border: `2px solid ${INK}`,
+        borderRadius: 10,
+        background: on ? INK : CREAM,
+        color: on ? "#fff" : INK,
+        padding: "10px 13px",
+        fontWeight: 700,
+        fontSize: 13.5,
+      }}
+    >
+      <span
+        style={{
+          width: 20,
+          height: 20,
+          flex: "none",
+          borderRadius: 6,
+          border: `2px solid ${on ? "#fff" : INK}`,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          fontSize: 13,
+        }}
+      >
+        {on ? "✓" : ""}
+      </span>
+      {label}
+    </button>
+  );
+}
+
 export default function AccessCard({ ctrl }: { ctrl: ScrutinController }) {
-  const { state, setAccess, toggleHideResults, setVoterNames, setDistrictField, addDistrict, removeDistrict } = ctrl;
+  const {
+    state,
+    setAccess,
+    toggleHideResults,
+    setVoterNames,
+    setDistrictField,
+    addDistrict,
+    removeDistrict,
+    toggleCloseOnComplete,
+  } = ctrl;
   const isGE = state.recipe.suffrage === "indirect";
+  const invite = state.access === "invite";
 
   const chip = (active: boolean, label: string, onClick: () => void) => (
     <button
       onClick={onClick}
       style={{
         fontFamily: FONT_BODY,
-        fontWeight: 600,
+        fontWeight: 700,
         fontSize: 13,
         cursor: "pointer",
         border: `2px solid ${INK}`,
-        padding: "8px 13px",
+        padding: "9px 14px",
         borderRadius: 9,
         background: active ? INK : CREAM,
         color: active ? "#fff" : INK,
@@ -47,58 +97,55 @@ export default function AccessCard({ ctrl }: { ctrl: ScrutinController }) {
     <div style={cardStyle}>
       <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 18 }}>Accès &amp; corps électoral</div>
 
-      {/* résultats cachés */}
-      <button
-        onClick={toggleHideResults}
-        style={{
-          marginTop: 14,
-          width: "100%",
-          textAlign: "left",
-          display: "flex",
-          alignItems: "center",
-          gap: 10,
-          cursor: "pointer",
-          border: `2px solid ${INK}`,
-          borderRadius: 10,
-          background: state.hideResults ? INK : CREAM,
-          color: state.hideResults ? "#fff" : INK,
-          padding: "10px 13px",
-          fontWeight: 700,
-          fontSize: 13.5,
-        }}
-      >
-        <span
+      {/* mode d'accès reframé */}
+      <div style={{ marginTop: 14 }}>
+        <div style={{ fontWeight: 700, fontSize: 13.5, marginBottom: 9 }}>Qui peut voter ?</div>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+          {chip(!invite, "⚡ Vote rapide", () => setAccess("open"))}
+          {chip(invite, "🔒 Vote vérifié", () => setAccess("invite"))}
+        </div>
+        <div
           style={{
-            width: 20,
-            height: 20,
-            flex: "none",
-            borderRadius: 6,
-            border: `2px solid ${state.hideResults ? "#fff" : INK}`,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            fontSize: 13,
+            marginTop: 10,
+            fontSize: 12.5,
+            color: MUTED,
+            lineHeight: 1.45,
+            background: CREAM,
+            border: `2px solid ${INK}`,
+            borderRadius: 10,
+            padding: "9px 12px",
           }}
         >
-          {state.hideResults ? "✓" : ""}
-        </span>
-        Cacher les résultats jusqu'à la clôture
-      </button>
-
-      {/* mode d'accès */}
-      <div style={{ marginTop: 16 }}>
-        <div style={{ fontWeight: 700, fontSize: 13.5, marginBottom: 3 }}>Qui peut voter ?</div>
-        <div style={{ fontSize: 12.5, color: MUTED, marginBottom: 9, lineHeight: 1.35 }}>
-          Ouvert à tous via le lien, ou réservé à une liste de votants nominatifs.
+          {invite
+            ? "🔒 Résultat vérifié — liste de votants, 1 vote par personne (liens nominatifs)."
+            : "⚡ Résultat indicatif — lien ouvert à tous ; on peut voter plusieurs fois."}
         </div>
-        <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-          {chip(state.access === "open", "Ouvert (lien public)", () => setAccess("open"))}
-          {chip(state.access === "invite", "Sur invitation", () => setAccess("invite"))}
-        </div>
+        {isGE && !invite && (
+          <div style={{ marginTop: 8, fontSize: 12.5, color: REDTXT, fontWeight: 600, lineHeight: 1.4 }}>
+            Pour de vrais grands électeurs, choisis « Vote vérifié » : sinon les circonscriptions sont
+            attribuées au hasard.
+          </div>
+        )}
       </div>
 
+      {/* résultats cachés */}
+      <div style={{ marginTop: 16 }}>
+        <Toggle on={state.hideResults} label="Cacher les résultats jusqu'à la clôture" onClick={toggleHideResults} />
+      </div>
+
+      {/* clôture sur complétude (invitation) */}
+      {invite && (
+        <div style={{ marginTop: 10 }}>
+          <Toggle
+            on={state.closeOnComplete}
+            label="Clôturer dès que tout le monde a voté"
+            onClick={toggleCloseOnComplete}
+          />
+        </div>
+      )}
+
       {/* corps électoral */}
-      {state.access === "invite" && !isGE && (
+      {invite && !isGE && (
         <div style={{ marginTop: 16 }}>
           <div style={{ fontWeight: 700, fontSize: 13.5, marginBottom: 3 }}>Liste des votants</div>
           <div style={{ fontSize: 12.5, color: MUTED, marginBottom: 9, lineHeight: 1.35 }}>
@@ -114,7 +161,7 @@ export default function AccessCard({ ctrl }: { ctrl: ScrutinController }) {
         </div>
       )}
 
-      {state.access === "invite" && isGE && (
+      {invite && isGE && (
         <div style={{ marginTop: 16 }}>
           <div style={{ fontWeight: 700, fontSize: 13.5, marginBottom: 3 }}>Circonscriptions</div>
           <div style={{ fontSize: 12.5, color: MUTED, marginBottom: 11, lineHeight: 1.35 }}>
