@@ -1,0 +1,74 @@
+"use client";
+
+import { useState } from "react";
+import { buildResultText, waUrl } from "@/lib/share";
+import type { ComputeResult } from "@/lib/voting/types";
+import { CREAM, FONT_DISPLAY, INK } from "./theme";
+
+export default function ResultShare({
+  question,
+  result,
+  ballotCount,
+  optionsCount,
+  url,
+}: {
+  question: string;
+  result: ComputeResult;
+  ballotCount: number;
+  optionsCount: number;
+  url: string;
+}) {
+  const [copied, setCopied] = useState(false);
+  const text = buildResultText(question, result, ballotCount, optionsCount, url);
+  const copy = async () => {
+    try {
+      await navigator.clipboard?.writeText(text);
+      setCopied(true);
+    } catch {
+      /* presse-papiers indisponible */
+    }
+  };
+  return (
+    <div style={{ display: "flex", gap: 9, marginTop: 14, flexWrap: "wrap" }}>
+      <a
+        href={waUrl(text)}
+        target="_blank"
+        rel="noopener noreferrer"
+        style={{
+          flex: 1,
+          minWidth: 170,
+          textAlign: "center",
+          textDecoration: "none",
+          fontFamily: FONT_DISPLAY,
+          fontWeight: 700,
+          fontSize: 14.5,
+          border: `2.5px solid ${INK}`,
+          background: "#25D366",
+          color: "#fff",
+          padding: 12,
+          borderRadius: 12,
+        }}
+      >
+        💬 Partager le résultat
+      </a>
+      <button
+        onClick={copy}
+        style={{
+          flex: 1,
+          minWidth: 170,
+          fontFamily: FONT_DISPLAY,
+          fontWeight: 700,
+          fontSize: 14.5,
+          cursor: "pointer",
+          border: `2.5px solid ${INK}`,
+          background: CREAM,
+          color: INK,
+          padding: 12,
+          borderRadius: 12,
+        }}
+      >
+        {copied ? "✓ Copié" : "📋 Copier le résultat"}
+      </button>
+    </div>
+  );
+}

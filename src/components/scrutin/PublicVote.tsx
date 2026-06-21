@@ -30,6 +30,7 @@ import type { Ballot, BallotMode, ComputeResult } from "@/lib/voting/types";
 import InstallInline from "@/components/pwa/InstallInline";
 import BallotCard, { EMPTY_DRAFT, type BallotDraft } from "./BallotCard";
 import ResultCard from "./ResultCard";
+import ResultShare from "./ResultShare";
 import { CORAL, CREAM, FONT_BODY, FONT_DISPLAY, GREEN, INK, MUTED, REDTXT, YELLOW, lift } from "./theme";
 
 const INSTRUCTIONS: Record<string, string> = {
@@ -548,6 +549,13 @@ export default function PublicVote({
             <>
               {poll.quorum != null && <QuorumBanner quorum={poll.quorum} count={ballotCount} />}
               <ResultCard result={result} question={poll.question} ballotCount={ballotCount} />
+              <ResultShare
+                question={poll.question}
+                result={result}
+                ballotCount={ballotCount}
+                optionsCount={poll.options.length}
+                url={voteShareUrl}
+              />
             </>
           ) : (
             <div style={{ ...card, color: MUTED, fontSize: 15 }}>Aucun bulletin pour l'instant.</div>
@@ -625,6 +633,13 @@ export default function PublicVote({
           <>
             {poll.quorum != null && <QuorumBanner quorum={poll.quorum} count={ballotCount} />}
             <ResultCard result={result} question={poll.question} ballotCount={ballotCount} />
+            <ResultShare
+              question={poll.question}
+              result={result}
+              ballotCount={ballotCount}
+              optionsCount={poll.options.length}
+              url={voteShareUrl}
+            />
           </>
         ) : (
           <div style={{ ...card, color: MUTED }}>Aucun bulletin n'a été déposé.</div>
@@ -636,25 +651,34 @@ export default function PublicVote({
   // ---------- résultats (votant) ----------
   if (view === "results" && result) {
     const footer = (
-      <Link
-        href="/"
-        style={{
-          display: "inline-block",
-          marginTop: 18,
-          textAlign: "center",
-          textDecoration: "none",
-          fontFamily: FONT_DISPLAY,
-          fontWeight: 700,
-          fontSize: 15,
-          border: `2.5px solid ${INK}`,
-          background: YELLOW,
-          color: INK,
-          padding: "12px 18px",
-          borderRadius: 12,
-        }}
-      >
-        Créer mon scrutin →
-      </Link>
+      <>
+        <ResultShare
+          question={poll.question}
+          result={result}
+          ballotCount={ballotCount}
+          optionsCount={poll.options.length}
+          url={voteShareUrl}
+        />
+        <Link
+          href="/"
+          style={{
+            display: "inline-block",
+            marginTop: 14,
+            textAlign: "center",
+            textDecoration: "none",
+            fontFamily: FONT_DISPLAY,
+            fontWeight: 700,
+            fontSize: 15,
+            border: `2.5px solid ${INK}`,
+            background: YELLOW,
+            color: INK,
+            padding: "12px 18px",
+            borderRadius: 12,
+          }}
+        >
+          Créer mon scrutin →
+        </Link>
+      </>
     );
     return (
       <Shell>
