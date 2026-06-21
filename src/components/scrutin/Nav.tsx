@@ -1,10 +1,24 @@
 "use client";
 
+import type { AuthController } from "@/lib/auth/useAuth";
 import type { ScrutinController } from "@/lib/voting/useScrutin";
-import { CORAL, CREAM, FONT_BODY, FONT_DISPLAY, INK, YELLOW, lift } from "./theme";
+import { CORAL, CREAM, FONT_BODY, FONT_DISPLAY, GREEN, INK, YELLOW, lift } from "./theme";
 
-export default function Nav({ ctrl }: { ctrl: ScrutinController }) {
+export default function Nav({ ctrl, auth }: { ctrl: ScrutinController; auth: AuthController }) {
   const { go } = ctrl;
+
+  const secondary = {
+    fontFamily: FONT_BODY,
+    fontWeight: 600,
+    fontSize: 14,
+    cursor: "pointer",
+    border: `2px solid ${INK}`,
+    background: CREAM,
+    color: INK,
+    padding: "9px 15px",
+    borderRadius: 10,
+  } as const;
+
   return (
     <div
       style={{
@@ -30,10 +44,7 @@ export default function Nav({ ctrl }: { ctrl: ScrutinController }) {
           rowGap: 10,
         }}
       >
-        <div
-          onClick={() => go("home")}
-          style={{ display: "flex", alignItems: "center", gap: 11, cursor: "pointer" }}
-        >
+        <div onClick={() => go("home")} style={{ display: "flex", alignItems: "center", gap: 11, cursor: "pointer" }}>
           <div
             style={{
               width: 38,
@@ -54,39 +65,11 @@ export default function Nav({ ctrl }: { ctrl: ScrutinController }) {
             Scrutin
           </div>
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <button
-            onClick={() => go("mine")}
-            className="dc-paper"
-            style={{
-              fontFamily: FONT_BODY,
-              fontWeight: 600,
-              fontSize: 14,
-              cursor: "pointer",
-              border: `2px solid ${INK}`,
-              background: CREAM,
-              color: INK,
-              padding: "9px 15px",
-              borderRadius: 10,
-            }}
-          >
+        <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+          <button onClick={() => go("mine")} className="dc-paper" style={secondary}>
             Mes scrutins
           </button>
-          <button
-            onClick={() => go("gallery")}
-            className="dc-paper"
-            style={{
-              fontFamily: FONT_BODY,
-              fontWeight: 600,
-              fontSize: 14,
-              cursor: "pointer",
-              border: `2px solid ${INK}`,
-              background: CREAM,
-              color: INK,
-              padding: "9px 15px",
-              borderRadius: 10,
-            }}
-          >
+          <button onClick={() => go("gallery")} className="dc-paper" style={secondary}>
             Les systèmes
           </button>
           <button
@@ -107,6 +90,22 @@ export default function Nav({ ctrl }: { ctrl: ScrutinController }) {
           >
             Créer un vote
           </button>
+          {!auth.loading &&
+            (auth.user ? (
+              <button
+                onClick={auth.signOut}
+                className="dc-paper"
+                title={auth.user.email ?? undefined}
+                style={{ ...secondary, display: "flex", alignItems: "center", gap: 7 }}
+              >
+                <span style={{ width: 8, height: 8, borderRadius: "50%", background: GREEN, display: "inline-block" }} />
+                Déconnexion
+              </button>
+            ) : (
+              <button onClick={auth.signIn} className="dc-paper" style={secondary}>
+                Se connecter
+              </button>
+            ))}
         </div>
       </div>
     </div>
