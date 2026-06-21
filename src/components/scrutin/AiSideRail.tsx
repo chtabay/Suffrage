@@ -1,6 +1,6 @@
 "use client";
 
-import { ASSISTANTS, openAssistant } from "@/lib/ai/assistants";
+import { RAIL_ASSISTANTS, openAssistant } from "@/lib/ai/assistants";
 import { FONT_DISPLAY, INK, MUTED } from "./theme";
 
 // Rail latéral (desktop) : lancer la préparation du vote avec une IA dès l'accueil.
@@ -29,7 +29,7 @@ export default function AiSideRail() {
       <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 11, color: MUTED, textAlign: "center", lineHeight: 1.2 }}>
         ✨ Préparer avec une IA
       </div>
-      {ASSISTANTS.map((a) => (
+      {RAIL_ASSISTANTS.map((a) => (
         <button
           key={a.key}
           onClick={() => openAssistant(a, "", [])}

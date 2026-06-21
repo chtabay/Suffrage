@@ -31,8 +31,7 @@ export default function AiHelper({ ctrl }: { ctrl: ScrutinController }) {
     >
       <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 16 }}>✨ Préparer avec une IA</div>
       <div style={{ fontSize: 12.5, color: MUTED, margin: "5px 0 12px", lineHeight: 1.45 }}>
-        Laisse une IA formuler le vote (titre, options, méthode) — elle te renverra un lien Suffrage
-        prêt à ouvrir et à valider ici.
+        Choisis un assistant : il reçoit le prompt et te renvoie un lien Suffrage prêt à valider ici.
       </div>
       <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
         {ASSISTANTS.map((a) => (
@@ -42,7 +41,7 @@ export default function AiHelper({ ctrl }: { ctrl: ScrutinController }) {
             style={{ ...btn, display: "flex", alignItems: "center", gap: 8, background: INK, color: "#fff" }}
           >
             <span style={{ width: 12, height: 12, borderRadius: "50%", background: a.color, flex: "none" }} />
-            Préparer avec {a.label}
+            {a.label}
           </button>
         ))}
         <button
@@ -54,6 +53,9 @@ export default function AiHelper({ ctrl }: { ctrl: ScrutinController }) {
         >
           {copied ? "✓ Prompt copié" : "Copier le prompt"}
         </button>
+      </div>
+      <div style={{ fontSize: 11.5, color: MUTED, marginTop: 10, lineHeight: 1.4 }}>
+        Le prompt est copié automatiquement — sur Gemini, Copilot, Grok ou Le Chat, il suffit de le coller (Ctrl/⌘+V).
       </div>
     </div>
   );
