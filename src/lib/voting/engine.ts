@@ -575,24 +575,3 @@ export function normalizeFromGrades(g: Record<number, number>, n: number, ballot
   const ranking = [...Array(n).keys()].sort((a, b) => grades[b] - grades[a] || rand());
   return { ranking, grades, district: ballotsLen % DISTRICTS };
 }
-
-/** Simule 100 électeurs répartis dans un espace d'opinions 2D. */
-export function simulateCrowd(n: number, ballotsLen: number): Ballot[] {
-  const cpos = Array.from({ length: n }, (_, i) => ({
-    x: Math.cos((2 * Math.PI * i) / n),
-    y: Math.sin((2 * Math.PI * i) / n),
-  }));
-  const add: Ballot[] = [];
-  for (let v = 0; v < 100; v++) {
-    const x = (Math.random() * 2 - 1) * 1.5;
-    const y = (Math.random() * 2 - 1) * 1.5;
-    const d = cpos.map((p, i) => ({ i, dist: Math.hypot(p.x - x, p.y - y) + Math.random() * 0.35 }));
-    d.sort((a, b) => a.dist - b.dist);
-    const ranking = d.map((o) => o.i);
-    const maxd = Math.max(...d.map((o) => o.dist));
-    const grades: Record<number, number> = {};
-    d.forEach((o) => (grades[o.i] = Math.round(5 * (1 - o.dist / (maxd + 0.001)))));
-    add.push({ ranking, grades, district: (ballotsLen + v) % DISTRICTS });
-  }
-  return add;
-}

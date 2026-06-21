@@ -2,34 +2,18 @@
 
 import { useCallback, useRef, useState } from "react";
 import { createPoll } from "@/lib/db/polls";
-import {
-  compute,
-  methodMode,
-  normalizeFromApproved,
-  normalizeFromGrades,
-  normalizeFromRank,
-  normalizeFromSingle,
-  operativeMethod,
-  simulateCrowd,
-} from "./engine";
-import type { Ballot, ComputeResult, Option, Recipe } from "./types";
+import type { Option, Recipe } from "./types";
 
-export type Screen = "home" | "gallery" | "create" | "vote" | "results";
+export type Screen = "home" | "gallery" | "create" | "launched";
 
 export interface ScrutinState {
   screen: Screen;
   question: string;
   options: Option[];
   recipe: Recipe;
-  ballots: Ballot[];
-  myChoice: number | null;
-  myApproved: number[];
-  myRank: number[];
-  myGrades: Record<number, number>;
-  result: ComputeResult | null;
-  shared: boolean;
   shareUrl: string | null;
-  sharing: boolean;
+  launching: boolean;
+  error: string | null;
 }
 
 const DEFAULT_RECIPE: Recipe = {
@@ -53,15 +37,9 @@ const INITIAL: ScrutinState = {
     { icon: "🌿", name: "La campagne" },
   ],
   recipe: { ...DEFAULT_RECIPE },
-  ballots: [],
-  myChoice: null,
-  myApproved: [],
-  myRank: [],
-  myGrades: {},
-  result: null,
-  shared: false,
   shareUrl: null,
-  sharing: false,
+  launching: false,
+  error: null,
 };
 
 const scrollTop = () => {
@@ -70,8 +48,8 @@ const scrollTop = () => {
 
 const ADD_ICONS = ["🎯", "⭐", "🔥", "🌟", "🎪", "🎨"];
 
-// Toute modification de la définition du scrutin invalide le lien de partage.
-const CLEAR_SHARE = { shareUrl: null, shared: false } as const;
+// Toute modification de la définition du scrutin invalide le lien déjà lancé.
+const CLEAR_SHARE = { shareUrl: null, error: null } as const;
 
 export function useScrutin() {
   const [state, setState] = useState<ScrutinState>(INITIAL);
@@ -121,9 +99,7 @@ export function useScrutin() {
 
   const removeOption = useCallback((i: number) => {
     setState((s) =>
-      s.options.length <= 2
-        ? s
-        : { ...s, options: s.options.filter((_, j) => j !== i), ballots: [], ...CLEAR_SHARE },
+      s.options.length <= 2 ? s : { ...s, options: s.options.filter((_, j) => j !== i), ...CLEAR_SHARE },
     );
   }, []);
 
@@ -133,118 +109,28 @@ export function useScrutin() {
       return {
         ...s,
         options: [...s.options, { icon: ADD_ICONS[idx % ADD_ICONS.length], name: "Nouvelle option" }],
-        ballots: [],
         ...CLEAR_SHARE,
       };
     });
   }, []);
 
-  const setChoice = useCallback((i: number) => setState((s) => ({ ...s, myChoice: i })), []);
-
-  const toggleApprove = useCallback((i: number) => {
-    setState((s) => ({
-      ...s,
-      myApproved: s.myApproved.includes(i)
-        ? s.myApproved.filter((x) => x !== i)
-        : [...s.myApproved, i],
-    }));
-  }, []);
-
-  const rank = useCallback((i: number) => {
-    setState((s) => (s.myRank.includes(i) ? s : { ...s, myRank: [...s.myRank, i] }));
-  }, []);
-
-  const resetRank = useCallback(() => setState((s) => ({ ...s, myRank: [] })), []);
-
-  const setGrade = useCallback((i: number, gi: number) => {
-    setState((s) => ({ ...s, myGrades: { ...s.myGrades, [i]: gi } }));
-  }, []);
-
-  const addMyVote = useCallback(() => {
-    setState((s) => {
-      const mode = methodMode(operativeMethod(s.recipe));
-      const len = s.ballots.length;
-      const n = s.options.length;
-      let b: Ballot | null = null;
-      if (mode === "single") {
-        if (s.myChoice === null) return s;
-        b = normalizeFromSingle(s.myChoice, n, len);
-      } else if (mode === "approve") {
-        if (!s.myApproved.length) return s;
-        b = normalizeFromApproved(s.myApproved, n, len);
-      } else if (mode === "rank") {
-        if (!s.myRank.length) return s;
-        b = normalizeFromRank(s.myRank, n, len);
-      } else if (mode === "grade") {
-        b = normalizeFromGrades(s.myGrades, n, len);
-      }
-      if (!b) return s;
-      return {
-        ...s,
-        ballots: [...s.ballots, b],
-        myChoice: null,
-        myApproved: [],
-        myRank: [],
-        myGrades: {},
-      };
-    });
-  }, []);
-
-  const simulate = useCallback(() => {
-    setState((s) => ({
-      ...s,
-      ballots: [...s.ballots, ...simulateCrowd(s.options.length, s.ballots.length)],
-    }));
-  }, []);
-
-  const reset = useCallback(() => setState((s) => ({ ...s, ballots: [], result: null })), []);
-
-  const goResults = useCallback(() => {
-    setState((s) => {
-      if (!s.ballots.length) return s;
-      return {
-        ...s,
-        result: compute({ recipe: s.recipe, options: s.options, ballots: s.ballots }),
-        shared: false,
-        screen: "results",
-      };
-    });
-    scrollTop();
-  }, []);
-
-  const recalc = useCallback(() => {
-    setState((s) => ({
-      ...s,
-      result: compute({ recipe: s.recipe, options: s.options, ballots: s.ballots }),
-      shared: false,
-    }));
-    scrollTop();
-  }, []);
-
-  // « Partager » : persiste le scrutin (question + options + recette) et copie le lien /v/[token].
-  const share = useCallback(async () => {
-    const copy = async (url: string) => {
-      try {
-        await navigator.clipboard?.writeText(url);
-      } catch {
-        /* presse-papiers indisponible : le lien reste affiché à l'écran */
-      }
-    };
+  // Lance le scrutin : persiste la définition et bascule sur l'écran de partage.
+  const launch = useCallback(async () => {
     const s = stateRef.current;
-    if (s.shareUrl) {
-      await copy(s.shareUrl);
-      setState((p) => ({ ...p, shared: true }));
-      return;
-    }
-    setState((p) => ({ ...p, sharing: true }));
+    setState((p) => ({ ...p, launching: true, error: null }));
     try {
       const token = await createPoll(s.question, s.options, s.recipe);
       const url = `${window.location.origin}/v/${token}`;
-      await copy(url);
-      setState((p) => ({ ...p, shareUrl: url, shared: true, sharing: false }));
+      setState((p) => ({ ...p, shareUrl: url, launching: false, screen: "launched" }));
+      scrollTop();
     } catch {
-      setState((p) => ({ ...p, sharing: false }));
+      setState((p) => ({ ...p, launching: false, error: "Impossible de lancer le scrutin. Réessayez." }));
     }
+  }, []);
+
+  const newScrutin = useCallback(() => {
+    setState((s) => ({ ...s, screen: "create", shareUrl: null, error: null }));
+    scrollTop();
   }, []);
 
   return {
@@ -256,19 +142,9 @@ export function useScrutin() {
     setOptionName,
     removeOption,
     addOption,
-    setChoice,
-    toggleApprove,
-    rank,
-    resetRank,
-    setGrade,
-    addMyVote,
-    simulate,
-    reset,
-    goResults,
-    recalc,
-    share,
+    launch,
+    newScrutin,
   };
 }
 
 export type ScrutinController = ReturnType<typeof useScrutin>;
-export { operativeMethod, methodMode };

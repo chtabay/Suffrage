@@ -4,7 +4,7 @@ import { describeRecipe } from "@/lib/voting/engine";
 import { candColor } from "@/lib/voting/systems";
 import type { CountingMethod, Recipe } from "@/lib/voting/types";
 import type { ScrutinController } from "@/lib/voting/useScrutin";
-import { CORAL, CREAM, FONT_BODY, FONT_DISPLAY, GREENTXT, INK, MUTED, REDTXT, lift } from "./theme";
+import { CREAM, FONT_BODY, FONT_DISPLAY, GREENTXT, INK, MUTED, REDTXT, lift } from "./theme";
 
 interface AxisOption {
   label: string;
@@ -133,7 +133,7 @@ function buildAxes(r: Recipe, setRecipe: (p: Partial<Recipe>) => void): Axis[] {
 }
 
 export default function CreateScreen({ ctrl }: { ctrl: ScrutinController }) {
-  const { state, go, setRecipe, setQuestion, setOptionName, removeOption, addOption } = ctrl;
+  const { state, setRecipe, setQuestion, setOptionName, removeOption, addOption, launch } = ctrl;
   const resolved = describeRecipe(state.recipe);
   const axes = buildAxes(state.recipe, setRecipe);
 
@@ -147,13 +147,6 @@ export default function CreateScreen({ ctrl }: { ctrl: ScrutinController }) {
 
   return (
     <div className="pad" style={{ maxWidth: 1120, margin: "0 auto", padding: "40px 24px 100px" }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 10, fontWeight: 600, fontSize: 14, color: MUTED }}>
-        <span style={{ color: CORAL, fontWeight: 800 }}>1. Réglages</span>
-        <span>→</span>
-        <span>2. Vote</span>
-        <span>→</span>
-        <span>3. Résultat</span>
-      </div>
       <h1
         style={{
           fontFamily: FONT_DISPLAY,
@@ -400,7 +393,8 @@ export default function CreateScreen({ ctrl }: { ctrl: ScrutinController }) {
               ))}
             </div>
             <button
-              onClick={() => go("vote")}
+              onClick={launch}
+              disabled={state.launching}
               className="dc-lift"
               style={{
                 marginTop: 18,
@@ -408,17 +402,21 @@ export default function CreateScreen({ ctrl }: { ctrl: ScrutinController }) {
                 fontFamily: FONT_DISPLAY,
                 fontWeight: 700,
                 fontSize: 16,
-                cursor: "pointer",
+                cursor: state.launching ? "default" : "pointer",
                 border: `2.5px solid ${INK}`,
                 background: INK,
                 color: "#fff",
                 padding: 13,
                 borderRadius: 13,
+                opacity: state.launching ? 0.7 : 1,
                 ...lift(`4px 4px 0 ${resolved.color}`, `6px 6px 0 ${resolved.color}`),
               }}
             >
-              Passer au vote →
+              {state.launching ? "Lancement…" : "Lancer le vote →"}
             </button>
+            {state.error && (
+              <div style={{ marginTop: 10, color: "#d23b3b", fontWeight: 700, fontSize: 13 }}>{state.error}</div>
+            )}
           </div>
         </div>
       </div>
