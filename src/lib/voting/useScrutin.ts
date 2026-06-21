@@ -3,6 +3,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { addLocalPoll } from "@/lib/db/localPolls";
 import { addVoters, createPoll, type AccessMode, type District, type VoterInput } from "@/lib/db/polls";
+import type { ScrutinDraft } from "./draft";
+import { DEFAULT_RECIPE, recipeForSystem } from "./engine";
 import type { Option, Recipe } from "./types";
 
 export type Screen = "home" | "gallery" | "create" | "launched" | "mine";
@@ -31,18 +33,8 @@ export interface ScrutinState {
   voterLinks: { label: string; url: string }[];
   launching: boolean;
   error: string | null;
+  prefilled: boolean;
 }
-
-const DEFAULT_RECIPE: Recipe = {
-  suffrage: "direct",
-  counting: "majority",
-  rounds: 1,
-  qualif: "top2",
-  random: false,
-  localCounting: "majority",
-  electorSplit: "wta",
-  threshold: 50,
-};
 
 const INITIAL: ScrutinState = {
   screen: "home",
@@ -70,7 +62,24 @@ const INITIAL: ScrutinState = {
   voterLinks: [],
   launching: false,
   error: null,
+  prefilled: false,
 };
+
+function makeInitial(draft?: ScrutinDraft): ScrutinState {
+  if (!draft) return INITIAL;
+  const prefilled = Boolean(draft.question || draft.options || draft.recipe || draft.closesAt);
+  const recipe = draft.recipe ?? INITIAL.recipe;
+  return {
+    ...INITIAL,
+    screen: "create",
+    question: draft.question ?? INITIAL.question,
+    options: draft.options ?? INITIAL.options,
+    recipe,
+    closesAt: draft.closesAt ?? INITIAL.closesAt,
+    access: recipe.suffrage === "indirect" ? "invite" : INITIAL.access,
+    prefilled,
+  };
+}
 
 const scrollTop = () => {
   if (typeof window !== "undefined") window.scrollTo({ top: 0 });
@@ -92,8 +101,8 @@ const splitNames = (text: string) =>
     .map((x) => x.trim())
     .filter(Boolean);
 
-export function useScrutin() {
-  const [state, setState] = useState<ScrutinState>(INITIAL);
+export function useScrutin(draft?: ScrutinDraft) {
+  const [state, setState] = useState<ScrutinState>(() => makeInitial(draft));
   const stateRef = useRef(state);
   stateRef.current = state;
 
@@ -111,24 +120,9 @@ export function useScrutin() {
   }, []);
 
   const selectSystemRecipe = useCallback((key: string) => {
-    const r: Recipe = { ...DEFAULT_RECIPE };
-    if (key === "runoff") r.rounds = 2;
-    else if (key === "condorcet") r.counting = "condorcet";
-    else if (key === "condorcet_random") {
-      r.counting = "condorcet";
-      r.random = true;
-    } else if (key === "mj") r.counting = "mj";
-    else if (key === "approval") r.counting = "approval";
-    else if (key === "borda") r.counting = "borda";
-    else if (key === "proportional") r.counting = "proportional";
-    else if (key === "list") r.counting = "list";
-    else if (key === "indirect") {
-      r.suffrage = "indirect";
-      r.localCounting = "majority";
-    }
     setState((s) => ({
       ...s,
-      recipe: r,
+      recipe: recipeForSystem(key),
       screen: "create",
       access: key === "indirect" ? "invite" : s.access,
       ...CLEAR_SHARE,
@@ -284,7 +278,7 @@ export function useScrutin() {
   }, []);
 
   const newScrutin = useCallback(() => {
-    setState((s) => ({ ...s, screen: "create", ...CLEAR_SHARE }));
+    setState((s) => ({ ...s, screen: "create", prefilled: false, ...CLEAR_SHARE }));
     scrollTop();
   }, []);
 

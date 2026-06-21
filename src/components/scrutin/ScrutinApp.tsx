@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { useAuth } from "@/lib/auth/useAuth";
 import { getLocalPolls } from "@/lib/db/localPolls";
 import { claimPolls } from "@/lib/db/polls";
+import type { ScrutinDraft } from "@/lib/voting/draft";
 import { useScrutin } from "@/lib/voting/useScrutin";
 import CreateScreen from "./CreateScreen";
 import GalleryScreen from "./GalleryScreen";
@@ -12,8 +13,8 @@ import LaunchedScreen from "./LaunchedScreen";
 import MesScrutinsScreen from "./MesScrutinsScreen";
 import Nav from "./Nav";
 
-export default function ScrutinApp() {
-  const ctrl = useScrutin();
+export default function ScrutinApp({ draft }: { draft?: ScrutinDraft }) {
+  const ctrl = useScrutin(draft);
   const auth = useAuth();
   const { screen } = ctrl.state;
   const userId = auth.user?.id;

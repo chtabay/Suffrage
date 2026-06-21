@@ -16,6 +16,37 @@ import type {
 
 const col = candColor;
 
+export const DEFAULT_RECIPE: Recipe = {
+  suffrage: "direct",
+  counting: "majority",
+  rounds: 1,
+  qualif: "top2",
+  random: false,
+  localCounting: "majority",
+  electorSplit: "wta",
+  threshold: 50,
+};
+
+/** Construit une recette à partir d'une clé de système (fptp, runoff, mj, indirect…). */
+export function recipeForSystem(key: string): Recipe {
+  const r: Recipe = { ...DEFAULT_RECIPE };
+  if (key === "runoff") r.rounds = 2;
+  else if (key === "condorcet") r.counting = "condorcet";
+  else if (key === "condorcet_random") {
+    r.counting = "condorcet";
+    r.random = true;
+  } else if (key === "mj") r.counting = "mj";
+  else if (key === "approval") r.counting = "approval";
+  else if (key === "borda") r.counting = "borda";
+  else if (key === "proportional") r.counting = "proportional";
+  else if (key === "list") r.counting = "list";
+  else if (key === "indirect") {
+    r.suffrage = "indirect";
+    r.localCounting = "majority";
+  }
+  return r;
+}
+
 // ---------- résolution de la recette ----------
 
 /** Recette → clé du système « résolu ». */

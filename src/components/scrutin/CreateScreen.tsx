@@ -160,6 +160,24 @@ export default function CreateScreen({ ctrl }: { ctrl: ScrutinController }) {
       >
         Réglez votre scrutin
       </h1>
+      {state.prefilled && (
+        <div
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 6,
+            marginTop: 12,
+            background: "#FFF4DF",
+            border: `2px solid ${INK}`,
+            borderRadius: 20,
+            padding: "6px 13px",
+            fontSize: 12.5,
+            fontWeight: 700,
+          }}
+        >
+          ✨ Pré-rempli depuis un lien — vérifiez et ajustez avant de lancer.
+        </div>
+      )}
 
       <div
         className="create-grid"
