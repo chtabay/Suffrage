@@ -70,9 +70,8 @@ export default function HomeScreen({ ctrl }: { ctrl: ScrutinController }) {
             color: SUBINK,
           }}
         >
-          Choisissez votre mode de scrutin en connaissance de cause — du majoritaire au jugement
-          majoritaire — puis lancez et partagez votre vote en deux clics. Le résultat est calculé
-          pour de vrai.
+          Choisissez la méthode de vote adaptée à votre décision, lancez le scrutin et partagez-le
+          en deux clics. Le gagnant est calculé selon ses règles exactes — pas un sondage de plus.
         </p>
         <div style={{ display: "flex", flexWrap: "wrap", gap: 13, marginTop: 34 }}>
           <button
@@ -109,7 +108,7 @@ export default function HomeScreen({ ctrl }: { ctrl: ScrutinController }) {
               ...lift(`5px 5px 0 ${INK}`, `7px 7px 0 ${INK}`),
             }}
           >
-            Comparer les 10 systèmes
+            Comparer les méthodes
           </button>
         </div>
       </div>
@@ -147,11 +146,11 @@ export default function HomeScreen({ ctrl }: { ctrl: ScrutinController }) {
         ))}
       </div>
 
-      {/* aperçu des systèmes */}
+      {/* aperçu des méthodes */}
       <div style={{ marginTop: 64 }}>
         <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
           <h2 style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 30, letterSpacing: "-0.02em", margin: 0 }}>
-            10 façons de désigner un gagnant
+            Il n'y a pas qu'une façon de désigner un gagnant
           </h2>
           <button
             onClick={() => go("gallery")}
@@ -211,6 +210,23 @@ export default function HomeScreen({ ctrl }: { ctrl: ScrutinController }) {
                   {sys.name}
                 </div>
                 <div style={{ color: MUTED, fontSize: 12.5, marginTop: 4, lineHeight: 1.35 }}>{sys.tagline}</div>
+                <div
+                  style={{
+                    marginTop: 10,
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 6,
+                    background: sys.tint,
+                    borderRadius: 999,
+                    padding: "3px 9px 3px 7px",
+                    fontSize: 10.5,
+                    fontWeight: 800,
+                    color: INK,
+                  }}
+                >
+                  <span style={{ width: 6, height: 6, borderRadius: "50%", background: sys.color, flex: "none" }} />
+                  {sys.strength}
+                </div>
               </div>
             );
           })}

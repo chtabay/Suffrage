@@ -48,6 +48,8 @@ export interface SystemDef {
   tint: string;
   icon: string;
   tagline: string;
+  /** Atout principal, en 2-3 mots : le bénéfice clé montré sur la carte d'aperçu. */
+  strength: string;
   how: string;
   pros: string[];
   cons: string[];

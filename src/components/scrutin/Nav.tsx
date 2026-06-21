@@ -70,7 +70,7 @@ export default function Nav({ ctrl, auth }: { ctrl: ScrutinController; auth: Aut
             Mes scrutins
           </button>
           <button onClick={() => go("gallery")} className="dc-paper" style={secondary}>
-            Les systèmes
+            Les méthodes
           </button>
           <button
             onClick={() => go("create")}

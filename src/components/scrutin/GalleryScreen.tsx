@@ -17,10 +17,10 @@ export default function GalleryScreen({ ctrl }: { ctrl: ScrutinController }) {
           margin: 0,
         }}
       >
-        Les systèmes de vote
+        Les méthodes de vote
       </h1>
       <p style={{ fontSize: 18, color: SUBINK, maxWidth: "60ch", margin: "14px 0 0", lineHeight: 1.5 }}>
-        Aucun mode de scrutin n'est parfait — chacun a sa logique, ses forces et ses pièges. Cliquez
+        Aucune méthode n'est parfaite — chacune a sa logique, ses forces et ses pièges. Cliquez
         sur une fiche pour tout comprendre.
       </p>
       <div
@@ -172,7 +172,7 @@ export default function GalleryScreen({ ctrl }: { ctrl: ScrutinController }) {
                     width: "100%",
                   }}
                 >
-                  Lancer un vote avec ce système →
+                  Lancer un vote avec cette méthode →
                 </button>
               </div>
             </div>

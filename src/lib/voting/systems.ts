@@ -36,7 +36,7 @@ export const DISTRICTS = 5;
 
 export const candColor = (i: number) => CAND_COLORS[i % CAND_COLORS.length];
 
-/** Catalogue des 10 systèmes de vote présentés. */
+/** Catalogue des méthodes de vote présentées. */
 export const SYSTEMS: Record<string, SystemDef> = {
   fptp: {
     key: "fptp",
@@ -46,6 +46,7 @@ export const SYSTEMS: Record<string, SystemDef> = {
     tint: "#FFE3E2",
     icon: "🥇",
     tagline: "Le plus de voix gagne.",
+    strength: "Simple et rapide",
     how: "Chacun vote pour un seul candidat. Celui qui réunit le plus de voix l'emporte, même sans majorité absolue.",
     pros: ["Très simple à comprendre", "Résultat immédiat", "Un seul passage aux urnes"],
     cons: ["Un gagnant rejeté par 60 % des votants", "Pousse au « vote utile »", "Écrase les petites options"],
@@ -58,6 +59,7 @@ export const SYSTEMS: Record<string, SystemDef> = {
     tint: "#FFE7D2",
     icon: "🔁",
     tagline: "Majorité absolue ou second tour.",
+    strength: "Majorité absolue",
     how: "Si personne n'atteint 50 %, les deux meilleurs s'affrontent au second tour. Le vainqueur final a forcément la majorité absolue.",
     pros: ["Le gagnant dépasse 50 %", "On peut voter « du cœur » au 1er tour", "Système familier"],
     cons: ["Deux scrutins à organiser", "Le 3e peut être un meilleur consensus", "Reports de voix imprévisibles"],
@@ -70,6 +72,7 @@ export const SYSTEMS: Record<string, SystemDef> = {
     tint: "#E1E1F7",
     icon: "⚔️",
     tagline: "Le champion de tous les duels.",
+    strength: "Vrai consensus",
     how: "Chacun classe les options. On simule tous les duels en tête-à-tête : le vainqueur est celui qui bat tous les autres.",
     pros: ["Désigne le vrai consensus", "Insensible au « vote utile »", "Très difficile à manipuler"],
     cons: ["Parfois aucun vainqueur (paradoxe)", "Bulletin plus long à remplir", "Dépouillement complexe"],
@@ -82,6 +85,7 @@ export const SYSTEMS: Record<string, SystemDef> = {
     tint: "#ECE0F7",
     icon: "🎲",
     tagline: "Condorcet, et le hasard tranche les blocages.",
+    strength: "Toujours un résultat",
     how: "Comme Condorcet, mais quand les duels tournent en rond (A>B>C>A), on tire au sort le gagnant parmi le cercle bloqué.",
     pros: ["Toujours un résultat", "Garde la logique de consensus", "Décourage les blocages tactiques"],
     cons: ["Une part d'aléatoire assumée", "Difficile à expliquer", "Peut surprendre en cas de paradoxe"],
@@ -94,6 +98,7 @@ export const SYSTEMS: Record<string, SystemDef> = {
     tint: "#D5F4EF",
     icon: "⚖️",
     tagline: "On note, la mention majoritaire gagne.",
+    strength: "Mesure l'adhésion",
     how: "Chacun attribue une mention à chaque option (de « À rejeter » à « Très bien »). L'option dont la mention médiane est la plus haute gagne.",
     pros: ["Exprime la nuance, pas juste un choix", "Limite le vote tactique", "Mesure l'adhésion réelle"],
     cons: ["Notion de médiane peu intuitive", "Bulletin plus long", "Beaucoup d'ex æquo possibles"],
@@ -106,6 +111,7 @@ export const SYSTEMS: Record<string, SystemDef> = {
     tint: "#D7E9FF",
     icon: "✅",
     tagline: "Cochez tous ceux qui vous conviennent.",
+    strength: "Simple et consensuel",
     how: "Chacun coche autant d'options qu'il approuve. Celle qui est approuvée par le plus de monde gagne.",
     pros: ["Très simple", "Favorise les options consensuelles", "Aucun vote utile"],
     cons: ["Ne hiérarchise pas les préférences", "Sensible au seuil que chacun se fixe", "Peu utilisé, peu connu"],
@@ -118,6 +124,7 @@ export const SYSTEMS: Record<string, SystemDef> = {
     tint: "#FBDDEE",
     icon: "🏅",
     tagline: "Des points selon le rang.",
+    strength: "Consensus large",
     how: "Chacun classe les options. Le 1er rapporte n-1 points, le 2e n-2, etc. On additionne : le plus de points gagne.",
     pros: ["Récompense le consensus large", "Tient compte de tout le classement", "Simple à calculer"],
     cons: ["Très sensible aux candidatures « clones »", "Manipulable par classement tactique", "Peut écarter un favori clivant"],
@@ -130,6 +137,7 @@ export const SYSTEMS: Record<string, SystemDef> = {
     tint: "#DEF3CE",
     icon: "🥧",
     tagline: "Des sièges au prorata des voix.",
+    strength: "Reflète chaque voix",
     how: "Au lieu d'un seul gagnant, on répartit des sièges proportionnellement aux voix (méthode d'Hondt). Idéal pour une assemblée.",
     pros: ["Reflète fidèlement les opinions", "Donne une place aux minorités", "Peu de voix « perdues »"],
     cons: ["Pas de gagnant unique clair", "Peut imposer des coalitions", "Le seuil exclut les plus petits"],
@@ -142,6 +150,7 @@ export const SYSTEMS: Record<string, SystemDef> = {
     tint: "#F4EAC2",
     icon: "🏛️",
     tagline: "On vote par circonscription.",
+    strength: "Équilibre territorial",
     how: "Les votants sont répartis en circonscriptions. Chacune désigne un champion local — selon le décompte de votre choix — qui rafle ses grands électeurs. Le total des électeurs fait le gagnant.",
     pros: ["Équilibre les territoires", "Résultat net et structuré", "Limite la fraude à grande échelle"],
     cons: ["Le perdant du vote populaire peut gagner", "Voix « gâchées » dans les bastions", "Dépend du découpage"],
@@ -154,6 +163,7 @@ export const SYSTEMS: Record<string, SystemDef> = {
     tint: "#D6EEF5",
     icon: "📋",
     tagline: "La liste en tête prend la moitié des sièges, le reste à la proportionnelle.",
+    strength: "Majorité stable",
     how: "On vote pour une liste entière (comme aux municipales françaises). La liste arrivée en tête reçoit d'office la moitié des sièges — la prime majoritaire — puis l'autre moitié est répartie à la proportionnelle entre toutes les listes au-dessus de 5 %, prime comprise.",
     pros: ["Donne une majorité stable pour gouverner", "Représente quand même les minorités", "Un seul bulletin, très simple"],
     cons: ["Sur-représente fortement la liste gagnante", "La tête de liste concentre le pouvoir", "Le seuil de 5 % élimine les petites listes"],
