@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { ASSISTANTS, copyAiPrompt, openAssistant } from "@/lib/ai/assistants";
+import BrandIcon, { hasBrandIcon } from "@/components/ai/BrandIcon";
 import type { ScrutinController } from "@/lib/voting/useScrutin";
 import { CREAM, FONT_BODY, FONT_DISPLAY, INK, MUTED } from "./theme";
 
@@ -40,7 +41,11 @@ export default function AiHelper({ ctrl }: { ctrl: ScrutinController }) {
             onClick={() => openAssistant(a, state.question, state.options)}
             style={{ ...btn, display: "flex", alignItems: "center", gap: 8, background: INK, color: "#fff" }}
           >
-            <span style={{ width: 12, height: 12, borderRadius: "50%", background: a.color, flex: "none" }} />
+            {hasBrandIcon(a.key) ? (
+              <BrandIcon brandKey={a.key} size={18} />
+            ) : (
+              <span style={{ width: 12, height: 12, borderRadius: "50%", background: a.color, flex: "none" }} />
+            )}
             {a.label}
           </button>
         ))}

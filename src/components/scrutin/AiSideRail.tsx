@@ -1,6 +1,7 @@
 "use client";
 
 import { RAIL_ASSISTANTS, openAssistant } from "@/lib/ai/assistants";
+import BrandIcon, { hasBrandIcon } from "@/components/ai/BrandIcon";
 import { FONT_DISPLAY, INK, MUTED } from "./theme";
 
 // Rail latéral (desktop) : lancer la préparation du vote avec une IA dès l'accueil.
@@ -46,23 +47,27 @@ export default function AiSideRail() {
             padding: 0,
           }}
         >
-          <span
-            style={{
-              width: 40,
-              height: 40,
-              borderRadius: "50%",
-              border: `2.5px solid ${INK}`,
-              background: a.color,
-              boxShadow: `2px 2px 0 ${INK}`,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              color: "#fff",
-              fontSize: 17,
-            }}
-          >
-            ✨
-          </span>
+          {hasBrandIcon(a.key) ? (
+            <BrandIcon brandKey={a.key} size={40} ring />
+          ) : (
+            <span
+              style={{
+                width: 40,
+                height: 40,
+                borderRadius: "50%",
+                border: `2.5px solid ${INK}`,
+                background: a.color,
+                boxShadow: `2px 2px 0 ${INK}`,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                color: "#fff",
+                fontSize: 17,
+              }}
+            >
+              ✨
+            </span>
+          )}
           <span style={{ fontSize: 10, fontWeight: 700, color: INK }}>{a.label}</span>
         </button>
       ))}

@@ -28,6 +28,18 @@ export const ASSISTANTS: Assistant[] = [
 
 export const RAIL_ASSISTANTS = ASSISTANTS.filter((a) => a.rail);
 
+// Logos officiels déposés dans public/brands/. `dark` = logo blanc sur fond noir
+// (disque sombre). Toute clé absente retomberait sur la pastille colorée.
+export const BRAND_ASSETS: Record<string, { file: string; dark?: boolean }> = {
+  chatgpt: { file: "chatgpt.webp" },
+  claude: { file: "Claude.webp" },
+  gemini: { file: "gemini.png" },
+  copilot: { file: "copilot.png" },
+  grok: { file: "grok.png" },
+  perplexity: { file: "perplexity.png", dark: true },
+  lechat: { file: "mistral-ai.svg" },
+};
+
 async function copy(text: string) {
   try {
     await navigator.clipboard?.writeText(text);
