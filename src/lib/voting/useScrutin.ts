@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { addLocalPoll } from "@/lib/db/localPolls";
 import { addVoters, createPoll, type AccessMode, type District, type VoterInput } from "@/lib/db/polls";
 import type { Option, Recipe } from "./types";
@@ -96,6 +96,14 @@ export function useScrutin() {
   const [state, setState] = useState<ScrutinState>(INITIAL);
   const stateRef = useRef(state);
   stateRef.current = state;
+
+  // Clôture par défaut : dans 7 jours (le scrutin « autoportant » se ferme tout seul).
+  useEffect(() => {
+    const d = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+    const pad = (n: number) => String(n).padStart(2, "0");
+    const local = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+    setState((s) => (s.closesAt ? s : { ...s, closesAt: local }));
+  }, []);
 
   const go = useCallback((screen: Screen) => {
     setState((s) => ({ ...s, screen }));

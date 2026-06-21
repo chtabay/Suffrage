@@ -23,25 +23,12 @@ const inputStyle = {
 } as const;
 
 export default function TimingCard({ ctrl }: { ctrl: ScrutinController }) {
-  const { state, setClosesAt, setOpensAt, setQuorum } = ctrl;
+  const { state, setOpensAt, setQuorum } = ctrl;
   return (
     <div style={cardStyle}>
       <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 18 }}>Durée &amp; validité</div>
 
       <div style={{ marginTop: 14 }}>
-        <div style={{ fontWeight: 700, fontSize: 13.5, marginBottom: 3 }}>Clôture automatique</div>
-        <div style={{ fontSize: 12.5, color: MUTED, marginBottom: 8, lineHeight: 1.35 }}>
-          Le scrutin se ferme tout seul à cette date. Vide = clôture manuelle par l'organisateur.
-        </div>
-        <input
-          type="datetime-local"
-          value={state.closesAt}
-          onChange={(e) => setClosesAt(e.target.value)}
-          style={{ ...inputStyle }}
-        />
-      </div>
-
-      <div style={{ marginTop: 16 }}>
         <div style={{ fontWeight: 700, fontSize: 13.5, marginBottom: 3 }}>
           Ouverture différée <span style={{ color: MUTED, fontWeight: 600 }}>(option)</span>
         </div>

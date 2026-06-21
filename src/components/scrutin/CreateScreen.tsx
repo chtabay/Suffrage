@@ -4,8 +4,8 @@ import { describeRecipe } from "@/lib/voting/engine";
 import { candColor } from "@/lib/voting/systems";
 import type { CountingMethod, Recipe } from "@/lib/voting/types";
 import type { ScrutinController } from "@/lib/voting/useScrutin";
-import AccessCard from "./AccessCard";
-import TimingCard from "./TimingCard";
+import AdvancedSettings from "./AdvancedSettings";
+import ClosureLine from "./ClosureLine";
 import { CREAM, FONT_BODY, FONT_DISPLAY, GREENTXT, INK, MUTED, REDTXT, lift } from "./theme";
 
 interface AxisOption {
@@ -303,8 +303,8 @@ export default function CreateScreen({ ctrl }: { ctrl: ScrutinController }) {
             </div>
           </div>
 
-          <AccessCard ctrl={ctrl} />
-          <TimingCard ctrl={ctrl} />
+          <ClosureLine ctrl={ctrl} />
+          <AdvancedSettings ctrl={ctrl} />
         </div>
 
         {/* DROITE : système résolu en direct */}
