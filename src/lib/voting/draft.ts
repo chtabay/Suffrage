@@ -1,26 +1,8 @@
 // Brouillon de scrutin : pré-remplissage de l'écran de création depuis /new?…
-// Voir la doc /ai (à venir) pour le vocabulaire public.
+// Toutes les entrées (URL, IA, Slack, API) convergent ici → un brouillon à relire.
 import { recipeForSystem } from "./engine";
+import { publicMethodToSystem } from "./methods";
 import type { Option, Recipe } from "./types";
-
-/** Vocabulaire public des méthodes → clé interne de système. */
-const PUBLIC_METHOD: Record<string, string> = {
-  simple_vote: "fptp",
-  majority: "fptp",
-  fptp: "fptp",
-  two_round: "runoff",
-  runoff: "runoff",
-  approval: "approval",
-  borda: "borda",
-  condorcet: "condorcet",
-  condorcet_random: "condorcet_random",
-  majority_judgment: "mj",
-  mj: "mj",
-  proportional: "proportional",
-  list: "list",
-  grand_electors: "indirect",
-  indirect: "indirect",
-};
 
 const DRAFT_ICONS = ["📌", "⭐", "🔥", "🌟", "🎯", "🎪", "🎨", "🍀", "🌈", "🚀", "🎲", "🧭"];
 
@@ -29,6 +11,10 @@ export interface ScrutinDraft {
   options?: Option[];
   recipe?: Recipe;
   closesAt?: string;
+  /** Origine du brouillon (claude, chatgpt, gemini, slack, teams…). */
+  source?: string;
+  /** Justification (notamment du choix de méthode) à afficher pour la confiance. */
+  why?: string;
 }
 
 type RawParams = Record<string, string | string[] | undefined>;
@@ -55,8 +41,8 @@ export function parseDraft(params: RawParams): ScrutinDraft {
 
   const method = first(params.method);
   if (method) {
-    const key = PUBLIC_METHOD[method.toLowerCase()];
-    if (key) draft.recipe = recipeForSystem(key);
+    const system = publicMethodToSystem(method);
+    if (system) draft.recipe = recipeForSystem(system);
   }
 
   const deadline = first(params.deadline);
@@ -70,6 +56,12 @@ export function parseDraft(params: RawParams): ScrutinDraft {
       )}`;
     }
   }
+
+  const source = first(params.source);
+  if (source && source.trim()) draft.source = source.trim().slice(0, 40);
+
+  const why = first(params.why) ?? first(params.justification);
+  if (why && why.trim()) draft.why = why.trim().slice(0, 280);
 
   return draft;
 }

@@ -34,6 +34,8 @@ export interface ScrutinState {
   launching: boolean;
   error: string | null;
   prefilled: boolean;
+  prefillSource: string | null;
+  prefillWhy: string | null;
 }
 
 const INITIAL: ScrutinState = {
@@ -63,6 +65,8 @@ const INITIAL: ScrutinState = {
   launching: false,
   error: null,
   prefilled: false,
+  prefillSource: null,
+  prefillWhy: null,
 };
 
 function makeInitial(draft?: ScrutinDraft): ScrutinState {
@@ -78,6 +82,8 @@ function makeInitial(draft?: ScrutinDraft): ScrutinState {
     closesAt: draft.closesAt ?? INITIAL.closesAt,
     access: recipe.suffrage === "indirect" ? "invite" : INITIAL.access,
     prefilled,
+    prefillSource: draft.source ?? null,
+    prefillWhy: draft.why ?? null,
   };
 }
 
@@ -278,7 +284,7 @@ export function useScrutin(draft?: ScrutinDraft) {
   }, []);
 
   const newScrutin = useCallback(() => {
-    setState((s) => ({ ...s, screen: "create", prefilled: false, ...CLEAR_SHARE }));
+    setState((s) => ({ ...s, screen: "create", prefilled: false, prefillSource: null, prefillWhy: null, ...CLEAR_SHARE }));
     scrollTop();
   }, []);
 
