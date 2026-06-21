@@ -65,3 +65,25 @@ export function parseDraft(params: RawParams): ScrutinDraft {
 
   return draft;
 }
+
+export interface DraftInput {
+  title?: string;
+  options?: string[];
+  method?: string;
+  deadline?: string;
+  source?: string;
+  why?: string;
+}
+
+/** Construit une URL /new à partir d'un brouillon structuré (API, partages…). */
+export function buildNewUrl(base: string, d: DraftInput): string {
+  const p = new URLSearchParams();
+  if (d.title) p.set("title", d.title);
+  if (d.options && d.options.length) p.set("options", d.options.join("|"));
+  if (d.method) p.set("method", d.method);
+  if (d.deadline) p.set("deadline", d.deadline);
+  if (d.source) p.set("source", d.source);
+  if (d.why) p.set("why", d.why);
+  const qs = p.toString();
+  return qs ? `${base}/new?${qs}` : `${base}/new`;
+}
