@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import PublicVote from "@/components/scrutin/PublicVote";
-import { getPollMeta } from "@/lib/db/pollMeta";
-import { describeRecipe } from "@/lib/voting/engine";
+import { getPollShareInfo } from "@/lib/db/pollMeta";
 
 export async function generateMetadata({
   params,
@@ -9,13 +8,20 @@ export async function generateMetadata({
   params: Promise<{ token: string }>;
 }): Promise<Metadata> {
   const { token } = await params;
-  const meta = await getPollMeta(token);
-  if (!meta) return { title: "Scrutin — vote" };
-  const method = describeRecipe(meta.recipe).name;
-  const title = `Vote : ${meta.question}`;
-  const description = meta.description?.trim()
-    ? meta.description.trim().slice(0, 200)
-    : `Votez en ligne — méthode « ${method} ». Résultat calculé pour de vrai.`;
+  const info = await getPollShareInfo(token);
+  if (!info) return { title: "Scrutin — vote" };
+  const plural = info.ballotCount > 1 ? "s" : "";
+  const title = info.phase === "closed" ? `Résultat : ${info.question}` : `Vote : ${info.question}`;
+  let description: string;
+  if (info.phase === "closed") {
+    description = info.winner
+      ? `${info.winner.icon} ${info.winner.name} l'emporte — ${info.methodName}, ${info.ballotCount} vote${plural}.`
+      : `Vote clos — ${info.methodName}, ${info.ballotCount} vote${plural}.`;
+  } else if (info.description?.trim()) {
+    description = info.description.trim().slice(0, 200);
+  } else {
+    description = `Votez en ligne — méthode « ${info.methodName} », ${info.options.length} options.`;
+  }
   return {
     title,
     description,
