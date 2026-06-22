@@ -19,6 +19,7 @@ export interface ScrutinState {
   screen: Screen;
   question: string;
   description: string;
+  optionKind: "text" | "slot";
   options: Option[];
   recipe: Recipe;
   access: AccessMode;
@@ -49,6 +50,7 @@ const INITIAL: ScrutinState = {
     { icon: "🌆", name: "Une grande ville" },
     { icon: "🌿", name: "La campagne" },
   ],
+  optionKind: "text",
   recipe: { ...DEFAULT_RECIPE },
   access: "open",
   hideResults: false,
@@ -97,6 +99,16 @@ const scrollTop = () => {
 };
 
 const ADD_ICONS = ["🎯", "⭐", "🔥", "🌟", "🎪", "🎨"];
+
+const SLOT_ICON = "📅";
+/** Libellé lisible d'un créneau (le `name` de l'option) à partir de la valeur datetime-local. */
+function slotLabel(local: string): string {
+  if (!local) return "Créneau à définir";
+  const d = new Date(local);
+  if (Number.isNaN(d.getTime())) return "Créneau à définir";
+  return d.toLocaleString("fr-FR", { weekday: "short", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
+}
+const freshSlot = (): Option => ({ icon: SLOT_ICON, name: slotLabel(""), at: "" });
 
 // Toute modification de la définition invalide les liens déjà lancés.
 const CLEAR_SHARE: Pick<ScrutinState, "shareUrl" | "adminUrl" | "voterLinks" | "error"> = {
@@ -172,6 +184,38 @@ export function useScrutin(draft?: ScrutinDraft) {
       options[i] = { ...options[i], url: url.trim() || undefined };
       return { ...s, options, ...CLEAR_SHARE };
     });
+  }, []);
+
+  // ---- vote « dates » : créneaux ----
+  const setOptionKind = useCallback((kind: "text" | "slot") => {
+    setState((s) => {
+      if (s.optionKind === kind) return s;
+      if (kind === "slot") {
+        // Un créneau = un objet daté ; on bascule par défaut sur l'approbation (logique Doodle).
+        return { ...s, optionKind: "slot", options: [freshSlot(), freshSlot()], recipe: recipeForSystem("approval"), ...CLEAR_SHARE };
+      }
+      return {
+        ...s,
+        optionKind: "text",
+        options: [
+          { icon: ADD_ICONS[0], name: "Première option" },
+          { icon: ADD_ICONS[1], name: "Deuxième option" },
+        ],
+        ...CLEAR_SHARE,
+      };
+    });
+  }, []);
+
+  const setSlotAt = useCallback((i: number, local: string) => {
+    setState((s) => {
+      const options = s.options.slice();
+      options[i] = { ...options[i], at: local, name: slotLabel(local), icon: SLOT_ICON };
+      return { ...s, options, ...CLEAR_SHARE };
+    });
+  }, []);
+
+  const addSlot = useCallback(() => {
+    setState((s) => ({ ...s, options: [...s.options, freshSlot()], ...CLEAR_SHARE }));
   }, []);
 
   const removeOption = useCallback((i: number) => {
@@ -317,6 +361,9 @@ export function useScrutin(draft?: ScrutinDraft) {
     setOptionUrl,
     removeOption,
     addOption,
+    setOptionKind,
+    setSlotAt,
+    addSlot,
     setAccess,
     toggleHideResults,
     setVoterNames,

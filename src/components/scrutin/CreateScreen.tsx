@@ -138,7 +138,7 @@ function buildAxes(r: Recipe, setRecipe: (p: Partial<Recipe>) => void): Axis[] {
 }
 
 export default function CreateScreen({ ctrl }: { ctrl: ScrutinController }) {
-  const { state, setRecipe, setQuestion, setDescription, setOptionName, setOptionUrl, removeOption, addOption, launch } = ctrl;
+  const { state, setRecipe, setQuestion, setDescription, setOptionName, setOptionUrl, removeOption, addOption, setOptionKind, setSlotAt, addSlot, launch } = ctrl;
   const [urlRows, setUrlRows] = useState<Record<number, boolean>>({});
   const resolved = describeRecipe(state.recipe);
   const axes = buildAxes(state.recipe, setRecipe);
@@ -218,9 +218,92 @@ export default function CreateScreen({ ctrl }: { ctrl: ScrutinController }) {
                 boxSizing: "border-box",
               }}
             />
-            <div style={{ fontWeight: 700, fontSize: 13, color: MUTED, margin: "18px 0 9px" }}>LES OPTIONS</div>
+            {/* Type de vote : choix classiques, ou créneaux de dates (façon Doodle) */}
+            <div style={{ display: "flex", gap: 8, margin: "18px 0 10px" }}>
+              {([
+                ["text", "🗳️ Choix"],
+                ["slot", "📅 Dates"],
+              ] as const).map(([k, lbl]) => (
+                <button
+                  key={k}
+                  onClick={() => setOptionKind(k)}
+                  style={{
+                    fontFamily: FONT_BODY,
+                    fontWeight: 700,
+                    fontSize: 13,
+                    cursor: "pointer",
+                    border: `2px solid ${INK}`,
+                    borderRadius: 9,
+                    padding: "7px 13px",
+                    background: state.optionKind === k ? INK : "#fff",
+                    color: state.optionKind === k ? "#fff" : INK,
+                  }}
+                >
+                  {lbl}
+                </button>
+              ))}
+            </div>
+            <div style={{ fontWeight: 700, fontSize: 13, color: MUTED, marginBottom: 9 }}>
+              {state.optionKind === "slot" ? "LES CRÉNEAUX" : "LES OPTIONS"}
+            </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 9 }}>
-              {state.options.map((opt, i) => {
+              {state.optionKind === "slot"
+                ? state.options.map((opt, i) => (
+                    <div key={i} style={{ display: "flex", alignItems: "center", gap: 9 }}>
+                      <div
+                        style={{
+                          width: 34,
+                          height: 34,
+                          flex: "none",
+                          borderRadius: 9,
+                          border: `2px solid ${INK}`,
+                          background: candColor(i),
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          fontSize: 17,
+                        }}
+                      >
+                        📅
+                      </div>
+                      <input
+                        type="datetime-local"
+                        value={opt.at ?? ""}
+                        onChange={(e) => setSlotAt(i, e.target.value)}
+                        style={{
+                          flex: 1,
+                          minWidth: 0,
+                          fontFamily: FONT_BODY,
+                          fontSize: 14,
+                          fontWeight: 600,
+                          padding: "8px 11px",
+                          border: `2px solid ${INK}`,
+                          borderRadius: 9,
+                          background: CREAM,
+                          outline: "none",
+                          colorScheme: "light",
+                        }}
+                      />
+                      <button
+                        onClick={() => removeOption(i)}
+                        style={{
+                          width: 34,
+                          height: 34,
+                          flex: "none",
+                          border: `2px solid ${INK}`,
+                          background: "#fff",
+                          borderRadius: 9,
+                          cursor: "pointer",
+                          fontSize: 16,
+                          color: REDTXT,
+                          lineHeight: 1,
+                        }}
+                      >
+                        ×
+                      </button>
+                    </div>
+                  ))
+                : state.options.map((opt, i) => {
                 const urlOpen = urlRows[i] || Boolean(opt.url);
                 return (
                   <div key={i} style={{ display: "flex", flexDirection: "column", gap: 7 }}>
@@ -316,7 +399,7 @@ export default function CreateScreen({ ctrl }: { ctrl: ScrutinController }) {
               })}
             </div>
             <button
-              onClick={addOption}
+              onClick={state.optionKind === "slot" ? addSlot : addOption}
               className="dc-cream"
               style={{
                 marginTop: 11,
@@ -330,7 +413,7 @@ export default function CreateScreen({ ctrl }: { ctrl: ScrutinController }) {
                 borderRadius: 10,
               }}
             >
-              + Ajouter une option
+              {state.optionKind === "slot" ? "+ Ajouter un créneau" : "+ Ajouter une option"}
             </button>
             <div style={{ fontSize: 12, color: MUTED, marginTop: 12, lineHeight: 1.45 }}>
               🔗 associez une image, une vidéo ou un document à un choix.{" "}

@@ -31,6 +31,8 @@ export interface Option {
   name: string;
   /** Illustration facultative associée au choix (image, vidéo, document…). */
   url?: string;
+  /** Pour un vote « dates » : créneau date/heure (valeur datetime-local). */
+  at?: string;
 }
 
 /** Un bulletin normalisé : classement complet + mentions + circonscription. */
