@@ -224,33 +224,36 @@ export default function CreateScreen({ ctrl }: { ctrl: ScrutinController }) {
                 boxSizing: "border-box",
               }}
             />
-            {/* Type de vote : choix classiques, ou créneaux de dates (façon Doodle) */}
-            <div style={{ display: "flex", gap: 8, margin: "18px 0 10px" }}>
-              {([
-                ["text", "🗳️ Choix"],
-                ["slot", "📅 Dates"],
-              ] as const).map(([k, lbl]) => (
-                <button
-                  key={k}
-                  onClick={() => setOptionKind(k)}
-                  style={{
-                    fontFamily: FONT_BODY,
-                    fontWeight: 700,
-                    fontSize: 13,
-                    cursor: "pointer",
-                    border: `2px solid ${INK}`,
-                    borderRadius: 9,
-                    padding: "7px 13px",
-                    background: state.optionKind === k ? INK : "#fff",
-                    color: state.optionKind === k ? "#fff" : INK,
-                  }}
-                >
-                  {lbl}
-                </button>
-              ))}
+            {/* Sur quoi porte le vote : des propositions, ou des dates (façon Doodle) */}
+            <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", margin: "18px 0 10px" }}>
+              <span style={{ fontFamily: FONT_BODY, fontWeight: 600, fontSize: 14, color: INK }}>On vote sur…</span>
+              <div style={{ display: "flex", gap: 8 }}>
+                {([
+                  ["text", "💡 des propositions"],
+                  ["slot", "📅 des dates"],
+                ] as const).map(([k, lbl]) => (
+                  <button
+                    key={k}
+                    onClick={() => setOptionKind(k)}
+                    style={{
+                      fontFamily: FONT_BODY,
+                      fontWeight: 700,
+                      fontSize: 13,
+                      cursor: "pointer",
+                      border: `2px solid ${INK}`,
+                      borderRadius: 9,
+                      padding: "7px 13px",
+                      background: state.optionKind === k ? INK : "#fff",
+                      color: state.optionKind === k ? "#fff" : INK,
+                    }}
+                  >
+                    {lbl}
+                  </button>
+                ))}
+              </div>
             </div>
             <div style={{ fontWeight: 700, fontSize: 13, color: MUTED, marginBottom: 9 }}>
-              {state.optionKind === "slot" ? "LES CRÉNEAUX" : "LES OPTIONS"}
+              {state.optionKind === "slot" ? "LES CRÉNEAUX" : "LES PROPOSITIONS"}
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 9 }}>
               {state.optionKind === "slot"
@@ -419,7 +422,7 @@ export default function CreateScreen({ ctrl }: { ctrl: ScrutinController }) {
                 borderRadius: 10,
               }}
             >
-              {state.optionKind === "slot" ? "+ Ajouter un créneau" : "+ Ajouter une option"}
+              {state.optionKind === "slot" ? "+ Ajouter un créneau" : "+ Ajouter une proposition"}
             </button>
             <div style={{ fontSize: 12, color: MUTED, marginTop: 12, lineHeight: 1.45 }}>
               🔗 associez une image, une vidéo ou un document à un choix.{" "}
