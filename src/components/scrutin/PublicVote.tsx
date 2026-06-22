@@ -30,6 +30,7 @@ import {
 } from "@/lib/voting/engine";
 import type { Ballot, BallotMode, ComputeResult } from "@/lib/voting/types";
 import InstallInline from "@/components/pwa/InstallInline";
+import NotifyButton from "@/components/pwa/NotifyButton";
 import BallotCard, { EMPTY_DRAFT, type BallotDraft } from "./BallotCard";
 import ResultCard from "./ResultCard";
 import ResultShare from "./ResultShare";
@@ -52,6 +53,15 @@ function draftToBallot(mode: BallotMode, draft: BallotDraft, n: number): Ballot 
 
 const electorsOf = (p: PollRow): number[] | undefined => (p.districts ? p.districts.map((d) => d.electors) : undefined);
 const voterCanSeeResults = (p: PollRow) => p.status === "closed" || !p.hide_results;
+
+// Déclencheur direct : après un vote, signale au serveur (notif si le scrutin vient de se clore).
+function pingPollEvent(token: string) {
+  void fetch("/api/notify/poll", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ token }),
+  }).catch(() => {});
+}
 
 // Messages laissés par les votants, détachés des choix (secret du vote préservé).
 function CommentsFeed({ comments }: { comments: BallotComment[] }) {
@@ -643,6 +653,9 @@ export default function PublicVote({
             Merci{voter ? ` ${voter.label}` : ""} ! Les résultats seront visibles à la clôture du scrutin.
           </p>
         </div>
+        <div style={{ marginTop: 16, display: "flex", justifyContent: "center" }}>
+          <NotifyButton pollToken={token} />
+        </div>
         <InstallInline />
       </Shell>
     );
@@ -739,6 +752,7 @@ export default function PublicVote({
         ballot.district = voter?.district ?? ballot.district;
         const r = await castInvitedBallot(voterToken, ballot, { comment, author: pseudo });
         if (r === "ok") {
+          pingPollEvent(token);
           if (voterCanSeeResults(poll)) {
             await loadResults(poll);
             setView("results");
@@ -753,6 +767,7 @@ export default function PublicVote({
         }
       } else {
         await addBallot(poll.id, ballot, { comment, author: pseudo });
+        pingPollEvent(token);
         if (voterCanSeeResults(poll)) {
           await loadResults(poll);
           setView("results");
@@ -931,6 +946,9 @@ export default function PublicVote({
           Voir les résultats sans voter →
         </button>
       )}
+      <div style={{ marginTop: 16, display: "flex", justifyContent: "center" }}>
+        <NotifyButton pollToken={token} label="🔔 M'avertir à la clôture" />
+      </div>
     </Shell>
   );
 }

@@ -5,6 +5,7 @@ import type { AuthController } from "@/lib/auth/useAuth";
 import { getLocalPolls, removeLocalPoll, type LocalPoll } from "@/lib/db/localPolls";
 import { getMyPolls, type PollRow } from "@/lib/db/polls";
 import type { ScrutinController } from "@/lib/voting/useScrutin";
+import NotifyButton from "@/components/pwa/NotifyButton";
 import { CREAM, FONT_DISPLAY, INK, MUTED, REDTXT, SUBINK } from "./theme";
 
 interface Item {
@@ -85,6 +86,9 @@ export default function MesScrutinsScreen({ ctrl, auth }: { ctrl: ScrutinControl
           }}
         >
           ✓ Connecté{auth.user.email ? ` (${auth.user.email})` : ""} — tes scrutins te suivent partout.
+          <div style={{ marginTop: 10 }}>
+            <NotifyButton label="🔔 M'avertir de l'activité de mes scrutins" />
+          </div>
         </div>
       ) : (
         <div
