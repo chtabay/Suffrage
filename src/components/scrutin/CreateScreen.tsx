@@ -26,7 +26,7 @@ interface Axis {
   options: AxisOption[];
 }
 
-function buildAxes(r: Recipe, setRecipe: (p: Partial<Recipe>) => void): Axis[] {
+function buildAxes(r: Recipe, setRecipe: (p: Partial<Recipe>) => void, slotMode = false): Axis[] {
   const chip = (active: boolean) =>
     active ? { bg: INK, fg: "#fff", op: 1 } : { bg: CREAM, fg: INK, op: 1 };
   const mkOpt = (active: boolean, disabled: boolean, label: string, onClick: () => void): AxisOption =>
@@ -36,15 +36,20 @@ function buildAxes(r: Recipe, setRecipe: (p: Partial<Recipe>) => void): Axis[] {
 
   const isIndirect = r.suffrage === "indirect";
   const axes: Axis[] = [];
-  axes.push({
-    key: "suffrage",
-    label: "Type de suffrage",
-    hint: "Tout le monde vote directement, ou on passe par des grands électeurs ?",
-    options: [
-      mkOpt(r.suffrage === "direct", false, "Direct", () => setRecipe({ suffrage: "direct" })),
-      mkOpt(isIndirect, false, "Indirect (grands électeurs)", () => setRecipe({ suffrage: "indirect" })),
-    ],
-  });
+  // Mode « dates » : les méthodes d'assemblée (grands électeurs, proportionnelle,
+  // scrutin de liste) n'ont pas de sens pour choisir un créneau → on n'expose que
+  // les méthodes à gagnant unique.
+  if (!slotMode) {
+    axes.push({
+      key: "suffrage",
+      label: "Type de suffrage",
+      hint: "Tout le monde vote directement, ou on passe par des grands électeurs ?",
+      options: [
+        mkOpt(r.suffrage === "direct", false, "Direct", () => setRecipe({ suffrage: "direct" })),
+        mkOpt(isIndirect, false, "Indirect (grands électeurs)", () => setRecipe({ suffrage: "indirect" })),
+      ],
+    });
+  }
 
   if (!isIndirect) {
     const countOpt = (v: CountingMethod, l: string) =>
@@ -61,8 +66,9 @@ function buildAxes(r: Recipe, setRecipe: (p: Partial<Recipe>) => void): Axis[] {
         countOpt("mj", "Jugement majoritaire"),
         countOpt("approval", "Approbation"),
         countOpt("borda", "Borda (points)"),
-        countOpt("proportional", "Proportionnelle"),
-        countOpt("list", "Scrutin de liste"),
+        ...(slotMode
+          ? []
+          : [countOpt("proportional", "Proportionnelle"), countOpt("list", "Scrutin de liste")]),
       ],
     });
     const roundsEligible = ["majority", "condorcet", "mj", "approval", "borda"].includes(r.counting);
@@ -141,7 +147,7 @@ export default function CreateScreen({ ctrl }: { ctrl: ScrutinController }) {
   const { state, setRecipe, setQuestion, setDescription, setOptionName, setOptionUrl, removeOption, addOption, setOptionKind, setSlotAt, addSlot, launch } = ctrl;
   const [urlRows, setUrlRows] = useState<Record<number, boolean>>({});
   const resolved = describeRecipe(state.recipe);
-  const axes = buildAxes(state.recipe, setRecipe);
+  const axes = buildAxes(state.recipe, setRecipe, state.optionKind === "slot");
 
   const cardStyle = {
     background: "#fff",
