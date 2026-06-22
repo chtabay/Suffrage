@@ -126,12 +126,24 @@ export function pollPhase(p: PollRow, now: number = Date.now()): Phase {
   return "open";
 }
 
+/** Note facultative jointe à un bulletin (commentaire + pseudo libre). */
+export interface BallotNote {
+  comment?: string;
+  author?: string;
+}
+
+const cleanNote = (n?: BallotNote) => ({
+  comment: n?.comment?.trim().slice(0, 280) || null,
+  author: n?.author?.trim().slice(0, 40) || null,
+});
+
 /** Dépose un bulletin (mode ouvert). Bloqué par RLS si le scrutin est clos ou sur invitation. */
-export async function addBallot(pollId: string, b: Ballot): Promise<void> {
+export async function addBallot(pollId: string, b: Ballot, note?: BallotNote): Promise<void> {
   const supabase = createClient();
+  const { comment, author } = cleanNote(note);
   const { error } = await supabase
     .from("scrutin_ballots")
-    .insert({ poll_id: pollId, ranking: b.ranking, grades: b.grades, district: b.district });
+    .insert({ poll_id: pollId, ranking: b.ranking, grades: b.grades, district: b.district, comment, author });
   if (error) throw error;
 }
 
@@ -144,6 +156,25 @@ export async function getBallots(pollId: string): Promise<Ballot[]> {
     .eq("poll_id", pollId);
   if (error) throw error;
   return (data ?? []) as Ballot[];
+}
+
+export interface BallotComment {
+  author: string | null;
+  comment: string;
+  created_at: string;
+}
+
+/** Messages laissés par les votants (détachés des choix). À n'afficher que si les résultats sont publics. */
+export async function getComments(pollId: string): Promise<BallotComment[]> {
+  const supabase = createClient();
+  const { data, error } = await supabase
+    .from("scrutin_ballots")
+    .select("author, comment, created_at")
+    .eq("poll_id", pollId)
+    .not("comment", "is", null)
+    .order("created_at", { ascending: true });
+  if (error) throw error;
+  return (data ?? []) as BallotComment[];
 }
 
 // ---------- gestion (admin via secret) ----------
@@ -195,13 +226,16 @@ export async function getVoterContext(voterToken: string): Promise<VoterContext 
 }
 
 /** Dépose un bulletin nominatif. Renvoie 'ok' | 'already' | 'closed' | 'invalid'. */
-export async function castInvitedBallot(voterToken: string, b: Ballot): Promise<string> {
+export async function castInvitedBallot(voterToken: string, b: Ballot, note?: BallotNote): Promise<string> {
   const supabase = createClient();
+  const { comment, author } = cleanNote(note);
   const { data, error } = await supabase.rpc("cast_invited_ballot", {
     p_voter_token: voterToken,
     p_ranking: b.ranking,
     p_grades: b.grades,
     p_district: b.district,
+    p_comment: comment,
+    p_author: author,
   });
   if (error) throw error;
   return data as string;

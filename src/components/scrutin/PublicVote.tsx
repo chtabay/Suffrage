@@ -7,11 +7,13 @@ import {
   castInvitedBallot,
   closePoll,
   getBallots,
+  getComments,
   getPollByToken,
   getVoterContext,
   getVoters,
   pollPhase,
   reopenPoll,
+  type BallotComment,
   type PollRow,
   type Voter,
   type VoterContext,
@@ -50,6 +52,35 @@ function draftToBallot(mode: BallotMode, draft: BallotDraft, n: number): Ballot 
 
 const electorsOf = (p: PollRow): number[] | undefined => (p.districts ? p.districts.map((d) => d.electors) : undefined);
 const voterCanSeeResults = (p: PollRow) => p.status === "closed" || !p.hide_results;
+
+// Messages laissés par les votants, détachés des choix (secret du vote préservé).
+function CommentsFeed({ comments }: { comments: BallotComment[] }) {
+  if (!comments.length) return null;
+  return (
+    <div
+      style={{
+        marginTop: 22,
+        background: "#fff",
+        border: `2.5px solid ${INK}`,
+        borderRadius: 16,
+        padding: "16px 18px",
+        boxShadow: `4px 4px 0 ${INK}`,
+      }}
+    >
+      <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 16 }}>
+        💬 Messages des votants ({comments.length})
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 11, marginTop: 12 }}>
+        {comments.map((c, i) => (
+          <div key={i} style={{ borderLeft: `3px solid ${YELLOW}`, paddingLeft: 11 }}>
+            <div style={{ fontWeight: 700, fontSize: 13, color: INK }}>{c.author || "Anonyme"}</div>
+            <div style={{ fontSize: 14, color: SUBINK, lineHeight: 1.45, whiteSpace: "pre-wrap" }}>{c.comment}</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 type View =
   | "loading"
@@ -251,6 +282,9 @@ export default function PublicVote({
   const [voter, setVoter] = useState<VoterContext | null>(null);
   const [draft, setDraft] = useState<BallotDraft>(EMPTY_DRAFT);
   const [submitting, setSubmitting] = useState(false);
+  const [pseudo, setPseudo] = useState("");
+  const [comment, setComment] = useState("");
+  const [comments, setComments] = useState<BallotComment[]>([]);
   const [result, setResult] = useState<ComputeResult | null>(null);
   const [ballotCount, setBallotCount] = useState(0);
   const [voters, setVoters] = useState<Voter[]>([]);
@@ -261,6 +295,7 @@ export default function PublicVote({
     const ballots = await getBallots(p.id);
     setBallotCount(ballots.length);
     setResult(compute({ recipe: p.recipe, options: p.options, ballots, districtElectors: electorsOf(p) }));
+    setComments(await getComments(p.id));
   }, []);
 
   const refreshOrganizer = useCallback(
@@ -556,6 +591,7 @@ export default function PublicVote({
                 optionsCount={poll.options.length}
                 url={voteShareUrl}
               />
+              <CommentsFeed comments={comments} />
             </>
           ) : (
             <div style={{ ...card, color: MUTED, fontSize: 15 }}>Aucun bulletin pour l'instant.</div>
@@ -640,6 +676,7 @@ export default function PublicVote({
               optionsCount={poll.options.length}
               url={voteShareUrl}
             />
+            <CommentsFeed comments={comments} />
           </>
         ) : (
           <div style={{ ...card, color: MUTED }}>Aucun bulletin n'a été déposé.</div>
@@ -684,6 +721,7 @@ export default function PublicVote({
       <Shell>
         {poll.quorum != null && <QuorumBanner quorum={poll.quorum} count={ballotCount} />}
         <ResultCard result={result} question={poll.question} ballotCount={ballotCount} footer={footer} />
+        <CommentsFeed comments={comments} />
       </Shell>
     );
   }
@@ -699,7 +737,7 @@ export default function PublicVote({
     try {
       if (poll.access_mode === "invite" && voterToken) {
         ballot.district = voter?.district ?? ballot.district;
-        const r = await castInvitedBallot(voterToken, ballot);
+        const r = await castInvitedBallot(voterToken, ballot, { comment, author: pseudo });
         if (r === "ok") {
           if (voterCanSeeResults(poll)) {
             await loadResults(poll);
@@ -714,7 +752,7 @@ export default function PublicVote({
           setError("Lien de vote invalide.");
         }
       } else {
-        await addBallot(poll.id, ballot);
+        await addBallot(poll.id, ballot, { comment, author: pseudo });
         if (voterCanSeeResults(poll)) {
           await loadResults(poll);
           setView("results");
@@ -800,6 +838,45 @@ export default function PublicVote({
           onResetRank={() => setDraft((d) => ({ ...d, rank: [] }))}
           onGrade={(i, gi) => setDraft((d) => ({ ...d, grades: { ...d.grades, [i]: gi } }))}
         />
+
+        <div style={{ marginTop: 18, display: "flex", flexDirection: "column", gap: 9 }}>
+          <input
+            value={pseudo}
+            onChange={(e) => setPseudo(e.target.value)}
+            placeholder="Votre pseudo (facultatif)"
+            maxLength={40}
+            style={{
+              fontFamily: FONT_BODY,
+              fontSize: 14,
+              fontWeight: 600,
+              padding: "10px 12px",
+              border: `2px solid ${INK}`,
+              borderRadius: 10,
+              background: CREAM,
+              outline: "none",
+              boxSizing: "border-box",
+            }}
+          />
+          <textarea
+            value={comment}
+            onChange={(e) => setComment(e.target.value)}
+            placeholder="Un mot à laisser au groupe ? (facultatif)"
+            maxLength={280}
+            rows={2}
+            style={{
+              fontFamily: FONT_BODY,
+              fontSize: 14,
+              fontWeight: 500,
+              padding: "10px 12px",
+              border: `2px solid ${INK}`,
+              borderRadius: 10,
+              background: CREAM,
+              outline: "none",
+              boxSizing: "border-box",
+              resize: "vertical",
+            }}
+          />
+        </div>
 
         {error && <div style={{ marginTop: 12, color: REDTXT, fontWeight: 700, fontSize: 13 }}>{error}</div>}
 
