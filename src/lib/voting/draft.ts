@@ -9,6 +9,7 @@ const DRAFT_ICONS = ["📌", "⭐", "🔥", "🌟", "🎯", "🎪", "🎨", "�
 export interface ScrutinDraft {
   question?: string;
   description?: string;
+  optionKind?: "text" | "slot";
   options?: Option[];
   recipe?: Recipe;
   closesAt?: string;
@@ -28,6 +29,15 @@ export const safeUrl = (u: string | undefined): string | undefined => {
   return /^https?:\/\//i.test(t) ? t.slice(0, 500) : undefined;
 };
 
+export const SLOT_ICON = "📅";
+/** Libellé lisible d'un créneau (le `name` de l'option) à partir d'une valeur datetime-local. */
+export function slotLabel(local: string): string {
+  if (!local) return "Créneau à définir";
+  const d = new Date(local);
+  if (Number.isNaN(d.getTime())) return "Créneau à définir";
+  return d.toLocaleString("fr-FR", { weekday: "short", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
+}
+
 /** Convertit les paramètres d'URL /new en brouillon (toujours un objet, possiblement vide). */
 export function parseDraft(params: RawParams): ScrutinDraft {
   const draft: ScrutinDraft = {};
@@ -38,32 +48,54 @@ export function parseDraft(params: RawParams): ScrutinDraft {
   const description = first(params.description);
   if (description && description.trim()) draft.description = description.trim().slice(0, 500);
 
-  const opts = first(params.options);
-  if (opts) {
-    const names = opts
-      .split(/[|,]/)
+  // Vote « dates » : paramètre `dates` (créneaux datetime-local séparés par |).
+  // Un créneau = option dont le nom est la date formatée + icône 📅 + champ `at`.
+  const datesParam = first(params.dates);
+  if (datesParam) {
+    const slots = datesParam
+      .split("|")
       .map((x) => x.trim())
       .filter(Boolean)
       .slice(0, 12);
-    if (names.length >= 2) {
-      draft.options = names.map((name, i) => ({ icon: DRAFT_ICONS[i % DRAFT_ICONS.length], name: name.slice(0, 80) }));
+    if (slots.length >= 2) {
+      draft.optionKind = "slot";
+      draft.options = slots.map((at) => ({ icon: SLOT_ICON, name: slotLabel(at), at }));
     }
-  }
+  } else {
+    const opts = first(params.options);
+    if (opts) {
+      const names = opts
+        .split(/[|,]/)
+        .map((x) => x.trim())
+        .filter(Boolean)
+        .slice(0, 12);
+      if (names.length >= 2) {
+        draft.options = names.map((name, i) => ({ icon: DRAFT_ICONS[i % DRAFT_ICONS.length], name: name.slice(0, 80) }));
+      }
+    }
 
-  // Illustrations par option : paramètre séparé `media`, aligné par index (séparateur |).
-  const media = first(params.media);
-  if (media && draft.options) {
-    const urls = media.split("|");
-    draft.options = draft.options.map((o, i) => {
-      const u = safeUrl(urls[i]);
-      return u ? { ...o, url: u } : o;
-    });
+    // Illustrations par option : paramètre séparé `media`, aligné par index (séparateur |).
+    const media = first(params.media);
+    if (media && draft.options) {
+      const urls = media.split("|");
+      draft.options = draft.options.map((o, i) => {
+        const u = safeUrl(urls[i]);
+        return u ? { ...o, url: u } : o;
+      });
+    }
   }
 
   const method = first(params.method);
   if (method) {
     const system = publicMethodToSystem(method);
     if (system) draft.recipe = recipeForSystem(system);
+  }
+
+  // Vote de dates : seules les méthodes à gagnant unique ont du sens → défaut approbation.
+  if (draft.optionKind === "slot") {
+    const r = draft.recipe;
+    const singleWinner = !!r && r.suffrage === "direct" && r.counting !== "proportional" && r.counting !== "list";
+    if (!singleWinner) draft.recipe = recipeForSystem("approval");
   }
 
   const deadline = first(params.deadline);
@@ -93,6 +125,8 @@ export interface DraftInput {
   options?: string[];
   /** URLs d'illustration alignées par index sur `options` (chaîne vide = aucune). */
   media?: string[];
+  /** Vote « dates » : créneaux ISO/datetime-local. S'ils sont fournis, remplacent `options`. */
+  dates?: string[];
   method?: string;
   deadline?: string;
   source?: string;
@@ -104,9 +138,13 @@ export function buildNewUrl(base: string, d: DraftInput): string {
   const p = new URLSearchParams();
   if (d.title) p.set("title", d.title);
   if (d.description) p.set("description", d.description);
-  if (d.options && d.options.length) p.set("options", d.options.join("|"));
-  if (d.media && d.media.some((u) => safeUrl(u))) {
-    p.set("media", d.media.map((u) => safeUrl(u) ?? "").join("|"));
+  if (d.dates && d.dates.length) {
+    p.set("dates", d.dates.map((s) => s.trim()).filter(Boolean).join("|"));
+  } else {
+    if (d.options && d.options.length) p.set("options", d.options.join("|"));
+    if (d.media && d.media.some((u) => safeUrl(u))) {
+      p.set("media", d.media.map((u) => safeUrl(u) ?? "").join("|"));
+    }
   }
   if (d.method) p.set("method", d.method);
   if (d.deadline) p.set("deadline", d.deadline);

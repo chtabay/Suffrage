@@ -17,13 +17,16 @@ export function buildAiPrompt(question: string, options: Option[], source: strin
 - si le contexte aide à voter (lieu, budget, échéance…), un court descriptif facultatif ;
 - 2 à 8 options (reformule/fusionne si besoin), avec un emoji par option ;
 - facultatif : pour une option, une URL d'illustration http(s) (image, vidéo, document) qui aide à choisir ;
-- UNE méthode de vote parmi : ${methods} — et une phrase expliquant POURQUOI elle convient à CE cas ;
+- si la décision porte sur un MOMENT (« quand ? » : réunion, dîner, sortie…), n'utilise PAS "options" mais "dates" : la liste des créneaux candidats au format ISO/datetime-local (ex. 2026-07-12T20:00), et choisis l'approbation (chacun coche tous les créneaux qui lui conviennent — le plus disponible gagne) ;
+- UNE méthode de vote parmi : ${methods} — et une phrase expliquant POURQUOI elle convient à CE cas (pour un vote de dates, uniquement des méthodes à gagnant unique : approbation de préférence, ou majoritaire/condorcet/jugement majoritaire/borda — jamais proportional, list ni grand_electors) ;
 - une URL Suffrage prête à ouvrir, au format (remplace les valeurs, n'utilise pas cet exemple tel quel) :
 ${APP_URL}/new?title=...&description=...&options=Option1|Option2|Option3&media=url1||url3&method=...&source=${source}&why=...
+Variante « dates » (un vote de créneaux : remplace options/media par dates) :
+${APP_URL}/new?title=...&description=...&dates=2026-07-12T20:00|2026-07-13T12:30&method=approval&source=${source}&why=...
 
-Le paramètre "media" est facultatif : une URL par option, dans le MÊME ordre que "options", séparées par | (laisse vide une option sans illustration). Encode correctement les valeurs pour l'URL, mets ta justification dans le paramètre "why", et n'inclus aucune donnée sensible (e-mails, identifiants…).
+Le paramètre "media" est facultatif : une URL par option, dans le MÊME ordre que "options", séparées par | (laisse vide une option sans illustration). Le paramètre "dates" remplace "options" pour un vote de créneaux. Encode correctement les valeurs pour l'URL, mets ta justification dans le paramètre "why", et n'inclus aucune donnée sensible (e-mails, identifiants…).
 
-Si tu peux faire des requêtes HTTP, tu peux aussi appeler POST ${APP_URL}/api/poll-drafts avec { title, description, options, media, method, deadline, source, why } (media = tableau d'URLs aligné sur options) : il renverra { draft_url }.`;
+Si tu peux faire des requêtes HTTP, tu peux aussi appeler POST ${APP_URL}/api/poll-drafts avec { title, description, options (OU dates pour des créneaux), media, method, deadline, source, why } (media = URLs alignées sur options ; dates = créneaux ISO) : il renverra { draft_url }.`;
 
   if (!hasContext) {
     // Lancement « à froid » (rail d'accueil) : aucun sujet connu.

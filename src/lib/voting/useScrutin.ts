@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { addLocalPoll } from "@/lib/db/localPolls";
 import { addVoters, createPoll, type AccessMode, type District, type VoterInput } from "@/lib/db/polls";
-import type { ScrutinDraft } from "./draft";
+import { SLOT_ICON, slotLabel, type ScrutinDraft } from "./draft";
 import { DEFAULT_RECIPE, recipeForSystem } from "./engine";
 import type { Option, Recipe } from "./types";
 
@@ -84,6 +84,7 @@ function makeInitial(draft?: ScrutinDraft): ScrutinState {
     screen: "create",
     question: draft.question ?? INITIAL.question,
     description: draft.description ?? INITIAL.description,
+    optionKind: draft.optionKind ?? INITIAL.optionKind,
     options: draft.options ?? INITIAL.options,
     recipe,
     closesAt: draft.closesAt ?? INITIAL.closesAt,
@@ -100,14 +101,6 @@ const scrollTop = () => {
 
 const ADD_ICONS = ["🎯", "⭐", "🔥", "🌟", "🎪", "🎨"];
 
-const SLOT_ICON = "📅";
-/** Libellé lisible d'un créneau (le `name` de l'option) à partir de la valeur datetime-local. */
-function slotLabel(local: string): string {
-  if (!local) return "Créneau à définir";
-  const d = new Date(local);
-  if (Number.isNaN(d.getTime())) return "Créneau à définir";
-  return d.toLocaleString("fr-FR", { weekday: "short", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
-}
 const freshSlot = (): Option => ({ icon: SLOT_ICON, name: slotLabel(""), at: "" });
 
 // Toute modification de la définition invalide les liens déjà lancés.

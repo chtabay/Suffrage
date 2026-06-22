@@ -93,6 +93,7 @@ export default function AiDocPage() {
             <li><b>description</b> — contexte facultatif (lieu, budget, échéance…), affiché sous la question et dans l&apos;aperçu de partage.</li>
             <li><b>options</b> — 2 à 8 options séparées par <code style={{ fontFamily: mono }}>|</code> (ex. <code style={{ fontFamily: mono }}>Italien|Japonais|Indien</code>).</li>
             <li><b>media</b> — facultatif : une URL http(s) d&apos;illustration par option (image, vidéo, doc), <b>dans le même ordre</b> que <code style={{ fontFamily: mono }}>options</code>, séparées par <code style={{ fontFamily: mono }}>|</code> (laisse vide une option sans illustration).</li>
+            <li><b>dates</b> — vote de créneaux : <b>remplace</b> <code style={{ fontFamily: mono }}>options</code> par une liste de dates/heures ISO séparées par <code style={{ fontFamily: mono }}>|</code> (ex. <code style={{ fontFamily: mono }}>2026-07-12T20:00|2026-07-13T12:30</code>). Méthode conseillée : <code style={{ fontFamily: mono }}>approval</code> (gagnant unique uniquement).</li>
             <li><b>method</b> — une clé du tableau ci-dessous (défaut : <code style={{ fontFamily: mono }}>simple_vote</code>).</li>
             <li><b>deadline</b> — date ISO 8601, ex. <code style={{ fontFamily: mono }}>2026-07-01T20:00</code> (optionnel, défaut : +7 jours).</li>
             <li><b>source</b> — ton nom (<code style={{ fontFamily: mono }}>claude</code>, <code style={{ fontFamily: mono }}>chatgpt</code>, <code style={{ fontFamily: mono }}>gemini</code>…) : affiché « Préparé avec … ».</li>
@@ -134,6 +135,9 @@ export default function AiDocPage() {
           </code>
           <code style={code}>
             https://suffrage.vercel.app/new?title=Date%20du%20s%C3%A9minaire&amp;options=Juin|Septembre|Octobre&amp;method=two_round
+          </code>
+          <code style={code}>
+            https://suffrage.vercel.app/new?title=D%C3%AEner%20d%27%C3%A9quipe&amp;dates=2026-07-12T20:00|2026-07-13T12:30|2026-07-13T19:00&amp;method=approval&amp;source=claude
           </code>
         </div>
 
