@@ -143,9 +143,22 @@ function buildAxes(r: Recipe, setRecipe: (p: Partial<Recipe>) => void, slotMode 
   return axes;
 }
 
+// Exemples évocateurs montrés en placeholder (pas en valeurs à supprimer).
+const OPTION_PLACEHOLDERS = ["La montagne", "Le bord de mer", "Une grande ville", "La campagne"];
+
+// Palette curée pour changer l'emoji d'une option.
+const EMOJI_PALETTE = [
+  "🏔️", "🏖️", "🌆", "🌿", "🏝️", "🏕️", "🏰", "🗺️",
+  "🍕", "🍣", "🍔", "🌮", "🍜", "🥗", "🍦", "☕",
+  "⚽", "🎬", "🎮", "🎵", "🎨", "📚", "🎲", "🏄",
+  "⭐", "🔥", "❤️", "👍", "✅", "🎯", "💡", "🚀",
+  "1️⃣", "2️⃣", "3️⃣", "4️⃣", "5️⃣", "🅰️", "🅱️", "🔵",
+];
+
 export default function CreateScreen({ ctrl }: { ctrl: ScrutinController }) {
-  const { state, setRecipe, setQuestion, setDescription, setOptionName, setOptionUrl, removeOption, addOption, setOptionKind, setSlotAt, addSlot, launch } = ctrl;
+  const { state, setRecipe, setQuestion, setDescription, setOptionName, setOptionUrl, setOptionIcon, removeOption, addOption, setOptionKind, setSlotAt, addSlot, launch } = ctrl;
   const [urlRows, setUrlRows] = useState<Record<number, boolean>>({});
+  const [emojiRow, setEmojiRow] = useState<number | null>(null);
   const resolved = describeRecipe(state.recipe);
   const axes = buildAxes(state.recipe, setRecipe, state.optionKind === "slot");
 
@@ -317,7 +330,11 @@ export default function CreateScreen({ ctrl }: { ctrl: ScrutinController }) {
                 return (
                   <div key={i} style={{ display: "flex", flexDirection: "column", gap: 7 }}>
                     <div style={{ display: "flex", alignItems: "center", gap: 9 }}>
-                      <div
+                      <button
+                        type="button"
+                        onClick={() => setEmojiRow(emojiRow === i ? null : i)}
+                        title="Changer l'emoji"
+                        aria-label="Changer l'emoji"
                         style={{
                           width: 34,
                           height: 34,
@@ -329,13 +346,16 @@ export default function CreateScreen({ ctrl }: { ctrl: ScrutinController }) {
                           alignItems: "center",
                           justifyContent: "center",
                           fontSize: 17,
+                          cursor: "pointer",
+                          padding: 0,
                         }}
                       >
                         {opt.icon}
-                      </div>
+                      </button>
                       <input
                         value={opt.name}
                         onChange={(e) => setOptionName(i, e.target.value)}
+                        placeholder={OPTION_PLACEHOLDERS[i] ?? "Une autre option…"}
                         style={{
                           flex: 1,
                           minWidth: 0,
@@ -385,6 +405,42 @@ export default function CreateScreen({ ctrl }: { ctrl: ScrutinController }) {
                         ×
                       </button>
                     </div>
+                    {emojiRow === i && (
+                      <div
+                        style={{
+                          display: "flex",
+                          flexWrap: "wrap",
+                          gap: 4,
+                          padding: 8,
+                          border: `2px solid ${INK}`,
+                          borderRadius: 10,
+                          background: "#fff",
+                        }}
+                      >
+                        {EMOJI_PALETTE.map((e) => (
+                          <button
+                            key={e}
+                            type="button"
+                            onClick={() => {
+                              setOptionIcon(i, e);
+                              setEmojiRow(null);
+                            }}
+                            style={{
+                              width: 32,
+                              height: 32,
+                              fontSize: 18,
+                              border: "none",
+                              background: opt.icon === e ? CREAM : "transparent",
+                              borderRadius: 8,
+                              cursor: "pointer",
+                              padding: 0,
+                            }}
+                          >
+                            {e}
+                          </button>
+                        ))}
+                      </div>
+                    )}
                     {urlOpen && (
                       <input
                         value={opt.url ?? ""}

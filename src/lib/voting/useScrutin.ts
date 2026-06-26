@@ -42,13 +42,14 @@ export interface ScrutinState {
 
 const INITIAL: ScrutinState = {
   screen: "home",
-  question: "On part où pour le week-end ?",
+  // Vide par défaut : l'exemple « week-end » vit en placeholder (CreateScreen),
+  // pas en valeurs à supprimer. Le pré-remplissage IA/URL pose, lui, de vraies valeurs.
+  question: "",
   description: "",
   options: [
-    { icon: "🏔️", name: "La montagne" },
-    { icon: "🏖️", name: "Le bord de mer" },
-    { icon: "🌆", name: "Une grande ville" },
-    { icon: "🌿", name: "La campagne" },
+    { icon: "🏔️", name: "" },
+    { icon: "🏖️", name: "" },
+    { icon: "🌆", name: "" },
   ],
   optionKind: "text",
   recipe: { ...DEFAULT_RECIPE },
@@ -179,6 +180,14 @@ export function useScrutin(draft?: ScrutinDraft) {
     });
   }, []);
 
+  const setOptionIcon = useCallback((i: number, icon: string) => {
+    setState((s) => {
+      const options = s.options.slice();
+      options[i] = { ...options[i], icon };
+      return { ...s, options, ...CLEAR_SHARE };
+    });
+  }, []);
+
   // ---- vote « dates » : créneaux ----
   const setOptionKind = useCallback((kind: "text" | "slot") => {
     setState((s) => {
@@ -285,6 +294,19 @@ export function useScrutin(draft?: ScrutinDraft) {
   // Lance le scrutin : persiste, crée le corps électoral le cas échéant, enregistre localement.
   const launch = useCallback(async () => {
     const s = stateRef.current;
+    const question = s.question.trim();
+    const isSlot = s.optionKind === "slot";
+    const cleanOptions = s.options
+      .filter((o) => (isSlot ? Boolean(o.at) : o.name.trim() !== ""))
+      .map((o) => ({ ...o, name: o.name.trim() }));
+    if (!question) {
+      setState((p) => ({ ...p, error: "Ajoutez une question." }));
+      return;
+    }
+    if (cleanOptions.length < 2) {
+      setState((p) => ({ ...p, error: isSlot ? "Ajoutez au moins 2 créneaux." : "Ajoutez au moins 2 options." }));
+      return;
+    }
     setState((p) => ({ ...p, launching: true, error: null }));
     try {
       const isGE = s.recipe.suffrage === "indirect";
@@ -305,7 +327,7 @@ export function useScrutin(draft?: ScrutinDraft) {
       }
 
       const toISO = (str: string) => (str ? new Date(str).toISOString() : null);
-      const { token, secret } = await createPoll(s.question, s.options, s.recipe, {
+      const { token, secret } = await createPoll(question, cleanOptions, s.recipe, {
         description: s.description,
         hideResults: s.hideResults,
         accessMode: s.access,
@@ -352,6 +374,7 @@ export function useScrutin(draft?: ScrutinDraft) {
     setDescription,
     setOptionName,
     setOptionUrl,
+    setOptionIcon,
     removeOption,
     addOption,
     setOptionKind,
