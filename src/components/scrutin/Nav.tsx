@@ -1,11 +1,18 @@
 "use client";
 
+import { useState } from "react";
 import type { AuthController } from "@/lib/auth/useAuth";
 import type { ScrutinController } from "@/lib/voting/useScrutin";
 import { CORAL, CREAM, FONT_BODY, FONT_DISPLAY, GREEN, INK, YELLOW, lift } from "./theme";
 
 export default function Nav({ ctrl, auth }: { ctrl: ScrutinController; auth: AuthController }) {
   const { go } = ctrl;
+  const [open, setOpen] = useState(false);
+  // Toute action ferme le menu mobile.
+  const act = (fn: () => void) => () => {
+    setOpen(false);
+    fn();
+  };
 
   const secondary = {
     fontFamily: FONT_BODY,
@@ -35,7 +42,7 @@ export default function Nav({ ctrl, auth }: { ctrl: ScrutinController; auth: Aut
         style={{
           maxWidth: 1120,
           margin: "0 auto",
-          padding: "14px 24px",
+          padding: "12px 24px",
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
@@ -44,18 +51,18 @@ export default function Nav({ ctrl, auth }: { ctrl: ScrutinController; auth: Aut
           rowGap: 10,
         }}
       >
-        <div onClick={() => go("home")} style={{ display: "flex", alignItems: "center", gap: 11, cursor: "pointer" }}>
+        <div onClick={act(() => go("home"))} style={{ display: "flex", alignItems: "center", gap: 11, cursor: "pointer" }}>
           <div
             style={{
-              width: 38,
-              height: 38,
+              width: 36,
+              height: 36,
               border: `2.5px solid ${INK}`,
               borderRadius: 11,
               background: YELLOW,
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              fontSize: 20,
+              fontSize: 19,
               boxShadow: `3px 3px 0 ${INK}`,
             }}
           >
@@ -65,15 +72,38 @@ export default function Nav({ ctrl, auth }: { ctrl: ScrutinController; auth: Aut
             Scrutin
           </div>
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-          <button onClick={() => go("mine")} className="dc-paper" style={secondary}>
+
+        {/* Bouton menu (mobile uniquement, géré par CSS .nav-burger) */}
+        <button
+          className="nav-burger"
+          onClick={() => setOpen((o) => !o)}
+          aria-label="Menu"
+          aria-expanded={open}
+          style={{
+            width: 42,
+            height: 42,
+            border: `2.5px solid ${INK}`,
+            background: CREAM,
+            color: INK,
+            borderRadius: 10,
+            fontSize: 18,
+            cursor: "pointer",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          {open ? "✕" : "☰"}
+        </button>
+
+        <div className={`nav-links${open ? " open" : ""}`}>
+          <button onClick={act(() => go("mine"))} className="dc-paper" style={secondary}>
             Mes scrutins
           </button>
-          <button onClick={() => go("gallery")} className="dc-paper" style={secondary}>
+          <button onClick={act(() => go("gallery"))} className="dc-paper" style={secondary}>
             Les méthodes
           </button>
           <button
-            onClick={() => go("create")}
+            onClick={act(() => go("create"))}
             className="dc-lift"
             style={{
               fontFamily: FONT_BODY,
@@ -93,16 +123,16 @@ export default function Nav({ ctrl, auth }: { ctrl: ScrutinController; auth: Aut
           {!auth.loading &&
             (auth.user ? (
               <button
-                onClick={auth.signOut}
+                onClick={act(auth.signOut)}
                 className="dc-paper"
                 title={auth.user.email ?? undefined}
-                style={{ ...secondary, display: "flex", alignItems: "center", gap: 7 }}
+                style={{ ...secondary, display: "flex", alignItems: "center", justifyContent: "center", gap: 7 }}
               >
                 <span style={{ width: 8, height: 8, borderRadius: "50%", background: GREEN, display: "inline-block" }} />
                 Déconnexion
               </button>
             ) : (
-              <button onClick={auth.signIn} className="dc-paper" style={secondary}>
+              <button onClick={act(auth.signIn)} className="dc-paper" style={secondary}>
                 Se connecter
               </button>
             ))}

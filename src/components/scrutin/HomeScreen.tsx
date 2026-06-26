@@ -57,8 +57,10 @@ export default function HomeScreen({ ctrl }: { ctrl: ScrutinController }) {
   const learn = useHomeMode() === "learn";
 
   return (
-    <div className="pad" style={{ maxWidth: 1120, margin: "0 auto", padding: `${learn ? 64 : 30}px 24px 90px` }}>
+    <div className="pad" style={{ maxWidth: 1120, margin: "0 auto", padding: `${learn ? 56 : 26}px 24px 90px` }}>
       <AiSideRail />
+
+      {/* hero : pitch en pédagogie, compact en lean — une seule action primaire */}
       <div style={{ animation: "popIn 0.5s ease both" }}>
         {learn && (
           <div
@@ -107,7 +109,7 @@ export default function HomeScreen({ ctrl }: { ctrl: ScrutinController }) {
             en deux clics. Le gagnant est calculé selon ses règles exactes — pas un sondage de plus.
           </p>
         )}
-        <div style={{ display: "flex", flexWrap: "wrap", gap: 13, marginTop: learn ? 34 : 18 }}>
+        <div style={{ marginTop: learn ? 32 : 18 }}>
           <button
             onClick={() => go("create")}
             className="dc-lift"
@@ -126,111 +128,20 @@ export default function HomeScreen({ ctrl }: { ctrl: ScrutinController }) {
           >
             Créer mon vote →
           </button>
-          <button
-            onClick={() => go("gallery")}
-            className="dc-lift"
-            style={{
-              fontFamily: FONT_DISPLAY,
-              fontWeight: 700,
-              fontSize: 17,
-              cursor: "pointer",
-              border: `2.5px solid ${INK}`,
-              background: PAPER,
-              color: INK,
-              padding: "15px 26px",
-              borderRadius: 14,
-              ...lift(`5px 5px 0 ${INK}`, `7px 7px 0 ${INK}`),
-            }}
-          >
-            Comparer les méthodes
-          </button>
         </div>
       </div>
 
-      {/* IA (mobile) : ligne d'accès rapide vers la section en bas — pas de mur avant le cœur de l'app */}
-      <a
-        href="#ia-prep"
-        className="ai-home-inline"
-        style={{
-          marginTop: 18,
-          textAlign: "center",
-          background: PAPER,
-          border: `2px solid ${INK}`,
-          borderRadius: 12,
-          padding: "11px 14px",
-          fontFamily: FONT_BODY,
-          fontWeight: 700,
-          fontSize: 14,
-          color: INK,
-          textDecoration: "none",
-          boxShadow: `3px 3px 0 ${INK}`,
-        }}
-      >
-        ✨ Pressé ? Laissez une IA préparer le vote →
-      </a>
-
-      {/* étapes — pédagogie uniquement */}
-      {learn && (
+      {/* 4 méthodes phares — remontées pour être visibles dès la première page */}
+      <div style={{ marginTop: learn ? 40 : 26 }}>
+        <h2 style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: learn ? 30 : 23, letterSpacing: "-0.02em", margin: 0 }}>
+          {learn ? "Il n'y a pas qu'une façon de désigner un gagnant" : "Choisir une méthode"}
+        </h2>
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(auto-fit,minmax(220px,1fr))",
-            gap: 18,
-            marginTop: 70,
-          }}
-        >
-          {STEPS.map((step, i) => (
-            <div
-              key={i}
-              style={{
-                background: PAPER,
-                border: `2.5px solid ${INK}`,
-                borderRadius: 18,
-                padding: 22,
-                boxShadow: `5px 5px 0 ${INK}`,
-                animation: `popIn 0.5s ease both`,
-                animationDelay: `${0.05 + i * 0.07}s`,
-              }}
-            >
-              <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 15, color: STEP_COLORS[i] }}>
-                {step.label}
-              </div>
-              <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 700, fontSize: 21, marginTop: 6 }}>
-                {step.title}
-              </div>
-              <div style={{ color: SUBINK, marginTop: 6, lineHeight: 1.45, fontSize: 14.5 }}>{step.text}</div>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {/* aperçu des méthodes — 4 cartes phares, le détail dans la galerie */}
-      <div style={{ marginTop: learn ? 64 : 30 }}>
-        <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
-          <h2 style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: learn ? 30 : 24, letterSpacing: "-0.02em", margin: 0 }}>
-            {learn ? "Il n'y a pas qu'une façon de désigner un gagnant" : "Choisir une méthode"}
-          </h2>
-          <button
-            onClick={() => go("gallery")}
-            style={{
-              background: "none",
-              border: "none",
-              fontFamily: FONT_BODY,
-              fontWeight: 700,
-              fontSize: 15,
-              color: CORAL,
-              cursor: "pointer",
-            }}
-          >
-            Voir les 10 méthodes →
-          </button>
-        </div>
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fill,minmax(168px,1fr))",
+            gridTemplateColumns: "repeat(auto-fill,minmax(160px,1fr))",
             gap: 14,
-            marginTop: 20,
+            marginTop: 16,
           }}
         >
           {HOME_METHODS.map((key) => {
@@ -289,10 +200,66 @@ export default function HomeScreen({ ctrl }: { ctrl: ScrutinController }) {
             );
           })}
         </div>
+
+        {/* après les cartes : comparer toutes les méthodes */}
+        <button
+          onClick={() => go("gallery")}
+          className="dc-lift"
+          style={{
+            marginTop: 16,
+            fontFamily: FONT_DISPLAY,
+            fontWeight: 700,
+            fontSize: 15,
+            cursor: "pointer",
+            border: `2.5px solid ${INK}`,
+            background: PAPER,
+            color: INK,
+            padding: "12px 20px",
+            borderRadius: 12,
+            ...lift(`4px 4px 0 ${INK}`, `6px 6px 0 ${INK}`),
+          }}
+        >
+          Comparer les 10 méthodes →
+        </button>
       </div>
 
-      {/* IA — section complète (mobile ; desktop = rail latéral), cible du lien rapide */}
-      <div id="ia-prep" className="ai-home-inline" style={{ marginTop: 56, scrollMarginTop: 80 }}>
+      {/* étapes — pédagogie uniquement, après les cartes */}
+      {learn && (
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit,minmax(220px,1fr))",
+            gap: 18,
+            marginTop: 56,
+          }}
+        >
+          {STEPS.map((step, i) => (
+            <div
+              key={i}
+              style={{
+                background: PAPER,
+                border: `2.5px solid ${INK}`,
+                borderRadius: 18,
+                padding: 22,
+                boxShadow: `5px 5px 0 ${INK}`,
+                animation: `popIn 0.5s ease both`,
+                animationDelay: `${0.05 + i * 0.07}s`,
+              }}
+            >
+              <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 15, color: STEP_COLORS[i] }}>
+                {step.label}
+              </div>
+              <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 700, fontSize: 21, marginTop: 6 }}>
+                {step.title}
+              </div>
+              <div style={{ color: SUBINK, marginTop: 6, lineHeight: 1.45, fontSize: 14.5 }}>{step.text}</div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* IA — après le choix de méthode (mobile ; desktop = rail latéral) */}
+      <div className="ai-home-inline" style={{ marginTop: 28 }}>
         <AiHelper ctrl={ctrl} />
       </div>
     </div>
