@@ -5,9 +5,17 @@
 import { NextResponse } from "next/server";
 import { verifySlackSignature, parseInteraction } from "@/lib/slack/verify";
 import * as store from "@/lib/slack/store";
-import { builderMessage, addOptionView, editQuestionView, launchedMessage, cancelledMessage } from "@/lib/slack/blocks";
+import {
+  builderMessage,
+  addOptionView,
+  editQuestionView,
+  launchedMessage,
+  launchedClosedMessage,
+  cancelledMessage,
+} from "@/lib/slack/blocks";
 import { openView, updateMessage } from "@/lib/slack/api";
-import { createPollServer } from "@/lib/db/pollsServer";
+import { createPollServer, closePollServer } from "@/lib/db/pollsServer";
+import { postSlackResult } from "@/lib/slack/result";
 import { splitLeadingEmoji } from "@/lib/voting/draft";
 import { publicMethodToSystem } from "@/lib/voting/methods";
 import { recipeForSystem } from "@/lib/voting/engine";
@@ -73,15 +81,30 @@ async function doLaunch(id: string, responseUrl: string): Promise<void> {
   }
   const recipe = recipeForSystem(publicMethodToSystem(b.method) ?? "fptp");
   const options = b.options.map((o) => ({ icon: o.icon, name: o.name }));
-  const closesAt = new Date(Date.now() + 7 * 24 * 3600 * 1000).toISOString();
-  const token = await createPollServer(b.question, options, recipe, { closesAt });
-  if (!token) {
+  // Échéance 30 min = filet de sécurité ; le bouton « Clôturer » permet de fermer plus tôt.
+  const closesAt = new Date(Date.now() + 30 * 60 * 1000).toISOString();
+  const created = await createPollServer(b.question, options, recipe, { closesAt });
+  if (!created) {
     await respondEphemeral(responseUrl, "⚠️ Échec de la création du vote. Réessaie dans un instant.");
     return;
   }
-  await store.launchBuilder(id, token);
-  const m = launchedMessage(b.question, b.method, `${APP_URL}/v/${token}`, options);
+  await store.launchBuilder(id, created.token, created.secret);
+  const m = launchedMessage(id, b.question, b.method, `${APP_URL}/v/${created.token}`, options);
   if (b.message_ts) await updateMessage(b.channel_id, b.message_ts, m.blocks, m.text);
+}
+
+async function doClose(id: string, responseUrl: string): Promise<void> {
+  const b = await store.getBuilder(id);
+  if (!b || b.status !== "launched" || !b.poll_token || !b.poll_secret) {
+    await respondEphemeral(responseUrl, "Ce vote n'est pas (ou plus) ouvert.");
+    return;
+  }
+  await closePollServer(b.poll_token, b.poll_secret);
+  if (b.message_ts) {
+    const m = launchedClosedMessage(b.question);
+    await updateMessage(b.channel_id, b.message_ts, m.blocks, m.text);
+  }
+  await postSlackResult(b.poll_token); // poste le dépouillement + marque posté (dédup cron)
 }
 
 async function handleBlockActions(p: BlockActions): Promise<void> {
@@ -109,6 +132,9 @@ async function handleBlockActions(p: BlockActions): Promise<void> {
     }
     case "launch":
       await doLaunch(id, p.response_url);
+      break;
+    case "close":
+      await doClose(id, p.response_url);
       break;
     case "cancel": {
       await store.cancelBuilder(id);

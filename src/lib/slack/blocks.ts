@@ -132,6 +132,7 @@ export function editQuestionView(builderId: string, current: string): Block {
 
 /** Message après lancement : le vote est ouvert sur le web. */
 export function launchedMessage(
+  builderId: string,
   question: string,
   methodKey: string,
   voteUrl: string,
@@ -146,11 +147,31 @@ export function launchedMessage(
         type: "actions",
         elements: [
           { type: "button", action_id: "open_vote", url: voteUrl, style: "primary", text: { type: "plain_text", text: "🗳️ Voter maintenant", emoji: true } },
+          { type: "button", action_id: "close", value: builderId, text: { type: "plain_text", text: "✅ Clôturer & publier", emoji: true } },
         ],
       },
-      { type: "context", elements: [{ type: "mrkdwn", text: "Le vote se déroule sur le web. Le résultat sera posté ici à la clôture." }] },
+      {
+        type: "context",
+        elements: [
+          {
+            type: "mrkdwn",
+            text: "Le vote se déroule sur le web. Cliquez « Clôturer » quand tout le monde a voté — le résultat s'affiche ici (sinon clôture auto à l'échéance).",
+          },
+        ],
+      },
     ],
     text: `Votez : ${voteUrl}`,
+  };
+}
+
+/** Message du vote lancé une fois clôturé (boutons retirés ; le résultat suit). */
+export function launchedClosedMessage(question: string): { blocks: Block[]; text: string } {
+  return {
+    blocks: [
+      { type: "header", text: { type: "plain_text", text: `🗳️ ${question}`.slice(0, 150), emoji: true } },
+      { type: "section", text: { type: "mrkdwn", text: "✅ _Vote clos._ Résultat ci-dessous." } },
+    ],
+    text: "Vote clos",
   };
 }
 

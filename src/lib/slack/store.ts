@@ -20,6 +20,7 @@ export interface SlackBuilder {
   options: SlackOption[];
   method: string;
   poll_token: string | null;
+  poll_secret: string | null;
   status: string;
 }
 
@@ -87,8 +88,8 @@ export async function setMethod(id: string, method: string): Promise<void> {
   await rpc("slack_builder_set_method", { p_id: id, p_method: method });
 }
 
-export async function launchBuilder(id: string, token: string): Promise<void> {
-  await rpc("slack_builder_launch", { p_id: id, p_poll_token: token });
+export async function launchBuilder(id: string, token: string, secret: string): Promise<void> {
+  await rpc("slack_builder_launch", { p_id: id, p_poll_token: token, p_poll_secret: secret });
 }
 
 export async function cancelBuilder(id: string): Promise<void> {

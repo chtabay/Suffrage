@@ -88,8 +88,9 @@ Slack** classique.
 
 **Flux** : `/scrutin [question]` poste un message **Block Kit** dans le canal ; tout le
 monde y ajoute des options (➕), choisit la méthode et **lance** (✅). Le scrutin est créé
-côté serveur, le canal reçoit le lien de vote, et **le résultat est reposté dans le canal
-à la clôture**.
+côté serveur (échéance par défaut **30 min**), le canal reçoit le lien de vote + un bouton
+**« Clôturer & publier »**. À la clôture (bouton, ou cron à l'échéance), **le résultat est
+posté dans le canal**.
 
 **Pièces** :
 - `src/lib/slack/` — `verify.ts` (signature HMAC), `store.ts` (RPC état), `api.ts` (API

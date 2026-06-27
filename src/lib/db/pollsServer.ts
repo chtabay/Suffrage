@@ -14,7 +14,7 @@ export async function createPollServer(
   options: Option[],
   recipe: Recipe,
   opts: { description?: string | null; closesAt?: string | null } = {},
-): Promise<string | null> {
+): Promise<{ token: string; secret: string } | null> {
   if (!BASE || !KEY) return null;
   // Le secret d'admin n'est utile à personne ici (clôture par échéance via le cron) :
   // on en stocke seulement le hash, comme le fait l'app.
@@ -47,8 +47,26 @@ export async function createPollServer(
     });
     if (!res.ok) return null;
     const rows = (await res.json()) as { token: string }[];
-    return rows?.[0]?.token ?? null;
+    const token = rows?.[0]?.token;
+    return token ? { token, secret } : null;
   } catch {
     return null;
+  }
+}
+
+/** Clôture un scrutin via la RPC close_poll (secret d'admin). Vrai si clôturé. */
+export async function closePollServer(token: string, secret: string): Promise<boolean> {
+  if (!BASE || !KEY) return false;
+  try {
+    const res = await fetch(`${BASE}/rest/v1/rpc/close_poll`, {
+      method: "POST",
+      headers: { apikey: KEY, Authorization: `Bearer ${KEY}`, "Content-Type": "application/json" },
+      body: JSON.stringify({ p_token: token, p_secret: secret }),
+    });
+    if (!res.ok) return false;
+    const txt = await res.text();
+    return txt ? JSON.parse(txt) === true : false;
+  } catch {
+    return false;
   }
 }
