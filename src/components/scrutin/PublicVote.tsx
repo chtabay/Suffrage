@@ -54,6 +54,37 @@ function draftToBallot(mode: BallotMode, draft: BallotDraft, n: number): Ballot 
 const electorsOf = (p: PollRow): number[] | undefined => (p.districts ? p.districts.map((d) => d.electors) : undefined);
 const voterCanSeeResults = (p: PollRow) => p.status === "closed" || !p.hide_results;
 
+// Test concierge (monétisation) : proposer un « PV officiel » payant du résultat.
+// Le lien Stripe passe le token en client_reference_id pour identifier le scrutin.
+function OfficialRecordCta({ token }: { token: string }) {
+  const link = process.env.NEXT_PUBLIC_PV_PAYMENT_LINK;
+  if (!link) return null;
+  return (
+    <a
+      href={`${link}?client_reference_id=${encodeURIComponent(token)}`}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="dc-lift"
+      style={{
+        display: "block",
+        marginTop: 22,
+        textDecoration: "none",
+        background: YELLOW,
+        border: `2.5px solid ${INK}`,
+        borderRadius: 16,
+        padding: "16px 18px",
+        boxShadow: `4px 4px 0 ${INK}`,
+        color: INK,
+      }}
+    >
+      <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 16 }}>📄 Recevez le PV officiel — 2 €</div>
+      <div style={{ fontSize: 13, color: INK, marginTop: 5, lineHeight: 1.45 }}>
+        Un procès-verbal vérifiable de ce résultat (question, méthode, dépouillement, horodatage), à archiver ou partager.
+      </div>
+    </a>
+  );
+}
+
 // Déclencheur direct : après un vote, signale au serveur (notif si le scrutin vient de se clore).
 function pingPollEvent(token: string) {
   void fetch("/api/notify/poll", {
@@ -602,6 +633,7 @@ export default function PublicVote({
                 url={voteShareUrl}
               />
               <CommentsFeed comments={comments} />
+              <OfficialRecordCta token={token} />
             </>
           ) : (
             <div style={{ ...card, color: MUTED, fontSize: 15 }}>Aucun bulletin pour l'instant.</div>
@@ -690,6 +722,7 @@ export default function PublicVote({
               url={voteShareUrl}
             />
             <CommentsFeed comments={comments} />
+            <OfficialRecordCta token={token} />
           </>
         ) : (
           <div style={{ ...card, color: MUTED }}>Aucun bulletin n'a été déposé.</div>
@@ -735,6 +768,7 @@ export default function PublicVote({
         {poll.quorum != null && <QuorumBanner quorum={poll.quorum} count={ballotCount} />}
         <ResultCard result={result} question={poll.question} ballotCount={ballotCount} footer={footer} />
         <CommentsFeed comments={comments} />
+        <OfficialRecordCta token={token} />
       </Shell>
     );
   }
