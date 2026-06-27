@@ -262,6 +262,44 @@ export default function HomeScreen({ ctrl }: { ctrl: ScrutinController }) {
       <div className="ai-home-inline" style={{ marginTop: 28 }}>
         <AiHelper ctrl={ctrl} />
       </div>
+
+      {/* Intégration Slack — point d'entrée discret vers l'install */}
+      <div
+        style={{
+          marginTop: 40,
+          paddingTop: 22,
+          borderTop: `2px dashed ${INK}`,
+          display: "flex",
+          flexWrap: "wrap",
+          alignItems: "center",
+          justifyContent: "space-between",
+          gap: 14,
+        }}
+      >
+        <div style={{ fontSize: 14, color: SUBINK, lineHeight: 1.5, maxWidth: "46ch" }}>
+          <strong style={{ color: INK }}>Aussi dans Slack.</strong> Lancez un vote sans quitter vos canaux —{" "}
+          <code style={{ fontFamily: FONT_BODY }}>/scrutin</code>, on vote sur le web, le résultat revient dans le canal.
+        </div>
+        <a
+          href="/slack"
+          className="dc-lift"
+          style={{
+            flex: "none",
+            fontFamily: FONT_DISPLAY,
+            fontWeight: 700,
+            fontSize: 14.5,
+            textDecoration: "none",
+            border: `2.5px solid ${INK}`,
+            background: "#fff",
+            color: INK,
+            padding: "11px 18px",
+            borderRadius: 12,
+            ...lift(`4px 4px 0 ${INK}`, `6px 6px 0 ${INK}`),
+          }}
+        >
+          💬 Ajouter à Slack
+        </a>
+      </div>
     </div>
   );
 }
