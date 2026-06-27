@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { GRADES, GRADE_COLORS, candColor } from "@/lib/voting/systems";
 import type { BallotMode, Option } from "@/lib/voting/types";
 import { CREAM, FONT_BODY, FONT_DISPLAY, GREEN, INK, MUTED } from "./theme";
@@ -39,6 +40,7 @@ export default function BallotCard({
   onResetRank,
   onGrade,
 }: Props) {
+  const t = useTranslations("Vote");
   const optionRow = (i: number, children: React.ReactNode, onClick: () => void, bg: string) => (
     <button
       key={i}
@@ -114,10 +116,10 @@ export default function BallotCard({
     return (
       <span
         onClick={open}
-        title="Voir l'illustration"
+        title={t("viewIllustration")}
         style={{ flex: "none", fontSize: 13, fontWeight: 700, color: INK, textDecoration: "underline", cursor: "pointer" }}
       >
-        🔗 voir
+        🔗 {t("view")}
       </span>
     );
   };
@@ -193,7 +195,7 @@ export default function BallotCard({
     return (
       <div>
         <div style={{ fontWeight: 700, fontSize: 13, color: MUTED, marginBottom: 9 }}>
-          Cliquez dans l'ordre de vos préférences
+          {t("rankHint")}
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: 9 }}>
           {opts.map((o, i) => {
@@ -258,7 +260,7 @@ export default function BallotCard({
             borderRadius: 9,
           }}
         >
-          Recommencer le classement
+          {t("resetRanking")}
         </button>
       </div>
     );
@@ -290,7 +292,7 @@ export default function BallotCard({
             {media(o.url)}
           </div>
           <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-            {GRADES.map((gl, gi) => {
+            {GRADES.map((_gl, gi) => {
               const sel = (draft.grades[i] ?? null) === gi;
               return (
                 <button
@@ -310,7 +312,7 @@ export default function BallotCard({
                     lineHeight: 1.1,
                   }}
                 >
-                  {gl}
+                  {t(`grade${gi}`)}
                 </button>
               );
             })}

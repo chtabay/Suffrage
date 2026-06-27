@@ -1,12 +1,14 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import type { ScrutinController } from "@/lib/voting/useScrutin";
 import InstallInline from "@/components/pwa/InstallInline";
 import WhatsAppShare from "./WhatsAppShare";
 import { CREAM, FONT_BODY, FONT_DISPLAY, GREEN, INK, MUTED, YELLOW, lift } from "./theme";
 
 function CopyRow({ url, label, hint }: { url: string; label: string; hint?: string }) {
+  const t = useTranslations("Launched");
   const [copied, setCopied] = useState(false);
   const copy = async () => {
     try {
@@ -53,7 +55,7 @@ function CopyRow({ url, label, hint }: { url: string; label: string; hint?: stri
             ...lift(`3px 3px 0 ${INK}`, `4px 4px 0 ${INK}`),
           }}
         >
-          {copied ? "✓ Copié" : "Copier"}
+          {copied ? t("copied") : t("copy")}
         </button>
       </div>
       {hint && <div style={{ fontSize: 12, color: MUTED, marginTop: 6, lineHeight: 1.4 }}>{hint}</div>}
@@ -62,6 +64,7 @@ function CopyRow({ url, label, hint }: { url: string; label: string; hint?: stri
 }
 
 function VoterRow({ label, url }: { label: string; url: string }) {
+  const t = useTranslations("Launched");
   const [copied, setCopied] = useState(false);
   const copy = async () => {
     try {
@@ -117,13 +120,14 @@ function VoterRow({ label, url }: { label: string; url: string }) {
           borderRadius: 9,
         }}
       >
-        {copied ? "✓" : "Copier"}
+        {copied ? "✓" : t("copy")}
       </button>
     </div>
   );
 }
 
 export default function LaunchedScreen({ ctrl }: { ctrl: ScrutinController }) {
+  const t = useTranslations("Launched");
   const { state, newScrutin, go } = ctrl;
   const voteUrl = state.shareUrl ?? "";
   const adminUrl = state.adminUrl ?? "";
@@ -149,7 +153,7 @@ export default function LaunchedScreen({ ctrl }: { ctrl: ScrutinController }) {
               letterSpacing: "0.05em",
             }}
           >
-            Scrutin lancé
+            {t("badge")}
           </div>
           <div
             style={{
@@ -162,18 +166,17 @@ export default function LaunchedScreen({ ctrl }: { ctrl: ScrutinController }) {
               textShadow: "2px 2px 0 rgba(0,0,0,0.18)",
             }}
           >
-            🎉 Votre vote est prêt
+            {t("ready")}
           </div>
         </div>
 
         <div style={{ padding: 24 }}>
           <div style={{ fontWeight: 700, fontSize: 16 }}>{state.question}</div>
           <p style={{ color: MUTED, fontSize: 14, margin: "6px 0 18px", lineHeight: 1.5 }}>
-            Partagez le lien de vote : chacun vote sans créer de compte, et les résultats se calculent
-            en direct sur la même page.
+            {t("intro")}
           </p>
 
-          <CopyRow url={voteUrl} label="LIEN DE VOTE (à partager)" />
+          <CopyRow url={voteUrl} label={t("voteLinkLabel")} />
 
           <div style={{ marginTop: 12 }}>
             <WhatsAppShare question={state.question} url={voteUrl} />
@@ -182,8 +185,8 @@ export default function LaunchedScreen({ ctrl }: { ctrl: ScrutinController }) {
           <div style={{ marginTop: 18 }}>
             <CopyRow
               url={adminUrl}
-              label="🔑 LIEN DE GESTION (privé)"
-              hint="Gardez-le pour administrer ce scrutin depuis n'importe quel appareil. Ne le partagez pas."
+              label={t("adminLinkLabel")}
+              hint={t("adminLinkHint")}
             />
           </div>
 
@@ -199,14 +202,13 @@ export default function LaunchedScreen({ ctrl }: { ctrl: ScrutinController }) {
               color: INK,
             }}
           >
-            ✓ Enregistré dans « Mes scrutins » sur cet appareil.
+            {t("savedNotice")}
           </div>
 
           {state.voterLinks.length > 0 && (
             <div style={{ marginTop: 18 }}>
               <div style={{ fontWeight: 700, fontSize: 12, color: MUTED, marginBottom: 7 }}>
-                🎟️ LIENS NOMINATIFS — {state.voterLinks.length} votant{state.voterLinks.length > 1 ? "s" : ""} (un par
-                personne)
+                {t("voterLinksLabel", { count: state.voterLinks.length })}
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: 8, maxHeight: 280, overflowY: "auto" }}>
                 {state.voterLinks.map((v, i) => (
@@ -238,7 +240,7 @@ export default function LaunchedScreen({ ctrl }: { ctrl: ScrutinController }) {
                 ...lift(`4px 4px 0 ${GREEN}`, `6px 6px 0 ${GREEN}`),
               }}
             >
-              Ouvrir la page de vote →
+              {t("openVotePage")}
             </a>
             <button
               onClick={() => go("mine")}
@@ -256,7 +258,7 @@ export default function LaunchedScreen({ ctrl }: { ctrl: ScrutinController }) {
                 borderRadius: 12,
               }}
             >
-              Mes scrutins
+              {t("myPolls")}
             </button>
             <button
               onClick={newScrutin}
@@ -274,7 +276,7 @@ export default function LaunchedScreen({ ctrl }: { ctrl: ScrutinController }) {
                 borderRadius: 12,
               }}
             >
-              ← Créer un autre
+              {t("createAnother")}
             </button>
           </div>
 

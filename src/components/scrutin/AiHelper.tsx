@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { ASSISTANTS, copyAiPrompt, openAssistant } from "@/lib/ai/assistants";
 import BrandIcon, { hasBrandIcon } from "@/components/ai/BrandIcon";
 import type { ScrutinController } from "@/lib/voting/useScrutin";
@@ -8,6 +9,7 @@ import { CREAM, FONT_BODY, FONT_DISPLAY, INK, MUTED } from "./theme";
 
 export default function AiHelper({ ctrl }: { ctrl: ScrutinController }) {
   const { state } = ctrl;
+  const t = useTranslations("AiHelper");
   const [copied, setCopied] = useState(false);
 
   const btn = {
@@ -30,9 +32,9 @@ export default function AiHelper({ ctrl }: { ctrl: ScrutinController }) {
         boxShadow: `4px 4px 0 ${INK}`,
       }}
     >
-      <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 16 }}>✨ Préparer avec une IA</div>
+      <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 16 }}>{t("title")}</div>
       <div style={{ fontSize: 12.5, color: MUTED, margin: "5px 0 12px", lineHeight: 1.45 }}>
-        Choisis un assistant : il reçoit le prompt et te renvoie un lien Placet prêt à valider ici.
+        {t("subtitle")}
       </div>
       <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
         {ASSISTANTS.map((a) => (
@@ -56,11 +58,11 @@ export default function AiHelper({ ctrl }: { ctrl: ScrutinController }) {
           }}
           style={{ ...btn, background: CREAM, color: INK }}
         >
-          {copied ? "✓ Prompt copié" : "Copier le prompt"}
+          {copied ? t("promptCopied") : t("copyPrompt")}
         </button>
       </div>
       <div style={{ fontSize: 11.5, color: MUTED, marginTop: 10, lineHeight: 1.4 }}>
-        Le prompt est copié automatiquement — sur Gemini, Copilot, Grok ou Le Chat, il suffit de le coller (Ctrl/⌘+V).
+        {t("pasteHint")}
       </div>
     </div>
   );

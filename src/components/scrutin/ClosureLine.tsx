@@ -1,10 +1,12 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import type { ScrutinController } from "@/lib/voting/useScrutin";
 import { CREAM, FONT_BODY, FONT_DISPLAY, INK, MUTED } from "./theme";
 
 /** Date de clôture, visible par défaut (mécanisme de validité du scrutin « autoportant »). */
 export default function ClosureLine({ ctrl }: { ctrl: ScrutinController }) {
+  const t = useTranslations("Closure");
   const { state, setClosesAt } = ctrl;
   return (
     <div
@@ -20,7 +22,7 @@ export default function ClosureLine({ ctrl }: { ctrl: ScrutinController }) {
         flexWrap: "wrap",
       }}
     >
-      <span style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 16 }}>🗓 Clôture</span>
+      <span style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 16 }}>🗓 {t("title")}</span>
       <input
         type="datetime-local"
         value={state.closesAt}
@@ -41,13 +43,13 @@ export default function ClosureLine({ ctrl }: { ctrl: ScrutinController }) {
       {state.closesAt ? (
         <button
           onClick={() => setClosesAt("")}
-          title="Pas de clôture automatique"
+          title={t("removeTitle")}
           style={{ fontSize: 12.5, fontWeight: 700, color: MUTED, background: "none", border: "none", cursor: "pointer" }}
         >
-          retirer
+          {t("remove")}
         </button>
       ) : (
-        <span style={{ fontSize: 12.5, color: MUTED, fontWeight: 600 }}>clôture manuelle</span>
+        <span style={{ fontSize: 12.5, color: MUTED, fontWeight: 600 }}>{t("manual")}</span>
       )}
     </div>
   );

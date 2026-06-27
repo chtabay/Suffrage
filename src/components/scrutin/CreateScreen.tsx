@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { describeRecipe, resolveKey } from "@/lib/voting/engine";
 import { SYSTEMS, SYSTEM_ORDER, candColor } from "@/lib/voting/systems";
 import type { CountingMethod, Recipe } from "@/lib/voting/types";
@@ -27,7 +28,7 @@ interface Axis {
   options: AxisOption[];
 }
 
-function buildAxes(r: Recipe, setRecipe: (p: Partial<Recipe>) => void, slotMode = false): Axis[] {
+function buildAxes(r: Recipe, setRecipe: (p: Partial<Recipe>) => void, slotMode = false, t: (k: string) => string): Axis[] {
   const chip = (active: boolean) =>
     active ? { bg: INK, fg: "#fff", op: 1 } : { bg: CREAM, fg: INK, op: 1 };
   const mkOpt = (active: boolean, disabled: boolean, label: string, onClick: () => void): AxisOption =>
@@ -43,11 +44,11 @@ function buildAxes(r: Recipe, setRecipe: (p: Partial<Recipe>) => void, slotMode 
   if (!slotMode) {
     axes.push({
       key: "suffrage",
-      label: "Type de suffrage",
-      hint: "Tout le monde vote directement, ou on passe par des grands électeurs ?",
+      label: t("axisSuffrageLabel"),
+      hint: t("axisSuffrageHint"),
       options: [
-        mkOpt(r.suffrage === "direct", false, "Direct", () => setRecipe({ suffrage: "direct" })),
-        mkOpt(isIndirect, false, "Indirect (grands électeurs)", () => setRecipe({ suffrage: "indirect" })),
+        mkOpt(r.suffrage === "direct", false, t("optDirect"), () => setRecipe({ suffrage: "direct" })),
+        mkOpt(isIndirect, false, t("optIndirect"), () => setRecipe({ suffrage: "indirect" })),
       ],
     });
   }
@@ -59,48 +60,48 @@ function buildAxes(r: Recipe, setRecipe: (p: Partial<Recipe>) => void, slotMode 
       );
     axes.push({
       key: "counting",
-      label: "Mode de décompte",
-      hint: "Comment transforme-t-on les bulletins en résultat ?",
+      label: t("axisCountingLabel"),
+      hint: t("axisCountingHint"),
       options: [
-        countOpt("majority", "Majoritaire"),
-        countOpt("condorcet", "Condorcet (duels)"),
-        countOpt("mj", "Jugement majoritaire"),
-        countOpt("approval", "Approbation"),
-        countOpt("borda", "Borda (points)"),
+        countOpt("majority", t("optMajority")),
+        countOpt("condorcet", t("optCondorcetDuels")),
+        countOpt("mj", t("optMajorityJudgment")),
+        countOpt("approval", t("optApproval")),
+        countOpt("borda", t("optBordaPoints")),
         ...(slotMode
           ? []
-          : [countOpt("proportional", "Proportionnelle"), countOpt("list", "Scrutin de liste")]),
+          : [countOpt("proportional", t("optProportional")), countOpt("list", t("optListVote"))]),
       ],
     });
     const roundsEligible = ["majority", "condorcet", "mj", "approval", "borda"].includes(r.counting);
     axes.push({
       key: "rounds",
-      label: "Nombre de tours",
-      hint: "Un seul passage, ou on qualifie d'abord puis on re-départage au 2nd tour (de tout type) ?",
+      label: t("axisRoundsLabel"),
+      hint: t("axisRoundsHint"),
       options: [
-        mkOpt(r.rounds === 1, !roundsEligible, "1 tour", () => setRecipe({ rounds: 1 })),
-        mkOpt(r.rounds === 2, !roundsEligible, "2 tours", () => setRecipe({ rounds: 2 })),
+        mkOpt(r.rounds === 1, !roundsEligible, t("optOneRound"), () => setRecipe({ rounds: 1 })),
+        mkOpt(r.rounds === 2, !roundsEligible, t("optTwoRounds"), () => setRecipe({ rounds: 2 })),
       ],
     });
     if (r.rounds === 2 && roundsEligible) {
       axes.push({
         key: "qualif",
-        label: "Qualification au 2nd tour",
-        hint: "Qui a le droit de passer le premier tour ?",
+        label: t("axisQualifLabel"),
+        hint: t("axisQualifHint"),
         options: [
-          mkOpt(r.qualif === "top2", false, "Les 2 premiers", () => setRecipe({ qualif: "top2" })),
-          mkOpt(r.qualif === "thr10", false, "Au-dessus de 10 %", () => setRecipe({ qualif: "thr10" })),
+          mkOpt(r.qualif === "top2", false, t("optTop2"), () => setRecipe({ qualif: "top2" })),
+          mkOpt(r.qualif === "thr10", false, t("optThreshold10"), () => setRecipe({ qualif: "thr10" })),
         ],
       });
     }
     if (r.counting === "condorcet") {
       axes.push({
         key: "random",
-        label: "Part d'aléatoire",
-        hint: "Tirer au sort quand les duels tournent en rond (paradoxe de Condorcet) ?",
+        label: t("axisRandomLabel"),
+        hint: t("axisRandomHint"),
         options: [
-          mkOpt(!r.random, false, "Aucune", () => setRecipe({ random: false })),
-          mkOpt(r.random, false, "🎲 Tirage si blocage", () => setRecipe({ random: true })),
+          mkOpt(!r.random, false, t("optRandomNone"), () => setRecipe({ random: false })),
+          mkOpt(r.random, false, t("optRandomTiebreak"), () => setRecipe({ random: true })),
         ],
       });
     }
@@ -109,33 +110,33 @@ function buildAxes(r: Recipe, setRecipe: (p: Partial<Recipe>) => void, slotMode 
       mkOpt(r.localCounting === v, false, l, () => setRecipe({ localCounting: v }));
     axes.push({
       key: "localCounting",
-      label: "Décompte dans chaque circonscription",
-      hint: "Comment chaque circonscription désigne son champion — ce vote-là peut être de tout type.",
+      label: t("axisLocalCountingLabel"),
+      hint: t("axisLocalCountingHint"),
       options: [
-        localOpt("majority", "Majoritaire"),
-        localOpt("condorcet", "Condorcet"),
-        localOpt("mj", "Jugement maj."),
-        localOpt("borda", "Borda"),
-        localOpt("approval", "Approbation"),
+        localOpt("majority", t("optMajority")),
+        localOpt("condorcet", t("optCondorcet")),
+        localOpt("mj", t("optMajorityJudgmentShort")),
+        localOpt("borda", t("optBorda")),
+        localOpt("approval", t("optApproval")),
       ],
     });
     axes.push({
       key: "electorSplit",
-      label: "Répartition des grands électeurs",
-      hint: "Le champion local rafle tout, ou on partage au prorata des voix ?",
+      label: t("axisElectorSplitLabel"),
+      hint: t("axisElectorSplitHint"),
       options: [
-        mkOpt(r.electorSplit === "wta", false, "Tout au gagnant", () => setRecipe({ electorSplit: "wta" })),
-        mkOpt(r.electorSplit === "prop", false, "Proportionnelle", () => setRecipe({ electorSplit: "prop" })),
+        mkOpt(r.electorSplit === "wta", false, t("optWinnerTakesAll"), () => setRecipe({ electorSplit: "wta" })),
+        mkOpt(r.electorSplit === "prop", false, t("optProportional"), () => setRecipe({ electorSplit: "prop" })),
       ],
     });
     if (r.localCounting === "condorcet") {
       axes.push({
         key: "random",
-        label: "Part d'aléatoire (local)",
-        hint: "Tirage au sort si une circonscription a un blocage Condorcet.",
+        label: t("axisRandomLocalLabel"),
+        hint: t("axisRandomLocalHint"),
         options: [
-          mkOpt(!r.random, false, "Aucune", () => setRecipe({ random: false })),
-          mkOpt(r.random, false, "🎲 Tirage si blocage", () => setRecipe({ random: true })),
+          mkOpt(!r.random, false, t("optRandomNone"), () => setRecipe({ random: false })),
+          mkOpt(r.random, false, t("optRandomTiebreak"), () => setRecipe({ random: true })),
         ],
       });
     }
@@ -155,10 +156,10 @@ const isHttpUrl = (u: string) => /^https?:\/\//i.test(u);
 
 // Aperçu d'une illustration dans le formulaire : vignette si l'image charge,
 // avertissement sinon — pour valider le lien AVANT de lancer le vote.
-function ImgPreview({ url }: { url: string }) {
+function ImgPreview({ url, notFoundLabel }: { url: string; notFoundLabel: string }) {
   const [err, setErr] = useState(false);
   if (err) {
-    return <div style={{ fontSize: 12, fontWeight: 700, color: REDTXT }}>⚠️ Image introuvable — vérifie le lien.</div>;
+    return <div style={{ fontSize: 12, fontWeight: 700, color: REDTXT }}>{notFoundLabel}</div>;
   }
   return (
     // eslint-disable-next-line @next/next/no-img-element
@@ -181,12 +182,13 @@ const EMOJI_PALETTE = [
 ];
 
 export default function CreateScreen({ ctrl }: { ctrl: ScrutinController }) {
+  const t = useTranslations("Create");
   const { state, selectSystemRecipe, setRecipe, setQuestion, setDescription, setOptionName, setOptionUrl, setOptionIcon, removeOption, addOption, setOptionKind, setSlots, launch } = ctrl;
   const [urlRows, setUrlRows] = useState<Record<number, boolean>>({});
   const [emojiRow, setEmojiRow] = useState<number | null>(null);
   const [methodOpen, setMethodOpen] = useState(false);
   const resolved = describeRecipe(state.recipe);
-  const axes = buildAxes(state.recipe, setRecipe, state.optionKind === "slot");
+  const axes = buildAxes(state.recipe, setRecipe, state.optionKind === "slot", t);
   const curKey = resolveKey(state.recipe);
   const otherMethods = SYSTEM_ORDER.filter((k) => !MAIN_METHODS.includes(k)).filter(
     (k) => state.optionKind !== "slot" || !["proportional", "list", "indirect"].includes(k),
@@ -238,7 +240,7 @@ export default function CreateScreen({ ctrl }: { ctrl: ScrutinController }) {
           margin: "10px 0 0",
         }}
       >
-        Réglez votre scrutin
+        {t("pageTitle")}
       </h1>
       <PrefillPanel ctrl={ctrl} />
 
@@ -256,11 +258,11 @@ export default function CreateScreen({ ctrl }: { ctrl: ScrutinController }) {
         <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
           {/* question + options */}
           <div style={cardStyle}>
-            <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 18 }}>La question</div>
+            <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 18 }}>{t("questionTitle")}</div>
             <input
               value={state.question}
               onChange={(e) => setQuestion(e.target.value)}
-              placeholder="Ex : On part où en week-end ?"
+              placeholder={t("questionPlaceholder")}
               style={{
                 width: "100%",
                 marginTop: 10,
@@ -277,7 +279,7 @@ export default function CreateScreen({ ctrl }: { ctrl: ScrutinController }) {
             <textarea
               value={state.description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="Contexte (facultatif) — ex : anniv de Marie, budget 25 €/pers, plutôt centre-ville"
+              placeholder={t("descriptionPlaceholder")}
               rows={2}
               style={{
                 width: "100%",
@@ -296,11 +298,11 @@ export default function CreateScreen({ ctrl }: { ctrl: ScrutinController }) {
             />
             {/* Sur quoi porte le vote : des propositions, ou des dates (façon Doodle) */}
             <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", margin: "18px 0 10px" }}>
-              <span style={{ fontFamily: FONT_BODY, fontWeight: 600, fontSize: 14, color: INK }}>On vote sur…</span>
+              <span style={{ fontFamily: FONT_BODY, fontWeight: 600, fontSize: 14, color: INK }}>{t("voteOnLabel")}</span>
               <div style={{ display: "flex", gap: 8 }}>
                 {([
-                  ["text", "💡 des propositions"],
-                  ["slot", "📅 des dates"],
+                  ["text", t("voteOnProposals")],
+                  ["slot", t("voteOnDates")],
                 ] as const).map(([k, lbl]) => (
                   <button
                     key={k}
@@ -323,7 +325,7 @@ export default function CreateScreen({ ctrl }: { ctrl: ScrutinController }) {
               </div>
             </div>
             <div style={{ fontWeight: 700, fontSize: 13, color: MUTED, marginBottom: 9 }}>
-              {state.optionKind === "slot" ? "LES CRÉNEAUX" : "LES PROPOSITIONS"}
+              {state.optionKind === "slot" ? t("slotsHeading") : t("proposalsHeading")}
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 9 }}>
               {state.optionKind === "slot"
@@ -338,8 +340,8 @@ export default function CreateScreen({ ctrl }: { ctrl: ScrutinController }) {
                       <button
                         type="button"
                         onClick={() => setEmojiRow(emojiRow === i ? null : i)}
-                        title="Changer l'emoji"
-                        aria-label="Changer l'emoji"
+                        title={t("changeEmoji")}
+                        aria-label={t("changeEmoji")}
                         style={{
                           width: 34,
                           height: 34,
@@ -360,7 +362,7 @@ export default function CreateScreen({ ctrl }: { ctrl: ScrutinController }) {
                       <input
                         value={opt.name}
                         onChange={(e) => setOptionName(i, e.target.value)}
-                        placeholder={OPTION_PLACEHOLDERS[i] ?? "Une autre option…"}
+                        placeholder={OPTION_PLACEHOLDERS[i] ?? t("optionFallbackPlaceholder")}
                         style={{
                           flex: 1,
                           minWidth: 0,
@@ -376,8 +378,8 @@ export default function CreateScreen({ ctrl }: { ctrl: ScrutinController }) {
                       />
                       <button
                         onClick={() => setUrlRows((m) => ({ ...m, [i]: !urlOpen }))}
-                        title="Associer une illustration (image, vidéo, document)"
-                        aria-label="Associer une illustration"
+                        title={t("attachIllustrationTitle")}
+                        aria-label={t("attachIllustrationAria")}
                         style={{
                           width: 34,
                           height: 34,
@@ -451,7 +453,7 @@ export default function CreateScreen({ ctrl }: { ctrl: ScrutinController }) {
                         <input
                           value={opt.url ?? ""}
                           onChange={(e) => setOptionUrl(i, e.target.value)}
-                          placeholder="https://… — image, vidéo ou document (facultatif)"
+                          placeholder={t("urlPlaceholder")}
                           style={{
                             fontFamily: FONT_BODY,
                             fontSize: 13,
@@ -466,7 +468,7 @@ export default function CreateScreen({ ctrl }: { ctrl: ScrutinController }) {
                         />
                         {opt.url && isHttpUrl(opt.url) &&
                           (isImageUrl(opt.url) ? (
-                            <ImgPreview key={opt.url} url={opt.url} />
+                            <ImgPreview key={opt.url} url={opt.url} notFoundLabel={t("imageNotFound")} />
                           ) : (
                             <a
                               href={opt.url}
@@ -486,7 +488,7 @@ export default function CreateScreen({ ctrl }: { ctrl: ScrutinController }) {
                                 padding: "5px 10px",
                               }}
                             >
-                              🔗 Lien ajouté — tester
+                              {t("linkAddedTest")}
                             </a>
                           ))}
                       </div>
@@ -511,21 +513,21 @@ export default function CreateScreen({ ctrl }: { ctrl: ScrutinController }) {
                   borderRadius: 10,
                 }}
               >
-                + Ajouter une proposition
+                {t("addProposal")}
               </button>
             )}
             <div style={{ fontSize: 12, color: MUTED, marginTop: 12, lineHeight: 1.45 }}>
-              🔗 associez une image, une vidéo ou un document à un choix.{" "}
-              <span style={{ color: INK, fontWeight: 700 }}>✨ Une IA peut proposer titres, options et illustrations</span>{" "}
-              — voir « Préparer avec une IA ».
+              {t("aiHintAttach")}{" "}
+              <span style={{ color: INK, fontWeight: 700 }}>{t("aiHintHighlight")}</span>{" "}
+              {t("aiHintSee")}
             </div>
           </div>
 
           {/* méthode : 4 phares visibles, le reste dépliable (après les options) */}
           <div style={cardStyle}>
-            <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 18 }}>La méthode</div>
+            <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 18 }}>{t("methodTitle")}</div>
             <div style={{ fontSize: 12.5, color: MUTED, margin: "4px 0 12px", lineHeight: 1.4 }}>
-              Comment départage-t-on les voix ? Modifiable à tout moment.
+              {t("methodSubtitle")}
             </div>
             <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>{MAIN_METHODS.map(methodChip)}</div>
             <button
@@ -542,7 +544,7 @@ export default function CreateScreen({ ctrl }: { ctrl: ScrutinController }) {
                 padding: 0,
               }}
             >
-              {methodOpen ? "▲ Masquer les autres méthodes & réglages" : "▾ Autres méthodes & réglages avancés"}
+              {methodOpen ? t("methodToggleHide") : t("methodToggleShow")}
             </button>
             {methodOpen && (
               <div style={{ marginTop: 14 }}>
@@ -637,7 +639,7 @@ export default function CreateScreen({ ctrl }: { ctrl: ScrutinController }) {
                   letterSpacing: "0.04em",
                 }}
               >
-                Votre système
+                {t("yourSystem")}
               </div>
               <div
                 style={{
@@ -656,7 +658,7 @@ export default function CreateScreen({ ctrl }: { ctrl: ScrutinController }) {
           <div style={{ padding: "18px 20px" }}>
             <div style={{ fontSize: 14, lineHeight: 1.5, color: "#2c3447" }}>{resolved.how}</div>
             <div style={{ marginTop: 15 }}>
-              <div style={{ fontWeight: 700, fontSize: 12, color: GREENTXT, marginBottom: 7 }}>✓ CE QUE VOUS GAGNEZ</div>
+              <div style={{ fontWeight: 700, fontSize: 12, color: GREENTXT, marginBottom: 7 }}>{t("whatYouGain")}</div>
               {resolved.pros.map((p, i) => (
                 <div
                   key={i}
@@ -668,7 +670,7 @@ export default function CreateScreen({ ctrl }: { ctrl: ScrutinController }) {
               ))}
             </div>
             <div style={{ marginTop: 13 }}>
-              <div style={{ fontWeight: 700, fontSize: 12, color: REDTXT, marginBottom: 7 }}>✕ CE QUE VOUS PERDEZ</div>
+              <div style={{ fontWeight: 700, fontSize: 12, color: REDTXT, marginBottom: 7 }}>{t("whatYouLose")}</div>
               {resolved.cons.map((c, i) => (
                 <div
                   key={i}
@@ -699,7 +701,7 @@ export default function CreateScreen({ ctrl }: { ctrl: ScrutinController }) {
                 ...lift(`4px 4px 0 ${resolved.color}`, `6px 6px 0 ${resolved.color}`),
               }}
             >
-              {state.launching ? "Lancement…" : "Lancer le vote →"}
+              {state.launching ? t("launching") : t("launch")}
             </button>
             {state.error && (
               <div style={{ marginTop: 10, color: "#d23b3b", fontWeight: 700, fontSize: 13 }}>{state.error}</div>

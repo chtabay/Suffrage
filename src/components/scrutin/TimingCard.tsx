@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import type { ScrutinController } from "@/lib/voting/useScrutin";
 import { CREAM, FONT_BODY, FONT_DISPLAY, INK, MUTED } from "./theme";
 
@@ -23,17 +24,18 @@ const inputStyle = {
 } as const;
 
 export default function TimingCard({ ctrl }: { ctrl: ScrutinController }) {
+  const t = useTranslations("Timing");
   const { state, setOpensAt, setQuorum } = ctrl;
   return (
     <div style={cardStyle}>
-      <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 18 }}>Durée &amp; validité</div>
+      <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 18 }}>{t("title")}</div>
 
       <div style={{ marginTop: 14 }}>
         <div style={{ fontWeight: 700, fontSize: 13.5, marginBottom: 3 }}>
-          Ouverture différée <span style={{ color: MUTED, fontWeight: 600 }}>(option)</span>
+          {t("opensLabel")} <span style={{ color: MUTED, fontWeight: 600 }}>{t("optional")}</span>
         </div>
         <div style={{ fontSize: 12.5, color: MUTED, marginBottom: 8, lineHeight: 1.35 }}>
-          Aucun bulletin n'est accepté avant cette date. Vide = ouvert tout de suite.
+          {t("opensHint")}
         </div>
         <input
           type="datetime-local"
@@ -45,17 +47,17 @@ export default function TimingCard({ ctrl }: { ctrl: ScrutinController }) {
 
       <div style={{ marginTop: 16 }}>
         <div style={{ fontWeight: 700, fontSize: 13.5, marginBottom: 3 }}>
-          Quorum <span style={{ color: MUTED, fontWeight: 600 }}>(option)</span>
+          {t("quorumLabel")} <span style={{ color: MUTED, fontWeight: 600 }}>{t("optional")}</span>
         </div>
         <div style={{ fontSize: 12.5, color: MUTED, marginBottom: 8, lineHeight: 1.35 }}>
-          Nombre minimum de bulletins pour que le résultat soit considéré valable.
+          {t("quorumHint")}
         </div>
         <input
           type="number"
           min={0}
           value={state.quorum ?? ""}
           onChange={(e) => setQuorum(e.target.value === "" ? null : Math.max(0, Math.floor(Number(e.target.value))))}
-          placeholder="ex : 5"
+          placeholder={t("quorumPlaceholder")}
           style={{ ...inputStyle, width: 120 }}
         />
       </div>

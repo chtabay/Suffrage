@@ -1,11 +1,13 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { SYSTEMS, SYSTEM_ORDER } from "@/lib/voting/systems";
 import type { ScrutinController } from "@/lib/voting/useScrutin";
 import { FONT_DISPLAY, GREENTXT, INK, REDTXT, SUBINK } from "./theme";
 
 export default function GalleryScreen({ ctrl }: { ctrl: ScrutinController }) {
   const { selectSystemRecipe } = ctrl;
+  const t = useTranslations("Gallery");
   return (
     <div className="pad" style={{ maxWidth: 1120, margin: "0 auto", padding: "48px 24px 90px" }}>
       <h1
@@ -17,11 +19,10 @@ export default function GalleryScreen({ ctrl }: { ctrl: ScrutinController }) {
           margin: 0,
         }}
       >
-        Les méthodes de vote
+        {t("title")}
       </h1>
       <p style={{ fontSize: 18, color: SUBINK, maxWidth: "60ch", margin: "14px 0 0", lineHeight: 1.5 }}>
-        Aucune méthode n'est parfaite — chacune a sa logique, ses forces et ses pièges. Cliquez
-        sur une fiche pour tout comprendre.
+        {t("subtitle")}
       </p>
       <div
         style={{
@@ -104,7 +105,7 @@ export default function GalleryScreen({ ctrl }: { ctrl: ScrutinController }) {
                         marginBottom: 7,
                       }}
                     >
-                      ✓ AVANTAGES
+                      {t("pros")}
                     </div>
                     {sys.pros.map((p, i) => (
                       <div
@@ -135,7 +136,7 @@ export default function GalleryScreen({ ctrl }: { ctrl: ScrutinController }) {
                         marginBottom: 7,
                       }}
                     >
-                      ✕ INCONVÉNIENTS
+                      {t("cons")}
                     </div>
                     {sys.cons.map((c, i) => (
                       <div
@@ -172,7 +173,7 @@ export default function GalleryScreen({ ctrl }: { ctrl: ScrutinController }) {
                     width: "100%",
                   }}
                 >
-                  Lancer un vote avec cette méthode →
+                  {t("launchWithMethod")}
                 </button>
               </div>
             </div>

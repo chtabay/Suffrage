@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { subscribeNotifications, useNotify } from "@/lib/pwa/notify";
 import { CREAM, FONT_BODY, GREEN, INK, MUTED } from "@/components/scrutin/theme";
 
@@ -12,14 +13,17 @@ type State = "idle" | "busy" | "done" | "denied" | "error";
  */
 export default function NotifyButton({
   pollToken,
-  label = "🔔 M'avertir des résultats",
+  label,
 }: {
   pollToken?: string;
   label?: string;
 }) {
+  const t = useTranslations("Notify");
   const { supported } = useNotify();
   const [state, setState] = useState<State>("idle");
   if (!supported) return null;
+
+  const defaultLabel = label ?? t("default");
 
   const click = async () => {
     setState("busy");
@@ -29,14 +33,14 @@ export default function NotifyButton({
 
   const text =
     state === "done"
-      ? "✓ Vous serez prévenu"
+      ? t("done")
       : state === "busy"
         ? "…"
         : state === "denied"
-          ? "Notifications refusées"
+          ? t("denied")
           : state === "error"
-            ? "Réessayer"
-            : label;
+            ? t("retry")
+            : defaultLabel;
 
   const done = state === "done";
   return (
@@ -55,7 +59,7 @@ export default function NotifyButton({
         color: done ? "#fff" : INK,
         opacity: state === "denied" ? 0.6 : 1,
       }}
-      title={state === "denied" ? "Autorisez les notifications dans votre navigateur" : undefined}
+      title={state === "denied" ? t("deniedTitle") : undefined}
     >
       {text}
     </button>
@@ -64,9 +68,10 @@ export default function NotifyButton({
 
 /** Petite aide affichée sous le bouton si besoin. */
 export function NotifyHint() {
+  const t = useTranslations("Notify");
   return (
     <div style={{ fontSize: 11.5, color: MUTED, marginTop: 6, lineHeight: 1.4 }}>
-      Notification quand le vote se clôt. Sur iPhone, installez d&apos;abord l&apos;appli sur l&apos;écran d&apos;accueil.
+      {t("hint")}
     </div>
   );
 }

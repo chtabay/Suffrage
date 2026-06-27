@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import type { ScrutinController } from "@/lib/voting/useScrutin";
 import { CREAM, FONT_BODY, FONT_DISPLAY, INK, MUTED, REDTXT } from "./theme";
 
@@ -61,6 +62,7 @@ function Toggle({ on, label, onClick }: { on: boolean; label: string; onClick: (
 }
 
 export default function AccessCard({ ctrl }: { ctrl: ScrutinController }) {
+  const t = useTranslations("Access");
   const {
     state,
     setAccess,
@@ -95,14 +97,14 @@ export default function AccessCard({ ctrl }: { ctrl: ScrutinController }) {
 
   return (
     <div style={cardStyle}>
-      <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 18 }}>Accès &amp; corps électoral</div>
+      <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 18 }}>{t("title")}</div>
 
       {/* mode d'accès reframé */}
       <div style={{ marginTop: 14 }}>
-        <div style={{ fontWeight: 700, fontSize: 13.5, marginBottom: 9 }}>Qui peut voter ?</div>
+        <div style={{ fontWeight: 700, fontSize: 13.5, marginBottom: 9 }}>{t("whoCanVote")}</div>
         <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-          {chip(!invite, "⚡ Vote rapide", () => setAccess("open"))}
-          {chip(invite, "🔒 Vote vérifié", () => setAccess("invite"))}
+          {chip(!invite, `⚡ ${t("quickVote")}`, () => setAccess("open"))}
+          {chip(invite, `🔒 ${t("verifiedVote")}`, () => setAccess("invite"))}
         </div>
         <div
           style={{
@@ -117,20 +119,19 @@ export default function AccessCard({ ctrl }: { ctrl: ScrutinController }) {
           }}
         >
           {invite
-            ? "🔒 Résultat vérifié — liste de votants, 1 vote par personne (liens nominatifs)."
-            : "⚡ Résultat indicatif — lien ouvert à tous ; on peut voter plusieurs fois."}
+            ? `🔒 ${t("verifiedHint")}`
+            : `⚡ ${t("quickHint")}`}
         </div>
         {isGE && !invite && (
           <div style={{ marginTop: 8, fontSize: 12.5, color: REDTXT, fontWeight: 600, lineHeight: 1.4 }}>
-            Pour de vrais grands électeurs, choisis « Vote vérifié » : sinon les circonscriptions sont
-            attribuées au hasard.
+            {t("geWarning")}
           </div>
         )}
       </div>
 
       {/* résultats cachés */}
       <div style={{ marginTop: 16 }}>
-        <Toggle on={state.hideResults} label="Cacher les résultats jusqu'à la clôture" onClick={toggleHideResults} />
+        <Toggle on={state.hideResults} label={t("hideResults")} onClick={toggleHideResults} />
       </div>
 
       {/* clôture sur complétude (invitation) */}
@@ -138,7 +139,7 @@ export default function AccessCard({ ctrl }: { ctrl: ScrutinController }) {
         <div style={{ marginTop: 10 }}>
           <Toggle
             on={state.closeOnComplete}
-            label="Clôturer dès que tout le monde a voté"
+            label={t("closeOnComplete")}
             onClick={toggleCloseOnComplete}
           />
         </div>
@@ -147,9 +148,9 @@ export default function AccessCard({ ctrl }: { ctrl: ScrutinController }) {
       {/* corps électoral */}
       {invite && !isGE && (
         <div style={{ marginTop: 16 }}>
-          <div style={{ fontWeight: 700, fontSize: 13.5, marginBottom: 3 }}>Liste des votants</div>
+          <div style={{ fontWeight: 700, fontSize: 13.5, marginBottom: 3 }}>{t("votersTitle")}</div>
           <div style={{ fontSize: 12.5, color: MUTED, marginBottom: 9, lineHeight: 1.35 }}>
-            Un nom par ligne. Chacun recevra un lien unique (1 vote par personne).
+            {t("votersHint")}
           </div>
           <textarea
             value={state.voterNames}
@@ -163,10 +164,9 @@ export default function AccessCard({ ctrl }: { ctrl: ScrutinController }) {
 
       {invite && isGE && (
         <div style={{ marginTop: 16 }}>
-          <div style={{ fontWeight: 700, fontSize: 13.5, marginBottom: 3 }}>Circonscriptions</div>
+          <div style={{ fontWeight: 700, fontSize: 13.5, marginBottom: 3 }}>{t("districtsTitle")}</div>
           <div style={{ fontSize: 12.5, color: MUTED, marginBottom: 11, lineHeight: 1.35 }}>
-            Chaque circonscription a un nombre de grands électeurs et sa liste de votants (un nom par
-            ligne).
+            {t("districtsHint")}
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
             {state.districts.map((d, i) => (
@@ -175,7 +175,7 @@ export default function AccessCard({ ctrl }: { ctrl: ScrutinController }) {
                   <input
                     value={d.name}
                     onChange={(e) => setDistrictField(i, "name", e.target.value)}
-                    placeholder="Nom"
+                    placeholder={t("districtNamePlaceholder")}
                     style={{ ...inputStyle, flex: 1, fontSize: 14, padding: "8px 11px" }}
                   />
                   <input
@@ -183,13 +183,13 @@ export default function AccessCard({ ctrl }: { ctrl: ScrutinController }) {
                     min={0}
                     value={d.electors}
                     onChange={(e) => setDistrictField(i, "electors", Number(e.target.value))}
-                    title="Grands électeurs"
+                    title={t("electorsTitle")}
                     style={{ ...inputStyle, width: 70, fontSize: 14, padding: "8px 9px" }}
                   />
-                  <span style={{ fontSize: 12, color: MUTED, fontWeight: 600 }}>él.</span>
+                  <span style={{ fontSize: 12, color: MUTED, fontWeight: 600 }}>{t("electorsAbbr")}</span>
                   <button
                     onClick={() => removeDistrict(i)}
-                    title="Retirer"
+                    title={t("removeDistrictTitle")}
                     style={{
                       width: 34,
                       height: 34,
@@ -209,7 +209,7 @@ export default function AccessCard({ ctrl }: { ctrl: ScrutinController }) {
                 <textarea
                   value={d.voterNames}
                   onChange={(e) => setDistrictField(i, "voterNames", e.target.value)}
-                  placeholder={"Votants de cette circonscription\nUn nom par ligne"}
+                  placeholder={t("districtVotersPlaceholder")}
                   rows={3}
                   style={{ ...inputStyle, width: "100%", marginTop: 8, fontSize: 13.5, padding: "9px 11px", resize: "vertical" }}
                 />
@@ -230,7 +230,7 @@ export default function AccessCard({ ctrl }: { ctrl: ScrutinController }) {
               borderRadius: 10,
             }}
           >
-            + Ajouter une circonscription
+            {t("addDistrict")}
           </button>
         </div>
       )}

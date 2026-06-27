@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useState } from "react";
 import {
   addBallot,
@@ -36,11 +37,12 @@ import ResultCard from "./ResultCard";
 import ResultShare from "./ResultShare";
 import { CORAL, CREAM, FONT_BODY, FONT_DISPLAY, GREEN, INK, MUTED, REDTXT, SUBINK, YELLOW, lift } from "./theme";
 
+// Clés i18n des consignes par mode de vote (résolues via t() au rendu).
 const INSTRUCTIONS: Record<string, string> = {
-  single: "Choisissez une seule option.",
-  approve: "Cochez toutes les options qui vous conviennent.",
-  rank: "Classez les options de la préférée à la moins aimée.",
-  grade: "Donnez une mention à chaque option.",
+  single: "instructionSingle",
+  approve: "instructionApprove",
+  rank: "instructionRank",
+  grade: "instructionGrade",
 };
 
 function draftToBallot(mode: BallotMode, draft: BallotDraft, n: number): Ballot | null {
@@ -57,6 +59,7 @@ const voterCanSeeResults = (p: PollRow) => p.status === "closed" || !p.hide_resu
 // Test concierge (monétisation) : proposer un « PV officiel » payant du résultat.
 // Le lien Stripe passe le token en client_reference_id pour identifier le scrutin.
 function OfficialRecordCta({ token }: { token: string }) {
+  const t = useTranslations("Vote");
   const link = process.env.NEXT_PUBLIC_PV_PAYMENT_LINK;
   if (!link) return null;
   return (
@@ -77,9 +80,9 @@ function OfficialRecordCta({ token }: { token: string }) {
         color: INK,
       }}
     >
-      <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 16 }}>📄 Recevez le PV officiel — 2 €</div>
+      <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 16 }}>{t("officialRecordTitle")}</div>
       <div style={{ fontSize: 13, color: INK, marginTop: 5, lineHeight: 1.45 }}>
-        Un procès-verbal vérifiable de ce résultat (question, méthode, dépouillement, horodatage), à archiver ou partager.
+        {t("officialRecordDesc")}
       </div>
     </a>
   );
@@ -96,6 +99,7 @@ function pingPollEvent(token: string) {
 
 // Messages laissés par les votants, détachés des choix (secret du vote préservé).
 function CommentsFeed({ comments }: { comments: BallotComment[] }) {
+  const t = useTranslations("Vote");
   if (!comments.length) return null;
   return (
     <div
@@ -109,12 +113,12 @@ function CommentsFeed({ comments }: { comments: BallotComment[] }) {
       }}
     >
       <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 16 }}>
-        💬 Messages des votants ({comments.length})
+        💬 {t("votersMessages")} ({comments.length})
       </div>
       <div style={{ display: "flex", flexDirection: "column", gap: 11, marginTop: 12 }}>
         {comments.map((c, i) => (
           <div key={i} style={{ borderLeft: `3px solid ${YELLOW}`, paddingLeft: 11 }}>
-            <div style={{ fontWeight: 700, fontSize: 13, color: INK }}>{c.author || "Anonyme"}</div>
+            <div style={{ fontWeight: 700, fontSize: 13, color: INK }}>{c.author || t("anonymous")}</div>
             <div style={{ fontSize: 14, color: SUBINK, lineHeight: 1.45, whiteSpace: "pre-wrap" }}>{c.comment}</div>
           </div>
         ))}
@@ -196,11 +200,12 @@ function Shell({ children }: { children: React.ReactNode }) {
 }
 
 function VoterLinkRow({ v }: { v: Voter & { url: string } }) {
+  const t = useTranslations("Vote");
   const [copied, setCopied] = useState(false);
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
       <span
-        title={v.voted ? "A voté" : "En attente"}
+        title={v.voted ? t("hasVoted") : t("pending")}
         style={{ flex: "none", fontSize: 14, color: v.voted ? GREEN : MUTED, fontWeight: 800 }}
       >
         {v.voted ? "✓" : "•"}
@@ -256,7 +261,7 @@ function VoterLinkRow({ v }: { v: Voter & { url: string } }) {
           borderRadius: 9,
         }}
       >
-        {copied ? "✓" : "Copier"}
+        {copied ? "✓" : t("copy")}
       </button>
     </div>
   );
@@ -267,6 +272,7 @@ function fmtDateTime(iso: string) {
 }
 
 function Countdown({ closesAt, onExpire }: { closesAt: string; onExpire: () => void }) {
+  const t = useTranslations("Vote");
   const [now, setNow] = useState<number | null>(null);
   const target = Date.parse(closesAt);
   useEffect(() => {
@@ -283,13 +289,19 @@ function Countdown({ closesAt, onExpire }: { closesAt: string; onExpire: () => v
   const h = Math.floor((total % 86400) / 3600);
   const m = Math.floor((total % 3600) / 60);
   const s = total % 60;
-  const label = d > 0 ? `${d} j ${h} h ${m} min` : h > 0 ? `${h} h ${m} min ${s} s` : `${m} min ${s} s`;
+  const label =
+    d > 0
+      ? `${d} ${t("unitDay")} ${h} ${t("unitHour")} ${m} ${t("unitMin")}`
+      : h > 0
+        ? `${h} ${t("unitHour")} ${m} ${t("unitMin")} ${s} ${t("unitSec")}`
+        : `${m} ${t("unitMin")} ${s} ${t("unitSec")}`;
   return (
-    <div style={{ marginTop: 12, fontSize: 13, fontWeight: 700, color: MUTED }}>⏲ Clôture dans {label}</div>
+    <div style={{ marginTop: 12, fontSize: 13, fontWeight: 700, color: MUTED }}>⏲ {t("closesIn")} {label}</div>
   );
 }
 
 function QuorumBanner({ quorum, count }: { quorum: number; count: number }) {
+  const t = useTranslations("Vote");
   if (count >= quorum) return null;
   return (
     <div
@@ -304,7 +316,7 @@ function QuorumBanner({ quorum, count }: { quorum: number; count: number }) {
         marginBottom: 14,
       }}
     >
-      ⚠️ Quorum non atteint : {count} / {quorum} bulletins — résultat non validé.
+      ⚠️ {t("quorumNotReached", { count, quorum })}
     </div>
   );
 }
@@ -318,6 +330,7 @@ export default function PublicVote({
   adminKey?: string | null;
   voterToken?: string | null;
 }) {
+  const t = useTranslations("Vote");
   const [view, setView] = useState<View>("loading");
   const [poll, setPoll] = useState<PollRow | null>(null);
   const [voter, setVoter] = useState<VoterContext | null>(null);
@@ -415,7 +428,7 @@ export default function PublicVote({
   if (view === "loading") {
     return (
       <Shell>
-        <div style={{ color: MUTED, padding: "28px 0" }}>Chargement du scrutin…</div>
+        <div style={{ color: MUTED, padding: "28px 0" }}>{t("loading")}</div>
       </Shell>
     );
   }
@@ -423,8 +436,8 @@ export default function PublicVote({
     return (
       <Shell>
         <div style={{ textAlign: "center", padding: "28px 0" }}>
-          <h1 style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 28 }}>Scrutin introuvable</h1>
-          <p style={{ color: MUTED, marginTop: 8 }}>Ce lien n'existe pas ou a expiré.</p>
+          <h1 style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 28 }}>{t("notFoundTitle")}</h1>
+          <p style={{ color: MUTED, marginTop: 8 }}>{t("notFoundDesc")}</p>
           <Link
             href="/"
             style={{
@@ -440,7 +453,7 @@ export default function PublicVote({
               borderRadius: 12,
             }}
           >
-            Créer mon scrutin →
+            {t("createMyPoll")}
           </Link>
         </div>
       </Shell>
@@ -468,7 +481,7 @@ export default function PublicVote({
         fontSize: 12,
       }}
     >
-      {phase === "open" ? "● Ouvert" : phase === "scheduled" ? "◷ Programmé" : "■ Clôturé"}
+      {phase === "open" ? `● ${t("statusOpen")}` : phase === "scheduled" ? `◷ ${t("statusScheduled")}` : `■ ${t("statusClosed")}`}
     </span>
   );
 
@@ -509,13 +522,13 @@ export default function PublicVote({
             flexWrap: "wrap",
           }}
         >
-          <span>🔑 Vous administrez ce scrutin.</span>
+          <span>🔑 {t("youAdminister")}</span>
           {statusPill}
         </div>
 
         <div style={{ ...card, marginTop: 16 }}>
           <div style={{ fontWeight: 700, fontSize: 12, color: MUTED, marginBottom: 7 }}>
-            {poll.access_mode === "invite" ? "LIEN DU SCRUTIN (les votants utilisent leur lien nominatif)" : "LIEN DE VOTE À PARTAGER"}
+            {poll.access_mode === "invite" ? t("linkLabelInvite") : t("linkLabelOpen")}
           </div>
           <div style={{ display: "flex", gap: 9, flexWrap: "wrap" }}>
             <input
@@ -551,7 +564,7 @@ export default function PublicVote({
                 borderRadius: 11,
               }}
             >
-              Ouvrir →
+              {t("open")}
             </a>
           </div>
           <div style={{ display: "flex", gap: 11, marginTop: 14, flexWrap: "wrap", alignItems: "center" }}>
@@ -571,7 +584,7 @@ export default function PublicVote({
                 ...lift(`3px 3px 0 ${INK}`, `4px 4px 0 ${INK}`),
               }}
             >
-              ↻ Rafraîchir
+              ↻ {t("refresh")}
             </button>
             <button
               onClick={toggleClose}
@@ -591,17 +604,17 @@ export default function PublicVote({
                 ...lift(`3px 3px 0 ${INK}`, `4px 4px 0 ${INK}`),
               }}
             >
-              {poll.status === "open" ? "🔒 Clôturer le vote" : "↺ Rouvrir le vote"}
+              {poll.status === "open" ? `🔒 ${t("closeVote")}` : `↺ ${t("reopenVote")}`}
             </button>
           </div>
           {poll.hide_results && (
             <div style={{ marginTop: 10, fontSize: 12.5, color: MUTED }}>
-              Résultats cachés aux votants jusqu'à la clôture (vous, vous les voyez).
+              {t("resultsHiddenNote")}
             </div>
           )}
           {poll.closes_at && (
             <div style={{ marginTop: 6, fontSize: 12.5, color: MUTED }}>
-              ⏲ Clôture automatique le {fmtDateTime(poll.closes_at)}.
+              ⏲ {t("autoCloseAt", { date: fmtDateTime(poll.closes_at) })}
             </div>
           )}
         </div>
@@ -609,13 +622,13 @@ export default function PublicVote({
         {poll.access_mode === "invite" && (
           <div style={{ ...card, marginTop: 16 }}>
             <div style={{ fontWeight: 800, fontFamily: FONT_DISPLAY, fontSize: 15, marginBottom: 4 }}>
-              Votants — {votedCount}/{voters.length} ont voté
+              {t("votersVotedCount", { voted: votedCount, total: voters.length })}
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 8, marginTop: 10, maxHeight: 320, overflowY: "auto" }}>
               {voters.map((v) => (
                 <VoterLinkRow key={v.token} v={{ ...v, url: `${origin}/v/${token}?u=${v.token}` }} />
               ))}
-              {voters.length === 0 && <div style={{ color: MUTED, fontSize: 14 }}>Aucun votant inscrit.</div>}
+              {voters.length === 0 && <div style={{ color: MUTED, fontSize: 14 }}>{t("noVotersRegistered")}</div>}
             </div>
           </div>
         )}
@@ -636,7 +649,7 @@ export default function PublicVote({
               <OfficialRecordCta token={token} />
             </>
           ) : (
-            <div style={{ ...card, color: MUTED, fontSize: 15 }}>Aucun bulletin pour l'instant.</div>
+            <div style={{ ...card, color: MUTED, fontSize: 15 }}>{t("noBallotsYet")}</div>
           )}
         </div>
       </Shell>
@@ -648,10 +661,9 @@ export default function PublicVote({
     return (
       <Shell>
         <div style={{ ...card, textAlign: "center" }}>
-          <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 22 }}>🎟️ Scrutin sur invitation</div>
+          <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 22 }}>🎟️ {t("inviteOnlyTitle")}</div>
           <p style={{ color: MUTED, marginTop: 8, lineHeight: 1.5 }}>
-            Ce vote est réservé aux personnes invitées. Utilisez le <strong>lien personnel</strong> qui
-            vous a été envoyé.
+            {t.rich("inviteOnlyDesc", { strong: (chunks) => <strong>{chunks}</strong> })}
           </p>
         </div>
       </Shell>
@@ -662,11 +674,14 @@ export default function PublicVote({
     return (
       <Shell>
         <div style={{ ...card, textAlign: "center" }}>
-          <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 22 }}>⏳ Vote pas encore ouvert</div>
+          <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 22 }}>⏳ {t("notOpenYetTitle")}</div>
           <p style={{ color: MUTED, marginTop: 8, lineHeight: 1.5 }}>
             « {poll.question} »
             <br />
-            Ouverture le <strong>{poll.opens_at ? fmtDateTime(poll.opens_at) : "—"}</strong>.
+            {t.rich("opensAt", {
+              date: poll.opens_at ? fmtDateTime(poll.opens_at) : "—",
+              strong: (chunks) => <strong>{chunks}</strong>,
+            })}
           </p>
         </div>
       </Shell>
@@ -679,10 +694,10 @@ export default function PublicVote({
       <Shell>
         <div style={{ ...card, textAlign: "center" }}>
           <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 24, color: "#1f6b34" }}>
-            ✓ Vote enregistré
+            ✓ {t("voteRecorded")}
           </div>
           <p style={{ color: MUTED, marginTop: 8, lineHeight: 1.5 }}>
-            Merci{voter ? ` ${voter.label}` : ""} ! Les résultats seront visibles à la clôture du scrutin.
+            {t("thanksHiddenResults", { name: voter ? ` ${voter.label}` : "" })}
           </p>
         </div>
         <div style={{ marginTop: 16, display: "flex", justifyContent: "center" }}>
@@ -707,8 +722,8 @@ export default function PublicVote({
             marginBottom: 16,
           }}
         >
-          <span style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 18 }}>🔒 Vote clôturé</span>
-          <span style={{ color: MUTED, fontSize: 14 }}>Le scrutin est terminé, voici le résultat.</span>
+          <span style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 18 }}>🔒 {t("voteClosedTitle")}</span>
+          <span style={{ color: MUTED, fontSize: 14 }}>{t("voteClosedDesc")}</span>
         </div>
         {result ? (
           <>
@@ -725,7 +740,7 @@ export default function PublicVote({
             <OfficialRecordCta token={token} />
           </>
         ) : (
-          <div style={{ ...card, color: MUTED }}>Aucun bulletin n'a été déposé.</div>
+          <div style={{ ...card, color: MUTED }}>{t("noBallotsCast")}</div>
         )}
       </Shell>
     );
@@ -759,7 +774,7 @@ export default function PublicVote({
             borderRadius: 12,
           }}
         >
-          Créer mon scrutin →
+          {t("createMyPoll")}
         </Link>
       </>
     );
@@ -797,7 +812,7 @@ export default function PublicVote({
           await loadResults(poll);
           setView("closed");
         } else {
-          setError("Lien de vote invalide.");
+          setError(t("invalidVoteLink"));
         }
       } else {
         await addBallot(poll.id, ballot, { comment, author: pseudo });
@@ -808,7 +823,7 @@ export default function PublicVote({
         } else setView("thanks");
       }
     } catch {
-      setError("Impossible d'enregistrer le bulletin. Réessayez.");
+      setError(t("ballotSaveError"));
     } finally {
       setSubmitting(false);
     }
@@ -837,7 +852,10 @@ export default function PublicVote({
         </div>
         {voter && (
           <span style={{ fontSize: 13, fontWeight: 700, color: MUTED }}>
-            Vous votez en tant que <span style={{ color: INK }}>{voter.label}</span>
+            {t.rich("votingAs", {
+              name: voter.label,
+              strong: (chunks) => <span style={{ color: INK }}>{chunks}</span>,
+            })}
           </span>
         )}
       </div>
@@ -859,7 +877,7 @@ export default function PublicVote({
           {poll.description}
         </p>
       )}
-      <p style={{ fontSize: 15, color: MUTED, margin: "8px 0 0" }}>{INSTRUCTIONS[mode]}</p>
+      <p style={{ fontSize: 15, color: MUTED, margin: "8px 0 0" }}>{t(INSTRUCTIONS[mode])}</p>
 
       <div
         style={{
@@ -892,7 +910,7 @@ export default function PublicVote({
           <input
             value={pseudo}
             onChange={(e) => setPseudo(e.target.value)}
-            placeholder="Votre pseudo (facultatif)"
+            placeholder={t("pseudoPlaceholder")}
             maxLength={40}
             style={{
               fontFamily: FONT_BODY,
@@ -909,7 +927,7 @@ export default function PublicVote({
           <textarea
             value={comment}
             onChange={(e) => setComment(e.target.value)}
-            placeholder="Un mot à laisser au groupe ? (facultatif)"
+            placeholder={t("commentPlaceholder")}
             maxLength={280}
             rows={2}
             style={{
@@ -949,7 +967,7 @@ export default function PublicVote({
             ...lift(`4px 4px 0 ${INK}`, `6px 6px 0 ${INK}`),
           }}
         >
-          {submitting ? "Enregistrement…" : "✓ Voter"}
+          {submitting ? t("submitting") : `✓ ${t("vote")}`}
         </button>
       </div>
 
@@ -977,11 +995,11 @@ export default function PublicVote({
             borderRadius: 11,
           }}
         >
-          Voir les résultats sans voter →
+          {t("seeResultsWithoutVoting")}
         </button>
       )}
       <div style={{ marginTop: 16, display: "flex", justifyContent: "center" }}>
-        <NotifyButton pollToken={token} label="🔔 M'avertir à la clôture" />
+        <NotifyButton pollToken={token} label={`🔔 ${t("notifyAtClose")}`} />
       </div>
     </Shell>
   );

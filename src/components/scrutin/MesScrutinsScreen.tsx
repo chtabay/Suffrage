@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import type { AuthController } from "@/lib/auth/useAuth";
 import { getLocalPolls, removeLocalPoll, type LocalPoll } from "@/lib/db/localPolls";
 import { getMyPolls, type PollRow } from "@/lib/db/polls";
@@ -17,6 +18,7 @@ interface Item {
 
 export default function MesScrutinsScreen({ ctrl, auth }: { ctrl: ScrutinController; auth: AuthController }) {
   const { go } = ctrl;
+  const t = useTranslations("MyPolls");
   const [locals, setLocals] = useState<LocalPoll[]>([]);
   const [cloud, setCloud] = useState<PollRow[]>([]);
   const [origin, setOrigin] = useState("");
@@ -65,10 +67,10 @@ export default function MesScrutinsScreen({ ctrl, auth }: { ctrl: ScrutinControl
           margin: 0,
         }}
       >
-        Mes scrutins
+        {t("title")}
       </h1>
       <p style={{ fontSize: 15, color: SUBINK, margin: "12px 0 0", lineHeight: 1.5, maxWidth: "60ch" }}>
-        Les scrutins créés sur cet appareil, plus ceux rattachés à ton compte.
+        {t("subtitle")}
       </p>
 
       {/* bandeau connexion */}
@@ -85,9 +87,9 @@ export default function MesScrutinsScreen({ ctrl, auth }: { ctrl: ScrutinControl
             color: "#1f6b34",
           }}
         >
-          ✓ Connecté{auth.user.email ? ` (${auth.user.email})` : ""} — tes scrutins te suivent partout.
+          {t("connectedPrefix")}{auth.user.email ? ` (${auth.user.email})` : ""}{t("connectedSuffix")}
           <div style={{ marginTop: 10 }}>
-            <NotifyButton label="🔔 M'avertir de l'activité de mes scrutins" />
+            <NotifyButton label={t("notifyActivity")} />
           </div>
         </div>
       ) : (
@@ -106,7 +108,7 @@ export default function MesScrutinsScreen({ ctrl, auth }: { ctrl: ScrutinControl
           }}
         >
           <span style={{ fontSize: 13.5, color: MUTED, fontWeight: 600 }}>
-            💡 Connecte-toi pour retrouver tes scrutins sur tous tes appareils.
+            {t("signInHint")}
           </span>
           <button
             onClick={auth.signIn}
@@ -122,7 +124,7 @@ export default function MesScrutinsScreen({ ctrl, auth }: { ctrl: ScrutinControl
               borderRadius: 11,
             }}
           >
-            Se connecter avec Google
+            {t("signInGoogle")}
           </button>
         </div>
       )}
@@ -139,7 +141,7 @@ export default function MesScrutinsScreen({ ctrl, auth }: { ctrl: ScrutinControl
             boxShadow: `5px 5px 0 ${INK}`,
           }}
         >
-          <div style={{ fontSize: 15, color: MUTED }}>Aucun scrutin pour le moment.</div>
+          <div style={{ fontSize: 15, color: MUTED }}>{t("empty")}</div>
           <button
             onClick={() => go("create")}
             style={{
@@ -155,7 +157,7 @@ export default function MesScrutinsScreen({ ctrl, auth }: { ctrl: ScrutinControl
               borderRadius: 12,
             }}
           >
-            Créer un scrutin →
+            {t("createPoll")}
           </button>
         </div>
       ) : (
@@ -181,13 +183,13 @@ export default function MesScrutinsScreen({ ctrl, auth }: { ctrl: ScrutinControl
                     </div>
                     <div style={{ fontSize: 12.5, color: MUTED, marginTop: 4 }}>
                       {fmtDate(p.createdAt)}
-                      {!p.secret && <span style={{ marginLeft: 8 }}>☁︎ compte</span>}
+                      {!p.secret && <span style={{ marginLeft: 8 }}>{t("cloudAccount")}</span>}
                     </div>
                   </div>
                   {p.secret && (
                     <button
                       onClick={() => remove(p.token)}
-                      title="Retirer de cet appareil"
+                      title={t("removeFromDevice")}
                       style={{
                         flex: "none",
                         width: 32,
@@ -221,7 +223,7 @@ export default function MesScrutinsScreen({ ctrl, auth }: { ctrl: ScrutinControl
                       borderRadius: 10,
                     }}
                   >
-                    Ouvrir / résultats →
+                    {t("openResults")}
                   </a>
                   {adminUrl && (
                     <a
@@ -239,7 +241,7 @@ export default function MesScrutinsScreen({ ctrl, auth }: { ctrl: ScrutinControl
                         borderRadius: 10,
                       }}
                     >
-                      🔑 Gérer
+                      {t("manage")}
                     </a>
                   )}
                 </div>
