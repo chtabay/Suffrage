@@ -9,6 +9,7 @@ import AdvancedSettings from "./AdvancedSettings";
 import AiHelper from "./AiHelper";
 import ClosureLine from "./ClosureLine";
 import PrefillPanel from "./PrefillPanel";
+import SlotPicker from "./SlotPicker";
 import { CREAM, FONT_BODY, FONT_DISPLAY, GREENTXT, INK, MUTED, REDTXT, YELLOW, lift } from "./theme";
 
 interface AxisOption {
@@ -156,7 +157,7 @@ const EMOJI_PALETTE = [
 ];
 
 export default function CreateScreen({ ctrl }: { ctrl: ScrutinController }) {
-  const { state, setRecipe, setQuestion, setDescription, setOptionName, setOptionUrl, setOptionIcon, removeOption, addOption, setOptionKind, setSlotAt, addSlot, launch } = ctrl;
+  const { state, setRecipe, setQuestion, setDescription, setOptionName, setOptionUrl, setOptionIcon, removeOption, addOption, setOptionKind, setSlots, launch } = ctrl;
   const [urlRows, setUrlRows] = useState<Record<number, boolean>>({});
   const [emojiRow, setEmojiRow] = useState<number | null>(null);
   const resolved = describeRecipe(state.recipe);
@@ -270,61 +271,9 @@ export default function CreateScreen({ ctrl }: { ctrl: ScrutinController }) {
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 9 }}>
               {state.optionKind === "slot"
-                ? state.options.map((opt, i) => (
-                    <div key={i} style={{ display: "flex", alignItems: "center", gap: 9 }}>
-                      <div
-                        style={{
-                          width: 34,
-                          height: 34,
-                          flex: "none",
-                          borderRadius: 9,
-                          border: `2px solid ${INK}`,
-                          background: candColor(i),
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          fontSize: 17,
-                        }}
-                      >
-                        📅
-                      </div>
-                      <input
-                        type="datetime-local"
-                        value={opt.at ?? ""}
-                        onChange={(e) => setSlotAt(i, e.target.value)}
-                        style={{
-                          flex: 1,
-                          minWidth: 0,
-                          fontFamily: FONT_BODY,
-                          fontSize: 14,
-                          fontWeight: 600,
-                          padding: "8px 11px",
-                          border: `2px solid ${INK}`,
-                          borderRadius: 9,
-                          background: CREAM,
-                          outline: "none",
-                          colorScheme: "light",
-                        }}
-                      />
-                      <button
-                        onClick={() => removeOption(i)}
-                        style={{
-                          width: 34,
-                          height: 34,
-                          flex: "none",
-                          border: `2px solid ${INK}`,
-                          background: "#fff",
-                          borderRadius: 9,
-                          cursor: "pointer",
-                          fontSize: 16,
-                          color: REDTXT,
-                          lineHeight: 1,
-                        }}
-                      >
-                        ×
-                      </button>
-                    </div>
-                  ))
+                ? (
+                    <SlotPicker slots={state.options} onChange={setSlots} />
+                  )
                 : state.options.map((opt, i) => {
                 const urlOpen = urlRows[i] || Boolean(opt.url);
                 return (
@@ -463,23 +412,25 @@ export default function CreateScreen({ ctrl }: { ctrl: ScrutinController }) {
                 );
               })}
             </div>
-            <button
-              onClick={state.optionKind === "slot" ? addSlot : addOption}
-              className="dc-cream"
-              style={{
-                marginTop: 11,
-                fontWeight: 700,
-                fontSize: 13.5,
-                cursor: "pointer",
-                border: `2px dashed ${INK}`,
-                background: "none",
-                color: INK,
-                padding: "9px 14px",
-                borderRadius: 10,
-              }}
-            >
-              {state.optionKind === "slot" ? "+ Ajouter un créneau" : "+ Ajouter une proposition"}
-            </button>
+            {state.optionKind !== "slot" && (
+              <button
+                onClick={addOption}
+                className="dc-cream"
+                style={{
+                  marginTop: 11,
+                  fontWeight: 700,
+                  fontSize: 13.5,
+                  cursor: "pointer",
+                  border: `2px dashed ${INK}`,
+                  background: "none",
+                  color: INK,
+                  padding: "9px 14px",
+                  borderRadius: 10,
+                }}
+              >
+                + Ajouter une proposition
+              </button>
+            )}
             <div style={{ fontSize: 12, color: MUTED, marginTop: 12, lineHeight: 1.45 }}>
               🔗 associez une image, une vidéo ou un document à un choix.{" "}
               <span style={{ color: INK, fontWeight: 700 }}>✨ Une IA peut proposer titres, options et illustrations</span>{" "}

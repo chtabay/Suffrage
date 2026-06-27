@@ -30,12 +30,16 @@ export const safeUrl = (u: string | undefined): string | undefined => {
 };
 
 export const SLOT_ICON = "📅";
-/** Libellé lisible d'un créneau (le `name` de l'option) à partir d'une valeur datetime-local. */
+/** Libellé lisible d'un créneau : "YYYY-MM-DDThh:mm" (avec heure) ou "YYYY-MM-DD" (journée entière). */
 export function slotLabel(local: string): string {
   if (!local) return "Créneau à définir";
-  const d = new Date(local);
+  const dateOnly = !local.includes("T");
+  const d = new Date(dateOnly ? `${local}T00:00` : local);
   if (Number.isNaN(d.getTime())) return "Créneau à définir";
-  return d.toLocaleString("fr-FR", { weekday: "short", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
+  const opts: Intl.DateTimeFormatOptions = dateOnly
+    ? { weekday: "short", day: "numeric", month: "short" }
+    : { weekday: "short", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" };
+  return d.toLocaleString("fr-FR", opts);
 }
 
 /** Convertit les paramètres d'URL /new en brouillon (toujours un objet, possiblement vide). */

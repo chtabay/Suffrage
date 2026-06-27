@@ -188,6 +188,11 @@ export function useScrutin(draft?: ScrutinDraft) {
     });
   }, []);
 
+  // Remplace tous les créneaux d'un coup (sélecteur de dates calendaire).
+  const setSlots = useCallback((options: Option[]) => {
+    setState((s) => ({ ...s, options, ...CLEAR_SHARE }));
+  }, []);
+
   // ---- vote « dates » : créneaux ----
   const setOptionKind = useCallback((kind: "text" | "slot") => {
     setState((s) => {
@@ -380,6 +385,7 @@ export function useScrutin(draft?: ScrutinDraft) {
     setOptionKind,
     setSlotAt,
     addSlot,
+    setSlots,
     setAccess,
     toggleHideResults,
     setVoterNames,
