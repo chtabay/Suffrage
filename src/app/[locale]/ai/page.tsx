@@ -1,7 +1,7 @@
-import Link from "next/link";
 import type { Metadata } from "next";
 import { publicMethodCatalog } from "@/lib/voting/methods";
 import SlackMark from "@/components/SlackMark";
+import { Link } from "@/i18n/navigation";
 
 export const metadata: Metadata = {
   title: "Placet pour les IA — générer un lien de vote",
@@ -100,7 +100,7 @@ export default function AiDocPage() {
             <code style={{ fontFamily: mono }}>/scrutin</code> construit le vote, on vote sur le web, le résultat
             revient dans le canal.
           </div>
-          <a
+          <Link
             href="/slack"
             style={{
               flex: "none",
@@ -119,7 +119,7 @@ export default function AiDocPage() {
             }}
           >
             <SlackMark /> Ajouter à Slack →
-          </a>
+          </Link>
         </div>
 
         <h2 style={{ fontFamily: display, fontWeight: 800, fontSize: 24, marginTop: 34 }}>Format du lien</h2>

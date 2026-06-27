@@ -5,7 +5,7 @@ import { getPollShareInfo } from "@/lib/db/pollMeta";
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<{ token: string }>;
+  params: Promise<{ locale: string; token: string }>;
 }): Promise<Metadata> {
   const { token } = await params;
   const info = await getPollShareInfo(token);
@@ -40,7 +40,7 @@ export default async function VotePage({
   params,
   searchParams,
 }: {
-  params: Promise<{ token: string }>;
+  params: Promise<{ locale: string; token: string }>;
   searchParams: Promise<{ k?: string; u?: string }>;
 }) {
   const { token } = await params;

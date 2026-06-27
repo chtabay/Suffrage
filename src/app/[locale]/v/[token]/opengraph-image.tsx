@@ -10,7 +10,7 @@ const CREAM = "#FBF6EC";
 const CORAL = "#FF5E5B";
 const YELLOW = "#FFB627";
 
-export default async function OgImage({ params }: { params: Promise<{ token: string }> }) {
+export default async function OgImage({ params }: { params: Promise<{ locale: string; token: string }> }) {
   const { token } = await params;
   const info = await getPollShareInfo(token);
 

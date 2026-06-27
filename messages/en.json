@@ -1,0 +1,22 @@
+{
+  "Nav": {
+    "myPolls": "My polls",
+    "methods": "Methods",
+    "create": "Create a vote",
+    "signIn": "Sign in",
+    "signOut": "Sign out"
+  },
+  "Home": {
+    "badge": "Group decisions, made simple",
+    "heroA": "Vote the way",
+    "heroB": "it should be done.",
+    "subtitle": "Pick the voting method that fits your decision, launch it and share in two clicks. The winner is computed by its exact rules — not just another poll.",
+    "createCta": "Create my vote →",
+    "methodsTitleLearn": "There's more than one way to pick a winner",
+    "methodsTitleLean": "Choose a method",
+    "compareCta": "Compare all 10 methods →",
+    "slackTitle": "Also in Slack.",
+    "slackText": "Launch a vote without leaving your channels — /scrutin, everyone votes on the web, the result comes back to the channel.",
+    "slackCta": "Add to Slack"
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "Nav": {
+    "myPolls": "Mes scrutins",
+    "methods": "Les méthodes",
+    "create": "Créer un vote",
+    "signIn": "Se connecter",
+    "signOut": "Déconnexion"
+  },
+  "Home": {
+    "badge": "Décider à plusieurs, simplement",
+    "heroA": "Votez vraiment",
+    "heroB": "comme il faut.",
+    "subtitle": "Choisissez la méthode de vote adaptée à votre décision, lancez le scrutin et partagez-le en deux clics. Le gagnant est calculé selon ses règles exactes — pas un sondage de plus.",
+    "createCta": "Créer mon vote →",
+    "methodsTitleLearn": "Il n'y a pas qu'une façon de désigner un gagnant",
+    "methodsTitleLean": "Choisir une méthode",
+    "compareCta": "Comparer les 10 méthodes →",
+    "slackTitle": "Aussi dans Slack.",
+    "slackText": "Lancez un vote sans quitter vos canaux — /scrutin, on vote sur le web, le résultat revient dans le canal.",
+    "slackCta": "Ajouter à Slack"
+  }
+}

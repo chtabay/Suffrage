@@ -6,6 +6,7 @@ import type { ScrutinController } from "@/lib/voting/useScrutin";
 import AiSideRail from "./AiSideRail";
 import AiHelper from "./AiHelper";
 import SlackMark from "@/components/SlackMark";
+import { Link } from "@/i18n/navigation";
 import { CORAL, FONT_BODY, FONT_DISPLAY, GREEN, INK, MUTED, PAPER, SUBINK, lift } from "./theme";
 
 // 4 méthodes mises en avant (spectre représentatif) ; les 10 restent dans la galerie.
@@ -281,7 +282,7 @@ export default function HomeScreen({ ctrl }: { ctrl: ScrutinController }) {
           <strong style={{ color: INK }}>Aussi dans Slack.</strong> Lancez un vote sans quitter vos canaux —{" "}
           <code style={{ fontFamily: FONT_BODY }}>/scrutin</code>, on vote sur le web, le résultat revient dans le canal.
         </div>
-        <a
+        <Link
           href="/slack"
           className="dc-lift"
           style={{
@@ -302,7 +303,7 @@ export default function HomeScreen({ ctrl }: { ctrl: ScrutinController }) {
           }}
         >
           <SlackMark /> Ajouter à Slack
-        </a>
+        </Link>
       </div>
     </div>
   );
