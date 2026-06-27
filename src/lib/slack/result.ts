@@ -12,7 +12,7 @@ export async function postSlackResult(token: string): Promise<void> {
     const link = await linkForToken(token);
     if (!link || link.status !== "launched") return; // pas un vote Slack, ou déjà traité
     if ((await markPosted(token)) !== true) return; // déjà posté ailleurs → on s'arrête
-    const info = await getPollShareInfo(token);
+    const info = await getPollShareInfo(token, { fresh: true });
     if (!info) return;
     const m = resultMessage(info.question, info.methodName, info.winner, info.ballotCount, `${APP_URL}/v/${token}`);
     await postMessage(link.channel_id, m.blocks, m.text);

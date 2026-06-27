@@ -27,16 +27,23 @@ interface Row {
   districts: { name: string; electors: number }[] | null;
 }
 
-export async function getPollShareInfo(token: string): Promise<PollShareInfo | null> {
+export async function getPollShareInfo(
+  token: string,
+  opts: { fresh?: boolean } = {},
+): Promise<PollShareInfo | null> {
   const base = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
   if (!base || !key) return null;
   const headers = { apikey: key, Authorization: `Bearer ${key}` };
+  // Aperçus OG : cache 30 s (perf). Post de résultat Slack juste après la clôture :
+  // lecture fraîche obligatoire, sinon la ligne « open » en cache masque le passage
+  // à « closed » et le dépouillement est sauté (0 vote).
+  const cacheInit = opts.fresh ? { cache: "no-store" as const } : { next: { revalidate: 30 } };
   try {
     const res = await fetch(
       `${base}/rest/v1/scrutin_polls?token=eq.${encodeURIComponent(token)}` +
         `&select=id,question,description,options,recipe,status,opens_at,closes_at,districts&limit=1`,
-      { headers, next: { revalidate: 30 } },
+      { headers, ...cacheInit },
     );
     if (!res.ok) return null;
     const p = ((await res.json()) as Row[])[0];
@@ -58,7 +65,7 @@ export async function getPollShareInfo(token: string): Promise<PollShareInfo | n
     if (phase === "closed") {
       const br = await fetch(
         `${base}/rest/v1/scrutin_ballots?poll_id=eq.${encodeURIComponent(p.id)}&select=ranking,grades,district`,
-        { headers, next: { revalidate: 30 } },
+        { headers, ...cacheInit },
       );
       if (br.ok) {
         const ballots = (await br.json()) as Ballot[];
