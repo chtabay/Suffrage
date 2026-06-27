@@ -17,7 +17,10 @@ function methodOptions(): Block[] {
   return SLACK_METHODS.map((k) => {
     const m = cat.find((c) => c.key === k);
     const label = m ? `${m.icon} ${m.label}` : k;
-    return { text: { type: "plain_text", text: label.slice(0, 75), emoji: true }, value: k };
+    const opt: Block = { text: { type: "plain_text", text: label.slice(0, 75), emoji: true }, value: k };
+    // Slack affiche une description sous chaque choix → on explique quand l'utiliser.
+    if (m?.whenToUse) opt.description = { type: "plain_text", text: m.whenToUse.slice(0, 75) };
+    return opt;
   });
 }
 
@@ -27,13 +30,47 @@ export function methodLabel(key: string): string {
   return m ? `${m.icon} ${m.label}` : key;
 }
 
+/** Message d'aide éphémère (`/scrutin aide`) : usage + explication des méthodes. */
+export function helpMessage(): { blocks: Block[]; text: string } {
+  const cat = publicMethodCatalog();
+  const methods = SLACK_METHODS.map((k) => {
+    const m = cat.find((c) => c.key === k);
+    return m ? `${m.icon} *${m.label}* — ${m.whenToUse}` : null;
+  })
+    .filter(Boolean)
+    .join("\n");
+  return {
+    blocks: [
+      { type: "header", text: { type: "plain_text", text: "🗳️ Scrutin — aide", emoji: true } },
+      {
+        type: "section",
+        text: {
+          type: "mrkdwn",
+          text:
+            "*Créer un vote*\n`/scrutin Question ?` ouvre un vote à construire ensemble.\n" +
+            "Pré-remplir directement : `/scrutin Resto ce soir ? | 🍕 Pizza | 🍣 Sushi`.\n" +
+            "Dans le message : ➕ ajoutez des options · ⚖️ choisissez la méthode · ✅ *Lancer*. " +
+            "On vote sur le web ; le bouton *Clôturer* publie le résultat ici.",
+        },
+      },
+      { type: "section", text: { type: "mrkdwn", text: `*Les méthodes*\n${methods}` } },
+    ],
+    text: "Aide Scrutin",
+  };
+}
+
 /** Message collaboratif de construction du vote (édité en place à chaque interaction). */
 export function builderMessage(b: SlackBuilder): { blocks: Block[]; text: string } {
   const blocks: Block[] = [
     { type: "header", text: { type: "plain_text", text: `🗳️ ${b.question || "Nouveau vote"}`.slice(0, 150), emoji: true } },
     {
       type: "context",
-      elements: [{ type: "mrkdwn", text: `Construisez ce vote ensemble, puis lancez-le. Démarré par <@${b.creator_id}>.` }],
+      elements: [
+        {
+          type: "mrkdwn",
+          text: `📝 *Brouillon — pas encore ouvert au vote.*  ➕ Ajoutez des options · ⚖️ choisissez la méthode · ✅ Lancez.  ·  Démarré par <@${b.creator_id}>`,
+        },
+      ],
     },
     { type: "divider" },
   ];

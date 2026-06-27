@@ -3,9 +3,10 @@
 // message est posté via l'API Web pour pouvoir être édité ensuite).
 import { NextResponse } from "next/server";
 import { verifySlackSignature, parseCommand } from "@/lib/slack/verify";
-import { createBuilder, getBuilder, setBuilderMessage } from "@/lib/slack/store";
-import { builderMessage } from "@/lib/slack/blocks";
+import { createBuilder, getBuilder, setBuilderMessage, addOption } from "@/lib/slack/store";
+import { builderMessage, helpMessage } from "@/lib/slack/blocks";
 import { postMessage } from "@/lib/slack/api";
+import { splitLeadingEmoji } from "@/lib/voting/draft";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -19,7 +20,18 @@ export async function POST(req: Request) {
   }
 
   const cmd = parseCommand(raw);
-  const question = cmd.text.trim().slice(0, 150);
+  const input = cmd.text.trim();
+
+  // Sous-commande d'aide : /scrutin aide
+  if (/^(aide|help|\?)$/i.test(input)) {
+    const h = helpMessage();
+    return NextResponse.json({ response_type: "ephemeral", blocks: h.blocks, text: h.text });
+  }
+
+  // Pré-remplissage inline : « Question ? | Option A | Option B » (sinon tout = la question).
+  const parts = input.split("|").map((s) => s.trim());
+  const question = (parts[0] ?? "").slice(0, 150);
+  const seeds = parts.slice(1).filter(Boolean).slice(0, 12);
 
   const id = await createBuilder({
     team: cmd.team_id,
@@ -29,6 +41,11 @@ export async function POST(req: Request) {
     method: "simple_vote",
   });
   if (!id) return ephemeral("⚠️ Erreur interne à la création du vote. Réessaie dans un instant.");
+
+  for (const s of seeds) {
+    const { icon, name } = splitLeadingEmoji(s, "•");
+    await addOption(id, icon, name.slice(0, 80));
+  }
 
   const b = await getBuilder(id);
   if (!b) return ephemeral("⚠️ Erreur interne. Réessaie dans un instant.");
