@@ -5,6 +5,7 @@ import { SYSTEMS } from "@/lib/voting/systems";
 import type { ScrutinController } from "@/lib/voting/useScrutin";
 import AiSideRail from "./AiSideRail";
 import AiHelper from "./AiHelper";
+import SlackMark from "@/components/SlackMark";
 import { CORAL, FONT_BODY, FONT_DISPLAY, GREEN, INK, MUTED, PAPER, SUBINK, lift } from "./theme";
 
 // 4 méthodes mises en avant (spectre représentatif) ; les 10 restent dans la galerie.
@@ -285,6 +286,9 @@ export default function HomeScreen({ ctrl }: { ctrl: ScrutinController }) {
           className="dc-lift"
           style={{
             flex: "none",
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 9,
             fontFamily: FONT_DISPLAY,
             fontWeight: 700,
             fontSize: 14.5,
@@ -297,7 +301,7 @@ export default function HomeScreen({ ctrl }: { ctrl: ScrutinController }) {
             ...lift(`4px 4px 0 ${INK}`, `6px 6px 0 ${INK}`),
           }}
         >
-          💬 Ajouter à Slack
+          <SlackMark /> Ajouter à Slack
         </a>
       </div>
     </div>
