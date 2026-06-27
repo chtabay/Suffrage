@@ -40,6 +40,8 @@ Ouvrir http://localhost:3000.
 | `NEXT_PUBLIC_SUPABASE_URL` | URL du projet Supabase OpenSM |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Clé publishable Supabase (publique par conception) |
 | `NEXT_PUBLIC_PV_PAYMENT_LINK` | *(optionnel — en standby)* Lien de paiement Stripe du « PV officiel ». Non défini ⇒ bouton masqué. Voir § Monétisation. |
+| `SLACK_SIGNING_SECRET` | *(Slack)* Signing Secret de l'app Slack — vérifie les requêtes entrantes. |
+| `SLACK_BOT_TOKEN` | *(Slack)* Bot User OAuth Token (`xoxb-…`) — poste et édite les messages. |
 
 ## Monétisation — « PV officiel » (test concierge, **EN STANDBY**)
 
@@ -77,3 +79,31 @@ de l'acheteur.
 
 > Note frais : sous ≈ 1 € par transaction, les frais Stripe fixes (~0,25 € + 1,5 %)
 > mangent > 25 % — d'où le prix d'amorçage à 2 € (ou des packs).
+
+## Slack — vote collaboratif (Block Kit, sans LLM)
+
+Slack est un **canal d'entrée** de plus (principe de convergence : le vote se construit
+hors-app, mais se déroule toujours sur le web). Pas de LLM, pas de MCP : c'est une **app
+Slack** classique.
+
+**Flux** : `/scrutin [question]` poste un message **Block Kit** dans le canal ; tout le
+monde y ajoute des options (➕), choisit la méthode et **lance** (✅). Le scrutin est créé
+côté serveur, le canal reçoit le lien de vote, et **le résultat est reposté dans le canal
+à la clôture**.
+
+**Pièces** :
+- `src/lib/slack/` — `verify.ts` (signature HMAC), `store.ts` (RPC état), `api.ts` (API
+  Web Slack), `blocks.ts` (Block Kit), `result.ts` (post du résultat).
+- `src/app/api/slack/command` et `src/app/api/slack/interactions` — les deux endpoints.
+- `src/lib/db/pollsServer.ts` — création de scrutin côté serveur (insert anon).
+- Table `scrutin_slack_polls` (état du builder + lien scrutin↔canal), **RLS fermée**,
+  accès via RPC `slack_*` `SECURITY DEFINER` guardées par `NOTIFY_SECRET` (pas de
+  service-role, comme les notifs).
+- Post du résultat branché dans `closeExpiredAndNotify` (cron) **et** `/api/notify/poll`
+  (clôture au dernier votant), dédupliqué par `slack_mark_posted`.
+
+**Mise en service** : créer l'app sur api.slack.com (slash command `/scrutin` →
+`/api/slack/command` ; Interactivity → `/api/slack/interactions` ; scopes `commands`,
+`chat:write`, `chat:write.public`), l'installer, puis poser `SLACK_SIGNING_SECRET` et
+`SLACK_BOT_TOKEN`. Tant que ces variables sont absentes, les endpoints répondent `401` /
+sont inertes.

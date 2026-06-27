@@ -2,6 +2,7 @@
 // service-role (BDD OpenSM partagée) : tout passe par des RPC SECURITY DEFINER
 // ciblées, protégées par NOTIFY_SECRET. À n'importer que côté serveur.
 import webpush from "web-push";
+import { postSlackResult } from "@/lib/slack/result";
 
 const PUB = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
 const PRIV = process.env.VAPID_PRIVATE_KEY;
@@ -99,6 +100,7 @@ export async function closeExpiredAndNotify(origin: string): Promise<{ closed: n
       body: "Le vote est clos — découvrez le résultat.",
       url: `${origin}/v/${token}`,
     });
+    await postSlackResult(token); // no-op si le scrutin ne vient pas de Slack
   }
   const soon = (await rpc<{ token: string }[]>("polls_closing_soon", { p_secret: SECRET })) ?? [];
   for (const { token } of soon) {

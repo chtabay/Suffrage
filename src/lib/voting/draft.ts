@@ -8,7 +8,7 @@ const DRAFT_ICONS = ["📌", "⭐", "🔥", "🌟", "🎯", "🎪", "🎨", "�
 
 // Emoji de tête d'un libellé d'option (« 🍕 Italien » → icône 🍕 + nom « Italien »).
 const LEADING_EMOJI = /^(\p{Extended_Pictographic}(?:‍\p{Extended_Pictographic})*️?)\s+(.+)$/u;
-function splitLeadingEmoji(label: string, fallbackIcon: string): { icon: string; name: string } {
+export function splitLeadingEmoji(label: string, fallbackIcon: string): { icon: string; name: string } {
   const m = label.match(LEADING_EMOJI);
   return m ? { icon: m[1], name: m[2].trim() } : { icon: fallbackIcon, name: label };
 }

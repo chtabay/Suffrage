@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { notifyPoll } from "@/lib/push";
+import { postSlackResult } from "@/lib/slack/result";
 
 // Déclencheur direct (appelé par le client après un vote) : si le scrutin vient
 // d'être clos (ex. dernier votant en mode complétude), envoie la notif résultats.
@@ -45,6 +46,7 @@ export async function POST(req: Request) {
           body: "Le vote est clos — découvrez le résultat.",
           url: `${origin}/v/${token}`,
         });
+        await postSlackResult(token); // no-op si le scrutin ne vient pas de Slack
       }
     }
   }
