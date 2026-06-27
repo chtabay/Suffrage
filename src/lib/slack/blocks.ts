@@ -7,8 +7,10 @@ import type { SlackBuilder, SlackOption } from "./store";
 
 export type Block = Record<string, unknown>;
 
-// Sous-ensemble curaté pour Slack (les 10 méthodes seraient trop pour une discussion).
-const SLACK_METHODS = ["simple_vote", "approval", "majority_judgment", "condorcet", "two_round"];
+// Sous-ensemble curaté pour Slack : uniquement les méthodes à GAGNANT UNIQUE
+// (les méthodes d'assemblée — proportionnelle, liste, grands électeurs — ont besoin
+// de circonscriptions/sièges et n'ont pas de sens pour un vote de canal).
+const SLACK_METHODS = ["simple_vote", "approval", "majority_judgment", "condorcet", "two_round", "condorcet_random", "borda"];
 
 const escape = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
