@@ -45,7 +45,7 @@ export function helpMessage(): { blocks: Block[]; text: string } {
     .join("\n");
   return {
     blocks: [
-      { type: "header", text: { type: "plain_text", text: "🗳️ Scrutin — aide", emoji: true } },
+      { type: "header", text: { type: "plain_text", text: "🗳️ Placet — aide", emoji: true } },
       {
         type: "section",
         text: {
@@ -60,7 +60,7 @@ export function helpMessage(): { blocks: Block[]; text: string } {
       },
       { type: "section", text: { type: "mrkdwn", text: `*Les méthodes*\n${methods}` } },
     ],
-    text: "Aide Scrutin",
+    text: "Aide Placet",
   };
 }
 

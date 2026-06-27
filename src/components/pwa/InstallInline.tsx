@@ -28,7 +28,7 @@ export default function InstallInline() {
           boxShadow: `4px 4px 0 ${YELLOW}`,
         }}
       >
-        📲 Installer Scrutin sur ton écran d&apos;accueil
+        📲 Installer Placet sur ton écran d&apos;accueil
       </button>
       {ios && showIos && (
         <div style={{ marginTop: 8, fontSize: 12.5, color: MUTED, lineHeight: 1.45 }}>

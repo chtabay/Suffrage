@@ -9,7 +9,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { token } = await params;
   const info = await getPollShareInfo(token);
-  if (!info) return { title: "Scrutin — vote" };
+  if (!info) return { title: "Placet — vote" };
   const plural = info.ballotCount > 1 ? "s" : "";
   const title = info.phase === "closed" ? `Résultat : ${info.question}` : `Vote : ${info.question}`;
   let description: string;
@@ -29,7 +29,7 @@ export async function generateMetadata({
       title,
       description,
       type: "website",
-      siteName: "Scrutin",
+      siteName: "Placet",
       url: `/v/${token}`,
     },
     twitter: { card: "summary_large_image", title, description },

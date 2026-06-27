@@ -69,7 +69,7 @@ export default function Nav({ ctrl, auth }: { ctrl: ScrutinController; auth: Aut
             🗳️
           </div>
           <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 21, letterSpacing: "-0.02em" }}>
-            Scrutin
+            Placet
           </div>
         </div>
 

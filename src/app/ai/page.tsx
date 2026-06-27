@@ -3,9 +3,9 @@ import type { Metadata } from "next";
 import { publicMethodCatalog } from "@/lib/voting/methods";
 
 export const metadata: Metadata = {
-  title: "Suffrage pour les IA — générer un lien de vote",
+  title: "Placet pour les IA — générer un lien de vote",
   description:
-    "Comment un assistant IA (ou un humain) génère une URL Suffrage qui ouvre un brouillon de scrutin pré-rempli : format, méthodes disponibles, exemples.",
+    "Comment un assistant IA (ou un humain) génère une URL Placet qui ouvre un brouillon de scrutin pré-rempli : format, méthodes disponibles, exemples.",
 };
 
 const INK = "#16213A";
@@ -68,17 +68,17 @@ export default function AiDocPage() {
             >
               🗳️
             </span>
-            <span style={{ fontFamily: display, fontWeight: 800, fontSize: 21, letterSpacing: "-0.02em" }}>Scrutin</span>
+            <span style={{ fontFamily: display, fontWeight: 800, fontSize: 21, letterSpacing: "-0.02em" }}>Placet</span>
           </Link>
         </div>
       </div>
 
       <div style={{ maxWidth: 820, margin: "0 auto", padding: "40px 24px 90px" }}>
         <h1 style={{ fontFamily: display, fontWeight: 800, fontSize: "clamp(30px,5vw,46px)", letterSpacing: "-0.03em", margin: 0 }}>
-          Suffrage pour les assistants IA
+          Placet pour les assistants IA
         </h1>
         <p style={{ fontSize: 17, color: "#3a4258", lineHeight: 1.55, marginTop: 14, maxWidth: "62ch" }}>
-          Suffrage transforme une décision de groupe en vote structuré. Tu peux générer un lien qui
+          Placet transforme une décision de groupe en vote structuré. Tu peux générer un lien qui
           ouvre un <strong>brouillon pré-rempli</strong> : l&apos;utilisateur le relit, l&apos;ajuste,
           puis lance. Aucune authentification n&apos;est requise pour produire ce lien.
         </p>
@@ -86,7 +86,7 @@ export default function AiDocPage() {
         <h2 style={{ fontFamily: display, fontWeight: 800, fontSize: 24, marginTop: 34 }}>Format du lien</h2>
         <div style={{ ...card, marginTop: 12 }}>
           <code style={code}>
-            https://suffrage.vercel.app/new?title=...&amp;description=...&amp;options=A|B|C&amp;media=urlA||urlC&amp;method=...&amp;deadline=...&amp;source=...&amp;why=...
+            https://placet.app/new?title=...&amp;description=...&amp;options=A|B|C&amp;media=urlA||urlC&amp;method=...&amp;deadline=...&amp;source=...&amp;why=...
           </code>
           <ul style={{ margin: "14px 0 0", paddingLeft: 18, fontSize: 14.5, lineHeight: 1.6, color: "#2c3447" }}>
             <li><b>title</b> — la question posée.</li>
@@ -131,13 +131,13 @@ export default function AiDocPage() {
         <h2 style={{ fontFamily: display, fontWeight: 800, fontSize: 24, marginTop: 34 }}>Exemples</h2>
         <div style={{ ...card, marginTop: 12, display: "flex", flexDirection: "column", gap: 12 }}>
           <code style={code}>
-            https://suffrage.vercel.app/new?title=Resto%20ce%20soir&amp;options=Italien|Japonais|Indien&amp;method=majority_judgment&amp;source=claude&amp;why=Plusieurs%20options%2C%20on%20cherche%20un%20consensus
+            https://placet.app/new?title=Resto%20ce%20soir&amp;options=Italien|Japonais|Indien&amp;method=majority_judgment&amp;source=claude&amp;why=Plusieurs%20options%2C%20on%20cherche%20un%20consensus
           </code>
           <code style={code}>
-            https://suffrage.vercel.app/new?title=Date%20du%20s%C3%A9minaire&amp;options=Juin|Septembre|Octobre&amp;method=two_round
+            https://placet.app/new?title=Date%20du%20s%C3%A9minaire&amp;options=Juin|Septembre|Octobre&amp;method=two_round
           </code>
           <code style={code}>
-            https://suffrage.vercel.app/new?title=D%C3%AEner%20d%27%C3%A9quipe&amp;dates=2026-07-12T20:00|2026-07-13T12:30|2026-07-13T19:00&amp;method=approval&amp;source=claude
+            https://placet.app/new?title=D%C3%AEner%20d%27%C3%A9quipe&amp;dates=2026-07-12T20:00|2026-07-13T12:30|2026-07-13T19:00&amp;method=approval&amp;source=claude
           </code>
         </div>
 
@@ -147,7 +147,7 @@ export default function AiDocPage() {
             Si tu peux faire des requêtes HTTP, POST un brouillon structuré et reçois une URL prête à
             ouvrir (aucune authentification) :
           </p>
-          <code style={code}>{`POST https://suffrage.vercel.app/api/poll-drafts
+          <code style={code}>{`POST https://placet.app/api/poll-drafts
 Content-Type: application/json
 
 {
@@ -159,7 +159,7 @@ Content-Type: application/json
   "source": "mon-agent",
   "why": "Plusieurs options, un consensus est recherché"
 }`}</code>
-          <code style={code}>{`{ "draft_url": "https://suffrage.vercel.app/new?title=..." }`}</code>
+          <code style={code}>{`{ "draft_url": "https://placet.app/new?title=..." }`}</code>
         </div>
 
         <p style={{ fontSize: 14.5, color: MUTED, lineHeight: 1.55, marginTop: 28 }}>

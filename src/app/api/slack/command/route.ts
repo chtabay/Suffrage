@@ -58,7 +58,7 @@ export async function POST(req: Request) {
   const { blocks, text } = builderMessage(b);
   const ts = await postMessage(cmd.channel_id, blocks, text);
   if (!ts) {
-    return ephemeral("⚠️ Je n'ai pas pu poster dans ce canal. Invite l'app *Scrutin* dans le canal, puis relance `/scrutin`.");
+    return ephemeral("⚠️ Je n'ai pas pu poster dans ce canal. Invite l'app dans le canal, puis relance `/scrutin`.");
   }
   await setBuilderMessage(id, ts);
   return new NextResponse(null, { status: 200 });

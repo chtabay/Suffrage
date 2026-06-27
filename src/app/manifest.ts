@@ -2,8 +2,8 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "Scrutin — votez vraiment comme il faut",
-    short_name: "Scrutin",
+    name: "Placet — votez vraiment comme il faut",
+    short_name: "Placet",
     description: "Créez et partagez des votes de groupe avec la bonne méthode de scrutin.",
     start_url: "/",
     display: "standalone",

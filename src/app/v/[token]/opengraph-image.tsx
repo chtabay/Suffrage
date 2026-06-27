@@ -3,7 +3,7 @@ import { getPollShareInfo } from "@/lib/db/pollMeta";
 
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
-export const alt = "Vote Scrutin";
+export const alt = "Vote Placet";
 
 const INK = "#16213A";
 const CREAM = "#FBF6EC";
@@ -51,7 +51,7 @@ export default async function OgImage({ params }: { params: Promise<{ token: str
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 18 }}>
             <div style={{ width: 64, height: 64, background: YELLOW, borderRadius: 16, border: `5px solid ${INK}` }} />
-            <div style={{ display: "flex", fontSize: 38, fontWeight: 800, color: INK }}>Scrutin</div>
+            <div style={{ display: "flex", fontSize: 38, fontWeight: 800, color: INK }}>Placet</div>
           </div>
           <div
             style={{

@@ -32,7 +32,7 @@ export default function AiHelper({ ctrl }: { ctrl: ScrutinController }) {
     >
       <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 16 }}>✨ Préparer avec une IA</div>
       <div style={{ fontSize: 12.5, color: MUTED, margin: "5px 0 12px", lineHeight: 1.45 }}>
-        Choisis un assistant : il reçoit le prompt et te renvoie un lien Suffrage prêt à valider ici.
+        Choisis un assistant : il reçoit le prompt et te renvoie un lien Placet prêt à valider ici.
       </div>
       <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
         {ASSISTANTS.map((a) => (

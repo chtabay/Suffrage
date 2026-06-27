@@ -1,5 +1,7 @@
 # Suffrage
 
+> **Marque : Placet** — [placet.app](https://placet.app). *(Le dépôt garde le nom historique « Suffrage » ; « scrutin » reste le mot commun employé dans l'app.)*
+
 Application web pour **concevoir simplement des systèmes de vote** et les comparer
 avec leurs avantages et inconvénients : du suffrage universel direct majoritaire
 au Condorcet (simple ou randomisé), scrutins à un ou deux tours, sélection de

@@ -168,7 +168,7 @@ function Header() {
             🗳️
           </div>
           <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 21, letterSpacing: "-0.02em" }}>
-            Scrutin
+            Placet
           </div>
         </Link>
       </div>
