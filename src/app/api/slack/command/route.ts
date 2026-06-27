@@ -28,17 +28,22 @@ export async function POST(req: Request) {
     return NextResponse.json({ response_type: "ephemeral", blocks: h.blocks, text: h.text });
   }
 
-  // Pré-remplissage inline : « Question ? | Option A | Option B » (sinon tout = la question).
-  const parts = input.split("|").map((s) => s.trim());
+  // Sous-commande créneaux : « /scrutin dates [question] » → builder en mode dates.
+  const slotMode = /^dates?\b/i.test(input);
+  const body = slotMode ? input.replace(/^dates?\b\s*/i, "") : input;
+
+  // Pré-remplissage inline (mode texte) : « Question ? | Option A | Option B ».
+  const parts = body.split("|").map((s) => s.trim());
   const question = (parts[0] ?? "").slice(0, 150);
-  const seeds = parts.slice(1).filter(Boolean).slice(0, 12);
+  const seeds = slotMode ? [] : parts.slice(1).filter(Boolean).slice(0, 12);
 
   const id = await createBuilder({
     team: cmd.team_id,
     channel: cmd.channel_id,
     creator: cmd.user_id,
     question,
-    method: "simple_vote",
+    method: slotMode ? "approval" : "simple_vote",
+    kind: slotMode ? "slot" : "text",
   });
   if (!id) return ephemeral("⚠️ Erreur interne à la création du vote. Réessaie dans un instant.");
 

@@ -8,6 +8,7 @@ import * as store from "@/lib/slack/store";
 import {
   builderMessage,
   addOptionView,
+  addSlotView,
   editQuestionView,
   launchedMessage,
   launchedClosedMessage,
@@ -16,7 +17,7 @@ import {
 import { openView, updateMessage } from "@/lib/slack/api";
 import { createPollServer, closePollServer } from "@/lib/db/pollsServer";
 import { postSlackResult } from "@/lib/slack/result";
-import { splitLeadingEmoji } from "@/lib/voting/draft";
+import { splitLeadingEmoji, slotLabel } from "@/lib/voting/draft";
 import { publicMethodToSystem } from "@/lib/voting/methods";
 import { recipeForSystem } from "@/lib/voting/engine";
 import { APP_URL } from "@/lib/voting/aiPrompt";
@@ -36,7 +37,7 @@ interface BlockActions {
   response_url: string;
   actions: SlackAction[];
 }
-type StateValues = Record<string, Record<string, { value?: string }>>;
+type StateValues = Record<string, Record<string, { value?: string; selected_date?: string; selected_time?: string }>>;
 interface ViewSubmission {
   type: "view_submission";
   view: { callback_id: string; private_metadata: string; state: { values: StateValues } };
@@ -75,12 +76,18 @@ async function respondEphemeral(responseUrl: string, text: string): Promise<void
 async function doLaunch(id: string, responseUrl: string): Promise<void> {
   const b = await store.getBuilder(id);
   if (!b || b.status !== "building") return;
+  const slot = b.kind === "slot";
   if (!b.question.trim() || b.options.length < 2) {
-    await respondEphemeral(responseUrl, "Il faut une *question* et *au moins 2 options* avant de lancer le vote.");
+    await respondEphemeral(
+      responseUrl,
+      slot
+        ? "Il faut une *question* et *au moins 2 créneaux* avant de lancer."
+        : "Il faut une *question* et *au moins 2 options* avant de lancer le vote.",
+    );
     return;
   }
-  const recipe = recipeForSystem(publicMethodToSystem(b.method) ?? "fptp");
-  const options = b.options.map((o) => ({ icon: o.icon, name: o.name }));
+  const recipe = recipeForSystem(slot ? "approval" : (publicMethodToSystem(b.method) ?? "fptp"));
+  const options = b.options.map((o) => (slot ? { icon: o.icon, name: o.name, at: o.at } : { icon: o.icon, name: o.name }));
   // Échéance 30 min = filet de sécurité ; le bouton « Clôturer » permet de fermer plus tôt.
   const closesAt = new Date(Date.now() + 30 * 60 * 1000).toISOString();
   const created = await createPollServer(b.question, options, recipe, { closesAt });
@@ -89,7 +96,7 @@ async function doLaunch(id: string, responseUrl: string): Promise<void> {
     return;
   }
   await store.launchBuilder(id, created.token, created.secret);
-  const m = launchedMessage(id, b.question, b.method, `${APP_URL}/v/${created.token}`, options);
+  const m = launchedMessage(id, b.question, slot ? "approval" : b.method, `${APP_URL}/v/${created.token}`, options);
   if (b.message_ts) await updateMessage(b.channel_id, b.message_ts, m.blocks, m.text);
 }
 
@@ -114,6 +121,9 @@ async function handleBlockActions(p: BlockActions): Promise<void> {
   switch (a.action_id) {
     case "add_option":
       await openView(p.trigger_id, addOptionView(id));
+      break;
+    case "add_slot_open":
+      await openView(p.trigger_id, addSlotView(id));
       break;
     case "edit_question": {
       const b = await store.getBuilder(id);
@@ -161,6 +171,14 @@ async function handleViewSubmission(p: ViewSubmission): Promise<void> {
   } else if (callback_id === "edit_question_submit") {
     const q = (state.values.q?.value?.value ?? "").trim().slice(0, 150);
     await store.setQuestion(id, q);
+    await refresh(id);
+  } else if (callback_id === "add_slot_submit") {
+    const date = state.values.date?.value?.selected_date;
+    const time = state.values.time?.value?.selected_time;
+    if (date) {
+      const at = time ? `${date}T${time}` : date;
+      await store.addSlot(id, slotLabel(at), at);
+    }
     await refresh(id);
   }
 }

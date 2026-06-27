@@ -8,6 +8,8 @@ const KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 export interface SlackOption {
   icon: string;
   name: string;
+  /** Créneau daté (vote de dates) : "YYYY-MM-DD" ou "YYYY-MM-DDTHH:MM". */
+  at?: string;
 }
 
 export interface SlackBuilder {
@@ -19,6 +21,7 @@ export interface SlackBuilder {
   question: string;
   options: SlackOption[];
   method: string;
+  kind: string;
   poll_token: string | null;
   poll_secret: string | null;
   status: string;
@@ -53,6 +56,7 @@ export function createBuilder(a: {
   creator: string;
   question: string;
   method: string;
+  kind?: string;
 }): Promise<string | null> {
   return rpc<string>("slack_builder_create", {
     p_team: a.team,
@@ -60,6 +64,7 @@ export function createBuilder(a: {
     p_creator: a.creator,
     p_question: a.question,
     p_method: a.method,
+    p_kind: a.kind ?? "text",
   });
 }
 
@@ -74,6 +79,11 @@ export async function getBuilder(id: string): Promise<SlackBuilder | null> {
 
 export async function addOption(id: string, icon: string, name: string): Promise<void> {
   await rpc("slack_builder_add_option", { p_id: id, p_icon: icon, p_name: name });
+}
+
+/** Ajoute un créneau daté (vote de dates). */
+export async function addSlot(id: string, name: string, at: string): Promise<void> {
+  await rpc("slack_builder_add_slot", { p_id: id, p_name: name, p_at: at });
 }
 
 export async function removeOption(id: string, index: number): Promise<void> {

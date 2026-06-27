@@ -53,6 +53,7 @@ export function helpMessage(): { blocks: Block[]; text: string } {
           text:
             "*Créer un vote*\n`/scrutin Question ?` ouvre un vote à construire ensemble.\n" +
             "Pré-remplir directement : `/scrutin Resto ce soir ? | 🍕 Pizza | 🍣 Sushi`.\n" +
+            "Vote de dates : `/scrutin dates Réunion la semaine prochaine ?` puis ajoutez des créneaux.\n" +
             "Dans le message : ➕ ajoutez des options · ⚖️ choisissez la méthode · ✅ *Lancer*. " +
             "On vote sur le web ; le bouton *Clôturer* publie le résultat ici.",
         },
@@ -65,14 +66,20 @@ export function helpMessage(): { blocks: Block[]; text: string } {
 
 /** Message collaboratif de construction du vote (édité en place à chaque interaction). */
 export function builderMessage(b: SlackBuilder): { blocks: Block[]; text: string } {
+  const slot = b.kind === "slot";
   const blocks: Block[] = [
-    { type: "header", text: { type: "plain_text", text: `🗳️ ${b.question || "Nouveau vote"}`.slice(0, 150), emoji: true } },
+    {
+      type: "header",
+      text: { type: "plain_text", text: `🗳️ ${b.question || (slot ? "Nouveau vote de dates" : "Nouveau vote")}`.slice(0, 150), emoji: true },
+    },
     {
       type: "context",
       elements: [
         {
           type: "mrkdwn",
-          text: `📝 *Brouillon — pas encore ouvert au vote.*  ➕ Ajoutez des options · ⚖️ choisissez la méthode · ✅ Lancez.  ·  Démarré par <@${b.creator_id}>`,
+          text: slot
+            ? `📅 *Vote de disponibilités — brouillon.*  ➕ Ajoutez des créneaux · approbation (chacun coche ses dispos) · ✅ Lancez.  ·  Démarré par <@${b.creator_id}>`
+            : `📝 *Brouillon — pas encore ouvert au vote.*  ➕ Ajoutez des options · ⚖️ choisissez la méthode · ✅ Lancez.  ·  Démarré par <@${b.creator_id}>`,
         },
       ],
     },
@@ -82,7 +89,10 @@ export function builderMessage(b: SlackBuilder): { blocks: Block[]; text: string
   if (!b.options.length) {
     blocks.push({
       type: "section",
-      text: { type: "mrkdwn", text: "_Aucune option pour l'instant — ajoutez-en au moins deux._" },
+      text: {
+        type: "mrkdwn",
+        text: slot ? "_Aucun créneau — ajoutez-en au moins deux._" : "_Aucune option pour l'instant — ajoutez-en au moins deux._",
+      },
     });
   } else {
     b.options.forEach((o, i) => {
@@ -100,34 +110,41 @@ export function builderMessage(b: SlackBuilder): { blocks: Block[]; text: string
     });
   }
 
-  const opts = methodOptions();
-  const initial = opts.find((o) => (o as { value: string }).value === b.method) ?? opts[0];
-  blocks.push(
-    { type: "divider" },
-    {
+  blocks.push({ type: "divider" });
+
+  // Méthode : mode texte uniquement. En mode créneaux, l'approbation est imposée.
+  if (!slot) {
+    const opts = methodOptions();
+    const initial = opts.find((o) => (o as { value: string }).value === b.method) ?? opts[0];
+    blocks.push({
       type: "section",
       block_id: `method:${b.id}`,
       text: { type: "mrkdwn", text: "*Méthode de vote*" },
       accessory: { type: "static_select", action_id: "set_method", initial_option: initial, options: opts },
-    },
-    {
-      type: "actions",
-      block_id: `actions:${b.id}`,
-      elements: [
-        { type: "button", action_id: "add_option", value: b.id, text: { type: "plain_text", text: "➕ Ajouter une option", emoji: true } },
-        { type: "button", action_id: "edit_question", value: b.id, text: { type: "plain_text", text: "✏️ Question", emoji: true } },
-        { type: "button", action_id: "launch", value: b.id, style: "primary", text: { type: "plain_text", text: "✅ Lancer le vote", emoji: true } },
-        { type: "button", action_id: "cancel", value: b.id, style: "danger", text: { type: "plain_text", text: "❌ Annuler", emoji: true } },
-      ],
-    },
-  );
+    });
+  }
+
+  const addBtn = slot
+    ? { type: "button", action_id: "add_slot_open", value: b.id, text: { type: "plain_text", text: "➕ Ajouter un créneau", emoji: true } }
+    : { type: "button", action_id: "add_option", value: b.id, text: { type: "plain_text", text: "➕ Ajouter une option", emoji: true } };
+  blocks.push({
+    type: "actions",
+    block_id: `actions:${b.id}`,
+    elements: [
+      addBtn,
+      { type: "button", action_id: "edit_question", value: b.id, text: { type: "plain_text", text: "✏️ Question", emoji: true } },
+      { type: "button", action_id: "launch", value: b.id, style: "primary", text: { type: "plain_text", text: "✅ Lancer le vote", emoji: true } },
+      { type: "button", action_id: "cancel", value: b.id, style: "danger", text: { type: "plain_text", text: "❌ Annuler", emoji: true } },
+    ],
+  });
 
   // Pied : échappatoire vers le web (réglages avancés) + découverte de l'aide.
   // Le lien /new est pré-rempli avec l'état courant (question + options + méthode).
   const advancedUrl = buildNewUrl(APP_URL, {
     title: b.question || undefined,
-    options: b.options.length ? b.options.map((o) => `${o.icon} ${o.name}`) : undefined,
-    method: b.method,
+    dates: slot ? b.options.map((o) => o.at ?? "").filter(Boolean) : undefined,
+    options: !slot && b.options.length ? b.options.map((o) => `${o.icon} ${o.name}`) : undefined,
+    method: slot ? undefined : b.method,
   });
   blocks.push({
     type: "context",
@@ -163,6 +180,34 @@ export function addOptionView(builderId: string): Block {
           max_length: 80,
           placeholder: { type: "plain_text", text: "🍕 Italien" },
         },
+      },
+    ],
+  };
+}
+
+/** Modale d'ajout d'un créneau (date + heure facultative). */
+export function addSlotView(builderId: string): Block {
+  return {
+    type: "modal",
+    callback_id: "add_slot_submit",
+    private_metadata: builderId,
+    title: { type: "plain_text", text: "Ajouter un créneau" },
+    submit: { type: "plain_text", text: "Ajouter" },
+    close: { type: "plain_text", text: "Annuler" },
+    blocks: [
+      {
+        type: "input",
+        block_id: "date",
+        label: { type: "plain_text", text: "Date" },
+        element: { type: "datepicker", action_id: "value", placeholder: { type: "plain_text", text: "Choisir une date" } },
+      },
+      {
+        type: "input",
+        block_id: "time",
+        optional: true,
+        label: { type: "plain_text", text: "Heure (facultatif)" },
+        hint: { type: "plain_text", text: "Laissez vide pour une journée entière." },
+        element: { type: "timepicker", action_id: "value", placeholder: { type: "plain_text", text: "Choisir une heure" } },
       },
     ],
   };
