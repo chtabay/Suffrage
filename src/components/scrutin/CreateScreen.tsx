@@ -150,6 +150,27 @@ const MAIN_METHODS = ["fptp", "approval", "mj", "condorcet"];
 // Exemples évocateurs montrés en placeholder (pas en valeurs à supprimer).
 const OPTION_PLACEHOLDERS = ["La montagne", "Le bord de mer", "Une grande ville", "La campagne"];
 
+const isImageUrl = (u: string) => /\.(png|jpe?g|gif|webp|avif|svg)(\?|$)/i.test(u);
+const isHttpUrl = (u: string) => /^https?:\/\//i.test(u);
+
+// Aperçu d'une illustration dans le formulaire : vignette si l'image charge,
+// avertissement sinon — pour valider le lien AVANT de lancer le vote.
+function ImgPreview({ url }: { url: string }) {
+  const [err, setErr] = useState(false);
+  if (err) {
+    return <div style={{ fontSize: 12, fontWeight: 700, color: REDTXT }}>⚠️ Image introuvable — vérifie le lien.</div>;
+  }
+  return (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      src={url}
+      alt=""
+      onError={() => setErr(true)}
+      style={{ width: 56, height: 56, objectFit: "cover", border: `2px solid ${INK}`, borderRadius: 8, alignSelf: "flex-start" }}
+    />
+  );
+}
+
 // Palette curée pour changer l'emoji d'une option.
 const EMOJI_PALETTE = [
   "🏔️", "🏖️", "🌆", "🌿", "🏝️", "🏕️", "🏰", "🗺️",
@@ -426,22 +447,49 @@ export default function CreateScreen({ ctrl }: { ctrl: ScrutinController }) {
                       </div>
                     )}
                     {urlOpen && (
-                      <input
-                        value={opt.url ?? ""}
-                        onChange={(e) => setOptionUrl(i, e.target.value)}
-                        placeholder="https://… — image, vidéo ou document (facultatif)"
-                        style={{
-                          fontFamily: FONT_BODY,
-                          fontSize: 13,
-                          fontWeight: 500,
-                          padding: "8px 11px",
-                          border: `2px solid ${INK}`,
-                          borderRadius: 9,
-                          background: CREAM,
-                          outline: "none",
-                          boxSizing: "border-box",
-                        }}
-                      />
+                      <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                        <input
+                          value={opt.url ?? ""}
+                          onChange={(e) => setOptionUrl(i, e.target.value)}
+                          placeholder="https://… — image, vidéo ou document (facultatif)"
+                          style={{
+                            fontFamily: FONT_BODY,
+                            fontSize: 13,
+                            fontWeight: 500,
+                            padding: "8px 11px",
+                            border: `2px solid ${INK}`,
+                            borderRadius: 9,
+                            background: CREAM,
+                            outline: "none",
+                            boxSizing: "border-box",
+                          }}
+                        />
+                        {opt.url && isHttpUrl(opt.url) &&
+                          (isImageUrl(opt.url) ? (
+                            <ImgPreview key={opt.url} url={opt.url} />
+                          ) : (
+                            <a
+                              href={opt.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              style={{
+                                alignSelf: "flex-start",
+                                display: "inline-flex",
+                                alignItems: "center",
+                                gap: 6,
+                                fontSize: 12.5,
+                                fontWeight: 700,
+                                color: INK,
+                                textDecoration: "none",
+                                border: `2px solid ${INK}`,
+                                borderRadius: 8,
+                                padding: "5px 10px",
+                              }}
+                            >
+                              🔗 Lien ajouté — tester
+                            </a>
+                          ))}
+                      </div>
                     )}
                   </div>
                 );
