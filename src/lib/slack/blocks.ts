@@ -2,7 +2,9 @@
 // transporté dans les `value` des boutons (et le `block_id` du select) pour que la
 // route d'interactivité sache quel vote modifier. Les modales le portent dans
 // `private_metadata`.
+import { buildNewUrl } from "@/lib/voting/draft";
 import { publicMethodCatalog } from "@/lib/voting/methods";
+import { APP_URL } from "@/lib/voting/aiPrompt";
 import type { SlackBuilder, SlackOption } from "./store";
 
 export type Block = Record<string, unknown>;
@@ -119,6 +121,23 @@ export function builderMessage(b: SlackBuilder): { blocks: Block[]; text: string
       ],
     },
   );
+
+  // Pied : échappatoire vers le web (réglages avancés) + découverte de l'aide.
+  // Le lien /new est pré-rempli avec l'état courant (question + options + méthode).
+  const advancedUrl = buildNewUrl(APP_URL, {
+    title: b.question || undefined,
+    options: b.options.length ? b.options.map((o) => `${o.icon} ${o.name}`) : undefined,
+    method: b.method,
+  });
+  blocks.push({
+    type: "context",
+    elements: [
+      {
+        type: "mrkdwn",
+        text: `⚙️ <${advancedUrl}|Créer une version affinée sur le web> — échéance, quorum, résultats cachés, votants nommés.   ·   ❓ \`/scrutin aide\``,
+      },
+    ],
+  });
 
   return { blocks, text: `Vote en préparation : ${b.question || "(sans titre)"}` };
 }
