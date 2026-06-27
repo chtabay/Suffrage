@@ -273,75 +273,8 @@ export default function CreateScreen({ ctrl }: { ctrl: ScrutinController }) {
                 boxSizing: "border-box",
               }}
             />
-          </div>
-
-          {/* méthode : 4 phares visibles, le reste dépliable */}
-          <div style={cardStyle}>
-            <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 18 }}>La méthode</div>
-            <div style={{ fontSize: 12.5, color: MUTED, margin: "4px 0 12px", lineHeight: 1.4 }}>
-              Comment départage-t-on les voix ? Modifiable à tout moment.
-            </div>
-            <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>{MAIN_METHODS.map(methodChip)}</div>
-            <button
-              onClick={() => setMethodOpen((o) => !o)}
-              style={{
-                marginTop: 12,
-                background: "none",
-                border: "none",
-                fontFamily: FONT_BODY,
-                fontWeight: 700,
-                fontSize: 13.5,
-                color: CORAL,
-                cursor: "pointer",
-                padding: 0,
-              }}
-            >
-              {methodOpen ? "▲ Masquer les autres méthodes & réglages" : "▾ Autres méthodes & réglages avancés"}
-            </button>
-            {methodOpen && (
-              <div style={{ marginTop: 14 }}>
-                {otherMethods.length > 0 && (
-                  <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 18 }}>{otherMethods.map(methodChip)}</div>
-                )}
-                <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
-                  {axes.map((axis) => (
-                    <div key={axis.key}>
-                      <div style={{ fontWeight: 700, fontSize: 13.5, marginBottom: 3 }}>{axis.label}</div>
-                      <div style={{ fontSize: 12.5, color: MUTED, marginBottom: 9, lineHeight: 1.35 }}>{axis.hint}</div>
-                      <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-                        {axis.options.map((o, j) => (
-                          <button
-                            key={j}
-                            onClick={o.onClick}
-                            disabled={o.disabled}
-                            style={{
-                              fontFamily: FONT_BODY,
-                              fontWeight: 600,
-                              fontSize: 13,
-                              cursor: o.disabled ? "default" : "pointer",
-                              border: `2px solid ${INK}`,
-                              padding: "8px 13px",
-                              borderRadius: 9,
-                              background: o.bg,
-                              color: o.fg,
-                              opacity: o.op,
-                            }}
-                          >
-                            {o.label}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* sur quoi porte le vote + propositions/créneaux */}
-          <div style={cardStyle}>
             {/* Sur quoi porte le vote : des propositions, ou des dates (façon Doodle) */}
-            <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", margin: "0 0 10px" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", margin: "18px 0 10px" }}>
               <span style={{ fontFamily: FONT_BODY, fontWeight: 600, fontSize: 14, color: INK }}>On vote sur…</span>
               <div style={{ display: "flex", gap: 8 }}>
                 {([
@@ -538,6 +471,69 @@ export default function CreateScreen({ ctrl }: { ctrl: ScrutinController }) {
               <span style={{ color: INK, fontWeight: 700 }}>✨ Une IA peut proposer titres, options et illustrations</span>{" "}
               — voir « Préparer avec une IA ».
             </div>
+          </div>
+
+          {/* méthode : 4 phares visibles, le reste dépliable (après les options) */}
+          <div style={cardStyle}>
+            <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 18 }}>La méthode</div>
+            <div style={{ fontSize: 12.5, color: MUTED, margin: "4px 0 12px", lineHeight: 1.4 }}>
+              Comment départage-t-on les voix ? Modifiable à tout moment.
+            </div>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>{MAIN_METHODS.map(methodChip)}</div>
+            <button
+              onClick={() => setMethodOpen((o) => !o)}
+              style={{
+                marginTop: 12,
+                background: "none",
+                border: "none",
+                fontFamily: FONT_BODY,
+                fontWeight: 700,
+                fontSize: 13.5,
+                color: CORAL,
+                cursor: "pointer",
+                padding: 0,
+              }}
+            >
+              {methodOpen ? "▲ Masquer les autres méthodes & réglages" : "▾ Autres méthodes & réglages avancés"}
+            </button>
+            {methodOpen && (
+              <div style={{ marginTop: 14 }}>
+                {otherMethods.length > 0 && (
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 18 }}>{otherMethods.map(methodChip)}</div>
+                )}
+                <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
+                  {axes.map((axis) => (
+                    <div key={axis.key}>
+                      <div style={{ fontWeight: 700, fontSize: 13.5, marginBottom: 3 }}>{axis.label}</div>
+                      <div style={{ fontSize: 12.5, color: MUTED, marginBottom: 9, lineHeight: 1.35 }}>{axis.hint}</div>
+                      <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+                        {axis.options.map((o, j) => (
+                          <button
+                            key={j}
+                            onClick={o.onClick}
+                            disabled={o.disabled}
+                            style={{
+                              fontFamily: FONT_BODY,
+                              fontWeight: 600,
+                              fontSize: 13,
+                              cursor: o.disabled ? "default" : "pointer",
+                              border: `2px solid ${INK}`,
+                              padding: "8px 13px",
+                              borderRadius: 9,
+                              background: o.bg,
+                              color: o.fg,
+                              opacity: o.op,
+                            }}
+                          >
+                            {o.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
 
           <ClosureLine ctrl={ctrl} />
