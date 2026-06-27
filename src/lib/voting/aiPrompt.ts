@@ -15,18 +15,21 @@ export function buildAiPrompt(question: string, options: Option[], source: strin
   const proposal = `Une fois que tu as compris ma décision, propose :
 - un titre court et clair ;
 - si le contexte aide à voter (lieu, budget, échéance…), un court descriptif facultatif ;
-- 2 à 8 options (reformule/fusionne si besoin), avec un emoji par option ;
-- facultatif : pour une option, une URL d'illustration http(s) (image, vidéo, document) qui aide à choisir ;
-- si la décision porte sur un MOMENT (« quand ? » : réunion, dîner, sortie…), n'utilise PAS "options" mais "dates" : la liste des créneaux candidats au format ISO/datetime-local (ex. 2026-07-12T20:00), et choisis l'approbation (chacun coche tous les créneaux qui lui conviennent — le plus disponible gagne) ;
-- UNE méthode de vote parmi : ${methods} — et une phrase expliquant POURQUOI elle convient à CE cas (pour un vote de dates, uniquement des méthodes à gagnant unique : approbation de préférence, ou majoritaire/condorcet/jugement majoritaire/borda — jamais proportional, list ni grand_electors) ;
-- une URL Suffrage prête à ouvrir, au format (remplace les valeurs, n'utilise pas cet exemple tel quel) :
-${APP_URL}/new?title=...&description=...&options=Option1|Option2|Option3&media=url1||url3&method=...&source=${source}&why=...
-Variante « dates » (un vote de créneaux : remplace options/media par dates) :
-${APP_URL}/new?title=...&description=...&dates=2026-07-12T20:00|2026-07-13T12:30&method=approval&source=${source}&why=...
+- 2 à 8 options (reformule/fusionne si besoin) ; commence CHAQUE option par un emoji pertinent — ex. "🍕 Italien" — l'app en fera l'icône ;
+- si la décision porte sur un MOMENT (« quand ? » : réunion, dîner, sortie…), utilise "dates" au lieu de "options" : les créneaux candidats au format ISO (ex. 2026-07-12T20:00), et choisis l'approbation (chacun coche ce qui lui convient — le plus disponible gagne) ;
+- UNE méthode parmi : ${methods} — et une phrase expliquant POURQUOI (pour un vote de dates : uniquement gagnant unique — approbation de préférence, sinon majoritaire/condorcet/jugement majoritaire/borda ; jamais proportional, list ni grand_electors).
 
-Le paramètre "media" est facultatif : une URL par option, dans le MÊME ordre que "options", séparées par | (laisse vide une option sans illustration). Le paramètre "dates" remplace "options" pour un vote de créneaux. Encode correctement les valeurs pour l'URL, mets ta justification dans le paramètre "why", et n'inclus aucune donnée sensible (e-mails, identifiants…).
+Images : FACULTATIVES. N'ajoute "media" QUE si tu disposes de vraies URLs d'images fiables et stables — ne les invente jamais ; dans le doute, n'en mets pas (l'utilisateur les ajoutera dans l'app).
 
-Si tu peux faire des requêtes HTTP, tu peux aussi appeler POST ${APP_URL}/api/poll-drafts avec { title, description, options (OU dates pour des créneaux), media, method, deadline, source, why } (media = URLs alignées sur options ; dates = créneaux ISO) : il renverra { draft_url }.`;
+Construis ensuite l'URL Suffrage et PRÉSENTE-LA COMME UN LIEN CLIQUABLE (lien markdown avec un libellé clair, ex. « 👉 Ouvrir le brouillon de vote »), jamais l'URL brute en entier. Garde-la aussi COURTE que possible. Format (remplace les valeurs) :
+${APP_URL}/new?title=...&description=...&options=🍕 Italien|🍣 Japonais&method=...&source=${source}&why=...
+Vote de créneaux (remplace "options" par "dates") :
+${APP_URL}/new?title=...&dates=2026-07-12T20:00|2026-07-13T12:30&method=approval&source=${source}&why=...
+Images, seulement si fiables : ajoute &media=urlOption1||urlOption3 (une URL par option, même ordre, vide si aucune).
+
+Encode correctement les valeurs, mets ta justification dans "why", n'inclus aucune donnée sensible (e-mails, identifiants…).
+
+Si tu peux faire des requêtes HTTP, PRÉFÈRE POST ${APP_URL}/api/poll-drafts avec { title, description, options (ou dates), media, method, deadline, source, why } : il renvoie { draft_url } (recommandé dès qu'il y a des images ou une longue liste — ça évite une URL trop longue). Présente ce draft_url comme un lien cliquable.`;
 
   if (!hasContext) {
     // Lancement « à froid » (rail d'accueil) : aucun sujet connu.

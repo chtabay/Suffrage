@@ -96,6 +96,9 @@ export default function BallotCard({
           src={url}
           alt=""
           onClick={open}
+          onError={(e) => {
+            e.currentTarget.style.display = "none";
+          }}
           style={{
             width: 40,
             height: 40,

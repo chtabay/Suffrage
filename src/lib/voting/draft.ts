@@ -6,6 +6,13 @@ import type { Option, Recipe } from "./types";
 
 const DRAFT_ICONS = ["📌", "⭐", "🔥", "🌟", "🎯", "🎪", "🎨", "🍀", "🌈", "🚀", "🎲", "🧭"];
 
+// Emoji de tête d'un libellé d'option (« 🍕 Italien » → icône 🍕 + nom « Italien »).
+const LEADING_EMOJI = /^(\p{Extended_Pictographic}(?:‍\p{Extended_Pictographic})*️?)\s+(.+)$/u;
+function splitLeadingEmoji(label: string, fallbackIcon: string): { icon: string; name: string } {
+  const m = label.match(LEADING_EMOJI);
+  return m ? { icon: m[1], name: m[2].trim() } : { icon: fallbackIcon, name: label };
+}
+
 export interface ScrutinDraft {
   question?: string;
   description?: string;
@@ -74,7 +81,10 @@ export function parseDraft(params: RawParams): ScrutinDraft {
         .filter(Boolean)
         .slice(0, 12);
       if (names.length >= 2) {
-        draft.options = names.map((name, i) => ({ icon: DRAFT_ICONS[i % DRAFT_ICONS.length], name: name.slice(0, 80) }));
+        draft.options = names.map((raw, i) => {
+          const { icon, name } = splitLeadingEmoji(raw, DRAFT_ICONS[i % DRAFT_ICONS.length]);
+          return { icon, name: name.slice(0, 80) };
+        });
       }
     }
 
