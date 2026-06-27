@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { Metadata } from "next";
+import SlackMark from "@/components/SlackMark";
 
 export const metadata: Metadata = {
   title: "Placet pour Slack — créez des votes dans vos canaux",
@@ -51,15 +52,26 @@ export default function SlackInstallPage() {
 
         <div style={{ marginTop: 26 }}>
           {clientId ? (
-            <a href={installUrl} aria-label="Ajouter Placet à Slack">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                alt="Add to Slack"
-                height="48"
-                width="172"
-                src="https://platform.slack-edge.com/img/add_to_slack.png"
-                srcSet="https://platform.slack-edge.com/img/add_to_slack.png 1x, https://platform.slack-edge.com/img/add_to_slack@2x.png 2x"
-              />
+            <a
+              href={installUrl}
+              aria-label="Ajouter Placet à Slack"
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 11,
+                fontFamily: display,
+                fontWeight: 800,
+                fontSize: 16,
+                textDecoration: "none",
+                border: `2.5px solid ${INK}`,
+                background: "#fff",
+                color: INK,
+                padding: "13px 22px",
+                borderRadius: 13,
+                boxShadow: `5px 5px 0 ${INK}`,
+              }}
+            >
+              <SlackMark size={22} /> Ajouter à Slack
             </a>
           ) : (
             <p style={{ color: "#FF5E5B", fontWeight: 700 }}>Installation indisponible (configuration en cours).</p>
