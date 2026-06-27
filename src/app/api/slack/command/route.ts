@@ -3,7 +3,7 @@
 // message est posté via l'API Web pour pouvoir être édité ensuite).
 import { NextResponse } from "next/server";
 import { verifySlackSignature, parseCommand } from "@/lib/slack/verify";
-import { createBuilder, getBuilder, setBuilderMessage, addOption } from "@/lib/slack/store";
+import { createBuilder, getBuilder, setBuilderMessage, addOption, botTokenForTeam } from "@/lib/slack/store";
 import { builderMessage, helpMessage } from "@/lib/slack/blocks";
 import { postMessage } from "@/lib/slack/api";
 import { splitLeadingEmoji } from "@/lib/voting/draft";
@@ -56,7 +56,8 @@ export async function POST(req: Request) {
   if (!b) return ephemeral("⚠️ Erreur interne. Réessaie dans un instant.");
 
   const { blocks, text } = builderMessage(b);
-  const ts = await postMessage(cmd.channel_id, blocks, text);
+  const token = await botTokenForTeam(cmd.team_id);
+  const ts = await postMessage(token, cmd.channel_id, blocks, text);
   if (!ts) {
     return ephemeral("⚠️ Je n'ai pas pu poster dans ce canal. Invite l'app dans le canal, puis relance `/scrutin`.");
   }

@@ -5,7 +5,7 @@ import { getPollShareInfo } from "@/lib/db/pollMeta";
 import { APP_URL } from "@/lib/voting/aiPrompt";
 import { postMessage } from "./api";
 import { resultMessage } from "./blocks";
-import { linkForToken, markPosted } from "./store";
+import { botTokenForTeam, linkForToken, markPosted } from "./store";
 
 export async function postSlackResult(token: string): Promise<void> {
   try {
@@ -15,7 +15,8 @@ export async function postSlackResult(token: string): Promise<void> {
     const info = await getPollShareInfo(token, { fresh: true });
     if (!info) return;
     const m = resultMessage(info.question, info.methodName, info.winner, info.ballotCount, `${APP_URL}/v/${token}`);
-    await postMessage(link.channel_id, m.blocks, m.text);
+    const bot = await botTokenForTeam(link.team_id);
+    await postMessage(bot, link.channel_id, m.blocks, m.text);
   } catch {
     /* best effort */
   }

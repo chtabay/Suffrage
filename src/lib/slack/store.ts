@@ -1,6 +1,8 @@
 // Accès serveur à l'état des votes Slack (table scrutin_slack_polls) via les RPC
 // SECURITY DEFINER guardées par NOTIFY_SECRET. Même modèle que push.ts : aucune
 // clé service-role sur la base OpenSM partagée. À n'importer que côté serveur.
+import { decryptToken } from "./crypto";
+
 const SECRET = process.env.NOTIFY_SECRET;
 const BASE = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -114,4 +116,36 @@ export async function linkForToken(token: string): Promise<SlackLink | null> {
 /** Marque le résultat comme posté dans Slack (dédup) ; vrai si c'était la 1re fois. */
 export function markPosted(token: string): Promise<boolean | null> {
   return rpc<boolean>("slack_mark_posted", { p_token: token });
+}
+
+// ---------- installs multi-workspace (OAuth) ----------
+
+/** Enregistre/MAJ l'install d'un workspace (bot token déjà chiffré). */
+export async function setInstall(
+  team: string,
+  encToken: string,
+  teamName: string | null,
+  installer: string | null,
+): Promise<void> {
+  await rpc("slack_install_set", {
+    p_team: team,
+    p_token: encToken,
+    p_team_name: teamName,
+    p_installer: installer,
+  });
+}
+
+/**
+ * Bot token à utiliser pour un workspace : l'install chiffrée en base (déchiffrée),
+ * sinon `SLACK_BOT_TOKEN` (espace « maison » installé manuellement). Null si rien.
+ */
+export async function botTokenForTeam(team: string | null | undefined): Promise<string | null> {
+  if (team) {
+    const enc = await rpc<string>("slack_install_get", { p_team: team });
+    if (enc) {
+      const tok = decryptToken(enc);
+      if (tok) return tok;
+    }
+  }
+  return process.env.SLACK_BOT_TOKEN ?? null;
 }
