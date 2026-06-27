@@ -1,12 +1,14 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import type { AuthController } from "@/lib/auth/useAuth";
 import type { ScrutinController } from "@/lib/voting/useScrutin";
 import { CORAL, CREAM, FONT_BODY, FONT_DISPLAY, GREEN, INK, YELLOW, lift } from "./theme";
 
 export default function Nav({ ctrl, auth }: { ctrl: ScrutinController; auth: AuthController }) {
   const { go } = ctrl;
+  const t = useTranslations("Nav");
   const [open, setOpen] = useState(false);
   // Toute action ferme le menu mobile.
   const act = (fn: () => void) => () => {
@@ -97,10 +99,10 @@ export default function Nav({ ctrl, auth }: { ctrl: ScrutinController; auth: Aut
 
         <div className={`nav-links${open ? " open" : ""}`}>
           <button onClick={act(() => go("mine"))} className="dc-paper" style={secondary}>
-            Mes scrutins
+            {t("myPolls")}
           </button>
           <button onClick={act(() => go("gallery"))} className="dc-paper" style={secondary}>
-            Les méthodes
+            {t("methods")}
           </button>
           <button
             onClick={act(() => go("create"))}
@@ -118,7 +120,7 @@ export default function Nav({ ctrl, auth }: { ctrl: ScrutinController; auth: Aut
               ...lift(`3px 3px 0 ${INK}`, `4px 4px 0 ${INK}`),
             }}
           >
-            Créer un vote
+            {t("create")}
           </button>
           {!auth.loading &&
             (auth.user ? (
@@ -129,11 +131,11 @@ export default function Nav({ ctrl, auth }: { ctrl: ScrutinController; auth: Aut
                 style={{ ...secondary, display: "flex", alignItems: "center", justifyContent: "center", gap: 7 }}
               >
                 <span style={{ width: 8, height: 8, borderRadius: "50%", background: GREEN, display: "inline-block" }} />
-                Déconnexion
+                {t("signOut")}
               </button>
             ) : (
               <button onClick={act(auth.signIn)} className="dc-paper" style={secondary}>
-                Se connecter
+                {t("signIn")}
               </button>
             ))}
         </div>

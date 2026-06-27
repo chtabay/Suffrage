@@ -1,35 +1,19 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import { SYSTEMS } from "@/lib/voting/systems";
 import type { ScrutinController } from "@/lib/voting/useScrutin";
 import AiSideRail from "./AiSideRail";
 import AiHelper from "./AiHelper";
 import SlackMark from "@/components/SlackMark";
 import { Link } from "@/i18n/navigation";
-import { CORAL, FONT_BODY, FONT_DISPLAY, GREEN, INK, MUTED, PAPER, SUBINK, lift } from "./theme";
+import { CORAL, FONT_DISPLAY, GREEN, INK, MUTED, PAPER, SUBINK, lift } from "./theme";
 
 // 4 méthodes mises en avant (spectre représentatif) ; les 10 restent dans la galerie.
 const HOME_METHODS = ["fptp", "approval", "mj", "condorcet"];
 
 const STEP_COLORS = ["#FF5E5B", "#5B5BD6", "#17B8A6"];
-const STEPS = [
-  {
-    label: "ÉTAPE 1",
-    title: "Posez la question",
-    text: "« On part où en week-end ? » Ajoutez vos options, comme un sondage entre amis.",
-  },
-  {
-    label: "ÉTAPE 2",
-    title: "Réglez le scrutin",
-    text: "Suffrage, nombre de tours, décompte, part d'aléatoire… avec les avantages et défauts en direct.",
-  },
-  {
-    label: "ÉTAPE 3",
-    title: "Votez & dépouillez",
-    text: "Chacun vote, le gagnant est calculé selon la vraie méthode — et on vous explique pourquoi.",
-  },
-];
 
 /**
  * Accueil décroissant : mode « pédagogie » pour un nouveau visiteur, ses 3
@@ -56,6 +40,7 @@ function useHomeMode(): "learn" | "lean" {
 
 export default function HomeScreen({ ctrl }: { ctrl: ScrutinController }) {
   const { go, selectSystemRecipe } = ctrl;
+  const t = useTranslations("Home");
   const learn = useHomeMode() === "learn";
 
   return (
@@ -80,7 +65,7 @@ export default function HomeScreen({ ctrl }: { ctrl: ScrutinController }) {
             }}
           >
             <span style={{ width: 9, height: 9, borderRadius: "50%", background: GREEN, display: "inline-block" }} />
-            Décider à plusieurs, simplement
+            {t("badge")}
           </div>
         )}
         <h1
@@ -95,7 +80,7 @@ export default function HomeScreen({ ctrl }: { ctrl: ScrutinController }) {
             maxWidth: "14ch",
           }}
         >
-          Votez vraiment <span style={{ color: CORAL }}>comme il faut.</span>
+          {t("heroA")} <span style={{ color: CORAL }}>{t("heroB")}</span>
         </h1>
         {learn && (
           <p
@@ -107,8 +92,7 @@ export default function HomeScreen({ ctrl }: { ctrl: ScrutinController }) {
               color: SUBINK,
             }}
           >
-            Choisissez la méthode de vote adaptée à votre décision, lancez le scrutin et partagez-le
-            en deux clics. Le gagnant est calculé selon ses règles exactes — pas un sondage de plus.
+            {t("subtitle")}
           </p>
         )}
         <div style={{ marginTop: learn ? 32 : 18 }}>
@@ -128,7 +112,7 @@ export default function HomeScreen({ ctrl }: { ctrl: ScrutinController }) {
               ...lift(`5px 5px 0 ${INK}`, `7px 7px 0 ${INK}`),
             }}
           >
-            Créer mon vote →
+            {t("createCta")}
           </button>
         </div>
       </div>
@@ -136,7 +120,7 @@ export default function HomeScreen({ ctrl }: { ctrl: ScrutinController }) {
       {/* 4 méthodes phares — remontées pour être visibles dès la première page */}
       <div style={{ marginTop: learn ? 40 : 26 }}>
         <h2 style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: learn ? 30 : 23, letterSpacing: "-0.02em", margin: 0 }}>
-          {learn ? "Il n'y a pas qu'une façon de désigner un gagnant" : "Choisir une méthode"}
+          {learn ? t("methodsTitleLearn") : t("methodsTitleLean")}
         </h2>
         <div
           style={{
@@ -221,7 +205,7 @@ export default function HomeScreen({ ctrl }: { ctrl: ScrutinController }) {
             ...lift(`4px 4px 0 ${INK}`, `6px 6px 0 ${INK}`),
           }}
         >
-          Comparer les 10 méthodes →
+          {t("compareCta")}
         </button>
       </div>
 
@@ -235,9 +219,9 @@ export default function HomeScreen({ ctrl }: { ctrl: ScrutinController }) {
             marginTop: 56,
           }}
         >
-          {STEPS.map((step, i) => (
+          {[1, 2, 3].map((n, i) => (
             <div
-              key={i}
+              key={n}
               style={{
                 background: PAPER,
                 border: `2.5px solid ${INK}`,
@@ -249,12 +233,12 @@ export default function HomeScreen({ ctrl }: { ctrl: ScrutinController }) {
               }}
             >
               <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 15, color: STEP_COLORS[i] }}>
-                {step.label}
+                {t(`steps.s${n}Label`)}
               </div>
               <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 700, fontSize: 21, marginTop: 6 }}>
-                {step.title}
+                {t(`steps.s${n}Title`)}
               </div>
-              <div style={{ color: SUBINK, marginTop: 6, lineHeight: 1.45, fontSize: 14.5 }}>{step.text}</div>
+              <div style={{ color: SUBINK, marginTop: 6, lineHeight: 1.45, fontSize: 14.5 }}>{t(`steps.s${n}Text`)}</div>
             </div>
           ))}
         </div>
@@ -279,8 +263,7 @@ export default function HomeScreen({ ctrl }: { ctrl: ScrutinController }) {
         }}
       >
         <div style={{ fontSize: 14, color: SUBINK, lineHeight: 1.5, maxWidth: "46ch" }}>
-          <strong style={{ color: INK }}>Aussi dans Slack.</strong> Lancez un vote sans quitter vos canaux —{" "}
-          <code style={{ fontFamily: FONT_BODY }}>/scrutin</code>, on vote sur le web, le résultat revient dans le canal.
+          <strong style={{ color: INK }}>{t("slackTitle")}</strong> {t("slackText")}
         </div>
         <Link
           href="/slack"
@@ -302,7 +285,7 @@ export default function HomeScreen({ ctrl }: { ctrl: ScrutinController }) {
             ...lift(`4px 4px 0 ${INK}`, `6px 6px 0 ${INK}`),
           }}
         >
-          <SlackMark /> Ajouter à Slack
+          <SlackMark /> {t("slackCta")}
         </Link>
       </div>
     </div>

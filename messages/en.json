@@ -17,6 +17,17 @@
     "compareCta": "Compare all 10 methods →",
     "slackTitle": "Also in Slack.",
     "slackText": "Launch a vote without leaving your channels — /scrutin, everyone votes on the web, the result comes back to the channel.",
-    "slackCta": "Add to Slack"
+    "slackCta": "Add to Slack",
+    "steps": {
+      "s1Label": "STEP 1",
+      "s1Title": "Ask the question",
+      "s1Text": "« Where should we go this weekend? » Add your options, like a poll among friends.",
+      "s2Label": "STEP 2",
+      "s2Title": "Tune the method",
+      "s2Text": "Suffrage, rounds, tally, randomness… with pros and cons shown live.",
+      "s3Label": "STEP 3",
+      "s3Title": "Vote & count",
+      "s3Text": "Everyone votes, the winner is computed by the real method — and we explain why."
+    }
   }
 }

@@ -17,6 +17,17 @@
     "compareCta": "Comparer les 10 méthodes →",
     "slackTitle": "Aussi dans Slack.",
     "slackText": "Lancez un vote sans quitter vos canaux — /scrutin, on vote sur le web, le résultat revient dans le canal.",
-    "slackCta": "Ajouter à Slack"
+    "slackCta": "Ajouter à Slack",
+    "steps": {
+      "s1Label": "ÉTAPE 1",
+      "s1Title": "Posez la question",
+      "s1Text": "« On part où en week-end ? » Ajoutez vos options, comme un sondage entre amis.",
+      "s2Label": "ÉTAPE 2",
+      "s2Title": "Réglez le scrutin",
+      "s2Text": "Suffrage, nombre de tours, décompte, part d'aléatoire… avec les avantages et défauts en direct.",
+      "s3Label": "ÉTAPE 3",
+      "s3Title": "Votez & dépouillez",
+      "s3Text": "Chacun vote, le gagnant est calculé selon la vraie méthode — et on vous explique pourquoi."
+    }
   }
 }
