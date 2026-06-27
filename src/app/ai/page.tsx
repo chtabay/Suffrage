@@ -83,6 +83,41 @@ export default function AiDocPage() {
           puis lance. Aucune authentification n&apos;est requise pour produire ce lien.
         </p>
 
+        <div
+          style={{
+            ...card,
+            marginTop: 18,
+            display: "flex",
+            flexWrap: "wrap",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: 14,
+          }}
+        >
+          <div style={{ fontSize: 14.5, color: "#2c3447", lineHeight: 1.55, maxWidth: "52ch" }}>
+            <strong>💬 Aussi dans Slack.</strong> Lance un vote sans quitter tes canaux :{" "}
+            <code style={{ fontFamily: mono }}>/scrutin</code> construit le vote, on vote sur le web, le résultat
+            revient dans le canal.
+          </div>
+          <a
+            href="/slack"
+            style={{
+              flex: "none",
+              fontWeight: 800,
+              fontSize: 14.5,
+              textDecoration: "none",
+              border: `2.5px solid ${INK}`,
+              background: "#fff",
+              color: INK,
+              padding: "10px 16px",
+              borderRadius: 11,
+              boxShadow: `3px 3px 0 ${INK}`,
+            }}
+          >
+            Ajouter à Slack →
+          </a>
+        </div>
+
         <h2 style={{ fontFamily: display, fontWeight: 800, fontSize: 24, marginTop: 34 }}>Format du lien</h2>
         <div style={{ ...card, marginTop: 12 }}>
           <code style={code}>
