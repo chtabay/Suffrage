@@ -19,17 +19,15 @@ export function buildAiPrompt(question: string, options: Option[], source: strin
 - si la décision porte sur un MOMENT (« quand ? » : réunion, dîner, sortie…), utilise "dates" au lieu de "options" : les créneaux candidats au format ISO (ex. 2026-07-12T20:00), et choisis l'approbation (chacun coche ce qui lui convient — le plus disponible gagne) ;
 - UNE méthode parmi : ${methods} — et une phrase expliquant POURQUOI (pour un vote de dates : uniquement gagnant unique — approbation de préférence, sinon majoritaire/condorcet/jugement majoritaire/borda ; jamais proportional, list ni grand_electors).
 
-Images : FACULTATIVES. N'ajoute "media" QUE si tu disposes de vraies URLs d'images fiables et stables — ne les invente jamais ; dans le doute, n'en mets pas (l'utilisateur les ajoutera dans l'app).
-
-Construis ensuite l'URL Suffrage et PRÉSENTE-LA COMME UN LIEN CLIQUABLE (lien markdown avec un libellé clair, ex. « 👉 Ouvrir le brouillon de vote »), jamais l'URL brute en entier. Garde-la aussi COURTE que possible. Format (remplace les valeurs) :
+Construis ensuite l'URL Suffrage ci-dessous et PRÉSENTE-LA COMME UN LIEN CLIQUABLE (lien markdown avec un libellé clair, ex. « 👉 Ouvrir le brouillon de vote »), jamais l'URL brute en entier. Garde-la COURTE.
 ${APP_URL}/new?title=...&description=...&options=🍕 Italien|🍣 Japonais&method=...&source=${source}&why=...
 Vote de créneaux (remplace "options" par "dates") :
 ${APP_URL}/new?title=...&dates=2026-07-12T20:00|2026-07-13T12:30&method=approval&source=${source}&why=...
-Images, seulement si fiables : ajoute &media=urlOption1||urlOption3 (une URL par option, même ordre, vide si aucune).
-
 Encode correctement les valeurs, mets ta justification dans "why", n'inclus aucune donnée sensible (e-mails, identifiants…).
 
-Si tu peux faire des requêtes HTTP, PRÉFÈRE POST ${APP_URL}/api/poll-drafts avec { title, description, options (ou dates), media, method, deadline, source, why } : il renvoie { draft_url } (recommandé dès qu'il y a des images ou une longue liste — ça évite une URL trop longue). Présente ce draft_url comme un lien cliquable.`;
+Images : NE LES METS PAS dans le lien (ça l'allonge et casse souvent). Dis simplement à l'utilisateur qu'il pourra ajouter une image par option dans l'app (bouton 🔗).
+
+Ce lien /new fonctionne PARTOUT, y compris dans ChatGPT, Claude ou Gemini : c'est ta sortie par défaut. UNIQUEMENT si tu peux réellement faire des requêtes HTTP (agent, GPT à « Actions », MCP — un simple chat ne le peut pas), tu peux à la place POST ${APP_URL}/api/poll-drafts avec { title, description, options (ou dates), media, method, deadline, source, why } et présenter le { draft_url } reçu comme lien cliquable. Dans le doute, donne le lien /new.`;
 
   if (!hasContext) {
     // Lancement « à froid » (rail d'accueil) : aucun sujet connu.
