@@ -66,6 +66,13 @@ export default function LivretVote({ token }: { token: string }) {
     load();
   }, [load]);
 
+  // Mode live : on rafraîchit pour suivre la résolution ouverte par l'organisateur.
+  useEffect(() => {
+    if (ctx?.event.mode !== "live" || ctx.event.status !== "open") return;
+    const id = setInterval(() => load(), 4000);
+    return () => clearInterval(id);
+  }, [ctx?.event.mode, ctx?.event.status, load]);
+
   const setD = (rt: string, fn: (d: BallotDraft) => BallotDraft) =>
     setDrafts((all) => ({ ...all, [rt]: fn(all[rt] ?? EMPTY_DRAFT) }));
 
@@ -147,7 +154,7 @@ export default function LivretVote({ token }: { token: string }) {
       <div style={{ display: "flex", flexDirection: "column", gap: 16, marginTop: 16 }}>
         {ctx.resolutions.map((res, idx) => {
           const isVoted = voted.has(res.token);
-          const liveLocked = ev.mode === "live" && ev.current_poll_id != null && ev.current_poll_id !== res.token;
+          const liveLocked = ev.mode === "live" && ev.current_poll_id != null && ev.current_poll_id !== res.id;
           const locked = ev.status !== "open" || res.status === "closed";
           const mode = methodMode(operativeMethod(res.recipe));
           const color = describeRecipe(res.recipe).color;
@@ -166,10 +173,10 @@ export default function LivretVote({ token }: { token: string }) {
                   <span style={{ width: 24, height: 24, borderRadius: "50%", background: GREEN, color: "#fff", display: "inline-flex", alignItems: "center", justifyContent: "center", fontWeight: 800 }}>✓</span>
                   {t("voted")}
                 </div>
-              ) : liveLocked ? (
-                <div style={{ marginTop: 14, color: MUTED, fontWeight: 600 }}>🔒 {t("upcoming")}</div>
               ) : locked ? (
                 <div style={{ marginTop: 14, color: MUTED, fontWeight: 600 }}>{t("resClosed")}</div>
+              ) : liveLocked ? (
+                <div style={{ marginTop: 14, color: MUTED, fontWeight: 600 }}>🔒 {t("upcoming")}</div>
               ) : (
                 <div style={{ marginTop: 14 }}>
                   <BallotCard

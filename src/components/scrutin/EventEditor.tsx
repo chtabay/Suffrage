@@ -7,12 +7,14 @@ import { useAuth } from "@/lib/auth/useAuth";
 import {
   addResolution,
   convene,
+  countResolutionVotes,
   deleteEvent,
   getEvent,
   listConvened,
   listMembers,
   listResolutions,
   removeResolution,
+  setResolutionStatus,
   updateEvent,
   type EventMember,
   type EventRow,
@@ -70,6 +72,7 @@ export default function EventEditor({ eventId }: { eventId: string }) {
   const [capInput, setCapInput] = useState("");
   const [majority, setMajority] = useState(50);
   const [quorumInput, setQuorumInput] = useState("");
+  const [liveCount, setLiveCount] = useState(0);
 
   const load = useCallback(async () => {
     if (!user) return;
@@ -87,6 +90,27 @@ export default function EventEditor({ eventId }: { eventId: string }) {
   useEffect(() => {
     load();
   }, [load]);
+
+  // Suivi live : compte les votes de la résolution active toutes les 4 s.
+  useEffect(() => {
+    if (ev?.mode !== "live" || ev.status !== "open" || !ev.current_poll_id) return;
+    const pid = ev.current_poll_id;
+    let cancel = false;
+    const tick = async () => {
+      try {
+        const n = await countResolutionVotes(pid);
+        if (!cancel) setLiveCount(n);
+      } catch {
+        /* noop */
+      }
+    };
+    tick();
+    const id = setInterval(tick, 4000);
+    return () => {
+      cancel = true;
+      clearInterval(id);
+    };
+  }, [ev?.mode, ev?.status, ev?.current_poll_id]);
 
   const setOpt = (i: number, v: string) => setOpts((a) => a.map((o, j) => (j === i ? v : o)));
   const addOpt = () => setOpts((a) => (a.length < 8 ? [...a, ""] : a));
@@ -137,6 +161,23 @@ export default function EventEditor({ eventId }: { eventId: string }) {
   const setStatus = async (status: "draft" | "open" | "closed") => {
     await updateEvent(eventId, { status });
     setEv((e) => (e ? { ...e, status } : e));
+  };
+
+  const setMode = async (mode: "async" | "live") => {
+    await updateEvent(eventId, { mode });
+    setEv((e) => (e ? { ...e, mode } : e));
+  };
+
+  // Pilotage live : ouvre une résolution (la rend active) ou la clôture.
+  const openLive = async (pollId: string) => {
+    await updateEvent(eventId, { current_poll_id: pollId });
+    setEv((e) => (e ? { ...e, current_poll_id: pollId } : e));
+  };
+  const closeLive = async (pollId: string) => {
+    await setResolutionStatus(pollId, "closed");
+    await updateEvent(eventId, { current_poll_id: null });
+    setResolutions((l) => l.map((r) => (r.id === pollId ? { ...r, status: "closed" } : r)));
+    setEv((e) => (e ? { ...e, current_poll_id: null } : e));
   };
 
   const onDelete = async () => {
@@ -220,9 +261,23 @@ export default function EventEditor({ eventId }: { eventId: string }) {
       <div style={{ display: "flex", alignItems: "center", gap: 12, margin: "10px 0 0", flexWrap: "wrap" }}>
         <h1 style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: "clamp(24px,5vw,34px)", letterSpacing: "-0.03em", margin: 0 }}>{ev.title}</h1>
         <span style={{ fontSize: 12, fontWeight: 800, color: "#fff", background: ev.status === "open" ? GREEN : INK, padding: "5px 11px", borderRadius: 20, textTransform: "uppercase", letterSpacing: "0.04em" }}>{t(statusKey)}</span>
+        <span style={{ fontSize: 12, fontWeight: 800, color: INK, background: "#FFE08A", padding: "5px 11px", borderRadius: 20, textTransform: "uppercase", letterSpacing: "0.04em" }}>{t(ev.mode === "live" ? "modeLive" : "modeAsync")}</span>
       </div>
 
       {ev.status === "draft" && <div style={{ ...card, marginTop: 16, background: "#fff4e0" }}>{t("draftHint")}</div>}
+      {ev.status === "draft" && (
+        <div style={{ ...card, marginTop: 16 }}>
+          <div style={{ fontWeight: 700, fontSize: 13, color: SUBINK, marginBottom: 8 }}>{t("modeLabel")}</div>
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+            {(["async", "live"] as const).map((m) => (
+              <button key={m} onClick={() => setMode(m)} style={btn(ev.mode === m ? INK : "#fff", ev.mode === m ? "#fff" : INK)}>
+                {t(m === "live" ? "modeLive" : "modeAsync")}
+              </button>
+            ))}
+          </div>
+          <div style={{ fontSize: 12.5, color: MUTED, marginTop: 9 }}>{t(ev.mode === "live" ? "modeLiveHint" : "modeAsyncHint")}</div>
+        </div>
+      )}
       {ev.status === "closed" && <div style={{ ...card, marginTop: 16, background: "#e7f6ec", borderColor: GREEN }}>{t("closedBanner")}</div>}
 
       {/* ---- Résolutions ---- */}
@@ -299,6 +354,37 @@ export default function EventEditor({ eventId }: { eventId: string }) {
           </div>
         )}
       </div>
+
+      {/* ---- Pupitre live ---- */}
+      {ev.mode === "live" && ev.status === "open" && (
+        <div style={{ ...card, marginTop: 16, borderColor: GREEN, boxShadow: `5px 5px 0 ${GREEN}` }}>
+          <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 19 }}>{t("liveTitle")}</div>
+          <div style={{ fontSize: 12.5, color: MUTED, margin: "6px 0 12px" }}>{t("liveHint")}</div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+            {!resolutions.length && <div style={{ color: MUTED, fontSize: 14 }}>{t("noResolutions")}</div>}
+            {resolutions.map((r, i) => {
+              const active = ev.current_poll_id === r.id;
+              const closed = r.status === "closed";
+              return (
+                <div key={r.id} style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", background: active ? "#e7f6ec" : CREAM, border: `2px solid ${active ? GREEN : INK}`, borderRadius: 11, padding: "10px 13px" }}>
+                  <span style={{ fontWeight: 800, color: SUBINK, fontSize: 13 }}>{i + 1}</span>
+                  <span style={{ fontWeight: 700, fontSize: 14.5, flex: 1, minWidth: 140 }}>{r.question}</span>
+                  {closed ? (
+                    <span style={{ fontSize: 12, fontWeight: 800, color: SUBINK }}>{t("liveClosed")}</span>
+                  ) : active ? (
+                    <>
+                      <span style={{ fontSize: 12.5, fontWeight: 800, color: GREEN }}>🔴 {t("participation", { voted: liveCount, total: convened.length })}</span>
+                      <button onClick={() => closeLive(r.id)} style={btn(INK, "#fff")}>{t("liveClose")}</button>
+                    </>
+                  ) : (
+                    <button onClick={() => openLive(r.id)} style={btn(GREEN, "#fff")}>{t("liveOpen")}</button>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {/* ---- Convocation ---- */}
       <div style={{ ...card, marginTop: 16 }}>

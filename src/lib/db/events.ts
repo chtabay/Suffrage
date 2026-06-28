@@ -96,6 +96,7 @@ export interface EventContext {
   };
   member: { name: string };
   resolutions: {
+    id: string;
     token: string;
     question: string;
     description: string | null;
@@ -459,6 +460,17 @@ export async function castEventBallot(
 }
 
 // ---------------------------------------------------------------- résultats (lecture pondérée)
+
+/** Nombre de bulletins déposés pour une résolution (léger, pour le suivi live). */
+export async function countResolutionVotes(pollId: string): Promise<number> {
+  const supabase = createClient();
+  const { count, error } = await supabase
+    .from("scrutin_ballots")
+    .select("*", { count: "exact", head: true })
+    .eq("poll_id", pollId);
+  if (error) throw error;
+  return count ?? 0;
+}
 
 /** Bulletins d'une résolution avec le poids du votant (membre convoqué). Pour le dépouillement. */
 export async function getResolutionBallots(pollId: string): Promise<{ ballot: Ballot; weight: number }[]> {
