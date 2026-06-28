@@ -165,7 +165,7 @@ export default async function AiDocPage() {
                   <td style={{ padding: "11px 14px", fontWeight: 700, whiteSpace: "nowrap" }}>
                     {m.icon} {tm(`${publicMethodToSystem(m.key) ?? m.key}.name`)}
                   </td>
-                  <td style={{ padding: "11px 14px", color: "#2c3447" }}>{m.whenToUse}</td>
+                  <td style={{ padding: "11px 14px", color: "#2c3447" }}>{tm(`whenToUse.${publicMethodToSystem(m.key) ?? m.key}`)}</td>
                 </tr>
               ))}
             </tbody>

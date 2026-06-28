@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useLocale } from "next-intl";
 import { addLocalPoll } from "@/lib/db/localPolls";
 import { addVoters, createPoll, type AccessMode, type District, type VoterInput } from "@/lib/db/polls";
 import { SLOT_ICON, slotLabel, type ScrutinDraft } from "./draft";
@@ -74,14 +75,22 @@ const INITIAL: ScrutinState = {
   prefillWhy: null,
 };
 
-function makeInitial(draft?: ScrutinDraft): ScrutinState {
-  if (!draft) return INITIAL;
+function makeInitial(draft?: ScrutinDraft, locale = "fr"): ScrutinState {
+  const districts =
+    locale === "en"
+      ? [
+          { name: "District 1", electors: 3, voterNames: "" },
+          { name: "District 2", electors: 2, voterNames: "" },
+        ]
+      : INITIAL.districts;
+  if (!draft) return { ...INITIAL, districts };
   const prefilled = Boolean(
     draft.question || draft.options || draft.recipe || draft.closesAt || draft.description,
   );
   const recipe = draft.recipe ?? INITIAL.recipe;
   return {
     ...INITIAL,
+    districts,
     screen: "create",
     question: draft.question ?? INITIAL.question,
     description: draft.description ?? INITIAL.description,
@@ -102,7 +111,7 @@ const scrollTop = () => {
 
 const ADD_ICONS = ["🎯", "⭐", "🔥", "🌟", "🎪", "🎨"];
 
-const freshSlot = (): Option => ({ icon: SLOT_ICON, name: slotLabel(""), at: "" });
+const freshSlot = (locale: string): Option => ({ icon: SLOT_ICON, name: slotLabel("", locale), at: "" });
 
 // Toute modification de la définition invalide les liens déjà lancés.
 const CLEAR_SHARE: Pick<ScrutinState, "shareUrl" | "adminUrl" | "voterLinks" | "error"> = {
@@ -119,7 +128,8 @@ const splitNames = (text: string) =>
     .filter(Boolean);
 
 export function useScrutin(draft?: ScrutinDraft) {
-  const [state, setState] = useState<ScrutinState>(() => makeInitial(draft));
+  const locale = useLocale();
+  const [state, setState] = useState<ScrutinState>(() => makeInitial(draft, locale));
   const stateRef = useRef(state);
   stateRef.current = state;
 
@@ -199,31 +209,31 @@ export function useScrutin(draft?: ScrutinDraft) {
       if (s.optionKind === kind) return s;
       if (kind === "slot") {
         // Un créneau = un objet daté ; on bascule par défaut sur l'approbation (logique Doodle).
-        return { ...s, optionKind: "slot", options: [freshSlot(), freshSlot()], recipe: recipeForSystem("approval"), ...CLEAR_SHARE };
+        return { ...s, optionKind: "slot", options: [freshSlot(locale), freshSlot(locale)], recipe: recipeForSystem("approval"), ...CLEAR_SHARE };
       }
       return {
         ...s,
         optionKind: "text",
         options: [
-          { icon: ADD_ICONS[0], name: "Première option" },
-          { icon: ADD_ICONS[1], name: "Deuxième option" },
+          { icon: ADD_ICONS[0], name: locale === "en" ? "First option" : "Première option" },
+          { icon: ADD_ICONS[1], name: locale === "en" ? "Second option" : "Deuxième option" },
         ],
         ...CLEAR_SHARE,
       };
     });
-  }, []);
+  }, [locale]);
 
   const setSlotAt = useCallback((i: number, local: string) => {
     setState((s) => {
       const options = s.options.slice();
-      options[i] = { ...options[i], at: local, name: slotLabel(local), icon: SLOT_ICON };
+      options[i] = { ...options[i], at: local, name: slotLabel(local, locale), icon: SLOT_ICON };
       return { ...s, options, ...CLEAR_SHARE };
     });
-  }, []);
+  }, [locale]);
 
   const addSlot = useCallback(() => {
-    setState((s) => ({ ...s, options: [...s.options, freshSlot()], ...CLEAR_SHARE }));
-  }, []);
+    setState((s) => ({ ...s, options: [...s.options, freshSlot(locale)], ...CLEAR_SHARE }));
+  }, [locale]);
 
   const removeOption = useCallback((i: number) => {
     setState((s) =>

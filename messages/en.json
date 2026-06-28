@@ -282,8 +282,19 @@
     "deniedTitle": "Allow notifications in your browser",
     "hint": "Notification when the vote closes. On iPhone, install the app to your home screen first."
   },
+  "SlotPicker": {
+    "prevMonth": "Previous month",
+    "nextMonth": "Next month",
+    "touchAtLeast2": "Tap at least 2 days in the calendar.",
+    "removeDay": "Remove day",
+    "allDay": "All day",
+    "removeTime": "Remove time",
+    "addTime": "+ time"
+  },
   "Methods": {
     "twoRounds": "two-round",
+    "family": { "fptp": "Direct vote · 1 round", "runoff": "Direct vote · 2 rounds", "condorcet": "Ranking · duels", "condorcet_random": "Ranking · duels + draw", "mj": "Grades · median", "approval": "Checkboxes", "borda": "Ranking · points", "proportional": "Seats · d'Hondt", "indirect": "Indirect vote", "list": "Lists · majority bonus" },
+    "whenToUse": { "fptp": "Decide fast: one round, most votes wins.", "runoff": "Guarantee an absolute majority, with a second round if needed.", "approval": "Several acceptable choices: everyone ticks all that suit them.", "borda": "Favour broad consensus from a ranking.", "condorcet": "Pick the winner of every duel (true consensus).", "condorcet_random": "Condorcet, breaking deadlocks by lot.", "mj": "Judge by grades; limits tactical voting.", "proportional": "Share seats in proportion to votes (assembly).", "list": "Vote for lists with a majority bonus (local elections).", "indirect": "Vote by district / electoral college." },
     "fptp": { "name": "First-past-the-post", "tagline": "Most votes wins.", "strength": "Simple and fast", "how": "Everyone votes for a single candidate. Whoever gets the most votes wins, even without an outright majority.", "pros": ["Very easy to grasp", "Instant result", "Just one trip to the ballot box"], "cons": ["A winner rejected by 60% of voters", "Pushes people to vote tactically", "Crushes smaller options"] },
     "runoff": { "name": "Two-round runoff", "tagline": "Absolute majority or second round.", "strength": "Absolute majority", "how": "If no one reaches 50%, the top two face off in a second round. The final winner is bound to have an absolute majority.", "pros": ["The winner clears 50%", "You can vote with your heart in round one", "A familiar system"], "cons": ["Two ballots to run", "The third-placed could be a better consensus", "Unpredictable vote transfers"] },
     "condorcet": { "name": "Simple Condorcet", "tagline": "The champion of every duel.", "strength": "True consensus", "how": "Everyone ranks the options. We simulate every head-to-head duel: the winner is the one who beats all the others.", "pros": ["Picks the true consensus", "Immune to tactical voting", "Very hard to manipulate"], "cons": ["Sometimes no winner at all (paradox)", "A longer ballot to fill in", "Complex to count"] },

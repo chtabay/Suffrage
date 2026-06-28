@@ -1,15 +1,12 @@
 "use client";
 
 import { useState } from "react";
+import { useLocale, useTranslations } from "next-intl";
 import { SLOT_ICON, slotLabel } from "@/lib/voting/draft";
 import type { Option } from "@/lib/voting/types";
 import { CORAL, CREAM, FONT_BODY, FONT_DISPLAY, INK, MUTED, REDTXT } from "./theme";
 
 const WEEKDAYS = ["lun", "mar", "mer", "jeu", "ven", "sam", "dim"];
-const MONTHS = [
-  "janvier", "février", "mars", "avril", "mai", "juin",
-  "juillet", "août", "septembre", "octobre", "novembre", "décembre",
-];
 
 const pad = (n: number) => String(n).padStart(2, "0");
 const ymd = (y: number, m: number, d: number) => `${y}-${pad(m + 1)}-${pad(d)}`;
@@ -22,6 +19,9 @@ const timePart = (at: string) => (at.includes("T") ? at.split("T")[1] : "");
  * créneaux (`slots`) ; chaque édition recompose les options et appelle onChange.
  */
 export default function SlotPicker({ slots, onChange }: { slots: Option[]; onChange: (s: Option[]) => void }) {
+  const locale = useLocale();
+  const t = useTranslations("SlotPicker");
+  const weekdays = locale === "en" ? ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"] : WEEKDAYS;
   const now = new Date();
   const [view, setView] = useState({ y: now.getFullYear(), m: now.getMonth() });
 
@@ -41,9 +41,9 @@ export default function SlotPicker({ slots, onChange }: { slots: Option[]; onCha
       .forEach((d) => {
         Array.from(new Set(map[d]))
           .sort()
-          .forEach((t) => {
-            const at = t === "" ? d : `${d}T${t}`;
-            out.push({ icon: SLOT_ICON, name: slotLabel(at), at });
+          .forEach((tt) => {
+            const at = tt === "" ? d : `${d}T${tt}`;
+            out.push({ icon: SLOT_ICON, name: slotLabel(at, locale), at });
           });
       });
     onChange(out);
@@ -72,12 +72,12 @@ export default function SlotPicker({ slots, onChange }: { slots: Option[]; onCha
   };
   const addTime = (d: string) => {
     const m = clone();
-    m[d] = [...(m[d] || []).filter((t) => t !== ""), "12:00"];
+    m[d] = [...(m[d] || []).filter((x) => x !== ""), "12:00"];
     emit(m);
   };
-  const setTime = (d: string, i: number, t: string) => {
+  const setTime = (d: string, i: number, val: string) => {
     const m = clone();
-    m[d][i] = t;
+    m[d][i] = val;
     emit(m);
   };
   const removeTime = (d: string, i: number) => {
@@ -116,15 +116,15 @@ export default function SlotPicker({ slots, onChange }: { slots: Option[]; onCha
   return (
     <div>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
-        <button type="button" aria-label="Mois précédent" onClick={() => shift(-1)} style={navBtn}>‹</button>
+        <button type="button" aria-label={t("prevMonth")} onClick={() => shift(-1)} style={navBtn}>‹</button>
         <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 16 }}>
-          {MONTHS[view.m]} {view.y}
+          {new Date(view.y, view.m, 1).toLocaleDateString(locale === "en" ? "en-GB" : "fr-FR", { month: "long", year: "numeric" })}
         </div>
-        <button type="button" aria-label="Mois suivant" onClick={() => shift(1)} style={navBtn}>›</button>
+        <button type="button" aria-label={t("nextMonth")} onClick={() => shift(1)} style={navBtn}>›</button>
       </div>
 
       <div style={{ display: "grid", gridTemplateColumns: "repeat(7,1fr)", gap: 4, marginBottom: 4 }}>
-        {WEEKDAYS.map((w, i) => (
+        {weekdays.map((w, i) => (
           <div key={i} style={{ textAlign: "center", fontSize: 11, fontWeight: 700, color: MUTED }}>
             {w}
           </div>
@@ -163,7 +163,7 @@ export default function SlotPicker({ slots, onChange }: { slots: Option[]; onCha
 
       <div style={{ marginTop: 14, display: "flex", flexDirection: "column", gap: 9 }}>
         {days.length === 0 ? (
-          <div style={{ fontSize: 13, color: MUTED }}>Touchez au moins 2 jours dans le calendrier.</div>
+          <div style={{ fontSize: 13, color: MUTED }}>{t("touchAtLeast2")}</div>
         ) : (
           days.map((d) => {
             const times = byDay[d];
@@ -171,10 +171,10 @@ export default function SlotPicker({ slots, onChange }: { slots: Option[]; onCha
             return (
               <div key={d} style={{ border: `2px solid ${INK}`, borderRadius: 11, padding: "10px 12px", background: "#fff" }}>
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
-                  <div style={{ fontWeight: 700, fontSize: 14 }}>{slotLabel(d)}</div>
+                  <div style={{ fontWeight: 700, fontSize: 14 }}>{slotLabel(d, locale)}</div>
                   <button
                     type="button"
-                    aria-label="Retirer le jour"
+                    aria-label={t("removeDay")}
                     onClick={() => removeDay(d)}
                     style={{ border: "none", background: "none", color: REDTXT, cursor: "pointer", fontSize: 17, lineHeight: 1 }}
                   >
@@ -183,15 +183,15 @@ export default function SlotPicker({ slots, onChange }: { slots: Option[]; onCha
                 </div>
                 <label style={{ display: "inline-flex", alignItems: "center", gap: 6, fontSize: 12.5, color: MUTED, marginTop: 6, cursor: "pointer" }}>
                   <input type="checkbox" checked={allDay} onChange={(e) => setAllDay(d, e.target.checked)} />
-                  Journée entière
+                  {t("allDay")}
                 </label>
                 {!allDay && (
                   <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 8, alignItems: "center" }}>
-                    {times.map((t, i) => (
+                    {times.map((time, i) => (
                       <span key={i} style={{ display: "inline-flex", alignItems: "center", gap: 3 }}>
                         <input
                           type="time"
-                          value={t || "12:00"}
+                          value={time || "12:00"}
                           onChange={(e) => setTime(d, i, e.target.value)}
                           style={{
                             border: `2px solid ${INK}`,
@@ -207,7 +207,7 @@ export default function SlotPicker({ slots, onChange }: { slots: Option[]; onCha
                         {times.length > 1 && (
                           <button
                             type="button"
-                            aria-label="Retirer l'heure"
+                            aria-label={t("removeTime")}
                             onClick={() => removeTime(d, i)}
                             style={{ border: "none", background: "none", color: REDTXT, cursor: "pointer", fontSize: 15 }}
                           >
@@ -221,7 +221,7 @@ export default function SlotPicker({ slots, onChange }: { slots: Option[]; onCha
                       onClick={() => addTime(d)}
                       style={{ border: `2px dashed ${INK}`, background: "none", color: INK, borderRadius: 8, padding: "5px 10px", cursor: "pointer", fontSize: 12.5, fontWeight: 700 }}
                     >
-                      + heure
+                      {t("addTime")}
                     </button>
                   </div>
                 )}

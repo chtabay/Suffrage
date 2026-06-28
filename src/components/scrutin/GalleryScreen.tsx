@@ -87,7 +87,7 @@ export default function GalleryScreen({ ctrl }: { ctrl: ScrutinController }) {
                     {tm(`${key}.name`)}
                   </div>
                   <div style={{ fontSize: 12.5, fontWeight: 600, color: "rgba(255,255,255,0.92)", marginTop: 2 }}>
-                    {sys.family}
+                    {tm(`family.${key}`)}
                   </div>
                 </div>
               </div>

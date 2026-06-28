@@ -38,19 +38,20 @@ export const safeUrl = (u: string | undefined): string | undefined => {
 
 export const SLOT_ICON = "📅";
 /** Libellé lisible d'un créneau : "YYYY-MM-DDThh:mm" (avec heure) ou "YYYY-MM-DD" (journée entière). */
-export function slotLabel(local: string): string {
-  if (!local) return "Créneau à définir";
+export function slotLabel(local: string, locale = "fr"): string {
+  const fallback = locale === "en" ? "Slot to set" : "Créneau à définir";
+  if (!local) return fallback;
   const dateOnly = !local.includes("T");
   const d = new Date(dateOnly ? `${local}T00:00` : local);
-  if (Number.isNaN(d.getTime())) return "Créneau à définir";
+  if (Number.isNaN(d.getTime())) return fallback;
   const opts: Intl.DateTimeFormatOptions = dateOnly
     ? { weekday: "short", day: "numeric", month: "short" }
     : { weekday: "short", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" };
-  return d.toLocaleString("fr-FR", opts);
+  return d.toLocaleString(locale === "en" ? "en-GB" : "fr-FR", opts);
 }
 
 /** Convertit les paramètres d'URL /new en brouillon (toujours un objet, possiblement vide). */
-export function parseDraft(params: RawParams): ScrutinDraft {
+export function parseDraft(params: RawParams, locale = "fr"): ScrutinDraft {
   const draft: ScrutinDraft = {};
 
   const title = first(params.title);
@@ -70,7 +71,7 @@ export function parseDraft(params: RawParams): ScrutinDraft {
       .slice(0, 12);
     if (slots.length >= 2) {
       draft.optionKind = "slot";
-      draft.options = slots.map((at) => ({ icon: SLOT_ICON, name: slotLabel(at), at }));
+      draft.options = slots.map((at) => ({ icon: SLOT_ICON, name: slotLabel(at, locale), at }));
     }
   } else {
     const opts = first(params.options);

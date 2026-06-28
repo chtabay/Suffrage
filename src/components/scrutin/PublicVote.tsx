@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useCallback, useEffect, useState } from "react";
 import {
   addBallot,
@@ -22,6 +22,7 @@ import {
 import {
   compute,
   describeRecipe,
+  resolveKey,
   methodMode,
   normalizeFromApproved,
   normalizeFromGrades,
@@ -331,6 +332,8 @@ export default function PublicVote({
   voterToken?: string | null;
 }) {
   const t = useTranslations("Vote");
+  const tm = useTranslations("Methods");
+  const locale = useLocale();
   const [view, setView] = useState<View>("loading");
   const [poll, setPoll] = useState<PollRow | null>(null);
   const [voter, setVoter] = useState<VoterContext | null>(null);
@@ -348,9 +351,9 @@ export default function PublicVote({
   const loadResults = useCallback(async (p: PollRow) => {
     const ballots = await getBallots(p.id);
     setBallotCount(ballots.length);
-    setResult(compute({ recipe: p.recipe, options: p.options, ballots, districtElectors: electorsOf(p) }));
+    setResult(compute({ recipe: p.recipe, options: p.options, ballots, districtElectors: electorsOf(p) }, locale));
     setComments(await getComments(p.id));
-  }, []);
+  }, [locale]);
 
   const refreshOrganizer = useCallback(
     async (p: PollRow) => {
@@ -460,7 +463,12 @@ export default function PublicVote({
     );
   }
 
-  const desc = describeRecipe(poll.recipe);
+  const desc = describeRecipe(poll.recipe, locale);
+  // Nom de méthode affiché : via le catalogue traduit (Methods), pas le nom FR du moteur.
+  const mKey = resolveKey(poll.recipe);
+  const twoRound =
+    poll.recipe.suffrage !== "indirect" && poll.recipe.rounds === 2 && poll.recipe.counting !== "majority";
+  const methodName = twoRound ? `${tm(`${mKey}.name`)} ${tm("twoRounds")}` : tm(`${mKey}.name`);
   const mode = methodMode(operativeMethod(poll.recipe));
   const voteShareUrl =
     typeof window !== "undefined" ? `${window.location.origin}/v/${poll.token}` : `/v/${poll.token}`;
@@ -848,7 +856,7 @@ export default function PublicVote({
           }}
         >
           <span>{desc.icon}</span>
-          {desc.name}
+          {methodName}
         </div>
         {voter && (
           <span style={{ fontSize: 13, fontWeight: 700, color: MUTED }}>
