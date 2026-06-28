@@ -24,19 +24,19 @@ function build(parts: Parts, url: string): { subject: string; html: string } {
 // ----------------------------------------------------------------- convocation
 const CONVOKE: Record<string, (a: Args) => Parts> = {
   fr: (a) => ({
-    subject: `Convocation au vote — ${a.eventTitle}`,
-    intro: `Bonjour ${a.memberName},<br><br>Vous êtes invité·e à voter pour « <b>${a.eventTitle}</b> » sur Placet. Votre lien est <b>personnel</b> — ne le partagez pas.`,
+    subject: `Convocation au vote - ${a.eventTitle}`,
+    intro: `Bonjour ${a.memberName},<br><br>Vous êtes invité·e à voter pour « <b>${a.eventTitle}</b> » sur Placet. Votre lien est <b>personnel</b> - ne le partagez pas.`,
     cta: "Voter maintenant",
     outro: "Si le bouton ne fonctionne pas, copiez ce lien dans votre navigateur :",
   }),
   en: (a) => ({
-    subject: `Voting invitation — ${a.eventTitle}`,
-    intro: `Hello ${a.memberName},<br><br>You're invited to vote on "<b>${a.eventTitle}</b>" on Placet. Your link is <b>personal</b> — please don't share it.`,
+    subject: `Voting invitation - ${a.eventTitle}`,
+    intro: `Hello ${a.memberName},<br><br>You're invited to vote on "<b>${a.eventTitle}</b>" on Placet. Your link is <b>personal</b> - please don't share it.`,
     cta: "Vote now",
     outro: "If the button doesn't work, copy this link into your browser:",
   }),
   es: (a) => ({
-    subject: `Convocatoria de voto — ${a.eventTitle}`,
+    subject: `Convocatoria de voto - ${a.eventTitle}`,
     intro: `Hola ${a.memberName}:<br><br>Estás invitado/a a votar en «<b>${a.eventTitle}</b>» en Placet. Tu enlace es <b>personal</b>: no lo compartas.`,
     cta: "Votar ahora",
     outro: "Si el botón no funciona, copia este enlace en tu navegador:",
@@ -51,19 +51,19 @@ export function convocationEmail(locale: string, a: Args): { subject: string; ht
 // Double opt-in : l'email confirme l'inscription ET porte le lien de vote personnel.
 const ENROLL: Record<string, (a: Args) => Parts> = {
   fr: (a) => ({
-    subject: `Inscription confirmée — ${a.eventTitle}`,
-    intro: `Bonjour ${a.memberName},<br><br>Votre inscription à « <b>${a.eventTitle}</b> » est confirmée. Voici votre lien <b>personnel</b> de vote — ne le partagez pas.`,
+    subject: `Inscription confirmée - ${a.eventTitle}`,
+    intro: `Bonjour ${a.memberName},<br><br>Votre inscription à « <b>${a.eventTitle}</b> » est confirmée. Voici votre lien <b>personnel</b> de vote - ne le partagez pas.`,
     cta: "Accéder au vote",
     outro: "Si le bouton ne fonctionne pas, copiez ce lien dans votre navigateur :",
   }),
   en: (a) => ({
-    subject: `Registration confirmed — ${a.eventTitle}`,
-    intro: `Hello ${a.memberName},<br><br>Your registration for "<b>${a.eventTitle}</b>" is confirmed. Here is your <b>personal</b> voting link — please don't share it.`,
+    subject: `Registration confirmed - ${a.eventTitle}`,
+    intro: `Hello ${a.memberName},<br><br>Your registration for "<b>${a.eventTitle}</b>" is confirmed. Here is your <b>personal</b> voting link - please don't share it.`,
     cta: "Go to the vote",
     outro: "If the button doesn't work, copy this link into your browser:",
   }),
   es: (a) => ({
-    subject: `Inscripción confirmada — ${a.eventTitle}`,
+    subject: `Inscripción confirmada - ${a.eventTitle}`,
     intro: `Hola ${a.memberName}:<br><br>Tu inscripción a «<b>${a.eventTitle}</b>» está confirmada. Aquí tienes tu enlace <b>personal</b> de voto: no lo compartas.`,
     cta: "Acceder al voto",
     outro: "Si el botón no funciona, copia este enlace en tu navegador:",
