@@ -13,6 +13,7 @@ import {
   listConvened,
   listMembers,
   listResolutions,
+  removeConvened,
   removeResolution,
   setResolutionStatus,
   updateEvent,
@@ -144,18 +145,30 @@ export default function EventEditor({ eventId }: { eventId: string }) {
     setResolutions((l) => l.filter((r) => r.id !== id));
   };
 
+  // Le snapshot `event_members` est découplé du roster : un membre supprimé du
+  // roster reste convoqué tant qu'on ne resynchronise pas. `Convoquer` (brouillon)
+  // ajoute les nouveaux ET retire ceux qui ne sont plus dans le roster (hors auto-inscrits).
+  const rosterIds = new Set(roster.map((m) => m.id));
+  const toConvene = roster.filter((m) => !convened.some((c) => c.member_id === m.id));
+  const staleConvened = ev?.status === "draft" ? convened.filter((c) => c.member_id && !rosterIds.has(c.member_id)) : [];
+
   const doConvene = async () => {
-    const have = new Set(convened.map((c) => c.member_id));
-    const toAdd = roster.filter((m) => !have.has(m.id));
-    if (!toAdd.length || busy) return;
+    if ((!toConvene.length && !staleConvened.length) || busy) return;
     setBusy(true);
     try {
-      const added = await convene(eventId, toAdd);
-      setConvened((c) => [...c, ...added]);
+      if (staleConvened.length) await Promise.all(staleConvened.map((c) => removeConvened(c.id)));
+      const added = toConvene.length ? await convene(eventId, toConvene) : [];
+      const staleIds = new Set(staleConvened.map((c) => c.id));
+      setConvened((c) => [...c.filter((m) => !staleIds.has(m.id)), ...added]);
     } catch {
       /* noop */
     }
     setBusy(false);
+  };
+
+  const removeConvenedMember = async (id: string) => {
+    await removeConvened(id);
+    setConvened((c) => c.filter((m) => m.id !== id));
   };
 
   const setStatus = async (status: "draft" | "open" | "closed") => {
@@ -392,7 +405,7 @@ export default function EventEditor({ eventId }: { eventId: string }) {
           <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 19 }}>{t("convocation")}</div>
           <span style={{ color: SUBINK, fontWeight: 700, fontSize: 14 }}>{t("convenedCount", { count: convened.length })}</span>
         </div>
-        {convened.length < roster.length && (
+        {(toConvene.length > 0 || staleConvened.length > 0) && (
           <button onClick={doConvene} disabled={busy} style={{ ...btn(INK, "#fff"), marginTop: 13 }}>{t("convene")}</button>
         )}
         {convened.length > 0 && (
@@ -406,6 +419,9 @@ export default function EventEditor({ eventId }: { eventId: string }) {
                   <button onClick={() => copy(c.token)} style={{ border: `2px solid ${INK}`, background: copied === c.token ? GREEN : "#fff", color: copied === c.token ? "#fff" : INK, cursor: "pointer", fontSize: 12.5, fontWeight: 700, padding: "6px 11px", borderRadius: 9 }}>
                     {copied === c.token ? t("copied") : t("copyLink")}
                   </button>
+                  {ev.status === "draft" && (
+                    <button onClick={() => removeConvenedMember(c.id)} title={t("remove")} style={{ border: "none", background: "none", color: REDTXT, cursor: "pointer", fontSize: 18, lineHeight: 1 }}>×</button>
+                  )}
                 </div>
               ))}
             </div>
