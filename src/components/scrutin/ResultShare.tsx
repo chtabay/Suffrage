@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useLocale, useTranslations } from "next-intl";
 import { buildResultText, waUrl } from "@/lib/share";
 import type { ComputeResult } from "@/lib/voting/types";
 import { CREAM, FONT_DISPLAY, INK } from "./theme";
@@ -18,8 +19,11 @@ export default function ResultShare({
   optionsCount: number;
   url: string;
 }) {
+  const t = useTranslations("Vote");
+  const tm = useTranslations("Methods");
+  const locale = useLocale();
   const [copied, setCopied] = useState(false);
-  const text = buildResultText(question, result, ballotCount, optionsCount, url);
+  const text = buildResultText(question, result, ballotCount, optionsCount, url, locale, tm(`${result.methodKey}.name`));
   const copy = async () => {
     try {
       await navigator.clipboard?.writeText(text);
@@ -49,7 +53,7 @@ export default function ResultShare({
           borderRadius: 12,
         }}
       >
-        💬 Partager le résultat
+        {t("shareResult")}
       </a>
       <button
         onClick={copy}
@@ -67,7 +71,7 @@ export default function ResultShare({
           borderRadius: 12,
         }}
       >
-        {copied ? "✓ Copié" : "📋 Copier le résultat"}
+        {copied ? t("copiedResult") : t("copyResult")}
       </button>
     </div>
   );

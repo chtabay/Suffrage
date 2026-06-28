@@ -78,6 +78,7 @@ export interface ResultStep {
 export interface ComputeResult {
   color: string;
   methodName: string;
+  methodKey: string;
   hasWinner?: boolean;
   noWinner?: boolean;
   noWinnerLabel?: string;

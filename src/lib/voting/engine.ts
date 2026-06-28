@@ -333,7 +333,7 @@ export function compute(ctx: ComputeCtx, locale: string = "fr"): ComputeResult |
   const pct = (v: number, d: number) => Math.round((100 * v) / (d || 1));
   const bars = (valsObj: Record<number, number>, candList: number[], fmt: Fmt) =>
     makeBars(opts, valsObj, candList, fmt);
-  const res = { color: desc.color, methodName: desc.shortName };
+  const res = { color: desc.color, methodName: desc.shortName, methodKey: resolveKey(r) };
   const all = [...Array(n).keys()];
 
   // ===== SCRUTIN DE LISTE (municipal) =====

@@ -1,13 +1,16 @@
 "use client";
 
+import { useLocale, useTranslations } from "next-intl";
 import { buildVoteShareText, waUrl } from "@/lib/share";
 import { FONT_DISPLAY, INK } from "./theme";
 
 export default function WhatsAppShare({ question, url }: { question: string; url: string }) {
+  const t = useTranslations("Vote");
+  const locale = useLocale();
   if (!url) return null;
   return (
     <a
-      href={waUrl(buildVoteShareText(question, url))}
+      href={waUrl(buildVoteShareText(question, url, locale))}
       target="_blank"
       rel="noopener noreferrer"
       style={{
@@ -26,7 +29,7 @@ export default function WhatsAppShare({ question, url }: { question: string; url
         borderRadius: 12,
       }}
     >
-      💬 Partager sur WhatsApp
+      {t("shareWhatsApp")}
     </a>
   );
 }

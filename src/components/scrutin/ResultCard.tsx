@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import type { ComputeResult } from "@/lib/voting/types";
 import { CREAM, FONT_DISPLAY, INK } from "./theme";
 
@@ -13,6 +14,8 @@ interface Props {
 
 /** Carte de résultat : vainqueur, barres, explication et contrefactuel. */
 export default function ResultCard({ result, question, ballotCount, footer }: Props) {
+  const t = useTranslations("Vote");
+  const tm = useTranslations("Methods");
   return (
     <div
       style={{
@@ -41,7 +44,7 @@ export default function ResultCard({ result, question, ballotCount, footer }: Pr
             letterSpacing: "0.05em",
           }}
         >
-          {result.methodName} · {ballotCount} bulletins
+          {tm(`${result.methodKey}.name`)} · {t("resultBallots", { count: ballotCount })}
         </div>
         <div style={{ fontSize: 15, color: "rgba(255,255,255,0.95)", fontWeight: 600, marginTop: 4 }}>{question}</div>
         {result.hasWinner && (
@@ -64,7 +67,7 @@ export default function ResultCard({ result, question, ballotCount, footer }: Pr
               {result.winnerIcon}
             </div>
             <div>
-              <div style={{ fontSize: 13, fontWeight: 700, color: "rgba(255,255,255,0.92)" }}>🏆 VAINQUEUR</div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: "rgba(255,255,255,0.92)" }}>{t("resultWinner")}</div>
               <div
                 className="winner"
                 style={{
@@ -162,7 +165,7 @@ export default function ResultCard({ result, question, ballotCount, footer }: Pr
               gap: 7,
             }}
           >
-            🔍 Comment ce résultat a été obtenu
+            {t("resultHowTitle")}
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: 9 }}>
             {result.steps.map((s) => (
