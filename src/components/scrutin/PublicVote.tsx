@@ -268,8 +268,8 @@ function VoterLinkRow({ v }: { v: Voter & { url: string } }) {
   );
 }
 
-function fmtDateTime(iso: string) {
-  return new Date(iso).toLocaleString("fr-FR", { dateStyle: "long", timeStyle: "short" });
+function fmtDateTime(iso: string, locale = "fr") {
+  return new Date(iso).toLocaleString(locale === "en" ? "en-GB" : "fr-FR", { dateStyle: "long", timeStyle: "short" });
 }
 
 function Countdown({ closesAt, onExpire }: { closesAt: string; onExpire: () => void }) {
@@ -622,7 +622,7 @@ export default function PublicVote({
           )}
           {poll.closes_at && (
             <div style={{ marginTop: 6, fontSize: 12.5, color: MUTED }}>
-              ⏲ {t("autoCloseAt", { date: fmtDateTime(poll.closes_at) })}
+              ⏲ {t("autoCloseAt", { date: fmtDateTime(poll.closes_at, locale) })}
             </div>
           )}
         </div>
@@ -687,7 +687,7 @@ export default function PublicVote({
             « {poll.question} »
             <br />
             {t.rich("opensAt", {
-              date: poll.opens_at ? fmtDateTime(poll.opens_at) : "—",
+              date: poll.opens_at ? fmtDateTime(poll.opens_at, locale) : "—",
               strong: (chunks) => <strong>{chunks}</strong>,
             })}
           </p>

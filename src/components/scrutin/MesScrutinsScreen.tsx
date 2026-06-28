@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import type { AuthController } from "@/lib/auth/useAuth";
 import { getLocalPolls, removeLocalPoll, type LocalPoll } from "@/lib/db/localPolls";
 import { getMyPolls, type PollRow } from "@/lib/db/polls";
@@ -19,6 +19,7 @@ interface Item {
 export default function MesScrutinsScreen({ ctrl, auth }: { ctrl: ScrutinController; auth: AuthController }) {
   const { go } = ctrl;
   const t = useTranslations("MyPolls");
+  const locale = useLocale();
   const [locals, setLocals] = useState<LocalPoll[]>([]);
   const [cloud, setCloud] = useState<PollRow[]>([]);
   const [origin, setOrigin] = useState("");
@@ -46,7 +47,7 @@ export default function MesScrutinsScreen({ ctrl, auth }: { ctrl: ScrutinControl
   };
 
   const fmtDate = (ms: number) =>
-    Number.isFinite(ms) ? new Date(ms).toLocaleDateString("fr-FR", { day: "numeric", month: "short", year: "numeric" }) : "";
+    Number.isFinite(ms) ? new Date(ms).toLocaleDateString(locale === "en" ? "en-GB" : "fr-FR", { day: "numeric", month: "short", year: "numeric" }) : "";
 
   const localTokens = new Set(locals.map((p) => p.token));
   const items: Item[] = [
