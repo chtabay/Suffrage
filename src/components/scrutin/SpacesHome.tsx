@@ -20,7 +20,7 @@ export function OrgShell({ children }: { children: React.ReactNode }) {
   return (
     <div style={{ minHeight: "100vh", background: CREAM, fontFamily: FONT_BODY }}>
       <div style={{ maxWidth: 720, margin: "0 auto", padding: "20px 18px 90px" }}>
-        <Link href="/espaces" style={{ display: "inline-flex", alignItems: "center", gap: 11, marginBottom: 20, textDecoration: "none", color: INK }}>
+        <Link href="/" style={{ display: "inline-flex", alignItems: "center", gap: 11, marginBottom: 20, textDecoration: "none", color: INK }}>
           <PlacetMark size={36} />
           <span style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 21, letterSpacing: "-0.02em" }}>Placet</span>
         </Link>
