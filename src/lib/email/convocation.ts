@@ -1,12 +1,28 @@
-// Contenu de l'email de convocation (= magic link). Trilingue, indépendant de
-// next-intl (rendu serveur). Le lien est personnel : il identifie (événement, membre).
+// Emails liés aux événements (rendu serveur, indépendant de next-intl). Le lien
+// est toujours PERSONNEL : il identifie (événement, membre) et vaut bulletin.
 interface Args {
   eventTitle: string;
   memberName: string;
   voteUrl: string;
 }
 
-const STR: Record<string, (a: Args) => { subject: string; intro: string; cta: string; outro: string }> = {
+type Parts = { subject: string; intro: string; cta: string; outro: string };
+
+// Gabarit HTML commun. Logotype texte (pas d'emoji), cohérent avec la marque.
+function build(parts: Parts, url: string): { subject: string; html: string } {
+  const html = `<div style="font-family:Arial,Helvetica,sans-serif;max-width:520px;margin:0 auto;color:#16213A;padding:8px">
+  <div style="font-size:22px;font-weight:800;color:#16213A;margin-bottom:18px;letter-spacing:-0.02em">Placet</div>
+  <p style="font-size:15px;line-height:1.6;margin:0 0 8px">${parts.intro}</p>
+  <p style="text-align:center;margin:28px 0">
+    <a href="${url}" style="display:inline-block;background:#16213A;color:#ffffff;font-weight:700;font-size:16px;text-decoration:none;padding:14px 28px;border-radius:10px">${parts.cta}</a>
+  </p>
+  <p style="font-size:12px;color:#5b6379;line-height:1.5;margin:0">${parts.outro}<br><a href="${url}" style="color:#16213A">${url}</a></p>
+</div>`;
+  return { subject: parts.subject, html };
+}
+
+// ----------------------------------------------------------------- convocation
+const CONVOKE: Record<string, (a: Args) => Parts> = {
   fr: (a) => ({
     subject: `Convocation au vote — ${a.eventTitle}`,
     intro: `Bonjour ${a.memberName},<br><br>Vous êtes invité·e à voter pour « <b>${a.eventTitle}</b> » sur Placet. Votre lien est <b>personnel</b> — ne le partagez pas.`,
@@ -28,14 +44,32 @@ const STR: Record<string, (a: Args) => { subject: string; intro: string; cta: st
 };
 
 export function convocationEmail(locale: string, a: Args): { subject: string; html: string } {
-  const s = (STR[locale] ?? STR.fr)(a);
-  const html = `<div style="font-family:Arial,Helvetica,sans-serif;max-width:520px;margin:0 auto;color:#16213A;padding:8px">
-  <div style="font-size:22px;font-weight:800;color:#16213A;margin-bottom:18px">🗳️ Placet</div>
-  <p style="font-size:15px;line-height:1.6;margin:0 0 8px">${s.intro}</p>
-  <p style="text-align:center;margin:28px 0">
-    <a href="${a.voteUrl}" style="display:inline-block;background:#16213A;color:#ffffff;font-weight:700;font-size:16px;text-decoration:none;padding:14px 28px;border-radius:10px">${s.cta}</a>
-  </p>
-  <p style="font-size:12px;color:#5b6379;line-height:1.5;margin:0">${s.outro}<br><a href="${a.voteUrl}" style="color:#16213A">${a.voteUrl}</a></p>
-</div>`;
-  return { subject: s.subject, html };
+  return build((CONVOKE[locale] ?? CONVOKE.fr)(a), a.voteUrl);
+}
+
+// ------------------------------------------------------- confirmation d'inscription
+// Double opt-in : l'email confirme l'inscription ET porte le lien de vote personnel.
+const ENROLL: Record<string, (a: Args) => Parts> = {
+  fr: (a) => ({
+    subject: `Inscription confirmée — ${a.eventTitle}`,
+    intro: `Bonjour ${a.memberName},<br><br>Votre inscription à « <b>${a.eventTitle}</b> » est confirmée. Voici votre lien <b>personnel</b> de vote — ne le partagez pas.`,
+    cta: "Accéder au vote",
+    outro: "Si le bouton ne fonctionne pas, copiez ce lien dans votre navigateur :",
+  }),
+  en: (a) => ({
+    subject: `Registration confirmed — ${a.eventTitle}`,
+    intro: `Hello ${a.memberName},<br><br>Your registration for "<b>${a.eventTitle}</b>" is confirmed. Here is your <b>personal</b> voting link — please don't share it.`,
+    cta: "Go to the vote",
+    outro: "If the button doesn't work, copy this link into your browser:",
+  }),
+  es: (a) => ({
+    subject: `Inscripción confirmada — ${a.eventTitle}`,
+    intro: `Hola ${a.memberName}:<br><br>Tu inscripción a «<b>${a.eventTitle}</b>» está confirmada. Aquí tienes tu enlace <b>personal</b> de voto: no lo compartas.`,
+    cta: "Acceder al voto",
+    outro: "Si el botón no funciona, copia este enlace en tu navegador:",
+  }),
+};
+
+export function enrollEmail(locale: string, a: Args): { subject: string; html: string } {
+  return build((ENROLL[locale] ?? ENROLL.fr)(a), a.voteUrl);
 }

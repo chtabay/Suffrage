@@ -62,12 +62,14 @@ export default function EventEditor({ eventId }: { eventId: string }) {
   const [copied, setCopied] = useState<string | null>(null);
   const [origin, setOrigin] = useState("");
   const [sendMsg, setSendMsg] = useState("");
+  const [capInput, setCapInput] = useState("");
 
   const load = useCallback(async () => {
     if (!user) return;
     const e = await getEvent(eventId);
     setEv(e);
     if (e) {
+      setCapInput(e.enroll_cap != null ? String(e.enroll_cap) : "");
       const [r, c] = await Promise.all([listResolutions(eventId), listConvened(eventId)]);
       setResolutions(r);
       setConvened(c);
@@ -130,6 +132,29 @@ export default function EventEditor({ eventId }: { eventId: string }) {
     navigator.clipboard?.writeText(`${origin}/e/${token}`);
     setCopied(token);
     setTimeout(() => setCopied((c) => (c === token ? null : c)), 1600);
+  };
+
+  const enrollUrl = ev?.enroll_token ? `${origin}/rejoindre/${ev.enroll_token}` : "";
+  const enrolledCount = convened.filter((c) => c.self_enrolled).length;
+
+  const toggleEnroll = async () => {
+    if (!ev) return;
+    const next = !ev.enroll_open;
+    await updateEvent(eventId, { enroll_open: next });
+    setEv((e) => (e ? { ...e, enroll_open: next } : e));
+  };
+
+  const saveCap = async () => {
+    const n = capInput.trim() ? Math.max(1, parseInt(capInput, 10) || 1) : null;
+    await updateEvent(eventId, { enroll_cap: n });
+    setEv((e) => (e ? { ...e, enroll_cap: n } : e));
+    setCapInput(n != null ? String(n) : "");
+  };
+
+  const copyEnroll = () => {
+    navigator.clipboard?.writeText(enrollUrl);
+    setCopied("__enroll__");
+    setTimeout(() => setCopied((c) => (c === "__enroll__" ? null : c)), 1600);
   };
 
   const sendConvocations = async () => {
@@ -241,6 +266,51 @@ export default function EventEditor({ eventId }: { eventId: string }) {
           </>
         )}
       </div>
+
+      {/* ---- Inscription ouverte ---- */}
+      {ev.status !== "closed" && (
+        <div style={{ ...card, marginTop: 16 }}>
+          <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 10 }}>
+            <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 19 }}>{t("enrollTitle")}</div>
+            {ev.enroll_open && <span style={{ color: SUBINK, fontWeight: 700, fontSize: 14 }}>{t("enrollEnrolled", { count: enrolledCount })}</span>}
+          </div>
+          <div style={{ fontSize: 12.5, color: MUTED, margin: "8px 0 12px" }}>{t("enrollHint")}</div>
+          {!ev.enroll_open ? (
+            <button onClick={toggleEnroll} style={btn(INK, "#fff")}>{t("enrollEnable")}</button>
+          ) : (
+            <>
+              <div style={{ fontSize: 12.5, color: SUBINK, fontWeight: 700, marginBottom: 6 }}>{t("enrollShareHint")}</div>
+              <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
+                <input
+                  readOnly
+                  value={enrollUrl}
+                  onFocus={(e) => e.target.select()}
+                  style={{ flex: 1, minWidth: 220, fontFamily: FONT_BODY, fontSize: 13, padding: "9px 11px", border: `2px solid ${INK}`, borderRadius: 10, background: CREAM }}
+                />
+                <button
+                  onClick={copyEnroll}
+                  style={{ border: `2px solid ${INK}`, background: copied === "__enroll__" ? GREEN : "#fff", color: copied === "__enroll__" ? "#fff" : INK, cursor: "pointer", fontSize: 12.5, fontWeight: 700, padding: "8px 13px", borderRadius: 9 }}
+                >
+                  {copied === "__enroll__" ? t("copied") : t("copyLink")}
+                </button>
+              </div>
+              <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap", marginTop: 12 }}>
+                <span style={{ fontWeight: 700, fontSize: 13, color: SUBINK }}>{t("enrollCap")}</span>
+                <input
+                  value={capInput}
+                  onChange={(e) => setCapInput(e.target.value.replace(/[^0-9]/g, ""))}
+                  onBlur={saveCap}
+                  onKeyDown={(e) => e.key === "Enter" && (e.target as HTMLInputElement).blur()}
+                  placeholder={t("enrollCapPlaceholder")}
+                  inputMode="numeric"
+                  style={{ width: 110, fontFamily: FONT_BODY, fontSize: 14, fontWeight: 600, padding: "8px 11px", border: `2px solid ${INK}`, borderRadius: 10 }}
+                />
+                <button onClick={toggleEnroll} style={{ ...btn("#fff", INK), marginLeft: "auto" }}>{t("enrollDisable")}</button>
+              </div>
+            </>
+          )}
+        </div>
+      )}
 
       {/* ---- Résultats ---- */}
       {ev.status !== "draft" && <EventResults resolutions={resolutions} convenedCount={convened.length} />}

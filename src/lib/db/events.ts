@@ -42,6 +42,10 @@ export interface EventRow {
   opens_at: string | null;
   closes_at: string | null;
   created_at: string;
+  enroll_open: boolean;
+  enroll_cap: number | null;
+  enroll_closes_at: string | null;
+  enroll_token: string;
 }
 
 export interface EventMember {
@@ -54,6 +58,16 @@ export interface EventMember {
   weight: number;
   token: string;
   invited_at: string | null;
+  self_enrolled: boolean;
+}
+
+/** Contexte public d'une page d'inscription (sortie de get_enroll_info). */
+export interface EnrollInfo {
+  status: "open" | "closed" | "invalid";
+  title?: string;
+  cap?: number | null;
+  count?: number;
+  full?: boolean;
 }
 
 /** Une résolution telle que stockée (scrutin_polls rattaché à un événement). */
@@ -95,8 +109,9 @@ export interface EventContext {
 const SPACE_COLS = "id, name, created_at";
 const MEMBER_COLS = "id, space_id, name, email, district, weight";
 const EVENT_COLS =
-  "id, space_id, title, description, mode, status, current_poll_id, opens_at, closes_at, created_at";
-const EVENT_MEMBER_COLS = "id, event_id, member_id, name, email, district, weight, token, invited_at";
+  "id, space_id, title, description, mode, status, current_poll_id, opens_at, closes_at, created_at, enroll_open, enroll_cap, enroll_closes_at, enroll_token";
+const EVENT_MEMBER_COLS =
+  "id, event_id, member_id, name, email, district, weight, token, invited_at, self_enrolled";
 const RESOLUTION_COLS = "id, token, question, description, options, recipe, status, order_index, closes_at";
 
 async function uid(): Promise<string> {
@@ -247,6 +262,9 @@ export interface EventPatch {
   current_poll_id?: string | null;
   opens_at?: string | null;
   closes_at?: string | null;
+  enroll_open?: boolean;
+  enroll_cap?: number | null;
+  enroll_closes_at?: string | null;
 }
 export async function updateEvent(id: string, patch: EventPatch): Promise<void> {
   const supabase = createClient();
@@ -363,6 +381,14 @@ export async function markInvited(ids: string[]): Promise<void> {
 }
 
 // ---------------------------------------------------------------- vote (votant, RPC gardées)
+
+/** Contexte public d'inscription (titre + état), pour la page /rejoindre. Anon. */
+export async function getEnrollInfo(enrollToken: string): Promise<EnrollInfo> {
+  const supabase = createClient();
+  const { data, error } = await supabase.rpc("get_enroll_info", { p_enroll_token: enrollToken });
+  if (error) throw error;
+  return (data as EnrollInfo | null) ?? { status: "invalid" };
+}
 
 export async function getEventContext(token: string): Promise<EventContext | null> {
   const supabase = createClient();
