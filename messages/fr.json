@@ -523,6 +523,12 @@
     "needResolutions": "Ajoutez au moins une résolution avant d'ouvrir.",
     "results": "Résultats",
     "participation": "{voted}/{total} ont voté",
+    "recapTitle": "Conditions & bilan",
+    "recapElectorate": "Corps électoral : {count} convoqués",
+    "recapQuorumReq": "Quorum requis : {pct} % ({votes} voix)",
+    "recapQuorumNone": "Quorum : aucun",
+    "recapOutcome": "{adopted, plural, one {# adoptée} other {# adoptées}} · {rejected, plural, one {# rejetée} other {# rejetées}}",
+    "recapQuorumFailed": "· {count} sans quorum",
     "resNoBallots": "Aucun bulletin pour l'instant.",
     "sendConvocations": "Envoyer les convocations par email",
     "sendingConvocations": "Envoi en cours…",
@@ -558,7 +564,10 @@
     "emptyBallot": "Faites un choix avant de valider.",
     "error": "Impossible d'enregistrer. Réessayez.",
     "allDoneTitle": "Merci !",
-    "allDoneDesc": "Vous avez voté à toutes les résolutions."
+    "allDoneDesc": "Vous avez voté à toutes les résolutions.",
+    "accountTitle": "Envie d'organiser vos propres votes ?",
+    "accountDesc": "Placet, c'est l'outil pour décider à plusieurs, simplement : créez un vote (AG, élection, choix de groupe…), choisissez la méthode adaptée, invitez par lien ou par email, et obtenez un dépouillement automatique et transparent. Gratuit, sans installation.",
+    "accountCta": "Créer mon compte"
   },
   "Join": {
     "loading": "Chargement…",

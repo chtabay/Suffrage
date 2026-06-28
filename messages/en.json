@@ -523,6 +523,12 @@
     "needResolutions": "Add at least one resolution before opening.",
     "results": "Results",
     "participation": "{voted}/{total} voted",
+    "recapTitle": "Conditions & summary",
+    "recapElectorate": "Electorate: {count} convened",
+    "recapQuorumReq": "Quorum required: {pct}% ({votes} votes)",
+    "recapQuorumNone": "Quorum: none",
+    "recapOutcome": "{adopted, plural, one {# adopted} other {# adopted}} · {rejected, plural, one {# rejected} other {# rejected}}",
+    "recapQuorumFailed": "· {count} without quorum",
     "resNoBallots": "No ballots yet.",
     "sendConvocations": "Send convocations by email",
     "sendingConvocations": "Sending…",
@@ -558,7 +564,10 @@
     "emptyBallot": "Make a choice before submitting.",
     "error": "Couldn't save. Please try again.",
     "allDoneTitle": "Thank you!",
-    "allDoneDesc": "You've voted on every resolution."
+    "allDoneDesc": "You've voted on every resolution.",
+    "accountTitle": "Want to run your own votes?",
+    "accountDesc": "Placet is the simple way to decide as a group: create a vote (AGM, election, group choice…), pick the right method, invite by link or email, and get an automatic, transparent count. Free, no install.",
+    "accountCta": "Create my account"
   },
   "Join": {
     "loading": "Loading…",

@@ -3,6 +3,7 @@
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useState } from "react";
 import { castEventBallot, getEventContext, type EventContext } from "@/lib/db/events";
+import { useAuth } from "@/lib/auth/useAuth";
 import {
   describeRecipe,
   methodMode,
@@ -38,6 +39,7 @@ const card = {
 export default function LivretVote({ token }: { token: string }) {
   const t = useTranslations("Livret");
   const tv = useTranslations("Vote");
+  const { user, loading: authLoading, signIn } = useAuth();
   const [ctx, setCtx] = useState<EventContext | null>(null);
   const [loading, setLoading] = useState(true);
   const [drafts, setDrafts] = useState<Record<string, BallotDraft>>({});
@@ -195,6 +197,21 @@ export default function LivretVote({ token }: { token: string }) {
         <div style={{ ...card, marginTop: 16, background: "#e7f7df", borderColor: INK }}>
           <b>{t("allDoneTitle")}</b>
           <div style={{ color: SUBINK, marginTop: 6 }}>{t("allDoneDesc")}</div>
+        </div>
+      )}
+
+      {/* Conversion : le votant n'a pas de compte → on lui propose d'en créer un. */}
+      {done > 0 && !authLoading && !user && (
+        <div style={{ ...card, marginTop: 16 }}>
+          <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 18 }}>{t("accountTitle")}</div>
+          <div style={{ color: SUBINK, marginTop: 8, lineHeight: 1.55, fontSize: 14.5 }}>{t("accountDesc")}</div>
+          <button
+            onClick={signIn}
+            className="dc-bright"
+            style={{ marginTop: 14, fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 15, cursor: "pointer", border: `2.5px solid ${INK}`, background: INK, color: "#fff", padding: "12px 18px", borderRadius: 12 }}
+          >
+            {t("accountCta")}
+          </button>
         </div>
       )}
     </Shell>

@@ -523,6 +523,12 @@
     "needResolutions": "Añade al menos una resolución antes de abrir.",
     "results": "Resultados",
     "participation": "{voted}/{total} han votado",
+    "recapTitle": "Condiciones y balance",
+    "recapElectorate": "Cuerpo electoral: {count} convocados",
+    "recapQuorumReq": "Quórum requerido: {pct} % ({votes} votos)",
+    "recapQuorumNone": "Quórum: ninguno",
+    "recapOutcome": "{adopted, plural, one {# adoptada} other {# adoptadas}} · {rejected, plural, one {# rechazada} other {# rechazadas}}",
+    "recapQuorumFailed": "· {count} sin quórum",
     "resNoBallots": "Sin papeletas todavía.",
     "sendConvocations": "Enviar las convocatorias por email",
     "sendingConvocations": "Enviando…",
@@ -558,7 +564,10 @@
     "emptyBallot": "Elige una opción antes de validar.",
     "error": "No se pudo guardar. Inténtalo de nuevo.",
     "allDoneTitle": "¡Gracias!",
-    "allDoneDesc": "Has votado todas las resoluciones."
+    "allDoneDesc": "Has votado todas las resoluciones.",
+    "accountTitle": "¿Quieres organizar tus propias votaciones?",
+    "accountDesc": "Placet es la forma sencilla de decidir en grupo: crea una votación (asamblea, elección, decisión de grupo…), elige el método adecuado, invita por enlace o email, y obtén un recuento automático y transparente. Gratis, sin instalación.",
+    "accountCta": "Crear mi cuenta"
   },
   "Join": {
     "loading": "Cargando…",

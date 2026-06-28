@@ -93,6 +93,13 @@ export default function EventResults({
 
   if (!resolutions.length) return null;
 
+  // Synthèse : conditions du vote (corps électoral, quorum) + bilan adoptées/rejetées.
+  const cells = resolutions.map((r) => data[r.id]).filter(Boolean) as Cell[];
+  const adopted = cells.filter((c) => c.verdict && c.quorumMet && c.verdict.adopted).length;
+  const rejected = cells.filter((c) => c.verdict && c.quorumMet && !c.verdict.adopted).length;
+  const quorumFailed = cells.filter((c) => c.required > 0 && !c.quorumMet).length;
+  const required = quorum > 0 ? Math.ceil((quorum / 100) * convenedCount) : 0;
+
   const thresholdLabel = (thr: number) =>
     thr >= 75 ? t("thrThreeQuarters") : thr >= 67 ? t("thrTwoThirds") : t("thrAbsolute");
 
@@ -105,6 +112,22 @@ export default function EventResults({
   return (
     <div style={{ marginTop: 16 }}>
       <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 19, marginBottom: 12 }}>{t("results")}</div>
+
+      <div style={{ background: "#fff", border: `2.5px solid ${INK}`, borderRadius: 16, padding: "13px 16px", marginBottom: 14, boxShadow: `4px 4px 0 ${INK}` }}>
+        <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 15.5, marginBottom: 7 }}>{t("recapTitle")}</div>
+        <div style={{ fontSize: 12.5, color: SUBINK, fontWeight: 600, display: "flex", gap: 8, flexWrap: "wrap" }}>
+          <span>{t("recapElectorate", { count: convenedCount })}</span>
+          <span style={{ color: MUTED }}>·</span>
+          <span>{required > 0 ? t("recapQuorumReq", { pct: quorum, votes: required }) : t("recapQuorumNone")}</span>
+        </div>
+        {adopted + rejected > 0 && (
+          <div style={{ fontSize: 14.5, fontWeight: 800, marginTop: 8, color: INK }}>
+            {t("recapOutcome", { adopted, rejected })}
+            {quorumFailed > 0 && <span style={{ color: REDTXT, fontWeight: 700 }}> {t("recapQuorumFailed", { count: quorumFailed })}</span>}
+          </div>
+        )}
+      </div>
+
       <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
         {resolutions.map((r) => {
           const d = data[r.id];
