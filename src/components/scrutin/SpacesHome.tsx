@@ -4,9 +4,9 @@ import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useState } from "react";
 import { Link } from "@/i18n/navigation";
 import { useAuth } from "@/lib/auth/useAuth";
-import { createSpace, listSpaces, type Space } from "@/lib/db/events";
+import { createSpace, listSpacesWithStats, type SpaceStats } from "@/lib/db/events";
 import PlacetMark from "./PlacetMark";
-import { CREAM, FONT_BODY, FONT_DISPLAY, INK, MUTED, SUBINK } from "./theme";
+import { CREAM, FONT_BODY, FONT_DISPLAY, GREEN, INK, MUTED, SUBINK } from "./theme";
 
 const card = {
   background: "#fff",
@@ -33,7 +33,7 @@ export function OrgShell({ children }: { children: React.ReactNode }) {
 export default function SpacesHome() {
   const t = useTranslations("Org");
   const { user, loading, signIn } = useAuth();
-  const [spaces, setSpaces] = useState<Space[]>([]);
+  const [spaces, setSpaces] = useState<SpaceStats[]>([]);
   const [name, setName] = useState("");
   const [busy, setBusy] = useState(false);
   const [ready, setReady] = useState(false);
@@ -41,7 +41,7 @@ export default function SpacesHome() {
   const load = useCallback(async () => {
     if (!user) return;
     try {
-      setSpaces(await listSpaces());
+      setSpaces(await listSpacesWithStats());
     } catch {
       /* noop */
     }
@@ -56,7 +56,7 @@ export default function SpacesHome() {
     setBusy(true);
     try {
       const s = await createSpace(name);
-      setSpaces((l) => [s, ...l]);
+      setSpaces((l) => [{ ...s, members: 0, events_open: 0, events_closed: 0, events_draft: 0 }, ...l]);
       setName("");
     } catch {
       /* noop */
@@ -114,10 +114,18 @@ export default function SpacesHome() {
           <Link
             key={s.id}
             href={`/espaces/${s.id}`}
-            style={{ ...card, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, textDecoration: "none", color: INK }}
+            style={{ ...card, display: "flex", flexDirection: "column", gap: 8, textDecoration: "none", color: INK }}
           >
-            <span style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 18 }}>{s.name}</span>
-            <span style={{ fontWeight: 700, color: SUBINK }}>{t("open")}</span>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
+              <span style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 18 }}>{s.name}</span>
+              <span style={{ fontWeight: 700, color: SUBINK, fontSize: 14 }}>{t("open")} →</span>
+            </div>
+            <div style={{ display: "flex", gap: 12, flexWrap: "wrap", fontSize: 13, color: SUBINK, fontWeight: 600 }}>
+              <span>{t("memberCount", { count: s.members })}</span>
+              {s.events_open > 0 && <span style={{ color: GREEN }}>{t("statOpen", { count: s.events_open })}</span>}
+              {s.events_closed > 0 && <span>{t("statClosed", { count: s.events_closed })}</span>}
+              {s.events_draft > 0 && <span style={{ color: MUTED }}>{t("statDraft", { count: s.events_draft })}</span>}
+            </div>
           </Link>
         ))}
       </div>

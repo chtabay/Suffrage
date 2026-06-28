@@ -148,6 +148,21 @@ export async function listSpaces(): Promise<Space[]> {
   return (data ?? []) as Space[];
 }
 
+export interface SpaceStats extends Space {
+  members: number;
+  events_open: number;
+  events_closed: number;
+  events_draft: number;
+}
+
+/** Espaces de l'organisateur avec stats (membres, événements par statut) en une requête. */
+export async function listSpacesWithStats(): Promise<SpaceStats[]> {
+  const supabase = createClient();
+  const { data, error } = await supabase.rpc("get_spaces_with_stats");
+  if (error) throw error;
+  return (data as SpaceStats[] | null) ?? [];
+}
+
 export async function getSpace(id: string): Promise<Space | null> {
   const supabase = createClient();
   const { data, error } = await supabase.from("scrutin_spaces").select(SPACE_COLS).eq("id", id).maybeSingle();
