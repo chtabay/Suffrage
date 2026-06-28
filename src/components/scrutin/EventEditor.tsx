@@ -1,0 +1,228 @@
+"use client";
+
+import { useTranslations } from "next-intl";
+import { useCallback, useEffect, useState } from "react";
+import { Link } from "@/i18n/navigation";
+import { useAuth } from "@/lib/auth/useAuth";
+import {
+  addResolution,
+  convene,
+  getEvent,
+  listConvened,
+  listMembers,
+  listResolutions,
+  removeResolution,
+  updateEvent,
+  type EventMember,
+  type EventRow,
+  type Member,
+  type ResolutionRow,
+} from "@/lib/db/events";
+import { recipeForSystem, resolveKey } from "@/lib/voting/engine";
+import { splitLeadingEmoji } from "@/lib/voting/draft";
+import { SYSTEM_ORDER } from "@/lib/voting/systems";
+import { OrgShell } from "./SpacesHome";
+import { CREAM, FONT_BODY, FONT_DISPLAY, GREEN, INK, MUTED, REDTXT, SUBINK } from "./theme";
+
+const card = {
+  background: "#fff",
+  border: `2.5px solid ${INK}`,
+  borderRadius: 18,
+  padding: "20px 22px",
+  boxShadow: `5px 5px 0 ${INK}`,
+} as const;
+
+const btn = (bg: string, fg: string) =>
+  ({
+    fontFamily: FONT_DISPLAY,
+    fontWeight: 800,
+    fontSize: 14.5,
+    cursor: "pointer",
+    border: `2.5px solid ${INK}`,
+    background: bg,
+    color: fg,
+    padding: "11px 18px",
+    borderRadius: 11,
+  }) as const;
+
+export default function EventEditor({ eventId }: { eventId: string }) {
+  const t = useTranslations("Org");
+  const tm = useTranslations("Methods");
+  const { user, loading } = useAuth();
+  const [ev, setEv] = useState<EventRow | null>(null);
+  const [resolutions, setResolutions] = useState<ResolutionRow[]>([]);
+  const [roster, setRoster] = useState<Member[]>([]);
+  const [convened, setConvened] = useState<EventMember[]>([]);
+  const [q, setQ] = useState("");
+  const [optsText, setOptsText] = useState("");
+  const [method, setMethod] = useState("fptp");
+  const [busy, setBusy] = useState(false);
+  const [copied, setCopied] = useState<string | null>(null);
+  const [origin, setOrigin] = useState("");
+
+  const load = useCallback(async () => {
+    if (!user) return;
+    const e = await getEvent(eventId);
+    setEv(e);
+    if (e) {
+      const [r, c] = await Promise.all([listResolutions(eventId), listConvened(eventId)]);
+      setResolutions(r);
+      setConvened(c);
+      if (e.space_id) setRoster(await listMembers(e.space_id));
+    }
+  }, [user, eventId]);
+  useEffect(() => {
+    load();
+    setOrigin(window.location.origin);
+  }, [load]);
+
+  const addRes = async () => {
+    const options = optsText
+      .split("\n")
+      .map((l) => l.trim())
+      .filter(Boolean)
+      .slice(0, 8)
+      .map((l) => {
+        const { icon, name } = splitLeadingEmoji(l, "•");
+        return { icon, name: name.slice(0, 80) };
+      });
+    if (!q.trim() || options.length < 2 || busy) return;
+    setBusy(true);
+    try {
+      await addResolution(eventId, { question: q, options, recipe: recipeForSystem(method), orderIndex: resolutions.length });
+      setResolutions(await listResolutions(eventId));
+      setQ("");
+      setOptsText("");
+    } catch {
+      /* noop */
+    }
+    setBusy(false);
+  };
+
+  const delRes = async (id: string) => {
+    await removeResolution(id);
+    setResolutions((l) => l.filter((r) => r.id !== id));
+  };
+
+  const doConvene = async () => {
+    const have = new Set(convened.map((c) => c.member_id));
+    const toAdd = roster.filter((m) => !have.has(m.id));
+    if (!toAdd.length || busy) return;
+    setBusy(true);
+    try {
+      const added = await convene(eventId, toAdd);
+      setConvened((c) => [...c, ...added]);
+    } catch {
+      /* noop */
+    }
+    setBusy(false);
+  };
+
+  const setStatus = async (status: "draft" | "open" | "closed") => {
+    await updateEvent(eventId, { status });
+    setEv((e) => (e ? { ...e, status } : e));
+  };
+
+  const copy = (token: string) => {
+    navigator.clipboard?.writeText(`${origin}/e/${token}`);
+    setCopied(token);
+    setTimeout(() => setCopied((c) => (c === token ? null : c)), 1600);
+  };
+
+  if (loading) return <OrgShell><div style={{ ...card, color: MUTED }}>{t("loading")}</div></OrgShell>;
+  if (!user) return <OrgShell><div style={card}>{t("signInPrompt")}</div></OrgShell>;
+  if (!ev) return <OrgShell><div style={{ ...card, color: MUTED }}>{t("loading")}</div></OrgShell>;
+
+  const statusKey = ev.status === "open" ? "statusOpen" : ev.status === "closed" ? "statusClosed" : "statusDraft";
+
+  return (
+    <OrgShell>
+      {ev.space_id && (
+        <Link href={`/espaces/${ev.space_id}`} style={{ color: SUBINK, fontWeight: 700, textDecoration: "none", fontSize: 14 }}>
+          {t("backToSpace")}
+        </Link>
+      )}
+      <div style={{ display: "flex", alignItems: "center", gap: 12, margin: "10px 0 0", flexWrap: "wrap" }}>
+        <h1 style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: "clamp(24px,5vw,34px)", letterSpacing: "-0.03em", margin: 0 }}>{ev.title}</h1>
+        <span style={{ fontSize: 12, fontWeight: 800, color: "#fff", background: ev.status === "open" ? GREEN : INK, padding: "5px 11px", borderRadius: 20, textTransform: "uppercase", letterSpacing: "0.04em" }}>{t(statusKey)}</span>
+      </div>
+
+      {ev.status === "draft" && <div style={{ ...card, marginTop: 16, background: "#fff4e0" }}>{t("draftHint")}</div>}
+
+      {/* ---- Résolutions ---- */}
+      <div style={{ ...card, marginTop: 16 }}>
+        <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 19 }}>{t("resolutions")}</div>
+        <div style={{ display: "flex", flexDirection: "column", gap: 8, marginTop: 13 }}>
+          {!resolutions.length && <div style={{ color: MUTED, fontSize: 14 }}>{t("noResolutions")}</div>}
+          {resolutions.map((r, i) => (
+            <div key={r.id} style={{ display: "flex", alignItems: "center", gap: 10, background: CREAM, border: `2px solid ${INK}`, borderRadius: 11, padding: "10px 13px" }}>
+              <span style={{ fontWeight: 800, color: SUBINK, fontSize: 13 }}>{i + 1}</span>
+              <span style={{ fontWeight: 700, fontSize: 14.5, flex: 1 }}>{r.question}</span>
+              <span style={{ fontSize: 12, color: SUBINK, fontWeight: 700 }}>{tm(`${resolveKey(r.recipe)}.name`)}</span>
+              {ev.status === "draft" && (
+                <button onClick={() => delRes(r.id)} style={{ border: "none", background: "none", color: REDTXT, cursor: "pointer", fontSize: 17, lineHeight: 1 }}>×</button>
+              )}
+            </div>
+          ))}
+        </div>
+
+        {ev.status === "draft" && (
+          <div style={{ marginTop: 15, borderTop: `2px dashed #E4DBC6`, paddingTop: 15 }}>
+            <div style={{ fontWeight: 700, fontSize: 13, color: SUBINK, marginBottom: 8 }}>{t("addResolutionTitle")}</div>
+            <input value={q} onChange={(e) => setQ(e.target.value)} placeholder={t("resQuestionPlaceholder")} style={{ width: "100%", fontFamily: FONT_BODY, fontSize: 15, fontWeight: 600, padding: "10px 12px", border: `2px solid ${INK}`, borderRadius: 11, marginBottom: 8 }} />
+            <textarea value={optsText} onChange={(e) => setOptsText(e.target.value)} placeholder={t("resOptionsPlaceholder")} rows={3} style={{ width: "100%", fontFamily: FONT_BODY, fontSize: 14, padding: "10px 12px", border: `2px solid ${INK}`, borderRadius: 11, resize: "vertical", marginBottom: 8 }} />
+            <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
+              <span style={{ fontWeight: 700, fontSize: 13, color: SUBINK }}>{t("resMethod")}</span>
+              <select value={method} onChange={(e) => setMethod(e.target.value)} style={{ fontFamily: FONT_BODY, fontSize: 14, fontWeight: 600, padding: "9px 11px", border: `2px solid ${INK}`, borderRadius: 10, background: "#fff" }}>
+                {SYSTEM_ORDER.map((k) => (
+                  <option key={k} value={k}>{tm(`${k}.name`)}</option>
+                ))}
+              </select>
+              <button onClick={addRes} disabled={busy} style={{ ...btn("#FFB627", INK), marginLeft: "auto" }}>{t("addResolution")}</button>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* ---- Convocation ---- */}
+      <div style={{ ...card, marginTop: 16 }}>
+        <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 10 }}>
+          <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 19 }}>{t("convocation")}</div>
+          <span style={{ color: SUBINK, fontWeight: 700, fontSize: 14 }}>{t("convenedCount", { count: convened.length })}</span>
+        </div>
+        {convened.length < roster.length && (
+          <button onClick={doConvene} disabled={busy} style={{ ...btn(INK, "#fff"), marginTop: 13 }}>{t("convene")}</button>
+        )}
+        {convened.length > 0 && (
+          <>
+            <div style={{ fontSize: 12.5, color: MUTED, margin: "13px 0 8px" }}>{t("shareHint")}</div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 7 }}>
+              {convened.map((c) => (
+                <div key={c.id} style={{ display: "flex", alignItems: "center", gap: 10, background: CREAM, border: `2px solid ${INK}`, borderRadius: 11, padding: "9px 12px" }}>
+                  <span style={{ fontWeight: 700, fontSize: 14, flex: 1 }}>{c.name}</span>
+                  <button onClick={() => copy(c.token)} style={{ border: `2px solid ${INK}`, background: copied === c.token ? GREEN : "#fff", color: copied === c.token ? "#fff" : INK, cursor: "pointer", fontSize: 12.5, fontWeight: 700, padding: "6px 11px", borderRadius: 9 }}>
+                    {copied === c.token ? t("copied") : t("copyLink")}
+                  </button>
+                </div>
+              ))}
+            </div>
+          </>
+        )}
+      </div>
+
+      {/* ---- Ouverture / clôture ---- */}
+      <div style={{ marginTop: 20, display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap" }}>
+        {ev.status === "draft" && (
+          <button
+            onClick={() => (resolutions.length ? setStatus("open") : alert(t("needResolutions")))}
+            style={btn(GREEN, "#fff")}
+          >
+            {t("openEvent")}
+          </button>
+        )}
+        {ev.status === "open" && <button onClick={() => setStatus("closed")} style={btn(INK, "#fff")}>{t("closeEvent")}</button>}
+        {ev.status === "closed" && <button onClick={() => setStatus("open")} style={btn("#fff", INK)}>{t("reopenEvent")}</button>}
+      </div>
+    </OrgShell>
+  );
+}
