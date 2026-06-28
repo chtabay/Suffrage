@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { getTranslations } from "next-intl/server";
 import { publicMethodCatalog, publicMethodToSystem } from "@/lib/voting/methods";
 import SlackMark from "@/components/SlackMark";
+import PlacetMark from "@/components/scrutin/PlacetMark";
 import { Link } from "@/i18n/navigation";
 
 export async function generateMetadata() {
@@ -55,22 +56,7 @@ export default async function AiDocPage() {
       >
         <div style={{ maxWidth: 820, margin: "0 auto", padding: "14px 24px" }}>
           <Link href="/" style={{ display: "inline-flex", alignItems: "center", gap: 11, textDecoration: "none", color: INK }}>
-            <span
-              style={{
-                width: 38,
-                height: 38,
-                border: `2.5px solid ${INK}`,
-                borderRadius: 11,
-                background: "#FFB627",
-                display: "inline-flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontSize: 20,
-                boxShadow: `3px 3px 0 ${INK}`,
-              }}
-            >
-              🗳️
-            </span>
+            <PlacetMark size={38} />
             <span style={{ fontFamily: display, fontWeight: 800, fontSize: 21, letterSpacing: "-0.02em" }}>Placet</span>
           </Link>
         </div>

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Link } from "@/i18n/navigation";
 import { pickLocale } from "@/i18n/locales";
+import PlacetMark from "@/components/scrutin/PlacetMark";
 
 // Adresse de contact affichée dans la politique de confidentialité + à reporter
 // dans le champ « Support email » de Slack. Mettre en place une redirection
@@ -186,22 +187,7 @@ export default async function PrivacyPage({ params }: { params: Promise<{ locale
       >
         <div style={{ maxWidth: 760, margin: "0 auto", padding: "14px 24px" }}>
           <Link href="/" style={{ display: "inline-flex", alignItems: "center", gap: 11, textDecoration: "none", color: INK }}>
-            <span
-              style={{
-                width: 38,
-                height: 38,
-                border: `2.5px solid ${INK}`,
-                borderRadius: 11,
-                background: "#FFB627",
-                display: "inline-flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontSize: 20,
-                boxShadow: `3px 3px 0 ${INK}`,
-              }}
-            >
-              🗳️
-            </span>
+            <PlacetMark size={38} />
             <span style={{ fontFamily: display, fontWeight: 800, fontSize: 21, letterSpacing: "-0.02em" }}>Placet</span>
           </Link>
         </div>

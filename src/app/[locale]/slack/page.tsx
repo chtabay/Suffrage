@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import SlackMark from "@/components/SlackMark";
+import PlacetMark from "@/components/scrutin/PlacetMark";
 
 export async function generateMetadata() {
   const t = await getTranslations("SlackPage");
@@ -38,7 +39,9 @@ export default async function SlackInstallPage() {
     <div style={{ minHeight: "100vh", background: CREAM }}>
       <div style={{ maxWidth: 640, margin: "0 auto", padding: "56px 24px 90px" }}>
         <Link href="/" style={{ textDecoration: "none", color: INK, fontFamily: display, fontWeight: 800, fontSize: 22 }}>
-          🗳️ Placet
+          <span style={{ display: "inline-flex", alignItems: "center", gap: 9 }}>
+            <PlacetMark size={28} /> Placet
+          </span>
         </Link>
 
         <h1 style={{ fontFamily: display, fontWeight: 800, fontSize: "clamp(28px,5vw,42px)", letterSpacing: "-0.03em", marginTop: 22 }}>

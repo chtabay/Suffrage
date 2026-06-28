@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
 import { useCallback, useEffect, useState } from "react";
 import { intlLocale } from "@/i18n/locales";
+import PlacetMark from "./PlacetMark";
 import {
   addBallot,
   castInvitedBallot,
@@ -157,22 +158,7 @@ function Header() {
         style={{ maxWidth: 880, margin: "0 auto", padding: "14px 24px", display: "flex", alignItems: "center", gap: 11 }}
       >
         <Link href="/" style={{ display: "flex", alignItems: "center", gap: 11, textDecoration: "none", color: INK }}>
-          <div
-            style={{
-              width: 38,
-              height: 38,
-              border: `2.5px solid ${INK}`,
-              borderRadius: 11,
-              background: YELLOW,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              fontSize: 20,
-              boxShadow: `3px 3px 0 ${INK}`,
-            }}
-          >
-            🗳️
-          </div>
+          <PlacetMark size={38} />
           <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 21, letterSpacing: "-0.02em" }}>
             Placet
           </div>

@@ -53,7 +53,35 @@ export default async function OgImage({ params }: { params: Promise<{ locale: st
         {/* en-tête : logo + statut */}
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 18 }}>
-            <div style={{ width: 64, height: 64, background: YELLOW, borderRadius: 16, border: `5px solid ${INK}` }} />
+            <div
+              style={{
+                width: 64,
+                height: 64,
+                background: YELLOW,
+                borderRadius: 16,
+                border: `5px solid ${INK}`,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <div
+                style={{
+                  width: 38,
+                  height: 38,
+                  background: INK,
+                  borderRadius: 9,
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <div style={{ width: 20, height: 4, background: YELLOW, borderRadius: 2, margin: 1.5 }} />
+                <div style={{ width: 20, height: 4, background: YELLOW, borderRadius: 2, margin: 1.5 }} />
+                <div style={{ width: 20, height: 4, background: YELLOW, borderRadius: 2, margin: 1.5 }} />
+              </div>
+            </div>
             <div style={{ display: "flex", fontSize: 38, fontWeight: 800, color: INK }}>Placet</div>
           </div>
           <div

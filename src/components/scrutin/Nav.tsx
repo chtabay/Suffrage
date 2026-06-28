@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import type { AuthController } from "@/lib/auth/useAuth";
 import type { ScrutinController } from "@/lib/voting/useScrutin";
 import LocaleSwitch from "@/components/LocaleSwitch";
+import PlacetMark from "./PlacetMark";
 import { CORAL, CREAM, FONT_BODY, FONT_DISPLAY, GREEN, INK, YELLOW, lift } from "./theme";
 
 export default function Nav({ ctrl, auth }: { ctrl: ScrutinController; auth: AuthController }) {
@@ -55,22 +56,7 @@ export default function Nav({ ctrl, auth }: { ctrl: ScrutinController; auth: Aut
         }}
       >
         <div onClick={act(() => go("home"))} style={{ display: "flex", alignItems: "center", gap: 11, cursor: "pointer" }}>
-          <div
-            style={{
-              width: 36,
-              height: 36,
-              border: `2.5px solid ${INK}`,
-              borderRadius: 11,
-              background: YELLOW,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              fontSize: 19,
-              boxShadow: `3px 3px 0 ${INK}`,
-            }}
-          >
-            🗳️
-          </div>
+          <PlacetMark size={36} />
           <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 21, letterSpacing: "-0.02em" }}>
             Placet
           </div>
