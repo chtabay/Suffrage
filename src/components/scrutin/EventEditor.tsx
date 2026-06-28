@@ -64,6 +64,7 @@ export default function EventEditor({ eventId }: { eventId: string }) {
   const [copied, setCopied] = useState<string | null>(null);
   const [origin, setOrigin] = useState("");
   const [sendMsg, setSendMsg] = useState("");
+  const [sending, setSending] = useState(false);
   const [capInput, setCapInput] = useState("");
   const [majority, setMajority] = useState(50);
   const [quorumInput, setQuorumInput] = useState("");
@@ -174,8 +175,8 @@ export default function EventEditor({ eventId }: { eventId: string }) {
   };
 
   const sendConvocations = async () => {
-    if (busy) return;
-    setBusy(true);
+    if (sending) return;
+    setSending(true);
     setSendMsg("");
     try {
       const res = await fetch(`/api/events/${eventId}/convoke`, {
@@ -193,7 +194,7 @@ export default function EventEditor({ eventId }: { eventId: string }) {
     } catch {
       setSendMsg(t("emailError"));
     }
-    setBusy(false);
+    setSending(false);
   };
 
   if (loading) return <OrgShell><div style={{ ...card, color: MUTED }}>{t("loading")}</div></OrgShell>;
@@ -307,6 +308,7 @@ export default function EventEditor({ eventId }: { eventId: string }) {
               {convened.map((c) => (
                 <div key={c.id} style={{ display: "flex", alignItems: "center", gap: 10, background: CREAM, border: `2px solid ${INK}`, borderRadius: 11, padding: "9px 12px" }}>
                   <span style={{ fontWeight: 700, fontSize: 14, flex: 1 }}>{c.name}</span>
+                  {c.invited_at && <span style={{ fontSize: 11, fontWeight: 800, color: GREEN }}>{t("invitedBadge")}</span>}
                   <button onClick={() => copy(c.token)} style={{ border: `2px solid ${INK}`, background: copied === c.token ? GREEN : "#fff", color: copied === c.token ? "#fff" : INK, cursor: "pointer", fontSize: 12.5, fontWeight: 700, padding: "6px 11px", borderRadius: 9 }}>
                     {copied === c.token ? t("copied") : t("copyLink")}
                   </button>
@@ -314,11 +316,15 @@ export default function EventEditor({ eventId }: { eventId: string }) {
               ))}
             </div>
             {convened.some((c) => c.email) && (
-              <button onClick={sendConvocations} disabled={busy} style={{ ...btn("#FFB627", INK), marginTop: 12 }}>
-                {t("sendConvocations")}
+              <button
+                onClick={sendConvocations}
+                disabled={sending}
+                style={{ ...btn("#FFB627", INK), marginTop: 12, opacity: sending ? 0.6 : 1, cursor: sending ? "wait" : "pointer" }}
+              >
+                {sending ? t("sendingConvocations") : convened.some((c) => c.invited_at) ? t("resendConvocations") : t("sendConvocations")}
               </button>
             )}
-            {sendMsg && <div style={{ marginTop: 10, fontWeight: 700, fontSize: 13.5, color: SUBINK }}>{sendMsg}</div>}
+            {sendMsg && <div style={{ marginTop: 10, fontWeight: 700, fontSize: 13.5, color: GREEN }}>{sendMsg}</div>}
           </>
         )}
       </div>
