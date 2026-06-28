@@ -392,6 +392,29 @@ export async function getEnrollInfo(enrollToken: string): Promise<EnrollInfo> {
   return (data as EnrollInfo | null) ?? { status: "invalid" };
 }
 
+/** Bulletin anonyme renvoyé pour le bilan votant (pas d'identité). */
+export interface VoterBallot {
+  ranking: number[];
+  grades: Record<number, number>;
+  district: number | null;
+  weight: number;
+}
+export interface EventResultsData {
+  status: "closed" | "not_closed" | "invalid";
+  title?: string;
+  quorum?: number;
+  convened?: number;
+  resolutions?: (ResolutionRow & { ballots: VoterBallot[] })[];
+}
+
+/** Résultats d'un événement CLOS pour un votant (jeton nominatif). Bulletins anonymes. */
+export async function getEventResults(token: string): Promise<EventResultsData> {
+  const supabase = createClient();
+  const { data, error } = await supabase.rpc("get_event_results", { p_token: token });
+  if (error) throw error;
+  return (data as EventResultsData | null) ?? { status: "invalid" };
+}
+
 export async function getEventContext(token: string): Promise<EventContext | null> {
   const supabase = createClient();
   const { data, error } = await supabase.rpc("get_event_context", { p_token: token });

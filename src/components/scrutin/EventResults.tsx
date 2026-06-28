@@ -42,10 +42,14 @@ export default function EventResults({
   resolutions,
   convenedCount,
   quorum,
+  getBallots,
 }: {
   resolutions: ResolutionRow[];
   convenedCount: number;
   quorum: number;
+  // Source des bulletins. Défaut = lecture organisateur (RLS) ; le bilan votant
+  // injecte les bulletins déjà récupérés (anonymes) via get_event_results.
+  getBallots?: (r: ResolutionRow) => Promise<{ ballot: Ballot; weight: number }[]>;
 }) {
   const t = useTranslations("Org");
   const locale = useLocale();
@@ -57,7 +61,7 @@ export default function EventResults({
       const entries: Record<string, Cell> = {};
       for (const r of resolutions) {
         try {
-          const rows = await getResolutionBallots(r.id);
+          const rows = await (getBallots ? getBallots(r) : getResolutionBallots(r.id));
           const expanded = expand(rows);
           const result = compute({ recipe: r.recipe, options: r.options, ballots: expanded }, locale);
           // Verdict (majorité qualifiée) — seulement pour le décompte majoritaire,
@@ -89,6 +93,9 @@ export default function EventResults({
     return () => {
       cancel = true;
     };
+    // getBallots est volontairement hors deps : il lit des données déjà stables
+    // (ballotsMap mémoïsé) ; l'inclure relancerait le fetch à chaque rendu.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [resolutions, locale, quorum, convenedCount]);
 
   if (!resolutions.length) return null;

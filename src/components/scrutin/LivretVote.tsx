@@ -1,8 +1,8 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { useCallback, useEffect, useState } from "react";
-import { castEventBallot, getEventContext, type EventContext } from "@/lib/db/events";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { castEventBallot, getEventContext, getEventResults, type EventContext, type EventResultsData } from "@/lib/db/events";
 import { useAuth } from "@/lib/auth/useAuth";
 import {
   describeRecipe,
@@ -15,6 +15,7 @@ import {
 } from "@/lib/voting/engine";
 import type { Ballot, BallotMode } from "@/lib/voting/types";
 import BallotCard, { EMPTY_DRAFT, type BallotDraft } from "./BallotCard";
+import EventResults from "./EventResults";
 import PlacetMark from "./PlacetMark";
 import { CREAM, FONT_BODY, FONT_DISPLAY, GREEN, INK, MUTED, SUBINK } from "./theme";
 
@@ -46,12 +47,16 @@ export default function LivretVote({ token }: { token: string }) {
   const [voted, setVoted] = useState<Set<string>>(new Set());
   const [busy, setBusy] = useState<string | null>(null);
   const [err, setErr] = useState<Record<string, string>>({});
+  const [results, setResults] = useState<EventResultsData | null>(null);
 
   const load = useCallback(async () => {
     try {
       const c = await getEventContext(token);
       setCtx(c);
-      if (c) setVoted(new Set(c.resolutions.filter((r) => r.voted).map((r) => r.token)));
+      if (c) {
+        setVoted(new Set(c.resolutions.filter((r) => r.voted).map((r) => r.token)));
+        if (c.event.status === "closed") setResults(await getEventResults(token));
+      }
     } catch {
       setCtx(null);
     }
@@ -82,6 +87,14 @@ export default function LivretVote({ token }: { token: string }) {
     }
     setBusy(null);
   };
+
+  // Bulletins (anonymes) par résolution, pour réutiliser EventResults côté votant.
+  const ballotsMap = useMemo(() => {
+    const m: Record<string, { ballot: Ballot; weight: number }[]> = {};
+    for (const r of results?.resolutions ?? [])
+      m[r.id] = r.ballots.map((b) => ({ ballot: { ranking: b.ranking, grades: b.grades, district: b.district ?? 0 }, weight: b.weight }));
+    return m;
+  }, [results]);
 
   const Shell = ({ children }: { children: React.ReactNode }) => (
     <div style={{ minHeight: "100vh", background: CREAM, fontFamily: FONT_BODY }}>
@@ -121,6 +134,16 @@ export default function LivretVote({ token }: { token: string }) {
         <div style={{ ...card, marginTop: 16, background: "#fff4e0" }}>{t("eventClosed")}</div>
       )}
 
+      {ev.status === "closed" && results?.status === "closed" && (
+        <EventResults
+          resolutions={results.resolutions ?? []}
+          convenedCount={results.convened ?? 0}
+          quorum={results.quorum ?? 0}
+          getBallots={(r) => Promise.resolve(ballotsMap[r.id] ?? [])}
+        />
+      )}
+
+      {ev.status !== "closed" && (
       <div style={{ display: "flex", flexDirection: "column", gap: 16, marginTop: 16 }}>
         {ctx.resolutions.map((res, idx) => {
           const isVoted = voted.has(res.token);
@@ -192,6 +215,7 @@ export default function LivretVote({ token }: { token: string }) {
           );
         })}
       </div>
+      )}
 
       {total > 0 && done === total && (
         <div style={{ ...card, marginTop: 16, background: "#e7f7df", borderColor: INK }}>
