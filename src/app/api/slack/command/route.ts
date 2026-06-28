@@ -1,7 +1,7 @@
-// Slash command /scrutin : vérifie la signature Slack, crée un brouillon collaboratif
+// Slash command /placet : vérifie la signature Slack, crée un brouillon collaboratif
 // et poste le message « builder » Block Kit dans le canal. Réponse HTTP vide (le
 // message est posté via l'API Web pour pouvoir être édité ensuite).
-// Locale : langue du créateur (users.info) → défaut du workspace (/scrutin lang) → env → en.
+// Locale : langue du créateur (users.info) → défaut du workspace (/placet lang) → env → en.
 import { NextResponse } from "next/server";
 import { getTranslations } from "next-intl/server";
 import { verifySlackSignature, parseCommand } from "@/lib/slack/verify";
@@ -50,13 +50,13 @@ export async function POST(req: Request) {
   const { t, tm } = await translators(locale);
   const ephemeral = (text: string) => NextResponse.json({ response_type: "ephemeral", text });
 
-  // Sous-commande d'aide : /scrutin aide
-  if (/^(aide|help|\?)$/i.test(input)) {
+  // Sous-commande d'aide : /placet aide
+  if (/^(aide|help|ayuda|\?)$/i.test(input)) {
     const h = helpMessage(t, tm);
     return NextResponse.json({ response_type: "ephemeral", blocks: h.blocks, text: h.text });
   }
 
-  // Sous-commande langue : /scrutin lang <fr|en|es> → défaut du workspace.
+  // Sous-commande langue : /placet lang <fr|en|es> → défaut du workspace.
   const langM = /^lang\s+([a-z-]+)/i.exec(input);
   if (langM) {
     const wanted = supportedLocale(langM[1], "");
@@ -66,7 +66,7 @@ export async function POST(req: Request) {
     return ephemeral(t2("langSet", { lang: wanted.toUpperCase() }));
   }
 
-  // Sous-commande créneaux : « /scrutin dates [question] » → builder en mode dates.
+  // Sous-commande créneaux : « /placet dates [question] » → builder en mode dates.
   const slotMode = /^dates?\b/i.test(input);
   const body = slotMode ? input.replace(/^dates?\b\s*/i, "") : input;
 

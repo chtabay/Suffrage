@@ -53,7 +53,7 @@ export async function GET(req: Request) {
     const enc = encryptToken(data.access_token);
     if (!enc) return page("Configuration serveur incomplète (clé de chiffrement).", false);
     await setInstall(data.team.id, enc, data.team.name ?? null, data.authed_user?.id ?? null);
-    return page("Placet est installé dans votre espace Slack ! Tapez <b>/scrutin</b> dans un canal pour créer un vote.", true);
+    return page("Placet est installé dans votre espace Slack ! Tapez <b>/placet</b> dans un canal pour créer un vote.", true);
   } catch {
     return page("Erreur réseau pendant l'installation. Réessayez.", false);
   }

@@ -16,7 +16,7 @@
     "methodsTitleLean": "Choose a method",
     "compareCta": "Compare all 10 methods →",
     "slackTitle": "Also in Slack.",
-    "slackText": "Launch a vote without leaving your channels — /scrutin, everyone votes on the web, the result comes back to the channel.",
+    "slackText": "Launch a vote without leaving your channels — /placet, everyone votes on the web, the result comes back to the channel.",
     "slackCta": "Add to Slack",
     "steps": {
       "s1Label": "STEP 1",
@@ -301,7 +301,7 @@
   "Slack": {
     "errCreate": "⚠️ Internal error while creating the vote. Try again in a moment.",
     "errInternal": "⚠️ Internal error. Try again in a moment.",
-    "errPost": "⚠️ I couldn't post in this channel. Invite the app to the channel, then run `/scrutin` again.",
+    "errPost": "⚠️ I couldn't post in this channel. Invite the app to the channel, then run `/placet` again.",
     "errLaunch": "⚠️ Failed to create the vote. Try again in a moment.",
     "needOptions": "You need a *question* and *at least 2 options* before launching the vote.",
     "needSlots": "You need a *question* and *at least 2 slots* before launching.",
@@ -310,7 +310,7 @@
     "langUnknown": "Unknown language. Use: fr, en, es.",
     "help": {
       "title": "🗳️ Placet — help",
-      "body": "*Create a vote*\n`/scrutin Question?` opens a vote to build together.\nPrefill it directly: `/scrutin Dinner tonight? | 🍕 Pizza | 🍣 Sushi`.\nDate poll: `/scrutin dates Meeting next week?` then add time slots.\nIn the message: ➕ add options · ⚖️ pick the method · ✅ *Launch*. Everyone votes on the web; the *Close* button posts the result here.",
+      "body": "*Create a vote*\n`/placet Question?` opens a vote to build together.\nPrefill it directly: `/placet Dinner tonight? | 🍕 Pizza | 🍣 Sushi`.\nDate poll: `/placet dates Meeting next week?` then add time slots.\nIn the message: ➕ add options · ⚖️ pick the method · ✅ *Launch*. Everyone votes on the web; the *Close* button posts the result here.",
       "methodsHeading": "*The methods*\n{methods}",
       "fallback": "Placet help"
     },
@@ -327,7 +327,7 @@
       "editQuestion": "✏️ Question",
       "launch": "✅ Launch the vote",
       "cancel": "❌ Cancel",
-      "footer": "⚙️ <{url}|Create a refined version on the web> — deadline, quorum, hidden results, named voters.   ·   ❓ `/scrutin aide`",
+      "footer": "⚙️ <{url}|Create a refined version on the web> — deadline, quorum, hidden results, named voters.   ·   ❓ `/placet help`",
       "fallback": "Vote in preparation: {question}",
       "untitled": "(untitled)"
     },
@@ -400,7 +400,7 @@
     "title": "Placet for AI assistants",
     "intro": "Placet turns a group decision into a structured vote. You can generate a link that opens a <strong>pre-filled draft</strong>: the user reviews it, tweaks it, then launches. No authentication is required to produce the link.",
     "slackTeaserTitle": "💬 Also in Slack.",
-    "slackTeaserBody": "Start a vote without leaving your channels: <code>/scrutin</code> builds the vote, people vote on the web, and the result comes back to the channel.",
+    "slackTeaserBody": "Start a vote without leaving your channels: <code>/placet</code> builds the vote, people vote on the web, and the result comes back to the channel.",
     "slackTeaserCta": "Add to Slack →",
     "formatTitle": "Link format",
     "paramTitle": " — the question being asked.",
@@ -423,21 +423,21 @@
   },
   "SlackPage": {
     "metaTitle": "Placet for Slack — create votes in your channels",
-    "metaDescription": "Add Placet to your Slack workspace: /scrutin builds a collaborative vote in the channel, people vote on the web, and the result comes back to Slack automatically.",
+    "metaDescription": "Add Placet to your Slack workspace: /placet builds a collaborative vote in the channel, people vote on the web, and the result comes back to Slack automatically.",
     "title": "Group votes, right in Slack",
-    "intro": "Add <strong>Placet</strong> to your Slack workspace. A <code>/scrutin</code> command builds the vote with your team; voting happens on the web (with real methods: approval, majority judgment, Condorcet…) and the result comes back to the channel.",
+    "intro": "Add <strong>Placet</strong> to your Slack workspace. A <code>/placet</code> command builds the vote with your team; voting happens on the web (with real methods: approval, majority judgment, Condorcet…) and the result comes back to the channel.",
     "installAria": "Add Placet to Slack",
     "installCta": "Add to Slack",
     "installUnavailable": "Installation unavailable (setup in progress).",
-    "step1Title": "1. /scrutin",
-    "step1Body": "Type “/scrutin Where should we have lunch?” (or “/scrutin dates …” for time slots) in any channel.",
+    "step1Title": "1. /placet",
+    "step1Body": "Type “/placet Where should we have lunch?” (or “/placet dates …” for time slots) in any channel.",
     "step2Title": "2. Together",
     "step2Body": "Everyone adds options and picks the method, right in the message.",
     "step3Title": "3. Vote",
     "step3Body": "On launch, the channel gets the link: everyone votes on the web, no account needed.",
     "step4Title": "4. Result",
     "step4Body": "At close (button or deadline), the tally and the winner are posted to the channel.",
-    "permissionsNote": "Placet requests the minimal permissions (<code>commands</code>, <code>chat:write</code>) to post and update voting messages. Ballots stay on the web; no voter needs an account. Type <code>/scrutin aide</code> in Slack anytime."
+    "permissionsNote": "Placet requests the minimal permissions (<code>commands</code>, <code>chat:write</code>) to post and update voting messages. Ballots stay on the web; no voter needs an account. Type <code>/placet help</code> in Slack anytime."
   },
   "Meta": {
     "title": "Placet — Vote the way it should be done",

@@ -16,5 +16,5 @@ export const config = {
   // La racine "/" doit être listée explicitement (le catch-all ne la matche pas) →
   // sinon le middleware ne réécrit pas "/" vers la locale par défaut et "/" tombe en 404.
   // Le reste exclut l'API, l'auth callback, les routes d'icônes/manifest et les fichiers statiques.
-  matcher: ["/", "/((?!api|auth|icon-|apple-icon|_next|_vercel|.*\\..*).*)"],
+  matcher: ["/", "/((?!api|auth|icon-|apple-icon|promo|_next|_vercel|.*\\..*).*)"],
 };

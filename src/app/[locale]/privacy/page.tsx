@@ -47,7 +47,7 @@ export default async function PrivacyPage({ params }: { params: Promise<{ locale
         },
         {
           h: "Ce que nous collectons — dans Slack",
-          p: "Quand vous utilisez la commande /scrutin, nous stockons l'identifiant de votre espace de travail, l'identifiant du canal et les identifiants Slack nécessaires pour construire le vote et publier le résultat. Nous demandons des permissions minimales (commands, chat:write) plus users:read pour afficher le bot dans votre langue. Nous ne lisons jamais vos messages.",
+          p: "Quand vous utilisez la commande /placet, nous stockons l'identifiant de votre espace de travail, l'identifiant du canal et les identifiants Slack nécessaires pour construire le vote et publier le résultat. Nous demandons des permissions minimales (commands, chat:write) plus users:read pour afficher le bot dans votre langue. Nous ne lisons jamais vos messages.",
         },
         {
           h: "Pourquoi",
@@ -92,7 +92,7 @@ export default async function PrivacyPage({ params }: { params: Promise<{ locale
         },
         {
           h: "What we collect — in Slack",
-          p: "When you use the /scrutin command, we store your workspace ID, the channel ID, and the Slack IDs needed to build the vote and post the result. We request minimal permissions (commands, chat:write) plus users:read to show the bot in your language. We never read your messages.",
+          p: "When you use the /placet command, we store your workspace ID, the channel ID, and the Slack IDs needed to build the vote and post the result. We request minimal permissions (commands, chat:write) plus users:read to show the bot in your language. We never read your messages.",
         },
         {
           h: "Why",
@@ -137,7 +137,7 @@ export default async function PrivacyPage({ params }: { params: Promise<{ locale
         },
         {
           h: "Qué recopilamos — en Slack",
-          p: "Cuando usas el comando /scrutin, almacenamos el identificador de tu espacio de trabajo, el del canal y los identificadores de Slack necesarios para construir la votación y publicar el resultado. Solicitamos permisos mínimos (commands, chat:write) más users:read para mostrar el bot en tu idioma. Nunca leemos tus mensajes.",
+          p: "Cuando usas el comando /placet, almacenamos el identificador de tu espacio de trabajo, el del canal y los identificadores de Slack necesarios para construir la votación y publicar el resultado. Solicitamos permisos mínimos (commands, chat:write) más users:read para mostrar el bot en tu idioma. Nunca leemos tus mensajes.",
         },
         {
           h: "Por qué",

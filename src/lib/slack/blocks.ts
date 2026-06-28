@@ -9,6 +9,7 @@
 import { buildNewUrl } from "@/lib/voting/draft";
 import { publicMethodCatalog, publicMethodToSystem } from "@/lib/voting/methods";
 import { APP_URL } from "@/lib/voting/aiPrompt";
+import { supportedLocale } from "@/i18n/locales";
 import type { SlackBuilder, SlackOption } from "./store";
 
 export type Block = Record<string, unknown>;
@@ -46,7 +47,7 @@ export function methodLabel(key: string, tm: SlackT): string {
   return sys ? `${methodIcon(key)} ${tm(`${sys}.name`)}` : key;
 }
 
-/** Message d'aide éphémère (`/scrutin aide`) : usage + explication des méthodes. */
+/** Message d'aide éphémère (`/placet aide`) : usage + explication des méthodes. */
 export function helpMessage(t: SlackT, tm: SlackT): { blocks: Block[]; text: string } {
   const methods = SLACK_METHODS.map((k) => {
     const sys = publicMethodToSystem(k);
@@ -147,7 +148,10 @@ export function builderMessage(b: SlackBuilder, t: SlackT, tm: SlackT): { blocks
 
   // Pied : échappatoire vers le web (réglages avancés) + découverte de l'aide.
   // Le lien /new est pré-rempli avec l'état courant (question + options + méthode).
-  const advancedUrl = buildNewUrl(APP_URL, {
+  // Lien web préfixé par la locale du scrutin → l'aperçu (unfurl) est dans la bonne langue.
+  const webLoc = supportedLocale(b.locale, "fr");
+  const webBase = webLoc === "fr" ? APP_URL : `${APP_URL}/${webLoc}`;
+  const advancedUrl = buildNewUrl(webBase, {
     title: b.question || undefined,
     dates: slot ? b.options.map((o) => o.at ?? "").filter(Boolean) : undefined,
     options: !slot && b.options.length ? b.options.map((o) => `${o.icon} ${o.name}`) : undefined,

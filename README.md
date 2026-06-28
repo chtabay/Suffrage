@@ -88,7 +88,7 @@ Slack est un **canal d'entrée** de plus (principe de convergence : le vote se c
 hors-app, mais se déroule toujours sur le web). Pas de LLM, pas de MCP : c'est une **app
 Slack** classique.
 
-**Flux** : `/scrutin [question]` poste un message **Block Kit** dans le canal ; tout le
+**Flux** : `/placet [question]` poste un message **Block Kit** dans le canal ; tout le
 monde y ajoute des options (➕), choisit la méthode et **lance** (✅). Le scrutin est créé
 côté serveur (échéance par défaut **30 min**), le canal reçoit le lien de vote + un bouton
 **« Clôturer & publier »**. À la clôture (bouton, ou cron à l'échéance), **le résultat est
@@ -105,7 +105,7 @@ posté dans le canal**.
 - Post du résultat branché dans `closeExpiredAndNotify` (cron) **et** `/api/notify/poll`
   (clôture au dernier votant), dédupliqué par `slack_mark_posted`.
 
-**Mise en service** : créer l'app sur api.slack.com (slash command `/scrutin` →
+**Mise en service** : créer l'app sur api.slack.com (slash command `/placet` →
 `/api/slack/command` ; Interactivity → `/api/slack/interactions` ; scopes `commands`,
 `chat:write`, `chat:write.public`), l'installer, puis poser `SLACK_SIGNING_SECRET` et
 `SLACK_BOT_TOKEN`. Tant que ces variables sont absentes, les endpoints répondent `401` /

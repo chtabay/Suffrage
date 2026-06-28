@@ -140,7 +140,7 @@ export async function setInstall(
   });
 }
 
-/** Locale par défaut d'un workspace (option A : réglée via `/scrutin lang`). Null si non réglée. */
+/** Locale par défaut d'un workspace (option A : réglée via `/placet lang`). Null si non réglée. */
 export async function installLocale(team: string | null | undefined): Promise<string | null> {
   if (!team) return null;
   return rpc<string>("slack_install_locale", { p_team: team });

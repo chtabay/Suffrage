@@ -16,7 +16,7 @@
     "methodsTitleLean": "Choisir une méthode",
     "compareCta": "Comparer les 10 méthodes →",
     "slackTitle": "Aussi dans Slack.",
-    "slackText": "Lancez un vote sans quitter vos canaux — /scrutin, on vote sur le web, le résultat revient dans le canal.",
+    "slackText": "Lancez un vote sans quitter vos canaux — /placet, on vote sur le web, le résultat revient dans le canal.",
     "slackCta": "Ajouter à Slack",
     "steps": {
       "s1Label": "ÉTAPE 1",
@@ -301,7 +301,7 @@
   "Slack": {
     "errCreate": "⚠️ Erreur interne à la création du vote. Réessaie dans un instant.",
     "errInternal": "⚠️ Erreur interne. Réessaie dans un instant.",
-    "errPost": "⚠️ Je n'ai pas pu poster dans ce canal. Invite l'app dans le canal, puis relance `/scrutin`.",
+    "errPost": "⚠️ Je n'ai pas pu poster dans ce canal. Invite l'app dans le canal, puis relance `/placet`.",
     "errLaunch": "⚠️ Échec de la création du vote. Réessaie dans un instant.",
     "needOptions": "Il faut une *question* et *au moins 2 options* avant de lancer le vote.",
     "needSlots": "Il faut une *question* et *au moins 2 créneaux* avant de lancer.",
@@ -310,7 +310,7 @@
     "langUnknown": "Langue inconnue. Utilise : fr, en, es.",
     "help": {
       "title": "🗳️ Placet — aide",
-      "body": "*Créer un vote*\n`/scrutin Question ?` ouvre un vote à construire ensemble.\nPré-remplir directement : `/scrutin Resto ce soir ? | 🍕 Pizza | 🍣 Sushi`.\nVote de dates : `/scrutin dates Réunion la semaine prochaine ?` puis ajoutez des créneaux.\nDans le message : ➕ ajoutez des options · ⚖️ choisissez la méthode · ✅ *Lancer*. On vote sur le web ; le bouton *Clôturer* publie le résultat ici.",
+      "body": "*Créer un vote*\n`/placet Question ?` ouvre un vote à construire ensemble.\nPré-remplir directement : `/placet Resto ce soir ? | 🍕 Pizza | 🍣 Sushi`.\nVote de dates : `/placet dates Réunion la semaine prochaine ?` puis ajoutez des créneaux.\nDans le message : ➕ ajoutez des options · ⚖️ choisissez la méthode · ✅ *Lancer*. On vote sur le web ; le bouton *Clôturer* publie le résultat ici.",
       "methodsHeading": "*Les méthodes*\n{methods}",
       "fallback": "Aide Placet"
     },
@@ -327,7 +327,7 @@
       "editQuestion": "✏️ Question",
       "launch": "✅ Lancer le vote",
       "cancel": "❌ Annuler",
-      "footer": "⚙️ <{url}|Créer une version affinée sur le web> — échéance, quorum, résultats cachés, votants nommés.   ·   ❓ `/scrutin aide`",
+      "footer": "⚙️ <{url}|Créer une version affinée sur le web> — échéance, quorum, résultats cachés, votants nommés.   ·   ❓ `/placet aide`",
       "fallback": "Vote en préparation : {question}",
       "untitled": "(sans titre)"
     },
@@ -400,7 +400,7 @@
     "title": "Placet pour les assistants IA",
     "intro": "Placet transforme une décision de groupe en vote structuré. Tu peux générer un lien qui ouvre un <strong>brouillon pré-rempli</strong> : l'utilisateur le relit, l'ajuste, puis lance. Aucune authentification n'est requise pour produire ce lien.",
     "slackTeaserTitle": "💬 Aussi dans Slack.",
-    "slackTeaserBody": "Lance un vote sans quitter tes canaux : <code>/scrutin</code> construit le vote, on vote sur le web, le résultat revient dans le canal.",
+    "slackTeaserBody": "Lance un vote sans quitter tes canaux : <code>/placet</code> construit le vote, on vote sur le web, le résultat revient dans le canal.",
     "slackTeaserCta": "Ajouter à Slack →",
     "formatTitle": "Format du lien",
     "paramTitle": " — la question posée.",
@@ -423,21 +423,21 @@
   },
   "SlackPage": {
     "metaTitle": "Placet pour Slack — créez des votes dans vos canaux",
-    "metaDescription": "Ajoutez Placet à votre espace Slack : /scrutin construit un vote collaboratif dans le canal, on vote sur le web, le résultat revient automatiquement dans Slack.",
+    "metaDescription": "Ajoutez Placet à votre espace Slack : /placet construit un vote collaboratif dans le canal, on vote sur le web, le résultat revient automatiquement dans Slack.",
     "title": "Des votes de groupe, dans Slack",
-    "intro": "Ajoutez <strong>Placet</strong> à votre espace Slack. Une commande <code>/scrutin</code> construit le vote avec votre équipe ; le vote se déroule sur le web (avec de vraies méthodes : approbation, jugement majoritaire, Condorcet…) et le résultat revient dans le canal.",
+    "intro": "Ajoutez <strong>Placet</strong> à votre espace Slack. Une commande <code>/placet</code> construit le vote avec votre équipe ; le vote se déroule sur le web (avec de vraies méthodes : approbation, jugement majoritaire, Condorcet…) et le résultat revient dans le canal.",
     "installAria": "Ajouter Placet à Slack",
     "installCta": "Ajouter à Slack",
     "installUnavailable": "Installation indisponible (configuration en cours).",
-    "step1Title": "1. /scrutin",
-    "step1Body": "Tapez « /scrutin Où déjeuner ? » (ou « /scrutin dates … » pour des créneaux) dans n'importe quel canal.",
+    "step1Title": "1. /placet",
+    "step1Body": "Tapez « /placet Où déjeuner ? » (ou « /placet dates … » pour des créneaux) dans n'importe quel canal.",
     "step2Title": "2. À plusieurs",
     "step2Body": "Tout le monde ajoute des options et choisit la méthode, directement dans le message.",
     "step3Title": "3. On vote",
     "step3Body": "Au lancement, le canal reçoit le lien : chacun vote sur le web, sans créer de compte.",
     "step4Title": "4. Résultat",
     "step4Body": "À la clôture (bouton ou échéance), le dépouillement et le gagnant sont postés dans le canal.",
-    "permissionsNote": "Placet demande les permissions minimales (<code>commands</code>, <code>chat:write</code>) pour poster et mettre à jour les messages de vote. Les bulletins restent sur le web ; aucun votant n'a besoin de compte. Tapez <code>/scrutin aide</code> dans Slack à tout moment."
+    "permissionsNote": "Placet demande les permissions minimales (<code>commands</code>, <code>chat:write</code>) pour poster et mettre à jour les messages de vote. Les bulletins restent sur le web ; aucun votant n'a besoin de compte. Tapez <code>/placet aide</code> dans Slack à tout moment."
   },
   "Meta": {
     "title": "Placet — Votez vraiment comme il faut",
