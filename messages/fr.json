@@ -488,6 +488,7 @@
     "resOptionPlaceholder": "Option {n} — emoji facultatif",
     "addOption": "+ Ajouter une option",
     "presetButton": "Pour / Contre / Abstention",
+    "clearOptions": "Vider",
     "presetFor": "👍 Pour",
     "presetAgainst": "👎 Contre",
     "presetAbstain": "🤷 Abstention",

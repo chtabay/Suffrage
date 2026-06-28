@@ -263,6 +263,9 @@ export default function EventEditor({ eventId }: { eventId: string }) {
                 <button onClick={() => setOpts(presetOpts())} style={{ border: `2px dashed ${INK}`, background: "none", color: SUBINK, cursor: "pointer", fontSize: 13, fontWeight: 700, padding: "7px 12px", borderRadius: 10 }}>
                   {t("presetButton")}
                 </button>
+                <button onClick={() => setOpts(["", ""])} style={{ border: `2px dashed ${INK}`, background: "none", color: MUTED, cursor: "pointer", fontSize: 13, fontWeight: 700, padding: "7px 12px", borderRadius: 10 }}>
+                  {t("clearOptions")}
+                </button>
               </div>
             </div>
             <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>

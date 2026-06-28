@@ -488,6 +488,7 @@
     "resOptionPlaceholder": "Opción {n} — emoji opcional",
     "addOption": "+ Añadir una opción",
     "presetButton": "A favor / En contra / Abstención",
+    "clearOptions": "Vaciar",
     "presetFor": "👍 A favor",
     "presetAgainst": "👎 En contra",
     "presetAbstain": "🤷 Abstención",
