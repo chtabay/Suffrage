@@ -298,6 +298,87 @@
     "removeTime": "Quitar la hora",
     "addTime": "+ hora"
   },
+  "Slack": {
+    "errCreate": "⚠️ Error interno al crear la votación. Inténtalo de nuevo en un momento.",
+    "errInternal": "⚠️ Error interno. Inténtalo de nuevo en un momento.",
+    "errPost": "⚠️ No he podido publicar en este canal. Invita la app al canal y vuelve a ejecutar `/scrutin`.",
+    "errLaunch": "⚠️ No se pudo crear la votación. Inténtalo de nuevo en un momento.",
+    "needOptions": "Hace falta una *pregunta* y *al menos 2 opciones* antes de lanzar la votación.",
+    "needSlots": "Hace falta una *pregunta* y *al menos 2 franjas* antes de lanzar.",
+    "notOpen": "Esta votación ya no está abierta.",
+    "langSet": "Idioma configurado en {lang} para este espacio.",
+    "langUnknown": "Idioma desconocido. Usa: fr, en, es.",
+    "help": {
+      "title": "🗳️ Placet — ayuda",
+      "body": "*Crear una votación*\n`/scrutin ¿Pregunta?` abre una votación para construir entre todos.\nRellénala directamente: `/scrutin ¿Cenamos hoy? | 🍕 Pizza | 🍣 Sushi`.\nVotación de fechas: `/scrutin dates ¿Reunión la próxima semana?` y luego añade franjas horarias.\nEn el mensaje: ➕ añade opciones · ⚖️ elige el método · ✅ *Lanzar*. Se vota en la web; el botón *Cerrar* publica el resultado aquí.",
+      "methodsHeading": "*Los métodos*\n{methods}",
+      "fallback": "Ayuda de Placet"
+    },
+    "builder": {
+      "title": "Nueva votación",
+      "titleSlot": "Nueva votación de fechas",
+      "draft": "📝 *Borrador — aún no abierto a votación.*  ➕ Añade opciones · ⚖️ elige el método · ✅ Lanza.  ·  Iniciado por {creator}",
+      "draftSlot": "📅 *Votación de disponibilidad — borrador.*  ➕ Añade franjas horarias · aprobación (cada uno marca su disponibilidad) · ✅ Lanza.  ·  Iniciado por {creator}",
+      "empty": "_Sin opciones por ahora — añade al menos dos._",
+      "emptySlot": "_Sin franjas horarias — añade al menos dos._",
+      "method": "*Método de votación*",
+      "addOption": "➕ Añadir una opción",
+      "addSlot": "➕ Añadir una franja",
+      "editQuestion": "✏️ Pregunta",
+      "launch": "✅ Lanzar la votación",
+      "cancel": "❌ Cancelar",
+      "footer": "⚙️ <{url}|Crear una versión afinada en la web> — fecha límite, quórum, resultados ocultos, votantes nominales.   ·   ❓ `/scrutin aide`",
+      "fallback": "Votación en preparación: {question}",
+      "untitled": "(sin título)"
+    },
+    "modal": {
+      "add": "Añadir",
+      "cancel": "Cancelar",
+      "save": "Guardar"
+    },
+    "optionModal": {
+      "title": "Añadir una opción",
+      "label": "Opción",
+      "hint": "Empieza con un emoji, p. ej. «🍕 Italiano» — se convierte en el icono.",
+      "placeholder": "🍕 Italiano"
+    },
+    "slotModal": {
+      "title": "Añadir una franja",
+      "dateLabel": "Fecha",
+      "datePlaceholder": "Elegir una fecha",
+      "timeLabel": "Hora (opcional)",
+      "timeHint": "Déjalo vacío para todo el día.",
+      "timePlaceholder": "Elegir una hora"
+    },
+    "questionModal": {
+      "title": "Editar la pregunta",
+      "label": "Pregunta",
+      "placeholder": "¿Adónde vamos para el seminario?"
+    },
+    "launched": {
+      "headline": "*¡En marcha!*  Método: {method}",
+      "vote": "🗳️ Votar ahora",
+      "close": "✅ Cerrar y publicar",
+      "context": "La votación se desarrolla en la web. Haz clic en «Cerrar» cuando todos hayan votado — el resultado aparece aquí (si no, se cierra automáticamente en la fecha límite).",
+      "fallback": "Vota aquí: {url}"
+    },
+    "closed": {
+      "body": "✅ _Votación cerrada._ Resultado abajo.",
+      "fallback": "Votación cerrada"
+    },
+    "cancelled": {
+      "body": "❌ _Votación cancelada._",
+      "fallback": "Votación cancelada"
+    },
+    "result": {
+      "winner": "🏆 *{winner}* gana",
+      "closed": "La votación está cerrada.",
+      "sub": "Método: {method} · {count, plural, one {# voto} other {# votos}}",
+      "detail": "Ver el detalle",
+      "fallbackWinner": "Resultado: {winner}",
+      "fallbackClosed": "La votación está cerrada."
+    }
+  },
   "Methods": {
     "twoRounds": "a dos vueltas",
     "family": { "fptp": "Sufragio directo · 1 vuelta", "runoff": "Sufragio directo · 2 vueltas", "condorcet": "Clasificación · duelos", "condorcet_random": "Clasificación · duelos + sorteo", "mj": "Mención · mediana", "approval": "Casillas de verificación", "borda": "Clasificación · puntos", "proportional": "Escaños · d'Hondt", "indirect": "Sufragio indirecto", "list": "Listas · prima de mayoría" },

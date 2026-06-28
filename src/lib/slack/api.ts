@@ -54,3 +54,12 @@ export async function updateMessage(
 export async function openView(token: string | null, triggerId: string, view: unknown): Promise<boolean> {
   return (await call(token, "views.open", { trigger_id: triggerId, view })) !== null;
 }
+
+/** Locale Slack de l'utilisateur (ex. "fr-FR", "en-US", "es-ES"). Null si indisponible (scope `users:read`). */
+export async function userLocale(token: string | null, userId: string): Promise<string | null> {
+  const r = await call<SlackResponse & { user?: { locale?: string } }>(token, "users.info", {
+    user: userId,
+    include_locale: true,
+  });
+  return r?.user?.locale ?? null;
+}

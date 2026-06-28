@@ -23,7 +23,7 @@ const card = {
 export default async function SlackInstallPage() {
   const t = await getTranslations("SlackPage");
   const clientId = process.env.SLACK_CLIENT_ID ?? "";
-  const scope = "commands,chat:write,chat:write.public";
+  const scope = "commands,chat:write,chat:write.public,users:read";
   const redirect = "https://placet.app/api/slack/oauth/callback";
   const installUrl = `https://slack.com/oauth/v2/authorize?client_id=${clientId}&scope=${scope}&redirect_uri=${encodeURIComponent(redirect)}`;
 

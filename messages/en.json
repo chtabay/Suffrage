@@ -298,6 +298,87 @@
     "removeTime": "Remove time",
     "addTime": "+ time"
   },
+  "Slack": {
+    "errCreate": "⚠️ Internal error while creating the vote. Try again in a moment.",
+    "errInternal": "⚠️ Internal error. Try again in a moment.",
+    "errPost": "⚠️ I couldn't post in this channel. Invite the app to the channel, then run `/scrutin` again.",
+    "errLaunch": "⚠️ Failed to create the vote. Try again in a moment.",
+    "needOptions": "You need a *question* and *at least 2 options* before launching the vote.",
+    "needSlots": "You need a *question* and *at least 2 slots* before launching.",
+    "notOpen": "This vote isn't open (anymore).",
+    "langSet": "Language set to {lang} for this workspace.",
+    "langUnknown": "Unknown language. Use: fr, en, es.",
+    "help": {
+      "title": "🗳️ Placet — help",
+      "body": "*Create a vote*\n`/scrutin Question?` opens a vote to build together.\nPrefill it directly: `/scrutin Dinner tonight? | 🍕 Pizza | 🍣 Sushi`.\nDate poll: `/scrutin dates Meeting next week?` then add time slots.\nIn the message: ➕ add options · ⚖️ pick the method · ✅ *Launch*. Everyone votes on the web; the *Close* button posts the result here.",
+      "methodsHeading": "*The methods*\n{methods}",
+      "fallback": "Placet help"
+    },
+    "builder": {
+      "title": "New vote",
+      "titleSlot": "New date poll",
+      "draft": "📝 *Draft — not open for voting yet.*  ➕ Add options · ⚖️ pick the method · ✅ Launch.  ·  Started by {creator}",
+      "draftSlot": "📅 *Availability poll — draft.*  ➕ Add time slots · approval (everyone ticks their availability) · ✅ Launch.  ·  Started by {creator}",
+      "empty": "_No options yet — add at least two._",
+      "emptySlot": "_No time slots — add at least two._",
+      "method": "*Voting method*",
+      "addOption": "➕ Add an option",
+      "addSlot": "➕ Add a time slot",
+      "editQuestion": "✏️ Question",
+      "launch": "✅ Launch the vote",
+      "cancel": "❌ Cancel",
+      "footer": "⚙️ <{url}|Create a refined version on the web> — deadline, quorum, hidden results, named voters.   ·   ❓ `/scrutin aide`",
+      "fallback": "Vote in preparation: {question}",
+      "untitled": "(untitled)"
+    },
+    "modal": {
+      "add": "Add",
+      "cancel": "Cancel",
+      "save": "Save"
+    },
+    "optionModal": {
+      "title": "Add an option",
+      "label": "Option",
+      "hint": "Start with an emoji, e.g. “🍕 Italian” — it becomes the icon.",
+      "placeholder": "🍕 Italian"
+    },
+    "slotModal": {
+      "title": "Add a time slot",
+      "dateLabel": "Date",
+      "datePlaceholder": "Pick a date",
+      "timeLabel": "Time (optional)",
+      "timeHint": "Leave empty for an all-day slot.",
+      "timePlaceholder": "Pick a time"
+    },
+    "questionModal": {
+      "title": "Edit the question",
+      "label": "Question",
+      "placeholder": "Where shall we go for the offsite?"
+    },
+    "launched": {
+      "headline": "*It's live!*  Method: {method}",
+      "vote": "🗳️ Vote now",
+      "close": "✅ Close & publish",
+      "context": "Voting happens on the web. Click “Close” once everyone has voted — the result shows up here (otherwise it closes automatically at the deadline).",
+      "fallback": "Vote here: {url}"
+    },
+    "closed": {
+      "body": "✅ _Vote closed._ Result below.",
+      "fallback": "Vote closed"
+    },
+    "cancelled": {
+      "body": "❌ _Vote cancelled._",
+      "fallback": "Vote cancelled"
+    },
+    "result": {
+      "winner": "🏆 *{winner}* wins",
+      "closed": "The vote is closed.",
+      "sub": "Method: {method} · {count, plural, one {# vote} other {# votes}}",
+      "detail": "See details",
+      "fallbackWinner": "Result: {winner}",
+      "fallbackClosed": "The vote is closed."
+    }
+  },
   "Methods": {
     "twoRounds": "two-round",
     "family": { "fptp": "Direct vote · 1 round", "runoff": "Direct vote · 2 rounds", "condorcet": "Ranking · duels", "condorcet_random": "Ranking · duels + draw", "mj": "Grades · median", "approval": "Checkboxes", "borda": "Ranking · points", "proportional": "Seats · d'Hondt", "indirect": "Indirect vote", "list": "Lists · majority bonus" },

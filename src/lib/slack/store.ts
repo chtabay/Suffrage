@@ -27,6 +27,8 @@ export interface SlackBuilder {
   poll_token: string | null;
   poll_secret: string | null;
   status: string;
+  /** Locale du scrutin (langue du créateur, détectée à /scrutin). */
+  locale: string | null;
 }
 
 export interface SlackLink {
@@ -34,6 +36,7 @@ export interface SlackLink {
   team_id: string;
   message_ts: string | null;
   status: string;
+  locale: string | null;
 }
 
 async function rpc<T>(fn: string, args: Record<string, unknown>): Promise<T | null> {
@@ -59,6 +62,7 @@ export function createBuilder(a: {
   question: string;
   method: string;
   kind?: string;
+  locale?: string | null;
 }): Promise<string | null> {
   return rpc<string>("slack_builder_create", {
     p_team: a.team,
@@ -67,6 +71,7 @@ export function createBuilder(a: {
     p_question: a.question,
     p_method: a.method,
     p_kind: a.kind ?? "text",
+    p_locale: a.locale ?? null,
   });
 }
 
@@ -133,6 +138,17 @@ export async function setInstall(
     p_team_name: teamName,
     p_installer: installer,
   });
+}
+
+/** Locale par défaut d'un workspace (option A : réglée via `/scrutin lang`). Null si non réglée. */
+export async function installLocale(team: string | null | undefined): Promise<string | null> {
+  if (!team) return null;
+  return rpc<string>("slack_install_locale", { p_team: team });
+}
+
+/** Règle la locale par défaut d'un workspace (sur une install existante). */
+export async function setInstallLocale(team: string, locale: string): Promise<void> {
+  await rpc("slack_install_set_locale", { p_team: team, p_locale: locale });
 }
 
 /**

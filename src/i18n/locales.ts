@@ -6,7 +6,16 @@
 // les tables `pickLocale({ fr, en, … })` du code pur (engine, aiPrompt, share,
 // draft, useScrutin). Les composants, eux, ne lisent que messages/<loc>.json.
 
+import { routing } from "./routing";
+
 const INTL: Record<string, string> = { fr: "fr-FR", en: "en-GB", es: "es-ES" };
+
+/** Normalise une locale arbitraire (ex. Slack « fr-FR ») vers une locale supportée, sinon repli. */
+export function supportedLocale(input: string | null | undefined, fallback = "fr"): string {
+  if (!input) return fallback;
+  const base = input.toLowerCase().split(/[-_]/)[0];
+  return (routing.locales as readonly string[]).includes(base) ? base : fallback;
+}
 
 /** Tag BCP-47 pour `toLocaleString`/`Intl` à partir de la locale de l'app. */
 export function intlLocale(locale: string): string {

@@ -298,6 +298,87 @@
     "removeTime": "Retirer l'heure",
     "addTime": "+ heure"
   },
+  "Slack": {
+    "errCreate": "⚠️ Erreur interne à la création du vote. Réessaie dans un instant.",
+    "errInternal": "⚠️ Erreur interne. Réessaie dans un instant.",
+    "errPost": "⚠️ Je n'ai pas pu poster dans ce canal. Invite l'app dans le canal, puis relance `/scrutin`.",
+    "errLaunch": "⚠️ Échec de la création du vote. Réessaie dans un instant.",
+    "needOptions": "Il faut une *question* et *au moins 2 options* avant de lancer le vote.",
+    "needSlots": "Il faut une *question* et *au moins 2 créneaux* avant de lancer.",
+    "notOpen": "Ce vote n'est pas (ou plus) ouvert.",
+    "langSet": "Langue réglée sur {lang} pour cet espace.",
+    "langUnknown": "Langue inconnue. Utilise : fr, en, es.",
+    "help": {
+      "title": "🗳️ Placet — aide",
+      "body": "*Créer un vote*\n`/scrutin Question ?` ouvre un vote à construire ensemble.\nPré-remplir directement : `/scrutin Resto ce soir ? | 🍕 Pizza | 🍣 Sushi`.\nVote de dates : `/scrutin dates Réunion la semaine prochaine ?` puis ajoutez des créneaux.\nDans le message : ➕ ajoutez des options · ⚖️ choisissez la méthode · ✅ *Lancer*. On vote sur le web ; le bouton *Clôturer* publie le résultat ici.",
+      "methodsHeading": "*Les méthodes*\n{methods}",
+      "fallback": "Aide Placet"
+    },
+    "builder": {
+      "title": "Nouveau vote",
+      "titleSlot": "Nouveau vote de dates",
+      "draft": "📝 *Brouillon — pas encore ouvert au vote.*  ➕ Ajoutez des options · ⚖️ choisissez la méthode · ✅ Lancez.  ·  Démarré par {creator}",
+      "draftSlot": "📅 *Vote de disponibilités — brouillon.*  ➕ Ajoutez des créneaux · approbation (chacun coche ses dispos) · ✅ Lancez.  ·  Démarré par {creator}",
+      "empty": "_Aucune option pour l'instant — ajoutez-en au moins deux._",
+      "emptySlot": "_Aucun créneau — ajoutez-en au moins deux._",
+      "method": "*Méthode de vote*",
+      "addOption": "➕ Ajouter une option",
+      "addSlot": "➕ Ajouter un créneau",
+      "editQuestion": "✏️ Question",
+      "launch": "✅ Lancer le vote",
+      "cancel": "❌ Annuler",
+      "footer": "⚙️ <{url}|Créer une version affinée sur le web> — échéance, quorum, résultats cachés, votants nommés.   ·   ❓ `/scrutin aide`",
+      "fallback": "Vote en préparation : {question}",
+      "untitled": "(sans titre)"
+    },
+    "modal": {
+      "add": "Ajouter",
+      "cancel": "Annuler",
+      "save": "Enregistrer"
+    },
+    "optionModal": {
+      "title": "Ajouter une option",
+      "label": "Option",
+      "hint": "Commencez par un emoji, ex. « 🍕 Italien » — il devient l'icône.",
+      "placeholder": "🍕 Italien"
+    },
+    "slotModal": {
+      "title": "Ajouter un créneau",
+      "dateLabel": "Date",
+      "datePlaceholder": "Choisir une date",
+      "timeLabel": "Heure (facultatif)",
+      "timeHint": "Laissez vide pour une journée entière.",
+      "timePlaceholder": "Choisir une heure"
+    },
+    "questionModal": {
+      "title": "Modifier la question",
+      "label": "Question",
+      "placeholder": "Où va-t-on pour le séminaire ?"
+    },
+    "launched": {
+      "headline": "*C'est lancé !*  Méthode : {method}",
+      "vote": "🗳️ Voter maintenant",
+      "close": "✅ Clôturer & publier",
+      "context": "Le vote se déroule sur le web. Cliquez « Clôturer » quand tout le monde a voté — le résultat s'affiche ici (sinon clôture auto à l'échéance).",
+      "fallback": "Votez : {url}"
+    },
+    "closed": {
+      "body": "✅ _Vote clos._ Résultat ci-dessous.",
+      "fallback": "Vote clos"
+    },
+    "cancelled": {
+      "body": "❌ _Vote annulé._",
+      "fallback": "Vote annulé"
+    },
+    "result": {
+      "winner": "🏆 *{winner}* l'emporte",
+      "closed": "Le vote est clos.",
+      "sub": "Méthode : {method} · {count, plural, one {# vote} other {# votes}}",
+      "detail": "Voir le détail",
+      "fallbackWinner": "Résultat : {winner}",
+      "fallbackClosed": "Le vote est clos."
+    }
+  },
   "Methods": {
     "twoRounds": "à deux tours",
     "family": { "fptp": "Suffrage direct · 1 tour", "runoff": "Suffrage direct · 2 tours", "condorcet": "Classement · duels", "condorcet_random": "Classement · duels + tirage", "mj": "Mention · médiane", "approval": "Cases à cocher", "borda": "Classement · points", "proportional": "Sièges · d'Hondt", "indirect": "Suffrage indirect", "list": "Listes · prime majoritaire" },

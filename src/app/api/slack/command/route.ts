@@ -1,17 +1,32 @@
 // Slash command /scrutin : vérifie la signature Slack, crée un brouillon collaboratif
 // et poste le message « builder » Block Kit dans le canal. Réponse HTTP vide (le
 // message est posté via l'API Web pour pouvoir être édité ensuite).
+// Locale : langue du créateur (users.info) → défaut du workspace (/scrutin lang) → env → en.
 import { NextResponse } from "next/server";
+import { getTranslations } from "next-intl/server";
 import { verifySlackSignature, parseCommand } from "@/lib/slack/verify";
-import { createBuilder, getBuilder, setBuilderMessage, addOption, botTokenForTeam } from "@/lib/slack/store";
-import { builderMessage, helpMessage } from "@/lib/slack/blocks";
-import { postMessage } from "@/lib/slack/api";
+import {
+  createBuilder,
+  getBuilder,
+  setBuilderMessage,
+  addOption,
+  botTokenForTeam,
+  installLocale,
+  setInstallLocale,
+} from "@/lib/slack/store";
+import { builderMessage, helpMessage, type SlackT } from "@/lib/slack/blocks";
+import { postMessage, userLocale } from "@/lib/slack/api";
 import { splitLeadingEmoji } from "@/lib/voting/draft";
+import { supportedLocale } from "@/i18n/locales";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-const ephemeral = (text: string) => NextResponse.json({ response_type: "ephemeral", text });
+async function translators(locale: string): Promise<{ t: SlackT; tm: SlackT }> {
+  const t = (await getTranslations({ locale, namespace: "Slack" })) as unknown as SlackT;
+  const tm = (await getTranslations({ locale, namespace: "Methods" })) as unknown as SlackT;
+  return { t, tm };
+}
 
 export async function POST(req: Request) {
   const raw = await req.text();
@@ -22,10 +37,33 @@ export async function POST(req: Request) {
   const cmd = parseCommand(raw);
   const input = cmd.text.trim();
 
+  // Résolution de la locale : créateur (users.info) → défaut workspace → env → en.
+  const token = await botTokenForTeam(cmd.team_id);
+  const [userLoc, wsDefault] = await Promise.all([
+    userLocale(token, cmd.user_id),
+    installLocale(cmd.team_id),
+  ]);
+  const locale = supportedLocale(
+    userLoc,
+    supportedLocale(wsDefault, supportedLocale(process.env.SLACK_DEFAULT_LOCALE, "en")),
+  );
+  const { t, tm } = await translators(locale);
+  const ephemeral = (text: string) => NextResponse.json({ response_type: "ephemeral", text });
+
   // Sous-commande d'aide : /scrutin aide
   if (/^(aide|help|\?)$/i.test(input)) {
-    const h = helpMessage();
+    const h = helpMessage(t, tm);
     return NextResponse.json({ response_type: "ephemeral", blocks: h.blocks, text: h.text });
+  }
+
+  // Sous-commande langue : /scrutin lang <fr|en|es> → défaut du workspace.
+  const langM = /^lang\s+([a-z-]+)/i.exec(input);
+  if (langM) {
+    const wanted = supportedLocale(langM[1], "");
+    if (!wanted) return ephemeral(t("langUnknown"));
+    await setInstallLocale(cmd.team_id, wanted);
+    const { t: t2 } = await translators(wanted);
+    return ephemeral(t2("langSet", { lang: wanted.toUpperCase() }));
   }
 
   // Sous-commande créneaux : « /scrutin dates [question] » → builder en mode dates.
@@ -44,8 +82,9 @@ export async function POST(req: Request) {
     question,
     method: slotMode ? "approval" : "simple_vote",
     kind: slotMode ? "slot" : "text",
+    locale,
   });
-  if (!id) return ephemeral("⚠️ Erreur interne à la création du vote. Réessaie dans un instant.");
+  if (!id) return ephemeral(t("errCreate"));
 
   for (const s of seeds) {
     const { icon, name } = splitLeadingEmoji(s, "•");
@@ -53,14 +92,11 @@ export async function POST(req: Request) {
   }
 
   const b = await getBuilder(id);
-  if (!b) return ephemeral("⚠️ Erreur interne. Réessaie dans un instant.");
+  if (!b) return ephemeral(t("errInternal"));
 
-  const { blocks, text } = builderMessage(b);
-  const token = await botTokenForTeam(cmd.team_id);
+  const { blocks, text } = builderMessage(b, t, tm);
   const ts = await postMessage(token, cmd.channel_id, blocks, text);
-  if (!ts) {
-    return ephemeral("⚠️ Je n'ai pas pu poster dans ce canal. Invite l'app dans le canal, puis relance `/scrutin`.");
-  }
+  if (!ts) return ephemeral(t("errPost"));
   await setBuilderMessage(id, ts);
   return new NextResponse(null, { status: 200 });
 }

@@ -1,7 +1,9 @@
 // Interactivité Slack : clics de boutons, sélecteur de méthode, soumissions de modale.
 // Le bot token dépend du workspace (multi-workspace) : on le résout via le team_id du
 // payload (botTokenForTeam) et on le passe aux appels chat.update / views.open.
+// Chaque message est (re)construit dans la locale du scrutin (b.locale).
 import { NextResponse } from "next/server";
+import { getTranslations } from "next-intl/server";
 import { verifySlackSignature, parseInteraction } from "@/lib/slack/verify";
 import * as store from "@/lib/slack/store";
 import {
@@ -12,6 +14,7 @@ import {
   launchedMessage,
   launchedClosedMessage,
   cancelledMessage,
+  type SlackT,
 } from "@/lib/slack/blocks";
 import { openView, updateMessage } from "@/lib/slack/api";
 import { createPollServer, closePollServer } from "@/lib/db/pollsServer";
@@ -20,6 +23,7 @@ import { splitLeadingEmoji, slotLabel } from "@/lib/voting/draft";
 import { publicMethodToSystem } from "@/lib/voting/methods";
 import { recipeForSystem } from "@/lib/voting/engine";
 import { APP_URL } from "@/lib/voting/aiPrompt";
+import { supportedLocale } from "@/i18n/locales";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -47,6 +51,15 @@ type Payload = BlockActions | ViewSubmission | { type: string };
 
 const ok = () => new NextResponse(null, { status: 200 });
 
+/** Traducteurs (namespaces Slack + Methods) pour la locale d'un scrutin. */
+async function trFor(locale: string | null): Promise<{ t: SlackT; tm: SlackT }> {
+  const loc = supportedLocale(locale, "en");
+  return {
+    t: (await getTranslations({ locale: loc, namespace: "Slack" })) as unknown as SlackT,
+    tm: (await getTranslations({ locale: loc, namespace: "Methods" })) as unknown as SlackT,
+  };
+}
+
 /** Retrouve l'id du builder selon le type d'élément déclencheur. */
 function builderId(a: SlackAction): string {
   if (a.action_id === "set_method") return (a.block_id ?? "").split(":")[1] ?? "";
@@ -58,7 +71,8 @@ function builderId(a: SlackAction): string {
 async function refresh(id: string, token: string | null): Promise<void> {
   const b = await store.getBuilder(id);
   if (!b || !b.message_ts || b.status !== "building") return;
-  const m = builderMessage(b);
+  const { t, tm } = await trFor(b.locale);
+  const m = builderMessage(b, t, tm);
   await updateMessage(token, b.channel_id, b.message_ts, m.blocks, m.text);
 }
 
@@ -77,14 +91,10 @@ async function respondEphemeral(responseUrl: string, text: string): Promise<void
 async function doLaunch(id: string, token: string | null, responseUrl: string): Promise<void> {
   const b = await store.getBuilder(id);
   if (!b || b.status !== "building") return;
+  const { t, tm } = await trFor(b.locale);
   const slot = b.kind === "slot";
   if (!b.question.trim() || b.options.length < 2) {
-    await respondEphemeral(
-      responseUrl,
-      slot
-        ? "Il faut une *question* et *au moins 2 créneaux* avant de lancer."
-        : "Il faut une *question* et *au moins 2 options* avant de lancer le vote.",
-    );
+    await respondEphemeral(responseUrl, slot ? t("needSlots") : t("needOptions"));
     return;
   }
   const recipe = recipeForSystem(slot ? "approval" : (publicMethodToSystem(b.method) ?? "fptp"));
@@ -93,23 +103,25 @@ async function doLaunch(id: string, token: string | null, responseUrl: string): 
   const closesAt = new Date(Date.now() + 30 * 60 * 1000).toISOString();
   const created = await createPollServer(b.question, options, recipe, { closesAt });
   if (!created) {
-    await respondEphemeral(responseUrl, "⚠️ Échec de la création du vote. Réessaie dans un instant.");
+    await respondEphemeral(responseUrl, t("errLaunch"));
     return;
   }
   await store.launchBuilder(id, created.token, created.secret);
-  const m = launchedMessage(id, b.question, slot ? "approval" : b.method, `${APP_URL}/v/${created.token}`, options);
+  const m = launchedMessage(id, b.question, slot ? "approval" : b.method, `${APP_URL}/v/${created.token}`, options, t, tm);
   if (b.message_ts) await updateMessage(token, b.channel_id, b.message_ts, m.blocks, m.text);
 }
 
 async function doClose(id: string, token: string | null, responseUrl: string): Promise<void> {
   const b = await store.getBuilder(id);
   if (!b || b.status !== "launched" || !b.poll_token || !b.poll_secret) {
-    await respondEphemeral(responseUrl, "Ce vote n'est pas (ou plus) ouvert.");
+    const { t } = await trFor(b?.locale ?? null);
+    await respondEphemeral(responseUrl, t("notOpen"));
     return;
   }
   await closePollServer(b.poll_token, b.poll_secret);
   if (b.message_ts) {
-    const m = launchedClosedMessage(b.question);
+    const { t } = await trFor(b.locale);
+    const m = launchedClosedMessage(b.question, t);
     await updateMessage(token, b.channel_id, b.message_ts, m.blocks, m.text);
   }
   await postSlackResult(b.poll_token); // poste le dépouillement + marque posté (dédup cron)
@@ -121,15 +133,22 @@ async function handleBlockActions(p: BlockActions): Promise<void> {
   const id = builderId(a);
   const token = await store.botTokenForTeam(p.team?.id);
   switch (a.action_id) {
-    case "add_option":
-      await openView(token, p.trigger_id, addOptionView(id));
+    case "add_option": {
+      const b = await store.getBuilder(id);
+      const { t } = await trFor(b?.locale ?? null);
+      await openView(token, p.trigger_id, addOptionView(id, t));
       break;
-    case "add_slot_open":
-      await openView(token, p.trigger_id, addSlotView(id));
+    }
+    case "add_slot_open": {
+      const b = await store.getBuilder(id);
+      const { t } = await trFor(b?.locale ?? null);
+      await openView(token, p.trigger_id, addSlotView(id, t));
       break;
+    }
     case "edit_question": {
       const b = await store.getBuilder(id);
-      await openView(token, p.trigger_id, editQuestionView(id, b?.question ?? ""));
+      const { t } = await trFor(b?.locale ?? null);
+      await openView(token, p.trigger_id, editQuestionView(id, b?.question ?? "", t));
       break;
     }
     case "set_method":
@@ -152,7 +171,8 @@ async function handleBlockActions(p: BlockActions): Promise<void> {
       await store.cancelBuilder(id);
       const b = await store.getBuilder(id);
       if (b?.message_ts) {
-        const m = cancelledMessage();
+        const { t } = await trFor(b.locale);
+        const m = cancelledMessage(t);
         await updateMessage(token, b.channel_id, b.message_ts, m.blocks, m.text);
       }
       break;
@@ -180,7 +200,8 @@ async function handleViewSubmission(p: ViewSubmission): Promise<void> {
     const time = state.values.time?.value?.selected_time;
     if (date) {
       const at = time ? `${date}T${time}` : date;
-      await store.addSlot(id, slotLabel(at), at);
+      const b = await store.getBuilder(id);
+      await store.addSlot(id, slotLabel(at, supportedLocale(b?.locale, "fr")), at);
     }
     await refresh(id, token);
   }
