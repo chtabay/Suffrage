@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useLocale } from "next-intl";
+import { pickLocale } from "@/i18n/locales";
 import { addLocalPoll } from "@/lib/db/localPolls";
 import { addVoters, createPoll, type AccessMode, type District, type VoterInput } from "@/lib/db/polls";
 import { SLOT_ICON, slotLabel, type ScrutinDraft } from "./draft";
@@ -76,13 +77,17 @@ const INITIAL: ScrutinState = {
 };
 
 function makeInitial(draft?: ScrutinDraft, locale = "fr"): ScrutinState {
-  const districts =
-    locale === "en"
-      ? [
-          { name: "District 1", electors: 3, voterNames: "" },
-          { name: "District 2", electors: 2, voterNames: "" },
-        ]
-      : INITIAL.districts;
+  const districts = pickLocale(locale, {
+    fr: INITIAL.districts,
+    en: [
+      { name: "District 1", electors: 3, voterNames: "" },
+      { name: "District 2", electors: 2, voterNames: "" },
+    ],
+    es: [
+      { name: "Distrito 1", electors: 3, voterNames: "" },
+      { name: "Distrito 2", electors: 2, voterNames: "" },
+    ],
+  });
   if (!draft) return { ...INITIAL, districts };
   const prefilled = Boolean(
     draft.question || draft.options || draft.recipe || draft.closesAt || draft.description,
@@ -215,8 +220,8 @@ export function useScrutin(draft?: ScrutinDraft) {
         ...s,
         optionKind: "text",
         options: [
-          { icon: ADD_ICONS[0], name: locale === "en" ? "First option" : "Première option" },
-          { icon: ADD_ICONS[1], name: locale === "en" ? "Second option" : "Deuxième option" },
+          { icon: ADD_ICONS[0], name: pickLocale(locale, { fr: "Première option", en: "First option", es: "Primera opción" }) },
+          { icon: ADD_ICONS[1], name: pickLocale(locale, { fr: "Deuxième option", en: "Second option", es: "Segunda opción" }) },
         ],
         ...CLEAR_SHARE,
       };

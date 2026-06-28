@@ -1,6 +1,7 @@
 // Moteur de scrutin — porté 1:1 depuis la maquette Scrutin.dc.html.
 // Fonctions pures : aucune dépendance au DOM, utilisables côté client.
 
+import { pickLocale } from "@/i18n/locales";
 import { DISTRICTS, GRADES, SYSTEMS, candColor } from "./systems";
 import type {
   Ballot,
@@ -105,12 +106,24 @@ const LL_EN: Record<CountingMethod, string> = {
   list: "party-list",
 };
 
+const LL_ES: Record<CountingMethod, string> = {
+  majority: "mayoritario",
+  condorcet: "Condorcet",
+  mj: "juicio mayoritario",
+  borda: "Borda",
+  approval: "aprobación",
+  proportional: "proporcional",
+  list: "lista",
+};
+
 /** Mentions du jugement majoritaire en anglais (même ordre que GRADES). */
 const GRADES_EN = ["To reject", "Insufficient", "Passable", "Fair", "Good", "Very good"];
 
+/** Menciones del juicio mayoritario en español (mismo orden que GRADES). */
+const GRADES_ES = ["A rechazar", "Insuficiente", "Pasable", "Aceptable", "Bueno", "Muy bueno"];
+
 export function describeRecipe(r: Recipe, locale: string = "fr"): RecipeDescription {
-  const en = locale === "en";
-  const ll = en ? LL_EN : LL;
+  const ll = pickLocale(locale, { fr: LL, en: LL_EN, es: LL_ES });
   const baseKey = resolveKey(r);
   const base = SYSTEMS[baseKey];
   if (r.suffrage === "indirect") {
@@ -120,24 +133,38 @@ export function describeRecipe(r: Recipe, locale: string = "fr"): RecipeDescript
       icon: s.icon,
       family: s.family,
       decisiveLabel: ll[r.localCounting],
-      shortName: en
-        ? `Electoral college · ${ll[r.localCounting]}`
-        : `Grands électeurs · ${ll[r.localCounting]}`,
-      name: en
-        ? `Electoral college · ${ll[r.localCounting]}${r.electorSplit === "prop" ? " (prop.)" : ""}`
-        : `Grands électeurs · ${ll[r.localCounting]}${r.electorSplit === "prop" ? " (prop.)" : ""}`,
-      how: en
-        ? `${s.how} Local counting method: "${ll[r.localCounting]}"; ${r.electorSplit === "wta" ? "the local champion takes all of the district's electors (winner-take-all)" : "the electors are shared proportionally"}.`
-        : `${s.how} Décompte local choisi : « ${ll[r.localCounting]} » ; ${r.electorSplit === "wta" ? "le champion rafle tous ses grands électeurs (winner-take-all)" : "les grands électeurs sont répartis à la proportionnelle"}.`,
+      shortName: pickLocale(locale, {
+        fr: `Grands électeurs · ${ll[r.localCounting]}`,
+        en: `Electoral college · ${ll[r.localCounting]}`,
+        es: `Colegio electoral · ${ll[r.localCounting]}`,
+      }),
+      name: pickLocale(locale, {
+        fr: `Grands électeurs · ${ll[r.localCounting]}${r.electorSplit === "prop" ? " (prop.)" : ""}`,
+        en: `Electoral college · ${ll[r.localCounting]}${r.electorSplit === "prop" ? " (prop.)" : ""}`,
+        es: `Colegio electoral · ${ll[r.localCounting]}${r.electorSplit === "prop" ? " (prop.)" : ""}`,
+      }),
+      how: pickLocale(locale, {
+        fr: `${s.how} Décompte local choisi : « ${ll[r.localCounting]} » ; ${r.electorSplit === "wta" ? "le champion rafle tous ses grands électeurs (winner-take-all)" : "les grands électeurs sont répartis à la proportionnelle"}.`,
+        en: `${s.how} Local counting method: "${ll[r.localCounting]}"; ${r.electorSplit === "wta" ? "the local champion takes all of the district's electors (winner-take-all)" : "the electors are shared proportionally"}.`,
+        es: `${s.how} Método de recuento local: « ${ll[r.localCounting]} »; ${r.electorSplit === "wta" ? "el campeón local se lleva todos los grandes electores de su circunscripción (winner-take-all)" : "los grandes electores se reparten de forma proporcional"}.`,
+      }),
       pros: s.pros,
       cons: s.cons,
     };
   }
   let name = base.name;
   if (r.counting === "majority" && r.rounds === 2)
-    name = en ? "Two-round runoff" : "Majoritaire à deux tours";
+    name = pickLocale(locale, {
+      fr: "Majoritaire à deux tours",
+      en: "Two-round runoff",
+      es: "Mayoritario a dos vueltas",
+    });
   else if (r.rounds === 2 && r.counting !== "majority")
-    name = en ? `${base.name} (two rounds)` : `${base.name} à deux tours`;
+    name = pickLocale(locale, {
+      fr: `${base.name} à deux tours`,
+      en: `${base.name} (two rounds)`,
+      es: `${base.name} a dos vueltas`,
+    });
   return {
     color: base.color,
     icon: base.icon,
@@ -148,9 +175,11 @@ export function describeRecipe(r: Recipe, locale: string = "fr"): RecipeDescript
     how:
       base.how +
       (r.rounds === 2 && r.counting !== "majority"
-        ? en
-          ? ` Two-round variant: the best options are qualified first, then this counting method decides between them.`
-          : ` Variante à deux tours : on qualifie d'abord les meilleurs, puis ce décompte départage entre eux.`
+        ? pickLocale(locale, {
+            fr: ` Variante à deux tours : on qualifie d'abord les meilleurs, puis ce décompte départage entre eux.`,
+            en: ` Two-round variant: the best options are qualified first, then this counting method decides between them.`,
+            es: ` Variante a dos vueltas: primero se clasifican los mejores y luego este recuento decide entre ellos.`,
+          })
         : ""),
     pros: base.pros,
     cons: base.cons,
@@ -324,8 +353,7 @@ const toVals = (arr: number[]): Record<number, number> => {
 /** Dépouille l'urne selon la recette. `null` si aucun bulletin. */
 export function compute(ctx: ComputeCtx, locale: string = "fr"): ComputeResult | null {
   const { recipe: r, options: opts, ballots } = ctx;
-  const en = locale === "en";
-  const GR = en ? GRADES_EN : GRADES;
+  const GR = pickLocale(locale, { fr: GRADES, en: GRADES_EN, es: GRADES_ES });
   const n = opts.length;
   const total = ballots.length;
   if (!total) return null;
@@ -364,30 +392,49 @@ export function compute(ctx: ComputeCtx, locale: string = "fr"): ComputeResult |
     return {
       ...res,
       hasWinner: true,
-      winnerName: en
-        ? `${w.name} — ${seats[win]} seat${seats[win] > 1 ? "s" : ""}`
-        : `${w.name} — ${seats[win]} sièges`,
+      winnerName: pickLocale(locale, {
+        fr: `${w.name} — ${seats[win]} sièges`,
+        en: `${w.name} — ${seats[win]} seat${seats[win] > 1 ? "s" : ""}`,
+        es: `${w.name} — ${seats[win]} escaños`,
+      }),
       winnerIcon: w.icon,
       bars: bars(toVals(seats), all, (v) =>
-        en ? `${v} seat${v > 1 ? "s" : ""}` : `${v} siège${v > 1 ? "s" : ""}`,
+        pickLocale(locale, {
+          fr: `${v} siège${v > 1 ? "s" : ""}`,
+          en: `${v} seat${v > 1 ? "s" : ""}`,
+          es: `${v} escaño${v > 1 ? "s" : ""}`,
+        }),
       ),
-      tallyLabel: en ? `Allocation of the ${SEATS} seats` : `Répartition des ${SEATS} sièges`,
-      steps: en
-        ? [
-            { n: 1, text: `Voters back a whole list. ${w.name} comes first (${pct(votes[win], total)}% of the vote).` },
-            { n: 2, text: `Majority bonus: the winning list automatically gets half of the seats (${bonus}).` },
-            { n: 3, text: `The remaining ${rest} seats are shared proportionally among lists above 5% (bonus included).` },
-            { n: 4, text: `In all, ${w.name} secures a clear majority of ${seats[win]} seats out of ${SEATS}.` },
-          ]
-        : [
-            { n: 1, text: `On vote pour une liste entière. ${w.name} arrive en tête (${pct(votes[win], total)}% des voix).` },
-            { n: 2, text: `Prime majoritaire : la liste gagnante reçoit d'office la moitié des sièges (${bonus}).` },
-            { n: 3, text: `Les ${rest} sièges restants vont à la proportionnelle entre les listes au-dessus de 5 % (prime comprise).` },
-            { n: 4, text: `Au total ${w.name} obtient une majorité nette de ${seats[win]} sièges sur ${SEATS}.` },
-          ],
-      counterfactual: en
-        ? `The majority bonus turns a narrow lead into a comfortable majority — that's exactly the point: being able to govern.`
-        : `La prime majoritaire transforme une courte avance en majorité confortable — c'est tout l'objectif : pouvoir gouverner.`,
+      tallyLabel: pickLocale(locale, {
+        fr: `Répartition des ${SEATS} sièges`,
+        en: `Allocation of the ${SEATS} seats`,
+        es: `Reparto de los ${SEATS} escaños`,
+      }),
+      steps: pickLocale(locale, {
+        fr: [
+          { n: 1, text: `On vote pour une liste entière. ${w.name} arrive en tête (${pct(votes[win], total)}% des voix).` },
+          { n: 2, text: `Prime majoritaire : la liste gagnante reçoit d'office la moitié des sièges (${bonus}).` },
+          { n: 3, text: `Les ${rest} sièges restants vont à la proportionnelle entre les listes au-dessus de 5 % (prime comprise).` },
+          { n: 4, text: `Au total ${w.name} obtient une majorité nette de ${seats[win]} sièges sur ${SEATS}.` },
+        ],
+        en: [
+          { n: 1, text: `Voters back a whole list. ${w.name} comes first (${pct(votes[win], total)}% of the vote).` },
+          { n: 2, text: `Majority bonus: the winning list automatically gets half of the seats (${bonus}).` },
+          { n: 3, text: `The remaining ${rest} seats are shared proportionally among lists above 5% (bonus included).` },
+          { n: 4, text: `In all, ${w.name} secures a clear majority of ${seats[win]} seats out of ${SEATS}.` },
+        ],
+        es: [
+          { n: 1, text: `Se vota por una lista entera. ${w.name} encabeza el recuento (${pct(votes[win], total)}% de los votos).` },
+          { n: 2, text: `Prima de mayoría: la lista ganadora recibe automáticamente la mitad de los escaños (${bonus}).` },
+          { n: 3, text: `Los ${rest} escaños restantes se reparten de forma proporcional entre las listas por encima del 5 % (prima incluida).` },
+          { n: 4, text: `En total, ${w.name} obtiene una mayoría clara de ${seats[win]} escaños sobre ${SEATS}.` },
+        ],
+      }),
+      counterfactual: pickLocale(locale, {
+        fr: `La prime majoritaire transforme une courte avance en majorité confortable — c'est tout l'objectif : pouvoir gouverner.`,
+        en: `The majority bonus turns a narrow lead into a comfortable majority — that's exactly the point: being able to govern.`,
+        es: `La prima de mayoría convierte una ventaja escasa en una mayoría cómoda — ese es justo el objetivo: poder gobernar.`,
+      }),
     };
   }
 
@@ -411,32 +458,50 @@ export function compute(ctx: ComputeCtx, locale: string = "fr"): ComputeResult |
       if (best >= 0) seats[best]++;
     }
     const allBars = bars(toVals(seats), all, (v) =>
-      en ? `${v} seat${v > 1 ? "s" : ""}` : `${v} siège${v > 1 ? "s" : ""}`,
+      pickLocale(locale, {
+        fr: `${v} siège${v > 1 ? "s" : ""}`,
+        en: `${v} seat${v > 1 ? "s" : ""}`,
+        es: `${v} escaño${v > 1 ? "s" : ""}`,
+      }),
     );
     const w = allBars[0];
     return {
       ...res,
       hasWinner: true,
-      winnerName: en
-        ? `${w.name} — ${w.value} seat${w.value > 1 ? "s" : ""}`
-        : `${w.name} — ${w.value} sièges`,
+      winnerName: pickLocale(locale, {
+        fr: `${w.name} — ${w.value} sièges`,
+        en: `${w.name} — ${w.value} seat${w.value > 1 ? "s" : ""}`,
+        es: `${w.name} — ${w.value} escaños`,
+      }),
       winnerIcon: w.icon,
       bars: allBars,
-      tallyLabel: en ? `Allocation of the ${SEATS} seats` : `Répartition des ${SEATS} sièges`,
-      steps: en
-        ? [
-            { n: 1, text: `The ${SEATS} seats are shared proportionally to the vote (d'Hondt method).` },
-            { n: 2, text: `Lists below 5% get no seat.` },
-            { n: 3, text: `${w.name} holds the most seats (${w.value}), but will have to work with the others.` },
-          ]
-        : [
-            { n: 1, text: `On répartit ${SEATS} sièges proportionnellement aux voix (méthode d'Hondt).` },
-            { n: 2, text: `Les listes sous 5 % n'obtiennent aucun siège.` },
-            { n: 3, text: `${w.name} a le plus de sièges (${w.value}), mais devra composer avec les autres.` },
-          ],
-      counterfactual: en
-        ? `No "winner-take-all": every current is represented in proportion to its real weight.`
-        : `Pas de « tout au gagnant » : chaque sensibilité est représentée à hauteur de son poids réel.`,
+      tallyLabel: pickLocale(locale, {
+        fr: `Répartition des ${SEATS} sièges`,
+        en: `Allocation of the ${SEATS} seats`,
+        es: `Reparto de los ${SEATS} escaños`,
+      }),
+      steps: pickLocale(locale, {
+        fr: [
+          { n: 1, text: `On répartit ${SEATS} sièges proportionnellement aux voix (méthode d'Hondt).` },
+          { n: 2, text: `Les listes sous 5 % n'obtiennent aucun siège.` },
+          { n: 3, text: `${w.name} a le plus de sièges (${w.value}), mais devra composer avec les autres.` },
+        ],
+        en: [
+          { n: 1, text: `The ${SEATS} seats are shared proportionally to the vote (d'Hondt method).` },
+          { n: 2, text: `Lists below 5% get no seat.` },
+          { n: 3, text: `${w.name} holds the most seats (${w.value}), but will have to work with the others.` },
+        ],
+        es: [
+          { n: 1, text: `Los ${SEATS} escaños se reparten de forma proporcional a los votos (método d'Hondt).` },
+          { n: 2, text: `Las listas por debajo del 5 % no obtienen ningún escaño.` },
+          { n: 3, text: `${w.name} tiene la mayor cantidad de escaños (${w.value}), pero tendrá que pactar con las demás.` },
+        ],
+      }),
+      counterfactual: pickLocale(locale, {
+        fr: `Pas de « tout au gagnant » : chaque sensibilité est représentée à hauteur de son poids réel.`,
+        en: `No "winner-take-all": every current is represented in proportion to its real weight.`,
+        es: `Sin « todo para el ganador »: cada sensibilidad queda representada en proporción a su peso real.`,
+      }),
     };
   }
 
@@ -475,7 +540,13 @@ export function compute(ctx: ComputeCtx, locale: string = "fr"): ComputeResult |
         electors[t.winner] += seats;
       }
     });
-    const allBars = bars(toVals(electors), all, (v) => (en ? `${v} electors` : `${v} électeurs`));
+    const allBars = bars(toVals(electors), all, (v) =>
+      pickLocale(locale, {
+        fr: `${v} électeurs`,
+        en: `${v} electors`,
+        es: `${v} electores`,
+      }),
+    );
     const w = allBars[0];
     const pop = firstPrefs(ballots, n);
     let popW = 0;
@@ -487,39 +558,60 @@ export function compute(ctx: ComputeCtx, locale: string = "fr"): ComputeResult |
       winnerName: w.name,
       winnerIcon: w.icon,
       bars: allBars,
-      tallyLabel: en ? "Electors won" : "Grands électeurs obtenus",
-      steps: en
-        ? [
-            { n: 1, text: `The ballots are split across ${D} districts.` },
-            { n: 2, text: `Each district picks its champion using the "${desc.decisiveLabel}" count.` },
-            {
-              n: 3,
-              text:
-                r.electorSplit === "wta"
-                  ? `The local champion takes ALL of the district's electors (winner-take-all).`
-                  : `Each district's electors are shared proportionally.`,
-            },
-            { n: 4, text: `In all, ${w.name} gathers the most electors (${w.value}) and wins.` },
-          ]
-        : [
-            { n: 1, text: `Les bulletins sont répartis en ${D} circonscriptions.` },
-            { n: 2, text: `Chaque circonscription désigne son champion au décompte « ${desc.decisiveLabel} ».` },
-            {
-              n: 3,
-              text:
-                r.electorSplit === "wta"
-                  ? `Le champion local rafle TOUS les grands électeurs de sa circonscription (winner-take-all).`
-                  : `Les grands électeurs de chaque circonscription sont partagés à la proportionnelle.`,
-            },
-            { n: 4, text: `Au total, ${w.name} cumule le plus de grands électeurs (${w.value}) et l'emporte.` },
-          ],
+      tallyLabel: pickLocale(locale, {
+        fr: "Grands électeurs obtenus",
+        en: "Electors won",
+        es: "Grandes electores obtenidos",
+      }),
+      steps: pickLocale(locale, {
+        fr: [
+          { n: 1, text: `Les bulletins sont répartis en ${D} circonscriptions.` },
+          { n: 2, text: `Chaque circonscription désigne son champion au décompte « ${desc.decisiveLabel} ».` },
+          {
+            n: 3,
+            text:
+              r.electorSplit === "wta"
+                ? `Le champion local rafle TOUS les grands électeurs de sa circonscription (winner-take-all).`
+                : `Les grands électeurs de chaque circonscription sont partagés à la proportionnelle.`,
+          },
+          { n: 4, text: `Au total, ${w.name} cumule le plus de grands électeurs (${w.value}) et l'emporte.` },
+        ],
+        en: [
+          { n: 1, text: `The ballots are split across ${D} districts.` },
+          { n: 2, text: `Each district picks its champion using the "${desc.decisiveLabel}" count.` },
+          {
+            n: 3,
+            text:
+              r.electorSplit === "wta"
+                ? `The local champion takes ALL of the district's electors (winner-take-all).`
+                : `Each district's electors are shared proportionally.`,
+          },
+          { n: 4, text: `In all, ${w.name} gathers the most electors (${w.value}) and wins.` },
+        ],
+        es: [
+          { n: 1, text: `Las papeletas se reparten en ${D} circunscripciones.` },
+          { n: 2, text: `Cada circunscripción designa a su campeón mediante el recuento « ${desc.decisiveLabel} ».` },
+          {
+            n: 3,
+            text:
+              r.electorSplit === "wta"
+                ? `El campeón local se lleva TODOS los grandes electores de su circunscripción (winner-take-all).`
+                : `Los grandes electores de cada circunscripción se reparten de forma proporcional.`,
+          },
+          { n: 4, text: `En total, ${w.name} acumula la mayor cantidad de grandes electores (${w.value}) y se impone.` },
+        ],
+      }),
       counterfactual: upset
-        ? en
-          ? `⚠️ ${opts[popW].name} has the most votes overall but loses: that's the "popular vote vs electoral college" effect.`
-          : `⚠️ ${opts[popW].name} a le plus de voix au total mais perd : c'est l'effet « vote populaire vs grands électeurs ».`
-        : en
-          ? `Here the winner of the college is also the winner of the popular vote.`
-          : `Ici le vainqueur du collège est aussi celui du vote populaire.`,
+        ? pickLocale(locale, {
+            fr: `⚠️ ${opts[popW].name} a le plus de voix au total mais perd : c'est l'effet « vote populaire vs grands électeurs ».`,
+            en: `⚠️ ${opts[popW].name} has the most votes overall but loses: that's the "popular vote vs electoral college" effect.`,
+            es: `⚠️ ${opts[popW].name} tiene más votos en total pero pierde: es el efecto « voto popular vs colegio electoral ».`,
+          })
+        : pickLocale(locale, {
+            fr: `Ici le vainqueur du collège est aussi celui du vote populaire.`,
+            en: `Here the winner of the college is also the winner of the popular vote.`,
+            es: `Aquí el ganador del colegio electoral es también el del voto popular.`,
+          }),
     };
   }
 
@@ -540,21 +632,33 @@ export function compute(ctx: ComputeCtx, locale: string = "fr"): ComputeResult |
         winnerName: lead.name,
         winnerIcon: lead.icon,
         bars: fpBars,
-        tallyLabel: en ? "First round — votes" : "Premier tour — voix",
-        steps: en
-          ? [
-              { n: 1, text: "We count the first choices." },
-              { n: 2, text: `${lead.name} clears 50% (${pct(lead.value, total)}%) in the first round.` },
-              { n: 3, text: "No second round needed." },
-            ]
-          : [
-              { n: 1, text: "On compte les premiers choix." },
-              { n: 2, text: `${lead.name} dépasse 50 % (${pct(lead.value, total)}%) dès le 1er tour.` },
-              { n: 3, text: "Pas besoin de second tour." },
-            ],
-        counterfactual: en
-          ? `${lead.name} is elected in the first round with an absolute majority.`
-          : `${lead.name} est élu dès le 1er tour à la majorité absolue.`,
+        tallyLabel: pickLocale(locale, {
+          fr: "Premier tour — voix",
+          en: "First round — votes",
+          es: "Primera vuelta — votos",
+        }),
+        steps: pickLocale(locale, {
+          fr: [
+            { n: 1, text: "On compte les premiers choix." },
+            { n: 2, text: `${lead.name} dépasse 50 % (${pct(lead.value, total)}%) dès le 1er tour.` },
+            { n: 3, text: "Pas besoin de second tour." },
+          ],
+          en: [
+            { n: 1, text: "We count the first choices." },
+            { n: 2, text: `${lead.name} clears 50% (${pct(lead.value, total)}%) in the first round.` },
+            { n: 3, text: "No second round needed." },
+          ],
+          es: [
+            { n: 1, text: "Se cuentan las primeras preferencias." },
+            { n: 2, text: `${lead.name} supera el 50 % (${pct(lead.value, total)}%) ya en la primera vuelta.` },
+            { n: 3, text: "No hace falta una segunda vuelta." },
+          ],
+        }),
+        counterfactual: pickLocale(locale, {
+          fr: `${lead.name} est élu dès le 1er tour à la majorité absolue.`,
+          en: `${lead.name} is elected in the first round with an absolute majority.`,
+          es: `${lead.name} es elegido en la primera vuelta por mayoría absoluta.`,
+        }),
       };
     }
     let finalists: number[];
@@ -567,15 +671,19 @@ export function compute(ctx: ComputeCtx, locale: string = "fr"): ComputeResult |
     round1 = true;
     steps.push({
       n: sN++,
-      text: en
-        ? `First round: nobody has an absolute majority (${fpBars[0].name} leads with ${pct(fpBars[0].value, total)}%).`
-        : `1er tour : personne n'a la majorité absolue (${fpBars[0].name} mène avec ${pct(fpBars[0].value, total)}%).`,
+      text: pickLocale(locale, {
+        fr: `1er tour : personne n'a la majorité absolue (${fpBars[0].name} mène avec ${pct(fpBars[0].value, total)}%).`,
+        en: `First round: nobody has an absolute majority (${fpBars[0].name} leads with ${pct(fpBars[0].value, total)}%).`,
+        es: `1.ª vuelta: nadie tiene la mayoría absoluta (${fpBars[0].name} encabeza con ${pct(fpBars[0].value, total)}%).`,
+      }),
     });
     steps.push({
       n: sN++,
-      text: en
-        ? `Qualifying: ${r.qualif === "top2" ? "the top 2" : "the candidates above 10%"}: ${finalists.map((i) => opts[i].name).join(", ")}.`
-        : `Se qualifient ${r.qualif === "top2" ? "les 2 premiers" : "les candidats au-dessus de 10 %"} : ${finalists.map((i) => opts[i].name).join(", ")}.`,
+      text: pickLocale(locale, {
+        fr: `Se qualifient ${r.qualif === "top2" ? "les 2 premiers" : "les candidats au-dessus de 10 %"} : ${finalists.map((i) => opts[i].name).join(", ")}.`,
+        en: `Qualifying: ${r.qualif === "top2" ? "the top 2" : "the candidates above 10%"}: ${finalists.map((i) => opts[i].name).join(", ")}.`,
+        es: `Se clasifican ${r.qualif === "top2" ? "los 2 primeros" : "los candidatos por encima del 10 %"}: ${finalists.map((i) => opts[i].name).join(", ")}.`,
+      }),
     });
   }
 
@@ -584,130 +692,187 @@ export function compute(ctx: ComputeCtx, locale: string = "fr"): ComputeResult |
     method === "borda"
       ? (v) => `${v} pts`
       : method === "condorcet"
-        ? (v) => `${v} duel${v > 1 ? "s" : ""}`
+        ? (v) =>
+            pickLocale(locale, {
+              fr: `${v} duel${v > 1 ? "s" : ""}`,
+              en: `${v} duel${v > 1 ? "s" : ""}`,
+              es: `${v} duelo${v > 1 ? "s" : ""}`,
+            })
         : method === "mj"
           ? (v) => GR[v] || "—"
           : (v) => `${v} (${pct(v, total)}%)`;
   const resBars = bars(t.vals, t.order, fmt);
-  const tallyLabelMap: Record<string, string> = en
-    ? {
-        majority: "Votes",
-        condorcet: "Head-to-head duels won (Copeland)",
-        mj: "Median grade",
-        approval: "Approvals",
-        borda: "Borda points",
-      }
-    : {
-        majority: "Voix",
-        condorcet: "Duels remportés (Copeland)",
-        mj: "Mention médiane",
-        approval: "Approbations",
-        borda: "Points de Borda",
-      };
+  const tallyLabelMap: Record<string, string> = pickLocale(locale, {
+    fr: {
+      majority: "Voix",
+      condorcet: "Duels remportés (Copeland)",
+      mj: "Mention médiane",
+      approval: "Approbations",
+      borda: "Points de Borda",
+    },
+    en: {
+      majority: "Votes",
+      condorcet: "Head-to-head duels won (Copeland)",
+      mj: "Median grade",
+      approval: "Approvals",
+      borda: "Borda points",
+    },
+    es: {
+      majority: "Votos",
+      condorcet: "Duelos ganados (Copeland)",
+      mj: "Mención mediana",
+      approval: "Aprobaciones",
+      borda: "Puntos de Borda",
+    },
+  });
   const tallyLabel =
-    (tallyLabelMap[method] || (en ? "Count" : "Décompte")) +
-    (round1 ? (en ? " — second round" : " — 2nd tour") : "");
+    (tallyLabelMap[method] || pickLocale(locale, { fr: "Décompte", en: "Count", es: "Recuento" })) +
+    (round1
+      ? pickLocale(locale, { fr: " — 2nd tour", en: " — second round", es: " — segunda vuelta" })
+      : "");
 
   if (method === "condorcet" && t.condorcetNull && !r.random) {
     const smith = t.smith ?? [];
     return {
       ...res,
       noWinner: true,
-      noWinnerLabel: en ? "Condorcet paradox" : "Paradoxe de Condorcet",
+      noWinnerLabel: pickLocale(locale, {
+        fr: "Paradoxe de Condorcet",
+        en: "Condorcet paradox",
+        es: "Paradoja de Condorcet",
+      }),
       bars: resBars,
       tallyLabel,
       steps: [
         ...steps,
         {
           n: sN++,
-          text: en
-            ? `The duels go in circles: no option beats all the others. Deadlocked cycle: ${smith.map((i) => opts[i].name).join(", ")}.`
-            : `Les duels tournent en rond : aucune option ne bat toutes les autres. Cercle bloqué : ${smith.map((i) => opts[i].name).join(", ")}.`,
+          text: pickLocale(locale, {
+            fr: `Les duels tournent en rond : aucune option ne bat toutes les autres. Cercle bloqué : ${smith.map((i) => opts[i].name).join(", ")}.`,
+            en: `The duels go in circles: no option beats all the others. Deadlocked cycle: ${smith.map((i) => opts[i].name).join(", ")}.`,
+            es: `Los duelos giran en círculo: ninguna opción gana a todas las demás. Ciclo bloqueado: ${smith.map((i) => opts[i].name).join(", ")}.`,
+          }),
         },
         {
           n: sN++,
-          text: en
-            ? `Enable "Random tie-break" to settle it by lot.`
-            : "Activez « Tirage si blocage » pour départager au sort.",
+          text: pickLocale(locale, {
+            fr: "Activez « Tirage si blocage » pour départager au sort.",
+            en: `Enable "Random tie-break" to settle it by lot.`,
+            es: "Active « Sorteo en caso de empate » para decidir por sorteo.",
+          }),
         },
       ],
-      counterfactual: en
-        ? "This rare deadlock shows why variants exist (randomized, Schulze…)."
-        : "Ce blocage rare illustre pourquoi des variantes existent (randomisée, Schulze…).",
+      counterfactual: pickLocale(locale, {
+        fr: "Ce blocage rare illustre pourquoi des variantes existent (randomisée, Schulze…).",
+        en: "This rare deadlock shows why variants exist (randomized, Schulze…).",
+        es: "Este bloqueo poco frecuente muestra por qué existen variantes (aleatoria, Schulze…).",
+      }),
     };
   }
 
   const w = opts[t.winner];
   if (!round1) {
-    const intro: Record<string, string> = en
-      ? {
-          majority: "Each ballot counts only for its single preferred option.",
-          condorcet: "We simulate every head-to-head duel from the rankings.",
-          mj: "Each voter gives a grade; we take the median grade of each option.",
-          borda: `On each ballot: 1st = ${n - 1} pts, 2nd = ${n - 2} pts… last = 0.`,
-          approval: "Everyone ticks all the options that suit them.",
-        }
-      : {
-          majority: "Chaque bulletin compte pour sa seule option préférée.",
-          condorcet: "On simule chaque duel en tête-à-tête à partir des classements.",
-          mj: "Chaque votant attribue une mention ; on prend la mention médiane de chaque option.",
-          borda: `Sur chaque bulletin : 1er = ${n - 1} pts, 2e = ${n - 2} pts… dernier = 0.`,
-          approval: "Chacun coche toutes les options qui lui conviennent.",
-        };
+    const intro: Record<string, string> = pickLocale(locale, {
+      fr: {
+        majority: "Chaque bulletin compte pour sa seule option préférée.",
+        condorcet: "On simule chaque duel en tête-à-tête à partir des classements.",
+        mj: "Chaque votant attribue une mention ; on prend la mention médiane de chaque option.",
+        borda: `Sur chaque bulletin : 1er = ${n - 1} pts, 2e = ${n - 2} pts… dernier = 0.`,
+        approval: "Chacun coche toutes les options qui lui conviennent.",
+      },
+      en: {
+        majority: "Each ballot counts only for its single preferred option.",
+        condorcet: "We simulate every head-to-head duel from the rankings.",
+        mj: "Each voter gives a grade; we take the median grade of each option.",
+        borda: `On each ballot: 1st = ${n - 1} pts, 2nd = ${n - 2} pts… last = 0.`,
+        approval: "Everyone ticks all the options that suit them.",
+      },
+      es: {
+        majority: "Cada papeleta cuenta solo para su única opción preferida.",
+        condorcet: "Se simula cada duelo cara a cara a partir de las clasificaciones.",
+        mj: "Cada votante asigna una mención; se toma la mención mediana de cada opción.",
+        borda: `En cada papeleta: 1.º = ${n - 1} pts, 2.º = ${n - 2} pts… último = 0.`,
+        approval: "Cada cual marca todas las opciones que le convienen.",
+      },
+    });
     steps.push({ n: sN++, text: intro[method] });
   } else {
     steps.push({
       n: sN++,
-      text: en
-        ? `Second round: we apply the "${desc.decisiveLabel}" count among the qualified options only.`
-        : `2nd tour : on applique le décompte « ${desc.decisiveLabel} » entre les seuls qualifiés.`,
+      text: pickLocale(locale, {
+        fr: `2nd tour : on applique le décompte « ${desc.decisiveLabel} » entre les seuls qualifiés.`,
+        en: `Second round: we apply the "${desc.decisiveLabel}" count among the qualified options only.`,
+        es: `2.ª vuelta: se aplica el recuento « ${desc.decisiveLabel} » solo entre los clasificados.`,
+      }),
     });
   }
 
-  const fin: Record<string, string> = en
-    ? {
-        majority: round1 ? `${w.name} wins the second round.` : `${w.name} gathers the most votes.`,
-        condorcet: t.condorcetNull
-          ? `🎲 Deadlocked cycle → random draw: ${w.name} is selected.`
-          : `${w.name} beats every other option head-to-head: Condorcet winner.`,
-        mj: `${w.name} has the best median grade: "${GR[t.vals[t.winner]]}".`,
-        borda: `${w.name} totals the most points (${t.vals[t.winner]}).`,
-        approval: `${w.name} is approved by the most people (${t.vals[t.winner]} out of ${total}).`,
-      }
-    : {
-        majority: round1 ? `${w.name} l'emporte au second tour.` : `${w.name} réunit le plus de voix.`,
-        condorcet: t.condorcetNull
-          ? `🎲 Cercle bloqué → tirage au sort : ${w.name} est désigné.`
-          : `${w.name} bat tous les autres en face-à-face : vainqueur de Condorcet.`,
-        mj: `${w.name} a la meilleure mention médiane : « ${GR[t.vals[t.winner]]} ».`,
-        borda: `${w.name} totalise le plus de points (${t.vals[t.winner]}).`,
-        approval: `${w.name} est approuvé par le plus de monde (${t.vals[t.winner]} sur ${total}).`,
-      };
+  const fin: Record<string, string> = pickLocale(locale, {
+    fr: {
+      majority: round1 ? `${w.name} l'emporte au second tour.` : `${w.name} réunit le plus de voix.`,
+      condorcet: t.condorcetNull
+        ? `🎲 Cercle bloqué → tirage au sort : ${w.name} est désigné.`
+        : `${w.name} bat tous les autres en face-à-face : vainqueur de Condorcet.`,
+      mj: `${w.name} a la meilleure mention médiane : « ${GR[t.vals[t.winner]]} ».`,
+      borda: `${w.name} totalise le plus de points (${t.vals[t.winner]}).`,
+      approval: `${w.name} est approuvé par le plus de monde (${t.vals[t.winner]} sur ${total}).`,
+    },
+    en: {
+      majority: round1 ? `${w.name} wins the second round.` : `${w.name} gathers the most votes.`,
+      condorcet: t.condorcetNull
+        ? `🎲 Deadlocked cycle → random draw: ${w.name} is selected.`
+        : `${w.name} beats every other option head-to-head: Condorcet winner.`,
+      mj: `${w.name} has the best median grade: "${GR[t.vals[t.winner]]}".`,
+      borda: `${w.name} totals the most points (${t.vals[t.winner]}).`,
+      approval: `${w.name} is approved by the most people (${t.vals[t.winner]} out of ${total}).`,
+    },
+    es: {
+      majority: round1 ? `${w.name} se impone en la segunda vuelta.` : `${w.name} reúne la mayor cantidad de votos.`,
+      condorcet: t.condorcetNull
+        ? `🎲 Ciclo bloqueado → sorteo: ${w.name} queda designado.`
+        : `${w.name} gana a todas las demás opciones cara a cara: ganador de Condorcet.`,
+      mj: `${w.name} tiene la mejor mención mediana: « ${GR[t.vals[t.winner]]} ».`,
+      borda: `${w.name} suma la mayor cantidad de puntos (${t.vals[t.winner]}).`,
+      approval: `${w.name} es aprobado por la mayor cantidad de gente (${t.vals[t.winner]} de ${total}).`,
+    },
+  });
   steps.push({ n: sN++, text: fin[method] });
 
-  const cf: Record<string, string> = en
-    ? {
-        majority: round1
-          ? `The second round guarantees an absolute majority — but the 3rd, sometimes a better consensus, is eliminated outright.`
-          : t.vals[t.winner] / total < 0.5
-            ? `${w.name} wins without an absolute majority: a single round is enough, but can be divisive.`
-            : `${w.name} has an absolute majority.`,
-        condorcet: `The Condorcet winner would beat every opponent in a duel — not necessarily the one with the most 1st-place votes.`,
-        mj: `We reward broad support rather than the intensity of a small minority.`,
-        borda: `Borda favours "second everywhere" options over divisive favourites.`,
-        approval: `You win by appealing to the greatest number, not by being one camp's only favourite.`,
-      }
-    : {
-        majority: round1
-          ? `Le 2nd tour garantit une majorité absolue — mais le 3e, parfois meilleur consensus, est éliminé d'office.`
-          : t.vals[t.winner] / total < 0.5
-            ? `${w.name} gagne sans majorité absolue : un seul tour suffit, mais peut diviser.`
-            : `${w.name} a la majorité absolue.`,
-        condorcet: `Le vainqueur de Condorcet battrait chaque adversaire en duel — pas forcément celui qui a le plus de 1res places.`,
-        mj: `On récompense l'adhésion large plutôt que l'intensité d'une petite minorité.`,
-        borda: `Borda favorise les options « 2es partout » au détriment des favoris clivants.`,
-        approval: `On gagne en plaisant au plus grand nombre, pas en étant le préféré d'un seul camp.`,
-      };
+  const cf: Record<string, string> = pickLocale(locale, {
+    fr: {
+      majority: round1
+        ? `Le 2nd tour garantit une majorité absolue — mais le 3e, parfois meilleur consensus, est éliminé d'office.`
+        : t.vals[t.winner] / total < 0.5
+          ? `${w.name} gagne sans majorité absolue : un seul tour suffit, mais peut diviser.`
+          : `${w.name} a la majorité absolue.`,
+      condorcet: `Le vainqueur de Condorcet battrait chaque adversaire en duel — pas forcément celui qui a le plus de 1res places.`,
+      mj: `On récompense l'adhésion large plutôt que l'intensité d'une petite minorité.`,
+      borda: `Borda favorise les options « 2es partout » au détriment des favoris clivants.`,
+      approval: `On gagne en plaisant au plus grand nombre, pas en étant le préféré d'un seul camp.`,
+    },
+    en: {
+      majority: round1
+        ? `The second round guarantees an absolute majority — but the 3rd, sometimes a better consensus, is eliminated outright.`
+        : t.vals[t.winner] / total < 0.5
+          ? `${w.name} wins without an absolute majority: a single round is enough, but can be divisive.`
+          : `${w.name} has an absolute majority.`,
+      condorcet: `The Condorcet winner would beat every opponent in a duel — not necessarily the one with the most 1st-place votes.`,
+      mj: `We reward broad support rather than the intensity of a small minority.`,
+      borda: `Borda favours "second everywhere" options over divisive favourites.`,
+      approval: `You win by appealing to the greatest number, not by being one camp's only favourite.`,
+    },
+    es: {
+      majority: round1
+        ? `La segunda vuelta garantiza una mayoría absoluta — pero el 3.º, a veces mejor consenso, queda eliminado de entrada.`
+        : t.vals[t.winner] / total < 0.5
+          ? `${w.name} gana sin mayoría absoluta: una sola vuelta basta, pero puede dividir.`
+          : `${w.name} tiene la mayoría absoluta.`,
+      condorcet: `El ganador de Condorcet vencería a cada adversario en duelo — no necesariamente quien tiene más primeros puestos.`,
+      mj: `Se premia el respaldo amplio en lugar de la intensidad de una pequeña minoría.`,
+      borda: `Borda favorece las opciones « segundas en todo » frente a los favoritos que dividen.`,
+      approval: `Se gana agradando al mayor número, no siendo el preferido de un solo bando.`,
+    },
+  });
 
   return {
     ...res,

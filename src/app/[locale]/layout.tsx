@@ -28,7 +28,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
     metadataBase: new URL("https://placet.app"),
     title: t("title"),
     description: t("description"),
-    openGraph: { type: "website", siteName: "Placet", locale: locale === "fr" ? "fr_FR" : "en_US" },
+    openGraph: { type: "website", siteName: "Placet", locale: locale === "fr" ? "fr_FR" : locale === "es" ? "es_ES" : "en_US" },
   };
 }
 

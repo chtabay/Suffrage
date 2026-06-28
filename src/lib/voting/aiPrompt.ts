@@ -55,6 +55,50 @@ Before wrapping up, ask me the useful questions to clear up any ambiguity: optio
 ${proposal}`;
   }
 
+  if (locale === "es") {
+    const proposal = `Una vez que entiendas mi decisión, propón:
+- un título corto y claro;
+- si el contexto ayuda a votar (lugar, presupuesto, plazo…), una breve descripción opcional;
+- de 2 a 8 opciones (reformula/fusiona si hace falta); empieza CADA opción con un emoji pertinente — p. ej. "🍕 Italiano" — la app lo convierte en el icono;
+- si la decisión trata de un MOMENTO ("¿cuándo?": una reunión, una cena, una salida…), usa "dates" en lugar de "options": las franjas candidatas en formato ISO (p. ej. 2026-07-12T20:00), y elige la aprobación (cada cual marca lo que le va bien — gana la más disponible);
+- UN método entre: ${methods} — y una frase que explique POR QUÉ (para un voto de fechas: solo ganador único — aprobación de preferencia, si no majority/condorcet/juicio mayoritario/borda; nunca proportional, list ni grand_electors).
+
+Después construye la URL de Placet de abajo y PRESÉNTALA COMO UN ENLACE CLICABLE (un enlace markdown con una etiqueta clara, p. ej. "👉 Abrir el borrador de voto"), nunca la URL en bruto completa. Mantenla CORTA.
+${APP_URL}/new?title=...&description=...&options=🍕 Italiano|🍣 Japonés&method=...&source=${source}&why=...
+Voto de franjas (reemplaza "options" por "dates"):
+${APP_URL}/new?title=...&dates=2026-07-12T20:00|2026-07-13T12:30&method=approval&source=${source}&why=...
+Codifica correctamente los valores, pon tu justificación en "why" y no incluyas ningún dato sensible (correos, identificadores…).
+
+Imágenes: NO LAS PONGAS en el enlace (lo alarga y a menudo lo rompe). Solo dile al usuario que puede añadir una imagen por opción en la app (botón 🔗).
+
+Este enlace /new funciona EN TODAS PARTES, incluso dentro de ChatGPT, Claude o Gemini: es tu salida por defecto. SOLO si realmente puedes hacer peticiones HTTP (un agente, un GPT con "Actions", MCP — un simple chat no puede) puedes en su lugar hacer POST a ${APP_URL}/api/poll-drafts con { title, description, options (o dates), media, method, deadline, source, why } y presentar el { draft_url } recibido como enlace clicable. En caso de duda, da el enlace /new.`;
+
+    if (!hasContext) {
+      // Arranque en frío (rail de inicio): aún no se conoce el tema.
+      return `Quiero organizar una votación de grupo con Placet (${APP_URL}), pero aún no he definido el tema.
+
+Empieza preguntándome, paso a paso: ¿qué decisión queremos zanjar? ¿qué opciones son posibles? ¿quién vota y cuántas personas? ¿hay una fecha límite? ¿buscamos un ganador claro o más bien un consenso amplio? Hazme estas preguntas y espera mis respuestas — no adivines el tema y no inventes ninguna opción, todo debe venir de mí.
+
+${proposal}`;
+    }
+
+    const startLines = [
+      question.trim() ? `Decisión probable: ${question.trim()}` : null,
+      opts.length ? `Opciones consideradas: ${opts.join(", ")}` : null,
+    ]
+      .filter(Boolean)
+      .join("\n");
+
+    return `Ayúdame a preparar una votación con Placet (${APP_URL}).
+
+Esto es lo que tengo por ahora (por confirmar, no definitivo):
+${startLines}
+
+Antes de cerrar, hazme las preguntas útiles para despejar cualquier ambigüedad: opciones que añadir/fusionar, quién vota, fecha límite, ganador claro o consenso. Espera mis respuestas, no rellenes por mí.
+
+${proposal}`;
+  }
+
   // ---- FR (défaut) ----
   const proposal = `Une fois que tu as compris ma décision, propose :
 - un titre court et clair ;

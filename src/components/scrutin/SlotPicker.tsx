@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { SLOT_ICON, slotLabel } from "@/lib/voting/draft";
+import { intlLocale, pickLocale } from "@/i18n/locales";
 import type { Option } from "@/lib/voting/types";
 import { CORAL, CREAM, FONT_BODY, FONT_DISPLAY, INK, MUTED, REDTXT } from "./theme";
 
@@ -21,7 +22,11 @@ const timePart = (at: string) => (at.includes("T") ? at.split("T")[1] : "");
 export default function SlotPicker({ slots, onChange }: { slots: Option[]; onChange: (s: Option[]) => void }) {
   const locale = useLocale();
   const t = useTranslations("SlotPicker");
-  const weekdays = locale === "en" ? ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"] : WEEKDAYS;
+  const weekdays = pickLocale(locale, {
+    fr: WEEKDAYS,
+    en: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+    es: ["lun", "mar", "mié", "jue", "vie", "sáb", "dom"],
+  });
   const now = new Date();
   const [view, setView] = useState({ y: now.getFullYear(), m: now.getMonth() });
 
@@ -118,7 +123,7 @@ export default function SlotPicker({ slots, onChange }: { slots: Option[]; onCha
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
         <button type="button" aria-label={t("prevMonth")} onClick={() => shift(-1)} style={navBtn}>‹</button>
         <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 16 }}>
-          {new Date(view.y, view.m, 1).toLocaleDateString(locale === "en" ? "en-GB" : "fr-FR", { month: "long", year: "numeric" })}
+          {new Date(view.y, view.m, 1).toLocaleDateString(intlLocale(locale), { month: "long", year: "numeric" })}
         </div>
         <button type="button" aria-label={t("nextMonth")} onClick={() => shift(1)} style={navBtn}>›</button>
       </div>

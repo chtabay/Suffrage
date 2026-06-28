@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
 import { useCallback, useEffect, useState } from "react";
+import { intlLocale } from "@/i18n/locales";
 import {
   addBallot,
   castInvitedBallot,
@@ -269,7 +270,7 @@ function VoterLinkRow({ v }: { v: Voter & { url: string } }) {
 }
 
 function fmtDateTime(iso: string, locale = "fr") {
-  return new Date(iso).toLocaleString(locale === "en" ? "en-GB" : "fr-FR", { dateStyle: "long", timeStyle: "short" });
+  return new Date(iso).toLocaleString(intlLocale(locale), { dateStyle: "long", timeStyle: "short" });
 }
 
 function Countdown({ closesAt, onExpire }: { closesAt: string; onExpire: () => void }) {

@@ -3,6 +3,7 @@
 import { recipeForSystem } from "./engine";
 import { publicMethodToSystem } from "./methods";
 import type { Option, Recipe } from "./types";
+import { intlLocale, pickLocale } from "@/i18n/locales";
 
 const DRAFT_ICONS = ["📌", "⭐", "🔥", "🌟", "🎯", "🎪", "🎨", "🍀", "🌈", "🚀", "🎲", "🧭"];
 
@@ -39,7 +40,7 @@ export const safeUrl = (u: string | undefined): string | undefined => {
 export const SLOT_ICON = "📅";
 /** Libellé lisible d'un créneau : "YYYY-MM-DDThh:mm" (avec heure) ou "YYYY-MM-DD" (journée entière). */
 export function slotLabel(local: string, locale = "fr"): string {
-  const fallback = locale === "en" ? "Slot to set" : "Créneau à définir";
+  const fallback = pickLocale(locale, { fr: "Créneau à définir", en: "Slot to set", es: "Espacio por definir" });
   if (!local) return fallback;
   const dateOnly = !local.includes("T");
   const d = new Date(dateOnly ? `${local}T00:00` : local);
@@ -47,7 +48,7 @@ export function slotLabel(local: string, locale = "fr"): string {
   const opts: Intl.DateTimeFormatOptions = dateOnly
     ? { weekday: "short", day: "numeric", month: "short" }
     : { weekday: "short", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" };
-  return d.toLocaleString(locale === "en" ? "en-GB" : "fr-FR", opts);
+  return d.toLocaleString(intlLocale(locale), opts);
 }
 
 /** Convertit les paramètres d'URL /new en brouillon (toujours un objet, possiblement vide). */

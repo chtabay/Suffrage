@@ -7,6 +7,7 @@ import { getLocalPolls, removeLocalPoll, type LocalPoll } from "@/lib/db/localPo
 import { getMyPolls, type PollRow } from "@/lib/db/polls";
 import type { ScrutinController } from "@/lib/voting/useScrutin";
 import NotifyButton from "@/components/pwa/NotifyButton";
+import { intlLocale } from "@/i18n/locales";
 import { CREAM, FONT_DISPLAY, INK, MUTED, REDTXT, SUBINK } from "./theme";
 
 interface Item {
@@ -47,7 +48,7 @@ export default function MesScrutinsScreen({ ctrl, auth }: { ctrl: ScrutinControl
   };
 
   const fmtDate = (ms: number) =>
-    Number.isFinite(ms) ? new Date(ms).toLocaleDateString(locale === "en" ? "en-GB" : "fr-FR", { day: "numeric", month: "short", year: "numeric" }) : "";
+    Number.isFinite(ms) ? new Date(ms).toLocaleDateString(intlLocale(locale), { day: "numeric", month: "short", year: "numeric" }) : "";
 
   const localTokens = new Set(locals.map((p) => p.token));
   const items: Item[] = [
