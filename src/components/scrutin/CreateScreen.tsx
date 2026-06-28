@@ -183,7 +183,7 @@ export default function CreateScreen({ ctrl }: { ctrl: ScrutinController }) {
   const t = useTranslations("Create");
   // Exemples évocateurs montrés en placeholder (pas des valeurs à supprimer).
   const optionPlaceholders = t.raw("optionPlaceholders") as string[];
-  const { state, selectSystemRecipe, setRecipe, setQuestion, setDescription, setOptionName, setOptionUrl, setOptionIcon, removeOption, addOption, setOptionKind, setSlots, launch } = ctrl;
+  const { state, selectSystemRecipe, setRecipe, setQuestion, setDescription, setOptionName, setOptionUrl, setOptionIcon, removeOption, addOption, setOptionKind, setSlots, setSlotMinutes, launch } = ctrl;
   const [urlRows, setUrlRows] = useState<Record<number, boolean>>({});
   const [emojiRow, setEmojiRow] = useState<number | null>(null);
   const [methodOpen, setMethodOpen] = useState(false);
@@ -333,7 +333,23 @@ export default function CreateScreen({ ctrl }: { ctrl: ScrutinController }) {
             <div style={{ display: "flex", flexDirection: "column", gap: 9 }}>
               {state.optionKind === "slot"
                 ? (
-                    <SlotPicker slots={state.options} onChange={setSlots} />
+                    <>
+                      <SlotPicker slots={state.options} onChange={setSlots} />
+                      <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", marginTop: 2 }}>
+                        <span style={{ fontWeight: 700, fontSize: 13, color: MUTED }}>{t("slotDuration")}</span>
+                        <select
+                          value={state.slotMinutes}
+                          onChange={(e) => setSlotMinutes(Number(e.target.value))}
+                          style={{ fontFamily: FONT_BODY, fontSize: 14, fontWeight: 600, padding: "8px 11px", border: `2px solid ${INK}`, borderRadius: 10, background: "#fff" }}
+                        >
+                          {[30, 60, 90, 120, 180, 240].map((m) => (
+                            <option key={m} value={m}>
+                              {m < 60 ? `${m} min` : m % 60 === 0 ? `${m / 60} h` : `${Math.floor(m / 60)} h ${m % 60}`}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    </>
                   )
                 : state.options.map((opt, i) => {
                 const urlOpen = urlRows[i] || Boolean(opt.url);

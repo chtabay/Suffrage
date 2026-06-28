@@ -26,6 +26,7 @@ export interface PollRow {
   closes_at: string | null;
   close_on_complete: boolean;
   quorum: number | null;
+  slot_minutes: number | null;
 }
 
 export interface VoterInput {
@@ -49,7 +50,7 @@ export interface VoterContext {
 }
 
 const POLL_COLS =
-  "id, token, question, description, options, recipe, created_at, status, hide_results, access_mode, districts, opens_at, closes_at, close_on_complete, quorum";
+  "id, token, question, description, options, recipe, created_at, status, hide_results, access_mode, districts, opens_at, closes_at, close_on_complete, quorum, slot_minutes";
 
 /** SHA-256 hex (mêmes octets que sha256(convert_to(...,'UTF8')) côté Postgres). */
 async function sha256Hex(input: string): Promise<string> {
@@ -66,6 +67,7 @@ export interface CreatePollOptions {
   closesAt?: string | null;
   closeOnComplete?: boolean;
   quorum?: number | null;
+  slotMinutes?: number | null;
 }
 
 /**
@@ -97,6 +99,7 @@ export async function createPoll(
       closes_at: opts.closesAt ?? null,
       close_on_complete: opts.closeOnComplete ?? false,
       quorum: opts.quorum ?? null,
+      slot_minutes: opts.slotMinutes ?? null,
     })
     .select("token")
     .single();

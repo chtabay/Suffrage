@@ -635,7 +635,7 @@ export default function PublicVote({
           {result ? (
             <>
               {poll.quorum != null && <QuorumBanner quorum={poll.quorum} count={ballotCount} />}
-              <ResultCard result={result} question={poll.question} ballotCount={ballotCount} calendarSlot={winnerSlot} calendarUrl={voteShareUrl} />
+              <ResultCard result={result} question={poll.question} ballotCount={ballotCount} calendarSlot={winnerSlot} calendarUrl={voteShareUrl} calendarDuration={poll.slot_minutes ?? undefined} />
               <ResultShare
                 question={poll.question}
                 result={result}
@@ -726,7 +726,7 @@ export default function PublicVote({
         {result ? (
           <>
             {poll.quorum != null && <QuorumBanner quorum={poll.quorum} count={ballotCount} />}
-            <ResultCard result={result} question={poll.question} ballotCount={ballotCount} calendarSlot={winnerSlot} calendarUrl={voteShareUrl} />
+            <ResultCard result={result} question={poll.question} ballotCount={ballotCount} calendarSlot={winnerSlot} calendarUrl={voteShareUrl} calendarDuration={poll.slot_minutes ?? undefined} />
             <ResultShare
               question={poll.question}
               result={result}
@@ -779,7 +779,7 @@ export default function PublicVote({
     return (
       <Shell>
         {poll.quorum != null && <QuorumBanner quorum={poll.quorum} count={ballotCount} />}
-        <ResultCard result={result} question={poll.question} ballotCount={ballotCount} footer={footer} calendarSlot={winnerSlot} calendarUrl={voteShareUrl} />
+        <ResultCard result={result} question={poll.question} ballotCount={ballotCount} footer={footer} calendarSlot={winnerSlot} calendarUrl={voteShareUrl} calendarDuration={poll.slot_minutes ?? undefined} />
         <CommentsFeed comments={comments} />
         <OfficialRecordCta token={token} />
       </Shell>

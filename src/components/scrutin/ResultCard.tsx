@@ -14,14 +14,18 @@ interface Props {
   /** Créneau gagnant (datetime-local) d'un vote de dates clos → bouton .ics. */
   calendarSlot?: string;
   calendarUrl?: string;
+  calendarDuration?: number;
 }
 
 /** Carte de résultat : vainqueur, barres, explication et contrefactuel. */
-export default function ResultCard({ result, question, ballotCount, footer, calendarSlot, calendarUrl }: Props) {
+export default function ResultCard({ result, question, ballotCount, footer, calendarSlot, calendarUrl, calendarDuration }: Props) {
   const t = useTranslations("Vote");
   const tm = useTranslations("Methods");
   const addToCalendar = () =>
-    downloadIcs("placet.ics", buildIcs({ summary: question, startLocal: calendarSlot ?? "", description: t("icsNote"), url: calendarUrl }));
+    downloadIcs(
+      "placet.ics",
+      buildIcs({ summary: question, startLocal: calendarSlot ?? "", durationMin: calendarDuration, description: t("icsNote"), url: calendarUrl }),
+    );
   return (
     <div
       style={{

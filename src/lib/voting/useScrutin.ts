@@ -23,6 +23,7 @@ export interface ScrutinState {
   description: string;
   optionKind: "text" | "slot";
   options: Option[];
+  slotMinutes: number;
   recipe: Recipe;
   access: AccessMode;
   hideResults: boolean;
@@ -54,6 +55,7 @@ const INITIAL: ScrutinState = {
     { icon: "🌆", name: "" },
   ],
   optionKind: "text",
+  slotMinutes: 60,
   recipe: { ...DEFAULT_RECIPE },
   access: "open",
   hideResults: false,
@@ -208,6 +210,11 @@ export function useScrutin(draft?: ScrutinDraft) {
     setState((s) => ({ ...s, options, ...CLEAR_SHARE }));
   }, []);
 
+  // Durée d'un créneau (pour le .ics du gagnant) — votes de dates.
+  const setSlotMinutes = useCallback((slotMinutes: number) => {
+    setState((s) => ({ ...s, slotMinutes, ...CLEAR_SHARE }));
+  }, []);
+
   // ---- vote « dates » : créneaux ----
   const setOptionKind = useCallback((kind: "text" | "slot") => {
     setState((s) => {
@@ -356,6 +363,7 @@ export function useScrutin(draft?: ScrutinDraft) {
         closesAt: toISO(s.closesAt),
         closeOnComplete: s.closeOnComplete,
         quorum: s.quorum,
+        slotMinutes: isSlot ? s.slotMinutes : null,
       });
       const origin = window.location.origin;
 
@@ -401,6 +409,7 @@ export function useScrutin(draft?: ScrutinDraft) {
     setSlotAt,
     addSlot,
     setSlots,
+    setSlotMinutes,
     setAccess,
     toggleHideResults,
     setVoterNames,
