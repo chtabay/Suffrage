@@ -123,6 +123,8 @@
     "createMyPoll": "Créer mon scrutin →",
     "resultBallots": "{count, plural, one {# bulletin} other {# bulletins}}",
     "resultWinner": "🏆 VAINQUEUR",
+    "addToCalendar": "📅 Ajouter au calendrier",
+    "icsNote": "Créneau retenu via Placet.",
     "resultHowTitle": "🔍 Comment ce résultat a été obtenu",
     "shareResult": "💬 Partager le résultat",
     "copyResult": "📋 Copier le résultat",

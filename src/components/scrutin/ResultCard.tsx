@@ -2,6 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import type { ComputeResult } from "@/lib/voting/types";
+import { buildIcs, downloadIcs } from "@/lib/voting/ics";
 import { CREAM, FONT_DISPLAY, INK } from "./theme";
 
 interface Props {
@@ -10,12 +11,17 @@ interface Props {
   ballotCount: number;
   /** Boutons d'action rendus en bas de la carte (recalculer, partager, voter…). */
   footer?: React.ReactNode;
+  /** Créneau gagnant (datetime-local) d'un vote de dates clos → bouton .ics. */
+  calendarSlot?: string;
+  calendarUrl?: string;
 }
 
 /** Carte de résultat : vainqueur, barres, explication et contrefactuel. */
-export default function ResultCard({ result, question, ballotCount, footer }: Props) {
+export default function ResultCard({ result, question, ballotCount, footer, calendarSlot, calendarUrl }: Props) {
   const t = useTranslations("Vote");
   const tm = useTranslations("Methods");
+  const addToCalendar = () =>
+    downloadIcs("placet.ics", buildIcs({ summary: question, startLocal: calendarSlot ?? "", description: t("icsNote"), url: calendarUrl }));
   return (
     <div
       style={{
@@ -101,6 +107,15 @@ export default function ResultCard({ result, question, ballotCount, footer }: Pr
       </div>
 
       <div style={{ padding: 24 }}>
+        {calendarSlot && (
+          <button
+            onClick={addToCalendar}
+            className="dc-paper"
+            style={{ display: "inline-flex", alignItems: "center", gap: 8, fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 14.5, cursor: "pointer", border: `2.5px solid ${INK}`, background: "#fff", color: INK, padding: "10px 16px", borderRadius: 11, marginBottom: 18 }}
+          >
+            {t("addToCalendar")}
+          </button>
+        )}
         <div style={{ fontWeight: 800, fontFamily: FONT_DISPLAY, fontSize: 16, marginBottom: 14 }}>
           {result.tallyLabel}
         </div>

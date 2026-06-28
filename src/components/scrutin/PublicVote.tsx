@@ -461,6 +461,9 @@ export default function PublicVote({
   const voteShareUrl = `${APP_URL}/v/${poll.token}`;
 
   const phase = pollPhase(poll);
+  // Vote de dates clos → créneau gagnant (option .at) pour proposer un .ics.
+  const winnerSlot =
+    result && phase === "closed" && result.bars[0] ? poll.options[result.bars[0].idx]?.at : undefined;
   const statusPill = (
     <span
       style={{
@@ -632,7 +635,7 @@ export default function PublicVote({
           {result ? (
             <>
               {poll.quorum != null && <QuorumBanner quorum={poll.quorum} count={ballotCount} />}
-              <ResultCard result={result} question={poll.question} ballotCount={ballotCount} />
+              <ResultCard result={result} question={poll.question} ballotCount={ballotCount} calendarSlot={winnerSlot} calendarUrl={voteShareUrl} />
               <ResultShare
                 question={poll.question}
                 result={result}
@@ -723,7 +726,7 @@ export default function PublicVote({
         {result ? (
           <>
             {poll.quorum != null && <QuorumBanner quorum={poll.quorum} count={ballotCount} />}
-            <ResultCard result={result} question={poll.question} ballotCount={ballotCount} />
+            <ResultCard result={result} question={poll.question} ballotCount={ballotCount} calendarSlot={winnerSlot} calendarUrl={voteShareUrl} />
             <ResultShare
               question={poll.question}
               result={result}
@@ -776,7 +779,7 @@ export default function PublicVote({
     return (
       <Shell>
         {poll.quorum != null && <QuorumBanner quorum={poll.quorum} count={ballotCount} />}
-        <ResultCard result={result} question={poll.question} ballotCount={ballotCount} footer={footer} />
+        <ResultCard result={result} question={poll.question} ballotCount={ballotCount} footer={footer} calendarSlot={winnerSlot} calendarUrl={voteShareUrl} />
         <CommentsFeed comments={comments} />
         <OfficialRecordCta token={token} />
       </Shell>

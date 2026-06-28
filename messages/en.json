@@ -123,6 +123,8 @@
     "createMyPoll": "Create my poll →",
     "resultBallots": "{count, plural, one {# ballot} other {# ballots}}",
     "resultWinner": "🏆 WINNER",
+    "addToCalendar": "📅 Add to calendar",
+    "icsNote": "Slot selected via Placet.",
     "resultHowTitle": "🔍 How this result was computed",
     "shareResult": "💬 Share the result",
     "copyResult": "📋 Copy the result",

@@ -123,6 +123,8 @@
     "createMyPoll": "Crear mi votación →",
     "resultBallots": "{count, plural, one {# papeleta} other {# papeletas}}",
     "resultWinner": "🏆 GANADOR",
+    "addToCalendar": "📅 Añadir al calendario",
+    "icsNote": "Franja elegida con Placet.",
     "resultHowTitle": "🔍 Cómo se ha obtenido este resultado",
     "shareResult": "💬 Compartir el resultado",
     "copyResult": "📋 Copiar el resultado",
