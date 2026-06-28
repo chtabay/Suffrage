@@ -41,6 +41,7 @@ function useHomeMode(): "learn" | "lean" {
 export default function HomeScreen({ ctrl }: { ctrl: ScrutinController }) {
   const { go, selectSystemRecipe } = ctrl;
   const t = useTranslations("Home");
+  const tm = useTranslations("Methods");
   const learn = useHomeMode() === "learn";
 
   return (
@@ -162,9 +163,9 @@ export default function HomeScreen({ ctrl }: { ctrl: ScrutinController }) {
                   {sys.icon}
                 </div>
                 <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 700, fontSize: 16, marginTop: 11, lineHeight: 1.1 }}>
-                  {sys.name}
+                  {tm(`${key}.name`)}
                 </div>
-                <div style={{ color: MUTED, fontSize: 12.5, marginTop: 4, lineHeight: 1.35 }}>{sys.tagline}</div>
+                <div style={{ color: MUTED, fontSize: 12.5, marginTop: 4, lineHeight: 1.35 }}>{tm(`${key}.tagline`)}</div>
                 <div
                   style={{
                     marginTop: 10,
@@ -180,7 +181,7 @@ export default function HomeScreen({ ctrl }: { ctrl: ScrutinController }) {
                   }}
                 >
                   <span style={{ width: 6, height: 6, borderRadius: "50%", background: sys.color, flex: "none" }} />
-                  {sys.strength}
+                  {tm(`${key}.strength`)}
                 </div>
               </div>
             );

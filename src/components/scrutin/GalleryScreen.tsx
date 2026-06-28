@@ -8,6 +8,7 @@ import { FONT_DISPLAY, GREENTXT, INK, REDTXT, SUBINK } from "./theme";
 export default function GalleryScreen({ ctrl }: { ctrl: ScrutinController }) {
   const { selectSystemRecipe } = ctrl;
   const t = useTranslations("Gallery");
+  const tm = useTranslations("Methods");
   return (
     <div className="pad" style={{ maxWidth: 1120, margin: "0 auto", padding: "48px 24px 90px" }}>
       <h1
@@ -83,7 +84,7 @@ export default function GalleryScreen({ ctrl }: { ctrl: ScrutinController }) {
                       textShadow: "1.5px 1.5px 0 rgba(0,0,0,0.25)",
                     }}
                   >
-                    {sys.name}
+                    {tm(`${key}.name`)}
                   </div>
                   <div style={{ fontSize: 12.5, fontWeight: 600, color: "rgba(255,255,255,0.92)", marginTop: 2 }}>
                     {sys.family}
@@ -91,7 +92,7 @@ export default function GalleryScreen({ ctrl }: { ctrl: ScrutinController }) {
                 </div>
               </div>
               <div style={{ padding: "18px 20px", flex: 1, display: "flex", flexDirection: "column" }}>
-                <div style={{ fontSize: 14.5, lineHeight: 1.5, color: "#2c3447" }}>{sys.how}</div>
+                <div style={{ fontSize: 14.5, lineHeight: 1.5, color: "#2c3447" }}>{tm(`${key}.how`)}</div>
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginTop: 16 }}>
                   <div>
                     <div
@@ -107,7 +108,7 @@ export default function GalleryScreen({ ctrl }: { ctrl: ScrutinController }) {
                     >
                       {t("pros")}
                     </div>
-                    {sys.pros.map((p, i) => (
+                    {(tm.raw(`${key}.pros`) as string[]).map((p, i) => (
                       <div
                         key={i}
                         style={{
@@ -138,7 +139,7 @@ export default function GalleryScreen({ ctrl }: { ctrl: ScrutinController }) {
                     >
                       {t("cons")}
                     </div>
-                    {sys.cons.map((c, i) => (
+                    {(tm.raw(`${key}.cons`) as string[]).map((c, i) => (
                       <div
                         key={i}
                         style={{

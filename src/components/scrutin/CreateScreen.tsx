@@ -188,8 +188,11 @@ export default function CreateScreen({ ctrl }: { ctrl: ScrutinController }) {
   const [emojiRow, setEmojiRow] = useState<number | null>(null);
   const [methodOpen, setMethodOpen] = useState(false);
   const resolved = describeRecipe(state.recipe);
+  const tm = useTranslations("Methods");
   const axes = buildAxes(state.recipe, setRecipe, state.optionKind === "slot", t);
   const curKey = resolveKey(state.recipe);
+  const twoRound = state.recipe.suffrage !== "indirect" && state.recipe.rounds === 2 && state.recipe.counting !== "majority";
+  const methodName = twoRound ? `${tm(`${curKey}.name`)} ${tm("twoRounds")}` : tm(`${curKey}.name`);
   const otherMethods = SYSTEM_ORDER.filter((k) => !MAIN_METHODS.includes(k)).filter(
     (k) => state.optionKind !== "slot" || !["proportional", "list", "indirect"].includes(k),
   );
@@ -216,7 +219,7 @@ export default function CreateScreen({ ctrl }: { ctrl: ScrutinController }) {
         }}
       >
         <span style={{ fontSize: 15 }}>{sys.icon}</span>
-        {sys.name}
+        {tm(`${key}.name`)}
       </button>
     );
   };
@@ -651,15 +654,15 @@ export default function CreateScreen({ ctrl }: { ctrl: ScrutinController }) {
                   textShadow: "1.5px 1.5px 0 rgba(0,0,0,0.22)",
                 }}
               >
-                {resolved.name}
+                {methodName}
               </div>
             </div>
           </div>
           <div style={{ padding: "18px 20px" }}>
-            <div style={{ fontSize: 14, lineHeight: 1.5, color: "#2c3447" }}>{resolved.how}</div>
+            <div style={{ fontSize: 14, lineHeight: 1.5, color: "#2c3447" }}>{tm(`${curKey}.how`)}</div>
             <div style={{ marginTop: 15 }}>
               <div style={{ fontWeight: 700, fontSize: 12, color: GREENTXT, marginBottom: 7 }}>{t("whatYouGain")}</div>
-              {resolved.pros.map((p, i) => (
+              {(tm.raw(`${curKey}.pros`) as string[]).map((p, i) => (
                 <div
                   key={i}
                   style={{ fontSize: 13, lineHeight: 1.4, color: "#2c3447", marginBottom: 6, paddingLeft: 14, position: "relative" }}
@@ -671,7 +674,7 @@ export default function CreateScreen({ ctrl }: { ctrl: ScrutinController }) {
             </div>
             <div style={{ marginTop: 13 }}>
               <div style={{ fontWeight: 700, fontSize: 12, color: REDTXT, marginBottom: 7 }}>{t("whatYouLose")}</div>
-              {resolved.cons.map((c, i) => (
+              {(tm.raw(`${curKey}.cons`) as string[]).map((c, i) => (
                 <div
                   key={i}
                   style={{ fontSize: 13, lineHeight: 1.4, color: "#2c3447", marginBottom: 6, paddingLeft: 14, position: "relative" }}

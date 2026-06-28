@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useTranslations } from "next-intl";
 import type { AuthController } from "@/lib/auth/useAuth";
 import type { ScrutinController } from "@/lib/voting/useScrutin";
+import LocaleSwitch from "@/components/LocaleSwitch";
 import { CORAL, CREAM, FONT_BODY, FONT_DISPLAY, GREEN, INK, YELLOW, lift } from "./theme";
 
 export default function Nav({ ctrl, auth }: { ctrl: ScrutinController; auth: AuthController }) {
@@ -98,6 +99,7 @@ export default function Nav({ ctrl, auth }: { ctrl: ScrutinController; auth: Aut
         </button>
 
         <div className={`nav-links${open ? " open" : ""}`}>
+          <LocaleSwitch />
           <button onClick={act(() => go("mine"))} className="dc-paper" style={secondary}>
             {t("myPolls")}
           </button>

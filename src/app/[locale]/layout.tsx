@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { notFound } from "next/navigation";
 import { NextIntlClientProvider, hasLocale } from "next-intl";
-import { getMessages, setRequestLocale } from "next-intl/server";
+import { getMessages, getTranslations, setRequestLocale } from "next-intl/server";
 import { Bricolage_Grotesque, Plus_Jakarta_Sans } from "next/font/google";
 import InstallFab from "@/components/pwa/InstallFab";
 import { routing } from "@/i18n/routing";
@@ -19,18 +19,18 @@ const body = Plus_Jakarta_Sans({
   variable: "--font-body",
 });
 
-export const metadata: Metadata = {
-  // Indispensable : sans base absolue, l'image Open Graph est résolue sur
-  // localhost en prod et WhatsApp/réseaux n'affichent pas l'aperçu.
-  metadataBase: new URL("https://placet.app"),
-  title: "Placet — Votez vraiment comme il faut",
-  description:
-    "Concevez votre mode de scrutin (majoritaire, deux tours, Condorcet, jugement majoritaire, grands électeurs…), comparez avantages et inconvénients, puis dépouillez pour de vrai.",
-  openGraph: {
-    type: "website",
-    siteName: "Placet",
-  },
-};
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "Meta" });
+  return {
+    // Indispensable : sans base absolue, l'image Open Graph est résolue sur
+    // localhost en prod et WhatsApp/réseaux n'affichent pas l'aperçu.
+    metadataBase: new URL("https://placet.app"),
+    title: t("title"),
+    description: t("description"),
+    openGraph: { type: "website", siteName: "Placet", locale: locale === "fr" ? "fr_FR" : "en_US" },
+  };
+}
 
 export const viewport: Viewport = {
   themeColor: "#16213A",

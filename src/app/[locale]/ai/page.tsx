@@ -1,13 +1,13 @@
-import type { Metadata } from "next";
-import { publicMethodCatalog } from "@/lib/voting/methods";
+import type { ReactNode } from "react";
+import { getTranslations } from "next-intl/server";
+import { publicMethodCatalog, publicMethodToSystem } from "@/lib/voting/methods";
 import SlackMark from "@/components/SlackMark";
 import { Link } from "@/i18n/navigation";
 
-export const metadata: Metadata = {
-  title: "Placet pour les IA — générer un lien de vote",
-  description:
-    "Comment un assistant IA (ou un humain) génère une URL Placet qui ouvre un brouillon de scrutin pré-rempli : format, méthodes disponibles, exemples.",
-};
+export async function generateMetadata() {
+  const t = await getTranslations("AiDoc");
+  return { title: t("metaTitle"), description: t("metaDescription") };
+}
 
 const INK = "#16213A";
 const CREAM = "#FBF6EC";
@@ -37,7 +37,9 @@ const code = {
   wordBreak: "break-all" as const,
 };
 
-export default function AiDocPage() {
+export default async function AiDocPage() {
+  const t = await getTranslations("AiDoc");
+  const tm = await getTranslations("Methods");
   const methods = publicMethodCatalog();
   return (
     <div style={{ minHeight: "100vh" }}>
@@ -76,12 +78,10 @@ export default function AiDocPage() {
 
       <div style={{ maxWidth: 820, margin: "0 auto", padding: "40px 24px 90px" }}>
         <h1 style={{ fontFamily: display, fontWeight: 800, fontSize: "clamp(30px,5vw,46px)", letterSpacing: "-0.03em", margin: 0 }}>
-          Placet pour les assistants IA
+          {t("title")}
         </h1>
         <p style={{ fontSize: 17, color: "#3a4258", lineHeight: 1.55, marginTop: 14, maxWidth: "62ch" }}>
-          Placet transforme une décision de groupe en vote structuré. Tu peux générer un lien qui
-          ouvre un <strong>brouillon pré-rempli</strong> : l&apos;utilisateur le relit, l&apos;ajuste,
-          puis lance. Aucune authentification n&apos;est requise pour produire ce lien.
+          {t.rich("intro", { strong: (c) => <strong>{c}</strong> })}
         </p>
 
         <div
@@ -96,9 +96,8 @@ export default function AiDocPage() {
           }}
         >
           <div style={{ fontSize: 14.5, color: "#2c3447", lineHeight: 1.55, maxWidth: "52ch" }}>
-            <strong>💬 Aussi dans Slack.</strong> Lance un vote sans quitter tes canaux :{" "}
-            <code style={{ fontFamily: mono }}>/scrutin</code> construit le vote, on vote sur le web, le résultat
-            revient dans le canal.
+            <strong>{t("slackTeaserTitle")}</strong>{" "}
+            {t.rich("slackTeaserBody", { code: (c) => <code style={{ fontFamily: mono }}>{c}</code> })}
           </div>
           <Link
             href="/slack"
@@ -118,39 +117,45 @@ export default function AiDocPage() {
               boxShadow: `3px 3px 0 ${INK}`,
             }}
           >
-            <SlackMark /> Ajouter à Slack →
+            <SlackMark /> {t("slackTeaserCta")}
           </Link>
         </div>
 
-        <h2 style={{ fontFamily: display, fontWeight: 800, fontSize: 24, marginTop: 34 }}>Format du lien</h2>
+        <h2 style={{ fontFamily: display, fontWeight: 800, fontSize: 24, marginTop: 34 }}>{t("formatTitle")}</h2>
         <div style={{ ...card, marginTop: 12 }}>
           <code style={code}>
             https://placet.app/new?title=...&amp;description=...&amp;options=A|B|C&amp;media=urlA||urlC&amp;method=...&amp;deadline=...&amp;source=...&amp;why=...
           </code>
-          <ul style={{ margin: "14px 0 0", paddingLeft: 18, fontSize: 14.5, lineHeight: 1.6, color: "#2c3447" }}>
-            <li><b>title</b> — la question posée.</li>
-            <li><b>description</b> — contexte facultatif (lieu, budget, échéance…), affiché sous la question et dans l&apos;aperçu de partage.</li>
-            <li><b>options</b> — 2 à 8 options séparées par <code style={{ fontFamily: mono }}>|</code>. Préfixe chaque option d&apos;un emoji : il devient l&apos;icône (ex. <code style={{ fontFamily: mono }}>🍕 Italien|🍣 Japonais</code>).</li>
-            <li><b>media</b> — facultatif : une URL http(s) d&apos;illustration par option (image, vidéo, doc), <b>dans le même ordre</b> que <code style={{ fontFamily: mono }}>options</code>, séparées par <code style={{ fontFamily: mono }}>|</code> (laisse vide une option sans illustration). <b>Uniquement de vraies URLs fiables</b> — ne pas inventer ; dans le doute, ne rien mettre. Pour beaucoup d&apos;images, préférer l&apos;API.</li>
-            <li><b>dates</b> — vote de créneaux : <b>remplace</b> <code style={{ fontFamily: mono }}>options</code> par une liste de dates/heures ISO séparées par <code style={{ fontFamily: mono }}>|</code> (ex. <code style={{ fontFamily: mono }}>2026-07-12T20:00|2026-07-13T12:30</code>). Méthode conseillée : <code style={{ fontFamily: mono }}>approval</code> (gagnant unique uniquement).</li>
-            <li><b>method</b> — une clé du tableau ci-dessous (défaut : <code style={{ fontFamily: mono }}>simple_vote</code>).</li>
-            <li><b>deadline</b> — date ISO 8601, ex. <code style={{ fontFamily: mono }}>2026-07-01T20:00</code> (optionnel, défaut : +7 jours).</li>
-            <li><b>source</b> — ton nom (<code style={{ fontFamily: mono }}>claude</code>, <code style={{ fontFamily: mono }}>chatgpt</code>, <code style={{ fontFamily: mono }}>gemini</code>…) : affiché « Préparé avec … ».</li>
-            <li><b>why</b> — justification (surtout du choix de méthode) : montrée à l&apos;utilisateur pour la confiance.</li>
-          </ul>
+          {(() => {
+            const b = (c: ReactNode) => <b>{c}</b>;
+            const codeTag = (c: ReactNode) => <code style={{ fontFamily: mono }}>{c}</code>;
+            return (
+              <ul style={{ margin: "14px 0 0", paddingLeft: 18, fontSize: 14.5, lineHeight: 1.6, color: "#2c3447" }}>
+                <li><b>title</b>{t.rich("paramTitle", { b, code: codeTag })}</li>
+                <li><b>description</b>{t.rich("paramDescription", { b, code: codeTag })}</li>
+                <li><b>options</b>{t.rich("paramOptions", { b, code: codeTag })}</li>
+                <li><b>media</b>{t.rich("paramMedia", { b, code: codeTag })}</li>
+                <li><b>dates</b>{t.rich("paramDates", { b, code: codeTag })}</li>
+                <li><b>method</b>{t.rich("paramMethod", { b, code: codeTag })}</li>
+                <li><b>deadline</b>{t.rich("paramDeadline", { b, code: codeTag })}</li>
+                <li><b>source</b>{t.rich("paramSource", { b, code: codeTag })}</li>
+                <li><b>why</b>{t.rich("paramWhy", { b, code: codeTag })}</li>
+              </ul>
+            );
+          })()}
           <p style={{ fontSize: 13.5, color: CORAL, fontWeight: 700, marginTop: 12, marginBottom: 0 }}>
-            ⚠️ N&apos;inclus aucune donnée sensible dans l&apos;URL (e-mails, liste d&apos;invités, identifiants, tokens).
+            {t("formatWarning")}
           </p>
         </div>
 
-        <h2 style={{ fontFamily: display, fontWeight: 800, fontSize: 24, marginTop: 34 }}>Méthodes disponibles</h2>
+        <h2 style={{ fontFamily: display, fontWeight: 800, fontSize: 24, marginTop: 34 }}>{t("methodsTitle")}</h2>
         <div style={{ ...card, marginTop: 12, padding: 0, overflow: "hidden" }}>
           <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 14 }}>
             <thead>
               <tr style={{ background: CREAM, borderBottom: `2.5px solid ${INK}` }}>
                 <th style={{ textAlign: "left", padding: "11px 14px", fontFamily: mono }}>method</th>
-                <th style={{ textAlign: "left", padding: "11px 14px" }}>Méthode</th>
-                <th style={{ textAlign: "left", padding: "11px 14px" }}>Quand l&apos;utiliser</th>
+                <th style={{ textAlign: "left", padding: "11px 14px" }}>{t("methodsColMethod")}</th>
+                <th style={{ textAlign: "left", padding: "11px 14px" }}>{t("methodsColWhen")}</th>
               </tr>
             </thead>
             <tbody>
@@ -158,7 +163,7 @@ export default function AiDocPage() {
                 <tr key={m.key} style={{ borderBottom: `1.5px solid #E4DBC6` }}>
                   <td style={{ padding: "11px 14px", fontFamily: mono, fontWeight: 700, whiteSpace: "nowrap" }}>{m.key}</td>
                   <td style={{ padding: "11px 14px", fontWeight: 700, whiteSpace: "nowrap" }}>
-                    {m.icon} {m.label}
+                    {m.icon} {tm(`${publicMethodToSystem(m.key) ?? m.key}.name`)}
                   </td>
                   <td style={{ padding: "11px 14px", color: "#2c3447" }}>{m.whenToUse}</td>
                 </tr>
@@ -167,7 +172,7 @@ export default function AiDocPage() {
           </table>
         </div>
 
-        <h2 style={{ fontFamily: display, fontWeight: 800, fontSize: 24, marginTop: 34 }}>Exemples</h2>
+        <h2 style={{ fontFamily: display, fontWeight: 800, fontSize: 24, marginTop: 34 }}>{t("examplesTitle")}</h2>
         <div style={{ ...card, marginTop: 12, display: "flex", flexDirection: "column", gap: 12 }}>
           <code style={code}>
             https://placet.app/new?title=Resto%20ce%20soir&amp;options=Italien|Japonais|Indien&amp;method=majority_judgment&amp;source=claude&amp;why=Plusieurs%20options%2C%20on%20cherche%20un%20consensus
@@ -180,11 +185,10 @@ export default function AiDocPage() {
           </code>
         </div>
 
-        <h2 style={{ fontFamily: display, fontWeight: 800, fontSize: 24, marginTop: 34 }}>API (agents)</h2>
+        <h2 style={{ fontFamily: display, fontWeight: 800, fontSize: 24, marginTop: 34 }}>{t("apiTitle")}</h2>
         <div style={{ ...card, marginTop: 12, display: "flex", flexDirection: "column", gap: 12 }}>
           <p style={{ margin: 0, fontSize: 14.5, color: "#2c3447", lineHeight: 1.55 }}>
-            Si tu peux faire des requêtes HTTP, POST un brouillon structuré et reçois une URL prête à
-            ouvrir (aucune authentification) :
+            {t("apiIntro")}
           </p>
           <code style={code}>{`POST https://placet.app/api/poll-drafts
 Content-Type: application/json
@@ -202,8 +206,7 @@ Content-Type: application/json
         </div>
 
         <p style={{ fontSize: 14.5, color: MUTED, lineHeight: 1.55, marginTop: 28 }}>
-          Pour un scrutin fermé (liste de votants, accès restreint), passe par l&apos;interface :
-          ces réglages ne se configurent pas par URL.
+          {t("closedNote")}
         </p>
       </div>
     </div>
