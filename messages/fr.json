@@ -490,7 +490,10 @@
     "needResolutions": "Ajoutez au moins une résolution avant d'ouvrir.",
     "results": "Résultats",
     "participation": "{voted}/{total} ont voté",
-    "resNoBallots": "Aucun bulletin pour l'instant."
+    "resNoBallots": "Aucun bulletin pour l'instant.",
+    "sendConvocations": "Envoyer les convocations par email",
+    "sentResult": "{sent}/{total} convocations envoyées.",
+    "emailError": "L'envoi d'email n'est pas encore configuré."
   },
   "Livret": {
     "loading": "Chargement de l'événement…",

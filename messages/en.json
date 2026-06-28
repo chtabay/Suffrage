@@ -490,7 +490,10 @@
     "needResolutions": "Add at least one resolution before opening.",
     "results": "Results",
     "participation": "{voted}/{total} voted",
-    "resNoBallots": "No ballots yet."
+    "resNoBallots": "No ballots yet.",
+    "sendConvocations": "Send convocations by email",
+    "sentResult": "{sent}/{total} convocations sent.",
+    "emailError": "Email sending isn't configured yet."
   },
   "Livret": {
     "loading": "Loading the event…",

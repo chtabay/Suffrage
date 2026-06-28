@@ -490,7 +490,10 @@
     "needResolutions": "Añade al menos una resolución antes de abrir.",
     "results": "Resultados",
     "participation": "{voted}/{total} han votado",
-    "resNoBallots": "Sin papeletas todavía."
+    "resNoBallots": "Sin papeletas todavía.",
+    "sendConvocations": "Enviar las convocatorias por email",
+    "sentResult": "{sent}/{total} convocatorias enviadas.",
+    "emailError": "El envío de emails aún no está configurado."
   },
   "Livret": {
     "loading": "Cargando el evento…",

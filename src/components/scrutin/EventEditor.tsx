@@ -1,6 +1,6 @@
 "use client";
 
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useCallback, useEffect, useState } from "react";
 import { Link } from "@/i18n/navigation";
 import { useAuth } from "@/lib/auth/useAuth";
@@ -49,6 +49,7 @@ const btn = (bg: string, fg: string) =>
 export default function EventEditor({ eventId }: { eventId: string }) {
   const t = useTranslations("Org");
   const tm = useTranslations("Methods");
+  const locale = useLocale();
   const { user, loading } = useAuth();
   const [ev, setEv] = useState<EventRow | null>(null);
   const [resolutions, setResolutions] = useState<ResolutionRow[]>([]);
@@ -60,6 +61,7 @@ export default function EventEditor({ eventId }: { eventId: string }) {
   const [busy, setBusy] = useState(false);
   const [copied, setCopied] = useState<string | null>(null);
   const [origin, setOrigin] = useState("");
+  const [sendMsg, setSendMsg] = useState("");
 
   const load = useCallback(async () => {
     if (!user) return;
@@ -128,6 +130,29 @@ export default function EventEditor({ eventId }: { eventId: string }) {
     navigator.clipboard?.writeText(`${origin}/e/${token}`);
     setCopied(token);
     setTimeout(() => setCopied((c) => (c === token ? null : c)), 1600);
+  };
+
+  const sendConvocations = async () => {
+    if (busy) return;
+    setBusy(true);
+    setSendMsg("");
+    try {
+      const res = await fetch(`/api/events/${eventId}/convoke`, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ locale }),
+      });
+      if (res.ok) {
+        const d = (await res.json()) as { sent: number; total: number };
+        setSendMsg(t("sentResult", { sent: d.sent, total: d.total }));
+        load();
+      } else {
+        setSendMsg(t("emailError"));
+      }
+    } catch {
+      setSendMsg(t("emailError"));
+    }
+    setBusy(false);
   };
 
   if (loading) return <OrgShell><div style={{ ...card, color: MUTED }}>{t("loading")}</div></OrgShell>;
@@ -207,6 +232,12 @@ export default function EventEditor({ eventId }: { eventId: string }) {
                 </div>
               ))}
             </div>
+            {convened.some((c) => c.email) && (
+              <button onClick={sendConvocations} disabled={busy} style={{ ...btn("#FFB627", INK), marginTop: 12 }}>
+                {t("sendConvocations")}
+              </button>
+            )}
+            {sendMsg && <div style={{ marginTop: 10, fontWeight: 700, fontSize: 13.5, color: SUBINK }}>{sendMsg}</div>}
           </>
         )}
       </div>
