@@ -50,13 +50,15 @@ export default function EventEditor({ eventId }: { eventId: string }) {
   const t = useTranslations("Org");
   const tm = useTranslations("Methods");
   const locale = useLocale();
+  // Préréglage du cas le plus courant en AG : Pour / Contre / Abstention (localisé).
+  const presetOpts = () => [t("presetFor"), t("presetAgainst"), t("presetAbstain")];
   const { user, loading } = useAuth();
   const [ev, setEv] = useState<EventRow | null>(null);
   const [resolutions, setResolutions] = useState<ResolutionRow[]>([]);
   const [roster, setRoster] = useState<Member[]>([]);
   const [convened, setConvened] = useState<EventMember[]>([]);
   const [q, setQ] = useState("");
-  const [opts, setOpts] = useState<string[]>(["", ""]);
+  const [opts, setOpts] = useState<string[]>(presetOpts);
   const [method, setMethod] = useState("fptp");
   const [busy, setBusy] = useState(false);
   const [copied, setCopied] = useState<string | null>(null);
@@ -104,7 +106,7 @@ export default function EventEditor({ eventId }: { eventId: string }) {
       await addResolution(eventId, { question: q, options, recipe: { ...recipeForSystem(method), threshold: majority }, orderIndex: resolutions.length });
       setResolutions(await listResolutions(eventId));
       setQ("");
-      setOpts(["", ""]);
+      setOpts(presetOpts());
     } catch {
       /* noop */
     }
@@ -252,11 +254,16 @@ export default function EventEditor({ eventId }: { eventId: string }) {
                   </div>
                 ))}
               </div>
-              {opts.length < 8 && (
-                <button onClick={addOpt} style={{ marginTop: 7, border: `2px dashed ${INK}`, background: "none", color: SUBINK, cursor: "pointer", fontSize: 13, fontWeight: 700, padding: "7px 12px", borderRadius: 10 }}>
-                  {t("addOption")}
+              <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 7 }}>
+                {opts.length < 8 && (
+                  <button onClick={addOpt} style={{ border: `2px dashed ${INK}`, background: "none", color: SUBINK, cursor: "pointer", fontSize: 13, fontWeight: 700, padding: "7px 12px", borderRadius: 10 }}>
+                    {t("addOption")}
+                  </button>
+                )}
+                <button onClick={() => setOpts(presetOpts())} style={{ border: `2px dashed ${INK}`, background: "none", color: SUBINK, cursor: "pointer", fontSize: 13, fontWeight: 700, padding: "7px 12px", borderRadius: 10 }}>
+                  {t("presetButton")}
                 </button>
-              )}
+              </div>
             </div>
             <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
               <span style={{ fontWeight: 700, fontSize: 13, color: SUBINK }}>{t("resMethod")}</span>
