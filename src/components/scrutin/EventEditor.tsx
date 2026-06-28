@@ -22,6 +22,7 @@ import { recipeForSystem, resolveKey } from "@/lib/voting/engine";
 import { splitLeadingEmoji } from "@/lib/voting/draft";
 import { SYSTEM_ORDER } from "@/lib/voting/systems";
 import { OrgShell } from "./SpacesHome";
+import EventResults from "./EventResults";
 import { CREAM, FONT_BODY, FONT_DISPLAY, GREEN, INK, MUTED, REDTXT, SUBINK } from "./theme";
 
 const card = {
@@ -209,6 +210,9 @@ export default function EventEditor({ eventId }: { eventId: string }) {
           </>
         )}
       </div>
+
+      {/* ---- Résultats ---- */}
+      {ev.status !== "draft" && <EventResults resolutions={resolutions} convenedCount={convened.length} />}
 
       {/* ---- Ouverture / clôture ---- */}
       <div style={{ marginTop: 20, display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap" }}>

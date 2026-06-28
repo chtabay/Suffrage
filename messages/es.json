@@ -487,7 +487,10 @@
     "reopenEvent": "Reabrir",
     "draftHint": "Añade resoluciones y convoca a tus miembros, luego abre la votación.",
     "shareHint": "Da a cada miembro su enlace personal (el envío por email llegará pronto).",
-    "needResolutions": "Añade al menos una resolución antes de abrir."
+    "needResolutions": "Añade al menos una resolución antes de abrir.",
+    "results": "Resultados",
+    "participation": "{voted}/{total} han votado",
+    "resNoBallots": "Sin papeletas todavía."
   },
   "Livret": {
     "loading": "Cargando el evento…",

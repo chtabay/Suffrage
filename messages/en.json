@@ -487,7 +487,10 @@
     "reopenEvent": "Reopen",
     "draftHint": "Add resolutions and convene your members, then open voting.",
     "shareHint": "Give each member their personal link (email sending coming soon).",
-    "needResolutions": "Add at least one resolution before opening."
+    "needResolutions": "Add at least one resolution before opening.",
+    "results": "Results",
+    "participation": "{voted}/{total} voted",
+    "resNoBallots": "No ballots yet."
   },
   "Livret": {
     "loading": "Loading the event…",
