@@ -56,7 +56,7 @@ export default function EventEditor({ eventId }: { eventId: string }) {
   const [roster, setRoster] = useState<Member[]>([]);
   const [convened, setConvened] = useState<EventMember[]>([]);
   const [q, setQ] = useState("");
-  const [optsText, setOptsText] = useState("");
+  const [opts, setOpts] = useState<string[]>(["", ""]);
   const [method, setMethod] = useState("fptp");
   const [busy, setBusy] = useState(false);
   const [copied, setCopied] = useState<string | null>(null);
@@ -84,9 +84,14 @@ export default function EventEditor({ eventId }: { eventId: string }) {
     setOrigin(window.location.origin);
   }, [load]);
 
+  const setOpt = (i: number, v: string) => setOpts((a) => a.map((o, j) => (j === i ? v : o)));
+  const addOpt = () => setOpts((a) => (a.length < 8 ? [...a, ""] : a));
+  const removeOpt = (i: number) => setOpts((a) => (a.length > 2 ? a.filter((_, j) => j !== i) : a));
+  const canAddRes = q.trim().length > 0 && opts.filter((o) => o.trim()).length >= 2;
+
   const addRes = async () => {
-    const options = optsText
-      .split("\n")
+    if (!canAddRes || busy) return;
+    const options = opts
       .map((l) => l.trim())
       .filter(Boolean)
       .slice(0, 8)
@@ -94,13 +99,12 @@ export default function EventEditor({ eventId }: { eventId: string }) {
         const { icon, name } = splitLeadingEmoji(l, "•");
         return { icon, name: name.slice(0, 80) };
       });
-    if (!q.trim() || options.length < 2 || busy) return;
     setBusy(true);
     try {
       await addResolution(eventId, { question: q, options, recipe: { ...recipeForSystem(method), threshold: majority }, orderIndex: resolutions.length });
       setResolutions(await listResolutions(eventId));
       setQ("");
-      setOptsText("");
+      setOpts(["", ""]);
     } catch {
       /* noop */
     }
@@ -231,7 +235,29 @@ export default function EventEditor({ eventId }: { eventId: string }) {
           <div style={{ marginTop: 15, borderTop: `2px dashed #E4DBC6`, paddingTop: 15 }}>
             <div style={{ fontWeight: 700, fontSize: 13, color: SUBINK, marginBottom: 8 }}>{t("addResolutionTitle")}</div>
             <input value={q} onChange={(e) => setQ(e.target.value)} placeholder={t("resQuestionPlaceholder")} style={{ width: "100%", fontFamily: FONT_BODY, fontSize: 15, fontWeight: 600, padding: "10px 12px", border: `2px solid ${INK}`, borderRadius: 11, marginBottom: 8 }} />
-            <textarea value={optsText} onChange={(e) => setOptsText(e.target.value)} placeholder={t("resOptionsPlaceholder")} rows={3} style={{ width: "100%", fontFamily: FONT_BODY, fontSize: 14, padding: "10px 12px", border: `2px solid ${INK}`, borderRadius: 11, resize: "vertical", marginBottom: 8 }} />
+            <div style={{ marginBottom: 8 }}>
+              <div style={{ fontWeight: 700, fontSize: 13, color: SUBINK, marginBottom: 6 }}>{t("resOptionsTitle")}</div>
+              <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                {opts.map((o, i) => (
+                  <div key={i} style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                    <input
+                      value={o}
+                      onChange={(e) => setOpt(i, e.target.value)}
+                      placeholder={t("resOptionPlaceholder", { n: i + 1 })}
+                      style={{ flex: 1, fontFamily: FONT_BODY, fontSize: 14, padding: "9px 11px", border: `2px solid ${INK}`, borderRadius: 10 }}
+                    />
+                    {opts.length > 2 && (
+                      <button onClick={() => removeOpt(i)} title={t("remove")} style={{ border: "none", background: "none", color: REDTXT, cursor: "pointer", fontSize: 18, lineHeight: 1 }}>×</button>
+                    )}
+                  </div>
+                ))}
+              </div>
+              {opts.length < 8 && (
+                <button onClick={addOpt} style={{ marginTop: 7, border: `2px dashed ${INK}`, background: "none", color: SUBINK, cursor: "pointer", fontSize: 13, fontWeight: 700, padding: "7px 12px", borderRadius: 10 }}>
+                  {t("addOption")}
+                </button>
+              )}
+            </div>
             <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
               <span style={{ fontWeight: 700, fontSize: 13, color: SUBINK }}>{t("resMethod")}</span>
               <select value={method} onChange={(e) => setMethod(e.target.value)} style={{ fontFamily: FONT_BODY, fontSize: 14, fontWeight: 600, padding: "9px 11px", border: `2px solid ${INK}`, borderRadius: 10, background: "#fff" }}>
@@ -249,7 +275,7 @@ export default function EventEditor({ eventId }: { eventId: string }) {
                   </select>
                 </>
               )}
-              <button onClick={addRes} disabled={busy} style={{ ...btn("#FFB627", INK), marginLeft: "auto" }}>{t("addResolution")}</button>
+              <button onClick={addRes} disabled={busy || !canAddRes} style={{ ...btn("#FFB627", INK), marginLeft: "auto", opacity: canAddRes ? 1 : 0.5, cursor: canAddRes ? "pointer" : "not-allowed" }}>{t("addResolution")}</button>
             </div>
           </div>
         )}

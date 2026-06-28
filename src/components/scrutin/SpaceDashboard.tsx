@@ -164,6 +164,7 @@ export default function SpaceDashboard({ spaceId }: { spaceId: string }) {
       <h1 style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: "clamp(26px,5vw,36px)", letterSpacing: "-0.03em", margin: "10px 0 0" }}>
         {space?.name ?? "…"}
       </h1>
+      <p style={{ fontSize: 14.5, color: SUBINK, lineHeight: 1.5, marginTop: 8, maxWidth: "62ch" }}>{t("spaceDashSubtitle")}</p>
 
       {/* ---- Corps électoral (roster) ---- */}
       <div style={{ ...card, marginTop: 18 }}>
@@ -171,6 +172,7 @@ export default function SpaceDashboard({ spaceId }: { spaceId: string }) {
           <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 19 }}>{t("members")}</div>
           <div style={{ color: SUBINK, fontWeight: 700, fontSize: 14 }}>{t("memberCount", { count: members.length })}</div>
         </div>
+        <div style={{ fontSize: 12.5, color: MUTED, marginTop: 4 }}>{t("membersSubtitle")}</div>
 
         <div style={{ display: "flex", flexDirection: "column", gap: 7, marginTop: 14 }}>
           {!members.length && <div style={{ color: MUTED, fontSize: 14 }}>{t("noMembers")}</div>}
@@ -248,6 +250,7 @@ export default function SpaceDashboard({ spaceId }: { spaceId: string }) {
       {/* ---- Événements ---- */}
       <div style={{ ...card, marginTop: 16 }}>
         <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 19 }}>{t("events")}</div>
+        <div style={{ fontSize: 12.5, color: MUTED, marginTop: 4 }}>{t("eventsSubtitle")}</div>
         <div style={{ display: "flex", flexDirection: "column", gap: 8, marginTop: 14 }}>
           {!events.length && <div style={{ color: MUTED, fontSize: 14 }}>{t("noEvents")}</div>}
           {events.map((e) => (
