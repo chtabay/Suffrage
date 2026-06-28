@@ -2,11 +2,12 @@
 
 import { useLocale, useTranslations } from "next-intl";
 import { useCallback, useEffect, useState } from "react";
-import { Link } from "@/i18n/navigation";
+import { Link, useRouter } from "@/i18n/navigation";
 import { useAuth } from "@/lib/auth/useAuth";
 import {
   addResolution,
   convene,
+  deleteEvent,
   getEvent,
   listConvened,
   listMembers,
@@ -53,6 +54,7 @@ export default function EventEditor({ eventId }: { eventId: string }) {
   const locale = useLocale();
   // Préréglage du cas le plus courant en AG : Pour / Contre / Abstention (localisé).
   const presetOpts = () => [t("presetFor"), t("presetAgainst"), t("presetAbstain")];
+  const router = useRouter();
   const { user, loading } = useAuth();
   const [ev, setEv] = useState<EventRow | null>(null);
   const [resolutions, setResolutions] = useState<ResolutionRow[]>([]);
@@ -137,6 +139,12 @@ export default function EventEditor({ eventId }: { eventId: string }) {
     setEv((e) => (e ? { ...e, status } : e));
   };
 
+  const onDelete = async () => {
+    if (!confirm(t("confirmDeleteEvent"))) return;
+    await deleteEvent(eventId);
+    router.push(ev?.space_id ? `/espaces/${ev.space_id}` : "/espaces");
+  };
+
   const copy = (token: string) => {
     navigator.clipboard?.writeText(`${APP_URL}/e/${token}`);
     setCopied(token);
@@ -215,6 +223,7 @@ export default function EventEditor({ eventId }: { eventId: string }) {
       </div>
 
       {ev.status === "draft" && <div style={{ ...card, marginTop: 16, background: "#fff4e0" }}>{t("draftHint")}</div>}
+      {ev.status === "closed" && <div style={{ ...card, marginTop: 16, background: "#e7f6ec", borderColor: GREEN }}>{t("closedBanner")}</div>}
 
       {/* ---- Résolutions ---- */}
       <div style={{ ...card, marginTop: 16 }}>
@@ -405,6 +414,11 @@ export default function EventEditor({ eventId }: { eventId: string }) {
         )}
         {ev.status === "open" && <button onClick={() => setStatus("closed")} style={btn(INK, "#fff")}>{t("closeEvent")}</button>}
         {ev.status === "closed" && <button onClick={() => setStatus("open")} style={btn("#fff", INK)}>{t("reopenEvent")}</button>}
+        {ev.status !== "open" && (
+          <button onClick={onDelete} style={{ marginLeft: "auto", border: "none", background: "none", color: REDTXT, cursor: "pointer", fontSize: 13.5, fontWeight: 700 }}>
+            {t("deleteEvent")}
+          </button>
+        )}
       </div>
     </OrgShell>
   );

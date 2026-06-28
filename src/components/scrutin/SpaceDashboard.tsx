@@ -90,6 +90,8 @@ export default function SpaceDashboard({ spaceId }: { spaceId: string }) {
   const [memberText, setMemberText] = useState("");
   const [eventTitle, setEventTitle] = useState("");
   const [busy, setBusy] = useState(false);
+  const [delConfirm, setDelConfirm] = useState(false);
+  const [delText, setDelText] = useState("");
 
   const load = useCallback(async () => {
     if (!user) return;
@@ -149,8 +151,9 @@ export default function SpaceDashboard({ spaceId }: { spaceId: string }) {
     }
   };
 
+  const delMatches = delText.trim() === (space?.name ?? "").trim() && delText.trim().length > 0;
   const onDeleteSpace = async () => {
-    if (!confirm(t("confirmDeleteSpace"))) return;
+    if (!delMatches) return;
     await deleteSpace(spaceId);
     router.push("/espaces");
   };
@@ -276,9 +279,37 @@ export default function SpaceDashboard({ spaceId }: { spaceId: string }) {
         </div>
       </div>
 
-      <button onClick={onDeleteSpace} style={{ marginTop: 22, border: "none", background: "none", color: REDTXT, cursor: "pointer", fontSize: 13.5, fontWeight: 700 }}>
-        {t("deleteSpace")}
-      </button>
+      {!delConfirm ? (
+        <button onClick={() => setDelConfirm(true)} style={{ marginTop: 22, border: "none", background: "none", color: REDTXT, cursor: "pointer", fontSize: 13.5, fontWeight: 700 }}>
+          {t("deleteSpace")}
+        </button>
+      ) : (
+        <div style={{ ...card, marginTop: 22, borderColor: REDTXT, boxShadow: `5px 5px 0 ${REDTXT}` }}>
+          <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 16, color: REDTXT }}>{t("deleteSpace")}</div>
+          <div style={{ fontSize: 13.5, color: SUBINK, margin: "8px 0 10px", lineHeight: 1.5 }}>{t("deleteSpaceConfirm", { name: space?.name ?? "" })}</div>
+          <input
+            value={delText}
+            onChange={(e) => setDelText(e.target.value)}
+            placeholder={space?.name ?? ""}
+            style={{ width: "100%", fontFamily: FONT_BODY, fontSize: 15, fontWeight: 600, padding: "10px 12px", border: `2px solid ${INK}`, borderRadius: 11 }}
+          />
+          <div style={{ display: "flex", gap: 10, marginTop: 12, flexWrap: "wrap" }}>
+            <button
+              onClick={() => { setDelConfirm(false); setDelText(""); }}
+              style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 14, cursor: "pointer", border: `2.5px solid ${INK}`, background: "#fff", color: INK, padding: "10px 16px", borderRadius: 11 }}
+            >
+              {t("deleteCancel")}
+            </button>
+            <button
+              onClick={onDeleteSpace}
+              disabled={!delMatches}
+              style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 14, cursor: delMatches ? "pointer" : "not-allowed", border: `2.5px solid ${INK}`, background: REDTXT, color: "#fff", padding: "10px 16px", borderRadius: 11, opacity: delMatches ? 1 : 0.5 }}
+            >
+              {t("deleteSpaceFinal")}
+            </button>
+          </div>
+        </div>
+      )}
     </OrgShell>
   );
 }
