@@ -63,6 +63,8 @@ export default function EventEditor({ eventId }: { eventId: string }) {
   const [origin, setOrigin] = useState("");
   const [sendMsg, setSendMsg] = useState("");
   const [capInput, setCapInput] = useState("");
+  const [majority, setMajority] = useState(50);
+  const [quorumInput, setQuorumInput] = useState("");
 
   const load = useCallback(async () => {
     if (!user) return;
@@ -70,6 +72,7 @@ export default function EventEditor({ eventId }: { eventId: string }) {
     setEv(e);
     if (e) {
       setCapInput(e.enroll_cap != null ? String(e.enroll_cap) : "");
+      setQuorumInput(e.quorum ? String(e.quorum) : "");
       const [r, c] = await Promise.all([listResolutions(eventId), listConvened(eventId)]);
       setResolutions(r);
       setConvened(c);
@@ -94,7 +97,7 @@ export default function EventEditor({ eventId }: { eventId: string }) {
     if (!q.trim() || options.length < 2 || busy) return;
     setBusy(true);
     try {
-      await addResolution(eventId, { question: q, options, recipe: recipeForSystem(method), orderIndex: resolutions.length });
+      await addResolution(eventId, { question: q, options, recipe: { ...recipeForSystem(method), threshold: majority }, orderIndex: resolutions.length });
       setResolutions(await listResolutions(eventId));
       setQ("");
       setOptsText("");
@@ -155,6 +158,13 @@ export default function EventEditor({ eventId }: { eventId: string }) {
     navigator.clipboard?.writeText(enrollUrl);
     setCopied("__enroll__");
     setTimeout(() => setCopied((c) => (c === "__enroll__" ? null : c)), 1600);
+  };
+
+  const saveQuorum = async () => {
+    const n = Math.min(100, Math.max(0, parseInt(quorumInput, 10) || 0));
+    await updateEvent(eventId, { quorum: n });
+    setEv((e) => (e ? { ...e, quorum: n } : e));
+    setQuorumInput(n ? String(n) : "");
   };
 
   const sendConvocations = async () => {
@@ -229,6 +239,16 @@ export default function EventEditor({ eventId }: { eventId: string }) {
                   <option key={k} value={k}>{tm(`${k}.name`)}</option>
                 ))}
               </select>
+              {(method === "fptp" || method === "runoff") && (
+                <>
+                  <span style={{ fontWeight: 700, fontSize: 13, color: SUBINK }}>{t("resMajority")}</span>
+                  <select value={majority} onChange={(e) => setMajority(Number(e.target.value))} style={{ fontFamily: FONT_BODY, fontSize: 14, fontWeight: 600, padding: "9px 11px", border: `2px solid ${INK}`, borderRadius: 10, background: "#fff" }}>
+                    <option value={50}>{t("thrAbsolute")}</option>
+                    <option value={67}>{t("thrTwoThirds")}</option>
+                    <option value={75}>{t("thrThreeQuarters")}</option>
+                  </select>
+                </>
+              )}
               <button onClick={addRes} disabled={busy} style={{ ...btn("#FFB627", INK), marginLeft: "auto" }}>{t("addResolution")}</button>
             </div>
           </div>
@@ -312,8 +332,25 @@ export default function EventEditor({ eventId }: { eventId: string }) {
         </div>
       )}
 
+      {/* ---- Quorum (paramètre d'événement) ---- */}
+      {ev.status !== "closed" && (
+        <div style={{ ...card, marginTop: 16, display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
+          <span style={{ fontWeight: 700, fontSize: 14, color: SUBINK }}>{t("quorumLabel")}</span>
+          <input
+            value={quorumInput}
+            onChange={(e) => setQuorumInput(e.target.value.replace(/[^0-9]/g, ""))}
+            onBlur={saveQuorum}
+            onKeyDown={(e) => e.key === "Enter" && (e.target as HTMLInputElement).blur()}
+            placeholder="0"
+            inputMode="numeric"
+            style={{ width: 80, fontFamily: FONT_BODY, fontSize: 14, fontWeight: 600, padding: "8px 11px", border: `2px solid ${INK}`, borderRadius: 10 }}
+          />
+          <span style={{ fontSize: 13, color: MUTED }}>{t("quorumHint")}</span>
+        </div>
+      )}
+
       {/* ---- Résultats ---- */}
-      {ev.status !== "draft" && <EventResults resolutions={resolutions} convenedCount={convened.length} />}
+      {ev.status !== "draft" && <EventResults resolutions={resolutions} convenedCount={convened.length} quorum={ev.quorum} />}
 
       {/* ---- Ouverture / clôture ---- */}
       <div style={{ marginTop: 20, display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap" }}>

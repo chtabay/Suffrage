@@ -7,7 +7,7 @@ import type { ScrutinController } from "@/lib/voting/useScrutin";
 import { Link } from "@/i18n/navigation";
 import LocaleSwitch from "@/components/LocaleSwitch";
 import PlacetMark from "./PlacetMark";
-import { CORAL, CREAM, FONT_BODY, FONT_DISPLAY, GREEN, INK, YELLOW, lift } from "./theme";
+import { CORAL, CREAM, FONT_BODY, FONT_DISPLAY, GREEN, INK, lift } from "./theme";
 
 export default function Nav({ ctrl, auth }: { ctrl: ScrutinController; auth: AuthController }) {
   const { go } = ctrl;

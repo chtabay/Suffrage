@@ -46,6 +46,7 @@ export interface EventRow {
   enroll_cap: number | null;
   enroll_closes_at: string | null;
   enroll_token: string;
+  quorum: number;
 }
 
 export interface EventMember {
@@ -109,7 +110,7 @@ export interface EventContext {
 const SPACE_COLS = "id, name, created_at";
 const MEMBER_COLS = "id, space_id, name, email, district, weight";
 const EVENT_COLS =
-  "id, space_id, title, description, mode, status, current_poll_id, opens_at, closes_at, created_at, enroll_open, enroll_cap, enroll_closes_at, enroll_token";
+  "id, space_id, title, description, mode, status, current_poll_id, opens_at, closes_at, created_at, enroll_open, enroll_cap, enroll_closes_at, enroll_token, quorum";
 const EVENT_MEMBER_COLS =
   "id, event_id, member_id, name, email, district, weight, token, invited_at, self_enrolled";
 const RESOLUTION_COLS = "id, token, question, description, options, recipe, status, order_index, closes_at";
@@ -265,6 +266,7 @@ export interface EventPatch {
   enroll_open?: boolean;
   enroll_cap?: number | null;
   enroll_closes_at?: string | null;
+  quorum?: number;
 }
 export async function updateEvent(id: string, patch: EventPatch): Promise<void> {
   const supabase = createClient();

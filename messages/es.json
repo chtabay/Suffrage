@@ -509,7 +509,18 @@
     "resNoBallots": "Sin papeletas todavía.",
     "sendConvocations": "Enviar las convocatorias por email",
     "sentResult": "{sent}/{total} convocatorias enviadas.",
-    "emailError": "El envío de emails aún no está configurado."
+    "emailError": "El envío de emails aún no está configurado.",
+    "resMajority": "Mayoría requerida",
+    "thrAbsolute": "mayoría absoluta",
+    "thrTwoThirds": "dos tercios",
+    "thrThreeQuarters": "tres cuartos",
+    "quorumLabel": "Quórum",
+    "quorumHint": "% de convocados que deben votar para validar (0 = ninguno)",
+    "quorumMet": "Quórum alcanzado",
+    "quorumNotMet": "Quórum no alcanzado ({required} requeridos)",
+    "adopted": "Adoptado",
+    "rejected": "Rechazado",
+    "verdictDetail": "{share}% · umbral: {threshold}"
   },
   "Livret": {
     "loading": "Cargando el evento…",

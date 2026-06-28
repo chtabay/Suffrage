@@ -509,7 +509,18 @@
     "resNoBallots": "No ballots yet.",
     "sendConvocations": "Send convocations by email",
     "sentResult": "{sent}/{total} convocations sent.",
-    "emailError": "Email sending isn't configured yet."
+    "emailError": "Email sending isn't configured yet.",
+    "resMajority": "Required majority",
+    "thrAbsolute": "absolute majority",
+    "thrTwoThirds": "two-thirds",
+    "thrThreeQuarters": "three-quarters",
+    "quorumLabel": "Quorum",
+    "quorumHint": "% of convened who must vote to validate (0 = none)",
+    "quorumMet": "Quorum met",
+    "quorumNotMet": "Quorum not met ({required} needed)",
+    "adopted": "Adopted",
+    "rejected": "Rejected",
+    "verdictDetail": "{share}% · threshold: {threshold}"
   },
   "Livret": {
     "loading": "Loading the event…",

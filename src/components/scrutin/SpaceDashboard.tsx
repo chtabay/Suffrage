@@ -62,7 +62,7 @@ function buildPreview(text: string, existing: Member[]): ParsedRow[] {
     .forEach((line, i) => {
       const cells = splitLine(line);
       if (i === 0 && looksLikeHeader(cells)) return;
-      let name = cells[0] || "";
+      const name = cells[0] || "";
       let email: string | null = cells[1] || null;
       const weight = cells[2] ? Math.max(1, parseInt(cells[2], 10) || 1) : 1;
       if (!email && EMAIL_RE.test(name)) email = name; // jeton seul = email

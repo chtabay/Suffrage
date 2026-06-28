@@ -509,7 +509,18 @@
     "resNoBallots": "Aucun bulletin pour l'instant.",
     "sendConvocations": "Envoyer les convocations par email",
     "sentResult": "{sent}/{total} convocations envoyées.",
-    "emailError": "L'envoi d'email n'est pas encore configuré."
+    "emailError": "L'envoi d'email n'est pas encore configuré.",
+    "resMajority": "Majorité requise",
+    "thrAbsolute": "majorité absolue",
+    "thrTwoThirds": "deux tiers",
+    "thrThreeQuarters": "trois quarts",
+    "quorumLabel": "Quorum",
+    "quorumHint": "% des convoqués devant voter pour valider (0 = aucun)",
+    "quorumMet": "Quorum atteint",
+    "quorumNotMet": "Quorum non atteint ({required} requis)",
+    "adopted": "Adopté",
+    "rejected": "Rejeté",
+    "verdictDetail": "{share}% · seuil : {threshold}"
   },
   "Livret": {
     "loading": "Chargement de l'événement…",
