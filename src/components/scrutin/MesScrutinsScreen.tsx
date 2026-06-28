@@ -5,6 +5,7 @@ import { useLocale, useTranslations } from "next-intl";
 import type { AuthController } from "@/lib/auth/useAuth";
 import { getLocalPolls, removeLocalPoll, type LocalPoll } from "@/lib/db/localPolls";
 import { getMyPolls, type PollRow } from "@/lib/db/polls";
+import { APP_URL } from "@/lib/voting/aiPrompt";
 import type { ScrutinController } from "@/lib/voting/useScrutin";
 import NotifyButton from "@/components/pwa/NotifyButton";
 import { intlLocale } from "@/i18n/locales";
@@ -23,12 +24,10 @@ export default function MesScrutinsScreen({ ctrl, auth }: { ctrl: ScrutinControl
   const locale = useLocale();
   const [locals, setLocals] = useState<LocalPoll[]>([]);
   const [cloud, setCloud] = useState<PollRow[]>([]);
-  const [origin, setOrigin] = useState("");
 
   const reloadLocal = useCallback(() => setLocals(getLocalPolls()), []);
 
   useEffect(() => {
-    setOrigin(window.location.origin);
     reloadLocal();
   }, [reloadLocal]);
 
@@ -165,8 +164,8 @@ export default function MesScrutinsScreen({ ctrl, auth }: { ctrl: ScrutinControl
       ) : (
         <div style={{ display: "flex", flexDirection: "column", gap: 14, marginTop: 22 }}>
           {items.map((p) => {
-            const voteUrl = `${origin}/v/${p.token}`;
-            const adminUrl = p.secret ? `${origin}/v/${p.token}?k=${p.secret}` : null;
+            const voteUrl = `${APP_URL}/v/${p.token}`;
+            const adminUrl = p.secret ? `${APP_URL}/v/${p.token}?k=${p.secret}` : null;
             return (
               <div
                 key={p.token}

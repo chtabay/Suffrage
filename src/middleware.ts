@@ -1,5 +1,5 @@
 import createMiddleware from "next-intl/middleware";
-import { type NextRequest } from "next/server";
+import { NextResponse, type NextRequest } from "next/server";
 import { routing } from "@/i18n/routing";
 import { updateSession } from "@/lib/supabase/middleware";
 
@@ -8,6 +8,14 @@ const intlMiddleware = createMiddleware(routing);
 // next-intl gère le routing de locale ; on greffe ensuite le rafraîchissement de
 // session Supabase (cookies posés sur la réponse de next-intl).
 export async function middleware(request: NextRequest) {
+  // Domaine canonique : l'alias Vercel public est renvoyé vers placet.app (308).
+  // On ne touche ni aux URLs de preview (*-projects.vercel.app) ni au dev local.
+  if (request.headers.get("host") === "suffrage.vercel.app") {
+    return NextResponse.redirect(
+      new URL(request.nextUrl.pathname + request.nextUrl.search, "https://placet.app"),
+      308,
+    );
+  }
   const response = intlMiddleware(request);
   return await updateSession(request, response);
 }

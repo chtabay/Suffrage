@@ -33,6 +33,7 @@ import {
   operativeMethod,
 } from "@/lib/voting/engine";
 import type { Ballot, BallotMode, ComputeResult } from "@/lib/voting/types";
+import { APP_URL } from "@/lib/voting/aiPrompt";
 import InstallInline from "@/components/pwa/InstallInline";
 import NotifyButton from "@/components/pwa/NotifyButton";
 import BallotCard, { EMPTY_DRAFT, type BallotDraft } from "./BallotCard";
@@ -457,8 +458,7 @@ export default function PublicVote({
     poll.recipe.suffrage !== "indirect" && poll.recipe.rounds === 2 && poll.recipe.counting !== "majority";
   const methodName = twoRound ? `${tm(`${mKey}.name`)} ${tm("twoRounds")}` : tm(`${mKey}.name`);
   const mode = methodMode(operativeMethod(poll.recipe));
-  const voteShareUrl =
-    typeof window !== "undefined" ? `${window.location.origin}/v/${poll.token}` : `/v/${poll.token}`;
+  const voteShareUrl = `${APP_URL}/v/${poll.token}`;
 
   const phase = pollPhase(poll);
   const statusPill = (
@@ -483,7 +483,7 @@ export default function PublicVote({
   // ---------- organisateur ----------
   if (view === "organizer") {
     const votedCount = voters.filter((v) => v.voted).length;
-    const origin = typeof window !== "undefined" ? window.location.origin : "";
+    const origin = APP_URL;
     const toggleClose = async () => {
       if (!adminKey) return;
       setWorking(true);
