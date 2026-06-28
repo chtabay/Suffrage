@@ -49,12 +49,12 @@ async function copy(text: string) {
 }
 
 /** Copie le prompt et ouvre l'assistant (avec ?q= quand la plateforme le supporte). */
-export async function openAssistant(a: Assistant, question: string, options: Option[]) {
-  const prompt = buildAiPrompt(question, options, a.key);
+export async function openAssistant(a: Assistant, question: string, options: Option[], locale: string) {
+  const prompt = buildAiPrompt(question, options, a.key, locale);
   await copy(prompt);
   window.open(a.url(prompt), "_blank", "noopener,noreferrer");
 }
 
-export async function copyAiPrompt(question: string, options: Option[]) {
-  await copy(buildAiPrompt(question, options, "ai"));
+export async function copyAiPrompt(question: string, options: Option[], locale: string) {
+  await copy(buildAiPrompt(question, options, "ai", locale));
 }

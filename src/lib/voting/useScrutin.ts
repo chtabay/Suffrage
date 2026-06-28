@@ -231,12 +231,12 @@ export function useScrutin(draft?: ScrutinDraft) {
     );
   }, []);
 
-  const addOption = useCallback(() => {
+  const addOption = useCallback((name: string) => {
     setState((s) => {
       const idx = s.options.length;
       return {
         ...s,
-        options: [...s.options, { icon: ADD_ICONS[idx % ADD_ICONS.length], name: "Nouvelle option" }],
+        options: [...s.options, { icon: ADD_ICONS[idx % ADD_ICONS.length], name }],
         ...CLEAR_SHARE,
       };
     });

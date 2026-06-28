@@ -1,9 +1,10 @@
 import { ImageResponse } from "next/og";
+import { getTranslations } from "next-intl/server";
 import { getPollShareInfo } from "@/lib/db/pollMeta";
 
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
-export const alt = "Vote Placet";
+export const alt = "Placet";
 
 const INK = "#16213A";
 const CREAM = "#FBF6EC";
@@ -11,12 +12,14 @@ const CORAL = "#FF5E5B";
 const YELLOW = "#FFB627";
 
 export default async function OgImage({ params }: { params: Promise<{ locale: string; token: string }> }) {
-  const { token } = await params;
+  const { locale, token } = await params;
   const info = await getPollShareInfo(token);
+  const t = await getTranslations({ locale, namespace: "Share" });
+  const tm = await getTranslations({ locale, namespace: "Methods" });
 
-  const question = (info?.question ?? "Votez vraiment comme il faut").slice(0, 90);
+  const question = (info?.question ?? t("fallbackQuestion")).slice(0, 90);
   const phase = info?.phase ?? "open";
-  const method = info?.methodName ?? "Scrutin";
+  const method = info ? tm(`${info.methodKey}.name`) : t("methodFallback");
   const methodColor = info?.methodColor ?? CORAL;
   const optionCount = info?.options.length ?? 0;
   const ballotCount = info?.ballotCount ?? 0;
@@ -24,15 +27,15 @@ export default async function OgImage({ params }: { params: Promise<{ locale: st
 
   const status =
     phase === "closed"
-      ? { label: "🔒 Vote clos", bg: INK, fg: "#fff" }
+      ? { label: t("statusClosed"), bg: INK, fg: "#fff" }
       : phase === "scheduled"
-        ? { label: "⏳ À venir", bg: YELLOW, fg: INK }
-        : { label: "🟢 Ouvert", bg: "#DEF3CE", fg: INK };
+        ? { label: t("statusScheduled"), bg: YELLOW, fg: INK }
+        : { label: t("statusOpen"), bg: "#DEF3CE", fg: INK };
 
   const footer =
     phase === "closed"
-      ? `${optionCount} options · ${ballotCount} vote${ballotCount > 1 ? "s" : ""}`
-      : `${optionCount} options`;
+      ? `${t("options", { count: optionCount })} · ${t("votes", { count: ballotCount })}`
+      : t("options", { count: optionCount });
 
   return new ImageResponse(
     (
@@ -73,7 +76,7 @@ export default async function OgImage({ params }: { params: Promise<{ locale: st
         {winner ? (
           <div style={{ display: "flex", flexDirection: "column", marginTop: 38 }}>
             <div style={{ display: "flex", fontSize: 30, fontWeight: 700, color: "#5b6379" }}>{question}</div>
-            <div style={{ display: "flex", fontSize: 26, fontWeight: 800, color: CORAL, marginTop: 16 }}>🏆 GAGNANT</div>
+            <div style={{ display: "flex", fontSize: 26, fontWeight: 800, color: CORAL, marginTop: 16 }}>{t("winner")}</div>
             <div style={{ display: "flex", fontSize: 64, fontWeight: 800, color: INK, lineHeight: 1.05, marginTop: 6 }}>
               {`${winner.icon} ${winner.name}`.slice(0, 42)}
             </div>

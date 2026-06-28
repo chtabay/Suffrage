@@ -42,6 +42,8 @@
     "proposalsHeading": "LES PROPOSITIONS",
     "changeEmoji": "Changer l'emoji",
     "optionFallbackPlaceholder": "Une autre option…",
+    "optionPlaceholders": ["La montagne", "Le bord de mer", "Une grande ville", "La campagne"],
+    "newOptionDefault": "Nouvelle option",
     "attachIllustrationTitle": "Associer une illustration (image, vidéo, document)",
     "attachIllustrationAria": "Associer une illustration",
     "urlPlaceholder": "https://… — image, vidéo ou document (facultatif)",
@@ -341,5 +343,21 @@
   "Meta": {
     "title": "Placet — Votez vraiment comme il faut",
     "description": "Concevez votre mode de scrutin (majoritaire, deux tours, Condorcet, jugement majoritaire, grands électeurs…), comparez avantages et inconvénients, puis dépouillez pour de vrai."
+  },
+  "Share": {
+    "fallbackTitle": "Placet — vote",
+    "fallbackQuestion": "Votez vraiment comme il faut",
+    "methodFallback": "Scrutin",
+    "statusClosed": "🔒 Vote clos",
+    "statusScheduled": "⏳ À venir",
+    "statusOpen": "🟢 Ouvert",
+    "winner": "🏆 GAGNANT",
+    "options": "{count, plural, one {# option} other {# options}}",
+    "votes": "{count, plural, one {# vote} other {# votes}}",
+    "titleClosed": "Résultat : {question}",
+    "titleOpen": "Vote : {question}",
+    "descWinner": "{winner} l'emporte — {method}, {count, plural, one {# vote} other {# votes}}.",
+    "descClosed": "Vote clos — {method}, {count, plural, one {# vote} other {# votes}}.",
+    "descOpen": "Votez en ligne — méthode « {method} », {count, plural, one {# option} other {# options}}."
   }
 }

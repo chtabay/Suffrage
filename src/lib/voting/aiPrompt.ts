@@ -1,17 +1,61 @@
 // Prompt « Préparer avec une IA » : l'assistant interroge d'abord l'utilisateur
 // (au lancement on ne connaît pas forcément le sujet), puis propose un vote et
-// renvoie une URL /new prête à ouvrir.
+// renvoie une URL /new prête à ouvrir. Bilingue selon la locale de l'utilisateur.
 import { PUBLIC_METHODS } from "./methods";
 import type { Option } from "./types";
 
 export const APP_URL = "https://placet.app";
 
-export function buildAiPrompt(question: string, options: Option[], source: string): string {
+export function buildAiPrompt(question: string, options: Option[], source: string, locale = "fr"): string {
   const methods = PUBLIC_METHODS.map((m) => m.key).join(", ");
   const opts = options.map((o) => o.name.trim()).filter(Boolean);
   const hasContext = Boolean(question.trim()) || opts.length > 0;
 
-  // Bloc commun : ce que l'assistant doit produire UNE FOIS le sujet compris.
+  if (locale === "en") {
+    const proposal = `Once you understand my decision, propose:
+- a short, clear title;
+- if context helps people vote (place, budget, deadline…), a short optional description;
+- 2 to 8 options (rephrase/merge as needed); start EACH option with a relevant emoji — e.g. "🍕 Italian" — the app turns it into the icon;
+- if the decision is about a TIME ("when?": a meeting, dinner, outing…), use "dates" instead of "options": the candidate slots in ISO format (e.g. 2026-07-12T20:00), and choose approval (everyone ticks what works for them — the most available wins);
+- ONE method among: ${methods} — and one sentence explaining WHY (for a date vote: single winner only — approval preferably, otherwise majority/condorcet/majority judgment/borda; never proportional, list or grand_electors).
+
+Then build the Placet URL below and PRESENT IT AS A CLICKABLE LINK (a markdown link with a clear label, e.g. "👉 Open the voting draft"), never the full raw URL. Keep it SHORT.
+${APP_URL}/new?title=...&description=...&options=🍕 Italian|🍣 Japanese&method=...&source=${source}&why=...
+Date vote (replace "options" with "dates"):
+${APP_URL}/new?title=...&dates=2026-07-12T20:00|2026-07-13T12:30&method=approval&source=${source}&why=...
+Encode the values properly, put your rationale in "why", and include no sensitive data (emails, IDs…).
+
+Images: DO NOT put them in the link (it makes it long and often breaks). Just tell the user they can add an image per option in the app (🔗 button).
+
+This /new link works EVERYWHERE, including inside ChatGPT, Claude or Gemini: it's your default output. ONLY if you can actually make HTTP requests (an agent, a GPT with "Actions", MCP — a plain chat cannot) may you instead POST ${APP_URL}/api/poll-drafts with { title, description, options (or dates), media, method, deadline, source, why } and present the returned { draft_url } as a clickable link. When in doubt, give the /new link.`;
+
+    if (!hasContext) {
+      // Cold start (home rail): no topic known yet.
+      return `I want to run a group vote with Placet (${APP_URL}), but I haven't defined the topic yet.
+
+Start by asking me, one step at a time: what decision are we settling? what options are possible? who votes and how many people? is there a deadline? are we after a clear winner or a broad consensus? Ask me these questions and wait for my answers — don't guess the topic and don't invent any options, everything must come from me.
+
+${proposal}`;
+    }
+
+    const startLines = [
+      question.trim() ? `Likely decision: ${question.trim()}` : null,
+      opts.length ? `Options considered: ${opts.join(", ")}` : null,
+    ]
+      .filter(Boolean)
+      .join("\n");
+
+    return `Help me prepare a vote with Placet (${APP_URL}).
+
+Here's what I have so far (to confirm, not final):
+${startLines}
+
+Before wrapping up, ask me the useful questions to clear up any ambiguity: options to add/merge, who votes, deadline, clear winner or consensus. Wait for my answers, don't fill in for me.
+
+${proposal}`;
+  }
+
+  // ---- FR (défaut) ----
   const proposal = `Une fois que tu as compris ma décision, propose :
 - un titre court et clair ;
 - si le contexte aide à voter (lieu, budget, échéance…), un court descriptif facultatif ;

@@ -148,8 +148,6 @@ function buildAxes(r: Recipe, setRecipe: (p: Partial<Recipe>) => void, slotMode 
 // 4 méthodes phares mises en avant ; les autres sont dans le dépliable.
 const MAIN_METHODS = ["fptp", "approval", "mj", "condorcet"];
 
-// Exemples évocateurs montrés en placeholder (pas en valeurs à supprimer).
-const OPTION_PLACEHOLDERS = ["La montagne", "Le bord de mer", "Une grande ville", "La campagne"];
 
 const isImageUrl = (u: string) => /\.(png|jpe?g|gif|webp|avif|svg)(\?|$)/i.test(u);
 const isHttpUrl = (u: string) => /^https?:\/\//i.test(u);
@@ -183,6 +181,8 @@ const EMOJI_PALETTE = [
 
 export default function CreateScreen({ ctrl }: { ctrl: ScrutinController }) {
   const t = useTranslations("Create");
+  // Exemples évocateurs montrés en placeholder (pas des valeurs à supprimer).
+  const optionPlaceholders = t.raw("optionPlaceholders") as string[];
   const { state, selectSystemRecipe, setRecipe, setQuestion, setDescription, setOptionName, setOptionUrl, setOptionIcon, removeOption, addOption, setOptionKind, setSlots, launch } = ctrl;
   const [urlRows, setUrlRows] = useState<Record<number, boolean>>({});
   const [emojiRow, setEmojiRow] = useState<number | null>(null);
@@ -365,7 +365,7 @@ export default function CreateScreen({ ctrl }: { ctrl: ScrutinController }) {
                       <input
                         value={opt.name}
                         onChange={(e) => setOptionName(i, e.target.value)}
-                        placeholder={OPTION_PLACEHOLDERS[i] ?? t("optionFallbackPlaceholder")}
+                        placeholder={optionPlaceholders[i] ?? t("optionFallbackPlaceholder")}
                         style={{
                           flex: 1,
                           minWidth: 0,
@@ -502,7 +502,7 @@ export default function CreateScreen({ ctrl }: { ctrl: ScrutinController }) {
             </div>
             {state.optionKind !== "slot" && (
               <button
-                onClick={addOption}
+                onClick={() => addOption(t("newOptionDefault"))}
                 className="dc-cream"
                 style={{
                   marginTop: 11,

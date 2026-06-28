@@ -1,4 +1,4 @@
-import { compute, describeRecipe } from "@/lib/voting/engine";
+import { compute, describeRecipe, resolveKey } from "@/lib/voting/engine";
 import type { Ballot, Option, Recipe } from "@/lib/voting/types";
 
 // Lecture serveur (REST + clé anon) des infos d'un scrutin pour les balises
@@ -8,6 +8,7 @@ export interface PollShareInfo {
   question: string;
   description: string | null;
   methodName: string;
+  methodKey: string;
   methodColor: string;
   options: Option[];
   phase: "scheduled" | "open" | "closed";
@@ -80,6 +81,7 @@ export async function getPollShareInfo(
       question: p.question,
       description: p.description,
       methodName: desc.name,
+      methodKey: resolveKey(p.recipe),
       methodColor: desc.color,
       options: p.options,
       phase,

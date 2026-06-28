@@ -1,6 +1,6 @@
 "use client";
 
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { RAIL_ASSISTANTS, openAssistant } from "@/lib/ai/assistants";
 import BrandIcon, { hasBrandIcon } from "@/components/ai/BrandIcon";
 import { FONT_DISPLAY, INK, MUTED } from "./theme";
@@ -8,6 +8,7 @@ import { FONT_DISPLAY, INK, MUTED } from "./theme";
 // Rail latéral (desktop) : lancer la préparation du vote avec une IA dès l'accueil.
 export default function AiSideRail() {
   const t = useTranslations("AiRail");
+  const locale = useLocale();
   return (
     <div
       className="ai-side-rail"
@@ -35,7 +36,7 @@ export default function AiSideRail() {
       {RAIL_ASSISTANTS.map((a) => (
         <button
           key={a.key}
-          onClick={() => openAssistant(a, "", [])}
+          onClick={() => openAssistant(a, "", [], locale)}
           title={t("prepareWith", { name: a.label })}
           aria-label={t("prepareWith", { name: a.label })}
           style={{

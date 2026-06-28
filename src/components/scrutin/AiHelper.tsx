@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { ASSISTANTS, copyAiPrompt, openAssistant } from "@/lib/ai/assistants";
 import BrandIcon, { hasBrandIcon } from "@/components/ai/BrandIcon";
 import type { ScrutinController } from "@/lib/voting/useScrutin";
@@ -10,6 +10,7 @@ import { CREAM, FONT_BODY, FONT_DISPLAY, INK, MUTED } from "./theme";
 export default function AiHelper({ ctrl }: { ctrl: ScrutinController }) {
   const { state } = ctrl;
   const t = useTranslations("AiHelper");
+  const locale = useLocale();
   const [copied, setCopied] = useState(false);
 
   const btn = {
@@ -40,7 +41,7 @@ export default function AiHelper({ ctrl }: { ctrl: ScrutinController }) {
         {ASSISTANTS.map((a) => (
           <button
             key={a.key}
-            onClick={() => openAssistant(a, state.question, state.options)}
+            onClick={() => openAssistant(a, state.question, state.options, locale)}
             style={{ ...btn, display: "flex", alignItems: "center", gap: 8, background: INK, color: "#fff" }}
           >
             {hasBrandIcon(a.key) ? (
@@ -53,7 +54,7 @@ export default function AiHelper({ ctrl }: { ctrl: ScrutinController }) {
         ))}
         <button
           onClick={() => {
-            copyAiPrompt(state.question, state.options);
+            copyAiPrompt(state.question, state.options, locale);
             setCopied(true);
           }}
           style={{ ...btn, background: CREAM, color: INK }}

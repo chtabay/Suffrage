@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 import PublicVote from "@/components/scrutin/PublicVote";
 import { getPollShareInfo } from "@/lib/db/pollMeta";
 
@@ -7,20 +8,25 @@ export async function generateMetadata({
 }: {
   params: Promise<{ locale: string; token: string }>;
 }): Promise<Metadata> {
-  const { token } = await params;
+  const { locale, token } = await params;
+  const t = await getTranslations({ locale, namespace: "Share" });
   const info = await getPollShareInfo(token);
-  if (!info) return { title: "Placet — vote" };
-  const plural = info.ballotCount > 1 ? "s" : "";
-  const title = info.phase === "closed" ? `Résultat : ${info.question}` : `Vote : ${info.question}`;
+  if (!info) return { title: t("fallbackTitle") };
+  const tm = await getTranslations({ locale, namespace: "Methods" });
+  const method = tm(`${info.methodKey}.name`);
+  const title =
+    info.phase === "closed"
+      ? t("titleClosed", { question: info.question })
+      : t("titleOpen", { question: info.question });
   let description: string;
   if (info.phase === "closed") {
     description = info.winner
-      ? `${info.winner.icon} ${info.winner.name} l'emporte — ${info.methodName}, ${info.ballotCount} vote${plural}.`
-      : `Vote clos — ${info.methodName}, ${info.ballotCount} vote${plural}.`;
+      ? t("descWinner", { winner: `${info.winner.icon} ${info.winner.name}`, method, count: info.ballotCount })
+      : t("descClosed", { method, count: info.ballotCount });
   } else if (info.description?.trim()) {
     description = info.description.trim().slice(0, 200);
   } else {
-    description = `Votez en ligne — méthode « ${info.methodName} », ${info.options.length} options.`;
+    description = t("descOpen", { method, count: info.options.length });
   }
   return {
     title,

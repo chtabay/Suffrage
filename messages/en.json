@@ -42,6 +42,8 @@
     "proposalsHeading": "THE PROPOSALS",
     "changeEmoji": "Change emoji",
     "optionFallbackPlaceholder": "Another option…",
+    "optionPlaceholders": ["The mountains", "The seaside", "A big city", "The countryside"],
+    "newOptionDefault": "New option",
     "attachIllustrationTitle": "Attach an illustration (image, video, document)",
     "attachIllustrationAria": "Attach an illustration",
     "urlPlaceholder": "https://… — image, video or document (optional)",
@@ -341,5 +343,21 @@
   "Meta": {
     "title": "Placet — Vote the way it should be done",
     "description": "Design your voting method (first-past-the-post, two rounds, Condorcet, majority judgment, electoral college…), compare pros and cons, then tally for real."
+  },
+  "Share": {
+    "fallbackTitle": "Placet — poll",
+    "fallbackQuestion": "Vote the way it should be done",
+    "methodFallback": "Poll",
+    "statusClosed": "🔒 Closed",
+    "statusScheduled": "⏳ Upcoming",
+    "statusOpen": "🟢 Open",
+    "winner": "🏆 WINNER",
+    "options": "{count, plural, one {# option} other {# options}}",
+    "votes": "{count, plural, one {# vote} other {# votes}}",
+    "titleClosed": "Result: {question}",
+    "titleOpen": "Vote: {question}",
+    "descWinner": "{winner} wins — {method}, {count, plural, one {# vote} other {# votes}}.",
+    "descClosed": "Voting closed — {method}, {count, plural, one {# vote} other {# votes}}.",
+    "descOpen": "Vote online — {method} method, {count, plural, one {# option} other {# options}}."
   }
 }
