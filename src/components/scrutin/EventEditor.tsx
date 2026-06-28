@@ -19,6 +19,7 @@ import {
   type ResolutionRow,
 } from "@/lib/db/events";
 import { recipeForSystem, resolveKey } from "@/lib/voting/engine";
+import { APP_URL } from "@/lib/voting/aiPrompt";
 import { splitLeadingEmoji } from "@/lib/voting/draft";
 import { SYSTEM_ORDER } from "@/lib/voting/systems";
 import { OrgShell } from "./SpacesHome";
@@ -62,7 +63,6 @@ export default function EventEditor({ eventId }: { eventId: string }) {
   const [method, setMethod] = useState("fptp");
   const [busy, setBusy] = useState(false);
   const [copied, setCopied] = useState<string | null>(null);
-  const [origin, setOrigin] = useState("");
   const [sendMsg, setSendMsg] = useState("");
   const [sending, setSending] = useState(false);
   const [capInput, setCapInput] = useState("");
@@ -84,7 +84,6 @@ export default function EventEditor({ eventId }: { eventId: string }) {
   }, [user, eventId]);
   useEffect(() => {
     load();
-    setOrigin(window.location.origin);
   }, [load]);
 
   const setOpt = (i: number, v: string) => setOpts((a) => a.map((o, j) => (j === i ? v : o)));
@@ -139,12 +138,12 @@ export default function EventEditor({ eventId }: { eventId: string }) {
   };
 
   const copy = (token: string) => {
-    navigator.clipboard?.writeText(`${origin}/e/${token}`);
+    navigator.clipboard?.writeText(`${APP_URL}/e/${token}`);
     setCopied(token);
     setTimeout(() => setCopied((c) => (c === token ? null : c)), 1600);
   };
 
-  const enrollUrl = ev?.enroll_token ? `${origin}/rejoindre/${ev.enroll_token}` : "";
+  const enrollUrl = ev?.enroll_token ? `${APP_URL}/rejoindre/${ev.enroll_token}` : "";
   const enrolledCount = convened.filter((c) => c.self_enrolled).length;
 
   const toggleEnroll = async () => {
