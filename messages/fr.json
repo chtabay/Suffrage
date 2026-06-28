@@ -439,6 +439,24 @@
     "step4Body": "À la clôture (bouton ou échéance), le dépouillement et le gagnant sont postés dans le canal.",
     "permissionsNote": "Placet demande les permissions minimales (<code>commands</code>, <code>chat:write</code>) pour poster et mettre à jour les messages de vote. Les bulletins restent sur le web ; aucun votant n'a besoin de compte. Tapez <code>/placet aide</code> dans Slack à tout moment."
   },
+  "Livret": {
+    "loading": "Chargement de l'événement…",
+    "invalidTitle": "Lien invalide",
+    "invalidDesc": "Ce lien de vote n'existe pas ou a expiré.",
+    "votingAs": "Vous votez en tant que {name}",
+    "progress": "{done}/{total} votées",
+    "notOpen": "Cet événement n'est pas encore ouvert au vote.",
+    "eventClosed": "Cet événement est clos.",
+    "resolution": "Résolution {n}",
+    "voted": "Voté",
+    "upcoming": "À venir",
+    "resClosed": "Résolution close.",
+    "voteResolution": "Voter cette résolution",
+    "emptyBallot": "Faites un choix avant de valider.",
+    "error": "Impossible d'enregistrer. Réessayez.",
+    "allDoneTitle": "Merci !",
+    "allDoneDesc": "Vous avez voté à toutes les résolutions."
+  },
   "Meta": {
     "title": "Placet — Votez vraiment comme il faut",
     "description": "Concevez votre mode de scrutin (majoritaire, deux tours, Condorcet, jugement majoritaire, grands électeurs…), comparez avantages et inconvénients, puis dépouillez pour de vrai."

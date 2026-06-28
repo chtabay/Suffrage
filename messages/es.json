@@ -439,6 +439,24 @@
     "step4Body": "Al cierre (botón o plazo), el recuento y el ganador se publican en el canal.",
     "permissionsNote": "Placet solicita los permisos mínimos (<code>commands</code>, <code>chat:write</code>) para publicar y actualizar los mensajes de votación. Las papeletas se quedan en la web; ningún votante necesita una cuenta. Escribe <code>/placet ayuda</code> en Slack en cualquier momento."
   },
+  "Livret": {
+    "loading": "Cargando el evento…",
+    "invalidTitle": "Enlace no válido",
+    "invalidDesc": "Este enlace de voto no existe o ha caducado.",
+    "votingAs": "Votas como {name}",
+    "progress": "{done}/{total} votadas",
+    "notOpen": "Este evento aún no está abierto a votación.",
+    "eventClosed": "Este evento está cerrado.",
+    "resolution": "Resolución {n}",
+    "voted": "Votado",
+    "upcoming": "Próximamente",
+    "resClosed": "Resolución cerrada.",
+    "voteResolution": "Votar esta resolución",
+    "emptyBallot": "Elige una opción antes de validar.",
+    "error": "No se pudo guardar. Inténtalo de nuevo.",
+    "allDoneTitle": "¡Gracias!",
+    "allDoneDesc": "Has votado todas las resoluciones."
+  },
   "Meta": {
     "title": "Placet — Vota de verdad como debe ser",
     "description": "Diseña tu modo de votación (mayoritario, dos vueltas, Condorcet, juicio mayoritario, grandes electores…), compara ventajas e inconvenientes, y luego recuenta de verdad."

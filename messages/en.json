@@ -439,6 +439,24 @@
     "step4Body": "At close (button or deadline), the tally and the winner are posted to the channel.",
     "permissionsNote": "Placet requests the minimal permissions (<code>commands</code>, <code>chat:write</code>) to post and update voting messages. Ballots stay on the web; no voter needs an account. Type <code>/placet help</code> in Slack anytime."
   },
+  "Livret": {
+    "loading": "Loading the event…",
+    "invalidTitle": "Invalid link",
+    "invalidDesc": "This voting link doesn't exist or has expired.",
+    "votingAs": "You're voting as {name}",
+    "progress": "{done}/{total} voted",
+    "notOpen": "This event isn't open for voting yet.",
+    "eventClosed": "This event is closed.",
+    "resolution": "Resolution {n}",
+    "voted": "Voted",
+    "upcoming": "Upcoming",
+    "resClosed": "Resolution closed.",
+    "voteResolution": "Vote on this resolution",
+    "emptyBallot": "Make a choice before submitting.",
+    "error": "Couldn't save. Please try again.",
+    "allDoneTitle": "Thank you!",
+    "allDoneDesc": "You've voted on every resolution."
+  },
   "Meta": {
     "title": "Placet — Vote the way it should be done",
     "description": "Design your voting method (first-past-the-post, two rounds, Condorcet, majority judgment, electoral college…), compare pros and cons, then tally for real."
