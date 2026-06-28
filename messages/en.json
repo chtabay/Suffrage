@@ -1,5 +1,6 @@
 {
   "Nav": {
+    "spaces": "Spaces",
     "myPolls": "My polls",
     "methods": "Methods",
     "create": "Create a vote",

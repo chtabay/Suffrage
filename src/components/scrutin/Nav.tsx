@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useTranslations } from "next-intl";
 import type { AuthController } from "@/lib/auth/useAuth";
 import type { ScrutinController } from "@/lib/voting/useScrutin";
+import { Link } from "@/i18n/navigation";
 import LocaleSwitch from "@/components/LocaleSwitch";
 import PlacetMark from "./PlacetMark";
 import { CORAL, CREAM, FONT_BODY, FONT_DISPLAY, GREEN, INK, YELLOW, lift } from "./theme";
@@ -86,6 +87,16 @@ export default function Nav({ ctrl, auth }: { ctrl: ScrutinController; auth: Aut
 
         <div className={`nav-links${open ? " open" : ""}`}>
           <LocaleSwitch />
+          {!auth.loading && auth.user && (
+            <Link
+              href="/espaces"
+              onClick={() => setOpen(false)}
+              className="dc-paper"
+              style={{ ...secondary, textDecoration: "none", display: "inline-flex", alignItems: "center" }}
+            >
+              {t("spaces")}
+            </Link>
+          )}
           <button onClick={act(() => go("mine"))} className="dc-paper" style={secondary}>
             {t("myPolls")}
           </button>
