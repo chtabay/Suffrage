@@ -451,6 +451,7 @@
     "magicSending": "Enviando…",
     "magicSent": "Enlace enviado a {email}. Ábrelo para iniciar sesión (revisa el spam).",
     "magicErr": "No se pudo enviar. Inténtalo de nuevo.",
+    "magicHint": "¿Primera vez? Tu cuenta se crea automáticamente.",
     "signIn": "Iniciar sesión con Google",
     "loading": "Cargando…",
     "spacesTitle": "Mis espacios",

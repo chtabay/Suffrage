@@ -117,6 +117,7 @@ export default function SpacesHome() {
               </div>
             )}
             {magic === "error" && <div style={{ color: REDTXT, fontWeight: 700, fontSize: 13.5, marginTop: 9 }}>{t("magicErr")}</div>}
+            {magic !== "sent" && <div style={{ marginTop: 10, fontSize: 12, color: MUTED, lineHeight: 1.5 }}>{t("magicHint")}</div>}
           </div>
         </div>
       </OrgShell>

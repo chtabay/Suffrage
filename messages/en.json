@@ -451,6 +451,7 @@
     "magicSending": "Sending…",
     "magicSent": "Link sent to {email}. Open it to sign in (check spam).",
     "magicErr": "Couldn't send. Please try again.",
+    "magicHint": "First time? Your account is created automatically.",
     "signIn": "Sign in with Google",
     "loading": "Loading…",
     "spacesTitle": "My spaces",

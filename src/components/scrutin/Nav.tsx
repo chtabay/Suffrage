@@ -133,9 +133,14 @@ export default function Nav({ ctrl, auth }: { ctrl: ScrutinController; auth: Aut
                 {t("signOut")}
               </button>
             ) : (
-              <button onClick={act(auth.signIn)} className="dc-paper" style={secondary}>
+              <Link
+                href="/espaces"
+                onClick={() => setOpen(false)}
+                className="dc-paper"
+                style={{ ...secondary, textDecoration: "none", display: "inline-flex", alignItems: "center" }}
+              >
                 {t("signIn")}
-              </button>
+              </Link>
             ))}
         </div>
       </div>

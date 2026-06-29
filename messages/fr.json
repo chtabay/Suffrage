@@ -451,6 +451,7 @@
     "magicSending": "Envoi…",
     "magicSent": "Lien envoyé à {email}. Ouvrez-le pour vous connecter (pensez aux spams).",
     "magicErr": "Échec de l'envoi. Réessayez.",
+    "magicHint": "Première connexion ? Votre compte est créé automatiquement.",
     "signIn": "Se connecter avec Google",
     "loading": "Chargement…",
     "spacesTitle": "Mes espaces",
