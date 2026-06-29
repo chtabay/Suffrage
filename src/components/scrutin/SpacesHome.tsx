@@ -6,7 +6,7 @@ import { Link } from "@/i18n/navigation";
 import { useAuth } from "@/lib/auth/useAuth";
 import { createSpace, listSpacesWithStats, type SpaceStats } from "@/lib/db/events";
 import PlacetMark from "./PlacetMark";
-import { CREAM, FONT_BODY, FONT_DISPLAY, GREEN, INK, MUTED, SUBINK } from "./theme";
+import { CREAM, FONT_BODY, FONT_DISPLAY, GREEN, INK, MUTED, REDTXT, SUBINK } from "./theme";
 
 const card = {
   background: "#fff",
@@ -15,6 +15,8 @@ const card = {
   padding: "20px 22px",
   boxShadow: `5px 5px 0 ${INK}`,
 } as const;
+
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export function OrgShell({ children }: { children: React.ReactNode }) {
   return (
@@ -32,11 +34,19 @@ export function OrgShell({ children }: { children: React.ReactNode }) {
 
 export default function SpacesHome() {
   const t = useTranslations("Org");
-  const { user, loading, signIn } = useAuth();
+  const { user, loading, signIn, signInWithEmail } = useAuth();
   const [spaces, setSpaces] = useState<SpaceStats[]>([]);
   const [name, setName] = useState("");
   const [busy, setBusy] = useState(false);
   const [ready, setReady] = useState(false);
+  const [email, setEmail] = useState("");
+  const [magic, setMagic] = useState<"idle" | "sending" | "sent" | "error">("idle");
+
+  const sendMagic = async () => {
+    if (!EMAIL_RE.test(email.trim()) || magic === "sending") return;
+    setMagic("sending");
+    setMagic((await signInWithEmail(email)) ? "sent" : "error");
+  };
 
   const load = useCallback(async () => {
     if (!user) return;
@@ -79,6 +89,35 @@ export default function SpacesHome() {
           >
             {t("signIn")}
           </button>
+          <div style={{ marginTop: 18, borderTop: `2px dashed #E4DBC6`, paddingTop: 16 }}>
+            <div style={{ fontWeight: 700, fontSize: 13, color: SUBINK, marginBottom: 9 }}>{t("orEmail")}</div>
+            {magic === "sent" ? (
+              <div style={{ color: GREEN, fontWeight: 700, fontSize: 14, lineHeight: 1.5 }}>{t("magicSent", { email: email.trim() })}</div>
+            ) : (
+              <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                <input
+                  type="email"
+                  inputMode="email"
+                  value={email}
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                    if (magic === "error") setMagic("idle");
+                  }}
+                  onKeyDown={(e) => e.key === "Enter" && sendMagic()}
+                  placeholder={t("signInEmail")}
+                  style={{ flex: 1, minWidth: 200, fontFamily: FONT_BODY, fontSize: 15, fontWeight: 600, padding: "11px 13px", border: `2px solid ${INK}`, borderRadius: 11 }}
+                />
+                <button
+                  onClick={sendMagic}
+                  disabled={magic === "sending" || !EMAIL_RE.test(email.trim())}
+                  style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 14.5, cursor: EMAIL_RE.test(email.trim()) ? "pointer" : "not-allowed", border: `2.5px solid ${INK}`, background: "#FFB627", color: INK, padding: "11px 16px", borderRadius: 11, opacity: EMAIL_RE.test(email.trim()) ? 1 : 0.6 }}
+                >
+                  {magic === "sending" ? t("magicSending") : t("magicCta")}
+                </button>
+              </div>
+            )}
+            {magic === "error" && <div style={{ color: REDTXT, fontWeight: 700, fontSize: 13.5, marginTop: 9 }}>{t("magicErr")}</div>}
+          </div>
         </div>
       </OrgShell>
     );

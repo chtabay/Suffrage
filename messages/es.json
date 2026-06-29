@@ -445,6 +445,12 @@
   },
   "Org": {
     "signInPrompt": "Inicia sesión para crear y gestionar tus espacios, cuerpos electorales y eventos (asambleas, elecciones…).",
+    "orEmail": "O por email, sin contraseña:",
+    "signInEmail": "tu@email.com",
+    "magicCta": "Enviarme un enlace de acceso",
+    "magicSending": "Enviando…",
+    "magicSent": "Enlace enviado a {email}. Ábrelo para iniciar sesión (revisa el spam).",
+    "magicErr": "No se pudo enviar. Inténtalo de nuevo.",
     "signIn": "Iniciar sesión con Google",
     "loading": "Cargando…",
     "spacesTitle": "Mis espacios",

@@ -28,13 +28,24 @@ export function useAuth() {
     });
   }, []);
 
+  // Connexion / création de compte sans mot de passe : un lien magique par email.
+  // shouldCreateUser=true (défaut) → crée le compte si l'email est inconnu.
+  const signInWithEmail = useCallback(async (email: string): Promise<boolean> => {
+    const supabase = createClient();
+    const { error } = await supabase.auth.signInWithOtp({
+      email: email.trim(),
+      options: { emailRedirectTo: `${window.location.origin}/auth/callback?next=/espaces` },
+    });
+    return !error;
+  }, []);
+
   const signOut = useCallback(async () => {
     const supabase = createClient();
     await supabase.auth.signOut();
     setUser(null);
   }, []);
 
-  return { user, loading, signIn, signOut };
+  return { user, loading, signIn, signInWithEmail, signOut };
 }
 
 export type AuthController = ReturnType<typeof useAuth>;

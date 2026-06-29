@@ -445,6 +445,12 @@
   },
   "Org": {
     "signInPrompt": "Connectez-vous pour créer et gérer vos espaces, vos corps électoraux et vos événements (AG, élections…).",
+    "orEmail": "Ou par email, sans mot de passe :",
+    "signInEmail": "votre@email.fr",
+    "magicCta": "Recevoir un lien de connexion",
+    "magicSending": "Envoi…",
+    "magicSent": "Lien envoyé à {email}. Ouvrez-le pour vous connecter (pensez aux spams).",
+    "magicErr": "Échec de l'envoi. Réessayez.",
     "signIn": "Se connecter avec Google",
     "loading": "Chargement…",
     "spacesTitle": "Mes espaces",

@@ -445,6 +445,12 @@
   },
   "Org": {
     "signInPrompt": "Sign in to create and manage your spaces, electorates and events (AGMs, elections…).",
+    "orEmail": "Or by email, passwordless:",
+    "signInEmail": "you@email.com",
+    "magicCta": "Email me a login link",
+    "magicSending": "Sending…",
+    "magicSent": "Link sent to {email}. Open it to sign in (check spam).",
+    "magicErr": "Couldn't send. Please try again.",
     "signIn": "Sign in with Google",
     "loading": "Loading…",
     "spacesTitle": "My spaces",
