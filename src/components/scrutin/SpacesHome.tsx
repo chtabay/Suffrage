@@ -34,18 +34,53 @@ export function OrgShell({ children }: { children: React.ReactNode }) {
 
 export default function SpacesHome() {
   const t = useTranslations("Org");
-  const { user, loading, signIn, signInWithEmail } = useAuth();
+  const { user, loading, signIn, signInWithEmail, signInPassword, signUpPassword, resetPassword, updatePassword } = useAuth();
   const [spaces, setSpaces] = useState<SpaceStats[]>([]);
   const [name, setName] = useState("");
   const [busy, setBusy] = useState(false);
   const [ready, setReady] = useState(false);
   const [email, setEmail] = useState("");
   const [magic, setMagic] = useState<"idle" | "sending" | "sent" | "error">("idle");
+  const [pwTab, setPwTab] = useState<"magic" | "password">("magic");
+  const [password, setPassword] = useState("");
+  const [pwMode, setPwMode] = useState<"signin" | "signup">("signin");
+  const [pwState, setPwState] = useState<"idle" | "busy" | "error" | "confirm" | "reset">("idle");
+  const [recovery, setRecovery] = useState(false);
+  const [newPw, setNewPw] = useState("");
+  const [recState, setRecState] = useState<"idle" | "busy" | "done" | "error">("idle");
+
+  useEffect(() => {
+    if (typeof window !== "undefined" && new URLSearchParams(window.location.search).get("recovery") === "1") {
+      setRecovery(true);
+    }
+  }, []);
 
   const sendMagic = async () => {
     if (!EMAIL_RE.test(email.trim()) || magic === "sending") return;
     setMagic("sending");
     setMagic((await signInWithEmail(email)) ? "sent" : "error");
+  };
+
+  const okPw = EMAIL_RE.test(email.trim()) && password.length >= 6;
+  const doPassword = async () => {
+    if (!okPw || pwState === "busy") return;
+    setPwState("busy");
+    if (pwMode === "signin") {
+      setPwState((await signInPassword(email, password)) === "ok" ? "idle" : "error");
+    } else {
+      const r = await signUpPassword(email, password);
+      setPwState(r === "ok" ? "idle" : r === "confirm" ? "confirm" : "error");
+    }
+  };
+  const doForgot = async () => {
+    if (!EMAIL_RE.test(email.trim())) return setPwState("error");
+    setPwState("busy");
+    setPwState((await resetPassword(email)) ? "reset" : "error");
+  };
+  const doRecovery = async () => {
+    if (newPw.length < 6 || recState === "busy") return;
+    setRecState("busy");
+    setRecState((await updatePassword(newPw)) ? "done" : "error");
   };
 
   const load = useCallback(async () => {
@@ -76,6 +111,51 @@ export default function SpacesHome() {
 
   if (loading) return <OrgShell><div style={{ ...card, color: MUTED }}>{t("loading")}</div></OrgShell>;
 
+  if (recovery)
+    return (
+      <OrgShell>
+        <div style={card}>
+          <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 22 }}>{t("recoveryTitle")}</div>
+          {recState === "done" ? (
+            <>
+              <div style={{ color: GREEN, fontWeight: 700, marginTop: 12 }}>{t("recoveryDone")}</div>
+              <button
+                onClick={() => setRecovery(false)}
+                className="dc-bright"
+                style={{ marginTop: 14, fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 15, cursor: "pointer", border: `2.5px solid ${INK}`, background: INK, color: "#fff", padding: "11px 18px", borderRadius: 12 }}
+              >
+                {t("recoveryContinue")}
+              </button>
+            </>
+          ) : (
+            <>
+              <input
+                type="password"
+                value={newPw}
+                onChange={(e) => {
+                  setNewPw(e.target.value);
+                  if (recState === "error") setRecState("idle");
+                }}
+                onKeyDown={(e) => e.key === "Enter" && doRecovery()}
+                placeholder={t("recoveryNewPw")}
+                style={{ width: "100%", marginTop: 12, fontFamily: FONT_BODY, fontSize: 15, fontWeight: 600, padding: "11px 13px", border: `2px solid ${INK}`, borderRadius: 11 }}
+              />
+              <button
+                onClick={doRecovery}
+                disabled={recState === "busy" || newPw.length < 6}
+                className="dc-bright"
+                style={{ marginTop: 10, fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 15, cursor: newPw.length >= 6 ? "pointer" : "not-allowed", border: `2.5px solid ${INK}`, background: INK, color: "#fff", padding: "11px 18px", borderRadius: 12, opacity: newPw.length >= 6 ? 1 : 0.6 }}
+              >
+                {t("recoverySave")}
+              </button>
+              {recState === "error" && <div style={{ color: REDTXT, fontWeight: 700, fontSize: 13.5, marginTop: 9 }}>{t("recoveryErr")}</div>}
+              <div style={{ marginTop: 9, fontSize: 12, color: MUTED }}>{t("pwMin")}</div>
+            </>
+          )}
+        </div>
+      </OrgShell>
+    );
+
   if (!user)
     return (
       <OrgShell>
@@ -90,34 +170,102 @@ export default function SpacesHome() {
             {t("signIn")}
           </button>
           <div style={{ marginTop: 18, borderTop: `2px dashed #E4DBC6`, paddingTop: 16 }}>
-            <div style={{ fontWeight: 700, fontSize: 13, color: SUBINK, marginBottom: 9 }}>{t("orEmail")}</div>
-            {magic === "sent" ? (
-              <div style={{ color: GREEN, fontWeight: 700, fontSize: 14, lineHeight: 1.5 }}>{t("magicSent", { email: email.trim() })}</div>
+            <div style={{ display: "flex", gap: 8, marginBottom: 12 }}>
+              {(["magic", "password"] as const).map((tb) => (
+                <button
+                  key={tb}
+                  onClick={() => setPwTab(tb)}
+                  style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 13, cursor: "pointer", border: `2px solid ${INK}`, background: pwTab === tb ? INK : "#fff", color: pwTab === tb ? "#fff" : INK, padding: "7px 13px", borderRadius: 9 }}
+                >
+                  {t(tb === "magic" ? "tabMagic" : "tabPassword")}
+                </button>
+              ))}
+            </div>
+
+            {pwTab === "magic" ? (
+              <>
+                {magic === "sent" ? (
+                  <div style={{ color: GREEN, fontWeight: 700, fontSize: 14, lineHeight: 1.5 }}>{t("magicSent", { email: email.trim() })}</div>
+                ) : (
+                  <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                    <input
+                      type="email"
+                      inputMode="email"
+                      value={email}
+                      onChange={(e) => {
+                        setEmail(e.target.value);
+                        if (magic === "error") setMagic("idle");
+                      }}
+                      onKeyDown={(e) => e.key === "Enter" && sendMagic()}
+                      placeholder={t("signInEmail")}
+                      style={{ flex: 1, minWidth: 200, fontFamily: FONT_BODY, fontSize: 15, fontWeight: 600, padding: "11px 13px", border: `2px solid ${INK}`, borderRadius: 11 }}
+                    />
+                    <button
+                      onClick={sendMagic}
+                      disabled={magic === "sending" || !EMAIL_RE.test(email.trim())}
+                      style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 14.5, cursor: EMAIL_RE.test(email.trim()) ? "pointer" : "not-allowed", border: `2.5px solid ${INK}`, background: "#FFB627", color: INK, padding: "11px 16px", borderRadius: 11, opacity: EMAIL_RE.test(email.trim()) ? 1 : 0.6 }}
+                    >
+                      {magic === "sending" ? t("magicSending") : t("magicCta")}
+                    </button>
+                  </div>
+                )}
+                {magic === "error" && <div style={{ color: REDTXT, fontWeight: 700, fontSize: 13.5, marginTop: 9 }}>{t("magicErr")}</div>}
+                {magic !== "sent" && <div style={{ marginTop: 10, fontSize: 12, color: MUTED, lineHeight: 1.5 }}>{t("magicHint")}</div>}
+              </>
             ) : (
-              <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+              <>
                 <input
                   type="email"
                   inputMode="email"
                   value={email}
                   onChange={(e) => {
                     setEmail(e.target.value);
-                    if (magic === "error") setMagic("idle");
+                    if (pwState === "error") setPwState("idle");
                   }}
-                  onKeyDown={(e) => e.key === "Enter" && sendMagic()}
                   placeholder={t("signInEmail")}
-                  style={{ flex: 1, minWidth: 200, fontFamily: FONT_BODY, fontSize: 15, fontWeight: 600, padding: "11px 13px", border: `2px solid ${INK}`, borderRadius: 11 }}
+                  style={{ width: "100%", fontFamily: FONT_BODY, fontSize: 15, fontWeight: 600, padding: "11px 13px", border: `2px solid ${INK}`, borderRadius: 11 }}
+                />
+                <input
+                  type="password"
+                  value={password}
+                  onChange={(e) => {
+                    setPassword(e.target.value);
+                    if (pwState === "error") setPwState("idle");
+                  }}
+                  onKeyDown={(e) => e.key === "Enter" && doPassword()}
+                  placeholder={t("pwPlaceholder")}
+                  style={{ width: "100%", marginTop: 8, fontFamily: FONT_BODY, fontSize: 15, fontWeight: 600, padding: "11px 13px", border: `2px solid ${INK}`, borderRadius: 11 }}
                 />
                 <button
-                  onClick={sendMagic}
-                  disabled={magic === "sending" || !EMAIL_RE.test(email.trim())}
-                  style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 14.5, cursor: EMAIL_RE.test(email.trim()) ? "pointer" : "not-allowed", border: `2.5px solid ${INK}`, background: "#FFB627", color: INK, padding: "11px 16px", borderRadius: 11, opacity: EMAIL_RE.test(email.trim()) ? 1 : 0.6 }}
+                  onClick={doPassword}
+                  disabled={pwState === "busy" || !okPw}
+                  className="dc-bright"
+                  style={{ marginTop: 10, width: "100%", fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 15, cursor: okPw ? "pointer" : "not-allowed", border: `2.5px solid ${INK}`, background: INK, color: "#fff", padding: "11px 18px", borderRadius: 12, opacity: okPw && pwState !== "busy" ? 1 : 0.6 }}
                 >
-                  {magic === "sending" ? t("magicSending") : t("magicCta")}
+                  {pwMode === "signin" ? t("pwSignIn") : t("pwSignUp")}
                 </button>
-              </div>
+                <div style={{ display: "flex", justifyContent: "space-between", gap: 10, marginTop: 11, flexWrap: "wrap" }}>
+                  <button
+                    onClick={() => {
+                      setPwMode(pwMode === "signin" ? "signup" : "signin");
+                      setPwState("idle");
+                    }}
+                    style={{ border: "none", background: "none", color: SUBINK, cursor: "pointer", fontSize: 13, fontWeight: 700, textDecoration: "underline", padding: 0 }}
+                  >
+                    {pwMode === "signin" ? t("pwToSignUp") : t("pwToSignIn")}
+                  </button>
+                  {pwMode === "signin" && (
+                    <button onClick={doForgot} style={{ border: "none", background: "none", color: SUBINK, cursor: "pointer", fontSize: 13, fontWeight: 700, textDecoration: "underline", padding: 0 }}>
+                      {t("pwForgot")}
+                    </button>
+                  )}
+                </div>
+                {pwState === "error" && <div style={{ color: REDTXT, fontWeight: 700, fontSize: 13.5, marginTop: 9 }}>{t("pwError")}</div>}
+                {pwState === "confirm" && <div style={{ color: GREEN, fontWeight: 700, fontSize: 13.5, marginTop: 9, lineHeight: 1.5 }}>{t("pwConfirm", { email: email.trim() })}</div>}
+                {pwState === "reset" && <div style={{ color: GREEN, fontWeight: 700, fontSize: 13.5, marginTop: 9, lineHeight: 1.5 }}>{t("pwResetSent", { email: email.trim() })}</div>}
+                <div style={{ marginTop: 9, fontSize: 12, color: MUTED }}>{t("pwMin")}</div>
+              </>
             )}
-            {magic === "error" && <div style={{ color: REDTXT, fontWeight: 700, fontSize: 13.5, marginTop: 9 }}>{t("magicErr")}</div>}
-            {magic !== "sent" && <div style={{ marginTop: 10, fontSize: 12, color: MUTED, lineHeight: 1.5 }}>{t("magicHint")}</div>}
           </div>
         </div>
       </OrgShell>
