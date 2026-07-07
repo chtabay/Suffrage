@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { notifyPoll } from "@/lib/push";
 import { postSlackResult } from "@/lib/slack/result";
+import { APP_URL } from "@/lib/voting/aiPrompt";
 
 // Déclencheur direct (appelé par le client après un vote) : si le scrutin vient
 // d'être clos (ex. dernier votant en mode complétude), envoie la notif résultats.
@@ -40,11 +41,10 @@ export async function POST(req: Request) {
       const p = ((await res.json()) as { status: string; closes_at: string | null }[])[0];
       const closed = !!p && (p.status === "closed" || (!!p.closes_at && Date.now() >= Date.parse(p.closes_at)));
       if (closed) {
-        const origin = new URL(req.url).origin;
         sent = await notifyPoll(token, "results", {
           title: "Résultats disponibles",
           body: "Le vote est clos — découvrez le résultat.",
-          url: `${origin}/v/${token}`,
+          url: `${APP_URL}/v/${token}`,
         });
         await postSlackResult(token); // no-op si le scrutin ne vient pas de Slack
       }

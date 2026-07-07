@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { closeExpiredAndNotify } from "@/lib/push";
+import { APP_URL } from "@/lib/voting/aiPrompt";
 
 // Cron quotidien (Vercel) : ferme les scrutins échus et envoie résultats + rappels.
 // Vercel ajoute « Authorization: Bearer <CRON_SECRET> » si la variable existe.
@@ -10,7 +11,8 @@ export async function GET(req: Request) {
   if (cronSecret && req.headers.get("authorization") !== `Bearer ${cronSecret}`) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
-  const origin = new URL(req.url).origin;
-  const r = await closeExpiredAndNotify(origin);
+  // Liens des notifications = domaine canonique (jamais l'URL de déploiement Vercel,
+  // protégée par Vercel Authentication) → sinon « se connecter à Vercel » au clic.
+  const r = await closeExpiredAndNotify(APP_URL);
   return NextResponse.json({ ok: true, ...r });
 }
