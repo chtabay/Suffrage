@@ -575,6 +575,7 @@
     "sendingConvocations": "Envoi en cours…",
     "resendConvocations": "Renvoyer les convocations",
     "invitedBadge": "✉ convoqué",
+    "selfEnrolledBadge": "🙋 auto-inscrit·e",
     "sentResult": "{sent}/{total} convocations envoyées.",
     "emailError": "L'envoi d'email n'est pas encore configuré.",
     "remindNonVoters": "Relancer les non-votant·e·s",

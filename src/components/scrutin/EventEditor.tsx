@@ -439,6 +439,7 @@ export default function EventEditor({ eventId }: { eventId: string }) {
               {convened.map((c) => (
                 <div key={c.id} style={{ display: "flex", alignItems: "center", gap: 10, background: CREAM, border: `2px solid ${INK}`, borderRadius: 11, padding: "9px 12px" }}>
                   <span style={{ fontWeight: 700, fontSize: 14, flex: 1 }}>{c.name}</span>
+                  {c.self_enrolled && <span style={{ fontSize: 11, fontWeight: 800, color: SUBINK }}>{t("selfEnrolledBadge")}</span>}
                   {c.invited_at && <span style={{ fontSize: 11, fontWeight: 800, color: GREEN }}>{t("invitedBadge")}</span>}
                   <button onClick={() => copy(c.token)} style={{ border: `2px solid ${INK}`, background: copied === c.token ? GREEN : "#fff", color: copied === c.token ? "#fff" : INK, cursor: "pointer", fontSize: 12.5, fontWeight: 700, padding: "6px 11px", borderRadius: 9 }}>
                     {copied === c.token ? t("copied") : t("copyLink")}

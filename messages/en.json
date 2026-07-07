@@ -575,6 +575,7 @@
     "sendingConvocations": "Sending…",
     "resendConvocations": "Resend convocations",
     "invitedBadge": "✉ invited",
+    "selfEnrolledBadge": "🙋 self-enrolled",
     "sentResult": "{sent}/{total} convocations sent.",
     "emailError": "Email sending isn't configured yet.",
     "remindNonVoters": "Remind non-voters",
