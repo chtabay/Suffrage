@@ -645,6 +645,8 @@
   },
   "Share": {
     "qrScan": "Scan this QR code to open the vote on another phone.",
+    "qrEnlarge": "Click to enlarge",
+    "qrClose": "Tap anywhere to close",
     "fallbackTitle": "Placet — poll",
     "fallbackQuestion": "Vote the way it should be done",
     "methodFallback": "Poll",
