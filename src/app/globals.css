@@ -84,6 +84,12 @@ input {
   background: #fbf6ec !important;
 }
 
+/* Explicatif de méthode : carte détaillée à droite sur desktop ; sur mobile,
+   version inline sous les chips de méthode (au point de sélection). */
+.create-explainer-mobile {
+  display: none;
+}
+
 @media (max-width: 860px) {
   .create-grid {
     grid-template-columns: 1fr !important;
@@ -91,6 +97,12 @@ input {
   .sticky-side {
     position: static !important;
     top: auto !important;
+  }
+  .create-explainer-mobile {
+    display: block;
+  }
+  .create-detail-desktop {
+    display: none;
   }
 }
 

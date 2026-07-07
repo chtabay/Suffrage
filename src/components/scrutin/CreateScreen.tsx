@@ -206,10 +206,9 @@ export default function CreateScreen({ ctrl }: { ctrl: ScrutinController }) {
         style={{
           display: "flex",
           alignItems: "center",
-          gap: 7,
+          gap: 8,
+          textAlign: "left",
           fontFamily: FONT_BODY,
-          fontWeight: 700,
-          fontSize: 13,
           cursor: "pointer",
           border: `2px solid ${INK}`,
           borderRadius: 10,
@@ -218,8 +217,11 @@ export default function CreateScreen({ ctrl }: { ctrl: ScrutinController }) {
           color: active ? "#fff" : INK,
         }}
       >
-        <span style={{ fontSize: 15 }}>{sys.icon}</span>
-        {tm(`${key}.name`)}
+        <span style={{ fontSize: 17 }}>{sys.icon}</span>
+        <span style={{ display: "flex", flexDirection: "column", lineHeight: 1.15 }}>
+          <span style={{ fontWeight: 700, fontSize: 13 }}>{tm(`${key}.name`)}</span>
+          <span style={{ fontWeight: 600, fontSize: 11, color: active ? "rgba(255,255,255,0.75)" : MUTED }}>{tm(`${key}.strength`)}</span>
+        </span>
       </button>
     );
   };
@@ -231,6 +233,32 @@ export default function CreateScreen({ ctrl }: { ctrl: ScrutinController }) {
     padding: 20,
     boxShadow: `5px 5px 0 ${INK}`,
   } as const;
+
+  // Caractéristiques de la méthode courante (comment ça marche · gains · pertes),
+  // réutilisées par la carte de droite (desktop) et l'explicatif inline (mobile).
+  const MethodDetail = () => (
+    <>
+      <div style={{ fontSize: 14, lineHeight: 1.5, color: "#2c3447" }}>{tm(`${curKey}.how`)}</div>
+      <div style={{ marginTop: 15 }}>
+        <div style={{ fontWeight: 700, fontSize: 12, color: GREENTXT, marginBottom: 7 }}>{t("whatYouGain")}</div>
+        {(tm.raw(`${curKey}.pros`) as string[]).map((p, i) => (
+          <div key={i} style={{ fontSize: 13, lineHeight: 1.4, color: "#2c3447", marginBottom: 6, paddingLeft: 14, position: "relative" }}>
+            <span style={{ position: "absolute", left: 0, color: GREENTXT }}>+</span>
+            {p}
+          </div>
+        ))}
+      </div>
+      <div style={{ marginTop: 13 }}>
+        <div style={{ fontWeight: 700, fontSize: 12, color: REDTXT, marginBottom: 7 }}>{t("whatYouLose")}</div>
+        {(tm.raw(`${curKey}.cons`) as string[]).map((c, i) => (
+          <div key={i} style={{ fontSize: 13, lineHeight: 1.4, color: "#2c3447", marginBottom: 6, paddingLeft: 14, position: "relative" }}>
+            <span style={{ position: "absolute", left: 0, color: REDTXT }}>−</span>
+            {c}
+          </div>
+        ))}
+      </div>
+    </>
+  );
 
   return (
     <div className="pad" style={{ maxWidth: 1120, margin: "0 auto", padding: "40px 24px 100px" }}>
@@ -603,6 +631,13 @@ export default function CreateScreen({ ctrl }: { ctrl: ScrutinController }) {
                 </div>
               </div>
             )}
+            <div className="create-explainer-mobile" style={{ ...cardStyle, marginTop: 14, padding: 16, boxShadow: `4px 4px 0 ${resolved.color}` }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 9, marginBottom: 10 }}>
+                <span style={{ fontSize: 20 }}>{resolved.icon}</span>
+                <span style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 16 }}>{methodName}</span>
+              </div>
+              <MethodDetail />
+            </div>
           </div>
 
           <ClosureLine ctrl={ctrl} />
@@ -675,30 +710,8 @@ export default function CreateScreen({ ctrl }: { ctrl: ScrutinController }) {
             </div>
           </div>
           <div style={{ padding: "18px 20px" }}>
-            <div style={{ fontSize: 14, lineHeight: 1.5, color: "#2c3447" }}>{tm(`${curKey}.how`)}</div>
-            <div style={{ marginTop: 15 }}>
-              <div style={{ fontWeight: 700, fontSize: 12, color: GREENTXT, marginBottom: 7 }}>{t("whatYouGain")}</div>
-              {(tm.raw(`${curKey}.pros`) as string[]).map((p, i) => (
-                <div
-                  key={i}
-                  style={{ fontSize: 13, lineHeight: 1.4, color: "#2c3447", marginBottom: 6, paddingLeft: 14, position: "relative" }}
-                >
-                  <span style={{ position: "absolute", left: 0, color: GREENTXT }}>+</span>
-                  {p}
-                </div>
-              ))}
-            </div>
-            <div style={{ marginTop: 13 }}>
-              <div style={{ fontWeight: 700, fontSize: 12, color: REDTXT, marginBottom: 7 }}>{t("whatYouLose")}</div>
-              {(tm.raw(`${curKey}.cons`) as string[]).map((c, i) => (
-                <div
-                  key={i}
-                  style={{ fontSize: 13, lineHeight: 1.4, color: "#2c3447", marginBottom: 6, paddingLeft: 14, position: "relative" }}
-                >
-                  <span style={{ position: "absolute", left: 0, color: REDTXT }}>−</span>
-                  {c}
-                </div>
-              ))}
+            <div className="create-detail-desktop">
+              <MethodDetail />
             </div>
             <button
               onClick={launch}
