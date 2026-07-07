@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import type { ScrutinController } from "@/lib/voting/useScrutin";
 import InstallInline from "@/components/pwa/InstallInline";
 import WhatsAppShare from "./WhatsAppShare";
+import QrCode from "./QrCode";
 import { CREAM, FONT_BODY, FONT_DISPLAY, GREEN, INK, MUTED, YELLOW, lift } from "./theme";
 
 function CopyRow({ url, label, hint }: { url: string; label: string; hint?: string }) {
@@ -181,6 +182,12 @@ export default function LaunchedScreen({ ctrl }: { ctrl: ScrutinController }) {
           <div style={{ marginTop: 12 }}>
             <WhatsAppShare question={state.question} url={voteUrl} />
           </div>
+
+          {state.access === "open" && (
+            <div style={{ marginTop: 12 }}>
+              <QrCode url={voteUrl} />
+            </div>
+          )}
 
           <div style={{ marginTop: 18 }}>
             <CopyRow

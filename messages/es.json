@@ -639,6 +639,7 @@
     "description": "Diseña tu modo de votación (mayoritario, dos vueltas, Condorcet, juicio mayoritario, grandes electores…), compara ventajas e inconvenientes, y luego recuenta de verdad."
   },
   "Share": {
+    "qrScan": "Escanea este código QR para abrir la votación en otro teléfono.",
     "fallbackTitle": "Placet — votación",
     "fallbackQuestion": "Vota de verdad como debe ser",
     "methodFallback": "Votación",

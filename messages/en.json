@@ -639,6 +639,7 @@
     "description": "Design your voting method (first-past-the-post, two rounds, Condorcet, majority judgment, electoral college…), compare pros and cons, then tally for real."
   },
   "Share": {
+    "qrScan": "Scan this QR code to open the vote on another phone.",
     "fallbackTitle": "Placet — poll",
     "fallbackQuestion": "Vote the way it should be done",
     "methodFallback": "Poll",

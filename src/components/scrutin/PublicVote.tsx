@@ -39,6 +39,7 @@ import NotifyButton from "@/components/pwa/NotifyButton";
 import BallotCard, { EMPTY_DRAFT, type BallotDraft } from "./BallotCard";
 import ResultCard from "./ResultCard";
 import ResultShare from "./ResultShare";
+import QrCode from "./QrCode";
 import { CORAL, CREAM, FONT_BODY, FONT_DISPLAY, GREEN, INK, MUTED, REDTXT, SUBINK, YELLOW, lift } from "./theme";
 
 // Clés i18n des consignes par mode de vote (résolues via t() au rendu).
@@ -565,6 +566,11 @@ export default function PublicVote({
               {t("open")}
             </a>
           </div>
+          {poll.access_mode === "open" && (
+            <div style={{ marginTop: 12 }}>
+              <QrCode url={voteShareUrl} />
+            </div>
+          )}
           <div style={{ display: "flex", gap: 11, marginTop: 14, flexWrap: "wrap", alignItems: "center" }}>
             <button
               onClick={() => refreshOrganizer(poll)}
@@ -999,6 +1005,11 @@ export default function PublicVote({
       <div style={{ marginTop: 16, display: "flex", justifyContent: "center" }}>
         <NotifyButton pollToken={token} label={`🔔 ${t("notifyAtClose")}`} />
       </div>
+      {poll.access_mode === "open" && (
+        <div style={{ marginTop: 16 }}>
+          <QrCode url={voteShareUrl} />
+        </div>
+      )}
     </Shell>
   );
 }

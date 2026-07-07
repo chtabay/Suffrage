@@ -639,6 +639,7 @@
     "description": "Concevez votre mode de scrutin (majoritaire, deux tours, Condorcet, jugement majoritaire, grands électeurs…), comparez avantages et inconvénients, puis dépouillez pour de vrai."
   },
   "Share": {
+    "qrScan": "Scannez ce QR code pour ouvrir le vote sur un autre téléphone.",
     "fallbackTitle": "Placet — vote",
     "fallbackQuestion": "Votez vraiment comme il faut",
     "methodFallback": "Scrutin",
