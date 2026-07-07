@@ -4,8 +4,7 @@ import { useState } from "react";
 import { useTranslations } from "next-intl";
 import type { ScrutinController } from "@/lib/voting/useScrutin";
 import InstallInline from "@/components/pwa/InstallInline";
-import WhatsAppShare from "./WhatsAppShare";
-import ShareButton from "./ShareButton";
+import ShareRow from "./ShareRow";
 import QrCode from "./QrCode";
 import { CREAM, FONT_BODY, FONT_DISPLAY, GREEN, INK, MUTED, YELLOW, lift } from "./theme";
 
@@ -180,10 +179,7 @@ export default function LaunchedScreen({ ctrl }: { ctrl: ScrutinController }) {
 
           <CopyRow url={voteUrl} label={t("voteLinkLabel")} />
 
-          <div style={{ marginTop: 12, display: "flex", gap: 9, flexWrap: "wrap" }}>
-            <WhatsAppShare question={state.question} url={voteUrl} />
-            <ShareButton question={state.question} url={voteUrl} />
-          </div>
+          <ShareRow question={state.question} url={voteUrl} style={{ marginTop: 12 }} />
 
           {state.access === "open" && (
             <div style={{ marginTop: 12 }}>
