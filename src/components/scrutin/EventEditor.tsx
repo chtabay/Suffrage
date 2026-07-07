@@ -8,6 +8,7 @@ import {
   addResolution,
   convene,
   countResolutionVotes,
+  countEventVoters,
   deleteEvent,
   getEvent,
   listConvened,
@@ -75,6 +76,7 @@ export default function EventEditor({ eventId }: { eventId: string }) {
   const [majority, setMajority] = useState(50);
   const [quorumInput, setQuorumInput] = useState("");
   const [liveCount, setLiveCount] = useState(0);
+  const [votedCount, setVotedCount] = useState(0);
 
   const load = useCallback(async () => {
     if (!user) return;
@@ -113,6 +115,28 @@ export default function EventEditor({ eventId }: { eventId: string }) {
       clearInterval(id);
     };
   }, [ev?.mode, ev?.status, ev?.current_poll_id]);
+
+  // Suivi participation (async) : membres distincts ayant voté, rafraîchi périodiquement.
+  const resIdsKey = resolutions.map((r) => r.id).join(",");
+  useEffect(() => {
+    if ((ev?.mode ?? "async") === "live" || ev?.status !== "open" || !resIdsKey) return;
+    const ids = resIdsKey.split(",");
+    let cancel = false;
+    const tick = async () => {
+      try {
+        const n = await countEventVoters(ids);
+        if (!cancel) setVotedCount(n);
+      } catch {
+        /* noop */
+      }
+    };
+    tick();
+    const id = setInterval(tick, 12000);
+    return () => {
+      cancel = true;
+      clearInterval(id);
+    };
+  }, [ev?.mode, ev?.status, resIdsKey]);
 
   const setOpt = (i: number, v: string) => setOpts((a) => a.map((o, j) => (j === i ? v : o)));
   const addOpt = () => setOpts((a) => (a.length < 8 ? [...a, ""] : a));
@@ -427,7 +451,11 @@ export default function EventEditor({ eventId }: { eventId: string }) {
       <div style={{ ...card, marginTop: 16 }}>
         <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 10 }}>
           <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 19 }}>{t("convocation")}</div>
-          <span style={{ color: SUBINK, fontWeight: 700, fontSize: 14 }}>{t("convenedCount", { count: convened.length })}</span>
+          <span style={{ color: SUBINK, fontWeight: 700, fontSize: 14 }}>
+            {ev.status === "open" && (ev.mode ?? "async") !== "live" && convened.length > 0
+              ? t("participation", { voted: votedCount, total: convened.length })
+              : t("convenedCount", { count: convened.length })}
+          </span>
         </div>
         {(toConvene.length > 0 || staleConvened.length > 0) && (
           <button onClick={doConvene} disabled={busy} style={{ ...btn(INK, "#fff"), marginTop: 13 }}>{t("convene")}</button>

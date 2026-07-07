@@ -472,6 +472,21 @@ export async function countResolutionVotes(pollId: string): Promise<number> {
   return count ?? 0;
 }
 
+/** Nombre de membres distincts ayant voté sur au moins une résolution de l'événement (participation async). */
+export async function countEventVoters(pollIds: string[]): Promise<number> {
+  if (!pollIds.length) return 0;
+  const supabase = createClient();
+  const { data, error } = await supabase
+    .from("scrutin_ballots")
+    .select("event_member_id")
+    .in("poll_id", pollIds)
+    .not("event_member_id", "is", null);
+  if (error) throw error;
+  const seen = new Set<string>();
+  for (const r of (data ?? []) as { event_member_id: string | null }[]) if (r.event_member_id) seen.add(r.event_member_id);
+  return seen.size;
+}
+
 /** Bulletins d'une résolution avec le poids du votant (membre convoqué). Pour le dépouillement. */
 export async function getResolutionBallots(pollId: string): Promise<{ ballot: Ballot; weight: number }[]> {
   const supabase = createClient();
