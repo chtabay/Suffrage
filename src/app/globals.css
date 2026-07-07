@@ -158,6 +158,23 @@ input {
   }
 }
 
+/* Aide IA : dépliée sur desktop/tablette ; sur mobile, la liste des assistants
+   se replie sous une question (.ai-toggle) pour gagner de la place. */
+.ai-toggle {
+  display: none;
+}
+@media (max-width: 860px) {
+  .ai-head-desktop {
+    display: none;
+  }
+  .ai-toggle {
+    display: flex;
+  }
+  .ai-body.ai-collapsed {
+    display: none;
+  }
+}
+
 /* Nav : rangée complète sur desktop, hamburger sur mobile (≤720px). */
 .nav-burger {
   display: none;

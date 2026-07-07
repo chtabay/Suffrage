@@ -273,6 +273,7 @@
   "AiHelper": {
     "title": "✨ Preparar con una IA",
     "subtitle": "Elige un asistente: recibe el prompt y te devuelve un enlace de Placet listo para confirmar aquí.",
+    "mobileToggle": "¿Necesitas la ayuda de una IA para elegir y crear la votación?",
     "promptCopied": "✓ Prompt copiado",
     "copyPrompt": "Copiar el prompt",
     "pasteHint": "El prompt se copia automáticamente — en Gemini, Copilot, Grok o Le Chat, solo tienes que pegarlo (Ctrl/⌘+V)."
