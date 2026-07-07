@@ -154,6 +154,10 @@ export function useScrutin(draft?: ScrutinDraft) {
   }, []);
 
   const selectSystemRecipe = useCallback((key: string) => {
+    // Ne remonter en haut que lorsqu'on ENTRE dans l'écran de création (depuis
+    // l'accueil). Si on y est déjà et qu'on change juste de méthode, on reste en
+    // place près de la section de choix.
+    const entering = stateRef.current.screen !== "create";
     setState((s) => ({
       ...s,
       recipe: recipeForSystem(key),
@@ -161,7 +165,7 @@ export function useScrutin(draft?: ScrutinDraft) {
       access: key === "indirect" ? "invite" : s.access,
       ...CLEAR_SHARE,
     }));
-    scrollTop();
+    if (entering) scrollTop();
   }, []);
 
   const setRecipe = useCallback((patch: Partial<Recipe>) => {
