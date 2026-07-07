@@ -645,6 +645,7 @@
   },
   "Share": {
     "qrScan": "Escanea este código QR para abrir la votación en otro teléfono.",
+    "qrScanShort": "Escanea para abrir en otro teléfono",
     "qrEnlarge": "Haz clic para ampliar",
     "qrClose": "Toca la pantalla para cerrar",
     "fallbackTitle": "Placet — votación",

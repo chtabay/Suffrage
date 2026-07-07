@@ -8,7 +8,18 @@ import { CREAM, INK } from "./theme";
 // QR code du lien de vote — pour un scrutin PUBLIC (lien ouvert), permet à une
 // pièce entière de scanner et d'ouvrir le vote sur son propre téléphone.
 // Cliquable : ouvre un affichage plein écran (projection / grand écran).
-export default function QrCode({ url, size = 116 }: { url: string; size?: number }) {
+// `compact` : disposition verticale étroite (QR + légende dessous), pour un coin.
+export default function QrCode({
+  url,
+  size = 116,
+  compact = false,
+  mini = false,
+}: {
+  url: string;
+  size?: number;
+  compact?: boolean;
+  mini?: boolean;
+}) {
   const t = useTranslations("Share");
   const [zoom, setZoom] = useState(false);
   const [bigSize, setBigSize] = useState(320);
@@ -22,35 +33,51 @@ export default function QrCode({ url, size = 116 }: { url: string; size?: number
     setZoom(true);
   };
 
+  const qrButton = (
+    <button
+      type="button"
+      onClick={openZoom}
+      aria-label={t("qrEnlarge")}
+      title={t("qrEnlarge")}
+      style={{ background: "#fff", border: `2px solid ${INK}`, borderRadius: 10, padding: 8, lineHeight: 0, flex: "none", cursor: "zoom-in" }}
+    >
+      <QRCodeSVG value={url} size={size} level="M" bgColor="#ffffff" fgColor={INK} />
+    </button>
+  );
+
   return (
     <>
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: 14,
-          background: CREAM,
-          border: `2px solid ${INK}`,
-          borderRadius: 12,
-          padding: 12,
-          flexWrap: "wrap",
-        }}
-      >
+      {mini ? (
         <button
           type="button"
           onClick={openZoom}
           aria-label={t("qrEnlarge")}
           title={t("qrEnlarge")}
-          style={{ background: "#fff", border: `2px solid ${INK}`, borderRadius: 10, padding: 8, lineHeight: 0, flex: "none", cursor: "zoom-in" }}
+          style={{ position: "relative", background: "#fff", border: `2px solid ${INK}`, borderRadius: 10, padding: 6, lineHeight: 0, cursor: "zoom-in", flex: "none" }}
         >
           <QRCodeSVG value={url} size={size} level="M" bgColor="#ffffff" fgColor={INK} />
+          <span
+            aria-hidden="true"
+            style={{ position: "absolute", right: -7, bottom: -7, width: 20, height: 20, borderRadius: 999, background: INK, color: "#fff", border: "2px solid #fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10 }}
+          >
+            🔍
+          </span>
         </button>
-        <div style={{ flex: 1, minWidth: 150, fontSize: 13.5, fontWeight: 600, color: INK, lineHeight: 1.45 }}>
-          {t("qrScan")}
-          <br />
-          <span style={{ fontSize: 12, opacity: 0.6 }}>{t("qrEnlarge")}</span>
+      ) : compact ? (
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8, background: CREAM, border: `2px solid ${INK}`, borderRadius: 12, padding: 12, width: "fit-content" }}>
+          {qrButton}
+          <div style={{ fontSize: 11.5, fontWeight: 600, color: INK, textAlign: "center", lineHeight: 1.35, maxWidth: size + 24 }}>{t("qrScanShort")}</div>
         </div>
-      </div>
+      ) : (
+        <div style={{ display: "flex", alignItems: "center", gap: 14, background: CREAM, border: `2px solid ${INK}`, borderRadius: 12, padding: 12, flexWrap: "wrap" }}>
+          {qrButton}
+          <div style={{ flex: 1, minWidth: 150, fontSize: 13.5, fontWeight: 600, color: INK, lineHeight: 1.45 }}>
+            {t("qrScan")}
+            <br />
+            <span style={{ fontSize: 12, opacity: 0.6 }}>{t("qrEnlarge")}</span>
+          </div>
+        </div>
+      )}
 
       {zoom && (
         <div

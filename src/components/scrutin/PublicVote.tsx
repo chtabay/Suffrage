@@ -835,6 +835,8 @@ export default function PublicVote({
 
   return (
     <Shell>
+      <div style={{ display: "flex", gap: 20, alignItems: "flex-start" }}>
+        <div style={{ flex: 1, minWidth: 0 }}>
       <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
         <div
           style={{
@@ -862,6 +864,11 @@ export default function PublicVote({
             })}
           </span>
         )}
+        {poll.access_mode === "open" && (
+          <div className="vote-qr-mobile" style={{ marginLeft: "auto" }}>
+            <QrCode url={voteShareUrl} mini size={46} />
+          </div>
+        )}
       </div>
 
       <h1
@@ -882,6 +889,13 @@ export default function PublicVote({
         </p>
       )}
       <p style={{ fontSize: 15, color: MUTED, margin: "8px 0 0" }}>{t(INSTRUCTIONS[mode])}</p>
+        </div>
+        {poll.access_mode === "open" && (
+          <div className="vote-qr-desktop" style={{ flex: "none" }}>
+            <QrCode url={voteShareUrl} compact size={132} />
+          </div>
+        )}
+      </div>
 
       <div
         style={{
@@ -1005,11 +1019,6 @@ export default function PublicVote({
       <div style={{ marginTop: 16, display: "flex", justifyContent: "center" }}>
         <NotifyButton pollToken={token} label={`🔔 ${t("notifyAtClose")}`} />
       </div>
-      {poll.access_mode === "open" && (
-        <div style={{ marginTop: 16 }}>
-          <QrCode url={voteShareUrl} />
-        </div>
-      )}
     </Shell>
   );
 }

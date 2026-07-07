@@ -90,6 +90,12 @@ input {
   display: none;
 }
 
+/* QR de la page de vote : compact en haut à droite (desktop) vs pleine largeur
+   en bas de page (mobile). */
+.vote-qr-mobile {
+  display: none;
+}
+
 @media (max-width: 860px) {
   .create-grid {
     grid-template-columns: 1fr !important;
@@ -114,6 +120,12 @@ input {
   }
   .create-launch-body {
     padding: 0 !important;
+  }
+  .vote-qr-desktop {
+    display: none !important;
+  }
+  .vote-qr-mobile {
+    display: block !important;
   }
 }
 
