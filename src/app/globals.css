@@ -102,7 +102,18 @@ input {
     display: block;
   }
   .create-detail-desktop {
-    display: none;
+    display: none !important;
+  }
+  /* La carte « système » de droite se réduit à son bouton Lancer sur mobile
+     (le détail est déjà inline plus haut) : on retire le chrome de la carte. */
+  .create-launch-card {
+    border: none !important;
+    box-shadow: none !important;
+    background: none !important;
+    border-radius: 0 !important;
+  }
+  .create-launch-body {
+    padding: 0 !important;
   }
 }
 

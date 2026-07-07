@@ -645,9 +645,10 @@ export default function CreateScreen({ ctrl }: { ctrl: ScrutinController }) {
           <AiHelper ctrl={ctrl} />
         </div>
 
-        {/* DROITE : système résolu en direct */}
+        {/* DROITE : système résolu en direct (desktop). Sur mobile, seul le bouton
+            Lancer reste — le détail vit dans l'explicatif inline sous les méthodes. */}
         <div
-          className="sticky-side"
+          className="sticky-side create-launch-card"
           style={{
             position: "sticky",
             top: 84,
@@ -659,6 +660,7 @@ export default function CreateScreen({ ctrl }: { ctrl: ScrutinController }) {
           }}
         >
           <div
+            className="create-detail-desktop"
             style={{
               background: resolved.color,
               padding: "18px 20px",
@@ -709,7 +711,7 @@ export default function CreateScreen({ ctrl }: { ctrl: ScrutinController }) {
               </div>
             </div>
           </div>
-          <div style={{ padding: "18px 20px" }}>
+          <div className="create-launch-body" style={{ padding: "18px 20px" }}>
             <div className="create-detail-desktop">
               <MethodDetail />
             </div>
