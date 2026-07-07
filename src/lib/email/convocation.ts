@@ -73,3 +73,30 @@ const ENROLL: Record<string, (a: Args) => Parts> = {
 export function enrollEmail(locale: string, a: Args): { subject: string; html: string } {
   return build((ENROLL[locale] ?? ENROLL.fr)(a), a.voteUrl);
 }
+
+// ----------------------------------------------------------------- relance
+// Rappel aux membres convoqués qui n'ont pas encore voté. Même lien personnel.
+const REMIND: Record<string, (a: Args) => Parts> = {
+  fr: (a) => ({
+    subject: `Rappel : votre vote vous attend - ${a.eventTitle}`,
+    intro: `Bonjour ${a.memberName},<br><br>Vous n'avez pas encore voté pour « <b>${a.eventTitle}</b> ». Votre lien <b>personnel</b> est toujours actif - cela ne prend qu'une minute.`,
+    cta: "Voter maintenant",
+    outro: "Si le bouton ne fonctionne pas, copiez ce lien dans votre navigateur :",
+  }),
+  en: (a) => ({
+    subject: `Reminder: your vote is waiting - ${a.eventTitle}`,
+    intro: `Hello ${a.memberName},<br><br>You haven't voted yet on "<b>${a.eventTitle}</b>". Your <b>personal</b> link is still active - it only takes a minute.`,
+    cta: "Vote now",
+    outro: "If the button doesn't work, copy this link into your browser:",
+  }),
+  es: (a) => ({
+    subject: `Recordatorio: tu voto te espera - ${a.eventTitle}`,
+    intro: `Hola ${a.memberName}:<br><br>Aún no has votado en «<b>${a.eventTitle}</b>». Tu enlace <b>personal</b> sigue activo: solo toma un minuto.`,
+    cta: "Votar ahora",
+    outro: "Si el botón no funciona, copia este enlace en tu navegador:",
+  }),
+};
+
+export function reminderEmail(locale: string, a: Args): { subject: string; html: string } {
+  return build((REMIND[locale] ?? REMIND.fr)(a), a.voteUrl);
+}

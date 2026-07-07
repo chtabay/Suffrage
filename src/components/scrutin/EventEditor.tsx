@@ -70,6 +70,7 @@ export default function EventEditor({ eventId }: { eventId: string }) {
   const [copied, setCopied] = useState<string | null>(null);
   const [sendMsg, setSendMsg] = useState("");
   const [sending, setSending] = useState(false);
+  const [reminding, setReminding] = useState(false);
   const [capInput, setCapInput] = useState("");
   const [majority, setMajority] = useState(50);
   const [quorumInput, setQuorumInput] = useState("");
@@ -258,6 +259,29 @@ export default function EventEditor({ eventId }: { eventId: string }) {
     setSending(false);
   };
 
+  const sendReminders = async () => {
+    if (reminding) return;
+    setReminding(true);
+    setSendMsg("");
+    try {
+      const res = await fetch(`/api/events/${eventId}/remind`, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ locale }),
+      });
+      if (res.ok) {
+        const d = (await res.json()) as { sent: number; pending: number };
+        setSendMsg(d.pending === 0 ? t("remindAllVoted") : t("remindResult", { sent: d.sent }));
+        load();
+      } else {
+        setSendMsg(t("emailError"));
+      }
+    } catch {
+      setSendMsg(t("emailError"));
+    }
+    setReminding(false);
+  };
+
   if (loading) return <OrgShell><div style={{ ...card, color: MUTED }}>{t("loading")}</div></OrgShell>;
   if (!user) return <OrgShell><div style={card}>{t("signInPrompt")}</div></OrgShell>;
   if (!ev) return <OrgShell><div style={{ ...card, color: MUTED }}>{t("loading")}</div></OrgShell>;
@@ -432,6 +456,15 @@ export default function EventEditor({ eventId }: { eventId: string }) {
                 style={{ ...btn("#FFB627", INK), marginTop: 12, opacity: sending ? 0.6 : 1, cursor: sending ? "wait" : "pointer" }}
               >
                 {sending ? t("sendingConvocations") : convened.some((c) => c.invited_at) ? t("resendConvocations") : t("sendConvocations")}
+              </button>
+            )}
+            {ev.status === "open" && convened.some((c) => c.email && c.invited_at) && (
+              <button
+                onClick={sendReminders}
+                disabled={reminding || sending}
+                style={{ ...btn("#fff", INK), marginTop: 10, marginLeft: 10, opacity: reminding ? 0.6 : 1, cursor: reminding ? "wait" : "pointer" }}
+              >
+                {reminding ? t("remindingNonVoters") : t("remindNonVoters")}
               </button>
             )}
             {sendMsg && <div style={{ marginTop: 10, fontWeight: 700, fontSize: 13.5, color: GREEN }}>{sendMsg}</div>}
