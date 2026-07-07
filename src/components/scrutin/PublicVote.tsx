@@ -1024,7 +1024,7 @@ export default function PublicVote({
         <NotifyButton pollToken={token} label={`🔔 ${t("notifyAtClose")}`} />
       </div>
       {poll.access_mode === "open" && (
-        <ShareRow question={poll.question} url={voteShareUrl} style={{ marginTop: 16, justifyContent: "center" }} />
+        <ShareRow question={poll.question} url={voteShareUrl} withCopy style={{ marginTop: 16, justifyContent: "center" }} />
       )}
     </Shell>
   );

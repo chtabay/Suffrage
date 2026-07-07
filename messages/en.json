@@ -132,6 +132,8 @@
     "copiedResult": "✓ Copied",
     "shareWhatsApp": "💬 Share on WhatsApp",
     "shareNative": "📤 Share…",
+    "copyLink": "🔗 Copy link",
+    "linkCopied": "✓ Link copied",
     "statusOpen": "Open",
     "statusScheduled": "Scheduled",
     "statusClosed": "Closed",
