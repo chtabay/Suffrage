@@ -8,7 +8,7 @@
 
 import { routing } from "./routing";
 
-const INTL: Record<string, string> = { fr: "fr-FR", en: "en-GB", es: "es-ES" };
+const INTL: Record<string, string> = { fr: "fr-FR", en: "en-GB", es: "es-ES", pcm: "en-NG" };
 
 /** Normalise une locale arbitraire (ex. Slack « fr-FR ») vers une locale supportée, sinon repli. */
 export function supportedLocale(input: string | null | undefined, fallback = "fr"): string {
@@ -22,7 +22,11 @@ export function intlLocale(locale: string): string {
   return INTL[locale] ?? INTL.fr;
 }
 
-/** Choisit la variante correspondant à la locale (repli sur le français). */
+/**
+ * Choisit la variante correspondant à la locale. Repli : la variante exacte,
+ * sinon l'anglais (utile pour les créoles anglophones comme le pidgin `pcm`, qui
+ * n'ont pas de variante propre dans le code « pur »), sinon le français (défaut).
+ */
 export function pickLocale<T>(locale: string, map: Record<string, T>): T {
-  return map[locale] ?? map.fr;
+  return map[locale] ?? map.en ?? map.fr;
 }

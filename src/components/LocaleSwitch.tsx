@@ -5,6 +5,9 @@ import { usePathname, useRouter } from "@/i18n/navigation";
 import { routing } from "@/i18n/routing";
 import { CREAM, INK } from "@/components/scrutin/theme";
 
+// Libellés du sélecteur : code ISO par défaut (FR/EN/ES), nom lisible sinon.
+const LABELS: Record<string, string> = { pcm: "Pidgin" };
+
 /** Bascule de langue : conserve le chemin courant, change la locale. */
 export default function LocaleSwitch() {
   const locale = useLocale();
@@ -29,7 +32,7 @@ export default function LocaleSwitch() {
               padding: "8px 11px",
             }}
           >
-            {l.toUpperCase()}
+            {LABELS[l] ?? l.toUpperCase()}
           </button>
         );
       })}

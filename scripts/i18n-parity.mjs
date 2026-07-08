@@ -1,10 +1,15 @@
-// Garde-fou i18n : vérifie que messages/{fr,en,es}.json ont EXACTEMENT le même
+// Garde-fou i18n : vérifie que TOUS les messages/*.json ont EXACTEMENT le même
 // jeu de clés ET les mêmes variables d'interpolation ({name}, {count}, plural…).
 // Échoue (exit 1) à la moindre divergence → branché sur `npm run build`.
 // Les langues ne doivent différer QUE par les libellés, jamais par la structure.
-import { readFileSync } from "fs";
+// Les locales sont auto-découvertes : ajouter messages/<loc>.json suffit à l'inclure.
+import { readFileSync, readdirSync } from "fs";
 
-const LOCALES = ["fr", "en", "es"];
+const MSG_DIR = new URL("../messages/", import.meta.url);
+const LOCALES = readdirSync(MSG_DIR)
+  .filter((f) => f.endsWith(".json"))
+  .map((f) => f.slice(0, -5))
+  .sort();
 
 const flatten = (obj, prefix = "", acc = {}) => {
   for (const [k, v] of Object.entries(obj)) {
