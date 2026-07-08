@@ -6,6 +6,7 @@ import { SYSTEMS } from "@/lib/voting/systems";
 import type { ScrutinController } from "@/lib/voting/useScrutin";
 import AiSideRail from "./AiSideRail";
 import AiHelper from "./AiHelper";
+import AboutPlacet from "./AboutPlacet";
 import SlackMark from "@/components/SlackMark";
 import { Link } from "@/i18n/navigation";
 import { CORAL, FONT_DISPLAY, GREEN, INK, MUTED, PAPER, SUBINK, lift } from "./theme";
@@ -96,7 +97,7 @@ export default function HomeScreen({ ctrl }: { ctrl: ScrutinController }) {
             {t("subtitle")}
           </p>
         )}
-        <div style={{ marginTop: learn ? 32 : 18 }}>
+        <div style={{ marginTop: learn ? 32 : 18, display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap" }}>
           <button
             onClick={() => go("create")}
             className="dc-lift"
@@ -115,6 +116,7 @@ export default function HomeScreen({ ctrl }: { ctrl: ScrutinController }) {
           >
             {t("createCta")}
           </button>
+          <AboutPlacet />
         </div>
       </div>
 
