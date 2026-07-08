@@ -268,6 +268,29 @@ export default function SpacesHome() {
             )}
           </div>
         </div>
+
+        {/* Sous les boutons : description complète de ce que débloque la connexion. */}
+        <div style={{ ...card, marginTop: 16 }}>
+          <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 17 }}>{t("featuresTitle")}</div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 13, marginTop: 13 }}>
+            {(
+              [
+                ["🏛️", "featMembersLabel", "featMembersText"],
+                ["📅", "featEventsLabel", "featEventsText"],
+                ["📧", "featConvokeLabel", "featConvokeText"],
+                ["⚖️", "featRulesLabel", "featRulesText"],
+                ["📊", "featTrackLabel", "featTrackText"],
+              ] as const
+            ).map(([icon, lk, tk]) => (
+              <div key={lk} style={{ display: "flex", gap: 11 }}>
+                <span style={{ flex: "none", fontSize: 18, lineHeight: 1.4 }}>{icon}</span>
+                <span style={{ fontSize: 14, lineHeight: 1.5, color: SUBINK }}>
+                  <b style={{ color: INK }}>{t(lk)}</b> — {t(tk)}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
       </OrgShell>
     );
 
