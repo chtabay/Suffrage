@@ -92,7 +92,7 @@ export default function Nav({ ctrl, auth }: { ctrl: ScrutinController; auth: Aut
               href="/espaces"
               onClick={() => setOpen(false)}
               className="dc-paper"
-              style={{ ...secondary, textDecoration: "none", display: "inline-flex", alignItems: "center" }}
+              style={{ ...secondary, textDecoration: "none", display: "inline-flex", alignItems: "center", justifyContent: "center" }}
             >
               {t("spaces")}
             </Link>
@@ -137,7 +137,7 @@ export default function Nav({ ctrl, auth }: { ctrl: ScrutinController; auth: Aut
                 href="/espaces"
                 onClick={() => setOpen(false)}
                 className="dc-paper"
-                style={{ ...secondary, textDecoration: "none", display: "inline-flex", alignItems: "center" }}
+                style={{ ...secondary, textDecoration: "none", display: "inline-flex", alignItems: "center", justifyContent: "center" }}
               >
                 {t("signIn")}
               </Link>
