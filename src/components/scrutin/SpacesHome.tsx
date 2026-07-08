@@ -278,6 +278,25 @@ export default function SpacesHome() {
       </h1>
       <p style={{ fontSize: 16, color: SUBINK, lineHeight: 1.5, marginTop: 10, maxWidth: "58ch" }}>{t("spacesSubtitle")}</p>
 
+      {/* Aide « qu'est-ce qu'un espace » — utilisateur déjà connecté, aucun mot sur le compte. */}
+      <div style={{ background: CREAM, border: `2px solid ${INK}`, borderRadius: 14, padding: "15px 18px", marginTop: 16 }}>
+        <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 15, marginBottom: 10 }}>{t("howTitle")}</div>
+        {(
+          [
+            ["👥", "howMembersLabel", "howMembersText"],
+            ["📅", "howEventsLabel", "howEventsText"],
+            ["🗳️", "howVotesLabel", "howVotesText"],
+          ] as const
+        ).map(([icon, lk, tk]) => (
+          <div key={lk} style={{ display: "flex", gap: 9, fontSize: 13.5, color: SUBINK, lineHeight: 1.5, marginBottom: 6 }}>
+            <span style={{ flex: "none" }}>{icon}</span>
+            <span>
+              <b style={{ color: INK }}>{t(lk)}</b> — {t(tk)}
+            </span>
+          </div>
+        ))}
+      </div>
+
       <div style={{ ...card, marginTop: 20, display: "flex", gap: 10, flexWrap: "wrap" }}>
         <input
           value={name}
