@@ -9,6 +9,7 @@ import { CREAM, FONT_BODY, FONT_DISPLAY, INK, PAPER, SUBINK, lift } from "./them
 // sans compte, le mode connecté, la philosophie.
 const ROWS = [
   ["💡", "aboutIdeaLabel", "aboutIdeaText"],
+  ["🧩", "aboutAssignLabel", "aboutAssignText"],
   ["🔗", "aboutFreeLabel", "aboutFreeText"],
   ["🏛️", "aboutAccountLabel", "aboutAccountText"],
   ["🎯", "aboutPhiloLabel", "aboutPhiloText"],

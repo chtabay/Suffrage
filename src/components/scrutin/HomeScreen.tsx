@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { SYSTEMS } from "@/lib/voting/systems";
+import { ASSIGN_METHODS, ASSIGN_METHOD_KEYS, type AssignMethodKey } from "@/lib/assign/methods";
 import type { ScrutinController } from "@/lib/voting/useScrutin";
 import AiSideRail from "./AiSideRail";
 import AiHelper from "./AiHelper";
@@ -40,10 +41,18 @@ function useHomeMode(): "learn" | "lean" {
 }
 
 export default function HomeScreen({ ctrl }: { ctrl: ScrutinController }) {
-  const { go, selectSystemRecipe } = ctrl;
+  const { go, selectSystemRecipe, setOptionKind, setAssignMethod } = ctrl;
   const t = useTranslations("Home");
   const tm = useTranslations("Methods");
+  const ta = useTranslations("Assign");
   const learn = useHomeMode() === "learn";
+  // Deux portes : décider (vote) ou affecter — CTA, cartes et étapes s'adaptent.
+  const [pillar, setPillar] = useState<"vote" | "assign">("vote");
+  const startAssign = (key?: AssignMethodKey) => {
+    setOptionKind("assign");
+    if (key) setAssignMethod(key);
+    go("create");
+  };
 
   return (
     <div className="pad" style={{ maxWidth: 1120, margin: "0 auto", padding: `${learn ? 56 : 26}px 24px 90px` }}>
@@ -97,9 +106,48 @@ export default function HomeScreen({ ctrl }: { ctrl: ScrutinController }) {
             {t("subtitle")}
           </p>
         )}
-        <div style={{ marginTop: learn ? 32 : 18, display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap" }}>
+        {/* Deux portes : l'intention d'abord — le CTA, les cartes et les étapes suivent. */}
+        <div style={{ marginTop: learn ? 30 : 18, display: "flex", gap: 14, flexWrap: "wrap" }}>
+          {(
+            [
+              ["vote", "🗳️", t("doorVoteTitle"), t("doorVoteText")],
+              ["assign", "🧩", t("doorAssignTitle"), t("doorAssignText")],
+            ] as const
+          ).map(([key, icon, title, text]) => {
+            const active = pillar === key;
+            return (
+              <button
+                key={key}
+                onClick={() => setPillar(key)}
+                aria-pressed={active}
+                style={{
+                  flex: "1 1 260px",
+                  maxWidth: 380,
+                  textAlign: "left",
+                  cursor: "pointer",
+                  background: active ? INK : PAPER,
+                  color: active ? "#fff" : INK,
+                  border: `2.5px solid ${INK}`,
+                  borderRadius: 16,
+                  padding: "14px 16px",
+                  boxShadow: active ? `4px 4px 0 ${CORAL}` : `4px 4px 0 ${INK}`,
+                  fontFamily: FONT_DISPLAY,
+                }}
+              >
+                <div style={{ fontWeight: 800, fontSize: 17, display: "flex", alignItems: "center", gap: 8 }}>
+                  <span>{icon}</span>
+                  {title}
+                </div>
+                <div style={{ fontWeight: 600, fontSize: 12.5, marginTop: 5, lineHeight: 1.4, color: active ? "rgba(255,255,255,0.85)" : SUBINK }}>
+                  {text}
+                </div>
+              </button>
+            );
+          })}
+        </div>
+        <div style={{ marginTop: 18, display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap" }}>
           <button
-            onClick={() => go("create")}
+            onClick={() => (pillar === "assign" ? startAssign() : go("create"))}
             className="dc-lift"
             style={{
               fontFamily: FONT_DISPLAY,
@@ -114,7 +162,7 @@ export default function HomeScreen({ ctrl }: { ctrl: ScrutinController }) {
               ...lift(`5px 5px 0 ${INK}`, `7px 7px 0 ${INK}`),
             }}
           >
-            {t("createCta")}
+            {pillar === "assign" ? t("createAssignCta") : t("createCta")}
           </button>
           <AboutPlacet />
         </div>
@@ -123,7 +171,7 @@ export default function HomeScreen({ ctrl }: { ctrl: ScrutinController }) {
       {/* 4 méthodes phares — remontées pour être visibles dès la première page */}
       <div style={{ marginTop: learn ? 40 : 26 }}>
         <h2 style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: learn ? 30 : 23, letterSpacing: "-0.02em", margin: 0 }}>
-          {learn ? t("methodsTitleLearn") : t("methodsTitleLean")}
+          {learn ? (pillar === "assign" ? t("methodsTitleLearnAssign") : t("methodsTitleLearn")) : t("methodsTitleLean")}
         </h2>
         <div
           style={{
@@ -133,7 +181,38 @@ export default function HomeScreen({ ctrl }: { ctrl: ScrutinController }) {
             marginTop: 16,
           }}
         >
-          {HOME_METHODS.map((key) => {
+          {pillar === "assign" &&
+            ASSIGN_METHOD_KEYS.map((key) => {
+              const def = ASSIGN_METHODS[key];
+              return (
+                <div
+                  key={key}
+                  onClick={() => startAssign(key)}
+                  className="dc-lift"
+                  style={{
+                    cursor: "pointer",
+                    background: PAPER,
+                    border: `2.5px solid ${INK}`,
+                    borderRadius: 16,
+                    padding: 16,
+                    ...lift(`4px 4px 0 ${def.color}`, `6px 6px 0 ${def.color}`),
+                  }}
+                >
+                  <div style={{ width: 42, height: 42, borderRadius: 12, border: `2px solid ${INK}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22, background: def.tint }}>
+                    {def.icon}
+                  </div>
+                  <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 700, fontSize: 16, marginTop: 11, lineHeight: 1.1 }}>
+                    {ta(`methods.${key}.name`)}
+                  </div>
+                  <div style={{ color: MUTED, fontSize: 12.5, marginTop: 4, lineHeight: 1.35 }}>{ta(`methods.${key}.tagline`)}</div>
+                  <div style={{ marginTop: 10, display: "inline-flex", alignItems: "center", gap: 6, background: def.tint, borderRadius: 999, padding: "3px 9px 3px 7px", fontSize: 10.5, fontWeight: 800, color: INK }}>
+                    <span style={{ width: 6, height: 6, borderRadius: "50%", background: def.color, flex: "none" }} />
+                    {ta(`methods.${key}.strength`)}
+                  </div>
+                </div>
+              );
+            })}
+          {pillar === "vote" && HOME_METHODS.map((key) => {
             const sys = SYSTEMS[key];
             return (
               <div
@@ -190,7 +269,8 @@ export default function HomeScreen({ ctrl }: { ctrl: ScrutinController }) {
           })}
         </div>
 
-        {/* après les cartes : comparer toutes les méthodes */}
+        {/* après les cartes : comparer toutes les méthodes (galerie = vote) */}
+        {pillar === "vote" && (
         <button
           onClick={() => go("gallery")}
           className="dc-lift"
@@ -210,6 +290,7 @@ export default function HomeScreen({ ctrl }: { ctrl: ScrutinController }) {
         >
           {t("compareCta")}
         </button>
+        )}
       </div>
 
       {/* étapes — pédagogie uniquement, après les cartes */}
@@ -239,9 +320,11 @@ export default function HomeScreen({ ctrl }: { ctrl: ScrutinController }) {
                 {t(`steps.s${n}Label`)}
               </div>
               <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 700, fontSize: 21, marginTop: 6 }}>
-                {t(`steps.s${n}Title`)}
+                {pillar === "assign" ? t(`stepsAssign.s${n}Title`) : t(`steps.s${n}Title`)}
               </div>
-              <div style={{ color: SUBINK, marginTop: 6, lineHeight: 1.45, fontSize: 14.5 }}>{t(`steps.s${n}Text`)}</div>
+              <div style={{ color: SUBINK, marginTop: 6, lineHeight: 1.45, fontSize: 14.5 }}>
+                {pillar === "assign" ? t(`stepsAssign.s${n}Text`) : t(`steps.s${n}Text`)}
+              </div>
             </div>
           ))}
         </div>
