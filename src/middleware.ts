@@ -16,6 +16,17 @@ export async function middleware(request: NextRequest) {
       308,
     );
   }
+  // Sous-domaine partenaire : sa racine sert la page co-brandée (code chez nous),
+  // tout autre chemin renvoie vers placet.app — l'app ne vit que sur son domaine.
+  if (request.headers.get("host") === "placet.globenostra.com") {
+    if (request.nextUrl.pathname === "/") {
+      return NextResponse.rewrite(new URL("/partenaires/globenostra", request.url));
+    }
+    return NextResponse.redirect(
+      new URL(request.nextUrl.pathname + request.nextUrl.search, "https://placet.app"),
+      308,
+    );
+  }
   const response = intlMiddleware(request);
   return await updateSession(request, response);
 }
@@ -24,5 +35,5 @@ export const config = {
   // La racine "/" doit être listée explicitement (le catch-all ne la matche pas) →
   // sinon le middleware ne réécrit pas "/" vers la locale par défaut et "/" tombe en 404.
   // Le reste exclut l'API, l'auth callback, les routes d'icônes/manifest et les fichiers statiques.
-  matcher: ["/", "/((?!api|auth|icon-|apple-icon|promo|_next|_vercel|.*\\..*).*)"],
+  matcher: ["/", "/((?!api|auth|icon-|apple-icon|promo|partenaires|_next|_vercel|.*\\..*).*)"],
 };
