@@ -642,6 +642,8 @@
     "presetAbstain": "🤷 Abstención",
     "resOptionsPlaceholder": "Una opción por línea (emoji opcional)\n👍 A favor\n👎 En contra\n🤷 Abstención",
     "resMethod": "Método",
+    "resKindVote": "🗳️ Voto",
+    "resKindAssign": "🧩 Asignación",
     "addResolution": "Añadir la resolución",
     "convocation": "Convocatoria",
     "convene": "Convocar al cuerpo electoral",

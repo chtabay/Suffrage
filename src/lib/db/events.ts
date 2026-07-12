@@ -398,6 +398,23 @@ export async function markInvited(ids: string[]): Promise<void> {
   if (error) throw error;
 }
 
+/**
+ * Résolution d'affectation close : convoqués + classements (RPC publique par
+ * token de résolution — ne renvoie des lignes qu'une fois le vote terminé).
+ */
+export async function getEventAssignData(
+  resolutionToken: string,
+): Promise<{ label: string; ranking: number[] | null; voted: boolean }[]> {
+  const supabase = createClient();
+  const { data, error } = await supabase.rpc("get_event_assign_data", { p_token: resolutionToken });
+  if (error) throw error;
+  return ((data ?? []) as { label: string; ranking: number[] | null; voted: boolean }[]).map((r) => ({
+    label: r.label,
+    ranking: Array.isArray(r.ranking) ? r.ranking : null,
+    voted: Boolean(r.voted),
+  }));
+}
+
 // ---------------------------------------------------------------- vote (votant, RPC gardées)
 
 /** Contexte public d'inscription (titre + état), pour la page /rejoindre. Anon. */

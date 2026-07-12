@@ -642,6 +642,8 @@
     "presetAbstain": "🤷 Abstention",
     "resOptionsPlaceholder": "Une option par ligne (emoji facultatif)\n👍 Pour\n👎 Contre\n🤷 Abstention",
     "resMethod": "Méthode",
+    "resKindVote": "🗳️ Vote",
+    "resKindAssign": "🧩 Affectation",
     "addResolution": "Ajouter la résolution",
     "convocation": "Convocation",
     "convene": "Convoquer le corps électoral",

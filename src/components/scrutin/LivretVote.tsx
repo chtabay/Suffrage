@@ -16,6 +16,7 @@ import {
 } from "@/lib/voting/engine";
 import type { Ballot, BallotMode } from "@/lib/voting/types";
 import BallotCard, { EMPTY_DRAFT, type BallotDraft } from "./BallotCard";
+import { ASSIGN_METHODS, isAssignMethod } from "@/lib/assign/methods";
 import EventResults from "./EventResults";
 import PlacetMark from "./PlacetMark";
 import { CREAM, FONT_BODY, FONT_DISPLAY, GREEN, INK, MUTED, SUBINK } from "./theme";
@@ -41,6 +42,7 @@ const card = {
 export default function LivretVote({ token }: { token: string }) {
   const t = useTranslations("Livret");
   const tv = useTranslations("Vote");
+  const ta = useTranslations("Assign");
   const { user, loading: authLoading } = useAuth();
   const [ctx, setCtx] = useState<EventContext | null>(null);
   const [loading, setLoading] = useState(true);
@@ -79,6 +81,11 @@ export default function LivretVote({ token }: { token: string }) {
 
   const submit = async (res: Resolution) => {
     const mode = methodMode(operativeMethod(res.recipe));
+    // Affectation : classement COMPLET exigé (pas de complétion aléatoire).
+    if (isAssignMethod(res.recipe.assign) && (drafts[res.token]?.rank.length ?? 0) < res.options.length) {
+      setErr((e) => ({ ...e, [res.token]: ta("instructionAssign") }));
+      return;
+    }
     const b = draftToBallot(mode, drafts[res.token] ?? EMPTY_DRAFT, res.options.length);
     if (!b) {
       setErr((e) => ({ ...e, [res.token]: t("emptyBallot") }));
@@ -158,7 +165,8 @@ export default function LivretVote({ token }: { token: string }) {
           const liveLocked = ev.mode === "live" && ev.current_poll_id != null && ev.current_poll_id !== res.id;
           const locked = ev.status !== "open" || res.status === "closed";
           const mode = methodMode(operativeMethod(res.recipe));
-          const color = describeRecipe(res.recipe).color;
+          const aKey = isAssignMethod(res.recipe.assign) ? res.recipe.assign : null;
+          const color = aKey ? ASSIGN_METHODS[aKey].color : describeRecipe(res.recipe).color;
           return (
             <div key={res.token} style={card}>
               <div style={{ fontSize: 12.5, fontWeight: 700, color: SUBINK, textTransform: "uppercase", letterSpacing: "0.04em" }}>
@@ -180,6 +188,11 @@ export default function LivretVote({ token }: { token: string }) {
                 <div style={{ marginTop: 14, color: MUTED, fontWeight: 600 }}>🔒 {t("upcoming")}</div>
               ) : (
                 <div style={{ marginTop: 14 }}>
+                  {aKey && (
+                    <div style={{ fontSize: 13, fontWeight: 600, color: MUTED, marginBottom: 10, lineHeight: 1.45 }}>
+                      {ta("instructionAssign")}
+                    </div>
+                  )}
                   <BallotCard
                     mode={mode}
                     options={res.options}

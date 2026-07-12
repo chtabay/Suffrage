@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import type { PollRow } from "@/lib/db/polls";
+import type { Option, Recipe } from "@/lib/voting/types";
 import { runAssignment, type AssignRowData } from "@/lib/assign/run";
 import { ASSIGN_METHODS, isAssignMethod } from "@/lib/assign/methods";
 import { completeRanking } from "@/lib/assign/engine";
@@ -13,7 +13,14 @@ import { CREAM, FONT_BODY, FONT_DISPLAY, INK, MUTED, SUBINK } from "./theme";
  * liste de binômes, avec la narration de la méthode. Le calcul est refait côté
  * client à partir des classements publiés (vérifiabilité).
  */
-export default function AssignResult({ poll, rows }: { poll: PollRow; rows: AssignRowData[] }) {
+export default function AssignResult({
+  poll,
+  rows,
+}: {
+  /** Scrutin autonome (PollRow) ou résolution d'événement — seuls token/options/recipe servent. */
+  poll: { token: string; options: Option[]; recipe: Recipe };
+  rows: AssignRowData[];
+}) {
   const ta = useTranslations("Assign");
   const key = poll.recipe.assign;
   if (!isAssignMethod(key) || rows.length === 0) return null;

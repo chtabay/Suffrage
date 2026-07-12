@@ -24,6 +24,7 @@ import {
   type ResolutionRow,
 } from "@/lib/db/events";
 import { recipeForSystem, resolveKey } from "@/lib/voting/engine";
+import { ASSIGN_METHODS, isAssignMethod } from "@/lib/assign/methods";
 import { APP_URL } from "@/lib/voting/aiPrompt";
 import { splitLeadingEmoji } from "@/lib/voting/draft";
 import { SYSTEM_ORDER } from "@/lib/voting/systems";
@@ -55,6 +56,7 @@ const btn = (bg: string, fg: string) =>
 export default function EventEditor({ eventId }: { eventId: string }) {
   const t = useTranslations("Org");
   const tm = useTranslations("Methods");
+  const ta = useTranslations("Assign");
   const locale = useLocale();
   // Préréglage du cas le plus courant en AG : Pour / Contre / Abstention (localisé).
   const presetOpts = () => [t("presetFor"), t("presetAgainst"), t("presetAbstain")];
@@ -155,7 +157,13 @@ export default function EventEditor({ eventId }: { eventId: string }) {
       });
     setBusy(true);
     try {
-      await addResolution(eventId, { question: q, options, recipe: { ...recipeForSystem(method), threshold: majority }, orderIndex: resolutions.length });
+      // Résolution d'affectation : bulletin = classement (borda → mode « rank »),
+      // le dépouillement passe par le moteur d'affectation. Seules les méthodes
+      // indépendantes du roster sont proposées ici (les objets sont fixes).
+      const recipe = method.startsWith("assign:")
+        ? { ...recipeForSystem("borda"), assign: method.slice(7) }
+        : { ...recipeForSystem(method), threshold: majority };
+      await addResolution(eventId, { question: q, options, recipe, orderIndex: resolutions.length });
       setResolutions(await listResolutions(eventId));
       setQ("");
       setOpts(presetOpts());
@@ -350,7 +358,11 @@ export default function EventEditor({ eventId }: { eventId: string }) {
             <div key={r.id} style={{ display: "flex", alignItems: "center", gap: 10, background: CREAM, border: `2px solid ${INK}`, borderRadius: 11, padding: "10px 13px" }}>
               <span style={{ fontWeight: 800, color: SUBINK, fontSize: 13 }}>{i + 1}</span>
               <span style={{ fontWeight: 700, fontSize: 14.5, flex: 1 }}>{r.question}</span>
-              <span style={{ fontSize: 12, color: SUBINK, fontWeight: 700 }}>{tm(`${resolveKey(r.recipe)}.name`)}</span>
+              <span style={{ fontSize: 12, color: SUBINK, fontWeight: 700 }}>
+                {isAssignMethod(r.recipe.assign)
+                  ? `${ASSIGN_METHODS[r.recipe.assign].icon} ${ta(`methods.${r.recipe.assign}.name`)}`
+                  : tm(`${resolveKey(r.recipe)}.name`)}
+              </span>
               {ev.status === "draft" && (
                 <button onClick={() => delRes(r.id)} style={{ border: "none", background: "none", color: REDTXT, cursor: "pointer", fontSize: 17, lineHeight: 1 }}>×</button>
               )}
@@ -396,9 +408,16 @@ export default function EventEditor({ eventId }: { eventId: string }) {
             <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
               <span style={{ fontWeight: 700, fontSize: 13, color: SUBINK }}>{t("resMethod")}</span>
               <select value={method} onChange={(e) => setMethod(e.target.value)} style={{ fontFamily: FONT_BODY, fontSize: 14, fontWeight: 600, padding: "9px 11px", border: `2px solid ${INK}`, borderRadius: 10, background: "#fff" }}>
-                {SYSTEM_ORDER.map((k) => (
-                  <option key={k} value={k}>{tm(`${k}.name`)}</option>
-                ))}
+                <optgroup label={t("resKindVote")}>
+                  {SYSTEM_ORDER.map((k) => (
+                    <option key={k} value={k}>{tm(`${k}.name`)}</option>
+                  ))}
+                </optgroup>
+                <optgroup label={t("resKindAssign")}>
+                  {(["serial_dictatorship", "optimal_sum"] as const).map((k) => (
+                    <option key={k} value={`assign:${k}`}>{ASSIGN_METHODS[k].icon} {ta(`methods.${k}.name`)}</option>
+                  ))}
+                </optgroup>
               </select>
               {(method === "fptp" || method === "runoff") && (
                 <>

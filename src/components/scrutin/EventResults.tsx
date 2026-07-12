@@ -2,9 +2,12 @@
 
 import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
-import { getResolutionBallots, type ResolutionRow } from "@/lib/db/events";
+import { getEventAssignData, getResolutionBallots, type ResolutionRow } from "@/lib/db/events";
 import { compute } from "@/lib/voting/engine";
 import type { Ballot, ComputeResult } from "@/lib/voting/types";
+import { isAssignMethod } from "@/lib/assign/methods";
+import type { AssignRowData } from "@/lib/assign/run";
+import AssignResult from "./AssignResult";
 import ResultCard from "./ResultCard";
 import { FONT_DISPLAY, GREEN, INK, MUTED, REDTXT, SUBINK } from "./theme";
 
@@ -32,6 +35,8 @@ interface Verdict {
 
 interface Cell {
   result: ComputeResult | null;
+  /** Résolution d'affectation : lignes convoqué + classement (pas de compute()). */
+  assignRows: AssignRowData[] | null;
   voters: number;
   verdict: Verdict | null;
   required: number; // 0 = pas de quorum
@@ -61,6 +66,22 @@ export default function EventResults({
       const entries: Record<string, Cell> = {};
       for (const r of resolutions) {
         try {
+          // Affectation : votants + classements via la RPC dédiée (post-clôture),
+          // le calcul vit dans AssignResult — pas de compute() ni de verdict.
+          if (isAssignMethod(r.recipe.assign)) {
+            const aRows = await getEventAssignData(r.token);
+            const votedN = aRows.filter((x) => x.voted).length;
+            const req = quorum > 0 ? Math.ceil((quorum / 100) * convenedCount) : 0;
+            entries[r.id] = {
+              result: null,
+              assignRows: aRows,
+              voters: votedN,
+              verdict: null,
+              required: req,
+              quorumMet: req === 0 || votedN >= req,
+            };
+            continue;
+          }
           const rows = await (getBallots ? getBallots(r) : getResolutionBallots(r.id));
           const expanded = expand(rows);
           const result = compute({ recipe: r.recipe, options: r.options, ballots: expanded }, locale);
@@ -79,13 +100,14 @@ export default function EventResults({
           const required = quorum > 0 ? Math.ceil((quorum / 100) * convenedCount) : 0;
           entries[r.id] = {
             result,
+            assignRows: null,
             voters: rows.length,
             verdict,
             required,
             quorumMet: required === 0 || rows.length >= required,
           };
         } catch {
-          entries[r.id] = { result: null, voters: 0, verdict: null, required: 0, quorumMet: true };
+          entries[r.id] = { result: null, assignRows: null, voters: 0, verdict: null, required: 0, quorumMet: true };
         }
       }
       if (!cancel) setData(entries);
@@ -139,6 +161,30 @@ export default function EventResults({
         {resolutions.map((r) => {
           const d = data[r.id];
           if (!d) return null;
+          // Résolution d'affectation : participation + quorum, puis le tableau d'affectation.
+          if (d.assignRows) {
+            return (
+              <div key={r.id}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: 6 }}>
+                  <span style={{ fontSize: 12.5, color: SUBINK, fontWeight: 700 }}>
+                    {t("participation", { voted: d.voters, total: convenedCount })}
+                  </span>
+                  {d.required > 0 &&
+                    (d.quorumMet
+                      ? badge("#e7f6ec", GREEN, t("quorumMet"))
+                      : badge("#fdecec", REDTXT, t("quorumNotMet", { required: d.required })))}
+                </div>
+                <div style={{ fontWeight: 700, marginBottom: 8 }}>{r.question}</div>
+                {d.voters > 0 ? (
+                  <AssignResult poll={r} rows={d.assignRows} />
+                ) : (
+                  <div style={{ background: "#fff", border: `2.5px solid ${INK}`, borderRadius: 16, padding: "16px 18px", color: MUTED, fontSize: 14 }}>
+                    {t("resNoBallots")}
+                  </div>
+                )}
+              </div>
+            );
+          }
           if (!d.result)
             return (
               <div key={r.id} style={{ background: "#fff", border: `2.5px solid ${INK}`, borderRadius: 16, padding: "16px 18px" }}>
