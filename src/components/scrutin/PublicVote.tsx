@@ -9,6 +9,7 @@ import {
   addBallot,
   castInvitedBallot,
   closePoll,
+  getAssignData,
   getBallots,
   getComments,
   getPollByToken,
@@ -38,6 +39,9 @@ import InstallInline from "@/components/pwa/InstallInline";
 import NotifyButton from "@/components/pwa/NotifyButton";
 import BallotCard, { EMPTY_DRAFT, type BallotDraft } from "./BallotCard";
 import ResultCard from "./ResultCard";
+import AssignResult from "./AssignResult";
+import { ASSIGN_METHODS, isAssignMethod } from "@/lib/assign/methods";
+import type { AssignRowData } from "@/lib/assign/run";
 import ResultShare from "./ResultShare";
 import QrCode from "./QrCode";
 import ShareRow from "./ShareRow";
@@ -323,6 +327,7 @@ export default function PublicVote({
 }) {
   const t = useTranslations("Vote");
   const tm = useTranslations("Methods");
+  const ta = useTranslations("Assign");
   const locale = useLocale();
   const [view, setView] = useState<View>("loading");
   const [poll, setPoll] = useState<PollRow | null>(null);
@@ -335,10 +340,20 @@ export default function PublicVote({
   const [result, setResult] = useState<ComputeResult | null>(null);
   const [ballotCount, setBallotCount] = useState(0);
   const [voters, setVoters] = useState<Voter[]>([]);
+  const [assignRows, setAssignRows] = useState<AssignRowData[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [working, setWorking] = useState(false);
 
   const loadResults = useCallback(async (p: PollRow) => {
+    // Affectation : pas de « gagnant » à calculer — on charge votants + classements
+    // (RPC publique uniquement une fois le scrutin clos) pour AssignResult.
+    if (isAssignMethod(p.recipe.assign)) {
+      const rows = await getAssignData(p.token).catch(() => [] as AssignRowData[]);
+      setAssignRows(rows);
+      setBallotCount(rows.filter((r) => r.voted).length);
+      setComments(await getComments(p.id));
+      return;
+    }
     const ballots = await getBallots(p.id);
     setBallotCount(ballots.length);
     setResult(compute({ recipe: p.recipe, options: p.options, ballots, districtElectors: electorsOf(p) }, locale));
@@ -453,12 +468,20 @@ export default function PublicVote({
     );
   }
 
-  const desc = describeRecipe(poll.recipe, locale);
+  const baseDesc = describeRecipe(poll.recipe, locale);
   // Nom de méthode affiché : via le catalogue traduit (Methods), pas le nom FR du moteur.
   const mKey = resolveKey(poll.recipe);
   const twoRound =
     poll.recipe.suffrage !== "indirect" && poll.recipe.rounds === 2 && poll.recipe.counting !== "majority";
-  const methodName = twoRound ? `${tm(`${mKey}.name`)} ${tm("twoRounds")}` : tm(`${mKey}.name`);
+  // Affectation : badge, nom et consigne portés par le catalogue Assign.
+  const aKey = isAssignMethod(poll.recipe.assign) ? poll.recipe.assign : null;
+  const aDef = aKey ? ASSIGN_METHODS[aKey] : null;
+  const desc = aDef ? { ...baseDesc, color: aDef.color, icon: aDef.icon } : baseDesc;
+  const methodName = aKey
+    ? ta(`methods.${aKey}.name`)
+    : twoRound
+      ? `${tm(`${mKey}.name`)} ${tm("twoRounds")}`
+      : tm(`${mKey}.name`);
   const mode = methodMode(operativeMethod(poll.recipe));
   const voteShareUrl = `${APP_URL}/v/${poll.token}`;
 
@@ -642,7 +665,16 @@ export default function PublicVote({
         )}
 
         <div style={{ marginTop: 16 }}>
-          {result ? (
+          {aDef ? (
+            phase === "closed" && assignRows.length ? (
+              <>
+                <AssignResult poll={poll} rows={assignRows} />
+                <CommentsFeed comments={comments} />
+              </>
+            ) : (
+              <div style={{ ...card, color: MUTED, fontSize: 15 }}>{ta("resultsAtClose")}</div>
+            )
+          ) : result ? (
             <>
               {poll.quorum != null && <QuorumBanner quorum={poll.quorum} count={ballotCount} />}
               <ResultCard result={result} question={poll.question} ballotCount={ballotCount} calendarSlot={winnerSlot} calendarUrl={voteShareUrl} calendarDuration={poll.slot_minutes ?? undefined} />
@@ -733,7 +765,16 @@ export default function PublicVote({
           <span style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 18 }}>🔒 {t("voteClosedTitle")}</span>
           <span style={{ color: MUTED, fontSize: 14 }}>{t("voteClosedDesc")}</span>
         </div>
-        {result ? (
+        {aDef ? (
+          assignRows.length ? (
+            <>
+              <AssignResult poll={poll} rows={assignRows} />
+              <CommentsFeed comments={comments} />
+            </>
+          ) : (
+            <div style={{ ...card, color: MUTED }}>{t("noBallotsCast")}</div>
+          )
+        ) : result ? (
           <>
             {poll.quorum != null && <QuorumBanner quorum={poll.quorum} count={ballotCount} />}
             <ResultCard result={result} question={poll.question} ballotCount={ballotCount} calendarSlot={winnerSlot} calendarUrl={voteShareUrl} calendarDuration={poll.slot_minutes ?? undefined} />
@@ -797,7 +838,13 @@ export default function PublicVote({
   }
 
   // ---------- vote ----------
-  const ballotValid = draftToBallot(mode, draft, poll.options.length) !== null;
+  // Affectation en binômes : on ne se classe pas soi-même (sa carte est masquée).
+  const selfIdx =
+    aDef && !aDef.oneSided && voter ? poll.options.findIndex((o) => o.name === voter.label) : -1;
+  // Affectation : classement COMPLET exigé (pas de complétion aléatoire du bulletin).
+  const ballotValid = aDef
+    ? draft.rank.length >= poll.options.length - (selfIdx >= 0 ? 1 : 0)
+    : draftToBallot(mode, draft, poll.options.length) !== null;
 
   const submit = async () => {
     const ballot = draftToBallot(mode, draft, poll.options.length);
@@ -892,7 +939,9 @@ export default function PublicVote({
           {poll.description}
         </p>
       )}
-      <p style={{ fontSize: 15, color: MUTED, margin: "8px 0 0" }}>{t(INSTRUCTIONS[mode])}</p>
+      <p style={{ fontSize: 15, color: MUTED, margin: "8px 0 0" }}>
+        {aDef ? ta(aDef.oneSided ? "instructionAssign" : "instructionPairs") : t(INSTRUCTIONS[mode])}
+      </p>
         </div>
         {poll.access_mode === "open" && (
           <div className="vote-qr-desktop" style={{ flex: "none" }}>
@@ -915,6 +964,7 @@ export default function PublicVote({
           mode={mode}
           options={poll.options}
           color={desc.color}
+          hidden={selfIdx >= 0 ? [selfIdx] : undefined}
           draft={draft}
           onChoice={(i) => setDraft((d) => ({ ...d, choice: i }))}
           onToggle={(i) =>

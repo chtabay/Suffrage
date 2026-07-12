@@ -24,6 +24,13 @@ export interface Recipe {
   localCounting: CountingMethod;
   electorSplit: ElectorSplit;
   threshold: number;
+  /**
+   * Scrutin d'AFFECTATION (pas d'élection d'un gagnant) : clé de la méthode
+   * (src/lib/assign/methods.ts). Le bulletin reste un classement (counting est
+   * alors posé sur "borda" pour réutiliser le mode « rank ») ; le dépouillement
+   * passe par le moteur d'affectation, pas par compute().
+   */
+  assign?: string;
 }
 
 export interface Option {

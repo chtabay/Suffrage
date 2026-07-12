@@ -63,7 +63,8 @@ export async function getPollShareInfo(
     let ballotCount = 0;
     let winner: { name: string; icon: string } | null = null;
     // On ne lit les bulletins que si le résultat est public (scrutin clos) : pas de fuite.
-    if (phase === "closed") {
+    // Affectation : pas de « gagnant » à annoncer — compute() n'a pas de sens ici.
+    if (phase === "closed" && !p.recipe.assign) {
       const br = await fetch(
         `${base}/rest/v1/scrutin_ballots?poll_id=eq.${encodeURIComponent(p.id)}&select=ranking,grades,district`,
         { headers, ...cacheInit },

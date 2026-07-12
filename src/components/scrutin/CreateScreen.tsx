@@ -10,6 +10,7 @@ import AdvancedSettings from "./AdvancedSettings";
 import AiHelper from "./AiHelper";
 import ClosureLine from "./ClosureLine";
 import PrefillPanel from "./PrefillPanel";
+import { ASSIGN_METHODS, ASSIGN_METHOD_KEYS, type AssignMethodKey } from "@/lib/assign/methods";
 import SlotPicker from "./SlotPicker";
 import { CORAL, CREAM, FONT_BODY, FONT_DISPLAY, GREENTXT, INK, MUTED, REDTXT, YELLOW, lift } from "./theme";
 
@@ -183,7 +184,7 @@ export default function CreateScreen({ ctrl }: { ctrl: ScrutinController }) {
   const t = useTranslations("Create");
   // Exemples évocateurs montrés en placeholder (pas des valeurs à supprimer).
   const optionPlaceholders = t.raw("optionPlaceholders") as string[];
-  const { state, selectSystemRecipe, setRecipe, setQuestion, setDescription, setOptionName, setOptionUrl, setOptionIcon, removeOption, addOption, setOptionKind, setSlots, setSlotMinutes, launch } = ctrl;
+  const { state, selectSystemRecipe, setRecipe, setQuestion, setDescription, setOptionName, setOptionUrl, setOptionIcon, removeOption, addOption, setOptionKind, setSlots, setSlotMinutes, setAssignMethod, setVoterNames, launch } = ctrl;
   const [urlRows, setUrlRows] = useState<Record<number, boolean>>({});
   const [emojiRow, setEmojiRow] = useState<number | null>(null);
   const [methodOpen, setMethodOpen] = useState(false);
@@ -233,6 +234,87 @@ export default function CreateScreen({ ctrl }: { ctrl: ScrutinController }) {
     padding: 20,
     boxShadow: `5px 5px 0 ${INK}`,
   } as const;
+
+  // ---- affectation (3e type) : méthode, participants, garde-fous prévisibles ----
+  const ta = useTranslations("Assign");
+  const isAssign = state.optionKind === "assign";
+  const aDef = ASSIGN_METHODS[state.assignMethod];
+  const participants = state.voterNames.split("\n").map((x) => x.trim()).filter(Boolean);
+  const assignOptionCount = state.options.filter((o) => o.name.trim() !== "").length;
+  const assignWarnings: string[] = [];
+  if (isAssign) {
+    if (participants.length < 2) assignWarnings.push(ta("needParticipants"));
+    if (!aDef.oneSided) {
+      if (participants.length >= 2 && participants.length % 2 !== 0)
+        assignWarnings.push(ta("oddWarning", { count: participants.length }));
+      if (new Set(participants).size !== participants.length) assignWarnings.push(ta("dupWarning"));
+    } else if (assignOptionCount < 2) {
+      assignWarnings.push(ta("needObjects"));
+    }
+  }
+  const fewObjectsMissing =
+    isAssign && aDef.oneSided && assignOptionCount >= 2 && participants.length > assignOptionCount
+      ? participants.length - assignOptionCount
+      : 0;
+  const assignBlocked = isAssign && assignWarnings.length > 0;
+
+  const assignChip = (key: AssignMethodKey) => {
+    const def = ASSIGN_METHODS[key];
+    const active = state.assignMethod === key;
+    return (
+      <button
+        key={key}
+        onClick={() => setAssignMethod(key)}
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: 8,
+          textAlign: "left",
+          fontFamily: FONT_BODY,
+          cursor: "pointer",
+          border: `2px solid ${INK}`,
+          borderRadius: 10,
+          padding: "8px 12px",
+          background: active ? INK : "#fff",
+          color: active ? "#fff" : INK,
+        }}
+      >
+        <span style={{ fontSize: 17 }}>{def.icon}</span>
+        <span style={{ display: "flex", flexDirection: "column", lineHeight: 1.15 }}>
+          <span style={{ fontWeight: 700, fontSize: 13 }}>{ta(`methods.${key}.name`)}</span>
+          <span style={{ fontWeight: 600, fontSize: 11, color: active ? "rgba(255,255,255,0.75)" : MUTED }}>{ta(`methods.${key}.strength`)}</span>
+        </span>
+      </button>
+    );
+  };
+
+  const AssignDetail = () => (
+    <>
+      <div style={{ fontSize: 14, lineHeight: 1.5, color: "#2c3447" }}>{ta(`methods.${state.assignMethod}.how`)}</div>
+      <div style={{ marginTop: 15 }}>
+        <div style={{ fontWeight: 700, fontSize: 12, color: GREENTXT, marginBottom: 7 }}>{t("whatYouGain")}</div>
+        {(ta.raw(`methods.${state.assignMethod}.pros`) as string[]).map((p, i) => (
+          <div key={i} style={{ fontSize: 13, lineHeight: 1.4, color: "#2c3447", marginBottom: 6, paddingLeft: 14, position: "relative" }}>
+            <span style={{ position: "absolute", left: 0, color: GREENTXT }}>+</span>
+            {p}
+          </div>
+        ))}
+      </div>
+      <div style={{ marginTop: 13 }}>
+        <div style={{ fontWeight: 700, fontSize: 12, color: REDTXT, marginBottom: 7 }}>{t("whatYouLose")}</div>
+        {(ta.raw(`methods.${state.assignMethod}.cons`) as string[]).map((c, i) => (
+          <div key={i} style={{ fontSize: 13, lineHeight: 1.4, color: "#2c3447", marginBottom: 6, paddingLeft: 14, position: "relative" }}>
+            <span style={{ position: "absolute", left: 0, color: REDTXT }}>−</span>
+            {c}
+          </div>
+        ))}
+      </div>
+    </>
+  );
+
+  const headColor = isAssign ? aDef.color : resolved.color;
+  const headIcon = isAssign ? aDef.icon : resolved.icon;
+  const headName = isAssign ? ta(`methods.${state.assignMethod}.name`) : methodName;
 
   // Caractéristiques de la méthode courante (comment ça marche · gains · pertes),
   // réutilisées par la carte de droite (desktop) et l'explicatif inline (mobile).
@@ -334,6 +416,7 @@ export default function CreateScreen({ ctrl }: { ctrl: ScrutinController }) {
                 {([
                   ["text", t("voteOnProposals")],
                   ["slot", t("voteOnDates")],
+                  ["assign", ta("kindChip")],
                 ] as const).map(([k, lbl]) => (
                   <button
                     key={k}
@@ -355,10 +438,18 @@ export default function CreateScreen({ ctrl }: { ctrl: ScrutinController }) {
                 ))}
               </div>
             </div>
-            <div style={{ fontWeight: 700, fontSize: 13, color: MUTED, marginBottom: 9 }}>
-              {state.optionKind === "slot" ? t("slotsHeading") : t("proposalsHeading")}
-            </div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 9 }}>
+            {isAssign && (
+              <div style={{ fontSize: 12.5, color: MUTED, margin: "0 0 12px", lineHeight: 1.45 }}>{ta("kindHint")}</div>
+            )}
+            {!(isAssign && !aDef.oneSided) && (
+              <div style={{ fontWeight: 700, fontSize: 13, color: MUTED, marginBottom: 9 }}>
+                {state.optionKind === "slot" ? t("slotsHeading") : isAssign ? ta("objectsHeading") : t("proposalsHeading")}
+              </div>
+            )}
+            {isAssign && aDef.oneSided && (
+              <div style={{ fontSize: 12, color: MUTED, marginBottom: 9 }}>{ta("objectsHint")}</div>
+            )}
+            <div style={{ display: isAssign && !aDef.oneSided ? "none" : "flex", flexDirection: "column", gap: 9 }}>
               {state.optionKind === "slot"
                 ? (
                     <>
@@ -544,7 +635,7 @@ export default function CreateScreen({ ctrl }: { ctrl: ScrutinController }) {
                 );
               })}
             </div>
-            {state.optionKind !== "slot" && (
+            {state.optionKind !== "slot" && !(isAssign && !aDef.oneSided) && (
               <button
                 onClick={() => addOption(t("newOptionDefault"))}
                 className="dc-cream"
@@ -563,15 +654,70 @@ export default function CreateScreen({ ctrl }: { ctrl: ScrutinController }) {
                 {t("addProposal")}
               </button>
             )}
-            <div style={{ fontSize: 12, color: MUTED, marginTop: 12, lineHeight: 1.45 }}>
-              {t("aiHintAttach")}{" "}
-              <span style={{ color: INK, fontWeight: 700 }}>{t("aiHintHighlight")}</span>{" "}
-              {t("aiHintSee")}
-            </div>
+            {!isAssign && (
+              <div style={{ fontSize: 12, color: MUTED, marginTop: 12, lineHeight: 1.45 }}>
+                {t("aiHintAttach")}{" "}
+                <span style={{ color: INK, fontWeight: 700 }}>{t("aiHintHighlight")}</span>{" "}
+                {t("aiHintSee")}
+              </div>
+            )}
           </div>
+
+          {/* affectation : les participants (nominative par construction) */}
+          {isAssign && (
+            <div style={cardStyle}>
+              <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 18 }}>{ta("participantsTitle")}</div>
+              <div style={{ fontSize: 12.5, color: MUTED, margin: "4px 0 12px", lineHeight: 1.45 }}>{ta("participantsHint")}</div>
+              <textarea
+                value={state.voterNames}
+                onChange={(e) => setVoterNames(e.target.value)}
+                rows={5}
+                placeholder={"Marie\nJules\nAmina\nNoah"}
+                style={{
+                  width: "100%",
+                  fontFamily: FONT_BODY,
+                  fontSize: 14.5,
+                  fontWeight: 600,
+                  padding: "10px 13px",
+                  border: `2px solid ${INK}`,
+                  borderRadius: 11,
+                  background: CREAM,
+                  outline: "none",
+                  resize: "vertical",
+                  boxSizing: "border-box",
+                }}
+              />
+              {assignWarnings.map((w) => (
+                <div
+                  key={w}
+                  style={{ marginTop: 9, background: "#fff4e0", border: `2px solid ${INK}`, borderRadius: 10, padding: "9px 12px", fontWeight: 700, fontSize: 13, color: "#8a5a00" }}
+                >
+                  ⚠️ {w}
+                </div>
+              ))}
+              {fewObjectsMissing > 0 && (
+                <div style={{ marginTop: 9, fontSize: 12.5, color: MUTED, lineHeight: 1.4 }}>{ta("fewObjects", { missing: fewObjectsMissing })}</div>
+              )}
+            </div>
+          )}
 
           {/* méthode : 4 phares visibles, le reste dépliable (après les options) */}
           <div style={cardStyle}>
+            {isAssign ? (
+              <>
+                <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 18 }}>{ta("methodTitle")}</div>
+                <div style={{ fontSize: 12.5, color: MUTED, margin: "4px 0 12px", lineHeight: 1.4 }}>{ta("methodSubtitle")}</div>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>{ASSIGN_METHOD_KEYS.map(assignChip)}</div>
+                <div className="create-explainer-mobile" style={{ ...cardStyle, marginTop: 14, padding: 16, boxShadow: `4px 4px 0 ${aDef.color}` }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 9, marginBottom: 10 }}>
+                    <span style={{ fontSize: 20 }}>{aDef.icon}</span>
+                    <span style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 16 }}>{ta(`methods.${state.assignMethod}.name`)}</span>
+                  </div>
+                  <AssignDetail />
+                </div>
+              </>
+            ) : (
+              <>
             <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 18 }}>{t("methodTitle")}</div>
             <div style={{ fontSize: 12.5, color: MUTED, margin: "4px 0 12px", lineHeight: 1.4 }}>
               {t("methodSubtitle")}
@@ -638,11 +784,13 @@ export default function CreateScreen({ ctrl }: { ctrl: ScrutinController }) {
               </div>
               <MethodDetail />
             </div>
+              </>
+            )}
           </div>
 
           <ClosureLine ctrl={ctrl} />
-          <AdvancedSettings ctrl={ctrl} />
-          <AiHelper ctrl={ctrl} />
+          {!isAssign && <AdvancedSettings ctrl={ctrl} />}
+          {!isAssign && <AiHelper ctrl={ctrl} />}
         </div>
 
         {/* DROITE : système résolu en direct (desktop). Sur mobile, seul le bouton
@@ -656,13 +804,13 @@ export default function CreateScreen({ ctrl }: { ctrl: ScrutinController }) {
             border: `2.5px solid ${INK}`,
             borderRadius: 20,
             overflow: "hidden",
-            boxShadow: `6px 6px 0 ${resolved.color}`,
+            boxShadow: `6px 6px 0 ${headColor}`,
           }}
         >
           <div
             className="create-detail-desktop"
             style={{
-              background: resolved.color,
+              background: headColor,
               padding: "18px 20px",
               borderBottom: `2.5px solid ${INK}`,
               display: "flex",
@@ -683,7 +831,7 @@ export default function CreateScreen({ ctrl }: { ctrl: ScrutinController }) {
                 fontSize: 26,
               }}
             >
-              {resolved.icon}
+              {headIcon}
             </div>
             <div>
               <div
@@ -707,17 +855,17 @@ export default function CreateScreen({ ctrl }: { ctrl: ScrutinController }) {
                   textShadow: "1.5px 1.5px 0 rgba(0,0,0,0.22)",
                 }}
               >
-                {methodName}
+                {headName}
               </div>
             </div>
           </div>
           <div className="create-launch-body" style={{ padding: "18px 20px" }}>
             <div className="create-detail-desktop">
-              <MethodDetail />
+              {isAssign ? <AssignDetail /> : <MethodDetail />}
             </div>
             <button
               onClick={launch}
-              disabled={state.launching}
+              disabled={state.launching || assignBlocked}
               className="dc-lift"
               style={{
                 marginTop: 18,
@@ -725,14 +873,14 @@ export default function CreateScreen({ ctrl }: { ctrl: ScrutinController }) {
                 fontFamily: FONT_DISPLAY,
                 fontWeight: 700,
                 fontSize: 16,
-                cursor: state.launching ? "default" : "pointer",
+                cursor: state.launching || assignBlocked ? "default" : "pointer",
                 border: `2.5px solid ${INK}`,
                 background: INK,
                 color: "#fff",
                 padding: 13,
                 borderRadius: 13,
-                opacity: state.launching ? 0.7 : 1,
-                ...lift(`4px 4px 0 ${resolved.color}`, `6px 6px 0 ${resolved.color}`),
+                opacity: state.launching || assignBlocked ? 0.6 : 1,
+                ...lift(`4px 4px 0 ${headColor}`, `6px 6px 0 ${headColor}`),
               }}
             >
               {state.launching ? t("launching") : t("launch")}

@@ -5,6 +5,7 @@ import { useLocale } from "next-intl";
 import { pickLocale } from "@/i18n/locales";
 import { addLocalPoll } from "@/lib/db/localPolls";
 import { addVoters, createPoll, type AccessMode, type District, type VoterInput } from "@/lib/db/polls";
+import { ASSIGN_METHODS, type AssignMethodKey } from "@/lib/assign/methods";
 import { SLOT_ICON, slotLabel, type ScrutinDraft } from "./draft";
 import { DEFAULT_RECIPE, recipeForSystem } from "./engine";
 import type { Option, Recipe } from "./types";
@@ -21,9 +22,10 @@ export interface ScrutinState {
   screen: Screen;
   question: string;
   description: string;
-  optionKind: "text" | "slot";
+  optionKind: "text" | "slot" | "assign";
   options: Option[];
   slotMinutes: number;
+  assignMethod: AssignMethodKey;
   recipe: Recipe;
   access: AccessMode;
   hideResults: boolean;
@@ -56,6 +58,7 @@ const INITIAL: ScrutinState = {
   ],
   optionKind: "text",
   slotMinutes: 60,
+  assignMethod: "serial_dictatorship",
   recipe: { ...DEFAULT_RECIPE },
   access: "open",
   hideResults: false,
@@ -219,13 +222,26 @@ export function useScrutin(draft?: ScrutinDraft) {
     setState((s) => ({ ...s, slotMinutes, ...CLEAR_SHARE }));
   }, []);
 
-  // ---- vote « dates » : créneaux ----
-  const setOptionKind = useCallback((kind: "text" | "slot") => {
+  // ---- type de vote : propositions / dates / affectation ----
+  const setOptionKind = useCallback((kind: "text" | "slot" | "assign") => {
     setState((s) => {
       if (s.optionKind === kind) return s;
       if (kind === "slot") {
         // Un créneau = un objet daté ; on bascule par défaut sur l'approbation (logique Doodle).
         return { ...s, optionKind: "slot", options: [freshSlot(locale), freshSlot(locale)], recipe: recipeForSystem("approval"), ...CLEAR_SHARE };
+      }
+      if (kind === "assign") {
+        // Les « options » deviennent les choses à attribuer (ou seront générées
+        // depuis les participants pour les binômes, au lancement).
+        return {
+          ...s,
+          optionKind: "assign",
+          options: [
+            { icon: ADD_ICONS[0], name: "" },
+            { icon: ADD_ICONS[1], name: "" },
+          ],
+          ...CLEAR_SHARE,
+        };
       }
       return {
         ...s,
@@ -281,6 +297,10 @@ export function useScrutin(draft?: ScrutinDraft) {
     setState((s) => ({ ...s, voterNames, ...CLEAR_SHARE }));
   }, []);
 
+  const setAssignMethod = useCallback((assignMethod: AssignMethodKey) => {
+    setState((s) => ({ ...s, assignMethod, ...CLEAR_SHARE }));
+  }, []);
+
   const setOpensAt = useCallback((opensAt: string) => {
     setState((s) => ({ ...s, opensAt, ...CLEAR_SHARE }));
   }, []);
@@ -327,12 +347,35 @@ export function useScrutin(draft?: ScrutinDraft) {
     const s = stateRef.current;
     const question = s.question.trim();
     const isSlot = s.optionKind === "slot";
-    const cleanOptions = s.options
+    const isAssign = s.optionKind === "assign";
+    const assignDef = ASSIGN_METHODS[s.assignMethod];
+    const participants = splitNames(s.voterNames);
+    let cleanOptions = s.options
       .filter((o) => (isSlot ? Boolean(o.at) : o.name.trim() !== ""))
       .map((o) => ({ ...o, name: o.name.trim() }));
     if (!question) {
       setState((p) => ({ ...p, error: "Ajoutez une question." }));
       return;
+    }
+    if (isAssign) {
+      // Garde-fous d'affectation : nominative, effectif suffisant, pair et
+      // sans doublon pour les binômes (prévisible dès la création).
+      if (participants.length < 2) {
+        setState((p) => ({ ...p, error: "Ajoutez au moins 2 participants (un nom par ligne)." }));
+        return;
+      }
+      if (!assignDef.oneSided) {
+        if (participants.length % 2) {
+          setState((p) => ({ ...p, error: "Effectif impair : les binômes exigent un nombre pair." }));
+          return;
+        }
+        if (new Set(participants).size !== participants.length) {
+          setState((p) => ({ ...p, error: "Chaque participant doit avoir un nom unique." }));
+          return;
+        }
+        // Les « options » sont les participants eux-mêmes (chacun classe les autres).
+        cleanOptions = participants.map((name) => ({ icon: "🧑", name }));
+      }
     }
     if (cleanOptions.length < 2) {
       setState((p) => ({ ...p, error: isSlot ? "Ajoutez au moins 2 créneaux." : "Ajoutez au moins 2 options." }));
@@ -340,10 +383,12 @@ export function useScrutin(draft?: ScrutinDraft) {
     }
     setState((p) => ({ ...p, launching: true, error: null }));
     try {
-      const isGE = s.recipe.suffrage === "indirect";
+      const isGE = !isAssign && s.recipe.suffrage === "indirect";
       let districtsPayload: District[] | null = null;
       const voters: VoterInput[] = [];
-      if (s.access === "invite") {
+      if (isAssign) {
+        participants.forEach((label) => voters.push({ label, district: null }));
+      } else if (s.access === "invite") {
         if (isGE) {
           districtsPayload = s.districts.map((d) => ({
             name: d.name || "Circonscription",
@@ -357,11 +402,18 @@ export function useScrutin(draft?: ScrutinDraft) {
         }
       }
 
+      // Affectation : bulletin = classement (counting borda → mode « rank »),
+      // accès nominatif forcé, résultat masqué jusqu'à la clôture.
+      const recipe: Recipe = isAssign
+        ? { ...s.recipe, suffrage: "direct", counting: "borda", rounds: 1, assign: s.assignMethod }
+        : s.recipe;
+      const access: AccessMode = isAssign ? "invite" : s.access;
+
       const toISO = (str: string) => (str ? new Date(str).toISOString() : null);
-      const { token, secret } = await createPoll(question, cleanOptions, s.recipe, {
+      const { token, secret } = await createPoll(question, cleanOptions, recipe, {
         description: s.description,
-        hideResults: s.hideResults,
-        accessMode: s.access,
+        hideResults: isAssign ? true : s.hideResults,
+        accessMode: access,
         districts: districtsPayload,
         opensAt: toISO(s.opensAt),
         closesAt: toISO(s.closesAt),
@@ -372,7 +424,7 @@ export function useScrutin(draft?: ScrutinDraft) {
       const origin = window.location.origin;
 
       let voterLinks: { label: string; url: string }[] = [];
-      if (s.access === "invite" && voters.length) {
+      if (access === "invite" && voters.length) {
         const created = await addVoters(token, secret, voters);
         voterLinks = created.map((v) => ({ label: v.label, url: `${origin}/v/${token}?u=${v.token}` }));
       }
@@ -417,6 +469,7 @@ export function useScrutin(draft?: ScrutinDraft) {
     setAccess,
     toggleHideResults,
     setVoterNames,
+    setAssignMethod,
     setOpensAt,
     setClosesAt,
     setQuorum,

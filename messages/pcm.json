@@ -254,6 +254,60 @@
     "cons": "✕ BAD SIDE",
     "launchWithMethod": "Start vote with dis method →"
   },
+  "Assign": {
+    "kindChip": "🧩 assignment",
+    "kindHint": "Share things (offices, tasks…) or form pairs, according to wetin everybody prefer.",
+    "methodTitle": "Di assignment method",
+    "methodSubtitle": "How we go share am? No method dey neutral — each one get im own bias.",
+    "objectsHeading": "DI THINGS TO SHARE",
+    "objectsHint": "One per line: offices, tasks, rooms, slots…",
+    "participantsTitle": "Di participants",
+    "participantsHint": "One name per line. Each person go get personal link to rank wetin dem prefer — assignment dey carry names.",
+    "needParticipants": "Add at least 2 participants (one name per line).",
+    "needObjects": "Add at least 2 things to share.",
+    "oddWarning": "Odd number ({count}): pairs need even number. Add or remove one person.",
+    "dupWarning": "Some names dey double — every participant need unique name.",
+    "fewObjects": "{missing, plural, one {# person no go get anything} other {# people no go get anything}} (things no reach participants).",
+    "instructionAssign": "Rank all di options for order of preference — di full ranking na im we go use calculate.",
+    "instructionPairs": "Rank your possible partners for order of preference — di full ranking na im we go use calculate.",
+    "resultsAtClose": "We go calculate and publish di result when e close.",
+    "resultTitle": "Assignment result",
+    "pairsTitle": "Di pairs",
+    "orderNote": "Turn order wey we draw from di poll token (everybody fit verify am):",
+    "fallbackTitle": "No stable pairing dey exist",
+    "fallbackText": "With dis rankings, every combination go leave two people wey go prefer to dey togeda pass dia assigned partners — na real paradox of di method, no be bug. Announced fallback: picking rounds for drawn order, each person go pair with im remaining preference for im turn.",
+    "notVoted": "no rank (preferences by list order)",
+    "unassigned": "no get anything",
+    "gotRank": "choice #{n}",
+    "withPartner": "with",
+    "transparencyNote": "When e close, participants rankings go show for all participants — na wetin make di calculation fit verify.",
+    "methods": {
+      "serial_dictatorship": {
+        "name": "Picking rounds",
+        "tagline": "Everybody pick for im turn, for drawn order.",
+        "strength": "Simple and nobody fit argue",
+        "how": "We draw turn order — from di poll token, so anybody fit verify am. Each person, for im turn, go collect im favourite among wetin remain.",
+        "pros": ["Impossible to cheat: sincere ranking na always di best", "Very easy to explain and accept", "Verifiable draw, no favouritism possible"],
+        "cons": ["Di last people for di order go collect leftovers", "Luck dey weigh heavy for di result", "E no look how strong di preferences be"]
+      },
+      "optimal_sum": {
+        "name": "Maximum satisfaction",
+        "tagline": "Di sharing wey go please di most people, calculated exact.",
+        "strength": "Collective optimum",
+        "how": "Each sharing \"cost\" di position wey e hold for di person ranking (1st choice = 0, 2nd = 1…). Di Hungarian algorithm go find di sharing with di smallest total cost: di best overall satisfaction, exact.",
+        "pros": ["Di best total satisfaction wey possible", "No draw involved", "Exact result, no be approximate"],
+        "cons": ["E fit sacrifice one person for common good", "Tactical rankings dey possible", "E no too easy to explain"]
+      },
+      "stable_roommates": {
+        "name": "Stable pairs",
+        "tagline": "Pairs wey nobody get interest to leave.",
+        "strength": "Solid pairs",
+        "how": "Everybody rank di oda participants. Irving algorithm go find stable pairs: no two people go prefer each oda pass dia assigned partners. E fit prove say no stable pairing dey exist — den we go announce di fallback: picking rounds for drawn order.",
+        "pros": ["No pair wan \"run away\" togeda", "E dey based on both sides preferences", "E dey honestly detect impossible cases"],
+        "cons": ["Stable pairing no dey always exist", "E need even number", "To rank everybody fit take time"]
+      }
+    }
+  },
   "MyPolls": {
     "title": "My votes",
     "subtitle": "Votes wey you create for dis device, plus di ones wey dey linked to your account.",

@@ -312,6 +312,73 @@ export function stableRoommates(prefs: readonly (readonly number[])[]): number[]
   return partner;
 }
 
+/**
+ * Appariement de repli « tour de choix » : dans l'ordre donné, la première
+ * personne non appariée forme un binôme avec sa préférence restante. Toujours
+ * un résultat (effectif pair) ; exact et annonçable, mais le choisi n'a pas
+ * son mot à dire — c'est le repli quand aucun appariement stable n'existe.
+ */
+export function serialPairing(prefs: readonly (readonly number[])[], order: readonly number[]): number[] {
+  const n = prefs.length;
+  const partner = Array<number>(n).fill(-1);
+  const lists = prefs.map((p, x) => {
+    const seen = new Set<number>([x]);
+    const out: number[] = [];
+    for (const y of p ?? []) {
+      if (Number.isInteger(y) && y >= 0 && y < n && !seen.has(y)) {
+        seen.add(y);
+        out.push(y);
+      }
+    }
+    for (let y = 0; y < n; y++) if (!seen.has(y)) out.push(y);
+    return out;
+  });
+  for (const x of order) {
+    if (x < 0 || x >= n || partner[x] !== -1) continue;
+    const pick = lists[x].find((y) => partner[y] === -1);
+    if (pick !== undefined) {
+      partner[x] = pick;
+      partner[pick] = x;
+    }
+  }
+  return partner;
+}
+
+/* ------------------------------------------------------------------ */
+/* Aléa transparent : ordre semé par une chaîne (jeton du scrutin)     */
+/* ------------------------------------------------------------------ */
+
+/** Hachage FNV-1a 32 bits d'une chaîne → graine entière. */
+export function seedFromString(s: string): number {
+  let h = 0x811c9dc5;
+  for (let i = 0; i < s.length; i++) {
+    h ^= s.charCodeAt(i);
+    h = Math.imul(h, 0x01000193);
+  }
+  return h >>> 0;
+}
+
+/**
+ * Ordre de passage 0..n-1 mélangé (Fisher-Yates + mulberry32) à partir d'une
+ * graine textuelle — le jeton du scrutin. Même jeton → même ordre : chacun
+ * peut vérifier le tirage, personne ne peut le choisir.
+ */
+export function seededOrder(n: number, seed: string): number[] {
+  let s = seedFromString(seed) | 0;
+  const rnd = () => {
+    s = (s + 0x6d2b79f5) | 0;
+    let t = Math.imul(s ^ (s >>> 15), 1 | s);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+  const a = Array.from({ length: n }, (_, i) => i);
+  for (let i = n - 1; i > 0; i--) {
+    const j = Math.floor(rnd() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
 /* ------------------------------------------------------------------ */
 /* Vérificateurs (utilisés par les tests et la narration de résultat)  */
 /* ------------------------------------------------------------------ */

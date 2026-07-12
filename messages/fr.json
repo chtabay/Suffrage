@@ -254,6 +254,60 @@
     "cons": "✕ INCONVÉNIENTS",
     "launchWithMethod": "Lancer un vote avec cette méthode →"
   },
+  "Assign": {
+    "kindChip": "🧩 affectation",
+    "kindHint": "Attribuer des choses (bureaux, tâches…) ou former des binômes, selon les préférences de chacun.",
+    "methodTitle": "La méthode d'affectation",
+    "methodSubtitle": "Comment attribue-t-on ? Aucune méthode n'est neutre — chacune a ses biais.",
+    "objectsHeading": "LES CHOSES À ATTRIBUER",
+    "objectsHint": "Une par ligne : bureaux, tâches, chambres, créneaux…",
+    "participantsTitle": "Les participants",
+    "participantsHint": "Un nom par ligne. Chacun reçoit un lien personnel pour classer ses préférences — une affectation est nominative.",
+    "needParticipants": "Ajoutez au moins 2 participants (un nom par ligne).",
+    "needObjects": "Ajoutez au moins 2 choses à attribuer.",
+    "oddWarning": "Effectif impair ({count}) : les binômes exigent un nombre pair. Ajoutez ou retirez une personne.",
+    "dupWarning": "Des noms sont en double — chaque participant doit avoir un nom unique.",
+    "fewObjects": "{missing, plural, one {# personne restera sans attribution} other {# personnes resteront sans attribution}} (moins de choses que de participants).",
+    "instructionAssign": "Classez toutes les options par ordre de préférence — le classement complet sert au calcul.",
+    "instructionPairs": "Classez vos partenaires potentiels par ordre de préférence — le classement complet sert au calcul.",
+    "resultsAtClose": "Le résultat sera calculé et publié à la clôture.",
+    "resultTitle": "Résultat de l'affectation",
+    "pairsTitle": "Les binômes",
+    "orderNote": "Ordre de passage tiré au sort à partir du jeton du scrutin (vérifiable par tous) :",
+    "fallbackTitle": "Aucun appariement stable n'existe",
+    "fallbackText": "Avec ces classements, toute combinaison laisse deux personnes qui préféreraient être ensemble plutôt qu'avec leur binôme — c'est un paradoxe réel de la méthode, pas un bug. Repli annoncé : tour de choix dans un ordre tiré au sort, chacun forme à son tour un binôme avec sa préférence restante.",
+    "notVoted": "n'a pas classé (préférences par ordre de liste)",
+    "unassigned": "sans attribution",
+    "gotRank": "choix n°{n}",
+    "withPartner": "avec",
+    "transparencyNote": "À la clôture, les classements des participants deviennent visibles de tous les participants — c'est ce qui rend le calcul vérifiable.",
+    "methods": {
+      "serial_dictatorship": {
+        "name": "Tour de choix",
+        "tagline": "Chacun choisit à son tour, dans un ordre tiré au sort.",
+        "strength": "Simple et incontestable",
+        "how": "Un ordre de passage est tiré au sort — à partir du jeton du scrutin, donc vérifiable par tous. Chacun, à son tour, reçoit son préféré parmi ce qui reste.",
+        "pros": ["Impossible à manipuler : classer sincèrement est toujours le mieux", "Très simple à expliquer et à accepter", "Tirage vérifiable, pas de favoritisme possible"],
+        "cons": ["Les derniers de l'ordre héritent des restes", "La chance pèse lourd dans le résultat", "Ignore l'intensité des préférences"]
+      },
+      "optimal_sum": {
+        "name": "Satisfaction maximale",
+        "tagline": "L'attribution qui contente le plus de monde, calculée exactement.",
+        "strength": "Optimum collectif",
+        "how": "Chaque attribution « coûte » le rang qu'elle occupe dans le classement de la personne (1er choix = 0, 2e = 1…). L'algorithme hongrois trouve l'attribution au coût total minimal : la meilleure satisfaction d'ensemble, exactement.",
+        "pros": ["La meilleure satisfaction totale possible", "Aucun tirage au sort", "Résultat exact, pas approché"],
+        "cons": ["Peut sacrifier une personne pour le bien commun", "Classements tactiques possibles", "Moins intuitif à raconter"]
+      },
+      "stable_roommates": {
+        "name": "Binômes stables",
+        "tagline": "Des paires que personne n'a intérêt à quitter.",
+        "strength": "Paires solides",
+        "how": "Chacun classe les autres participants. L'algorithme d'Irving cherche des binômes stables : aucune paire ne se préfèrerait mutuellement à ses binômes actuels. Il peut prouver qu'aucun appariement stable n'existe — le repli est alors annoncé : tour de choix dans un ordre tiré au sort.",
+        "pros": ["Aucune paire n'a envie de « fuguer »", "Fondé sur les préférences des deux côtés", "Détecte honnêtement les cas impossibles"],
+        "cons": ["Un appariement stable n'existe pas toujours", "Exige un effectif pair", "Classer tout le monde peut être long"]
+      }
+    }
+  },
   "MyPolls": {
     "title": "Mes scrutins",
     "subtitle": "Les scrutins créés sur cet appareil, plus ceux rattachés à ton compte.",

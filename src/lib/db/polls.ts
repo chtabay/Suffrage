@@ -245,6 +245,25 @@ export async function castInvitedBallot(voterToken: string, b: Ballot, note?: Ba
 }
 
 /**
+ * Données d'une affectation close : votants + classements (RPC publique par
+ * token, ne renvoie des lignes que pour un scrutin d'affectation CLOS — les
+ * classements deviennent alors visibles des participants, c'est ce qui rend
+ * le calcul vérifiable).
+ */
+export async function getAssignData(
+  token: string,
+): Promise<{ label: string; ranking: number[] | null; voted: boolean }[]> {
+  const supabase = createClient();
+  const { data, error } = await supabase.rpc("get_assign_data", { p_token: token });
+  if (error) throw error;
+  return ((data ?? []) as { label: string; ranking: number[] | null; voted: boolean }[]).map((r) => ({
+    label: r.label,
+    ranking: Array.isArray(r.ranking) ? r.ranking : null,
+    voted: Boolean(r.voted),
+  }));
+}
+
+/**
  * Rattache au compte connecté les scrutins anonymes créés sur cet appareil,
  * en présentant leur secret d'admin. Renvoie le nombre réclamé.
  */

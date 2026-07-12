@@ -254,6 +254,60 @@
     "cons": "✕ CONS",
     "launchWithMethod": "Start a vote with this method →"
   },
+  "Assign": {
+    "kindChip": "🧩 assignment",
+    "kindHint": "Allocate things (offices, tasks…) or form pairs, based on everyone's preferences.",
+    "methodTitle": "The assignment method",
+    "methodSubtitle": "How do we allocate? No method is neutral — each has its biases.",
+    "objectsHeading": "THE THINGS TO ALLOCATE",
+    "objectsHint": "One per line: offices, tasks, rooms, slots…",
+    "participantsTitle": "The participants",
+    "participantsHint": "One name per line. Each gets a personal link to rank their preferences — an assignment is nominative.",
+    "needParticipants": "Add at least 2 participants (one name per line).",
+    "needObjects": "Add at least 2 things to allocate.",
+    "oddWarning": "Odd count ({count}): pairs require an even number. Add or remove one person.",
+    "dupWarning": "Duplicate names — every participant needs a unique name.",
+    "fewObjects": "{missing, plural, one {# person will get nothing} other {# people will get nothing}} (fewer things than participants).",
+    "instructionAssign": "Rank all the options in order of preference — the full ranking feeds the computation.",
+    "instructionPairs": "Rank your potential partners in order of preference — the full ranking feeds the computation.",
+    "resultsAtClose": "The result will be computed and published at closing.",
+    "resultTitle": "Assignment result",
+    "pairsTitle": "The pairs",
+    "orderNote": "Turn order drawn from the poll token (verifiable by everyone):",
+    "fallbackTitle": "No stable pairing exists",
+    "fallbackText": "With these rankings, every combination leaves two people who would rather be together than with their assigned partners — a real paradox of the method, not a bug. Announced fallback: picking rounds in a drawn order, each person in turn pairs with their remaining preference.",
+    "notVoted": "didn't rank (preferences by list order)",
+    "unassigned": "nothing allocated",
+    "gotRank": "choice #{n}",
+    "withPartner": "with",
+    "transparencyNote": "At closing, participants' rankings become visible to all participants — that's what makes the computation verifiable.",
+    "methods": {
+      "serial_dictatorship": {
+        "name": "Picking rounds",
+        "tagline": "Everyone picks in turn, in a drawn order.",
+        "strength": "Simple and beyond dispute",
+        "how": "A turn order is drawn — from the poll token, so anyone can verify it. Each person, in turn, receives their favourite among what's left.",
+        "pros": ["Impossible to game: ranking sincerely is always best", "Very easy to explain and accept", "Verifiable draw, no favouritism possible"],
+        "cons": ["The last in line inherit the leftovers", "Luck weighs heavily on the outcome", "Ignores preference intensity"]
+      },
+      "optimal_sum": {
+        "name": "Maximum satisfaction",
+        "tagline": "The allocation that pleases the most people, computed exactly.",
+        "strength": "Collective optimum",
+        "how": "Each allocation \"costs\" the rank it holds in the person's list (1st choice = 0, 2nd = 1…). The Hungarian algorithm finds the allocation with the minimal total cost: the best overall satisfaction, exactly.",
+        "pros": ["The best possible total satisfaction", "No draw involved", "Exact result, not approximate"],
+        "cons": ["Can sacrifice one person for the common good", "Tactical rankings are possible", "Less intuitive to explain"]
+      },
+      "stable_roommates": {
+        "name": "Stable pairs",
+        "tagline": "Pairs nobody has an interest in leaving.",
+        "strength": "Solid pairs",
+        "how": "Everyone ranks the other participants. Irving's algorithm looks for stable pairs: no two people would mutually prefer each other over their assigned partners. It can prove that no stable pairing exists — the fallback is then announced: picking rounds in a drawn order.",
+        "pros": ["No pair wants to \"run off\" together", "Based on both sides' preferences", "Honestly detects impossible cases"],
+        "cons": ["A stable pairing doesn't always exist", "Requires an even count", "Ranking everyone can take a while"]
+      }
+    }
+  },
   "MyPolls": {
     "title": "My polls",
     "subtitle": "Polls created on this device, plus those linked to your account.",

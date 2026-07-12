@@ -26,6 +26,8 @@ interface Props {
   onRank: (i: number) => void;
   onResetRank: () => void;
   onGrade: (i: number, gi: number) => void;
+  /** Indices d'options à ne pas présenter (ex. soi-même dans une affectation en binômes). */
+  hidden?: number[];
 }
 
 /** Contenu d'un bulletin (4 modes), sans la carte ni le bouton de validation. */
@@ -39,6 +41,7 @@ export default function BallotCard({
   onRank,
   onResetRank,
   onGrade,
+  hidden,
 }: Props) {
   const t = useTranslations("Vote");
   const optionRow = (i: number, children: React.ReactNode, onClick: () => void, bg: string) => (
@@ -199,6 +202,7 @@ export default function BallotCard({
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: 9 }}>
           {opts.map((o, i) => {
+            if (hidden?.includes(i)) return null;
             const pos = draft.rank.indexOf(i);
             return optionRow(
               i,

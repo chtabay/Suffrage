@@ -254,6 +254,60 @@
     "cons": "✕ INCONVENIENTES",
     "launchWithMethod": "Lanzar una votación con este método →"
   },
+  "Assign": {
+    "kindChip": "🧩 asignación",
+    "kindHint": "Repartir cosas (despachos, tareas…) o formar parejas, según las preferencias de cada uno.",
+    "methodTitle": "El método de asignación",
+    "methodSubtitle": "¿Cómo se reparte? Ningún método es neutro — cada uno tiene sus sesgos.",
+    "objectsHeading": "LAS COSAS A REPARTIR",
+    "objectsHint": "Una por línea: despachos, tareas, habitaciones, turnos…",
+    "participantsTitle": "Los participantes",
+    "participantsHint": "Un nombre por línea. Cada uno recibe un enlace personal para clasificar sus preferencias — una asignación es nominativa.",
+    "needParticipants": "Añade al menos 2 participantes (un nombre por línea).",
+    "needObjects": "Añade al menos 2 cosas a repartir.",
+    "oddWarning": "Número impar ({count}): las parejas exigen un número par. Añade o quita una persona.",
+    "dupWarning": "Hay nombres duplicados — cada participante necesita un nombre único.",
+    "fewObjects": "{missing, plural, one {# persona se quedará sin nada} other {# personas se quedarán sin nada}} (menos cosas que participantes).",
+    "instructionAssign": "Clasifica todas las opciones por orden de preferencia — la clasificación completa alimenta el cálculo.",
+    "instructionPairs": "Clasifica a tus posibles parejas por orden de preferencia — la clasificación completa alimenta el cálculo.",
+    "resultsAtClose": "El resultado se calculará y publicará al cierre.",
+    "resultTitle": "Resultado de la asignación",
+    "pairsTitle": "Las parejas",
+    "orderNote": "Orden de paso sorteado a partir del token de la votación (verificable por todos):",
+    "fallbackTitle": "No existe ningún emparejamiento estable",
+    "fallbackText": "Con estas clasificaciones, toda combinación deja a dos personas que preferirían estar juntas antes que con sus parejas asignadas — es una paradoja real del método, no un error. Alternativa anunciada: turnos de elección en un orden sorteado, cada uno forma pareja con su preferencia restante.",
+    "notVoted": "no clasificó (preferencias por orden de lista)",
+    "unassigned": "sin asignación",
+    "gotRank": "opción n.º {n}",
+    "withPartner": "con",
+    "transparencyNote": "Al cierre, las clasificaciones de los participantes se hacen visibles para todos los participantes — eso es lo que hace verificable el cálculo.",
+    "methods": {
+      "serial_dictatorship": {
+        "name": "Turnos de elección",
+        "tagline": "Cada uno elige por turno, en un orden sorteado.",
+        "strength": "Simple e indiscutible",
+        "how": "Se sortea un orden de paso — a partir del token de la votación, así que cualquiera puede verificarlo. Cada persona, en su turno, recibe su favorito entre lo que queda.",
+        "pros": ["Imposible de manipular: clasificar con sinceridad siempre es lo mejor", "Muy fácil de explicar y aceptar", "Sorteo verificable, sin favoritismos posibles"],
+        "cons": ["Los últimos del orden heredan las sobras", "La suerte pesa mucho en el resultado", "Ignora la intensidad de las preferencias"]
+      },
+      "optimal_sum": {
+        "name": "Satisfacción máxima",
+        "tagline": "El reparto que contenta a más gente, calculado con exactitud.",
+        "strength": "Óptimo colectivo",
+        "how": "Cada asignación «cuesta» el puesto que ocupa en la clasificación de la persona (1.ª opción = 0, 2.ª = 1…). El algoritmo húngaro encuentra el reparto con el coste total mínimo: la mejor satisfacción de conjunto, exactamente.",
+        "pros": ["La mejor satisfacción total posible", "Sin ningún sorteo", "Resultado exacto, no aproximado"],
+        "cons": ["Puede sacrificar a una persona por el bien común", "Clasificaciones tácticas posibles", "Menos intuitivo de contar"]
+      },
+      "stable_roommates": {
+        "name": "Parejas estables",
+        "tagline": "Parejas que nadie tiene interés en abandonar.",
+        "strength": "Parejas sólidas",
+        "how": "Cada uno clasifica a los demás participantes. El algoritmo de Irving busca parejas estables: ningún par de personas se preferiría mutuamente antes que a sus parejas asignadas. Puede demostrar que no existe ningún emparejamiento estable — entonces se anuncia la alternativa: turnos de elección en un orden sorteado.",
+        "pros": ["Ninguna pareja quiere «fugarse» junta", "Basado en las preferencias de ambos lados", "Detecta honestamente los casos imposibles"],
+        "cons": ["No siempre existe un emparejamiento estable", "Exige un número par", "Clasificar a todos puede llevar tiempo"]
+      }
+    }
+  },
   "MyPolls": {
     "title": "Mis votaciones",
     "subtitle": "Las votaciones creadas en este dispositivo, más las vinculadas a tu cuenta.",

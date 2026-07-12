@@ -11,6 +11,8 @@ import {
   topTradingCycles,
   galeShapley,
   stableRoommates,
+  serialPairing,
+  seededOrder,
   findBlockingPairMarriage,
   findBlockingPairRoommates,
 } from "./engine";
@@ -324,4 +326,42 @@ test("stableRoommates : exemple à 6 d'Irving (résolu)", () => {
 
 test("stableRoommates : effectif impair → null", () => {
   assert.equal(stableRoommates([[1, 2], [0, 2], [0, 1]]), null);
+});
+
+/* ---------- repli « tour de choix » + ordre semé ---------- */
+
+test("serialPairing : involution complète, le premier de l'ordre a son 1er choix", () => {
+  for (let seed = 1; seed <= 40; seed++) {
+    const rnd = mulberry32(6000 + seed);
+    const n = 2 * (1 + Math.floor(rnd() * 4)); // 2..8 pair
+    const prefs = randomRoommatePrefs(n, rnd);
+    const order = shuffled(n, rnd);
+    const got = serialPairing(prefs, order);
+    for (let x = 0; x < n; x++) {
+      assert.notEqual(got[x], -1, `seed ${seed} : tout le monde apparié`);
+      assert.notEqual(got[x], x);
+      assert.equal(got[got[x]], x);
+    }
+    assert.equal(got[order[0]], prefs[order[0]][0], `seed ${seed} : le premier prend son préféré`);
+  }
+});
+
+test("serialPairing : donne un résultat sur l'instance sans appariement stable", () => {
+  const prefs = [
+    [1, 2, 3],
+    [2, 0, 3],
+    [0, 1, 3],
+    [0, 1, 2],
+  ];
+  const got = serialPairing(prefs, [0, 1, 2, 3]);
+  for (let x = 0; x < 4; x++) assert.equal(got[got[x]], x);
+});
+
+test("seededOrder : déterministe pour un même jeton, permutation valide", () => {
+  const a = seededOrder(7, "abc123def456");
+  const b = seededOrder(7, "abc123def456");
+  const c = seededOrder(7, "autre-jeton");
+  assert.deepEqual(a, b);
+  assert.notDeepEqual(a, c); // très improbable d'être égal
+  assert.deepEqual([...a].sort((x, y) => x - y), [0, 1, 2, 3, 4, 5, 6]);
 });
