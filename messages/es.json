@@ -1,9 +1,9 @@
 {
   "Nav": {
     "spaces": "Espacios",
-    "myPolls": "Mis votaciones",
+    "myPolls": "Mis decisiones",
     "methods": "Los métodos",
-    "create": "Crear una votación",
+    "create": "Crear",
     "signIn": "Iniciar sesión",
     "signOut": "Cerrar sesión"
   },
@@ -60,6 +60,7 @@
   },
   "Create": {
     "pageTitle": "Configura tu votación",
+    "pageTitleAssign": "Configura tu asignación",
     "questionTitle": "La pregunta",
     "questionPlaceholder": "Ej.: ¿Adónde vamos este fin de semana?",
     "descriptionPlaceholder": "Contexto (opcional) — ej.: cumple de Marie, presupuesto 25 €/persona, mejor en el centro",
@@ -268,7 +269,9 @@
     "subtitle": "Ningún método es perfecto — cada uno tiene su lógica, sus fortalezas y sus trampas. Haz clic en una ficha para entenderlo todo.",
     "pros": "✓ VENTAJAS",
     "cons": "✕ INCONVENIENTES",
-    "launchWithMethod": "Lanzar una votación con este método →"
+    "launchWithMethod": "Lanzar una votación con este método →",
+    "assignTitle": "Los métodos de asignación",
+    "launchAssign": "Lanzar una asignación con este método →"
   },
   "Assign": {
     "kindChip": "🧩 asignación",
@@ -349,15 +352,15 @@
     }
   },
   "MyPolls": {
-    "title": "Mis votaciones",
-    "subtitle": "Las votaciones creadas en este dispositivo, más las vinculadas a tu cuenta.",
+    "title": "Mis decisiones",
+    "subtitle": "Las votaciones y asignaciones creadas en este dispositivo, más las vinculadas a tu cuenta.",
     "connectedPrefix": "✓ Conectado",
     "connectedSuffix": " — tus votaciones te siguen a todas partes.",
     "notifyActivity": "🔔 Avisarme de la actividad de mis votaciones",
     "signInHint": "💡 Inicia sesión para recuperar tus votaciones en todos tus dispositivos.",
     "signInGoogle": "Iniciar sesión con Google",
-    "empty": "Aún no hay votaciones.",
-    "createPoll": "Crear una votación →",
+    "empty": "Aún no hay decisiones.",
+    "createPoll": "Crear →",
     "cloudAccount": "☁︎ cuenta",
     "removeFromDevice": "Quitar de este dispositivo",
     "openResults": "Abrir / resultados →",
@@ -372,10 +375,10 @@
     "voteLinkLabel": "ENLACE DE VOTO (para compartir)",
     "adminLinkLabel": "🔑 ENLACE DE GESTIÓN (privado)",
     "adminLinkHint": "Guárdalo para administrar esta votación desde cualquier dispositivo. No lo compartas.",
-    "savedNotice": "✓ Guardado en « Mis votaciones » en este dispositivo.",
+    "savedNotice": "✓ Guardado en « Mis decisiones » en este dispositivo.",
     "voterLinksLabel": "🎟️ ENLACES NOMINATIVOS — {count} {count, plural, one {votante} other {votantes}} (uno por persona)",
     "openVotePage": "Abrir la página de voto →",
-    "myPolls": "Mis votaciones",
+    "myPolls": "Mis decisiones",
     "createAnother": "← Crear otra"
   },
   "AiHelper": {
@@ -771,8 +774,8 @@
     "privacyNote": "Tu email solo se usa para enviarte tu enlace de voto personal."
   },
   "Meta": {
-    "title": "Placet — Vota de verdad como debe ser",
-    "description": "Diseña tu modo de votación (mayoritario, dos vueltas, Condorcet, juicio mayoritario, grandes electores…), compara ventajas e inconvenientes, y luego recuenta de verdad."
+    "title": "Placet — Vota bien, decide mejor",
+    "description": "Votaciones y asignaciones con métodos de verdad — mayoritario, Condorcet, juicio mayoritario, turnos de elección, parejas estables, estilo Parcoursup… Compara los sesgos y luego cuenta de verdad."
   },
   "Share": {
     "qrScan": "Escanea este código QR para abrir la votación en otro teléfono.",
@@ -780,7 +783,7 @@
     "qrEnlarge": "Haz clic para ampliar",
     "qrClose": "Toca la pantalla para cerrar",
     "fallbackTitle": "Placet — votación",
-    "fallbackQuestion": "Vota de verdad como debe ser",
+    "fallbackQuestion": "Vota bien, decide mejor",
     "methodFallback": "Votación",
     "statusClosed": "🔒 Cerrada",
     "statusScheduled": "⏳ Próxima",

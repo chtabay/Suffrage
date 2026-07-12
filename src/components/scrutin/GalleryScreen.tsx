@@ -2,13 +2,20 @@
 
 import { useTranslations } from "next-intl";
 import { SYSTEMS, SYSTEM_ORDER } from "@/lib/voting/systems";
+import { ASSIGN_METHODS, ASSIGN_METHOD_KEYS, type AssignMethodKey } from "@/lib/assign/methods";
 import type { ScrutinController } from "@/lib/voting/useScrutin";
 import { FONT_DISPLAY, GREENTXT, INK, REDTXT, SUBINK } from "./theme";
 
 export default function GalleryScreen({ ctrl }: { ctrl: ScrutinController }) {
-  const { selectSystemRecipe } = ctrl;
+  const { selectSystemRecipe, setOptionKind, setAssignMethod, go } = ctrl;
   const t = useTranslations("Gallery");
   const tm = useTranslations("Methods");
+  const ta = useTranslations("Assign");
+  const startAssign = (key: AssignMethodKey) => {
+    setOptionKind("assign");
+    setAssignMethod(key);
+    go("create");
+  };
   return (
     <div className="pad" style={{ maxWidth: 1120, margin: "0 auto", padding: "48px 24px 90px" }}>
       <h1
@@ -175,6 +182,134 @@ export default function GalleryScreen({ ctrl }: { ctrl: ScrutinController }) {
                   }}
                 >
                   {t("launchWithMethod")}
+                </button>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Second pilier : les méthodes d'affectation — même pédagogie des biais. */}
+      <h2
+        style={{
+          fontFamily: FONT_DISPLAY,
+          fontWeight: 800,
+          fontSize: "clamp(26px,4vw,38px)",
+          letterSpacing: "-0.03em",
+          margin: "56px 0 0",
+        }}
+      >
+        🧩 {t("assignTitle")}
+      </h2>
+      <p style={{ fontSize: 17, color: SUBINK, maxWidth: "60ch", margin: "12px 0 0", lineHeight: 1.5 }}>
+        {ta("methodSubtitle")}
+      </p>
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fill,minmax(min(100%,290px),1fr))",
+          gap: 20,
+          marginTop: 28,
+        }}
+      >
+        {ASSIGN_METHOD_KEYS.map((key) => {
+          const def = ASSIGN_METHODS[key];
+          return (
+            <div
+              key={key}
+              style={{
+                background: "#fff",
+                border: `2.5px solid ${INK}`,
+                borderRadius: 20,
+                overflow: "hidden",
+                boxShadow: `5px 5px 0 ${def.color}`,
+                display: "flex",
+                flexDirection: "column",
+              }}
+            >
+              <div
+                style={{
+                  background: def.color,
+                  padding: "18px 20px",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 13,
+                  borderBottom: `2.5px solid ${INK}`,
+                }}
+              >
+                <div
+                  style={{
+                    width: 48,
+                    height: 48,
+                    borderRadius: 13,
+                    border: `2.5px solid ${INK}`,
+                    background: "#fff",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontSize: 25,
+                  }}
+                >
+                  {def.icon}
+                </div>
+                <div>
+                  <div
+                    style={{
+                      fontFamily: FONT_DISPLAY,
+                      fontWeight: 800,
+                      fontSize: 20,
+                      color: "#fff",
+                      lineHeight: 1.05,
+                      textShadow: "1.5px 1.5px 0 rgba(0,0,0,0.25)",
+                    }}
+                  >
+                    {ta(`methods.${key}.name`)}
+                  </div>
+                  <div style={{ fontSize: 12.5, fontWeight: 600, color: "rgba(255,255,255,0.92)", marginTop: 2 }}>
+                    {ta(`methods.${key}.tagline`)}
+                  </div>
+                </div>
+              </div>
+              <div style={{ padding: "18px 20px", flex: 1, display: "flex", flexDirection: "column" }}>
+                <div style={{ fontSize: 14.5, lineHeight: 1.5, color: "#2c3447" }}>{ta(`methods.${key}.how`)}</div>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginTop: 16 }}>
+                  <div>
+                    <div style={{ fontWeight: 700, fontSize: 12, color: GREENTXT, marginBottom: 7 }}>{t("pros")}</div>
+                    {(ta.raw(`methods.${key}.pros`) as string[]).map((p, i) => (
+                      <div key={i} style={{ fontSize: 12.8, lineHeight: 1.4, color: "#2c3447", marginBottom: 6, paddingLeft: 13, position: "relative" }}>
+                        <span style={{ position: "absolute", left: 0, color: GREENTXT }}>+</span>
+                        {p}
+                      </div>
+                    ))}
+                  </div>
+                  <div>
+                    <div style={{ fontWeight: 700, fontSize: 12, color: REDTXT, marginBottom: 7 }}>{t("cons")}</div>
+                    {(ta.raw(`methods.${key}.cons`) as string[]).map((c, i) => (
+                      <div key={i} style={{ fontSize: 12.8, lineHeight: 1.4, color: "#2c3447", marginBottom: 6, paddingLeft: 13, position: "relative" }}>
+                        <span style={{ position: "absolute", left: 0, color: REDTXT }}>−</span>
+                        {c}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <button
+                  onClick={() => startAssign(key)}
+                  className="dc-bright"
+                  style={{
+                    marginTop: "auto",
+                    fontFamily: FONT_DISPLAY,
+                    fontWeight: 700,
+                    fontSize: 14.5,
+                    cursor: "pointer",
+                    border: `2.5px solid ${INK}`,
+                    background: def.color,
+                    color: "#fff",
+                    padding: 11,
+                    borderRadius: 11,
+                    width: "100%",
+                  }}
+                >
+                  {t("launchAssign")}
                 </button>
               </div>
             </div>

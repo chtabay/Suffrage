@@ -367,7 +367,7 @@ export default function CreateScreen({ ctrl }: { ctrl: ScrutinController }) {
           margin: "10px 0 0",
         }}
       >
-        {t("pageTitle")}
+        {isAssign ? t("pageTitleAssign") : t("pageTitle")}
       </h1>
       <PrefillPanel ctrl={ctrl} />
 

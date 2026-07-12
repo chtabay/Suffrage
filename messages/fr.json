@@ -1,9 +1,9 @@
 {
   "Nav": {
     "spaces": "Espaces",
-    "myPolls": "Mes scrutins",
+    "myPolls": "Mes décisions",
     "methods": "Les méthodes",
-    "create": "Créer un vote",
+    "create": "Créer",
     "signIn": "Se connecter",
     "signOut": "Déconnexion"
   },
@@ -60,6 +60,7 @@
   },
   "Create": {
     "pageTitle": "Réglez votre scrutin",
+    "pageTitleAssign": "Réglez votre affectation",
     "questionTitle": "La question",
     "questionPlaceholder": "Ex : On part où en week-end ?",
     "descriptionPlaceholder": "Contexte (facultatif) — ex : anniv de Marie, budget 25 €/pers, plutôt centre-ville",
@@ -268,7 +269,9 @@
     "subtitle": "Aucune méthode n'est parfaite — chacune a sa logique, ses forces et ses pièges. Cliquez sur une fiche pour tout comprendre.",
     "pros": "✓ AVANTAGES",
     "cons": "✕ INCONVÉNIENTS",
-    "launchWithMethod": "Lancer un vote avec cette méthode →"
+    "launchWithMethod": "Lancer un vote avec cette méthode →",
+    "assignTitle": "Les méthodes d'affectation",
+    "launchAssign": "Lancer une affectation avec cette méthode →"
   },
   "Assign": {
     "kindChip": "🧩 affectation",
@@ -349,15 +352,15 @@
     }
   },
   "MyPolls": {
-    "title": "Mes scrutins",
-    "subtitle": "Les scrutins créés sur cet appareil, plus ceux rattachés à ton compte.",
+    "title": "Mes décisions",
+    "subtitle": "Les votes et affectations créés sur cet appareil, plus ceux rattachés à ton compte.",
     "connectedPrefix": "✓ Connecté",
     "connectedSuffix": " — tes scrutins te suivent partout.",
     "notifyActivity": "🔔 M'avertir de l'activité de mes scrutins",
     "signInHint": "💡 Connecte-toi pour retrouver tes scrutins sur tous tes appareils.",
     "signInGoogle": "Se connecter avec Google",
-    "empty": "Aucun scrutin pour le moment.",
-    "createPoll": "Créer un scrutin →",
+    "empty": "Aucune décision pour le moment.",
+    "createPoll": "Créer →",
     "cloudAccount": "☁︎ compte",
     "removeFromDevice": "Retirer de cet appareil",
     "openResults": "Ouvrir / résultats →",
@@ -372,10 +375,10 @@
     "voteLinkLabel": "LIEN DE VOTE (à partager)",
     "adminLinkLabel": "🔑 LIEN DE GESTION (privé)",
     "adminLinkHint": "Gardez-le pour administrer ce scrutin depuis n'importe quel appareil. Ne le partagez pas.",
-    "savedNotice": "✓ Enregistré dans « Mes scrutins » sur cet appareil.",
+    "savedNotice": "✓ Enregistré dans « Mes décisions » sur cet appareil.",
     "voterLinksLabel": "🎟️ LIENS NOMINATIFS — {count} {count, plural, one {votant} other {votants}} (un par personne)",
     "openVotePage": "Ouvrir la page de vote →",
-    "myPolls": "Mes scrutins",
+    "myPolls": "Mes décisions",
     "createAnother": "← Créer un autre"
   },
   "AiHelper": {
@@ -771,8 +774,8 @@
     "privacyNote": "Votre email sert uniquement à vous envoyer votre lien de vote personnel."
   },
   "Meta": {
-    "title": "Placet — Votez vraiment comme il faut",
-    "description": "Concevez votre mode de scrutin (majoritaire, deux tours, Condorcet, jugement majoritaire, grands électeurs…), comparez avantages et inconvénients, puis dépouillez pour de vrai."
+    "title": "Placet — Votez juste, décidez mieux",
+    "description": "Votes et affectations avec de vraies méthodes — majoritaire, Condorcet, jugement majoritaire, tour de choix, binômes stables, façon Parcoursup… Comparez les biais, puis comptez pour de vrai."
   },
   "Share": {
     "qrScan": "Scannez ce QR code pour ouvrir le vote sur un autre téléphone.",
@@ -780,7 +783,7 @@
     "qrEnlarge": "Cliquez pour agrandir",
     "qrClose": "Touchez l'écran pour fermer",
     "fallbackTitle": "Placet — vote",
-    "fallbackQuestion": "Votez vraiment comme il faut",
+    "fallbackQuestion": "Votez juste, décidez mieux",
     "methodFallback": "Scrutin",
     "statusClosed": "🔒 Vote clos",
     "statusScheduled": "⏳ À venir",

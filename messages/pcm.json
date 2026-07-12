@@ -1,9 +1,9 @@
 {
   "Nav": {
     "spaces": "Spaces",
-    "myPolls": "My votes",
+    "myPolls": "My decisions",
     "methods": "Methods",
-    "create": "Create vote",
+    "create": "Create",
     "signIn": "Sign in",
     "signOut": "Sign out"
   },
@@ -60,6 +60,7 @@
   },
   "Create": {
     "pageTitle": "Set up your vote",
+    "pageTitleAssign": "Set up your assignment",
     "questionTitle": "Di question",
     "questionPlaceholder": "E.g. Where we go go dis weekend?",
     "descriptionPlaceholder": "Context (optional) — e.g. Marie birthday, ₦25 per person budget, betta if e dey town",
@@ -268,7 +269,9 @@
     "subtitle": "No method perfect — each one get im own logic, strength and trap. Click any card to understand am well.",
     "pros": "✓ GOOD SIDE",
     "cons": "✕ BAD SIDE",
-    "launchWithMethod": "Start vote with dis method →"
+    "launchWithMethod": "Start vote with dis method →",
+    "assignTitle": "Assignment methods",
+    "launchAssign": "Start assignment with dis method →"
   },
   "Assign": {
     "kindChip": "🧩 assignment",
@@ -349,15 +352,15 @@
     }
   },
   "MyPolls": {
-    "title": "My votes",
-    "subtitle": "Votes wey you create for dis device, plus di ones wey dey linked to your account.",
+    "title": "My decisions",
+    "subtitle": "Votes and assignments wey you create for dis device, plus di ones wey dey linked to your account.",
     "connectedPrefix": "✓ You don sign in",
     "connectedSuffix": " — your votes go follow you everywhere.",
     "notifyActivity": "🔔 Notify me when anything happen for my votes",
     "signInHint": "💡 Sign in to find your votes for all your devices.",
     "signInGoogle": "Sign in with Google",
-    "empty": "No vote yet.",
-    "createPoll": "Create vote →",
+    "empty": "No decision yet.",
+    "createPoll": "Create →",
     "cloudAccount": "☁︎ account",
     "removeFromDevice": "Remove from dis device",
     "openResults": "Open / result →",
@@ -372,10 +375,10 @@
     "voteLinkLabel": "VOTE LINK (to share)",
     "adminLinkLabel": "🔑 MANAGEMENT LINK (private)",
     "adminLinkHint": "Keep am to manage dis vote from any device. No share am.",
-    "savedNotice": "✓ We don save am for \"My votes\" on dis device.",
+    "savedNotice": "✓ We don save am for \"My decisions\" on dis device.",
     "voterLinksLabel": "🎟️ NAMED LINKS — {count} {count, plural, one {voter} other {voters}} (one per person)",
     "openVotePage": "Open di vote page →",
-    "myPolls": "My votes",
+    "myPolls": "My decisions",
     "createAnother": "← Create anoda one"
   },
   "AiHelper": {
@@ -772,7 +775,7 @@
   },
   "Meta": {
     "title": "Placet — Vote well, decide betta",
-    "description": "Design your voting method (first-past-the-post, two rounds, Condorcet, majority judgment, electoral college…), compare good and bad side, den count am for real."
+    "description": "Votes and assignments with real methods — majority, Condorcet, majority judgment, picking rounds, stable pairs, Parcoursup-style… Compare di biases, den count am for real."
   },
   "Share": {
     "qrScan": "Scan dis QR code to open di vote for anoda phone.",
