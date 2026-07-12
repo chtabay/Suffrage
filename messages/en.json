@@ -281,6 +281,9 @@
     "gotRank": "choice #{n}",
     "withPartner": "with",
     "transparencyNote": "At closing, participants' rankings become visible to all participants — that's what makes the computation verifiable.",
+    "ttcHint": "Starting endowment: the 1st person on the list owns the 1st thing, the 2nd the 2nd… Order both lists accordingly.",
+    "ttcCountWarning": "Trading circle: you need exactly as many things ({objects}) as participants ({count}).",
+    "owned": "owned",
     "methods": {
       "serial_dictatorship": {
         "name": "Picking rounds",
@@ -297,6 +300,14 @@
         "how": "Each allocation \"costs\" the rank it holds in the person's list (1st choice = 0, 2nd = 1…). The Hungarian algorithm finds the allocation with the minimal total cost: the best overall satisfaction, exactly.",
         "pros": ["The best possible total satisfaction", "No draw involved", "Exact result, not approximate"],
         "cons": ["Can sacrifice one person for the common good", "Tactical rankings are possible", "Less intuitive to explain"]
+      },
+      "top_trading_cycles": {
+        "name": "Trading circle",
+        "tagline": "Everyone already owns something; win-win swap cycles.",
+        "strength": "Nobody loses",
+        "how": "Everyone already owns one thing (the Nth person on the list owns the Nth thing) and ranks all the things. The algorithm runs swap cycles on the remaining favourites until done. Nobody ends up worse than what they started with.",
+        "pros": ["Nobody ends up worse than at the start", "Ranking sincerely is always best", "Every win-win trade gets made"],
+        "cons": ["Everyone needs a starting possession", "Exactly as many things as people", "The outcome depends heavily on endowments"]
       },
       "stable_roommates": {
         "name": "Stable pairs",

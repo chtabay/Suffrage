@@ -31,6 +31,8 @@ export interface Recipe {
    * passe par le moteur d'affectation, pas par compute().
    */
   assign?: string;
+  /** Affectation « bourse d'échanges » (TTC) : dotation de départ, label → index d'option. */
+  assignEndow?: Record<string, number>;
 }
 
 export interface Option {

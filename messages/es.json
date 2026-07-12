@@ -281,6 +281,9 @@
     "gotRank": "opción n.º {n}",
     "withPartner": "con",
     "transparencyNote": "Al cierre, las clasificaciones de los participantes se hacen visibles para todos los participantes — eso es lo que hace verificable el cálculo.",
+    "ttcHint": "Dotación inicial: la 1.ª persona de la lista posee la 1.ª cosa, la 2.ª la 2.ª… Ordena ambas listas en consecuencia.",
+    "ttcCountWarning": "Círculo de intercambios: hacen falta exactamente tantas cosas ({objects}) como participantes ({count}).",
+    "owned": "poseía",
     "methods": {
       "serial_dictatorship": {
         "name": "Turnos de elección",
@@ -297,6 +300,14 @@
         "how": "Cada asignación «cuesta» el puesto que ocupa en la clasificación de la persona (1.ª opción = 0, 2.ª = 1…). El algoritmo húngaro encuentra el reparto con el coste total mínimo: la mejor satisfacción de conjunto, exactamente.",
         "pros": ["La mejor satisfacción total posible", "Sin ningún sorteo", "Resultado exacto, no aproximado"],
         "cons": ["Puede sacrificar a una persona por el bien común", "Clasificaciones tácticas posibles", "Menos intuitivo de contar"]
+      },
+      "top_trading_cycles": {
+        "name": "Círculo de intercambios",
+        "tagline": "Cada uno ya posee algo; intercambios en ciclos donde todos ganan.",
+        "strength": "Nadie pierde",
+        "how": "Cada uno ya posee una cosa (la N-ésima persona de la lista posee la N-ésima cosa) y clasifica todas las cosas. El algoritmo organiza ciclos de intercambio sobre los favoritos restantes hasta terminar. Nadie acaba peor que con su posesión inicial.",
+        "pros": ["Nadie acaba peor que al principio", "Clasificar con sinceridad siempre es lo mejor", "Se realizan todos los intercambios donde todos ganan"],
+        "cons": ["Cada uno necesita una posesión inicial", "Exactamente tantas cosas como personas", "El resultado depende mucho de las dotaciones"]
       },
       "stable_roommates": {
         "name": "Parejas estables",

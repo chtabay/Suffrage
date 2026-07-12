@@ -281,6 +281,9 @@
     "gotRank": "choice #{n}",
     "withPartner": "with",
     "transparencyNote": "When e close, participants rankings go show for all participants — na wetin make di calculation fit verify.",
+    "ttcHint": "Starting property: di 1st person for di list own di 1st thing, di 2nd own di 2nd… Arrange di two lists like dat.",
+    "ttcCountWarning": "Trading circle: you need exactly as many things ({objects}) as participants ({count}).",
+    "owned": "bin own",
     "methods": {
       "serial_dictatorship": {
         "name": "Picking rounds",
@@ -297,6 +300,14 @@
         "how": "Each sharing \"cost\" di position wey e hold for di person ranking (1st choice = 0, 2nd = 1…). Di Hungarian algorithm go find di sharing with di smallest total cost: di best overall satisfaction, exact.",
         "pros": ["Di best total satisfaction wey possible", "No draw involved", "Exact result, no be approximate"],
         "cons": ["E fit sacrifice one person for common good", "Tactical rankings dey possible", "E no too easy to explain"]
+      },
+      "top_trading_cycles": {
+        "name": "Trading circle",
+        "tagline": "Everybody don already own something; win-win swap cycles.",
+        "strength": "Nobody dey lose",
+        "how": "Everybody don already own one thing (di Nth person for di list own di Nth thing) and rank all di things. Di algorithm go run swap cycles on di remaining favourites until e finish. Nobody go end up worse pass wetin dem start with.",
+        "pros": ["Nobody go end up worse pass di start", "Sincere ranking na always di best", "Every win-win trade go happen"],
+        "cons": ["Everybody need starting property", "Exactly as many things as people", "Di result depend well well on di starting property"]
       },
       "stable_roommates": {
         "name": "Stable pairs",

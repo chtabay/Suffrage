@@ -376,6 +376,17 @@ export function useScrutin(draft?: ScrutinDraft) {
         // Les « options » sont les participants eux-mêmes (chacun classe les autres).
         cleanOptions = participants.map((name) => ({ icon: "🧑", name }));
       }
+      if (assignDef.endowed) {
+        // Bourse d'échanges : la N-ième personne possède la N-ième chose.
+        if (new Set(participants).size !== participants.length) {
+          setState((p) => ({ ...p, error: "Chaque participant doit avoir un nom unique." }));
+          return;
+        }
+        if (participants.length !== cleanOptions.length) {
+          setState((p) => ({ ...p, error: "Il faut exactement autant de choses que de participants." }));
+          return;
+        }
+      }
     }
     if (cleanOptions.length < 2) {
       setState((p) => ({ ...p, error: isSlot ? "Ajoutez au moins 2 créneaux." : "Ajoutez au moins 2 options." }));
@@ -405,7 +416,16 @@ export function useScrutin(draft?: ScrutinDraft) {
       // Affectation : bulletin = classement (counting borda → mode « rank »),
       // accès nominatif forcé, résultat masqué jusqu'à la clôture.
       const recipe: Recipe = isAssign
-        ? { ...s.recipe, suffrage: "direct", counting: "borda", rounds: 1, assign: s.assignMethod }
+        ? {
+            ...s.recipe,
+            suffrage: "direct",
+            counting: "borda",
+            rounds: 1,
+            assign: s.assignMethod,
+            ...(assignDef.endowed
+              ? { assignEndow: Object.fromEntries(participants.map((label, i) => [label, i])) }
+              : {}),
+          }
         : s.recipe;
       const access: AccessMode = isAssign ? "invite" : s.access;
 

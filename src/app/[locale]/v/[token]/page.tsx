@@ -13,7 +13,8 @@ export async function generateMetadata({
   const info = await getPollShareInfo(token);
   if (!info) return { title: t("fallbackTitle") };
   const tm = await getTranslations({ locale, namespace: "Methods" });
-  const method = tm(`${info.methodKey}.name`);
+  const ta = await getTranslations({ locale, namespace: "Assign" });
+  const method = info.assignKey ? ta(`methods.${info.assignKey}.name`) : tm(`${info.methodKey}.name`);
   const title =
     info.phase === "closed"
       ? t("titleClosed", { question: info.question })

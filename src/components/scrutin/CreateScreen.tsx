@@ -251,9 +251,14 @@ export default function CreateScreen({ ctrl }: { ctrl: ScrutinController }) {
     } else if (assignOptionCount < 2) {
       assignWarnings.push(ta("needObjects"));
     }
+    if (aDef.endowed && participants.length >= 2) {
+      if (new Set(participants).size !== participants.length) assignWarnings.push(ta("dupWarning"));
+      if (assignOptionCount >= 2 && participants.length !== assignOptionCount)
+        assignWarnings.push(ta("ttcCountWarning", { count: participants.length, objects: assignOptionCount }));
+    }
   }
   const fewObjectsMissing =
-    isAssign && aDef.oneSided && assignOptionCount >= 2 && participants.length > assignOptionCount
+    isAssign && aDef.oneSided && !aDef.endowed && assignOptionCount >= 2 && participants.length > assignOptionCount
       ? participants.length - assignOptionCount
       : 0;
   const assignBlocked = isAssign && assignWarnings.length > 0;
@@ -668,6 +673,9 @@ export default function CreateScreen({ ctrl }: { ctrl: ScrutinController }) {
             <div style={cardStyle}>
               <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 18 }}>{ta("participantsTitle")}</div>
               <div style={{ fontSize: 12.5, color: MUTED, margin: "4px 0 12px", lineHeight: 1.45 }}>{ta("participantsHint")}</div>
+              {aDef.endowed && (
+                <div style={{ fontSize: 12.5, fontWeight: 700, color: INK, margin: "0 0 12px", lineHeight: 1.45 }}>🔄 {ta("ttcHint")}</div>
+              )}
               <textarea
                 value={state.voterNames}
                 onChange={(e) => setVoterNames(e.target.value)}

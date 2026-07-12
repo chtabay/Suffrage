@@ -16,10 +16,15 @@ export default async function OgImage({ params }: { params: Promise<{ locale: st
   const info = await getPollShareInfo(token);
   const t = await getTranslations({ locale, namespace: "Share" });
   const tm = await getTranslations({ locale, namespace: "Methods" });
+  const ta = await getTranslations({ locale, namespace: "Assign" });
 
   const question = (info?.question ?? t("fallbackQuestion")).slice(0, 90);
   const phase = info?.phase ?? "open";
-  const method = info ? tm(`${info.methodKey}.name`) : t("methodFallback");
+  const method = info
+    ? info.assignKey
+      ? ta(`methods.${info.assignKey}.name`)
+      : tm(`${info.methodKey}.name`)
+    : t("methodFallback");
   const methodColor = info?.methodColor ?? CORAL;
   const optionCount = info?.options.length ?? 0;
   const ballotCount = info?.ballotCount ?? 0;

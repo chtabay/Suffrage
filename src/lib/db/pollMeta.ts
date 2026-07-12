@@ -10,6 +10,8 @@ export interface PollShareInfo {
   methodName: string;
   methodKey: string;
   methodColor: string;
+  /** Scrutin d'affectation : clé de méthode (namespace i18n Assign), sinon null. */
+  assignKey: string | null;
   options: Option[];
   phase: "scheduled" | "open" | "closed";
   ballotCount: number;
@@ -83,6 +85,7 @@ export async function getPollShareInfo(
       description: p.description,
       methodName: desc.name,
       methodKey: resolveKey(p.recipe),
+      assignKey: typeof p.recipe.assign === "string" ? p.recipe.assign : null,
       methodColor: desc.color,
       options: p.options,
       phase,

@@ -281,6 +281,9 @@
     "gotRank": "choix n°{n}",
     "withPartner": "avec",
     "transparencyNote": "À la clôture, les classements des participants deviennent visibles de tous les participants — c'est ce qui rend le calcul vérifiable.",
+    "ttcHint": "Dotation de départ : la 1re personne de la liste possède la 1re chose, la 2e la 2e… Ordonnez les deux listes en conséquence.",
+    "ttcCountWarning": "Bourse d'échanges : il faut exactement autant de choses ({objects}) que de participants ({count}).",
+    "owned": "possédait",
     "methods": {
       "serial_dictatorship": {
         "name": "Tour de choix",
@@ -297,6 +300,14 @@
         "how": "Chaque attribution « coûte » le rang qu'elle occupe dans le classement de la personne (1er choix = 0, 2e = 1…). L'algorithme hongrois trouve l'attribution au coût total minimal : la meilleure satisfaction d'ensemble, exactement.",
         "pros": ["La meilleure satisfaction totale possible", "Aucun tirage au sort", "Résultat exact, pas approché"],
         "cons": ["Peut sacrifier une personne pour le bien commun", "Classements tactiques possibles", "Moins intuitif à raconter"]
+      },
+      "top_trading_cycles": {
+        "name": "Bourse d'échanges",
+        "tagline": "Chacun possède déjà quelque chose ; on échange en cycles gagnants.",
+        "strength": "Personne ne perd",
+        "how": "Chacun possède déjà une chose (la N-ième personne de la liste possède la N-ième chose) et classe toutes les choses. L'algorithme organise des cycles d'échange sur les préférés restants, jusqu'à épuisement. Personne ne finit avec pire que sa possession de départ.",
+        "pros": ["Personne ne finit pire qu'au départ", "Classer sincèrement est toujours le mieux", "Tous les échanges gagnant-gagnant sont réalisés"],
+        "cons": ["Il faut une possession de départ pour chacun", "Exactement autant de choses que de personnes", "Le résultat dépend fortement des dotations"]
       },
       "stable_roommates": {
         "name": "Binômes stables",

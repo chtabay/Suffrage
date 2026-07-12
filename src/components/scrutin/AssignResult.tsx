@@ -19,7 +19,7 @@ export default function AssignResult({ poll, rows }: { poll: PollRow; rows: Assi
   if (!isAssignMethod(key) || rows.length === 0) return null;
   const def = ASSIGN_METHODS[key];
   const names = poll.options.map((o) => o.name);
-  const outcome = runAssignment(key, poll.token, rows, names);
+  const outcome = runAssignment(key, poll.token, rows, names, poll.recipe.assignEndow);
   const optionOfPerson = (p: number) => names.findIndex((n) => n === rows[p].label);
   const rankBadge = (personIdx: number, optIdx: number) => {
     if (!rows[personIdx].voted) return null;
@@ -76,6 +76,11 @@ export default function AssignResult({ poll, rows }: { poll: PollRow; rows: Assi
               return row(
                 <>
                   <span style={{ fontWeight: 800, fontSize: 14.5, color: INK }}>{r.label}</span>
+                  {outcome.endowment && (
+                    <span style={{ fontSize: 11.5, fontWeight: 600, color: MUTED }}>
+                      ({ta("owned")} {poll.options[outcome.endowment[i]]?.name})
+                    </span>
+                  )}
                   {notVotedBadge(i)}
                   <span style={{ flex: 1 }} />
                   {oi === null ? (
