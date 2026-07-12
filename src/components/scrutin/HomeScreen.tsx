@@ -46,6 +46,7 @@ export default function HomeScreen({ ctrl }: { ctrl: ScrutinController }) {
   const t = useTranslations("Home");
   const tm = useTranslations("Methods");
   const ta = useTranslations("Assign");
+  const tc = useTranslations("Create");
   const learn = useHomeMode() === "learn";
   // Deux portes : décider (vote) ou affecter — CTA, cartes et étapes s'adaptent.
   const [pillar, setPillar] = useState<"vote" | "assign">("vote");
@@ -146,6 +147,40 @@ export default function HomeScreen({ ctrl }: { ctrl: ScrutinController }) {
             );
           })}
         </div>
+        {/* Porte Décider : sous-raccourcis d'intention — propositions ou dates
+            (même vocabulaire que l'écran de création, qui arrive préconfiguré). */}
+        {pillar === "vote" && (
+          <div style={{ marginTop: 12, display: "flex", alignItems: "center", gap: 9, flexWrap: "wrap" }}>
+            <span style={{ fontWeight: 600, fontSize: 13.5, color: SUBINK }}>{tc("voteOnLabel")}</span>
+            {(
+              [
+                ["text", tc("voteOnProposals")],
+                ["slot", tc("voteOnDates")],
+              ] as const
+            ).map(([kind, label]) => (
+              <button
+                key={kind}
+                onClick={() => {
+                  setOptionKind(kind);
+                  go("create");
+                }}
+                style={{
+                  fontFamily: "inherit",
+                  fontWeight: 700,
+                  fontSize: 13,
+                  cursor: "pointer",
+                  border: `2px solid ${INK}`,
+                  borderRadius: 9,
+                  padding: "7px 13px",
+                  background: "#fff",
+                  color: INK,
+                }}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+        )}
         <div style={{ marginTop: 18, display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap" }}>
           <button
             onClick={() => (pillar === "assign" ? startAssign() : go("create"))}
