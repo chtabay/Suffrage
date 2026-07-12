@@ -107,6 +107,36 @@ function pingPollEvent(token: string) {
   }).catch(() => {});
 }
 
+// Partage replié côté votant : la viralité reste à un tap, sans encombrer
+// l'action principale (voter / lire le résultat). L'organisateur, lui, garde
+// son bloc de partage déplié — partager est SON action principale.
+function ShareFold({ label, children }: { label: string; children: React.ReactNode }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div style={{ marginTop: 16, textAlign: "center" }}>
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        aria-expanded={open}
+        style={{
+          fontFamily: FONT_DISPLAY,
+          fontWeight: 700,
+          fontSize: 13.5,
+          cursor: "pointer",
+          border: `2px solid ${INK}`,
+          background: open ? INK : "transparent",
+          color: open ? "#fff" : INK,
+          padding: "8px 16px",
+          borderRadius: 20,
+        }}
+      >
+        📤 {label} {open ? "▴" : "▸"}
+      </button>
+      {open && <div style={{ marginTop: 12 }}>{children}</div>}
+    </div>
+  );
+}
+
 // Messages laissés par les votants, détachés des choix (secret du vote préservé).
 function CommentsFeed({ comments }: { comments: BallotComment[] }) {
   const t = useTranslations("Vote");
@@ -778,13 +808,15 @@ export default function PublicVote({
           <>
             {poll.quorum != null && <QuorumBanner quorum={poll.quorum} count={ballotCount} />}
             <ResultCard result={result} question={poll.question} ballotCount={ballotCount} calendarSlot={winnerSlot} calendarUrl={voteShareUrl} calendarDuration={poll.slot_minutes ?? undefined} />
-            <ResultShare
-              question={poll.question}
-              result={result}
-              ballotCount={ballotCount}
-              optionsCount={poll.options.length}
-              url={voteShareUrl}
-            />
+            <ShareFold label={t("shareFoldResult")}>
+              <ResultShare
+                question={poll.question}
+                result={result}
+                ballotCount={ballotCount}
+                optionsCount={poll.options.length}
+                url={voteShareUrl}
+              />
+            </ShareFold>
             <CommentsFeed comments={comments} />
             <OfficialRecordCta token={token} />
           </>
@@ -799,13 +831,15 @@ export default function PublicVote({
   if (view === "results" && result) {
     const footer = (
       <>
-        <ResultShare
-          question={poll.question}
-          result={result}
-          ballotCount={ballotCount}
-          optionsCount={poll.options.length}
-          url={voteShareUrl}
-        />
+        <ShareFold label={t("shareFoldResult")}>
+          <ResultShare
+            question={poll.question}
+            result={result}
+            ballotCount={ballotCount}
+            optionsCount={poll.options.length}
+            url={voteShareUrl}
+          />
+        </ShareFold>
         <Link
           href="/"
           style={{
@@ -1084,7 +1118,9 @@ export default function PublicVote({
         <NotifyButton pollToken={token} label={`🔔 ${t("notifyAtClose")}`} />
       </div>
       {poll.access_mode === "open" && (
-        <ShareRow question={poll.question} url={voteShareUrl} withCopy style={{ marginTop: 16, justifyContent: "center" }} />
+        <ShareFold label={t("shareFold")}>
+          <ShareRow question={poll.question} url={voteShareUrl} withCopy style={{ justifyContent: "center" }} />
+        </ShareFold>
       )}
     </Shell>
   );
