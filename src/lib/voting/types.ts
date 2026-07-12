@@ -37,6 +37,8 @@ export interface Recipe {
   assignA?: number;
   /** Affectation deux groupes : capacités du côté 2 (aligné sur ses options). */
   assignCaps?: number[];
+  /** Affectation multi-objets : nombre d'objets reçus par personne (défaut 1). */
+  assignPer?: number;
 }
 
 export interface Option {

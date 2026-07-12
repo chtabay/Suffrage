@@ -7,7 +7,9 @@ import assert from "node:assert/strict";
 import {
   completeRanking,
   serialDictatorship,
+  snakeDraft,
   optimalSum,
+  optimalSumMulti,
   topTradingCycles,
   galeShapley,
   stableRoommates,
@@ -355,6 +357,75 @@ test("serialPairing : donne un résultat sur l'instance sans appariement stable"
   ];
   const got = serialPairing(prefs, [0, 1, 2, 3]);
   for (let x = 0; x < 4; x++) assert.equal(got[got[x]], x);
+});
+
+/* ---------- draft serpentin ---------- */
+
+test("snakeDraft : l'ordre fait l'aller-retour (exemple exact)", () => {
+  // 2 personnes, 4 objets, 2 chacun. Préférences identiques : 0 > 1 > 2 > 3.
+  const prefs = [
+    [0, 1, 2, 3],
+    [0, 1, 2, 3],
+  ];
+  // Tour 1 : p0 prend 0, p1 prend 1. Tour 2 (inversé) : p1 prend 2, p0 prend 3.
+  assert.deepEqual(snakeDraft(prefs, 4, [0, 1], 2), [
+    [0, 3],
+    [1, 2],
+  ]);
+});
+
+test("snakeDraft : lots disjoints, tailles exactes, premier de l'ordre servi d'abord", () => {
+  for (let seed = 1; seed <= 40; seed++) {
+    const rnd = mulberry32(7000 + seed);
+    const n = 2 + Math.floor(rnd() * 3); // 2..4 personnes
+    const per = 1 + Math.floor(rnd() * 3); // 1..3 chacun
+    const m = n * per + Math.floor(rnd() * 3); // assez d'objets (+0..2 de rab)
+    const prefs = randomPrefs(n, m, rnd);
+    const order = shuffled(n, rnd);
+    const got = snakeDraft(prefs, m, order, per);
+    const all = got.flat();
+    assert.equal(new Set(all).size, all.length, `seed ${seed} : objets dupliqués`);
+    for (const bundle of got) assert.equal(bundle.length, per, `seed ${seed} : taille de lot`);
+    // le premier de l'ordre obtient son préféré absolu au premier tour
+    assert.equal(got[order[0]][0], completeRanking(prefs[order[0]], m)[0], `seed ${seed}`);
+  }
+});
+
+test("snakeDraft : pénurie d'objets → lots plus courts, jamais de doublon", () => {
+  const prefs = [
+    [0, 1, 2],
+    [0, 1, 2],
+  ];
+  const got = snakeDraft(prefs, 3, [0, 1], 2);
+  assert.equal(got.flat().length, 3);
+  assert.equal(new Set(got.flat()).size, 3);
+});
+
+/* ---------- affectation optimale multi ---------- */
+
+test("optimalSumMulti : coût total optimal (force brute sur lots)", () => {
+  for (let seed = 1; seed <= 30; seed++) {
+    const rnd = mulberry32(8000 + seed);
+    const n = 2; // 2 personnes × 2 ou 3 chacun → force brute faisable
+    const per = 2 + Math.floor(rnd() * 2); // 2..3
+    const m = n * per;
+    const prefs = randomPrefs(n, m, rnd);
+    const pos = rankPos(prefs, m);
+    const got = optimalSumMulti(prefs, m, per);
+    assert.equal(got.flat().length, m, `seed ${seed} : tout attribué`);
+    for (const b of got) assert.equal(b.length, per, `seed ${seed}`);
+    const gotCost = got.reduce((s, bundle, p) => s + bundle.reduce((x, o) => x + pos[p][o], 0), 0);
+    // force brute : chaque permutation des m objets, découpée en lots de `per`
+    let best = Infinity;
+    for (const perm of permutations(m)) {
+      let c = 0;
+      perm.forEach((o, slot) => {
+        c += pos[Math.floor(slot / per)][o];
+      });
+      if (c < best) best = c;
+    }
+    assert.equal(gotCost, best, `seed ${seed} : coût ${gotCost} vs optimum ${best}`);
+  }
 });
 
 test("seededOrder : déterministe pour un même jeton, permutation valide", () => {

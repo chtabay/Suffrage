@@ -54,6 +54,60 @@ export function serialDictatorship(
 }
 
 /**
+ * Draft serpentin : comme la dictature sérielle, mais chacun reçoit jusqu'à
+ * `perPerson` objets. L'ordre fait l'aller-retour à chaque tour (1→N puis N→1)
+ * pour compenser les derniers. Renvoie bundles[p] = objets reçus (dans l'ordre
+ * de choix), listes disjointes.
+ */
+export function snakeDraft(
+  prefs: readonly (readonly number[])[],
+  nObjects: number,
+  order: readonly number[],
+  perPerson: number,
+): number[][] {
+  const n = prefs.length;
+  const out: number[][] = Array.from({ length: n }, () => []);
+  const taken = new Set<number>();
+  const ranks = prefs.map((p) => completeRanking(p, nObjects));
+  const per = Math.max(1, Math.floor(perPerson));
+  for (let round = 0; round < per && taken.size < nObjects; round++) {
+    const seq = round % 2 === 0 ? order : [...order].reverse();
+    for (const p of seq) {
+      if (p < 0 || p >= n || out[p].length > round) continue;
+      const pick = ranks[p].find((o) => !taken.has(o));
+      if (pick !== undefined) {
+        out[p].push(pick);
+        taken.add(pick);
+      }
+    }
+  }
+  return out;
+}
+
+/**
+ * Affectation optimale multi-objets : chaque personne est dupliquée `perPerson`
+ * fois dans la matrice hongroise (transformation exacte, pas une heuristique),
+ * puis les objets reçus sont regroupés. bundles[p] = objets reçus.
+ */
+export function optimalSumMulti(
+  prefs: readonly (readonly number[])[],
+  nObjects: number,
+  perPerson: number,
+): number[][] {
+  const n = prefs.length;
+  const per = Math.max(1, Math.floor(perPerson));
+  if (per === 1) return optimalSum(prefs, nObjects).map((o) => (o === null ? [] : [o]));
+  const expanded: (readonly number[])[] = [];
+  for (let i = 0; i < n; i++) for (let k = 0; k < per; k++) expanded.push(prefs[i] ?? []);
+  const flat = optimalSum(expanded, nObjects);
+  const out: number[][] = Array.from({ length: n }, () => []);
+  flat.forEach((o, row) => {
+    if (o !== null) out[Math.floor(row / per)].push(o);
+  });
+  return out;
+}
+
+/**
  * Affectation optimale (algorithme hongrois, variante potentiels O(n²·m)) :
  * minimise la somme des rangs (0 = préféré). S'il y a plus de personnes que
  * d'objets, les colonnes fictives (coût uniforme) laissent des non-affectés.

@@ -5,6 +5,7 @@ import type { Option, Recipe } from "@/lib/voting/types";
 import { runAssignment, type AssignRowData } from "@/lib/assign/run";
 import { ASSIGN_METHODS, isAssignMethod } from "@/lib/assign/methods";
 import { completeRanking } from "@/lib/assign/engine";
+import { buildIcs, downloadIcs } from "@/lib/voting/ics";
 import { candColor } from "@/lib/voting/systems";
 import { CREAM, FONT_BODY, FONT_DISPLAY, INK, MUTED, SUBINK } from "./theme";
 
@@ -17,16 +18,52 @@ export default function AssignResult({
   poll,
   rows,
 }: {
-  /** Scrutin autonome (PollRow) ou résolution d'événement — seuls token/options/recipe servent. */
-  poll: { token: string; options: Option[]; recipe: Recipe };
+  /** Scrutin autonome (PollRow) ou résolution d'événement (shape structurel minimal). */
+  poll: { token: string; options: Option[]; recipe: Recipe; question?: string; slot_minutes?: number | null };
   rows: AssignRowData[];
 }) {
   const ta = useTranslations("Assign");
+  const tv = useTranslations("Vote");
   const key = poll.recipe.assign;
   if (!isAssignMethod(key) || rows.length === 0) return null;
   const def = ASSIGN_METHODS[key];
   const names = poll.options.map((o) => o.name);
-  const outcome = runAssignment(key, poll.token, rows, names, poll.recipe.assignEndow, poll.recipe.assignA, poll.recipe.assignCaps);
+  const outcome = runAssignment(
+    key,
+    poll.token,
+    rows,
+    names,
+    poll.recipe.assignEndow,
+    poll.recipe.assignA,
+    poll.recipe.assignCaps,
+    poll.recipe.assignPer,
+  );
+  // Créneau reçu → « Ajouter à mon agenda » (.ics), comme le vote de dates.
+  const icsBtn = (personIdx: number, oi: number) => {
+    const opt = poll.options[oi];
+    if (!opt?.at) return null;
+    return (
+      <button
+        type="button"
+        title={tv("addToCalendar")}
+        aria-label={tv("addToCalendar")}
+        onClick={() =>
+          downloadIcs(
+            "placet-creneau.ics",
+            buildIcs({
+              summary: poll.question ? `${poll.question} — ${rows[personIdx].label}` : opt.name,
+              startLocal: opt.at as string,
+              durationMin: poll.slot_minutes ?? 60,
+              description: rows[personIdx].label,
+            }),
+          )
+        }
+        style={{ flex: "none", border: `1.5px solid ${INK}`, background: "#fff", borderRadius: 7, padding: "2px 7px", fontSize: 12, cursor: "pointer" }}
+      >
+        📅
+      </button>
+    );
+  };
   const optionOfPerson = (p: number) => names.findIndex((n) => n === rows[p].label);
   const rankBadge = (personIdx: number, optIdx: number) => {
     if (!rows[personIdx].voted) return null;
@@ -77,9 +114,13 @@ export default function AssignResult({
       )}
 
       <div style={{ display: "flex", flexDirection: "column", gap: 9, marginTop: 16 }}>
-        {def.oneSided && outcome.assignment
+        {def.oneSided && (outcome.assignment || outcome.bundles)
           ? rows.map((r, i) => {
-              const oi = outcome.assignment![i];
+              const received = outcome.bundles
+                ? outcome.bundles[i] ?? []
+                : outcome.assignment![i] === null
+                  ? []
+                  : [outcome.assignment![i] as number];
               return row(
                 <>
                   <span style={{ fontWeight: 800, fontSize: 14.5, color: INK }}>{r.label}</span>
@@ -90,16 +131,19 @@ export default function AssignResult({
                   )}
                   {notVotedBadge(i)}
                   <span style={{ flex: 1 }} />
-                  {oi === null ? (
+                  {received.length === 0 ? (
                     <span style={{ fontSize: 13, fontWeight: 700, color: MUTED }}>{ta("unassigned")}</span>
                   ) : (
-                    <>
-                      <span style={{ width: 28, height: 28, flex: "none", borderRadius: 8, border: `2px solid ${INK}`, background: candColor(oi), display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14 }}>
-                        {poll.options[oi]?.icon}
+                    received.map((oi) => (
+                      <span key={oi} style={{ display: "inline-flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
+                        <span style={{ width: 28, height: 28, flex: "none", borderRadius: 8, border: `2px solid ${INK}`, background: candColor(oi), display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14 }}>
+                          {poll.options[oi]?.icon}
+                        </span>
+                        <span style={{ fontWeight: 700, fontSize: 14, color: INK }}>{poll.options[oi]?.name}</span>
+                        {rankBadge(i, oi)}
+                        {icsBtn(i, oi)}
                       </span>
-                      <span style={{ fontWeight: 700, fontSize: 14, color: INK }}>{poll.options[oi]?.name}</span>
-                      {rankBadge(i, oi)}
-                    </>
+                    ))
                   )}
                 </>,
                 i,

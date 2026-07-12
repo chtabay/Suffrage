@@ -184,7 +184,7 @@ export default function CreateScreen({ ctrl }: { ctrl: ScrutinController }) {
   const t = useTranslations("Create");
   // Exemples évocateurs montrés en placeholder (pas des valeurs à supprimer).
   const optionPlaceholders = t.raw("optionPlaceholders") as string[];
-  const { state, selectSystemRecipe, setRecipe, setQuestion, setDescription, setOptionName, setOptionUrl, setOptionIcon, removeOption, addOption, setOptionKind, setSlots, setSlotMinutes, setAssignMethod, setAssignSideB, setVoterNames, launch } = ctrl;
+  const { state, selectSystemRecipe, setRecipe, setQuestion, setDescription, setOptionName, setOptionUrl, setOptionIcon, removeOption, addOption, setOptionKind, setSlots, setSlotMinutes, setAssignMethod, setAssignSideB, setAssignSlots, setAssignPer, setVoterNames, launch } = ctrl;
   const [urlRows, setUrlRows] = useState<Record<number, boolean>>({});
   const [emojiRow, setEmojiRow] = useState<number | null>(null);
   const [methodOpen, setMethodOpen] = useState(false);
@@ -240,7 +240,12 @@ export default function CreateScreen({ ctrl }: { ctrl: ScrutinController }) {
   const isAssign = state.optionKind === "assign";
   const aDef = ASSIGN_METHODS[state.assignMethod];
   const participants = state.voterNames.split("\n").map((x) => x.trim()).filter(Boolean);
-  const assignOptionCount = state.options.filter((o) => o.name.trim() !== "").length;
+  // Objets = créneaux : comptés comme un vote de dates (créneau daté), sinon par nom.
+  const assignSlotObjects = isAssign && aDef.oneSided && state.assignSlots;
+  const assignOptionCount = state.options.filter((o) =>
+    assignSlotObjects ? Boolean(o.at) : o.name.trim() !== "",
+  ).length;
+  const assignPerEff = aDef.endowed ? 1 : state.assignPer;
   const assignWarnings: string[] = [];
   const sideBNames = state.assignSideB
     .split("\n")
@@ -267,8 +272,8 @@ export default function CreateScreen({ ctrl }: { ctrl: ScrutinController }) {
     }
   }
   const fewObjectsMissing =
-    isAssign && aDef.oneSided && !aDef.endowed && assignOptionCount >= 2 && participants.length > assignOptionCount
-      ? participants.length - assignOptionCount
+    isAssign && aDef.oneSided && !aDef.endowed && assignOptionCount >= 2 && participants.length * assignPerEff > assignOptionCount
+      ? participants.length * assignPerEff - assignOptionCount
       : 0;
   const assignBlocked = isAssign && assignWarnings.length > 0;
 
@@ -455,16 +460,47 @@ export default function CreateScreen({ ctrl }: { ctrl: ScrutinController }) {
             {isAssign && (
               <div style={{ fontSize: 12.5, color: MUTED, margin: "0 0 12px", lineHeight: 1.45 }}>{ta("kindHint")}</div>
             )}
+            {isAssign && aDef.oneSided && (
+              <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", margin: "0 0 12px" }}>
+                <span style={{ fontFamily: FONT_BODY, fontWeight: 600, fontSize: 14, color: INK }}>{ta("assignOnLabel")}</span>
+                <div style={{ display: "flex", gap: 8 }}>
+                  {(
+                    [
+                      [false, ta("objectsThings")],
+                      [true, ta("objectsSlots")],
+                    ] as const
+                  ).map(([slots, lbl]) => (
+                    <button
+                      key={String(slots)}
+                      onClick={() => setAssignSlots(slots)}
+                      style={{
+                        fontFamily: FONT_BODY,
+                        fontWeight: 700,
+                        fontSize: 13,
+                        cursor: "pointer",
+                        border: `2px solid ${INK}`,
+                        borderRadius: 9,
+                        padding: "7px 13px",
+                        background: state.assignSlots === slots ? INK : "#fff",
+                        color: state.assignSlots === slots ? "#fff" : INK,
+                      }}
+                    >
+                      {lbl}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
             {!(isAssign && !aDef.oneSided) && (
               <div style={{ fontWeight: 700, fontSize: 13, color: MUTED, marginBottom: 9 }}>
                 {state.optionKind === "slot" ? t("slotsHeading") : isAssign ? ta("objectsHeading") : t("proposalsHeading")}
               </div>
             )}
-            {isAssign && aDef.oneSided && (
+            {isAssign && aDef.oneSided && !state.assignSlots && (
               <div style={{ fontSize: 12, color: MUTED, marginBottom: 9 }}>{ta("objectsHint")}</div>
             )}
             <div style={{ display: isAssign && !aDef.oneSided ? "none" : "flex", flexDirection: "column", gap: 9 }}>
-              {state.optionKind === "slot"
+              {state.optionKind === "slot" || assignSlotObjects
                 ? (
                     <>
                       <SlotPicker slots={state.options} onChange={setSlots} />
@@ -649,7 +685,7 @@ export default function CreateScreen({ ctrl }: { ctrl: ScrutinController }) {
                 );
               })}
             </div>
-            {state.optionKind !== "slot" && !(isAssign && !aDef.oneSided) && (
+            {state.optionKind !== "slot" && !assignSlotObjects && !(isAssign && !aDef.oneSided) && (
               <button
                 onClick={() => addOption(t("newOptionDefault"))}
                 className="dc-cream"
@@ -704,6 +740,23 @@ export default function CreateScreen({ ctrl }: { ctrl: ScrutinController }) {
                   boxSizing: "border-box",
                 }}
               />
+              {aDef.oneSided && !aDef.endowed && (
+                <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", marginTop: 12 }}>
+                  <span style={{ fontWeight: 700, fontSize: 13, color: MUTED }}>{ta("perLabel")}</span>
+                  <select
+                    value={state.assignPer}
+                    onChange={(e) => setAssignPer(Number(e.target.value))}
+                    style={{ fontFamily: FONT_BODY, fontSize: 14, fontWeight: 600, padding: "8px 11px", border: `2px solid ${INK}`, borderRadius: 10, background: "#fff" }}
+                  >
+                    {[1, 2, 3, 4].map((n) => (
+                      <option key={n} value={n}>{n}</option>
+                    ))}
+                  </select>
+                  {state.assignPer > 1 && state.assignMethod === "serial_dictatorship" && (
+                    <span style={{ fontSize: 12, color: MUTED, lineHeight: 1.4 }}>{ta("perHint")}</span>
+                  )}
+                </div>
+              )}
               {aDef.twoLists && (
                 <>
                   <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 15, marginTop: 16 }}>{ta("sideBTitle")}</div>

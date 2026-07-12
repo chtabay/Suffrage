@@ -1,6 +1,16 @@
 // Exécution d'une affectation : transforme les lignes (votant + classement)
 // en résultat, selon la méthode. Glue pure — les algorithmes vivent dans engine.ts.
-import { galeShapley, optimalSum, seededOrder, serialDictatorship, serialPairing, stableRoommates, topTradingCycles } from "./engine";
+import {
+  galeShapley,
+  optimalSum,
+  optimalSumMulti,
+  seededOrder,
+  serialDictatorship,
+  serialPairing,
+  snakeDraft,
+  stableRoommates,
+  topTradingCycles,
+} from "./engine";
 import type { AssignMethodKey } from "./methods";
 
 /** Une ligne renvoyée par la RPC get_assign_data : votant + son classement (option indices). */
@@ -24,6 +34,8 @@ export interface AssignOutcome {
   endowment: number[] | null;
   /** Deux groupes (Gale-Shapley) : appariements en indices de lignes { a, b }. */
   matches: { a: number; b: number }[] | null;
+  /** Multi-objets (« chacun reçoit N ») : bundles[personne] = objets reçus. */
+  bundles: number[][] | null;
 }
 
 /**
@@ -46,9 +58,11 @@ export function runAssignment(
   endow?: Record<string, number>,
   assignA?: number,
   caps?: number[],
+  perPerson?: number,
 ): AssignOutcome {
   const n = rows.length;
-  const none = { assignment: null, partner: null, endowment: null, matches: null };
+  const per = Math.max(1, Math.floor(perPerson ?? 1));
+  const none = { assignment: null, partner: null, endowment: null, matches: null, bundles: null };
   if (method === "gale_shapley") {
     // Options = [côté 1 (propose)…, côté 2 (dispose)…] ; correspondance par label.
     const nA = Math.max(0, Math.min(assignA ?? 0, optionNames.length));
@@ -98,6 +112,10 @@ export function runAssignment(
   const prefs = rows.map((r) => r.ranking ?? []);
   if (method === "serial_dictatorship") {
     const order = seededOrder(n, pollToken);
+    if (per > 1) {
+      // « Chacun reçoit N » : draft serpentin (l'ordre fait l'aller-retour).
+      return { method, order, fallback: false, ...none, bundles: snakeDraft(prefs, optionNames.length, order, per) };
+    }
     return {
       method,
       order,
@@ -118,6 +136,10 @@ export function runAssignment(
       assignment: topTradingCycles(prefs, endowment),
       endowment,
     };
+  }
+  if (per > 1) {
+    // Duplication exacte des personnes dans la matrice hongroise.
+    return { method, order: null, fallback: false, ...none, bundles: optimalSumMulti(prefs, optionNames.length, per) };
   }
   return {
     method,

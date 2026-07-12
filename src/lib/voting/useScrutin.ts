@@ -28,6 +28,10 @@ export interface ScrutinState {
   assignMethod: AssignMethodKey;
   /** Affectation deux groupes : côté 2 (« Nom ; capacité », une ligne par entrée). */
   assignSideB: string;
+  /** Affectation à sens unique : les objets sont des créneaux (calendrier). */
+  assignSlots: boolean;
+  /** Affectation à sens unique : nombre d'objets reçus par personne. */
+  assignPer: number;
   recipe: Recipe;
   access: AccessMode;
   hideResults: boolean;
@@ -62,6 +66,8 @@ const INITIAL: ScrutinState = {
   slotMinutes: 60,
   assignMethod: "serial_dictatorship",
   assignSideB: "",
+  assignSlots: false,
+  assignPer: 1,
   recipe: { ...DEFAULT_RECIPE },
   access: "open",
   hideResults: false,
@@ -311,6 +317,28 @@ export function useScrutin(draft?: ScrutinDraft) {
     setState((s) => ({ ...s, assignSideB, ...CLEAR_SHARE }));
   }, []);
 
+  // Objets à attribuer : choses (texte) ou créneaux (calendrier).
+  const setAssignSlots = useCallback((assignSlots: boolean) => {
+    setState((s) => {
+      if (s.assignSlots === assignSlots) return s;
+      return {
+        ...s,
+        assignSlots,
+        options: assignSlots
+          ? [freshSlot(locale), freshSlot(locale)]
+          : [
+              { icon: ADD_ICONS[0], name: "" },
+              { icon: ADD_ICONS[1], name: "" },
+            ],
+        ...CLEAR_SHARE,
+      };
+    });
+  }, [locale]);
+
+  const setAssignPer = useCallback((assignPer: number) => {
+    setState((s) => ({ ...s, assignPer: Math.max(1, Math.min(6, Math.floor(assignPer) || 1)), ...CLEAR_SHARE }));
+  }, []);
+
   const setOpensAt = useCallback((opensAt: string) => {
     setState((s) => ({ ...s, opensAt, ...CLEAR_SHARE }));
   }, []);
@@ -359,9 +387,11 @@ export function useScrutin(draft?: ScrutinDraft) {
     const isSlot = s.optionKind === "slot";
     const isAssign = s.optionKind === "assign";
     const assignDef = ASSIGN_METHODS[s.assignMethod];
+    // Objets = créneaux (affectation à sens unique) : filtrage comme un vote de dates.
+    const slotObjects = isAssign && assignDef.oneSided && s.assignSlots;
     const participants = splitNames(s.voterNames);
     let cleanOptions = s.options
-      .filter((o) => (isSlot ? Boolean(o.at) : o.name.trim() !== ""))
+      .filter((o) => (isSlot || slotObjects ? Boolean(o.at) : o.name.trim() !== ""))
       .map((o) => ({ ...o, name: o.name.trim() }));
     if (!question) {
       setState((p) => ({ ...p, error: "Ajoutez une question." }));
@@ -460,6 +490,7 @@ export function useScrutin(draft?: ScrutinDraft) {
               ? { assignEndow: Object.fromEntries(participants.map((label, i) => [label, i])) }
               : {}),
             ...(assignDef.twoLists ? { assignA: participants.length, assignCaps: sideB.map((e) => e.cap) } : {}),
+            ...(assignDef.oneSided && !assignDef.endowed && s.assignPer > 1 ? { assignPer: s.assignPer } : {}),
           }
         : s.recipe;
       const access: AccessMode = isAssign ? "invite" : s.access;
@@ -474,7 +505,7 @@ export function useScrutin(draft?: ScrutinDraft) {
         closesAt: toISO(s.closesAt),
         closeOnComplete: s.closeOnComplete,
         quorum: s.quorum,
-        slotMinutes: isSlot ? s.slotMinutes : null,
+        slotMinutes: isSlot || slotObjects ? s.slotMinutes : null,
       });
       const origin = window.location.origin;
 
@@ -526,6 +557,8 @@ export function useScrutin(draft?: ScrutinDraft) {
     setVoterNames,
     setAssignMethod,
     setAssignSideB,
+    setAssignSlots,
+    setAssignPer,
     setOpensAt,
     setClosesAt,
     setQuorum,
