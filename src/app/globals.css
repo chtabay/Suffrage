@@ -143,6 +143,18 @@ input {
   }
 }
 
+/* Accessibilité : anneau de focus visible à la navigation clavier uniquement
+   (:focus-visible — la souris ne déclenche pas d'anneau). */
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible,
+[role="button"]:focus-visible {
+  outline: 3px solid #ff5e5b;
+  outline-offset: 2px;
+}
+
 /* Rail latéral des assistants : desktop large uniquement. En dessous, c'est le
    bloc « Préparer avec une IA » inline de l'accueil (.ai-home-inline) qui prend le relais. */
 .ai-home-inline {

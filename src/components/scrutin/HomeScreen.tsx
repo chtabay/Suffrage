@@ -185,12 +185,15 @@ export default function HomeScreen({ ctrl }: { ctrl: ScrutinController }) {
             ASSIGN_METHOD_KEYS.map((key) => {
               const def = ASSIGN_METHODS[key];
               return (
-                <div
+                <button
                   key={key}
                   onClick={() => startAssign(key)}
                   className="dc-lift"
                   style={{
                     cursor: "pointer",
+                    textAlign: "left",
+                    width: "100%",
+                    fontFamily: "inherit",
                     background: PAPER,
                     border: `2.5px solid ${INK}`,
                     borderRadius: 16,
@@ -209,18 +212,21 @@ export default function HomeScreen({ ctrl }: { ctrl: ScrutinController }) {
                     <span style={{ width: 6, height: 6, borderRadius: "50%", background: def.color, flex: "none" }} />
                     {ta(`methods.${key}.strength`)}
                   </div>
-                </div>
+                </button>
               );
             })}
           {pillar === "vote" && HOME_METHODS.map((key) => {
             const sys = SYSTEMS[key];
             return (
-              <div
+              <button
                 key={key}
                 onClick={() => selectSystemRecipe(key)}
                 className="dc-lift"
                 style={{
                   cursor: "pointer",
+                  textAlign: "left",
+                  width: "100%",
+                  fontFamily: "inherit",
                   background: PAPER,
                   border: `2.5px solid ${INK}`,
                   borderRadius: 16,
@@ -264,7 +270,7 @@ export default function HomeScreen({ ctrl }: { ctrl: ScrutinController }) {
                   <span style={{ width: 6, height: 6, borderRadius: "50%", background: sys.color, flex: "none" }} />
                   {tm(`${key}.strength`)}
                 </div>
-              </div>
+              </button>
             );
           })}
         </div>
