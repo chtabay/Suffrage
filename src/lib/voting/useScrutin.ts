@@ -118,6 +118,8 @@ function makeInitial(draft?: ScrutinDraft, locale = "fr"): ScrutinState {
     assignMethod: draft.assignMethod ?? INITIAL.assignMethod,
     voterNames: draft.participants ?? INITIAL.voterNames,
     assignSideB: draft.assignSideB ?? INITIAL.assignSideB,
+    assignSlots: draft.assignSlots ?? INITIAL.assignSlots,
+    assignPer: draft.assignPer ?? INITIAL.assignPer,
     recipe,
     closesAt: draft.closesAt ?? INITIAL.closesAt,
     access: recipe.suffrage === "indirect" ? "invite" : INITIAL.access,

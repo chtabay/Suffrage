@@ -26,6 +26,10 @@ export interface ScrutinDraft {
   assignMethod?: AssignMethodKey;
   participants?: string;
   assignSideB?: string;
+  /** Affectation de créneaux : les options sont des créneaux datés. */
+  assignSlots?: boolean;
+  /** Affectation multi-objets : nombre d'objets reçus par personne. */
+  assignPer?: number;
   /** Origine du brouillon (claude, chatgpt, gemini, slack, teams…). */
   source?: string;
   /** Justification (notamment du choix de méthode) à afficher pour la confiance. */
@@ -118,6 +122,10 @@ export function parseDraft(params: RawParams, locale = "fr"): ScrutinDraft {
   if (assign && isAssignMethod(assign.trim())) {
     draft.optionKind = "assign";
     draft.assignMethod = assign.trim() as AssignMethodKey;
+    // `dates` + `assign` : affectation de créneaux (les options datées sont déjà posées).
+    if (datesParam && draft.options?.length) draft.assignSlots = true;
+    const per = Number(first(params.per));
+    if (Number.isInteger(per) && per >= 2 && per <= 6) draft.assignPer = per;
     const parts = first(params.participants);
     if (parts) {
       draft.participants = parts
@@ -179,6 +187,8 @@ export interface DraftInput {
   assign?: string;
   participants?: string[];
   sideb?: string[];
+  /** Affectation multi-objets : nombre d'objets (ou créneaux) reçus par personne. */
+  per?: number;
   deadline?: string;
   source?: string;
   why?: string;
@@ -201,6 +211,7 @@ export function buildNewUrl(base: string, d: DraftInput): string {
   if (d.assign) p.set("assign", d.assign);
   if (d.participants && d.participants.length) p.set("participants", d.participants.map((s) => s.trim()).filter(Boolean).join("|"));
   if (d.sideb && d.sideb.length) p.set("sideb", d.sideb.map((s) => s.trim()).filter(Boolean).join("|"));
+  if (d.per && d.per >= 2) p.set("per", String(Math.min(6, Math.floor(d.per))));
   if (d.deadline) p.set("deadline", d.deadline);
   if (d.source) p.set("source", d.source);
   if (d.why) p.set("why", d.why);
