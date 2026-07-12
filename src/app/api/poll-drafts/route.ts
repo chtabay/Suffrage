@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { buildNewUrl } from "@/lib/voting/draft";
+import { isAssignMethod } from "@/lib/assign/methods";
 import { publicMethodToSystem } from "@/lib/voting/methods";
 
 // API publique sans état : transforme un brouillon structuré en URL /new prête à ouvrir.
@@ -61,12 +62,21 @@ export async function POST(req: Request) {
     : undefined;
   const methodInput = typeof b.method === "string" ? b.method : undefined;
   const method = methodInput && publicMethodToSystem(methodInput) ? methodInput : undefined;
+  // Affectation : méthode dédiée + participants (+ côté 2 pour deux groupes).
+  const assignInput = typeof b.assign === "string" ? b.assign.trim() : undefined;
+  const assign = assignInput && isAssignMethod(assignInput) ? assignInput : undefined;
+  const participants = Array.isArray(b.participants)
+    ? b.participants.filter((p): p is string => typeof p === "string").map((p) => p.trim()).filter(Boolean).slice(0, 60)
+    : undefined;
+  const sideb = Array.isArray(b.sideb)
+    ? b.sideb.filter((p): p is string => typeof p === "string").map((p) => p.trim()).filter(Boolean).slice(0, 60)
+    : undefined;
   const deadline = typeof b.deadline === "string" ? b.deadline.slice(0, 40) : undefined;
   const source = typeof b.source === "string" ? b.source.trim().slice(0, 40) : undefined;
   const why = typeof b.why === "string" ? b.why.trim().slice(0, 280) : undefined;
 
   const origin = new URL(req.url).origin;
-  const draft_url = buildNewUrl(origin, { title, description, options, media, dates, method, deadline, source, why });
+  const draft_url = buildNewUrl(origin, { title, description, options, media, dates, method, assign, participants, sideb, deadline, source, why });
 
   return NextResponse.json(
     {

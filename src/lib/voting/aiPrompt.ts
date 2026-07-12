@@ -7,6 +7,7 @@ import type { Option } from "./types";
 export const APP_URL = "https://placet.app";
 
 export function buildAiPrompt(question: string, options: Option[], source: string, locale = "fr"): string {
+  if (locale === "pcm") locale = "en"; // créole anglophone → prompt anglais
   const methods = PUBLIC_METHODS.map((m) => m.key).join(", ");
   const opts = options.map((o) => o.name.trim()).filter(Boolean);
   const hasContext = Boolean(question.trim()) || opts.length > 0;
@@ -17,12 +18,15 @@ export function buildAiPrompt(question: string, options: Option[], source: strin
 - if context helps people vote (place, budget, deadline…), a short optional description;
 - 2 to 8 options (rephrase/merge as needed); start EACH option with a relevant emoji — e.g. "🍕 Italian" — the app turns it into the icon;
 - if the decision is about a TIME ("when?": a meeting, dinner, outing…), use "dates" instead of "options": the candidate slots in ISO format (e.g. 2026-07-12T20:00), and choose approval (everyone ticks what works for them — the most available wins);
-- ONE method among: ${methods} — and one sentence explaining WHY (for a date vote: single winner only — approval preferably, otherwise majority/condorcet/majority judgment/borda; never proportional, list or grand_electors).
+- ONE method among: ${methods} — and one sentence explaining WHY (for a date vote: single winner only — approval preferably, otherwise majority/condorcet/majority judgment/borda; never proportional, list or grand_electors);
+- if the goal is NOT to elect a winner but to ALLOCATE things or FORM pairs (offices, tasks, buddy pairs, mentors, Parcoursup-style), use "assign" INSTEAD OF "method": serial_dictatorship (picking rounds, verifiable drawn order), optimal_sum (best total satisfaction), top_trading_cycles (swaps from current possessions — as many things as people), stable_roommates (stable pairs within one group — even count required), gale_shapley (two groups ranking each other, capacities — the proposing side is favoured); add participants=Alice|Bob|… (each gets a personal ranking link; for gale_shapley also sideb=Maths tutoring ; 2|English tutoring); keep options= only for the things to allocate (one-sided methods).
 
 Then build the Placet URL below and PRESENT IT AS A CLICKABLE LINK (a markdown link with a clear label, e.g. "👉 Open the voting draft"), never the full raw URL. Keep it SHORT.
 ${APP_URL}/new?title=...&description=...&options=🍕 Italian|🍣 Japanese&method=...&source=${source}&why=...
 Date vote (replace "options" with "dates"):
 ${APP_URL}/new?title=...&dates=2026-07-12T20:00|2026-07-13T12:30&method=approval&source=${source}&why=...
+Assignment (replace "method" with "assign", add "participants"):
+${APP_URL}/new?title=...&assign=optimal_sum&options=💼 Desk A|🌿 Desk B&participants=Alice|Bob&source=${source}&why=...
 Encode the values properly, put your rationale in "why", and include no sensitive data (emails, IDs…).
 
 Images: DO NOT put them in the link (it makes it long and often breaks). Just tell the user they can add an image per option in the app (🔗 button).
@@ -61,12 +65,15 @@ ${proposal}`;
 - si el contexto ayuda a votar (lugar, presupuesto, plazo…), una breve descripción opcional;
 - de 2 a 8 opciones (reformula/fusiona si hace falta); empieza CADA opción con un emoji pertinente — p. ej. "🍕 Italiano" — la app lo convierte en el icono;
 - si la decisión trata de un MOMENTO ("¿cuándo?": una reunión, una cena, una salida…), usa "dates" en lugar de "options": las franjas candidatas en formato ISO (p. ej. 2026-07-12T20:00), y elige la aprobación (cada cual marca lo que le va bien — gana la más disponible);
-- UN método entre: ${methods} — y una frase que explique POR QUÉ (para un voto de fechas: solo ganador único — aprobación de preferencia, si no majority/condorcet/juicio mayoritario/borda; nunca proportional, list ni grand_electors).
+- UN método entre: ${methods} — y una frase que explique POR QUÉ (para un voto de fechas: solo ganador único — aprobación de preferencia, si no majority/condorcet/juicio mayoritario/borda; nunca proportional, list ni grand_electors);
+- si el objetivo NO es elegir un ganador sino REPARTIR cosas o FORMAR parejas (despachos, tareas, binomios, mentores, estilo Parcoursup), usa "assign" EN LUGAR DE "method": serial_dictatorship (turnos de elección, orden sorteado verificable), optimal_sum (mejor satisfacción total), top_trading_cycles (intercambios desde posesiones actuales — tantas cosas como personas), stable_roommates (parejas estables en un grupo — número par obligatorio), gale_shapley (dos grupos que se clasifican mutuamente, capacidades — el lado que propone sale favorecido); añade participants=Alice|Bob|… (cada uno recibe un enlace personal para clasificar; para gale_shapley añade también sideb=Tutoría de mates ; 2|Tutoría de inglés); mantén options= solo para las cosas a repartir (métodos de un solo lado).
 
 Después construye la URL de Placet de abajo y PRESÉNTALA COMO UN ENLACE CLICABLE (un enlace markdown con una etiqueta clara, p. ej. "👉 Abrir el borrador de voto"), nunca la URL en bruto completa. Mantenla CORTA.
 ${APP_URL}/new?title=...&description=...&options=🍕 Italiano|🍣 Japonés&method=...&source=${source}&why=...
 Voto de franjas (reemplaza "options" por "dates"):
 ${APP_URL}/new?title=...&dates=2026-07-12T20:00|2026-07-13T12:30&method=approval&source=${source}&why=...
+Asignación (reemplaza "method" por "assign", añade "participants"):
+${APP_URL}/new?title=...&assign=optimal_sum&options=💼 Despacho A|🌿 Despacho B&participants=Alice|Bob&source=${source}&why=...
 Codifica correctamente los valores, pon tu justificación en "why" y no incluyas ningún dato sensible (correos, identificadores…).
 
 Imágenes: NO LAS PONGAS en el enlace (lo alarga y a menudo lo rompe). Solo dile al usuario que puede añadir una imagen por opción en la app (botón 🔗).
@@ -105,12 +112,15 @@ ${proposal}`;
 - si le contexte aide à voter (lieu, budget, échéance…), un court descriptif facultatif ;
 - 2 à 8 options (reformule/fusionne si besoin) ; commence CHAQUE option par un emoji pertinent — ex. "🍕 Italien" — l'app en fera l'icône ;
 - si la décision porte sur un MOMENT (« quand ? » : réunion, dîner, sortie…), utilise "dates" au lieu de "options" : les créneaux candidats au format ISO (ex. 2026-07-12T20:00), et choisis l'approbation (chacun coche ce qui lui convient — le plus disponible gagne) ;
-- UNE méthode parmi : ${methods} — et une phrase expliquant POURQUOI (pour un vote de dates : uniquement gagnant unique — approbation de préférence, sinon majoritaire/condorcet/jugement majoritaire/borda ; jamais proportional, list ni grand_electors).
+- UNE méthode parmi : ${methods} — et une phrase expliquant POURQUOI (pour un vote de dates : uniquement gagnant unique — approbation de préférence, sinon majoritaire/condorcet/jugement majoritaire/borda ; jamais proportional, list ni grand_electors) ;
+- si l'objectif n'est PAS d'élire un gagnant mais d'ATTRIBUER des choses ou de FORMER des paires (bureaux, tâches, binômes, mentors, façon Parcoursup), utilise "assign" À LA PLACE DE "method" : serial_dictatorship (tour de choix, ordre tiré au sort vérifiable), optimal_sum (meilleure satisfaction totale), top_trading_cycles (échanges depuis les possessions actuelles — autant de choses que de personnes), stable_roommates (binômes stables dans un groupe — effectif pair obligatoire), gale_shapley (deux groupes qui se classent mutuellement, capacités — le côté qui propose est favorisé) ; ajoute participants=Alice|Bob|… (chacun reçoit un lien personnel pour classer ; pour gale_shapley ajoute aussi sideb=Tutorat maths ; 2|Tutorat anglais) ; garde options= uniquement pour les choses à attribuer (méthodes à sens unique).
 
 Construis ensuite l'URL Placet ci-dessous et PRÉSENTE-LA COMME UN LIEN CLIQUABLE (lien markdown avec un libellé clair, ex. « 👉 Ouvrir le brouillon de vote »), jamais l'URL brute en entier. Garde-la COURTE.
 ${APP_URL}/new?title=...&description=...&options=🍕 Italien|🍣 Japonais&method=...&source=${source}&why=...
 Vote de créneaux (remplace "options" par "dates") :
 ${APP_URL}/new?title=...&dates=2026-07-12T20:00|2026-07-13T12:30&method=approval&source=${source}&why=...
+Affectation (remplace "method" par "assign", ajoute "participants") :
+${APP_URL}/new?title=...&assign=optimal_sum&options=💼 Bureau A|🌿 Bureau B&participants=Alice|Bob&source=${source}&why=...
 Encode correctement les valeurs, mets ta justification dans "why", n'inclus aucune donnée sensible (e-mails, identifiants…).
 
 Images : NE LES METS PAS dans le lien (ça l'allonge et casse souvent). Dis simplement à l'utilisateur qu'il pourra ajouter une image par option dans l'app (bouton 🔗).

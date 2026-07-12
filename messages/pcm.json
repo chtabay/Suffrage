@@ -506,6 +506,8 @@
     "paramMedia": " — optional: one http(s) picture URL per option (image, video, doc), <b>for di same order</b> as <code>options</code>, wey <code>|</code> separate (leave option blank for no picture). <b>Na only real, reliable URLs</b> — no make dem up; if you dey doubt, leave am empty. For plenty images, use di API.",
     "paramDates": " — time-slot vote: e <b>replace</b> <code>options</code> with list of ISO dates/times wey <code>|</code> separate (e.g. <code>2026-07-12T20:00|2026-07-13T12:30</code>). Method wey we recommend: <code>approval</code> (single winner only).",
     "paramMethod": " — key from di table below (default: <code>simple_vote</code>).",
+    "paramAssign": " — ASSIGNMENT instead of vote (share things, form pairs): e replace <code>method</code> with one of <code>serial_dictatorship</code> (picking rounds), <code>optimal_sum</code> (maximum satisfaction), <code>top_trading_cycles</code> (trading circle), <code>stable_roommates</code> (stable pairs, even number), <code>gale_shapley</code> (two groups, capacities). <code>options</code> go become di list of things to share (one-sided methods only).",
+    "paramParticipants": " — assignment participants, wey <code>|</code> separate — each person go get personal ranking link. For <code>gale_shapley</code>, add <code>sideb</code> too: side-2 entries (\"Name ; capacity\"), wey <code>|</code> separate.",
     "paramDeadline": " — ISO 8601 date, e.g. <code>2026-07-01T20:00</code> (optional, default: +7 days).",
     "paramSource": " — your name (<code>claude</code>, <code>chatgpt</code>, <code>gemini</code>…): e go show as “Prepared with …”.",
     "paramWhy": " — reason (especially for di method choice): e go show to di user to build trust.",

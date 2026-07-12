@@ -2,6 +2,7 @@
 // Toutes les entrées (URL, IA, Slack, API) convergent ici → un brouillon à relire.
 import { recipeForSystem } from "./engine";
 import { publicMethodToSystem } from "./methods";
+import { isAssignMethod, type AssignMethodKey } from "@/lib/assign/methods";
 import type { Option, Recipe } from "./types";
 import { intlLocale, pickLocale } from "@/i18n/locales";
 
@@ -17,10 +18,14 @@ export function splitLeadingEmoji(label: string, fallbackIcon: string): { icon: 
 export interface ScrutinDraft {
   question?: string;
   description?: string;
-  optionKind?: "text" | "slot";
+  optionKind?: "text" | "slot" | "assign";
   options?: Option[];
   recipe?: Recipe;
   closesAt?: string;
+  /** Affectation : méthode + participants (un nom par ligne) + côté 2 (deux groupes). */
+  assignMethod?: AssignMethodKey;
+  participants?: string;
+  assignSideB?: string;
   /** Origine du brouillon (claude, chatgpt, gemini, slack, teams…). */
   source?: string;
   /** Justification (notamment du choix de méthode) à afficher pour la confiance. */
@@ -107,6 +112,32 @@ export function parseDraft(params: RawParams, locale = "fr"): ScrutinDraft {
     if (system) draft.recipe = recipeForSystem(system);
   }
 
+  // Affectation : `assign=<méthode>` + `participants=Alice|Bob` (+ `sideb=X ; 2|Y`
+  // pour deux groupes). Les options restent les choses à attribuer (sens unique).
+  const assign = first(params.assign);
+  if (assign && isAssignMethod(assign.trim())) {
+    draft.optionKind = "assign";
+    draft.assignMethod = assign.trim() as AssignMethodKey;
+    const parts = first(params.participants);
+    if (parts) {
+      draft.participants = parts
+        .split("|")
+        .map((x) => x.trim().slice(0, 60))
+        .filter(Boolean)
+        .slice(0, 60)
+        .join("\n");
+    }
+    const sideb = first(params.sideb);
+    if (sideb) {
+      draft.assignSideB = sideb
+        .split("|")
+        .map((x) => x.trim().slice(0, 80))
+        .filter(Boolean)
+        .slice(0, 60)
+        .join("\n");
+    }
+  }
+
   // Vote de dates : seules les méthodes à gagnant unique ont du sens → défaut approbation.
   if (draft.optionKind === "slot") {
     const r = draft.recipe;
@@ -144,6 +175,10 @@ export interface DraftInput {
   /** Vote « dates » : créneaux ISO/datetime-local. S'ils sont fournis, remplacent `options`. */
   dates?: string[];
   method?: string;
+  /** Affectation : méthode + participants (+ côté 2 « Nom ; capacité » pour deux groupes). */
+  assign?: string;
+  participants?: string[];
+  sideb?: string[];
   deadline?: string;
   source?: string;
   why?: string;
@@ -163,6 +198,9 @@ export function buildNewUrl(base: string, d: DraftInput): string {
     }
   }
   if (d.method) p.set("method", d.method);
+  if (d.assign) p.set("assign", d.assign);
+  if (d.participants && d.participants.length) p.set("participants", d.participants.map((s) => s.trim()).filter(Boolean).join("|"));
+  if (d.sideb && d.sideb.length) p.set("sideb", d.sideb.map((s) => s.trim()).filter(Boolean).join("|"));
   if (d.deadline) p.set("deadline", d.deadline);
   if (d.source) p.set("source", d.source);
   if (d.why) p.set("why", d.why);

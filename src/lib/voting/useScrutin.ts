@@ -98,7 +98,7 @@ function makeInitial(draft?: ScrutinDraft, locale = "fr"): ScrutinState {
   });
   if (!draft) return { ...INITIAL, districts };
   const prefilled = Boolean(
-    draft.question || draft.options || draft.recipe || draft.closesAt || draft.description,
+    draft.question || draft.options || draft.recipe || draft.closesAt || draft.description || draft.assignMethod,
   );
   const recipe = draft.recipe ?? INITIAL.recipe;
   return {
@@ -109,6 +109,9 @@ function makeInitial(draft?: ScrutinDraft, locale = "fr"): ScrutinState {
     description: draft.description ?? INITIAL.description,
     optionKind: draft.optionKind ?? INITIAL.optionKind,
     options: draft.options ?? INITIAL.options,
+    assignMethod: draft.assignMethod ?? INITIAL.assignMethod,
+    voterNames: draft.participants ?? INITIAL.voterNames,
+    assignSideB: draft.assignSideB ?? INITIAL.assignSideB,
     recipe,
     closesAt: draft.closesAt ?? INITIAL.closesAt,
     access: recipe.suffrage === "indirect" ? "invite" : INITIAL.access,

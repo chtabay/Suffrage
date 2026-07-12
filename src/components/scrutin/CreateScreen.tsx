@@ -832,7 +832,7 @@ export default function CreateScreen({ ctrl }: { ctrl: ScrutinController }) {
 
           <ClosureLine ctrl={ctrl} />
           {!isAssign && <AdvancedSettings ctrl={ctrl} />}
-          {!isAssign && <AiHelper ctrl={ctrl} />}
+          <AiHelper ctrl={ctrl} />
         </div>
 
         {/* DROITE : système résolu en direct (desktop). Sur mobile, seul le bouton
