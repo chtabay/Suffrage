@@ -284,6 +284,11 @@
     "ttcHint": "Dotación inicial: la 1.ª persona de la lista posee la 1.ª cosa, la 2.ª la 2.ª… Ordena ambas listas en consecuencia.",
     "ttcCountWarning": "Círculo de intercambios: hacen falta exactamente tantas cosas ({objects}) como participantes ({count}).",
     "owned": "poseía",
+    "sideATitle": "Lado 1 — propone (favorecido por el método)",
+    "sideBTitle": "Lado 2 — dispone (capacidades)",
+    "sideBHint": "Uno por línea. Capacidad opcional tras «;»: «Tutoría de mates ; 2» = 2 plazas.",
+    "needSideA": "Rellena el lado 1 (un nombre por línea).",
+    "needSideB": "Rellena el lado 2 (un nombre por línea).",
     "methods": {
       "serial_dictatorship": {
         "name": "Turnos de elección",
@@ -316,6 +321,14 @@
         "how": "Cada uno clasifica a los demás participantes. El algoritmo de Irving busca parejas estables: ningún par de personas se preferiría mutuamente antes que a sus parejas asignadas. Puede demostrar que no existe ningún emparejamiento estable — entonces se anuncia la alternativa: turnos de elección en un orden sorteado.",
         "pros": ["Ninguna pareja quiere «fugarse» junta", "Basado en las preferencias de ambos lados", "Detecta honestamente los casos imposibles"],
         "cons": ["No siempre existe un emparejamiento estable", "Exige un número par", "Clasificar a todos puede llevar tiempo"]
+      },
+      "gale_shapley": {
+        "name": "Dos grupos (Parcoursup)",
+        "tagline": "Dos lados se clasifican mutuamente; emparejamiento estable.",
+        "strength": "Estable, estilo Parcoursup",
+        "how": "Dos grupos se clasifican mutuamente (candidatos y formaciones, mentorizados y mentores…). La aceptación diferida (Gale-Shapley) produce un emparejamiento estable: ningún dúo se preferiría mutuamente antes que su asignación. El lado 1 propone — el método lo favorece; cada entrada del lado 2 puede acoger a varias personas (capacidades).",
+        "pros": ["Siempre un emparejamiento estable", "Gestiona capacidades (varias plazas por entrada del lado 2)", "Clasificar con sinceridad es óptimo para el lado 1"],
+        "cons": ["Favorece estructuralmente al lado que propone", "El lado 2 puede clasificar de forma táctica", "Quedan sin asignar si faltan plazas"]
       }
     }
   },

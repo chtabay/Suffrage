@@ -26,6 +26,8 @@ export interface ScrutinState {
   options: Option[];
   slotMinutes: number;
   assignMethod: AssignMethodKey;
+  /** Affectation deux groupes : côté 2 (« Nom ; capacité », une ligne par entrée). */
+  assignSideB: string;
   recipe: Recipe;
   access: AccessMode;
   hideResults: boolean;
@@ -59,6 +61,7 @@ const INITIAL: ScrutinState = {
   optionKind: "text",
   slotMinutes: 60,
   assignMethod: "serial_dictatorship",
+  assignSideB: "",
   recipe: { ...DEFAULT_RECIPE },
   access: "open",
   hideResults: false,
@@ -301,6 +304,10 @@ export function useScrutin(draft?: ScrutinDraft) {
     setState((s) => ({ ...s, assignMethod, ...CLEAR_SHARE }));
   }, []);
 
+  const setAssignSideB = useCallback((assignSideB: string) => {
+    setState((s) => ({ ...s, assignSideB, ...CLEAR_SHARE }));
+  }, []);
+
   const setOpensAt = useCallback((opensAt: string) => {
     setState((s) => ({ ...s, opensAt, ...CLEAR_SHARE }));
   }, []);
@@ -357,6 +364,14 @@ export function useScrutin(draft?: ScrutinDraft) {
       setState((p) => ({ ...p, error: "Ajoutez une question." }));
       return;
     }
+    // Deux groupes (Gale-Shapley) : côté 2 au format « Nom ; capacité ».
+    const sideB = splitNames(s.assignSideB)
+      .map((line) => {
+        const [name, capRaw] = line.split(";").map((x) => x.trim());
+        return { name: name ?? "", cap: Math.max(1, Math.floor(Number(capRaw)) || 1) };
+      })
+      .filter((e) => e.name);
+    let assignVoters = participants;
     if (isAssign) {
       // Garde-fous d'affectation : nominative, effectif suffisant, pair et
       // sans doublon pour les binômes (prévisible dès la création).
@@ -375,6 +390,22 @@ export function useScrutin(draft?: ScrutinDraft) {
         }
         // Les « options » sont les participants eux-mêmes (chacun classe les autres).
         cleanOptions = participants.map((name) => ({ icon: "🧑", name }));
+      }
+      if (assignDef.twoLists) {
+        if (participants.length < 1 || sideB.length < 1) {
+          setState((p) => ({ ...p, error: "Renseignez des participants dans les deux côtés." }));
+          return;
+        }
+        const all = [...participants, ...sideB.map((e) => e.name)];
+        if (new Set(all).size !== all.length) {
+          setState((p) => ({ ...p, error: "Chaque participant doit avoir un nom unique (dans les deux côtés)." }));
+          return;
+        }
+        cleanOptions = [
+          ...participants.map((name) => ({ icon: "🧑", name })),
+          ...sideB.map((e) => ({ icon: "🎓", name: e.name })),
+        ];
+        assignVoters = all;
       }
       if (assignDef.endowed) {
         // Bourse d'échanges : la N-ième personne possède la N-ième chose.
@@ -398,7 +429,7 @@ export function useScrutin(draft?: ScrutinDraft) {
       let districtsPayload: District[] | null = null;
       const voters: VoterInput[] = [];
       if (isAssign) {
-        participants.forEach((label) => voters.push({ label, district: null }));
+        assignVoters.forEach((label) => voters.push({ label, district: null }));
       } else if (s.access === "invite") {
         if (isGE) {
           districtsPayload = s.districts.map((d) => ({
@@ -425,6 +456,7 @@ export function useScrutin(draft?: ScrutinDraft) {
             ...(assignDef.endowed
               ? { assignEndow: Object.fromEntries(participants.map((label, i) => [label, i])) }
               : {}),
+            ...(assignDef.twoLists ? { assignA: participants.length, assignCaps: sideB.map((e) => e.cap) } : {}),
           }
         : s.recipe;
       const access: AccessMode = isAssign ? "invite" : s.access;
@@ -490,6 +522,7 @@ export function useScrutin(draft?: ScrutinDraft) {
     toggleHideResults,
     setVoterNames,
     setAssignMethod,
+    setAssignSideB,
     setOpensAt,
     setClosesAt,
     setQuorum,

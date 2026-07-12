@@ -184,7 +184,7 @@ export default function CreateScreen({ ctrl }: { ctrl: ScrutinController }) {
   const t = useTranslations("Create");
   // Exemples évocateurs montrés en placeholder (pas des valeurs à supprimer).
   const optionPlaceholders = t.raw("optionPlaceholders") as string[];
-  const { state, selectSystemRecipe, setRecipe, setQuestion, setDescription, setOptionName, setOptionUrl, setOptionIcon, removeOption, addOption, setOptionKind, setSlots, setSlotMinutes, setAssignMethod, setVoterNames, launch } = ctrl;
+  const { state, selectSystemRecipe, setRecipe, setQuestion, setDescription, setOptionName, setOptionUrl, setOptionIcon, removeOption, addOption, setOptionKind, setSlots, setSlotMinutes, setAssignMethod, setAssignSideB, setVoterNames, launch } = ctrl;
   const [urlRows, setUrlRows] = useState<Record<number, boolean>>({});
   const [emojiRow, setEmojiRow] = useState<number | null>(null);
   const [methodOpen, setMethodOpen] = useState(false);
@@ -242,9 +242,18 @@ export default function CreateScreen({ ctrl }: { ctrl: ScrutinController }) {
   const participants = state.voterNames.split("\n").map((x) => x.trim()).filter(Boolean);
   const assignOptionCount = state.options.filter((o) => o.name.trim() !== "").length;
   const assignWarnings: string[] = [];
+  const sideBNames = state.assignSideB
+    .split("\n")
+    .map((x) => x.split(";")[0].trim())
+    .filter(Boolean);
   if (isAssign) {
-    if (participants.length < 2) assignWarnings.push(ta("needParticipants"));
-    if (!aDef.oneSided) {
+    if (participants.length < (aDef.twoLists ? 1 : 2))
+      assignWarnings.push(ta(aDef.twoLists ? "needSideA" : "needParticipants"));
+    if (aDef.twoLists) {
+      if (sideBNames.length < 1) assignWarnings.push(ta("needSideB"));
+      const all = [...participants, ...sideBNames];
+      if (all.length && new Set(all).size !== all.length) assignWarnings.push(ta("dupWarning"));
+    } else if (!aDef.oneSided) {
       if (participants.length >= 2 && participants.length % 2 !== 0)
         assignWarnings.push(ta("oddWarning", { count: participants.length }));
       if (new Set(participants).size !== participants.length) assignWarnings.push(ta("dupWarning"));
@@ -671,7 +680,7 @@ export default function CreateScreen({ ctrl }: { ctrl: ScrutinController }) {
           {/* affectation : les participants (nominative par construction) */}
           {isAssign && (
             <div style={cardStyle}>
-              <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 18 }}>{ta("participantsTitle")}</div>
+              <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 18 }}>{ta(aDef.twoLists ? "sideATitle" : "participantsTitle")}</div>
               <div style={{ fontSize: 12.5, color: MUTED, margin: "4px 0 12px", lineHeight: 1.45 }}>{ta("participantsHint")}</div>
               {aDef.endowed && (
                 <div style={{ fontSize: 12.5, fontWeight: 700, color: INK, margin: "0 0 12px", lineHeight: 1.45 }}>🔄 {ta("ttcHint")}</div>
@@ -695,6 +704,31 @@ export default function CreateScreen({ ctrl }: { ctrl: ScrutinController }) {
                   boxSizing: "border-box",
                 }}
               />
+              {aDef.twoLists && (
+                <>
+                  <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 15, marginTop: 16 }}>{ta("sideBTitle")}</div>
+                  <div style={{ fontSize: 12.5, color: MUTED, margin: "4px 0 10px", lineHeight: 1.45 }}>{ta("sideBHint")}</div>
+                  <textarea
+                    value={state.assignSideB}
+                    onChange={(e) => setAssignSideB(e.target.value)}
+                    rows={4}
+                    placeholder={"Tutorat maths ; 2\nTutorat anglais"}
+                    style={{
+                      width: "100%",
+                      fontFamily: FONT_BODY,
+                      fontSize: 14.5,
+                      fontWeight: 600,
+                      padding: "10px 13px",
+                      border: `2px solid ${INK}`,
+                      borderRadius: 11,
+                      background: CREAM,
+                      outline: "none",
+                      resize: "vertical",
+                      boxSizing: "border-box",
+                    }}
+                  />
+                </>
+              )}
               {assignWarnings.map((w) => (
                 <div
                   key={w}

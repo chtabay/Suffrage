@@ -19,7 +19,7 @@ export default function AssignResult({ poll, rows }: { poll: PollRow; rows: Assi
   if (!isAssignMethod(key) || rows.length === 0) return null;
   const def = ASSIGN_METHODS[key];
   const names = poll.options.map((o) => o.name);
-  const outcome = runAssignment(key, poll.token, rows, names, poll.recipe.assignEndow);
+  const outcome = runAssignment(key, poll.token, rows, names, poll.recipe.assignEndow, poll.recipe.assignA, poll.recipe.assignCaps);
   const optionOfPerson = (p: number) => names.findIndex((n) => n === rows[p].label);
   const rankBadge = (personIdx: number, optIdx: number) => {
     if (!rows[personIdx].voted) return null;
@@ -50,7 +50,7 @@ export default function AssignResult({ poll, rows }: { poll: PollRow; rows: Assi
       <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
         <span style={{ fontSize: 22 }}>{def.icon}</span>
         <span style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 19 }}>
-          {def.oneSided ? ta("resultTitle") : ta("pairsTitle")}
+          {def.oneSided || def.twoLists ? ta("resultTitle") : ta("pairsTitle")}
         </span>
         <span style={{ fontSize: 12.5, fontWeight: 700, color: SUBINK }}>· {ta(`methods.${key}.name`)}</span>
       </div>
@@ -98,6 +98,45 @@ export default function AssignResult({ poll, rows }: { poll: PollRow; rows: Assi
                 i,
               );
             })
+          : outcome.matches
+            ? (() => {
+                const nA = poll.recipe.assignA ?? 0;
+                const matchedA = new Set(outcome.matches.map((m) => m.a));
+                const unmatchedA = rows
+                  .map((_, i) => i)
+                  .filter((i) => {
+                    const oi = optionOfPerson(i);
+                    return oi >= 0 && oi < nA && !matchedA.has(i);
+                  });
+                return (
+                  <>
+                    {outcome.matches.map((m) =>
+                      row(
+                        <>
+                          <span style={{ fontWeight: 800, fontSize: 14.5, color: INK }}>{rows[m.a].label}</span>
+                          {rankBadge(m.a, optionOfPerson(m.b))}
+                          {notVotedBadge(m.a)}
+                          <span style={{ fontWeight: 800, color: SUBINK }}>→</span>
+                          <span style={{ fontWeight: 800, fontSize: 14.5, color: INK }}>{rows[m.b].label}</span>
+                          {rankBadge(m.b, optionOfPerson(m.a))}
+                          {notVotedBadge(m.b)}
+                        </>,
+                        `${m.a}-${m.b}`,
+                      ),
+                    )}
+                    {unmatchedA.map((i) =>
+                      row(
+                        <>
+                          <span style={{ fontWeight: 800, fontSize: 14.5, color: INK }}>{rows[i].label}</span>
+                          <span style={{ flex: 1 }} />
+                          <span style={{ fontSize: 13, fontWeight: 700, color: MUTED }}>{ta("unassigned")}</span>
+                        </>,
+                        `u${i}`,
+                      ),
+                    )}
+                  </>
+                );
+              })()
           : outcome.partner
             ? rows
                 .map((_, i) => i)

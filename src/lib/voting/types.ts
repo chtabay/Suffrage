@@ -33,6 +33,10 @@ export interface Recipe {
   assign?: string;
   /** Affectation « bourse d'échanges » (TTC) : dotation de départ, label → index d'option. */
   assignEndow?: Record<string, number>;
+  /** Affectation deux groupes (Gale-Shapley) : nombre d'options du côté 1 (proposant). */
+  assignA?: number;
+  /** Affectation deux groupes : capacités du côté 2 (aligné sur ses options). */
+  assignCaps?: number[];
 }
 
 export interface Option {

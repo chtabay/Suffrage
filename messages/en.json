@@ -284,6 +284,11 @@
     "ttcHint": "Starting endowment: the 1st person on the list owns the 1st thing, the 2nd the 2nd… Order both lists accordingly.",
     "ttcCountWarning": "Trading circle: you need exactly as many things ({objects}) as participants ({count}).",
     "owned": "owned",
+    "sideATitle": "Side 1 — proposes (favoured by the method)",
+    "sideBTitle": "Side 2 — decides (capacities)",
+    "sideBHint": "One per line. Optional capacity after \";\": \"Maths tutoring ; 2\" = 2 spots.",
+    "needSideA": "Fill in side 1 (one name per line).",
+    "needSideB": "Fill in side 2 (one name per line).",
     "methods": {
       "serial_dictatorship": {
         "name": "Picking rounds",
@@ -316,6 +321,14 @@
         "how": "Everyone ranks the other participants. Irving's algorithm looks for stable pairs: no two people would mutually prefer each other over their assigned partners. It can prove that no stable pairing exists — the fallback is then announced: picking rounds in a drawn order.",
         "pros": ["No pair wants to \"run off\" together", "Based on both sides' preferences", "Honestly detects impossible cases"],
         "cons": ["A stable pairing doesn't always exist", "Requires an even count", "Ranking everyone can take a while"]
+      },
+      "gale_shapley": {
+        "name": "Two groups (Parcoursup)",
+        "tagline": "Two sides rank each other; a stable matching.",
+        "strength": "Stable, Parcoursup-style",
+        "how": "Two groups rank each other (candidates and programmes, mentees and mentors…). Deferred acceptance (Gale-Shapley) produces a stable matching: no duo would mutually prefer each other over their assignment. Side 1 proposes — the method favours it; each side-2 entry can host several people (capacities).",
+        "pros": ["Always a stable matching", "Handles capacities (several spots per side-2 entry)", "Ranking sincerely is optimal for side 1"],
+        "cons": ["Structurally favours the proposing side", "Side 2 may be tempted to rank tactically", "Some stay unmatched if spots run out"]
       }
     }
   },

@@ -838,12 +838,22 @@ export default function PublicVote({
   }
 
   // ---------- vote ----------
-  // Affectation en binômes : on ne se classe pas soi-même (sa carte est masquée).
-  const selfIdx =
-    aDef && !aDef.oneSided && voter ? poll.options.findIndex((o) => o.name === voter.label) : -1;
+  // Affectation : cartes masquées sur le bulletin — soi-même (binômes), ou tout
+  // son propre côté (deux groupes : chacun ne classe que l'autre côté).
+  const hiddenIdx = (() => {
+    if (!aDef || aDef.oneSided || !voter) return undefined;
+    const self = poll.options.findIndex((o) => o.name === voter.label);
+    if (self < 0) return undefined;
+    if (aDef.twoLists) {
+      const nA = poll.recipe.assignA ?? 0;
+      const mine = (i: number) => (self < nA ? i < nA : i >= nA);
+      return poll.options.map((_, i) => i).filter(mine);
+    }
+    return [self];
+  })();
   // Affectation : classement COMPLET exigé (pas de complétion aléatoire du bulletin).
   const ballotValid = aDef
-    ? draft.rank.length >= poll.options.length - (selfIdx >= 0 ? 1 : 0)
+    ? draft.rank.length >= poll.options.length - (hiddenIdx?.length ?? 0)
     : draftToBallot(mode, draft, poll.options.length) !== null;
 
   const submit = async () => {
@@ -964,7 +974,7 @@ export default function PublicVote({
           mode={mode}
           options={poll.options}
           color={desc.color}
-          hidden={selfIdx >= 0 ? [selfIdx] : undefined}
+          hidden={hiddenIdx}
           draft={draft}
           onChoice={(i) => setDraft((d) => ({ ...d, choice: i }))}
           onToggle={(i) =>

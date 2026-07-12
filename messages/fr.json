@@ -284,6 +284,11 @@
     "ttcHint": "Dotation de départ : la 1re personne de la liste possède la 1re chose, la 2e la 2e… Ordonnez les deux listes en conséquence.",
     "ttcCountWarning": "Bourse d'échanges : il faut exactement autant de choses ({objects}) que de participants ({count}).",
     "owned": "possédait",
+    "sideATitle": "Côté 1 — propose (favorisé par la méthode)",
+    "sideBTitle": "Côté 2 — dispose (capacités)",
+    "sideBHint": "Un par ligne. Capacité optionnelle après « ; » : « Tutorat maths ; 2 » = 2 places.",
+    "needSideA": "Renseignez le côté 1 (un nom par ligne).",
+    "needSideB": "Renseignez le côté 2 (un nom par ligne).",
     "methods": {
       "serial_dictatorship": {
         "name": "Tour de choix",
@@ -316,6 +321,14 @@
         "how": "Chacun classe les autres participants. L'algorithme d'Irving cherche des binômes stables : aucune paire ne se préfèrerait mutuellement à ses binômes actuels. Il peut prouver qu'aucun appariement stable n'existe — le repli est alors annoncé : tour de choix dans un ordre tiré au sort.",
         "pros": ["Aucune paire n'a envie de « fuguer »", "Fondé sur les préférences des deux côtés", "Détecte honnêtement les cas impossibles"],
         "cons": ["Un appariement stable n'existe pas toujours", "Exige un effectif pair", "Classer tout le monde peut être long"]
+      },
+      "gale_shapley": {
+        "name": "Deux groupes (Parcoursup)",
+        "tagline": "Deux côtés se classent mutuellement ; appariement stable.",
+        "strength": "Stable, façon Parcoursup",
+        "how": "Deux groupes se classent mutuellement (candidats et formations, mentorés et mentors…). L'acceptation différée (Gale-Shapley) produit un appariement stable : aucun duo ne se préfèrerait mutuellement à son affectation. Le côté 1 propose — la méthode le favorise ; chaque entrée du côté 2 peut accueillir plusieurs personnes (capacités).",
+        "pros": ["Toujours un appariement stable", "Gère les capacités (plusieurs places par entrée du côté 2)", "Classer sincèrement est optimal pour le côté 1"],
+        "cons": ["Favorise structurellement le côté qui propose", "Le côté 2 peut être tenté de classer tactiquement", "Des non-affectés si les places manquent"]
       }
     }
   },

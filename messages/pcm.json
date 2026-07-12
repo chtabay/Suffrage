@@ -284,6 +284,11 @@
     "ttcHint": "Starting property: di 1st person for di list own di 1st thing, di 2nd own di 2nd… Arrange di two lists like dat.",
     "ttcCountWarning": "Trading circle: you need exactly as many things ({objects}) as participants ({count}).",
     "owned": "bin own",
+    "sideATitle": "Side 1 — dey propose (di method favour am)",
+    "sideBTitle": "Side 2 — dey decide (capacities)",
+    "sideBHint": "One per line. Capacity fit follow after \";\": \"Maths tutoring ; 2\" = 2 spots.",
+    "needSideA": "Fill side 1 (one name per line).",
+    "needSideB": "Fill side 2 (one name per line).",
     "methods": {
       "serial_dictatorship": {
         "name": "Picking rounds",
@@ -316,6 +321,14 @@
         "how": "Everybody rank di oda participants. Irving algorithm go find stable pairs: no two people go prefer each oda pass dia assigned partners. E fit prove say no stable pairing dey exist — den we go announce di fallback: picking rounds for drawn order.",
         "pros": ["No pair wan \"run away\" togeda", "E dey based on both sides preferences", "E dey honestly detect impossible cases"],
         "cons": ["Stable pairing no dey always exist", "E need even number", "To rank everybody fit take time"]
+      },
+      "gale_shapley": {
+        "name": "Two groups (Parcoursup)",
+        "tagline": "Two sides rank each oda; stable matching.",
+        "strength": "Stable, Parcoursup-style",
+        "how": "Two groups rank each oda (candidates and programmes, mentees and mentors…). Deferred acceptance (Gale-Shapley) go produce stable matching: no duo go prefer each oda pass dia assignment. Side 1 dey propose — di method favour am; each side-2 entry fit host plenty people (capacities).",
+        "pros": ["Always stable matching", "E handle capacities (plenty spots per side-2 entry)", "Sincere ranking na optimal for side 1"],
+        "cons": ["E dey favour di side wey propose", "Side 2 fit rank tactical", "Some people go remain unmatched if spots finish"]
       }
     }
   },
