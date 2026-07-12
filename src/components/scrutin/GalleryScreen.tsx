@@ -4,6 +4,7 @@ import { useTranslations } from "next-intl";
 import { SYSTEMS, SYSTEM_ORDER } from "@/lib/voting/systems";
 import { ASSIGN_METHODS, ASSIGN_METHOD_KEYS, type AssignMethodKey } from "@/lib/assign/methods";
 import type { ScrutinController } from "@/lib/voting/useScrutin";
+import { Btn } from "@/components/ui/kit";
 import { FONT_DISPLAY, GREENTXT, INK, REDTXT, SUBINK } from "./theme";
 
 export default function GalleryScreen({ ctrl }: { ctrl: ScrutinController }) {
@@ -164,25 +165,15 @@ export default function GalleryScreen({ ctrl }: { ctrl: ScrutinController }) {
                     ))}
                   </div>
                 </div>
-                <button
-                  onClick={() => selectSystemRecipe(key)}
+                <Btn
+                  variant="primary"
+                  flat
                   className="dc-bright"
-                  style={{
-                    marginTop: 18,
-                    fontFamily: FONT_DISPLAY,
-                    fontWeight: 700,
-                    fontSize: 14.5,
-                    cursor: "pointer",
-                    border: `2.5px solid ${INK}`,
-                    background: sys.color,
-                    color: "#fff",
-                    padding: 11,
-                    borderRadius: 11,
-                    width: "100%",
-                  }}
+                  onClick={() => selectSystemRecipe(key)}
+                  style={{ marginTop: 18, width: "100%", padding: 11, background: sys.color }}
                 >
                   {t("launchWithMethod")}
-                </button>
+                </Btn>
               </div>
             </div>
           );
@@ -292,25 +283,15 @@ export default function GalleryScreen({ ctrl }: { ctrl: ScrutinController }) {
                     ))}
                   </div>
                 </div>
-                <button
-                  onClick={() => startAssign(key)}
+                <Btn
+                  variant="primary"
+                  flat
                   className="dc-bright"
-                  style={{
-                    marginTop: "auto",
-                    fontFamily: FONT_DISPLAY,
-                    fontWeight: 700,
-                    fontSize: 14.5,
-                    cursor: "pointer",
-                    border: `2.5px solid ${INK}`,
-                    background: def.color,
-                    color: "#fff",
-                    padding: 11,
-                    borderRadius: 11,
-                    width: "100%",
-                  }}
+                  onClick={() => startAssign(key)}
+                  style={{ marginTop: "auto", width: "100%", padding: 11, background: def.color }}
                 >
                   {t("launchAssign")}
-                </button>
+                </Btn>
               </div>
             </div>
           );

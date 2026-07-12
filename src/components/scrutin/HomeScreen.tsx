@@ -10,6 +10,7 @@ import AiHelper from "./AiHelper";
 import AboutPlacet from "./AboutPlacet";
 import SlackMark from "@/components/SlackMark";
 import { Link } from "@/i18n/navigation";
+import { Btn } from "@/components/ui/kit";
 import { CORAL, FONT_DISPLAY, GREEN, INK, MUTED, PAPER, SUBINK, lift } from "./theme";
 
 // 4 méthodes mises en avant (spectre représentatif) ; les 10 restent dans la galerie.
@@ -277,25 +278,9 @@ export default function HomeScreen({ ctrl }: { ctrl: ScrutinController }) {
 
         {/* après les cartes : comparer toutes les méthodes (galerie = vote) */}
         {pillar === "vote" && (
-        <button
-          onClick={() => go("gallery")}
-          className="dc-lift"
-          style={{
-            marginTop: 16,
-            fontFamily: FONT_DISPLAY,
-            fontWeight: 700,
-            fontSize: 15,
-            cursor: "pointer",
-            border: `2.5px solid ${INK}`,
-            background: PAPER,
-            color: INK,
-            padding: "12px 20px",
-            borderRadius: 12,
-            ...lift(`4px 4px 0 ${INK}`, `6px 6px 0 ${INK}`),
-          }}
-        >
-          {t("compareCta")}
-        </button>
+          <Btn onClick={() => go("gallery")} style={{ marginTop: 16, fontSize: 15, background: PAPER }}>
+            {t("compareCta")}
+          </Btn>
         )}
       </div>
 
