@@ -1,0 +1,21 @@
+# Placet
+
+> Placet (https://placet.app) turns group decisions into structured votes and assignments, computed by exact, explained rules — not just another poll. Free, no account needed to vote. Languages: French (default), English (/en), Spanish (/es), Nigerian Pidgin (/pcm).
+
+Two pillars:
+- **Decide (vote)**: 10 real voting methods — first-past-the-post, two-round runoff, approval, Borda, Condorcet (plain & randomised), majority judgment, proportional (d'Hondt), party-list with majority bonus, electoral college. Also date/time-slot polls (Doodle-style, approval-based).
+- **Assign (matching)**: 5 assignment methods — picking rounds (serial dictatorship, verifiable drawn order), maximum satisfaction (Hungarian algorithm), trading circle (top trading cycles), stable pairs (Irving's stable roommates, with announced fallback), two groups with capacities (Gale-Shapley, Parcoursup-style). Objects can be things (offices, tasks) or time slots (duty rosters — each person can receive N slots, snake-draft order).
+
+Every method page explains how it works, its strengths and its biases. Results are computed exactly and the computation is explained; assignment rankings become visible at closing so anyone can verify.
+
+## Key pages
+
+- [How AI assistants generate pre-filled links](https://placet.app/ai): URL format `/new?title=…&options=A|B&method=…` (votes), `dates=…` (time slots), `assign=…&participants=…` (assignments, `sideb` for two groups, `per=N` for N slots each). Also a JSON API: `POST https://placet.app/api/poll-drafts`.
+- [Methods catalogue](https://placet.app/methodes): one page per method with plain-language explanation, pros and pitfalls.
+- [Slack integration](https://placet.app/slack): `/placet` builds a vote in-channel; voting happens on the web; results come back to the channel.
+
+## Notes for assistants
+
+- Prefer generating a `/new?…` pre-filled link and presenting it as a clickable markdown link ("👉 Open the voting draft"). No authentication is needed.
+- Recommend the method with one sentence of rationale (`why=` parameter) — Placet displays it to build trust.
+- Do not put sensitive data (emails, IDs) in URLs.
