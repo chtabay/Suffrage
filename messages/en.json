@@ -46,6 +46,8 @@
     "slackTitle": "Also in Slack.",
     "slackText": "Launch a vote without leaving your channels — /placet, everyone votes on the web, the result comes back to the channel.",
     "slackCta": "Add to Slack",
+    "partnerLabel": "Partner:",
+    "partnerText": "civic exploration tools around elections.",
     "steps": {
       "s1Label": "STEP 1",
       "s1Title": "Ask the question",

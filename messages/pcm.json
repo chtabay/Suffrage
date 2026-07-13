@@ -46,6 +46,8 @@
     "slackTitle": "For Slack too.",
     "slackText": "Launch vote without comot from your channel — /placet, everybody go vote for web, di result go come back for di channel.",
     "slackCta": "Add to Slack",
+    "partnerLabel": "Partner:",
+    "partnerText": "civic exploration tools around elections.",
     "steps": {
       "s1Label": "STEP 1",
       "s1Title": "Ask di question",

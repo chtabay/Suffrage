@@ -400,6 +400,20 @@ export default function HomeScreen({ ctrl }: { ctrl: ScrutinController }) {
           <SlackMark /> {t("slackCta")}
         </Link>
       </div>
+
+      {/* Backlink partenaire — réciproque du lien GlobéNostra → Placet. */}
+      <p style={{ marginTop: 26, fontSize: 12.5, color: MUTED }}>
+        {t("partnerLabel")}{" "}
+        <a
+          href="https://www.globenostra.com"
+          target="_blank"
+          rel="noopener"
+          style={{ color: SUBINK, fontWeight: 700 }}
+        >
+          GlobéNostra
+        </a>{" "}
+        — {t("partnerText")}
+      </p>
     </div>
   );
 }
