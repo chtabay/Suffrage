@@ -27,6 +27,8 @@ export interface PollRow {
   close_on_complete: boolean;
   quorum: number | null;
   slot_minutes: number | null;
+  /** Compte propriétaire (scrutin réclamé). Sert uniquement de booléen côté client. */
+  created_by: string | null;
 }
 
 export interface VoterInput {
@@ -50,7 +52,7 @@ export interface VoterContext {
 }
 
 const POLL_COLS =
-  "id, token, question, description, options, recipe, created_at, status, hide_results, access_mode, districts, opens_at, closes_at, close_on_complete, quorum, slot_minutes";
+  "id, token, question, description, options, recipe, created_at, status, hide_results, access_mode, districts, opens_at, closes_at, close_on_complete, quorum, slot_minutes, created_by";
 
 /** SHA-256 hex (mêmes octets que sha256(convert_to(...,'UTF8')) côté Postgres). */
 async function sha256Hex(input: string): Promise<string> {
@@ -178,6 +180,41 @@ export async function getComments(pollId: string): Promise<BallotComment[]> {
     .order("created_at", { ascending: true });
   if (error) throw error;
   return (data ?? []) as BallotComment[];
+}
+
+// ---------- messages privés à l'organisateur ----------
+
+export interface PollMessage {
+  body: string;
+  contact: string | null;
+  created_at: string;
+}
+
+/**
+ * Dépose un message privé pour l'organisateur (détaché du bulletin — aucun lien
+ * possible avec un choix de vote). Réservé aux scrutins rattachés à un compte.
+ * Renvoie 'ok' | 'empty' | 'not_found' | 'no_owner'.
+ */
+export async function leavePollMessage(token: string, body: string, contact?: string): Promise<string> {
+  const supabase = createClient();
+  const { data, error } = await supabase.rpc("leave_poll_message", {
+    p_token: token,
+    p_body: body,
+    p_contact: contact?.trim() || null,
+  });
+  if (error) throw error;
+  return data as string;
+}
+
+/** Messages privés reçus (organisateur : secret d'admin ou compte propriétaire). */
+export async function getPollMessages(token: string, secret?: string): Promise<PollMessage[]> {
+  const supabase = createClient();
+  const { data, error } = await supabase.rpc("get_poll_messages", {
+    p_token: token,
+    p_secret: secret ?? null,
+  });
+  if (error) throw error;
+  return ((data ?? []) as PollMessage[]) || [];
 }
 
 // ---------- gestion (admin via secret) ----------

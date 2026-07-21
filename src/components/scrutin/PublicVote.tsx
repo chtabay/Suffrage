@@ -13,11 +13,14 @@ import {
   getBallots,
   getComments,
   getPollByToken,
+  getPollMessages,
   getVoterContext,
   getVoters,
+  leavePollMessage,
   pollPhase,
   reopenPoll,
   type BallotComment,
+  type PollMessage,
   type PollRow,
   type Voter,
   type VoterContext,
@@ -163,6 +166,149 @@ function CommentsFeed({ comments }: { comments: BallotComment[] }) {
           </div>
         ))}
       </div>
+    </div>
+  );
+}
+
+// Message privé à l'organisateur (scrutins rattachés à un compte uniquement) :
+// stocké à part des bulletins — impossible de relier un message à un choix de vote.
+function MessageToOrganizer({ token }: { token: string }) {
+  const t = useTranslations("Vote");
+  const [open, setOpen] = useState(false);
+  const [body, setBody] = useState("");
+  const [contact, setContact] = useState("");
+  const [sending, setSending] = useState(false);
+  const [sent, setSent] = useState(false);
+  const [failed, setFailed] = useState(false);
+  if (sent) {
+    return (
+      <div style={{ marginTop: 16, textAlign: "center", fontWeight: 700, fontSize: 13.5, color: "#1f6b34" }}>
+        ✓ {t("msgOrgaSent")}
+      </div>
+    );
+  }
+  const send = async () => {
+    setSending(true);
+    setFailed(false);
+    try {
+      const r = await leavePollMessage(token, body, contact);
+      if (r === "ok") setSent(true);
+      else setFailed(true);
+    } catch {
+      setFailed(true);
+    } finally {
+      setSending(false);
+    }
+  };
+  const field = {
+    fontFamily: FONT_BODY,
+    fontSize: 14,
+    fontWeight: 500,
+    padding: "10px 12px",
+    border: `2px solid ${INK}`,
+    borderRadius: 10,
+    background: CREAM,
+    outline: "none",
+    boxSizing: "border-box",
+    width: "100%",
+  } as const;
+  return (
+    <div style={{ marginTop: 16, textAlign: "center" }}>
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        aria-expanded={open}
+        style={{
+          fontFamily: FONT_DISPLAY,
+          fontWeight: 700,
+          fontSize: 13.5,
+          cursor: "pointer",
+          border: `2px solid ${INK}`,
+          background: open ? INK : "transparent",
+          color: open ? "#fff" : INK,
+          padding: "8px 16px",
+          borderRadius: 20,
+        }}
+      >
+        ✉️ {t("msgOrgaFold")} {open ? "▴" : "▸"}
+      </button>
+      {open && (
+        <div style={{ ...card, marginTop: 12, textAlign: "left" }}>
+          <div style={{ fontSize: 12.5, color: MUTED, fontWeight: 600, lineHeight: 1.45 }}>🔒 {t("msgOrgaHint")}</div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 9, marginTop: 12 }}>
+            <textarea
+              value={body}
+              onChange={(e) => setBody(e.target.value)}
+              placeholder={t("msgOrgaPlaceholder")}
+              maxLength={1000}
+              rows={3}
+              style={{ ...field, resize: "vertical" }}
+            />
+            <input
+              value={contact}
+              onChange={(e) => setContact(e.target.value)}
+              placeholder={t("msgOrgaContactPlaceholder")}
+              maxLength={160}
+              style={field}
+            />
+          </div>
+          {failed && <div style={{ marginTop: 10, color: REDTXT, fontWeight: 700, fontSize: 13 }}>{t("msgOrgaError")}</div>}
+          <button
+            onClick={send}
+            disabled={!body.trim() || sending}
+            style={{
+              marginTop: 12,
+              width: "100%",
+              fontFamily: FONT_DISPLAY,
+              fontWeight: 700,
+              fontSize: 14,
+              cursor: !body.trim() || sending ? "default" : "pointer",
+              border: `2.5px solid ${INK}`,
+              background: INK,
+              color: "#fff",
+              padding: 11,
+              borderRadius: 11,
+              opacity: !body.trim() || sending ? 0.5 : 1,
+            }}
+          >
+            {sending ? t("submitting") : `✉️ ${t("msgOrgaSend")}`}
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// Boîte de réception privée de l'organisateur. Scrutin non rattaché à un compte :
+// simple incitation à se connecter (le dépôt est de toute façon bloqué en base).
+function PrivateMessagesCard({ owned, messages, locale }: { owned: boolean; messages: PollMessage[]; locale: string }) {
+  const t = useTranslations("Vote");
+  if (!owned) {
+    return (
+      <div style={{ marginTop: 16, fontSize: 12.5, color: MUTED, fontWeight: 600, lineHeight: 1.5 }}>
+        💡 {t("privateMessagesTeaser")}
+      </div>
+    );
+  }
+  return (
+    <div style={{ ...card, marginTop: 16 }}>
+      <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 16 }}>
+        ✉️ {t("privateMessagesTitle")} ({messages.length})
+      </div>
+      <div style={{ fontSize: 12.5, color: MUTED, fontWeight: 600, marginTop: 4 }}>🔒 {t("privateMessagesOnlyYou")}</div>
+      {messages.length === 0 ? (
+        <div style={{ marginTop: 12, fontSize: 14, color: MUTED, lineHeight: 1.5 }}>{t("privateMessagesEmpty")}</div>
+      ) : (
+        <div style={{ display: "flex", flexDirection: "column", gap: 12, marginTop: 12 }}>
+          {messages.map((m, i) => (
+            <div key={i} style={{ borderLeft: `3px solid ${CORAL}`, paddingLeft: 11 }}>
+              <div style={{ fontSize: 14, color: SUBINK, lineHeight: 1.45, whiteSpace: "pre-wrap" }}>{m.body}</div>
+              {m.contact && <div style={{ fontWeight: 700, fontSize: 13, color: INK, marginTop: 3 }}>📇 {m.contact}</div>}
+              <div style={{ fontSize: 11.5, color: MUTED, marginTop: 3 }}>{fmtDateTime(m.created_at, locale)}</div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
@@ -367,6 +513,7 @@ export default function PublicVote({
   const [pseudo, setPseudo] = useState("");
   const [comment, setComment] = useState("");
   const [comments, setComments] = useState<BallotComment[]>([]);
+  const [privMessages, setPrivMessages] = useState<PollMessage[]>([]);
   const [result, setResult] = useState<ComputeResult | null>(null);
   const [ballotCount, setBallotCount] = useState(0);
   const [voters, setVoters] = useState<Voter[]>([]);
@@ -393,9 +540,12 @@ export default function PublicVote({
   const refreshOrganizer = useCallback(
     async (p: PollRow) => {
       await loadResults(p);
-      if (p.access_mode === "invite" && adminKey) {
-        const vs = await getVoters(token, adminKey).catch(() => [] as Voter[]);
-        setVoters(vs);
+      if (adminKey) {
+        setPrivMessages(await getPollMessages(token, adminKey).catch(() => [] as PollMessage[]));
+        if (p.access_mode === "invite") {
+          const vs = await getVoters(token, adminKey).catch(() => [] as Voter[]);
+          setVoters(vs);
+        }
       }
     },
     [adminKey, token, loadResults],
@@ -516,6 +666,8 @@ export default function PublicVote({
       : tm(`${mKey}.name`);
   const mode = methodMode(operativeMethod(poll.recipe));
   const voteShareUrl = `${APP_URL}/v/${poll.token}`;
+  // Message privé à l'organisateur : uniquement si le scrutin est rattaché à un compte.
+  const showMsgOrga = Boolean(poll.created_by) && !adminKey;
 
   const phase = pollPhase(poll);
   // Vote de dates clos → créneau gagnant (option .at) pour proposer un .ics.
@@ -725,6 +877,7 @@ export default function PublicVote({
             <div style={{ ...card, color: MUTED, fontSize: 15 }}>{t("noBallotsYet")}</div>
           )}
         </div>
+        <PrivateMessagesCard owned={Boolean(poll.created_by)} messages={privMessages} locale={locale} />
       </Shell>
     );
   }
@@ -773,6 +926,7 @@ export default function PublicVote({
             {t("thanksHiddenResults", { name: voter ? ` ${voter.label}` : "" })}
           </p>
         </div>
+        {showMsgOrga && <MessageToOrganizer token={token} />}
         <div style={{ marginTop: 16, display: "flex", justifyContent: "center" }}>
           <NotifyButton pollToken={token} />
         </div>
@@ -827,6 +981,7 @@ export default function PublicVote({
         ) : (
           <div style={{ ...card, color: MUTED }}>{t("noBallotsCast")}</div>
         )}
+        {showMsgOrga && <MessageToOrganizer token={token} />}
       </Shell>
     );
   }
@@ -871,6 +1026,7 @@ export default function PublicVote({
         {poll.quorum != null && <QuorumBanner quorum={poll.quorum} count={ballotCount} />}
         <ResultCard result={result} question={poll.question} ballotCount={ballotCount} footer={footer} calendarSlot={winnerSlot} calendarUrl={voteShareUrl} calendarDuration={poll.slot_minutes ?? undefined} survey={isSurvey} />
         <CommentsFeed comments={comments} />
+        {showMsgOrga && <MessageToOrganizer token={token} />}
         <OfficialRecordCta token={token} />
       </Shell>
     );
