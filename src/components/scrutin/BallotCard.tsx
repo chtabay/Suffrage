@@ -2,7 +2,7 @@
 
 import { useLocale, useTranslations } from "next-intl";
 import { candColor } from "@/lib/voting/systems";
-import { resolveScale } from "@/lib/voting/scales";
+import { resolveScale, textOn } from "@/lib/voting/scales";
 import type { BallotMode, Option } from "@/lib/voting/types";
 import { CREAM, FONT_BODY, FONT_DISPLAY, GREEN, INK, MUTED } from "./theme";
 
@@ -314,7 +314,7 @@ export default function BallotCard({
                     cursor: "pointer",
                     border: `2px solid ${INK}`,
                     background: sel ? gradeColors[gi] : "#fff",
-                    color: sel ? "#fff" : INK,
+                    color: sel ? textOn(gradeColors[gi]) : INK,
                     padding: "8px 6px",
                     borderRadius: 9,
                     fontWeight: 700,

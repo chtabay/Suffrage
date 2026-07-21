@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { describeRecipe, resolveKey } from "@/lib/voting/engine";
+import { resolveScale, textOn } from "@/lib/voting/scales";
 import { SYSTEMS, SYSTEM_ORDER, candColor } from "@/lib/voting/systems";
 import type { CountingMethod, Recipe } from "@/lib/voting/types";
 import type { ScrutinController } from "@/lib/voting/useScrutin";
@@ -191,6 +192,34 @@ function ImgPreview({ url, notFoundLabel }: { url: string; notFoundLabel: string
   );
 }
 
+// Aperçu vivant des mentions du preset d'échelle sélectionné : on ne choisit pas
+// un registre à l'aveugle (« Gravité »), on voit les 6 mentions réelles et leurs
+// couleurs — exactement ce que le votant aura sous les yeux. Une seule bande.
+function ScalePreview({ scale, locale }: { scale?: string; locale: string }) {
+  const { labels, colors } = resolveScale({ scale }, locale);
+  return (
+    <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 10 }}>
+      {labels.map((l, i) => (
+        <span
+          key={i}
+          style={{
+            fontSize: 11.5,
+            fontWeight: 700,
+            color: textOn(colors[i]),
+            background: colors[i],
+            border: `1.5px solid ${INK}`,
+            padding: "3px 9px",
+            borderRadius: 20,
+            whiteSpace: "nowrap",
+          }}
+        >
+          {l}
+        </span>
+      ))}
+    </div>
+  );
+}
+
 // Palette curée pour changer l'emoji d'une option.
 const EMOJI_PALETTE = [
   "🏔️", "🏖️", "🌆", "🌿", "🏝️", "🏕️", "🏰", "🗺️",
@@ -202,6 +231,7 @@ const EMOJI_PALETTE = [
 
 export default function CreateScreen({ ctrl }: { ctrl: ScrutinController }) {
   const t = useTranslations("Create");
+  const locale = useLocale();
   // Exemples évocateurs montrés en placeholder (pas des valeurs à supprimer).
   const optionPlaceholders = t.raw("optionPlaceholders") as string[];
   const { state, selectSystemRecipe, setRecipe, setQuestion, setDescription, setOptionName, setOptionUrl, setOptionIcon, removeOption, addOption, setOptionKind, setSlots, setSlotMinutes, setAssignMethod, setAssignSideB, setAssignSlots, setAssignPer, setSurvey, setVoterNames, launch } = ctrl;
@@ -922,6 +952,7 @@ export default function CreateScreen({ ctrl }: { ctrl: ScrutinController }) {
                           </button>
                         ))}
                       </div>
+                      {axis.key === "scale" && <ScalePreview scale={state.recipe.scale} locale={locale} />}
                     </div>
                   ))}
                 </div>
