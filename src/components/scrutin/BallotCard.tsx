@@ -1,7 +1,8 @@
 "use client";
 
-import { useTranslations } from "next-intl";
-import { GRADES, GRADE_COLORS, candColor } from "@/lib/voting/systems";
+import { useLocale, useTranslations } from "next-intl";
+import { candColor } from "@/lib/voting/systems";
+import { resolveScale } from "@/lib/voting/scales";
 import type { BallotMode, Option } from "@/lib/voting/types";
 import { CREAM, FONT_BODY, FONT_DISPLAY, GREEN, INK, MUTED } from "./theme";
 
@@ -28,6 +29,8 @@ interface Props {
   onGrade: (i: number, gi: number) => void;
   /** Indices d'options à ne pas présenter (ex. soi-même dans une affectation en binômes). */
   hidden?: number[];
+  /** Jugement majoritaire : clé de l'échelle de mentions (défaut : électorale). */
+  scale?: string;
 }
 
 /** Contenu d'un bulletin (4 modes), sans la carte ni le bouton de validation. */
@@ -42,8 +45,11 @@ export default function BallotCard({
   onResetRank,
   onGrade,
   hidden,
+  scale,
 }: Props) {
   const t = useTranslations("Vote");
+  const locale = useLocale();
+  const { labels: gradeLabels, colors: gradeColors } = resolveScale({ scale }, locale);
   const optionRow = (i: number, children: React.ReactNode, onClick: () => void, bg: string) => (
     <button
       key={i}
@@ -296,7 +302,7 @@ export default function BallotCard({
             {media(o.url)}
           </div>
           <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-            {GRADES.map((_gl, gi) => {
+            {gradeLabels.map((gl, gi) => {
               const sel = (draft.grades[i] ?? null) === gi;
               return (
                 <button
@@ -307,7 +313,7 @@ export default function BallotCard({
                     minWidth: 78,
                     cursor: "pointer",
                     border: `2px solid ${INK}`,
-                    background: sel ? GRADE_COLORS[gi] : "#fff",
+                    background: sel ? gradeColors[gi] : "#fff",
                     color: sel ? "#fff" : INK,
                     padding: "8px 6px",
                     borderRadius: 9,
@@ -316,7 +322,7 @@ export default function BallotCard({
                     lineHeight: 1.1,
                   }}
                 >
-                  {t(`grade${gi}`)}
+                  {gl}
                 </button>
               );
             })}

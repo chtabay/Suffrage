@@ -197,6 +197,7 @@ export default function LivretVote({ token }: { token: string }) {
                     mode={mode}
                     options={res.options}
                     color={color}
+                    scale={res.recipe.scale}
                     draft={drafts[res.token] ?? EMPTY_DRAFT}
                     onChoice={(i) => setD(res.token, (d) => ({ ...d, choice: i }))}
                     onToggle={(i) =>

@@ -1170,6 +1170,7 @@ export default function PublicVote({
           options={poll.options}
           color={desc.color}
           hidden={hiddenIdx}
+          scale={poll.recipe.scale}
           draft={draft}
           onChoice={(i) => setDraft((d) => ({ ...d, choice: i }))}
           onToggle={(i) =>

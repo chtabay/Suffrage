@@ -2,7 +2,8 @@
 // Fonctions pures : aucune dépendance au DOM, utilisables côté client.
 
 import { pickLocale } from "@/i18n/locales";
-import { DISTRICTS, GRADES, SYSTEMS, candColor } from "./systems";
+import { DISTRICTS, SYSTEMS, candColor } from "./systems";
+import { resolveScale } from "./scales";
 import type {
   Ballot,
   BallotMode,
@@ -115,12 +116,6 @@ const LL_ES: Record<CountingMethod, string> = {
   proportional: "proporcional",
   list: "lista",
 };
-
-/** Mentions du jugement majoritaire en anglais (même ordre que GRADES). */
-const GRADES_EN = ["To reject", "Insufficient", "Passable", "Fair", "Good", "Very good"];
-
-/** Menciones del juicio mayoritario en español (mismo orden que GRADES). */
-const GRADES_ES = ["A rechazar", "Insuficiente", "Pasable", "Aceptable", "Bueno", "Muy bueno"];
 
 export function describeRecipe(r: Recipe, locale: string = "fr"): RecipeDescription {
   const ll = pickLocale(locale, { fr: LL, en: LL_EN, es: LL_ES });
@@ -353,7 +348,7 @@ const toVals = (arr: number[]): Record<number, number> => {
 /** Dépouille l'urne selon la recette. `null` si aucun bulletin. */
 export function compute(ctx: ComputeCtx, locale: string = "fr"): ComputeResult | null {
   const { recipe: r, options: opts, ballots } = ctx;
-  const GR = pickLocale(locale, { fr: GRADES, en: GRADES_EN, es: GRADES_ES });
+  const GR = resolveScale(r, locale).labels;
   const n = opts.length;
   const total = ballots.length;
   if (!total) return null;

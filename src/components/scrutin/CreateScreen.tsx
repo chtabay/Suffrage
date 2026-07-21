@@ -106,6 +106,26 @@ function buildAxes(r: Recipe, setRecipe: (p: Partial<Recipe>) => void, slotMode 
         ],
       });
     }
+    // Jugement majoritaire : échelle des mentions. L'échelle électorale par défaut
+    // juge une aptitude à être choisi ; en sondage, une échelle d'accord / gravité /
+    // fréquence colle mieux. Seuls libellés + couleurs changent (la médiane reste).
+    if (r.counting === "mj") {
+      const cur = r.scale ?? "mentions";
+      const scaleOpt = (v: string, l: string) => mkOpt(cur === v, false, l, () => setRecipe({ scale: v }));
+      axes.push({
+        key: "scale",
+        label: t("axisScaleLabel"),
+        hint: t("axisScaleHint"),
+        options: [
+          scaleOpt("mentions", t("scaleMentions")),
+          scaleOpt("agreement", t("scaleAgreement")),
+          scaleOpt("severity", t("scaleSeverity")),
+          scaleOpt("frequency", t("scaleFrequency")),
+          scaleOpt("satisfaction", t("scaleSatisfaction")),
+          scaleOpt("priority", t("scalePriority")),
+        ],
+      });
+    }
   } else {
     const localOpt = (v: CountingMethod, l: string) =>
       mkOpt(r.localCounting === v, false, l, () => setRecipe({ localCounting: v }));

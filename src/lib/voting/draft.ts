@@ -2,6 +2,7 @@
 // Toutes les entrées (URL, IA, Slack, API) convergent ici → un brouillon à relire.
 import { recipeForSystem } from "./engine";
 import { publicMethodToSystem } from "./methods";
+import { SCALE_KEYS } from "./scales";
 import { isAssignMethod, type AssignMethodKey } from "@/lib/assign/methods";
 import type { Option, Recipe } from "./types";
 import { intlLocale, pickLocale } from "@/i18n/locales";
@@ -123,6 +124,17 @@ export function parseDraft(params: RawParams, locale = "fr"): ScrutinDraft {
     draft.recipe = { ...(draft.recipe ?? recipeForSystem("approval")), survey: true };
   }
 
+  // Échelle de mentions (jugement majoritaire). N'a de sens que sur une recette mj :
+  // on force la méthode pour que le paramètre soit auto-porteur (ex. sondage gradué).
+  const scale = first(params.scale);
+  if (scale && (SCALE_KEYS as string[]).includes(scale.trim())) {
+    const base =
+      draft.recipe?.counting === "mj"
+        ? draft.recipe
+        : { ...recipeForSystem("mj"), ...(draft.recipe?.survey ? { survey: true } : {}) };
+    draft.recipe = { ...base, scale: scale.trim() };
+  }
+
   // Affectation : `assign=<méthode>` + `participants=Alice|Bob` (+ `sideb=X ; 2|Y`
   // pour deux groupes). Les options restent les choses à attribuer (sens unique).
   const assign = first(params.assign);
@@ -198,6 +210,8 @@ export interface DraftInput {
   per?: number;
   /** Mode sondage : panorama des avis, personne n'est déclaré vainqueur. */
   survey?: boolean;
+  /** Jugement majoritaire : clé de l'échelle de mentions (mentions, agreement, severity…). */
+  scale?: string;
   deadline?: string;
   source?: string;
   why?: string;
@@ -222,6 +236,7 @@ export function buildNewUrl(base: string, d: DraftInput): string {
   if (d.sideb && d.sideb.length) p.set("sideb", d.sideb.map((s) => s.trim()).filter(Boolean).join("|"));
   if (d.per && d.per >= 2) p.set("per", String(Math.min(6, Math.floor(d.per))));
   if (d.survey) p.set("survey", "1");
+  if (d.scale && (SCALE_KEYS as string[]).includes(d.scale)) p.set("scale", d.scale);
   if (d.deadline) p.set("deadline", d.deadline);
   if (d.source) p.set("source", d.source);
   if (d.why) p.set("why", d.why);

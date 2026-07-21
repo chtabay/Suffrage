@@ -124,6 +124,7 @@ export default async function AiDocPage() {
                 <li><b>dates</b>{t.rich("paramDates", { b, code: codeTag })}</li>
                 <li><b>method</b>{t.rich("paramMethod", { b, code: codeTag })}</li>
                 <li><b>survey</b>{t.rich("paramSurvey", { b, code: codeTag })}</li>
+                <li><b>scale</b>{t.rich("paramScale", { b, code: codeTag })}</li>
                 <li><b>assign</b>{t.rich("paramAssign", { b, code: codeTag })}</li>
                 <li><b>participants</b>{t.rich("paramParticipants", { b, code: codeTag })}</li>
                 <li><b>deadline</b>{t.rich("paramDeadline", { b, code: codeTag })}</li>

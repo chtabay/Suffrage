@@ -45,6 +45,13 @@ export interface Recipe {
    * contrefactuel, ni gagnant dans l'OG et les partages).
    */
   survey?: boolean;
+  /**
+   * Jugement majoritaire : clé de l'échelle de mentions (src/lib/voting/scales.ts).
+   * Absente = échelle électorale par défaut (« À rejeter … Très bien »). En sondage,
+   * une échelle d'accord / gravité / fréquence est mieux adaptée que les mentions
+   * électorales. Seuls les libellés et couleurs changent — la médiane reste.
+   */
+  scale?: string;
 }
 
 export interface Option {

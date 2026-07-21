@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { buildNewUrl } from "@/lib/voting/draft";
 import { isAssignMethod } from "@/lib/assign/methods";
 import { publicMethodToSystem } from "@/lib/voting/methods";
+import { SCALE_KEYS } from "@/lib/voting/scales";
 
 // API publique sans état : transforme un brouillon structuré en URL /new prête à ouvrir.
 // POST /api/poll-drafts  { title, description?, options[]|dates[], media?[], method, deadline, source, why } -> { draft_url }
@@ -73,12 +74,14 @@ export async function POST(req: Request) {
     : undefined;
   const per = typeof b.per === "number" && Number.isInteger(b.per) && b.per >= 2 && b.per <= 6 ? b.per : undefined;
   const survey = b.survey === true || b.survey === 1 || b.survey === "1" || b.survey === "true" ? true : undefined;
+  const scale =
+    typeof b.scale === "string" && (SCALE_KEYS as string[]).includes(b.scale.trim()) ? b.scale.trim() : undefined;
   const deadline = typeof b.deadline === "string" ? b.deadline.slice(0, 40) : undefined;
   const source = typeof b.source === "string" ? b.source.trim().slice(0, 40) : undefined;
   const why = typeof b.why === "string" ? b.why.trim().slice(0, 280) : undefined;
 
   const origin = new URL(req.url).origin;
-  const draft_url = buildNewUrl(origin, { title, description, options, media, dates, method, assign, participants, sideb, per, survey, deadline, source, why });
+  const draft_url = buildNewUrl(origin, { title, description, options, media, dates, method, assign, participants, sideb, per, survey, scale, deadline, source, why });
 
   return NextResponse.json(
     {
