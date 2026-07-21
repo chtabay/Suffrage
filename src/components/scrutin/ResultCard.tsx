@@ -15,10 +15,12 @@ interface Props {
   calendarSlot?: string;
   calendarUrl?: string;
   calendarDuration?: number;
+  /** Mode sondage : panorama des avis — pas de vainqueur, pas de contrefactuel. */
+  survey?: boolean;
 }
 
 /** Carte de résultat : vainqueur, barres, explication et contrefactuel. */
-export default function ResultCard({ result, question, ballotCount, footer, calendarSlot, calendarUrl, calendarDuration }: Props) {
+export default function ResultCard({ result, question, ballotCount, footer, calendarSlot, calendarUrl, calendarDuration, survey }: Props) {
   const t = useTranslations("Vote");
   const tm = useTranslations("Methods");
   const addToCalendar = () =>
@@ -57,7 +59,21 @@ export default function ResultCard({ result, question, ballotCount, footer, cale
           {tm(`${result.methodKey}.name`)} · {t("resultBallots", { count: ballotCount })}
         </div>
         <div style={{ fontSize: 15, color: "rgba(255,255,255,0.95)", fontWeight: 600, marginTop: 4 }}>{question}</div>
-        {result.hasWinner && (
+        {survey && (
+          <div
+            style={{
+              marginTop: 14,
+              fontFamily: FONT_DISPLAY,
+              fontWeight: 800,
+              fontSize: 22,
+              color: "#fff",
+              textShadow: "2px 2px 0 rgba(0,0,0,0.22)",
+            }}
+          >
+            {t("surveyBanner")}
+          </div>
+        )}
+        {!survey && result.hasWinner && (
           <div style={{ display: "flex", alignItems: "center", gap: 16, marginTop: 16 }}>
             <div
               style={{
@@ -94,7 +110,7 @@ export default function ResultCard({ result, question, ballotCount, footer, cale
             </div>
           </div>
         )}
-        {result.noWinner && (
+        {!survey && result.noWinner && (
           <div
             style={{
               marginTop: 14,
@@ -213,19 +229,21 @@ export default function ResultCard({ result, question, ballotCount, footer, cale
           </div>
         </div>
 
-        <div
-          style={{
-            marginTop: 16,
-            background: "#fff4e0",
-            border: `2px solid ${INK}`,
-            borderRadius: 14,
-            padding: "16px 18px",
-          }}
-        >
-          <div style={{ fontWeight: 700, fontSize: 13, lineHeight: 1.5, color: "#2c3447" }}>
-            💡 {result.counterfactual}
+        {!survey && (
+          <div
+            style={{
+              marginTop: 16,
+              background: "#fff4e0",
+              border: `2px solid ${INK}`,
+              borderRadius: 14,
+              padding: "16px 18px",
+            }}
+          >
+            <div style={{ fontWeight: 700, fontSize: 13, lineHeight: 1.5, color: "#2c3447" }}>
+              💡 {result.counterfactual}
+            </div>
           </div>
-        </div>
+        )}
 
         {footer}
       </div>

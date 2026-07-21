@@ -12,18 +12,20 @@ export default function ResultShare({
   ballotCount,
   optionsCount,
   url,
+  survey,
 }: {
   question: string;
   result: ComputeResult;
   ballotCount: number;
   optionsCount: number;
   url: string;
+  survey?: boolean;
 }) {
   const t = useTranslations("Vote");
   const tm = useTranslations("Methods");
   const locale = useLocale();
   const [copied, setCopied] = useState(false);
-  const text = buildResultText(question, result, ballotCount, optionsCount, url, locale, tm(`${result.methodKey}.name`));
+  const text = buildResultText(question, result, ballotCount, optionsCount, url, locale, tm(`${result.methodKey}.name`), survey);
   const copy = async () => {
     try {
       await navigator.clipboard?.writeText(text);

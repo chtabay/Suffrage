@@ -32,6 +32,8 @@ export interface ScrutinState {
   assignSlots: boolean;
   /** Affectation à sens unique : nombre d'objets reçus par personne. */
   assignPer: number;
+  /** Mode sondage : panorama des avis, personne n'est déclaré vainqueur. */
+  survey: boolean;
   recipe: Recipe;
   access: AccessMode;
   hideResults: boolean;
@@ -68,6 +70,7 @@ const INITIAL: ScrutinState = {
   assignSideB: "",
   assignSlots: false,
   assignPer: 1,
+  survey: false,
   recipe: { ...DEFAULT_RECIPE },
   access: "open",
   hideResults: false,
@@ -120,6 +123,7 @@ function makeInitial(draft?: ScrutinDraft, locale = "fr"): ScrutinState {
     assignSideB: draft.assignSideB ?? INITIAL.assignSideB,
     assignSlots: draft.assignSlots ?? INITIAL.assignSlots,
     assignPer: draft.assignPer ?? INITIAL.assignPer,
+    survey: Boolean(draft.recipe?.survey),
     recipe,
     closesAt: draft.closesAt ?? INITIAL.closesAt,
     access: recipe.suffrage === "indirect" ? "invite" : INITIAL.access,
@@ -341,6 +345,10 @@ export function useScrutin(draft?: ScrutinDraft) {
     setState((s) => ({ ...s, assignPer: Math.max(1, Math.min(6, Math.floor(assignPer) || 1)), ...CLEAR_SHARE }));
   }, []);
 
+  const setSurvey = useCallback((survey: boolean) => {
+    setState((s) => ({ ...s, survey, ...CLEAR_SHARE }));
+  }, []);
+
   const setOpensAt = useCallback((opensAt: string) => {
     setState((s) => ({ ...s, opensAt, ...CLEAR_SHARE }));
   }, []);
@@ -494,7 +502,9 @@ export function useScrutin(draft?: ScrutinDraft) {
             ...(assignDef.twoLists ? { assignA: participants.length, assignCaps: sideB.map((e) => e.cap) } : {}),
             ...(assignDef.oneSided && !assignDef.endowed && s.assignPer > 1 ? { assignPer: s.assignPer } : {}),
           }
-        : s.recipe;
+        : s.survey
+          ? { ...s.recipe, survey: true }
+          : s.recipe;
       const access: AccessMode = isAssign ? "invite" : s.access;
 
       const toISO = (str: string) => (str ? new Date(str).toISOString() : null);
@@ -561,6 +571,7 @@ export function useScrutin(draft?: ScrutinDraft) {
     setAssignSideB,
     setAssignSlots,
     setAssignPer,
+    setSurvey,
     setOpensAt,
     setClosesAt,
     setQuorum,

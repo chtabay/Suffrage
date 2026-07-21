@@ -72,12 +72,13 @@ export async function POST(req: Request) {
     ? b.sideb.filter((p): p is string => typeof p === "string").map((p) => p.trim()).filter(Boolean).slice(0, 60)
     : undefined;
   const per = typeof b.per === "number" && Number.isInteger(b.per) && b.per >= 2 && b.per <= 6 ? b.per : undefined;
+  const survey = b.survey === true || b.survey === 1 || b.survey === "1" || b.survey === "true" ? true : undefined;
   const deadline = typeof b.deadline === "string" ? b.deadline.slice(0, 40) : undefined;
   const source = typeof b.source === "string" ? b.source.trim().slice(0, 40) : undefined;
   const why = typeof b.why === "string" ? b.why.trim().slice(0, 280) : undefined;
 
   const origin = new URL(req.url).origin;
-  const draft_url = buildNewUrl(origin, { title, description, options, media, dates, method, assign, participants, sideb, per, deadline, source, why });
+  const draft_url = buildNewUrl(origin, { title, description, options, media, dates, method, assign, participants, sideb, per, survey, deadline, source, why });
 
   return NextResponse.json(
     {

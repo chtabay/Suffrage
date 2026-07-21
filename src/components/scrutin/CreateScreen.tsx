@@ -184,7 +184,7 @@ export default function CreateScreen({ ctrl }: { ctrl: ScrutinController }) {
   const t = useTranslations("Create");
   // Exemples évocateurs montrés en placeholder (pas des valeurs à supprimer).
   const optionPlaceholders = t.raw("optionPlaceholders") as string[];
-  const { state, selectSystemRecipe, setRecipe, setQuestion, setDescription, setOptionName, setOptionUrl, setOptionIcon, removeOption, addOption, setOptionKind, setSlots, setSlotMinutes, setAssignMethod, setAssignSideB, setAssignSlots, setAssignPer, setVoterNames, launch } = ctrl;
+  const { state, selectSystemRecipe, setRecipe, setQuestion, setDescription, setOptionName, setOptionUrl, setOptionIcon, removeOption, addOption, setOptionKind, setSlots, setSlotMinutes, setAssignMethod, setAssignSideB, setAssignSlots, setAssignPer, setSurvey, setVoterNames, launch } = ctrl;
   const [urlRows, setUrlRows] = useState<Record<number, boolean>>({});
   const [emojiRow, setEmojiRow] = useState<number | null>(null);
   const [methodOpen, setMethodOpen] = useState(false);
@@ -457,6 +457,41 @@ export default function CreateScreen({ ctrl }: { ctrl: ScrutinController }) {
                 ))}
               </div>
             </div>
+            {/* Objectif : élire un gagnant, ou sonder (panorama des avis, sans vainqueur). */}
+            {!isAssign && (
+              <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", margin: "0 0 10px" }}>
+                <span style={{ fontFamily: FONT_BODY, fontWeight: 600, fontSize: 14, color: INK }}>{t("goalLabel")}</span>
+                <div style={{ display: "flex", gap: 8 }}>
+                  {(
+                    [
+                      [false, t("goalWin")],
+                      [true, t("goalSurvey")],
+                    ] as const
+                  ).map(([sv, lbl]) => (
+                    <button
+                      key={String(sv)}
+                      onClick={() => setSurvey(sv)}
+                      style={{
+                        fontFamily: FONT_BODY,
+                        fontWeight: 700,
+                        fontSize: 13,
+                        cursor: "pointer",
+                        border: `2px solid ${INK}`,
+                        borderRadius: 9,
+                        padding: "7px 13px",
+                        background: state.survey === sv ? INK : "#fff",
+                        color: state.survey === sv ? "#fff" : INK,
+                      }}
+                    >
+                      {lbl}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+            {!isAssign && state.survey && (
+              <div style={{ fontSize: 12.5, color: MUTED, margin: "0 0 12px", lineHeight: 1.45 }}>{t("goalSurveyHint")}</div>
+            )}
             {isAssign && (
               <div style={{ fontSize: 12.5, color: MUTED, margin: "0 0 12px", lineHeight: 1.45 }}>{ta("kindHint")}</div>
             )}

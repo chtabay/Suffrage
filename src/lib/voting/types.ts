@@ -39,6 +39,12 @@ export interface Recipe {
   assignCaps?: number[];
   /** Affectation multi-objets : nombre d'objets reçus par personne (défaut 1). */
   assignPer?: number;
+  /**
+   * Mode SONDAGE : même bulletin, même dépouillement, mais le résultat est un
+   * panorama des avis — personne n'est déclaré vainqueur (ni trophée, ni
+   * contrefactuel, ni gagnant dans l'OG et les partages).
+   */
+  survey?: boolean;
 }
 
 export interface Option {

@@ -116,6 +116,13 @@ export function parseDraft(params: RawParams, locale = "fr"): ScrutinDraft {
     if (system) draft.recipe = recipeForSystem(system);
   }
 
+  // Mode sondage : panorama des avis, pas de vainqueur. Sans méthode explicite,
+  // défaut approbation (la prévalence, l'outil du panorama par excellence).
+  const survey = first(params.survey);
+  if (survey && /^(1|true|yes|oui)$/i.test(survey.trim())) {
+    draft.recipe = { ...(draft.recipe ?? recipeForSystem("approval")), survey: true };
+  }
+
   // Affectation : `assign=<méthode>` + `participants=Alice|Bob` (+ `sideb=X ; 2|Y`
   // pour deux groupes). Les options restent les choses à attribuer (sens unique).
   const assign = first(params.assign);
@@ -189,6 +196,8 @@ export interface DraftInput {
   sideb?: string[];
   /** Affectation multi-objets : nombre d'objets (ou créneaux) reçus par personne. */
   per?: number;
+  /** Mode sondage : panorama des avis, personne n'est déclaré vainqueur. */
+  survey?: boolean;
   deadline?: string;
   source?: string;
   why?: string;
@@ -212,6 +221,7 @@ export function buildNewUrl(base: string, d: DraftInput): string {
   if (d.participants && d.participants.length) p.set("participants", d.participants.map((s) => s.trim()).filter(Boolean).join("|"));
   if (d.sideb && d.sideb.length) p.set("sideb", d.sideb.map((s) => s.trim()).filter(Boolean).join("|"));
   if (d.per && d.per >= 2) p.set("per", String(Math.min(6, Math.floor(d.per))));
+  if (d.survey) p.set("survey", "1");
   if (d.deadline) p.set("deadline", d.deadline);
   if (d.source) p.set("source", d.source);
   if (d.why) p.set("why", d.why);

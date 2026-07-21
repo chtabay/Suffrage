@@ -18,7 +18,18 @@ export function buildResultText(
   url: string,
   locale = "fr",
   methodName: string = result.methodName,
+  survey = false,
 ): string {
+  // Sondage : pas de gagnant à annoncer — on partage le panorama.
+  if (survey) {
+    const line = pickLocale(locale, {
+      fr: `Résultats du sondage (${methodName}) — ${ballotCount} participant${ballotCount > 1 ? "s" : ""}, ${optionsCount} options.`,
+      en: `Survey results (${methodName}) — ${ballotCount} participant${ballotCount > 1 ? "s" : ""}, ${optionsCount} options.`,
+      es: `Resultados de la encuesta (${methodName}) — ${ballotCount} participante${ballotCount > 1 ? "s" : ""}, ${optionsCount} opciones.`,
+    });
+    const tail = pickLocale(locale, { fr: "Panorama complet :", en: "Full picture:", es: "Panorama completo:" });
+    return `📊 ${question}\n${line}\n${tail} ${url}`;
+  }
   const subject = result.hasWinner
     ? result.winnerName
     : result.noWinnerLabel ?? pickLocale(locale, { fr: "pas de vainqueur", en: "no winner", es: "sin ganador" });

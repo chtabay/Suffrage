@@ -506,6 +506,8 @@ export default function PublicVote({
   // Affectation : badge, nom et consigne portés par le catalogue Assign.
   const aKey = isAssignMethod(poll.recipe.assign) ? poll.recipe.assign : null;
   const aDef = aKey ? ASSIGN_METHODS[aKey] : null;
+  // Sondage : même dépouillement, mais le résultat est un panorama (pas de vainqueur).
+  const isSurvey = Boolean(poll.recipe.survey) && !aDef;
   const desc = aDef ? { ...baseDesc, color: aDef.color, icon: aDef.icon } : baseDesc;
   const methodName = aKey
     ? ta(`methods.${aKey}.name`)
@@ -518,7 +520,7 @@ export default function PublicVote({
   const phase = pollPhase(poll);
   // Vote de dates clos → créneau gagnant (option .at) pour proposer un .ics.
   const winnerSlot =
-    result && phase === "closed" && result.bars[0] ? poll.options[result.bars[0].idx]?.at : undefined;
+    result && phase === "closed" && !isSurvey && result.bars[0] ? poll.options[result.bars[0].idx]?.at : undefined;
   const statusPill = (
     <span
       style={{
@@ -707,13 +709,14 @@ export default function PublicVote({
           ) : result ? (
             <>
               {poll.quorum != null && <QuorumBanner quorum={poll.quorum} count={ballotCount} />}
-              <ResultCard result={result} question={poll.question} ballotCount={ballotCount} calendarSlot={winnerSlot} calendarUrl={voteShareUrl} calendarDuration={poll.slot_minutes ?? undefined} />
+              <ResultCard result={result} question={poll.question} ballotCount={ballotCount} calendarSlot={winnerSlot} calendarUrl={voteShareUrl} calendarDuration={poll.slot_minutes ?? undefined} survey={isSurvey} />
               <ResultShare
                 question={poll.question}
                 result={result}
                 ballotCount={ballotCount}
                 optionsCount={poll.options.length}
                 url={voteShareUrl}
+                survey={isSurvey}
               />
               <CommentsFeed comments={comments} />
               <OfficialRecordCta token={token} />
@@ -807,7 +810,7 @@ export default function PublicVote({
         ) : result ? (
           <>
             {poll.quorum != null && <QuorumBanner quorum={poll.quorum} count={ballotCount} />}
-            <ResultCard result={result} question={poll.question} ballotCount={ballotCount} calendarSlot={winnerSlot} calendarUrl={voteShareUrl} calendarDuration={poll.slot_minutes ?? undefined} />
+            <ResultCard result={result} question={poll.question} ballotCount={ballotCount} calendarSlot={winnerSlot} calendarUrl={voteShareUrl} calendarDuration={poll.slot_minutes ?? undefined} survey={isSurvey} />
             <ShareFold label={t("shareFoldResult")}>
               <ResultShare
                 question={poll.question}
@@ -815,6 +818,7 @@ export default function PublicVote({
                 ballotCount={ballotCount}
                 optionsCount={poll.options.length}
                 url={voteShareUrl}
+                survey={isSurvey}
               />
             </ShareFold>
             <CommentsFeed comments={comments} />
@@ -838,6 +842,7 @@ export default function PublicVote({
             ballotCount={ballotCount}
             optionsCount={poll.options.length}
             url={voteShareUrl}
+            survey={isSurvey}
           />
         </ShareFold>
         <Link
@@ -864,7 +869,7 @@ export default function PublicVote({
     return (
       <Shell>
         {poll.quorum != null && <QuorumBanner quorum={poll.quorum} count={ballotCount} />}
-        <ResultCard result={result} question={poll.question} ballotCount={ballotCount} footer={footer} calendarSlot={winnerSlot} calendarUrl={voteShareUrl} calendarDuration={poll.slot_minutes ?? undefined} />
+        <ResultCard result={result} question={poll.question} ballotCount={ballotCount} footer={footer} calendarSlot={winnerSlot} calendarUrl={voteShareUrl} calendarDuration={poll.slot_minutes ?? undefined} survey={isSurvey} />
         <CommentsFeed comments={comments} />
         <OfficialRecordCta token={token} />
       </Shell>
