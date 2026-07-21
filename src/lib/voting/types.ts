@@ -96,6 +96,8 @@ export interface ResultBar {
   valColor: string;
   valueLabel: string;
   pct: number;
+  /** Jugement majoritaire : nombre de bulletins par cran de mention (profil de mérite). */
+  dist?: number[];
 }
 
 export interface ResultStep {
@@ -116,6 +118,8 @@ export interface ComputeResult {
   tallyLabel: string;
   steps: ResultStep[];
   counterfactual: string;
+  /** Jugement majoritaire : échelle de mentions (libellés + couleurs) pour le profil de mérite. */
+  gradeScale?: { labels: string[]; colors: string[] };
 }
 
 /** Description résolue d'une recette (nom, couleur, avantages/inconvénients…). */

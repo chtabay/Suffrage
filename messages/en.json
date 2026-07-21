@@ -178,6 +178,7 @@
     "resultBallots": "{count, plural, one {# ballot} other {# ballots}}",
     "resultWinner": "🏆 WINNER",
     "surveyBanner": "📊 Opinion panorama",
+    "meritProfileLabel": "Opinion breakdown",
     "addToCalendar": "📅 Add to calendar",
     "icsNote": "Slot selected via Placet.",
     "resultHowTitle": "🔍 How this result was computed",

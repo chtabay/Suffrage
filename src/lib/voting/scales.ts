@@ -43,6 +43,8 @@ const RAMP_GR = [...GRADE_COLORS].slice().reverse();
 const RAMP_TEAL = ["#cfe8ea", "#a5d5d9", "#77c0c6", "#49aab2", "#2b8f98", "#166f78"];
 // Rampe ambre d'urgence (priorité : intensité croissante, sans « mauvais » en bas).
 const RAMP_AMBER = ["#fdecc8", "#fbd88a", "#f7bf4f", "#f0a92e", "#e08c14", "#b96f06"];
+// Rampe divergente 5 crans (bipolaire AVEC neutre au centre) : rouge → gris → vert.
+const RAMP_DIV5 = ["#d23b3b", "#e8905a", "#dcdfe4", "#6bbf59", "#1f8a4c"];
 
 export const GRADE_SCALES: Record<GradeScaleKey, GradeScale> = {
   // Défaut = l'échelle électorale historique (fr = GRADES). Les libellés du
@@ -57,15 +59,16 @@ export const GRADE_SCALES: Record<GradeScaleKey, GradeScale> = {
     },
     colors: RAMP_RG,
   },
-  // Mesurer un avis : échelle d'accord bipolaire (sans neutre → force un penchant).
+  // Mesurer un avis : échelle d'accord bipolaire à 5 crans AVEC neutre au centre
+  // (convention sondage la plus courante — nombre de crans libre, cf. V3).
   agreement: {
     labels: {
-      fr: ["Pas du tout d'accord", "Pas d'accord", "Plutôt pas d'accord", "Plutôt d'accord", "D'accord", "Tout à fait d'accord"],
-      en: ["Strongly disagree", "Disagree", "Somewhat disagree", "Somewhat agree", "Agree", "Strongly agree"],
-      es: ["Totalmente en desacuerdo", "En desacuerdo", "Más bien en desacuerdo", "Más bien de acuerdo", "De acuerdo", "Totalmente de acuerdo"],
-      pcm: ["I no gree at all", "I no gree", "I small no gree", "I small gree", "I gree", "I gree well well"],
+      fr: ["Pas du tout d'accord", "Plutôt pas d'accord", "Neutre", "Plutôt d'accord", "Tout à fait d'accord"],
+      en: ["Strongly disagree", "Disagree", "Neutral", "Agree", "Strongly agree"],
+      es: ["Totalmente en desacuerdo", "En desacuerdo", "Neutral", "De acuerdo", "Totalmente de acuerdo"],
+      pcm: ["I no gree at all", "I no gree", "Neutral", "I gree", "I gree well well"],
     },
-    colors: RAMP_RG,
+    colors: RAMP_DIV5,
   },
   // État des lieux : ce qui pèse / gravité (unipolaire ; haut = lourd = rouge).
   severity: {
@@ -87,15 +90,15 @@ export const GRADE_SCALES: Record<GradeScaleKey, GradeScale> = {
     },
     colors: RAMP_TEAL,
   },
-  // Mesurer un avis : satisfaction bipolaire.
+  // Mesurer un avis : satisfaction bipolaire à 5 crans AVEC neutre au centre.
   satisfaction: {
     labels: {
-      fr: ["Très insatisfait", "Insatisfait", "Plutôt insatisfait", "Plutôt satisfait", "Satisfait", "Très satisfait"],
-      en: ["Very dissatisfied", "Dissatisfied", "Somewhat dissatisfied", "Somewhat satisfied", "Satisfied", "Very satisfied"],
-      es: ["Muy insatisfecho", "Insatisfecho", "Más bien insatisfecho", "Más bien satisfecho", "Satisfecho", "Muy satisfecho"],
-      pcm: ["Very vex", "Vex", "Small vex", "Small happy", "Happy", "Very happy"],
+      fr: ["Très insatisfait", "Insatisfait", "Neutre", "Satisfait", "Très satisfait"],
+      en: ["Very dissatisfied", "Dissatisfied", "Neutral", "Satisfied", "Very satisfied"],
+      es: ["Muy insatisfecho", "Insatisfecho", "Neutral", "Satisfecho", "Muy satisfecho"],
+      pcm: ["Very vex", "Vex", "Neutral", "Happy", "Very happy"],
     },
-    colors: RAMP_RG,
+    colors: RAMP_DIV5,
   },
   // État des lieux : priorité (unipolaire, intensité croissante).
   priority: {

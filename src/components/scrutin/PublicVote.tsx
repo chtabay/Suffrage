@@ -36,6 +36,7 @@ import {
   normalizeFromSingle,
   operativeMethod,
 } from "@/lib/voting/engine";
+import { resolveScale } from "@/lib/voting/scales";
 import type { Ballot, BallotMode, ComputeResult } from "@/lib/voting/types";
 import { APP_URL } from "@/lib/voting/aiPrompt";
 import InstallInline from "@/components/pwa/InstallInline";
@@ -58,12 +59,12 @@ const INSTRUCTIONS: Record<string, string> = {
   grade: "instructionGrade",
 };
 
-function draftToBallot(mode: BallotMode, draft: BallotDraft, n: number): Ballot | null {
+function draftToBallot(mode: BallotMode, draft: BallotDraft, n: number, nGrades = 6): Ballot | null {
   const seed = Math.floor(Math.random() * 100000);
   if (mode === "single") return draft.choice === null ? null : normalizeFromSingle(draft.choice, n, seed);
   if (mode === "approve") return draft.approved.length ? normalizeFromApproved(draft.approved, n, seed) : null;
   if (mode === "rank") return draft.rank.length ? normalizeFromRank(draft.rank, n, seed) : null;
-  return normalizeFromGrades(draft.grades, n, seed);
+  return normalizeFromGrades(draft.grades, n, seed, nGrades);
 }
 
 const electorsOf = (p: PollRow): number[] | undefined => (p.districts ? p.districts.map((d) => d.electors) : undefined);
@@ -665,6 +666,7 @@ export default function PublicVote({
       ? `${tm(`${mKey}.name`)} ${tm("twoRounds")}`
       : tm(`${mKey}.name`);
   const mode = methodMode(operativeMethod(poll.recipe));
+  const gradeCount = resolveScale(poll.recipe, locale).labels.length;
   const voteShareUrl = `${APP_URL}/v/${poll.token}`;
   // Message privé à l'organisateur : uniquement si le scrutin est rattaché à un compte.
   const showMsgOrga = Boolean(poll.created_by) && !adminKey;
@@ -1049,10 +1051,10 @@ export default function PublicVote({
   // Affectation : classement COMPLET exigé (pas de complétion aléatoire du bulletin).
   const ballotValid = aDef
     ? draft.rank.length >= poll.options.length - (hiddenIdx?.length ?? 0)
-    : draftToBallot(mode, draft, poll.options.length) !== null;
+    : draftToBallot(mode, draft, poll.options.length, gradeCount) !== null;
 
   const submit = async () => {
-    const ballot = draftToBallot(mode, draft, poll.options.length);
+    const ballot = draftToBallot(mode, draft, poll.options.length, gradeCount);
     if (!ballot) return;
     setSubmitting(true);
     setError(null);

@@ -348,7 +348,8 @@ const toVals = (arr: number[]): Record<number, number> => {
 /** Dépouille l'urne selon la recette. `null` si aucun bulletin. */
 export function compute(ctx: ComputeCtx, locale: string = "fr"): ComputeResult | null {
   const { recipe: r, options: opts, ballots } = ctx;
-  const GR = resolveScale(r, locale).labels;
+  const scaleDef = resolveScale(r, locale);
+  const GR = scaleDef.labels;
   const n = opts.length;
   const total = ballots.length;
   if (!total) return null;
@@ -697,6 +698,19 @@ export function compute(ctx: ComputeCtx, locale: string = "fr"): ComputeResult |
           ? (v) => GR[v] || "—"
           : (v) => `${v} (${pct(v, total)}%)`;
   const resBars = bars(t.vals, t.order, fmt);
+  // Jugement majoritaire : profil de mérite. On attache à chaque barre la
+  // distribution des bulletins par cran (nombre de crans = longueur de l'échelle,
+  // pas figé à 6) ; le rendu ne l'exploite qu'en mode panorama (V2).
+  let gradeScale: { labels: string[]; colors: string[] } | undefined;
+  if (method === "mj") {
+    const nG = GR.length;
+    gradeScale = { labels: GR, colors: scaleDef.colors };
+    for (const bar of resBars) {
+      const d = new Array(nG).fill(0);
+      for (const b of ballots) d[Math.min(nG - 1, Math.max(0, b.grades[bar.idx] ?? 0))]++;
+      bar.dist = d;
+    }
+  }
   const tallyLabelMap: Record<string, string> = pickLocale(locale, {
     fr: {
       majority: "Voix",
@@ -878,6 +892,7 @@ export function compute(ctx: ComputeCtx, locale: string = "fr"): ComputeResult |
     tallyLabel,
     steps,
     counterfactual: cf[method],
+    gradeScale,
   };
 }
 
@@ -911,9 +926,16 @@ export function normalizeFromRank(rankArr: number[], n: number, ballotsLen: numb
   return { ranking, grades, district: ballotsLen % DISTRICTS };
 }
 
-export function normalizeFromGrades(g: Record<number, number>, n: number, ballotsLen: number): Ballot {
+export function normalizeFromGrades(
+  g: Record<number, number>,
+  n: number,
+  ballotsLen: number,
+  nGrades = 6,
+): Ballot {
+  // Option non notée → cran neutre/médian de l'échelle (nGrades=6 ⇒ 2, inchangé).
+  const dflt = Math.floor((nGrades - 1) / 2);
   const grades: Record<number, number> = {};
-  for (let i = 0; i < n; i++) grades[i] = g[i] === undefined ? 2 : g[i];
+  for (let i = 0; i < n; i++) grades[i] = g[i] === undefined ? dflt : g[i];
   const ranking = [...Array(n).keys()].sort((a, b) => grades[b] - grades[a] || rand());
   return { ranking, grades, district: ballotsLen % DISTRICTS };
 }

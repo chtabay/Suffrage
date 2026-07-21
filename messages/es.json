@@ -178,6 +178,7 @@
     "resultBallots": "{count, plural, one {# papeleta} other {# papeletas}}",
     "resultWinner": "🏆 GANADOR",
     "surveyBanner": "📊 Panorama de opiniones",
+    "meritProfileLabel": "Distribución de opiniones",
     "addToCalendar": "📅 Añadir al calendario",
     "icsNote": "Franja elegida con Placet.",
     "resultHowTitle": "🔍 Cómo se ha obtenido este resultado",

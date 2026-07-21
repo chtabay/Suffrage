@@ -178,6 +178,7 @@
     "resultBallots": "{count, plural, one {# bulletin} other {# bulletins}}",
     "resultWinner": "🏆 VAINQUEUR",
     "surveyBanner": "📊 Panorama des avis",
+    "meritProfileLabel": "Répartition des avis",
     "addToCalendar": "📅 Ajouter au calendrier",
     "icsNote": "Créneau retenu via Placet.",
     "resultHowTitle": "🔍 Comment ce résultat a été obtenu",

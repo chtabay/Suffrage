@@ -14,6 +14,7 @@ import {
   normalizeFromSingle,
   operativeMethod,
 } from "@/lib/voting/engine";
+import { resolveScale } from "@/lib/voting/scales";
 import type { Ballot, BallotMode } from "@/lib/voting/types";
 import BallotCard, { EMPTY_DRAFT, type BallotDraft } from "./BallotCard";
 import { ASSIGN_METHODS, isAssignMethod } from "@/lib/assign/methods";
@@ -23,12 +24,12 @@ import { CREAM, FONT_BODY, FONT_DISPLAY, GREEN, INK, MUTED, SUBINK } from "./the
 
 type Resolution = EventContext["resolutions"][number];
 
-function draftToBallot(mode: BallotMode, d: BallotDraft, n: number): Ballot | null {
+function draftToBallot(mode: BallotMode, d: BallotDraft, n: number, nGrades = 6): Ballot | null {
   const seed = Math.floor(Math.random() * 100000);
   if (mode === "single") return d.choice === null ? null : normalizeFromSingle(d.choice, n, seed);
   if (mode === "approve") return d.approved.length ? normalizeFromApproved(d.approved, n, seed) : null;
   if (mode === "rank") return d.rank.length ? normalizeFromRank(d.rank, n, seed) : null;
-  return normalizeFromGrades(d.grades, n, seed);
+  return normalizeFromGrades(d.grades, n, seed, nGrades);
 }
 
 const card = {
@@ -86,7 +87,7 @@ export default function LivretVote({ token }: { token: string }) {
       setErr((e) => ({ ...e, [res.token]: ta("instructionAssign") }));
       return;
     }
-    const b = draftToBallot(mode, drafts[res.token] ?? EMPTY_DRAFT, res.options.length);
+    const b = draftToBallot(mode, drafts[res.token] ?? EMPTY_DRAFT, res.options.length, resolveScale(res.recipe).labels.length);
     if (!b) {
       setErr((e) => ({ ...e, [res.token]: t("emptyBallot") }));
       return;

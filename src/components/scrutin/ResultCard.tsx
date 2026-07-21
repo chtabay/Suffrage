@@ -3,7 +3,7 @@
 import { useTranslations } from "next-intl";
 import type { ComputeResult } from "@/lib/voting/types";
 import { buildIcs, downloadIcs } from "@/lib/voting/ics";
-import { CREAM, FONT_DISPLAY, INK } from "./theme";
+import { CREAM, FONT_DISPLAY, INK, SUBINK } from "./theme";
 
 interface Props {
   result: ComputeResult;
@@ -23,6 +23,11 @@ interface Props {
 export default function ResultCard({ result, question, ballotCount, footer, calendarSlot, calendarUrl, calendarDuration, survey }: Props) {
   const t = useTranslations("Vote");
   const tm = useTranslations("Methods");
+  // Jugement majoritaire en mode sondage : on montre le PROFIL DE MÉRITE (la
+  // distribution des mentions par option), pas la simple barre de médiane. La
+  // médiane reste affichée à droite comme résumé.
+  const gs = result.gradeScale;
+  const isProfile = Boolean(survey && gs);
   const addToCalendar = () =>
     downloadIcs(
       "placet.ics",
@@ -136,11 +141,24 @@ export default function ResultCard({ result, question, ballotCount, footer, cale
             {t("addToCalendar")}
           </button>
         )}
-        <div style={{ fontWeight: 800, fontFamily: FONT_DISPLAY, fontSize: 16, marginBottom: 14 }}>
-          {result.tallyLabel}
+        <div style={{ fontWeight: 800, fontFamily: FONT_DISPLAY, fontSize: 16, marginBottom: isProfile ? 10 : 14 }}>
+          {isProfile ? t("meritProfileLabel") : result.tallyLabel}
         </div>
+        {isProfile && gs && (
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 10, marginBottom: 15 }}>
+            {gs.labels.map((l, i) => (
+              <span key={i} style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: 11, fontWeight: 700, color: SUBINK }}>
+                <span style={{ width: 12, height: 12, flex: "none", borderRadius: 3, background: gs.colors[i], border: `1.5px solid ${INK}` }} />
+                {l}
+              </span>
+            ))}
+          </div>
+        )}
         <div style={{ display: "flex", flexDirection: "column", gap: 13 }}>
-          {result.bars.map((b) => (
+          {result.bars.map((b) => {
+            const profile = isProfile && gs && b.dist;
+            const total = b.dist ? b.dist.reduce((a, c) => a + c, 0) : 0;
+            return (
             <div key={b.idx}>
               <div style={{ display: "flex", alignItems: "center", gap: 9, marginBottom: 5 }}>
                 <span
@@ -164,28 +182,56 @@ export default function ResultCard({ result, question, ballotCount, footer, cale
                   {b.valueLabel}
                 </span>
               </div>
-              <div
-                style={{
-                  height: 18,
-                  background: "#F0EAD9",
-                  border: `2px solid ${INK}`,
-                  borderRadius: 30,
-                  overflow: "hidden",
-                }}
-              >
+              {profile ? (
                 <div
                   style={{
-                    height: "100%",
-                    width: `${b.pct}%`,
-                    background: b.color,
+                    height: 18,
+                    display: "flex",
+                    background: "#F0EAD9",
+                    border: `2px solid ${INK}`,
                     borderRadius: 30,
-                    transformOrigin: "left",
+                    overflow: "hidden",
                     animation: "growBar 0.6s ease both",
+                    transformOrigin: "left",
                   }}
-                />
-              </div>
+                >
+                  {b.dist!.map((count, gi) => {
+                    const w = total > 0 ? (100 * count) / total : 0;
+                    if (w <= 0) return null;
+                    return (
+                      <div
+                        key={gi}
+                        title={`${gs!.labels[gi]} · ${count}`}
+                        style={{ width: `${w}%`, height: "100%", background: gs!.colors[gi] }}
+                      />
+                    );
+                  })}
+                </div>
+              ) : (
+                <div
+                  style={{
+                    height: 18,
+                    background: "#F0EAD9",
+                    border: `2px solid ${INK}`,
+                    borderRadius: 30,
+                    overflow: "hidden",
+                  }}
+                >
+                  <div
+                    style={{
+                      height: "100%",
+                      width: `${b.pct}%`,
+                      background: b.color,
+                      borderRadius: 30,
+                      transformOrigin: "left",
+                      animation: "growBar 0.6s ease both",
+                    }}
+                  />
+                </div>
+              )}
             </div>
-          ))}
+            );
+          })}
         </div>
 
         <div style={{ marginTop: 22, background: CREAM, border: `2px solid ${INK}`, borderRadius: 14, padding: 18 }}>
