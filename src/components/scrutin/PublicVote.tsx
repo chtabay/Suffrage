@@ -327,11 +327,12 @@ type View =
   | "closed";
 
 // Logo de marque de l'organisateur (image distante). Repli silencieux sur le nom
-// (ou rien) si l'URL est cassée — la page reste fonctionnelle.
+// (ou rien) si l'URL est cassée. Cliquable vers le site de l'organisateur si un
+// lien http(s) est renseigné (nouvel onglet, pour ne pas interrompre le vote).
 function BrandLogo({ brand }: { brand: Brand }) {
   const [broken, setBroken] = useState(false);
-  if (brand.logoUrl && !broken) {
-    return (
+  const content =
+    brand.logoUrl && !broken ? (
       // eslint-disable-next-line @next/next/no-img-element
       <img
         src={brand.logoUrl}
@@ -339,16 +340,21 @@ function BrandLogo({ brand }: { brand: Brand }) {
         onError={() => setBroken(true)}
         style={{ height: 34, maxWidth: 190, objectFit: "contain", display: "block" }}
       />
-    );
-  }
-  if (brand.name) {
-    return (
+    ) : brand.name ? (
       <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 20, letterSpacing: "-0.02em", color: INK }}>
         {brand.name}
       </div>
+    ) : null;
+  if (!content) return null;
+  const link = brand.url && /^https?:\/\//i.test(brand.url) ? brand.url : null;
+  if (link) {
+    return (
+      <a href={link} target="_blank" rel="noopener noreferrer" style={{ display: "inline-flex", alignItems: "center", textDecoration: "none" }}>
+        {content}
+      </a>
     );
   }
-  return null;
+  return content;
 }
 
 function Header({ brand }: { brand?: Brand | null }) {

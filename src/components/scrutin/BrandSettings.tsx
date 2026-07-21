@@ -57,6 +57,7 @@ export default function BrandSettings() {
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
   const [logoUrl, setLogoUrl] = useState("");
+  const [url, setUrl] = useState("");
   const [accent, setAccent] = useState("#2A9D8F");
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -67,6 +68,7 @@ export default function BrandSettings() {
         if (!b) return;
         setName(b.name ?? "");
         setLogoUrl(b.logoUrl ?? "");
+        setUrl(b.url ?? "");
         if (b.accent) setAccent(b.accent);
         if (b.name || b.logoUrl) setOpen(true);
       })
@@ -77,7 +79,7 @@ export default function BrandSettings() {
     setSaving(true);
     setSaved(false);
     try {
-      await upsertMyBrand({ name, logoUrl, accent });
+      await upsertMyBrand({ name, logoUrl, accent, url });
       setSaved(true);
     } catch {
       /* ignore */
@@ -132,6 +134,14 @@ export default function BrandSettings() {
               style={field}
             />
             <div style={{ fontSize: 11.5, color: MUTED, lineHeight: 1.4 }}>{t("brandLogoHint")}</div>
+
+            <label style={{ fontWeight: 700, fontSize: 12.5, color: INK, marginTop: 4 }}>{t("brandUrl")}</label>
+            <input
+              value={url}
+              onChange={(e) => { setUrl(e.target.value); setSaved(false); }}
+              placeholder="https://votre-site.com"
+              style={field}
+            />
 
             <label style={{ fontWeight: 700, fontSize: 12.5, color: INK, marginTop: 4 }}>{t("brandAccent")}</label>
             <div style={{ display: "flex", gap: 9, alignItems: "center" }}>

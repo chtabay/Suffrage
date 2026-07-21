@@ -17,6 +17,7 @@ export type GradeScaleKey =
   | "severity"
   | "frequency"
   | "satisfaction"
+  | "dissatisfaction"
   | "priority";
 
 export const SCALE_KEYS: GradeScaleKey[] = [
@@ -25,6 +26,7 @@ export const SCALE_KEYS: GradeScaleKey[] = [
   "severity",
   "frequency",
   "satisfaction",
+  "dissatisfaction",
   "priority",
 ];
 
@@ -99,6 +101,18 @@ export const GRADE_SCALES: Record<GradeScaleKey, GradeScale> = {
       pcm: ["Very vex", "Vex", "Neutral", "Happy", "Very happy"],
     },
     colors: RAMP_DIV5,
+  },
+  // État des lieux : insatisfaction (unipolaire, degré croissant ; haut = très
+  // insatisfait = rouge). Distinct de `satisfaction` (bipolaire) : ici on mesure
+  // uniquement l'intensité du mécontentement (irritants, points de friction).
+  dissatisfaction: {
+    labels: {
+      fr: ["Pas du tout insatisfait", "Légèrement insatisfait", "Modérément insatisfait", "Assez insatisfait", "Très insatisfait", "Extrêmement insatisfait"],
+      en: ["Not at all dissatisfied", "Slightly dissatisfied", "Moderately dissatisfied", "Fairly dissatisfied", "Very dissatisfied", "Extremely dissatisfied"],
+      es: ["Nada insatisfecho", "Ligeramente insatisfecho", "Moderadamente insatisfecho", "Bastante insatisfecho", "Muy insatisfecho", "Extremadamente insatisfecho"],
+      pcm: ["I no vex at all", "I vex small", "I vex small-small", "I vex", "I vex well", "I vex die"],
+    },
+    colors: RAMP_GR,
   },
   // État des lieux : priorité (unipolaire, intensité croissante).
   priority: {

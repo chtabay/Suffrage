@@ -123,6 +123,7 @@ function buildAxes(r: Recipe, setRecipe: (p: Partial<Recipe>) => void, slotMode 
           scaleOpt("severity", t("scaleSeverity")),
           scaleOpt("frequency", t("scaleFrequency")),
           scaleOpt("satisfaction", t("scaleSatisfaction")),
+          scaleOpt("dissatisfaction", t("scaleDissatisfaction")),
           scaleOpt("priority", t("scalePriority")),
         ],
       });
