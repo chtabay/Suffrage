@@ -8,6 +8,7 @@ import { getMyPolls, type PollRow } from "@/lib/db/polls";
 import { APP_URL } from "@/lib/voting/aiPrompt";
 import type { ScrutinController } from "@/lib/voting/useScrutin";
 import NotifyButton from "@/components/pwa/NotifyButton";
+import BrandSettings from "./BrandSettings";
 import { intlLocale } from "@/i18n/locales";
 import { CREAM, FONT_DISPLAY, INK, MUTED, REDTXT, SUBINK } from "./theme";
 
@@ -92,6 +93,7 @@ export default function MesScrutinsScreen({ ctrl, auth }: { ctrl: ScrutinControl
           <div style={{ marginTop: 10 }}>
             <NotifyButton label={t("notifyActivity")} />
           </div>
+          <BrandSettings />
         </div>
       ) : (
         <div

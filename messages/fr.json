@@ -175,6 +175,7 @@
     "notFoundTitle": "Scrutin introuvable",
     "notFoundDesc": "Ce lien n'existe pas ou a expiré.",
     "createMyPoll": "Créer mon scrutin →",
+    "poweredBy": "propulsé par",
     "resultBallots": "{count, plural, one {# bulletin} other {# bulletins}}",
     "resultWinner": "🏆 VAINQUEUR",
     "surveyBanner": "📊 Panorama des avis",
@@ -398,7 +399,18 @@
     "cloudAccount": "☁︎ compte",
     "removeFromDevice": "Retirer de cet appareil",
     "openResults": "Ouvrir / résultats →",
-    "manage": "🔑 Gérer"
+    "manage": "🔑 Gérer",
+    "brandToggle": "🎨 Personnaliser ma marque",
+    "brandTitle": "Votre marque",
+    "brandSubtitle": "Logo et couleur affichés en tête de vos scrutins. Vos votes restent « propulsés par Placet ».",
+    "brandName": "Nom (facultatif)",
+    "brandLogo": "URL du logo",
+    "brandLogoHint": "Lien vers votre logo hébergé (PNG ou SVG), idéalement à fond transparent.",
+    "brandAccent": "Couleur d'accent",
+    "brandPreview": "Aperçu",
+    "brandSave": "Enregistrer ma marque",
+    "brandSaving": "Enregistrement…",
+    "brandSaved": "✓ Marque enregistrée"
   },
   "Launched": {
     "copy": "Copier",

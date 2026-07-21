@@ -175,6 +175,7 @@
     "notFoundTitle": "We no see di poll",
     "notFoundDesc": "Dis link no dey exist or e don expire.",
     "createMyPoll": "Create my poll →",
+    "poweredBy": "powered by",
     "resultBallots": "{count, plural, one {# vote} other {# votes}}",
     "resultWinner": "🏆 WINNER",
     "surveyBanner": "📊 Opinion panorama",
@@ -398,7 +399,18 @@
     "cloudAccount": "☁︎ account",
     "removeFromDevice": "Remove from dis device",
     "openResults": "Open / result →",
-    "manage": "🔑 Manage"
+    "manage": "🔑 Manage",
+    "brandToggle": "🎨 Set my brand",
+    "brandTitle": "Your brand",
+    "brandSubtitle": "Logo and colour for di top of your polls. Your votes still dey “powered by Placet”.",
+    "brandName": "Name (you fit leave am)",
+    "brandLogo": "Logo URL",
+    "brandLogoHint": "Link to your logo wey dey online (PNG or SVG), make e get transparent background.",
+    "brandAccent": "Accent colour",
+    "brandPreview": "Preview",
+    "brandSave": "Save my brand",
+    "brandSaving": "Dey save…",
+    "brandSaved": "✓ Brand don save"
   },
   "Launched": {
     "copy": "Copy",

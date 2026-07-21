@@ -175,6 +175,7 @@
     "notFoundTitle": "Poll not found",
     "notFoundDesc": "This link doesn't exist or has expired.",
     "createMyPoll": "Create my poll →",
+    "poweredBy": "powered by",
     "resultBallots": "{count, plural, one {# ballot} other {# ballots}}",
     "resultWinner": "🏆 WINNER",
     "surveyBanner": "📊 Opinion panorama",
@@ -398,7 +399,18 @@
     "cloudAccount": "☁︎ account",
     "removeFromDevice": "Remove from this device",
     "openResults": "Open / results →",
-    "manage": "🔑 Manage"
+    "manage": "🔑 Manage",
+    "brandToggle": "🎨 Customize my brand",
+    "brandTitle": "Your brand",
+    "brandSubtitle": "Logo and colour shown at the top of your polls. Your votes stay “powered by Placet”.",
+    "brandName": "Name (optional)",
+    "brandLogo": "Logo URL",
+    "brandLogoHint": "Link to your hosted logo (PNG or SVG), ideally with a transparent background.",
+    "brandAccent": "Accent colour",
+    "brandPreview": "Preview",
+    "brandSave": "Save my brand",
+    "brandSaving": "Saving…",
+    "brandSaved": "✓ Brand saved"
   },
   "Launched": {
     "copy": "Copy",

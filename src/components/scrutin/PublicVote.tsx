@@ -37,6 +37,7 @@ import {
   operativeMethod,
 } from "@/lib/voting/engine";
 import { resolveScale } from "@/lib/voting/scales";
+import { getPollBrand, type Brand } from "@/lib/db/brand";
 import type { Ballot, BallotMode, ComputeResult } from "@/lib/voting/types";
 import { APP_URL } from "@/lib/voting/aiPrompt";
 import InstallInline from "@/components/pwa/InstallInline";
@@ -325,7 +326,34 @@ type View =
   | "organizer"
   | "closed";
 
-function Header() {
+// Logo de marque de l'organisateur (image distante). Repli silencieux sur le nom
+// (ou rien) si l'URL est cassée — la page reste fonctionnelle.
+function BrandLogo({ brand }: { brand: Brand }) {
+  const [broken, setBroken] = useState(false);
+  if (brand.logoUrl && !broken) {
+    return (
+      // eslint-disable-next-line @next/next/no-img-element
+      <img
+        src={brand.logoUrl}
+        alt={brand.name ?? ""}
+        onError={() => setBroken(true)}
+        style={{ height: 34, maxWidth: 190, objectFit: "contain", display: "block" }}
+      />
+    );
+  }
+  if (brand.name) {
+    return (
+      <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 20, letterSpacing: "-0.02em", color: INK }}>
+        {brand.name}
+      </div>
+    );
+  }
+  return null;
+}
+
+function Header({ brand }: { brand?: Brand | null }) {
+  const t = useTranslations("Vote");
+  const branded = Boolean(brand && (brand.logoUrl || brand.name));
   return (
     <div
       style={{
@@ -337,16 +365,32 @@ function Header() {
         borderBottom: `2.5px solid ${INK}`,
       }}
     >
+      {branded && brand?.accent && <div style={{ height: 5, background: brand.accent }} />}
       <div
         className="pad"
-        style={{ maxWidth: 880, margin: "0 auto", padding: "14px 24px", display: "flex", alignItems: "center", gap: 11 }}
+        style={{ maxWidth: 880, margin: "0 auto", padding: "12px 24px", display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}
       >
-        <Link href="/" style={{ display: "flex", alignItems: "center", gap: 11, textDecoration: "none", color: INK }}>
-          <PlacetMark size={38} />
-          <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 21, letterSpacing: "-0.02em" }}>
-            Placet
-          </div>
-        </Link>
+        {branded ? (
+          <>
+            <BrandLogo brand={brand!} />
+            <a
+              href="https://placet.app"
+              target="_blank"
+              rel="noopener noreferrer"
+              title="Placet"
+              style={{ marginLeft: "auto", display: "inline-flex", alignItems: "center", gap: 6, textDecoration: "none", color: MUTED, fontSize: 12, fontWeight: 700 }}
+            >
+              {t("poweredBy")} <PlacetMark size={20} />
+            </a>
+          </>
+        ) : (
+          <Link href="/" style={{ display: "flex", alignItems: "center", gap: 11, textDecoration: "none", color: INK }}>
+            <PlacetMark size={38} />
+            <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 21, letterSpacing: "-0.02em" }}>
+              Placet
+            </div>
+          </Link>
+        )}
       </div>
     </div>
   );
@@ -360,10 +404,10 @@ const card = {
   boxShadow: `5px 5px 0 ${INK}`,
 } as const;
 
-function Shell({ children }: { children: React.ReactNode }) {
+function Shell({ children, brand }: { children: React.ReactNode; brand?: Brand | null }) {
   return (
     <>
-      <Header />
+      <Header brand={brand} />
       <div className="pad" style={{ maxWidth: 880, margin: "0 auto", padding: "32px 24px 100px" }}>
         {children}
       </div>
@@ -508,6 +552,7 @@ export default function PublicVote({
   const locale = useLocale();
   const [view, setView] = useState<View>("loading");
   const [poll, setPoll] = useState<PollRow | null>(null);
+  const [brand, setBrand] = useState<Brand | null>(null);
   const [voter, setVoter] = useState<VoterContext | null>(null);
   const [draft, setDraft] = useState<BallotDraft>(EMPTY_DRAFT);
   const [submitting, setSubmitting] = useState(false);
@@ -556,13 +601,14 @@ export default function PublicVote({
     let alive = true;
     (async () => {
       try {
-        const p = await getPollByToken(token);
+        const [p, b] = await Promise.all([getPollByToken(token), getPollBrand(token).catch(() => null)]);
         if (!alive) return;
         if (!p) {
           setView("notfound");
           return;
         }
         setPoll(p);
+        setBrand(b);
         const phase = pollPhase(p);
 
         if (adminKey) {
@@ -616,14 +662,14 @@ export default function PublicVote({
   // ---------- états simples ----------
   if (view === "loading") {
     return (
-      <Shell>
+      <Shell brand={brand}>
         <div style={{ color: MUTED, padding: "28px 0" }}>{t("loading")}</div>
       </Shell>
     );
   }
   if (view === "notfound" || !poll) {
     return (
-      <Shell>
+      <Shell brand={brand}>
         <div style={{ textAlign: "center", padding: "28px 0" }}>
           <h1 style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 28 }}>{t("notFoundTitle")}</h1>
           <p style={{ color: MUTED, marginTop: 8 }}>{t("notFoundDesc")}</p>
@@ -714,7 +760,7 @@ export default function PublicVote({
       }
     };
     return (
-      <Shell>
+      <Shell brand={brand}>
         <div
           style={{
             background: "#fff4e0",
@@ -887,7 +933,7 @@ export default function PublicVote({
   // ---------- invitation requise ----------
   if (view === "needsInvite") {
     return (
-      <Shell>
+      <Shell brand={brand}>
         <div style={{ ...card, textAlign: "center" }}>
           <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 22 }}>🎟️ {t("inviteOnlyTitle")}</div>
           <p style={{ color: MUTED, marginTop: 8, lineHeight: 1.5 }}>
@@ -900,7 +946,7 @@ export default function PublicVote({
 
   if (view === "scheduled") {
     return (
-      <Shell>
+      <Shell brand={brand}>
         <div style={{ ...card, textAlign: "center" }}>
           <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 22 }}>⏳ {t("notOpenYetTitle")}</div>
           <p style={{ color: MUTED, marginTop: 8, lineHeight: 1.5 }}>
@@ -919,7 +965,7 @@ export default function PublicVote({
   // ---------- merci (résultats cachés) ----------
   if (view === "thanks") {
     return (
-      <Shell>
+      <Shell brand={brand}>
         <div style={{ ...card, textAlign: "center" }}>
           <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 24, color: "#1f6b34" }}>
             ✓ {t("voteRecorded")}
@@ -940,7 +986,7 @@ export default function PublicVote({
   // ---------- clôturé (résultats révélés) ----------
   if (view === "closed") {
     return (
-      <Shell>
+      <Shell brand={brand}>
         <div
           style={{
             ...card,
@@ -1024,7 +1070,7 @@ export default function PublicVote({
       </>
     );
     return (
-      <Shell>
+      <Shell brand={brand}>
         {poll.quorum != null && <QuorumBanner quorum={poll.quorum} count={ballotCount} />}
         <ResultCard result={result} question={poll.question} ballotCount={ballotCount} footer={footer} calendarSlot={winnerSlot} calendarUrl={voteShareUrl} calendarDuration={poll.slot_minutes ?? undefined} survey={isSurvey} />
         <CommentsFeed comments={comments} />
@@ -1092,7 +1138,7 @@ export default function PublicVote({
   };
 
   return (
-    <Shell>
+    <Shell brand={brand}>
       <div style={{ display: "flex", gap: 20, alignItems: "flex-start" }}>
         <div style={{ flex: 1, minWidth: 0 }}>
       <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>

@@ -175,6 +175,7 @@
     "notFoundTitle": "Votación no encontrada",
     "notFoundDesc": "Este enlace no existe o ha caducado.",
     "createMyPoll": "Crear mi votación →",
+    "poweredBy": "con la tecnología de",
     "resultBallots": "{count, plural, one {# papeleta} other {# papeletas}}",
     "resultWinner": "🏆 GANADOR",
     "surveyBanner": "📊 Panorama de opiniones",
@@ -398,7 +399,18 @@
     "cloudAccount": "☁︎ cuenta",
     "removeFromDevice": "Quitar de este dispositivo",
     "openResults": "Abrir / resultados →",
-    "manage": "🔑 Gestionar"
+    "manage": "🔑 Gestionar",
+    "brandToggle": "🎨 Personalizar mi marca",
+    "brandTitle": "Tu marca",
+    "brandSubtitle": "Logo y color en la parte superior de tus votaciones. Tus votos siguen «con la tecnología de Placet».",
+    "brandName": "Nombre (opcional)",
+    "brandLogo": "URL del logo",
+    "brandLogoHint": "Enlace a tu logo alojado (PNG o SVG), idealmente con fondo transparente.",
+    "brandAccent": "Color de acento",
+    "brandPreview": "Vista previa",
+    "brandSave": "Guardar mi marca",
+    "brandSaving": "Guardando…",
+    "brandSaved": "✓ Marca guardada"
   },
   "Launched": {
     "copy": "Copiar",
