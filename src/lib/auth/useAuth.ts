@@ -2,11 +2,15 @@
 
 import type { User } from "@supabase/supabase-js";
 import { useCallback, useEffect, useState } from "react";
+import { useLocale } from "next-intl";
 import { createClient } from "@/lib/supabase/client";
 
 export function useAuth() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  // Langue de l'UI = préférence de langue du COMPTE (métadonnée `lang`), lue par
+  // le template d'email Supabase pour localiser le lien de connexion.
+  const locale = useLocale();
 
   useEffect(() => {
     const supabase = createClient();
@@ -19,6 +23,15 @@ export function useAuth() {
     });
     return () => data.subscription.unsubscribe();
   }, []);
+
+  // Synchronise la langue du compte quand elle diffère de l'UI (couvre Google et
+  // les comptes créés avant cette préférence). Un seul écrit au changement.
+  useEffect(() => {
+    if (!user) return;
+    if ((user.user_metadata as { lang?: string } | null)?.lang === locale) return;
+    const supabase = createClient();
+    supabase.auth.updateUser({ data: { lang: locale } }).catch(() => {});
+  }, [user, locale]);
 
   const signIn = useCallback(async () => {
     const supabase = createClient();
@@ -34,10 +47,10 @@ export function useAuth() {
     const supabase = createClient();
     const { error } = await supabase.auth.signInWithOtp({
       email: email.trim(),
-      options: { emailRedirectTo: `${window.location.origin}/auth/callback?next=/espaces` },
+      options: { emailRedirectTo: `${window.location.origin}/auth/callback?next=/espaces`, data: { lang: locale } },
     });
     return !error;
-  }, []);
+  }, [locale]);
 
   // Connexion par mot de passe (compte existant).
   const signInPassword = useCallback(async (email: string, password: string): Promise<"ok" | "error"> => {
@@ -53,12 +66,12 @@ export function useAuth() {
       const { data, error } = await supabase.auth.signUp({
         email: email.trim(),
         password,
-        options: { emailRedirectTo: `${window.location.origin}/auth/callback?next=/espaces` },
+        options: { emailRedirectTo: `${window.location.origin}/auth/callback?next=/espaces`, data: { lang: locale } },
       });
       if (error) return "error";
       return data.session ? "ok" : "confirm";
     },
-    [],
+    [locale],
   );
 
   // Envoie l'email de réinitialisation ; le lien ramène sur /espaces?recovery=1.
