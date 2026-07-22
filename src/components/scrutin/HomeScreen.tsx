@@ -108,8 +108,10 @@ export default function HomeScreen({ ctrl }: { ctrl: ScrutinController }) {
             {t("subtitle")}
           </p>
         )}
-        {/* Deux portes : l'intention d'abord — le CTA, les cartes et les étapes suivent. */}
-        <div style={{ marginTop: learn ? 30 : 18, display: "flex", gap: 14, flexWrap: "wrap" }}>
+        {/* Deux portes : l'intention d'abord — le CTA, les cartes et les étapes suivent.
+            Chaque porte est une COLONNE : son bouton, puis (pour Décider) ses
+            sous-raccourcis juste dessous — rattachés à la bonne carte, même empilé. */}
+        <div style={{ marginTop: learn ? 30 : 18, display: "flex", alignItems: "flex-start", gap: 14, flexWrap: "wrap" }}>
           {(
             [
               ["vote", "🗳️", t("doorVoteTitle"), t("doorVoteText")],
@@ -118,69 +120,69 @@ export default function HomeScreen({ ctrl }: { ctrl: ScrutinController }) {
           ).map(([key, icon, title, text]) => {
             const active = pillar === key;
             return (
-              <button
-                key={key}
-                onClick={() => setPillar(key)}
-                aria-pressed={active}
-                style={{
-                  flex: "1 1 260px",
-                  maxWidth: 380,
-                  textAlign: "left",
-                  cursor: "pointer",
-                  background: active ? INK : PAPER,
-                  color: active ? "#fff" : INK,
-                  border: `2.5px solid ${INK}`,
-                  borderRadius: 16,
-                  padding: "14px 16px",
-                  boxShadow: active ? `4px 4px 0 ${CORAL}` : `4px 4px 0 ${INK}`,
-                  fontFamily: FONT_DISPLAY,
-                }}
-              >
-                <div style={{ fontWeight: 800, fontSize: 17, display: "flex", alignItems: "center", gap: 8 }}>
-                  <span>{icon}</span>
-                  {title}
-                </div>
-                <div style={{ fontWeight: 600, fontSize: 12.5, marginTop: 5, lineHeight: 1.4, color: active ? "rgba(255,255,255,0.85)" : SUBINK }}>
-                  {text}
-                </div>
-              </button>
+              <div key={key} style={{ flex: "1 1 260px", maxWidth: 380, display: "flex", flexDirection: "column" }}>
+                <button
+                  onClick={() => setPillar(key)}
+                  aria-pressed={active}
+                  style={{
+                    width: "100%",
+                    textAlign: "left",
+                    cursor: "pointer",
+                    background: active ? INK : PAPER,
+                    color: active ? "#fff" : INK,
+                    border: `2.5px solid ${INK}`,
+                    borderRadius: 16,
+                    padding: "14px 16px",
+                    boxShadow: active ? `4px 4px 0 ${CORAL}` : `4px 4px 0 ${INK}`,
+                    fontFamily: FONT_DISPLAY,
+                  }}
+                >
+                  <div style={{ fontWeight: 800, fontSize: 17, display: "flex", alignItems: "center", gap: 8 }}>
+                    <span>{icon}</span>
+                    {title}
+                  </div>
+                  <div style={{ fontWeight: 600, fontSize: 12.5, marginTop: 5, lineHeight: 1.4, color: active ? "rgba(255,255,255,0.85)" : SUBINK }}>
+                    {text}
+                  </div>
+                </button>
+                {/* Sous-raccourcis d'intention de la porte Décider — propositions ou
+                    dates (même vocabulaire que l'écran de création, préconfiguré). */}
+                {key === "vote" && active && (
+                  <div style={{ marginTop: 10, display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+                    <span style={{ fontWeight: 600, fontSize: 13, color: SUBINK }}>{tc("voteOnLabel")}</span>
+                    {(
+                      [
+                        ["text", tc("voteOnProposals")],
+                        ["slot", tc("voteOnDates")],
+                      ] as const
+                    ).map(([kind, label]) => (
+                      <button
+                        key={kind}
+                        onClick={() => {
+                          setOptionKind(kind);
+                          go("create");
+                        }}
+                        style={{
+                          fontFamily: "inherit",
+                          fontWeight: 700,
+                          fontSize: 13,
+                          cursor: "pointer",
+                          border: `2px solid ${INK}`,
+                          borderRadius: 9,
+                          padding: "7px 12px",
+                          background: "#fff",
+                          color: INK,
+                        }}
+                      >
+                        {label}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
             );
           })}
         </div>
-        {/* Porte Décider : sous-raccourcis d'intention — propositions ou dates
-            (même vocabulaire que l'écran de création, qui arrive préconfiguré). */}
-        {pillar === "vote" && (
-          <div style={{ marginTop: 12, display: "flex", alignItems: "center", gap: 9, flexWrap: "wrap" }}>
-            <span style={{ fontWeight: 600, fontSize: 13.5, color: SUBINK }}>{tc("voteOnLabel")}</span>
-            {(
-              [
-                ["text", tc("voteOnProposals")],
-                ["slot", tc("voteOnDates")],
-              ] as const
-            ).map(([kind, label]) => (
-              <button
-                key={kind}
-                onClick={() => {
-                  setOptionKind(kind);
-                  go("create");
-                }}
-                style={{
-                  fontFamily: "inherit",
-                  fontWeight: 700,
-                  fontSize: 13,
-                  cursor: "pointer",
-                  border: `2px solid ${INK}`,
-                  borderRadius: 9,
-                  padding: "7px 13px",
-                  background: "#fff",
-                  color: INK,
-                }}
-              >
-                {label}
-              </button>
-            ))}
-          </div>
-        )}
         <div style={{ marginTop: 18, display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap" }}>
           <button
             onClick={() => (pillar === "assign" ? startAssign() : go("create"))}
