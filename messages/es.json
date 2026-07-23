@@ -9,8 +9,8 @@
   },
   "Home": {
     "badge": "Decidir en grupo, fácilmente",
-    "heroA": "Vota bien,",
-    "heroB": "decide mejor.",
+    "heroA": "La decisión correcta,",
+    "heroB": "tomada juntos.",
     "subtitle": "Elegir una opción, encontrar una fecha, repartir despachos, formar parejas: cada decisión tiene su método — y el resultado se calcula según sus reglas exactas, no una encuesta más.",
     "createCta": "Tomar una decisión →",
     "createAssignCta": "Crear mi asignación →",
@@ -843,7 +843,7 @@
     "privacyNote": "Tu email solo se usa para enviarte tu enlace de voto personal."
   },
   "Meta": {
-    "title": "Placet — Vota bien, decide mejor",
+    "title": "Placet — La decisión correcta, tomada juntos",
     "description": "Votaciones y asignaciones con métodos de verdad — mayoritario, Condorcet, juicio mayoritario, turnos de elección, parejas estables, estilo Parcoursup… Compara los sesgos y luego cuenta de verdad."
   },
   "Share": {
@@ -852,7 +852,7 @@
     "qrEnlarge": "Haz clic para ampliar",
     "qrClose": "Toca la pantalla para cerrar",
     "fallbackTitle": "Placet — votación",
-    "fallbackQuestion": "Vota bien, decide mejor",
+    "fallbackQuestion": "La decisión correcta, tomada juntos",
     "methodFallback": "Votación",
     "statusClosed": "🔒 Cerrada",
     "statusScheduled": "⏳ Próxima",

@@ -9,8 +9,8 @@
   },
   "Home": {
     "badge": "Décider à plusieurs, simplement",
-    "heroA": "Votez juste,",
-    "heroB": "décidez mieux.",
+    "heroA": "La bonne décision,",
+    "heroB": "prise ensemble.",
     "subtitle": "Choisir une option, trouver une date, attribuer des bureaux, former des binômes : chaque décision a sa méthode — et le résultat est calculé selon ses règles exactes, pas un sondage de plus.",
     "createCta": "Prendre une décision →",
     "createAssignCta": "Créer mon affectation →",
@@ -843,7 +843,7 @@
     "privacyNote": "Votre email sert uniquement à vous envoyer votre lien de vote personnel."
   },
   "Meta": {
-    "title": "Placet — Votez juste, décidez mieux",
+    "title": "Placet — La bonne décision, prise ensemble",
     "description": "Votes et affectations avec de vraies méthodes — majoritaire, Condorcet, jugement majoritaire, tour de choix, binômes stables, façon Parcoursup… Comparez les biais, puis comptez pour de vrai."
   },
   "Share": {
@@ -852,7 +852,7 @@
     "qrEnlarge": "Cliquez pour agrandir",
     "qrClose": "Touchez l'écran pour fermer",
     "fallbackTitle": "Placet — vote",
-    "fallbackQuestion": "Votez juste, décidez mieux",
+    "fallbackQuestion": "La bonne décision, prise ensemble",
     "methodFallback": "Scrutin",
     "statusClosed": "🔒 Vote clos",
     "statusScheduled": "⏳ À venir",

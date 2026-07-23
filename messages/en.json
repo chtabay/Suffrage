@@ -9,8 +9,8 @@
   },
   "Home": {
     "badge": "Group decisions, made simple",
-    "heroA": "Vote right,",
-    "heroB": "decide better.",
+    "heroA": "The right decision,",
+    "heroB": "made together.",
     "subtitle": "Pick an option, find a date, allocate offices, form pairs: every decision has its method — and the result is computed by its exact rules, not just another poll.",
     "createCta": "Make a decision →",
     "createAssignCta": "Create my assignment →",
@@ -843,7 +843,7 @@
     "privacyNote": "Your email is only used to send you your personal voting link."
   },
   "Meta": {
-    "title": "Placet — Vote right, decide better",
+    "title": "Placet — The right decision, made together",
     "description": "Votes and assignments with real methods — majority, Condorcet, majority judgment, picking rounds, stable pairs, Parcoursup-style… Compare the biases, then count for real."
   },
   "Share": {
@@ -852,7 +852,7 @@
     "qrEnlarge": "Click to enlarge",
     "qrClose": "Tap anywhere to close",
     "fallbackTitle": "Placet — poll",
-    "fallbackQuestion": "Vote right, decide better",
+    "fallbackQuestion": "The right decision, made together",
     "methodFallback": "Poll",
     "statusClosed": "🔒 Closed",
     "statusScheduled": "⏳ Upcoming",

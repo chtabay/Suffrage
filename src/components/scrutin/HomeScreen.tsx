@@ -214,14 +214,14 @@ export default function HomeScreen({ ctrl }: { ctrl: ScrutinController }) {
               width: "100%",
               fontFamily: FONT_DISPLAY,
               fontWeight: 600,
-              fontSize: 18.5,
-              padding: "16px 18px",
-              border: `2.5px solid ${INK}`,
+              fontSize: 20,
+              padding: "18px 20px",
+              border: `3px solid ${INK}`,
               borderRadius: 14,
               background: "#fff",
               outline: "none",
               boxSizing: "border-box",
-              boxShadow: `5px 5px 0 ${CORAL}`,
+              boxShadow: `6px 6px 0 ${CORAL}`,
             }}
           />
         </div>
@@ -247,14 +247,14 @@ export default function HomeScreen({ ctrl }: { ctrl: ScrutinController }) {
                 width: "100%",
                 fontFamily: "inherit",
                 background: PAPER,
-                border: `2.5px solid ${INK}`,
-                borderRadius: 16,
-                padding: 14,
-                ...lift(`4px 4px 0 ${it.color}`, `6px 6px 0 ${it.color}`),
+                border: `2px solid ${INK}`,
+                borderRadius: 14,
+                padding: 13,
+                ...lift(`3px 3px 0 ${it.color}`, `5px 5px 0 ${it.color}`),
               }}
             >
               <IntentArt kind={it.kind} />
-              <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 16, marginTop: 9 }}>{t(it.titleKey)}</div>
+              <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 15.5, marginTop: 8 }}>{t(it.titleKey)}</div>
               <div style={{ fontSize: 12.5, color: SUBINK, lineHeight: 1.4, marginTop: 3 }}>{t(it.textKey)}</div>
             </button>
           ))}
