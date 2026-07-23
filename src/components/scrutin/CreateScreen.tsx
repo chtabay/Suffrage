@@ -242,6 +242,12 @@ export default function CreateScreen({ ctrl }: { ctrl: ScrutinController }) {
   // Carte méthode repliée par défaut : c'est un réglage de PERSONNALISATION, pas
   // la 1re chose à décider. Auto-ouverte si une méthode non-défaut est en jeu.
   const [methodCardOpen, setMethodCardOpen] = useState(false);
+  // Type de vote & objectif repliés sous les propositions : le cas courant
+  // (propositions + gagnant) n'a rien à régler ici. Auto-ouvert dès qu'un
+  // réglage non-défaut est actif (dates, affectation, sondage) ou qu'un
+  // brouillon pré-rempli mérite d'être vérifié d'un coup d'œil.
+  const [setupOpen, setSetupOpen] = useState(false);
+  const setupExpanded = setupOpen || state.optionKind !== "text" || state.survey || state.prefilled;
   const resolved = describeRecipe(state.recipe);
   const tm = useTranslations("Methods");
   const axes = buildAxes(state.recipe, setRecipe, state.optionKind === "slot", t);
@@ -484,75 +490,8 @@ export default function CreateScreen({ ctrl }: { ctrl: ScrutinController }) {
                 boxSizing: "border-box",
               }}
             />
-            {/* Sur quoi porte le vote : des propositions, ou des dates (façon Doodle) */}
-            <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", margin: "18px 0 10px" }}>
-              <span style={{ fontFamily: FONT_BODY, fontWeight: 600, fontSize: 14, color: INK }}>{t("voteOnLabel")}</span>
-              <div style={{ display: "flex", gap: 8 }}>
-                {([
-                  ["text", t("voteOnProposals")],
-                  ["slot", t("voteOnDates")],
-                  ["assign", ta("kindChip")],
-                ] as const).map(([k, lbl]) => (
-                  <button
-                    key={k}
-                    onClick={() => setOptionKind(k)}
-                    style={{
-                      fontFamily: FONT_BODY,
-                      fontWeight: 700,
-                      fontSize: 13,
-                      cursor: "pointer",
-                      border: `2px solid ${INK}`,
-                      borderRadius: 9,
-                      padding: "7px 13px",
-                      background: state.optionKind === k ? INK : "#fff",
-                      color: state.optionKind === k ? "#fff" : INK,
-                    }}
-                  >
-                    {lbl}
-                  </button>
-                ))}
-              </div>
-            </div>
-            {/* Objectif : élire un gagnant, ou sonder (panorama des avis, sans vainqueur). */}
-            {!isAssign && (
-              <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", margin: "0 0 10px" }}>
-                <span style={{ fontFamily: FONT_BODY, fontWeight: 600, fontSize: 14, color: INK }}>{t("goalLabel")}</span>
-                <div style={{ display: "flex", gap: 8 }}>
-                  {(
-                    [
-                      [false, t("goalWin")],
-                      [true, t("goalSurvey")],
-                    ] as const
-                  ).map(([sv, lbl]) => (
-                    <button
-                      key={String(sv)}
-                      onClick={() => setSurvey(sv)}
-                      style={{
-                        fontFamily: FONT_BODY,
-                        fontWeight: 700,
-                        fontSize: 13,
-                        cursor: "pointer",
-                        border: `2px solid ${INK}`,
-                        borderRadius: 9,
-                        padding: "7px 13px",
-                        background: state.survey === sv ? INK : "#fff",
-                        color: state.survey === sv ? "#fff" : INK,
-                      }}
-                    >
-                      {lbl}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-            {!isAssign && state.survey && (
-              <div style={{ fontSize: 12.5, color: MUTED, margin: "0 0 12px", lineHeight: 1.45 }}>{t("goalSurveyHint")}</div>
-            )}
-            {isAssign && (
-              <div style={{ fontSize: 12.5, color: MUTED, margin: "0 0 12px", lineHeight: 1.45 }}>{ta("kindHint")}</div>
-            )}
             {isAssign && aDef.oneSided && (
-              <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", margin: "0 0 12px" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", margin: "16px 0 12px" }}>
                 <span style={{ fontFamily: FONT_BODY, fontWeight: 600, fontSize: 14, color: INK }}>{ta("assignOnLabel")}</span>
                 <div style={{ display: "flex", gap: 8 }}>
                   {(
@@ -583,7 +522,7 @@ export default function CreateScreen({ ctrl }: { ctrl: ScrutinController }) {
               </div>
             )}
             {!(isAssign && !aDef.oneSided) && (
-              <div style={{ fontWeight: 700, fontSize: 13, color: MUTED, marginBottom: 9 }}>
+              <div style={{ fontWeight: 700, fontSize: 13, color: MUTED, margin: "18px 0 9px" }}>
                 {state.optionKind === "slot" ? t("slotsHeading") : isAssign ? ta("objectsHeading") : t("proposalsHeading")}
               </div>
             )}
@@ -795,6 +734,131 @@ export default function CreateScreen({ ctrl }: { ctrl: ScrutinController }) {
                 {t("addProposal")}
               </button>
             )}
+            {/* Type de vote & objectif : divulgation progressive, SOUS les
+                propositions. La ligne-résumé garde le réglage lisible et
+                réversible en un clic ; launch() lit stateRef.current, déplacer
+                ces chips ne change rien au décompte. */}
+            <div style={{ marginTop: 16, paddingTop: 14, borderTop: `2px dashed ${INK}` }}>
+              <button
+                onClick={() => setSetupOpen((o) => !o)}
+                style={{
+                  width: "100%",
+                  textAlign: "left",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 10,
+                  flexWrap: "wrap",
+                  cursor: "pointer",
+                  background: "none",
+                  border: "none",
+                  padding: 0,
+                  fontFamily: FONT_BODY,
+                }}
+              >
+                <span style={{ fontWeight: 600, fontSize: 13, color: MUTED }}>
+                  {t("voteOnLabel")}{" "}
+                  <span style={{ color: INK, fontWeight: 700 }}>
+                    {state.optionKind === "slot" ? t("voteOnDates") : isAssign ? ta("kindChip") : t("voteOnProposals")}
+                  </span>
+                  {!isAssign && (
+                    <>
+                      {" · "}
+                      {t("goalLabel")}{" "}
+                      <span style={{ color: INK, fontWeight: 700 }}>{state.survey ? t("goalSurvey") : t("goalWin")}</span>
+                    </>
+                  )}
+                </span>
+                {setupExpanded ? (
+                  <span style={{ marginLeft: "auto", fontWeight: 800, fontSize: 16, color: INK }}>▾</span>
+                ) : (
+                  <span
+                    style={{
+                      marginLeft: "auto",
+                      fontWeight: 700,
+                      fontSize: 12.5,
+                      border: `2px solid ${INK}`,
+                      borderRadius: 9,
+                      padding: "6px 11px",
+                      background: "#fff",
+                      color: INK,
+                    }}
+                  >
+                    {t("setupChange")}
+                  </span>
+                )}
+              </button>
+              {setupExpanded && (
+                <>
+                  {/* Sur quoi porte le vote : des propositions, ou des dates (façon Doodle) */}
+                  <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", margin: "12px 0 0" }}>
+                    <span style={{ fontFamily: FONT_BODY, fontWeight: 600, fontSize: 14, color: INK }}>{t("voteOnLabel")}</span>
+                    <div style={{ display: "flex", gap: 8 }}>
+                      {([
+                        ["text", t("voteOnProposals")],
+                        ["slot", t("voteOnDates")],
+                        ["assign", ta("kindChip")],
+                      ] as const).map(([k, lbl]) => (
+                        <button
+                          key={k}
+                          onClick={() => setOptionKind(k)}
+                          style={{
+                            fontFamily: FONT_BODY,
+                            fontWeight: 700,
+                            fontSize: 13,
+                            cursor: "pointer",
+                            border: `2px solid ${INK}`,
+                            borderRadius: 9,
+                            padding: "7px 13px",
+                            background: state.optionKind === k ? INK : "#fff",
+                            color: state.optionKind === k ? "#fff" : INK,
+                          }}
+                        >
+                          {lbl}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  {/* Objectif : élire un gagnant, ou sonder (panorama des avis, sans vainqueur). */}
+                  {!isAssign && (
+                    <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", margin: "10px 0 0" }}>
+                      <span style={{ fontFamily: FONT_BODY, fontWeight: 600, fontSize: 14, color: INK }}>{t("goalLabel")}</span>
+                      <div style={{ display: "flex", gap: 8 }}>
+                        {(
+                          [
+                            [false, t("goalWin")],
+                            [true, t("goalSurvey")],
+                          ] as const
+                        ).map(([sv, lbl]) => (
+                          <button
+                            key={String(sv)}
+                            onClick={() => setSurvey(sv)}
+                            style={{
+                              fontFamily: FONT_BODY,
+                              fontWeight: 700,
+                              fontSize: 13,
+                              cursor: "pointer",
+                              border: `2px solid ${INK}`,
+                              borderRadius: 9,
+                              padding: "7px 13px",
+                              background: state.survey === sv ? INK : "#fff",
+                              color: state.survey === sv ? "#fff" : INK,
+                            }}
+                          >
+                            {lbl}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  {!isAssign && state.survey && (
+                    <div style={{ fontSize: 12.5, color: MUTED, margin: "8px 0 0", lineHeight: 1.45 }}>{t("goalSurveyHint")}</div>
+                  )}
+                  {isAssign && (
+                    <div style={{ fontSize: 12.5, color: MUTED, margin: "10px 0 0", lineHeight: 1.45 }}>{ta("kindHint")}</div>
+                  )}
+                </>
+              )}
+            </div>
             {!isAssign && (
               <div style={{ fontSize: 12, color: MUTED, marginTop: 12, lineHeight: 1.45 }}>
                 {t("aiHintAttach")}{" "}
@@ -992,8 +1056,9 @@ export default function CreateScreen({ ctrl }: { ctrl: ScrutinController }) {
             )}
           </div>
 
-          <ClosureLine ctrl={ctrl} />
-          {!isAssign && <AdvancedSettings ctrl={ctrl} />}
+          {/* La clôture vit désormais dans le repli des réglages avancés ; en
+              affectation ce repli n'existe pas → elle reste visible directement. */}
+          {isAssign ? <ClosureLine ctrl={ctrl} /> : <AdvancedSettings ctrl={ctrl} />}
           <AiHelper ctrl={ctrl} />
         </div>
 

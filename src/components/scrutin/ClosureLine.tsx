@@ -4,7 +4,11 @@ import { useTranslations } from "next-intl";
 import type { ScrutinController } from "@/lib/voting/useScrutin";
 import { CREAM, FONT_BODY, FONT_DISPLAY, INK, MUTED } from "./theme";
 
-/** Date de clôture, visible par défaut (mécanisme de validité du scrutin « autoportant »). */
+/**
+ * Date de clôture (mécanisme de validité du scrutin « autoportant »).
+ * Vit dans le repli des réglages avancés — sauf en affectation, où ce repli
+ * n'existe pas : CreateScreen la rend alors directement dans la colonne.
+ */
 export default function ClosureLine({ ctrl }: { ctrl: ScrutinController }) {
   const t = useTranslations("Closure");
   const { state, setClosesAt } = ctrl;
