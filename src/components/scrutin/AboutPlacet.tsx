@@ -15,31 +15,53 @@ const ROWS = [
   ["🎯", "aboutPhiloLabel", "aboutPhiloText"],
 ] as const;
 
-export default function AboutPlacet() {
+export default function AboutPlacet({ compact }: { compact?: boolean }) {
   const t = useTranslations("Home");
   const [open, setOpen] = useState(false);
 
   return (
     <>
-      <button
-        type="button"
-        onClick={() => setOpen(true)}
-        className="dc-lift"
-        style={{
-          fontFamily: FONT_DISPLAY,
-          fontWeight: 700,
-          fontSize: 15,
-          cursor: "pointer",
-          border: `2.5px solid ${INK}`,
-          background: PAPER,
-          color: INK,
-          padding: "13px 20px",
-          borderRadius: 12,
-          ...lift(`4px 4px 0 ${INK}`, `6px 6px 0 ${INK}`),
-        }}
-      >
-        ⓘ {t("aboutCta")}
-      </button>
+      {compact ? (
+        // Version discrète pour le header : n'interrompt plus le flux de création.
+        <button
+          type="button"
+          onClick={() => setOpen(true)}
+          className="dc-paper"
+          style={{
+            fontFamily: FONT_BODY,
+            fontWeight: 600,
+            fontSize: 14,
+            cursor: "pointer",
+            border: `2px solid ${INK}`,
+            background: CREAM,
+            color: INK,
+            padding: "9px 15px",
+            borderRadius: 10,
+          }}
+        >
+          ⓘ {t("aboutCta")}
+        </button>
+      ) : (
+        <button
+          type="button"
+          onClick={() => setOpen(true)}
+          className="dc-lift"
+          style={{
+            fontFamily: FONT_DISPLAY,
+            fontWeight: 700,
+            fontSize: 15,
+            cursor: "pointer",
+            border: `2.5px solid ${INK}`,
+            background: PAPER,
+            color: INK,
+            padding: "13px 20px",
+            borderRadius: 12,
+            ...lift(`4px 4px 0 ${INK}`, `6px 6px 0 ${INK}`),
+          }}
+        >
+          ⓘ {t("aboutCta")}
+        </button>
+      )}
 
       {open &&
         createPortal(

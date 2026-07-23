@@ -51,6 +51,7 @@
     "methodsTitleLean": "Choose a method",
     "methodsForVote": "For deciding",
     "methodsForAssign": "For sharing out",
+    "methodsHint": "Optional: how ties are settled. You can adjust it when you create.",
     "compareCta": "Compare all 10 methods →",
     "slackTitle": "Also in Slack.",
     "slackText": "Launch a vote without leaving your channels — /placet, everyone votes on the web, the result comes back to the channel.",
@@ -451,7 +452,9 @@
     "mobileToggle": "Need AI help to choose and create your poll?",
     "promptCopied": "✓ Prompt copied",
     "copyPrompt": "Copy the prompt",
-    "pasteHint": "The prompt is copied automatically — on Gemini, Copilot, Grok or Le Chat, just paste it (Ctrl/⌘+V)."
+    "pasteHint": "The prompt is copied automatically — on Gemini, Copilot, Grok or Le Chat, just paste it (Ctrl/⌘+V).",
+    "whatAria": "What does the assistant do?",
+    "whatText": "Your assistant helps you prepare the decision: phrase the question, suggest options, recommend a method. Placet then takes over to run the vote and compute the result."
   },
   "AiRail": {
     "title": "✨ Prepare with an AI",

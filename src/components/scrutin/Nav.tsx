@@ -6,6 +6,7 @@ import type { AuthController } from "@/lib/auth/useAuth";
 import type { ScrutinController } from "@/lib/voting/useScrutin";
 import { Link } from "@/i18n/navigation";
 import LocaleSwitch from "@/components/LocaleSwitch";
+import AboutPlacet from "./AboutPlacet";
 import PlacetMark from "./PlacetMark";
 import { CORAL, CREAM, FONT_BODY, FONT_DISPLAY, GREEN, INK, lift } from "./theme";
 
@@ -103,6 +104,8 @@ export default function Nav({ ctrl, auth }: { ctrl: ScrutinController; auth: Aut
           <button onClick={act(() => go("gallery"))} className="dc-paper" style={secondary}>
             {t("methods")}
           </button>
+          {/* Aide « C'est quoi Placet ? » — dans le header, sans couper le flux de création. */}
+          <AboutPlacet compact />
           <button
             onClick={act(() => go("create"))}
             className="dc-lift"

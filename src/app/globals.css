@@ -71,6 +71,17 @@ input {
   transform: translate(-2px, -2px);
   box-shadow: var(--sh-hover, 7px 7px 0 #16213a) !important;
 }
+/* Retour tactile à l'appui : la carte s'enfonce vers son ombre. */
+.dc-lift:active {
+  transform: translate(1px, 1px) !important;
+}
+/* Cartes d'intention : l'illustration prend vie au survol. */
+.intent-card svg {
+  transition: transform 0.16s ease;
+}
+.intent-card:hover svg {
+  transform: scale(1.07) rotate(-1.5deg);
+}
 .dc-bright:hover {
   filter: brightness(1.07);
 }

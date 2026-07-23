@@ -7,7 +7,6 @@ import { ASSIGN_METHODS, ASSIGN_METHOD_KEYS, type AssignMethodKey } from "@/lib/
 import type { ScrutinController } from "@/lib/voting/useScrutin";
 import AiSideRail from "./AiSideRail";
 import AiHelper from "./AiHelper";
-import AboutPlacet from "./AboutPlacet";
 import SlackMark from "@/components/SlackMark";
 import { Link } from "@/i18n/navigation";
 import { Btn } from "@/components/ui/kit";
@@ -142,7 +141,7 @@ export default function HomeScreen({ ctrl }: { ctrl: ScrutinController }) {
   };
 
   return (
-    <div className="pad" style={{ maxWidth: 1120, margin: "0 auto", padding: `${learn ? 56 : 26}px 24px 90px` }}>
+    <div className="pad" style={{ maxWidth: 1120, margin: "0 auto", padding: `${learn ? 38 : 16}px 24px 90px` }}>
       <AiSideRail />
 
       {/* hero : pitch en pédagogie, compact en lean — une seule action primaire */}
@@ -174,7 +173,7 @@ export default function HomeScreen({ ctrl }: { ctrl: ScrutinController }) {
             fontSize: learn ? "clamp(40px,7vw,76px)" : "clamp(26px,6vw,40px)",
             lineHeight: learn ? 0.98 : 1.05,
             letterSpacing: "-0.035em",
-            margin: learn ? "22px 0 0" : 0,
+            margin: learn ? "16px 0 0" : 0,
             maxWidth: "14ch",
           }}
         >
@@ -196,10 +195,10 @@ export default function HomeScreen({ ctrl }: { ctrl: ScrutinController }) {
         {/* L'intention d'abord : on pose SA question, puis on choisit quoi en
             faire. Le libellé évite « le groupe » — on n'a pas besoin d'un groupe
             constitué pour lancer, on partage un lien. */}
-        <div style={{ marginTop: learn ? 28 : 16, maxWidth: 620 }}>
+        <div style={{ marginTop: learn ? 24 : 16, maxWidth: 640 }}>
           <label
             htmlFor="home-question"
-            style={{ display: "block", fontWeight: 700, fontSize: 12, color: MUTED, letterSpacing: "0.05em", textTransform: "uppercase", marginBottom: 7 }}
+            style={{ display: "block", fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 13, color: INK, letterSpacing: "0.03em", textTransform: "uppercase", marginBottom: 8 }}
           >
             {t("askLabel")}
           </label>
@@ -215,20 +214,20 @@ export default function HomeScreen({ ctrl }: { ctrl: ScrutinController }) {
               width: "100%",
               fontFamily: FONT_DISPLAY,
               fontWeight: 600,
-              fontSize: 16,
-              padding: "13px 15px",
+              fontSize: 18.5,
+              padding: "16px 18px",
               border: `2.5px solid ${INK}`,
-              borderRadius: 13,
-              background: PAPER,
+              borderRadius: 14,
+              background: "#fff",
               outline: "none",
               boxSizing: "border-box",
-              boxShadow: `4px 4px 0 ${INK}`,
+              boxShadow: `5px 5px 0 ${CORAL}`,
             }}
           />
         </div>
 
-        {/* Les 4 intentions — chacune illustre sa mécanique. */}
-        <div style={{ marginTop: 16, fontWeight: 700, fontSize: 13, color: SUBINK }}>{t("intentLabel")}</div>
+        {/* Les 4 intentions — chacune illustre sa mécanique. Étape 2 du parcours. */}
+        <div style={{ marginTop: 18, fontWeight: 700, fontSize: 13, color: SUBINK }}>{t("intentLabel")}</div>
         <div
           style={{
             marginTop: 10,
@@ -241,7 +240,7 @@ export default function HomeScreen({ ctrl }: { ctrl: ScrutinController }) {
             <button
               key={it.kind}
               onClick={() => start(it.kind)}
-              className="dc-lift"
+              className="dc-lift intent-card"
               style={{
                 textAlign: "left",
                 cursor: "pointer",
@@ -260,16 +259,17 @@ export default function HomeScreen({ ctrl }: { ctrl: ScrutinController }) {
             </button>
           ))}
         </div>
-        <div style={{ marginTop: 16 }}>
-          <AboutPlacet />
-        </div>
       </div>
 
-      {/* 4 méthodes phares — remontées pour être visibles dès la première page */}
-      <div style={{ marginTop: learn ? 40 : 26 }}>
-        <h2 style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: learn ? 30 : 23, letterSpacing: "-0.02em", margin: 0 }}>
+      {/* Méthodes : étape de PERSONNALISATION, après avoir identifié le type.
+          Volontairement moins de poids visuel que le choix du type ci-dessus. */}
+      <div style={{ marginTop: learn ? 40 : 30 }}>
+        <h2 style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: learn ? 30 : 19, letterSpacing: "-0.02em", margin: 0, color: learn ? INK : SUBINK }}>
           {learn ? (pillar === "assign" ? t("methodsTitleLearnAssign") : t("methodsTitleLearn")) : t("methodsTitleLean")}
         </h2>
+        {!learn && (
+          <div style={{ fontSize: 12.5, color: MUTED, marginTop: 4, lineHeight: 1.4, maxWidth: "52ch" }}>{t("methodsHint")}</div>
+        )}
         {/* Les cartes d'intention filent droit dans la création : cette section a
             donc besoin de son PROPRE sélecteur pour rester dynamique (elle pilote
             aussi les étapes plus bas). */}

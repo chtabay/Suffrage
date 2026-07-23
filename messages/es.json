@@ -51,6 +51,7 @@
     "methodsTitleLean": "Elegir un método",
     "methodsForVote": "Para decidir",
     "methodsForAssign": "Para repartir",
+    "methodsHint": "Opcional: cómo se desempata. Podrás ajustarlo al crear.",
     "compareCta": "Comparar los 10 métodos →",
     "slackTitle": "También en Slack.",
     "slackText": "Lanza una votación sin salir de tus canales — /placet, todos votan en la web y el resultado vuelve al canal.",
@@ -451,7 +452,9 @@
     "mobileToggle": "¿Necesitas la ayuda de una IA para elegir y crear la votación?",
     "promptCopied": "✓ Prompt copiado",
     "copyPrompt": "Copiar el prompt",
-    "pasteHint": "El prompt se copia automáticamente — en Gemini, Copilot, Grok o Le Chat, solo tienes que pegarlo (Ctrl/⌘+V)."
+    "pasteHint": "El prompt se copia automáticamente — en Gemini, Copilot, Grok o Le Chat, solo tienes que pegarlo (Ctrl/⌘+V).",
+    "whatAria": "¿Para qué sirve el asistente?",
+    "whatText": "Tu asistente te ayuda a preparar la decisión: formular la pregunta, sugerir opciones, recomendar un método. Luego Placet toma el relevo para organizar la votación y calcular el resultado."
   },
   "AiRail": {
     "title": "✨ Preparar con una IA",

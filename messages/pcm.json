@@ -51,6 +51,7 @@
     "methodsTitleLean": "Choose method",
     "methodsForVote": "For decide",
     "methodsForAssign": "For share out",
+    "methodsHint": "Optional: how dem go break tie. You fit adjust am when you dey create.",
     "compareCta": "Compare all 10 methods →",
     "slackTitle": "For Slack too.",
     "slackText": "Launch vote without comot from your channel — /placet, everybody go vote for web, di result go come back for di channel.",
@@ -451,7 +452,9 @@
     "mobileToggle": "You need AI help to choose and create your vote?",
     "promptCopied": "✓ Prompt don copy",
     "copyPrompt": "Copy di prompt",
-    "pasteHint": "We dey copy di prompt automatic — for Gemini, Copilot, Grok or Le Chat, just paste am (Ctrl/⌘+V)."
+    "pasteHint": "We dey copy di prompt automatic — for Gemini, Copilot, Grok or Le Chat, just paste am (Ctrl/⌘+V).",
+    "whatAria": "Wetin di assistant dey do?",
+    "whatText": "Your assistant dey help you prepare di decision: word di question, suggest options, recommend method. After, Placet go take over to run di vote and calculate di result."
   },
   "AiRail": {
     "title": "✨ Prepare with AI",

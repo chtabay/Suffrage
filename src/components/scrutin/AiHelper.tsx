@@ -5,7 +5,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { ASSISTANTS, copyAiPrompt, openAssistant } from "@/lib/ai/assistants";
 import BrandIcon, { hasBrandIcon } from "@/components/ai/BrandIcon";
 import type { ScrutinController } from "@/lib/voting/useScrutin";
-import { CREAM, FONT_BODY, FONT_DISPLAY, INK, MUTED } from "./theme";
+import { CREAM, FONT_BODY, FONT_DISPLAY, INK, MUTED, SUBINK } from "./theme";
 
 export default function AiHelper({ ctrl }: { ctrl: ScrutinController }) {
   const { state } = ctrl;
@@ -13,6 +13,7 @@ export default function AiHelper({ ctrl }: { ctrl: ScrutinController }) {
   const locale = useLocale();
   const [copied, setCopied] = useState(false);
   const [open, setOpen] = useState(false);
+  const [what, setWhat] = useState(false);
 
   const btn = {
     fontFamily: FONT_BODY,
@@ -36,10 +37,28 @@ export default function AiHelper({ ctrl }: { ctrl: ScrutinController }) {
     >
       {/* En-tête déplié sur desktop/tablette : titre + sous-titre */}
       <div className="ai-head-desktop">
-        <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 16 }}>{t("title")}</div>
+        <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
+          <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 16 }}>{t("title")}</div>
+          {/* (i) discret : explique, à la demande, le rôle de l'assistant. */}
+          <button
+            type="button"
+            onClick={() => setWhat((w) => !w)}
+            aria-expanded={what}
+            aria-label={t("whatAria")}
+            title={t("whatAria")}
+            style={{ border: "none", background: "transparent", color: what ? INK : MUTED, fontSize: 15, cursor: "pointer", padding: 0, lineHeight: 1 }}
+          >
+            ⓘ
+          </button>
+        </div>
         <div style={{ fontSize: 12.5, color: MUTED, margin: "5px 0 12px", lineHeight: 1.45 }}>
           {t("subtitle")}
         </div>
+        {what && (
+          <div style={{ fontSize: 12.5, color: SUBINK, background: CREAM, border: `2px solid ${INK}`, borderRadius: 10, padding: "10px 12px", margin: "0 0 12px", lineHeight: 1.5 }}>
+            {t("whatText")}
+          </div>
+        )}
       </div>
 
       {/* Sur mobile, la liste des IA se replie sous une question (gain de place). */}
