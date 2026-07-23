@@ -1,8 +1,10 @@
 "use client";
 
-import { useTranslations } from "next-intl";
+import { useState } from "react";
+import { useLocale, useTranslations } from "next-intl";
 import type { ComputeResult } from "@/lib/voting/types";
 import { buildIcs, downloadIcs } from "@/lib/voting/ics";
+import { buildDecisionText, waUrl } from "@/lib/share";
 import { CREAM, FONT_DISPLAY, INK, SUBINK } from "./theme";
 
 interface Props {
@@ -17,12 +19,28 @@ interface Props {
   calendarDuration?: number;
   /** Mode sondage : panorama des avis — pas de vainqueur, pas de contrefactuel. */
   survey?: boolean;
+  /** Scrutin CLOS : l'issue est acquise → bande d'action « Et maintenant ? ». */
+  decided?: boolean;
 }
 
 /** Carte de résultat : vainqueur, barres, explication et contrefactuel. */
-export default function ResultCard({ result, question, ballotCount, footer, calendarSlot, calendarUrl, calendarDuration, survey }: Props) {
+export default function ResultCard({ result, question, ballotCount, footer, calendarSlot, calendarUrl, calendarDuration, survey, decided }: Props) {
   const t = useTranslations("Vote");
   const tm = useTranslations("Methods");
+  const locale = useLocale();
+  const [copied, setCopied] = useState(false);
+  // Bande d'action : uniquement quand une décision est RÉELLEMENT prise —
+  // scrutin clos, vainqueur établi (hasWinner, pas juste bars[0]) et hors sondage.
+  const showActions = Boolean(decided && !survey && result.hasWinner);
+  const decisionText = buildDecisionText(question, result.winnerName ?? "", calendarUrl ?? "", locale);
+  const copyDecision = async () => {
+    try {
+      await navigator.clipboard?.writeText(decisionText);
+      setCopied(true);
+    } catch {
+      /* presse-papiers indisponible */
+    }
+  };
   // Jugement majoritaire en mode sondage : on montre le PROFIL DE MÉRITE (la
   // distribution des mentions par option), pas la simple barre de médiane. La
   // médiane reste affichée à droite comme résumé.
@@ -132,7 +150,41 @@ export default function ResultCard({ result, question, ballotCount, footer, cale
       </div>
 
       <div style={{ padding: 24 }}>
-        {calendarSlot && (
+        {/* « Et maintenant ? » — la décision devient une ACTION. Regroupe le
+            calendrier (jusque-là isolé) et l'annonce au groupe. Rendu seulement
+            si l'issue est acquise ; sinon on garde le bouton calendrier seul. */}
+        {showActions ? (
+          <div style={{ marginBottom: 18, background: CREAM, border: `2.5px solid ${INK}`, borderRadius: 14, padding: 16 }}>
+            <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 15, marginBottom: 11 }}>
+              {t("decisionActionsTitle")}
+            </div>
+            <div style={{ display: "flex", gap: 9, flexWrap: "wrap" }}>
+              {calendarSlot && (
+                <button
+                  onClick={addToCalendar}
+                  className="dc-paper"
+                  style={{ flex: "1 1 150px", fontFamily: FONT_DISPLAY, fontWeight: 700, fontSize: 14, cursor: "pointer", border: `2.5px solid ${INK}`, background: "#fff", color: INK, padding: "11px 14px", borderRadius: 11 }}
+                >
+                  {t("addToCalendar")}
+                </button>
+              )}
+              <a
+                href={waUrl(decisionText)}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ flex: "1 1 150px", textAlign: "center", textDecoration: "none", fontFamily: FONT_DISPLAY, fontWeight: 700, fontSize: 14, border: `2.5px solid ${INK}`, background: "#25D366", color: "#fff", padding: "11px 14px", borderRadius: 11 }}
+              >
+                {t("announceDecision")}
+              </a>
+              <button
+                onClick={copyDecision}
+                style={{ flex: "1 1 120px", fontFamily: FONT_DISPLAY, fontWeight: 700, fontSize: 14, cursor: "pointer", border: `2.5px solid ${INK}`, background: "#fff", color: INK, padding: "11px 14px", borderRadius: 11 }}
+              >
+                {copied ? t("copiedDecision") : t("copyDecision")}
+              </button>
+            </div>
+          </div>
+        ) : calendarSlot ? (
           <button
             onClick={addToCalendar}
             className="dc-paper"
@@ -140,7 +192,7 @@ export default function ResultCard({ result, question, ballotCount, footer, cale
           >
             {t("addToCalendar")}
           </button>
-        )}
+        ) : null}
         <div style={{ fontWeight: 800, fontFamily: FONT_DISPLAY, fontSize: 16, marginBottom: isProfile ? 10 : 14 }}>
           {isProfile ? t("meritProfileLabel") : result.tallyLabel}
         </div>

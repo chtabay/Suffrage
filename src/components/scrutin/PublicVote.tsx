@@ -920,7 +920,7 @@ export default function PublicVote({
           ) : result ? (
             <>
               {poll.quorum != null && <QuorumBanner quorum={poll.quorum} count={ballotCount} />}
-              <ResultCard result={result} question={poll.question} ballotCount={ballotCount} calendarSlot={winnerSlot} calendarUrl={voteShareUrl} calendarDuration={poll.slot_minutes ?? undefined} survey={isSurvey} />
+              <ResultCard result={result} question={poll.question} ballotCount={ballotCount} calendarSlot={winnerSlot} calendarUrl={voteShareUrl} calendarDuration={poll.slot_minutes ?? undefined} survey={isSurvey} decided={phase === "closed"} />
               <ResultShare
                 question={poll.question}
                 result={result}
@@ -1008,8 +1008,19 @@ export default function PublicVote({
             marginBottom: 16,
           }}
         >
-          <span style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 18 }}>🔒 {t("voteClosedTitle")}</span>
-          <span style={{ color: MUTED, fontSize: 14 }}>{t("voteClosedDesc")}</span>
+          {/* Une décision n'est « prise » que s'il y a un vainqueur établi et
+              qu'on n'est pas en sondage ; sinon on reste factuel (vote clos). */}
+          {result?.hasWinner && !isSurvey ? (
+            <>
+              <span style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 18 }}>✅ {t("decisionTakenTitle")}</span>
+              <span style={{ color: MUTED, fontSize: 14 }}>{t("decisionTakenDesc")}</span>
+            </>
+          ) : (
+            <>
+              <span style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 18 }}>🔒 {t("voteClosedTitle")}</span>
+              <span style={{ color: MUTED, fontSize: 14 }}>{t("voteClosedDesc")}</span>
+            </>
+          )}
         </div>
         {aDef ? (
           assignRows.length ? (
@@ -1023,7 +1034,7 @@ export default function PublicVote({
         ) : result ? (
           <>
             {poll.quorum != null && <QuorumBanner quorum={poll.quorum} count={ballotCount} />}
-            <ResultCard result={result} question={poll.question} ballotCount={ballotCount} calendarSlot={winnerSlot} calendarUrl={voteShareUrl} calendarDuration={poll.slot_minutes ?? undefined} survey={isSurvey} />
+            <ResultCard result={result} question={poll.question} ballotCount={ballotCount} calendarSlot={winnerSlot} calendarUrl={voteShareUrl} calendarDuration={poll.slot_minutes ?? undefined} survey={isSurvey} decided={phase === "closed"} />
             <ShareFold label={t("shareFoldResult")}>
               <ResultShare
                 question={poll.question}
@@ -1083,7 +1094,7 @@ export default function PublicVote({
     return (
       <Shell brand={brand}>
         {poll.quorum != null && <QuorumBanner quorum={poll.quorum} count={ballotCount} />}
-        <ResultCard result={result} question={poll.question} ballotCount={ballotCount} footer={footer} calendarSlot={winnerSlot} calendarUrl={voteShareUrl} calendarDuration={poll.slot_minutes ?? undefined} survey={isSurvey} />
+        <ResultCard result={result} question={poll.question} ballotCount={ballotCount} footer={footer} calendarSlot={winnerSlot} calendarUrl={voteShareUrl} calendarDuration={poll.slot_minutes ?? undefined} survey={isSurvey} decided={phase === "closed"} />
         <CommentsFeed comments={comments} />
         {showMsgOrga && <MessageToOrganizer token={token} />}
         <OfficialRecordCta token={token} />

@@ -10,6 +10,20 @@ export function buildVoteShareText(question: string, url: string, locale = "fr")
   return `🗳️ ${question}\n${here} ${url}`;
 }
 
+/**
+ * Annonce d'une décision PRISE (scrutin clos avec vainqueur) : on annonce l'issue,
+ * on ne rend pas compte d'un scrutin. Agrégat pur — jamais de donnée de bulletin.
+ */
+export function buildDecisionText(question: string, winnerName: string, url: string, locale = "fr"): string {
+  const decided = pickLocale(locale, {
+    fr: `✅ On a décidé : ${winnerName}`,
+    en: `✅ We decided: ${winnerName}`,
+    es: `✅ Hemos decidido: ${winnerName}`,
+  });
+  const tail = pickLocale(locale, { fr: "Le détail :", en: "The details:", es: "El detalle:" });
+  return `${decided}\n${question}\n${tail} ${url}`;
+}
+
 export function buildResultText(
   question: string,
   result: ComputeResult,
