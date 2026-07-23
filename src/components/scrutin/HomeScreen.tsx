@@ -11,12 +11,82 @@ import AboutPlacet from "./AboutPlacet";
 import SlackMark from "@/components/SlackMark";
 import { Link } from "@/i18n/navigation";
 import { Btn } from "@/components/ui/kit";
-import { CORAL, FONT_DISPLAY, GREEN, INK, MUTED, PAPER, SUBINK, lift } from "./theme";
+import { CORAL, FONT_DISPLAY, GREEN, INK, MUTED, PAPER, SUBINK, YELLOW, lift } from "./theme";
 
 // 4 méthodes mises en avant (spectre représentatif) ; les 10 restent dans la galerie.
 const HOME_METHODS = ["fptp", "approval", "mj", "condorcet"];
 
 const STEP_COLORS = ["#FF5E5B", "#5B5BD6", "#17B8A6"];
+
+type IntentKind = "decide" | "survey" | "date" | "assign";
+
+/**
+ * Les 4 intentions de Placet. Ce ne sont PAS 4 produits : juste des préréglages
+ * de l'état existant (optionKind + drapeau survey) — aucun changement de moteur.
+ */
+const INTENTS: { kind: IntentKind; color: string; titleKey: string; textKey: string }[] = [
+  { kind: "decide", color: CORAL, titleKey: "doorVoteTitle", textKey: "doorVoteText" },
+  { kind: "survey", color: "#2A9D8F", titleKey: "doorSurveyTitle", textKey: "doorSurveyText" },
+  { kind: "date", color: "#5B5BD6", titleKey: "doorDateTitle", textKey: "doorDateText" },
+  { kind: "assign", color: "#17B8A6", titleKey: "doorAssignTitle", textKey: "doorAssignText" },
+];
+
+/**
+ * Illustration d'intention : elle montre la MÉCANIQUE (qui gagne, qui reçoit,
+ * ce qui se répartit), pas une icône décorative. SVG inline — aucun asset.
+ */
+function IntentArt({ kind }: { kind: IntentKind }) {
+  const box = { width: 64, height: 44, display: "block" } as const;
+  if (kind === "decide") {
+    return (
+      <svg viewBox="0 0 64 44" style={box} aria-hidden="true">
+        <rect x="6" y="24" width="13" height="18" fill="#fff" stroke={INK} strokeWidth="2" />
+        <rect x="25" y="12" width="13" height="30" fill={CORAL} stroke={INK} strokeWidth="2" />
+        <rect x="44" y="29" width="13" height="13" fill="#fff" stroke={INK} strokeWidth="2" />
+        <path d="M27 8 l4.5 -6 l4.5 6 z" fill={YELLOW} stroke={INK} strokeWidth="2" strokeLinejoin="round" />
+      </svg>
+    );
+  }
+  if (kind === "survey") {
+    return (
+      <svg viewBox="0 0 64 44" style={box} aria-hidden="true">
+        <path d="M12 15 h11 v13 h-11 z" fill="#d23b3b" />
+        <path d="M23 15 h13 v13 h-13 z" fill="#e6a528" />
+        <path d="M36 15 h10 v13 h-10 z" fill="#8cb83a" />
+        <path d="M46 15 h7 v13 h-7 z" fill="#1f8a4c" />
+        <rect x="5" y="14" width="54" height="15" rx="7" fill="none" stroke={INK} strokeWidth="2" />
+        <circle cx="32" cy="37" r="2.5" fill={INK} />
+      </svg>
+    );
+  }
+  if (kind === "date") {
+    return (
+      <svg viewBox="0 0 64 44" style={box} aria-hidden="true">
+        <rect x="8" y="6" width="48" height="34" rx="4" fill="#fff" stroke={INK} strokeWidth="2" />
+        <path d="M8 15 h48" stroke={INK} strokeWidth="2" />
+        <rect x="14" y="20" width="9" height="7" fill="#fff" stroke={INK} strokeWidth="1.5" />
+        <rect x="27" y="20" width="9" height="7" fill="#5B5BD6" stroke={INK} strokeWidth="1.5" />
+        <rect x="40" y="20" width="9" height="7" fill="#fff" stroke={INK} strokeWidth="1.5" />
+        <rect x="14" y="30" width="9" height="7" fill="#fff" stroke={INK} strokeWidth="1.5" />
+        <rect x="27" y="30" width="9" height="7" fill="#fff" stroke={INK} strokeWidth="1.5" />
+        <rect x="40" y="30" width="9" height="7" fill="#fff" stroke={INK} strokeWidth="1.5" />
+      </svg>
+    );
+  }
+  return (
+    <svg viewBox="0 0 64 44" style={box} aria-hidden="true">
+      <path d="M19 10 h25" stroke="#17B8A6" strokeWidth="2.5" />
+      <path d="M19 24 h25" stroke="#17B8A6" strokeWidth="2.5" />
+      <path d="M19 38 h25" stroke="#17B8A6" strokeWidth="2.5" />
+      <circle cx="13" cy="10" r="5" fill={YELLOW} stroke={INK} strokeWidth="2" />
+      <circle cx="13" cy="24" r="5" fill={YELLOW} stroke={INK} strokeWidth="2" />
+      <circle cx="13" cy="38" r="5" fill={YELLOW} stroke={INK} strokeWidth="2" />
+      <rect x="45" y="5" width="11" height="10" fill="#fff" stroke={INK} strokeWidth="2" />
+      <rect x="45" y="19" width="11" height="10" fill="#fff" stroke={INK} strokeWidth="2" />
+      <rect x="45" y="33" width="11" height="10" fill="#fff" stroke={INK} strokeWidth="2" />
+    </svg>
+  );
+}
 
 /**
  * Accueil décroissant : mode « pédagogie » pour un nouveau visiteur, ses 3
@@ -42,17 +112,32 @@ function useHomeMode(): "learn" | "lean" {
 }
 
 export default function HomeScreen({ ctrl }: { ctrl: ScrutinController }) {
-  const { go, selectSystemRecipe, setOptionKind, setAssignMethod } = ctrl;
+  const { go, selectSystemRecipe, setOptionKind, setAssignMethod, setQuestion, setSurvey } = ctrl;
   const t = useTranslations("Home");
   const tm = useTranslations("Methods");
   const ta = useTranslations("Assign");
-  const tc = useTranslations("Create");
   const learn = useHomeMode() === "learn";
   // Deux portes : décider (vote) ou affecter — CTA, cartes et étapes s'adaptent.
   const [pillar, setPillar] = useState<"vote" | "assign">("vote");
+  // La question se saisit ICI : elle arrive pré-remplie dans l'écran de création.
+  const [q, setQ] = useState("");
   const startAssign = (key?: AssignMethodKey) => {
     setOptionKind("assign");
     if (key) setAssignMethod(key);
+    go("create");
+  };
+  // Une intention = un préréglage, puis on entre directement dans la création.
+  const start = (kind: IntentKind) => {
+    const question = q.trim();
+    if (question) setQuestion(question);
+    if (kind === "assign") {
+      setPillar("assign");
+      startAssign();
+      return;
+    }
+    setPillar("vote");
+    setSurvey(kind === "survey");
+    setOptionKind(kind === "date" ? "slot" : "text");
     go("create");
   };
 
@@ -108,100 +193,74 @@ export default function HomeScreen({ ctrl }: { ctrl: ScrutinController }) {
             {t("subtitle")}
           </p>
         )}
-        {/* Deux portes : l'intention d'abord — le CTA, les cartes et les étapes suivent.
-            Chaque porte est une COLONNE : son bouton, puis (pour Décider) ses
-            sous-raccourcis juste dessous — rattachés à la bonne carte, même empilé. */}
-        <div style={{ marginTop: learn ? 30 : 18, display: "flex", alignItems: "flex-start", gap: 14, flexWrap: "wrap" }}>
-          {(
-            [
-              ["vote", "🗳️", t("doorVoteTitle"), t("doorVoteText")],
-              ["assign", "🧩", t("doorAssignTitle"), t("doorAssignText")],
-            ] as const
-          ).map(([key, icon, title, text]) => {
-            const active = pillar === key;
-            return (
-              <div key={key} style={{ flex: "1 1 260px", maxWidth: 380, display: "flex", flexDirection: "column" }}>
-                <button
-                  onClick={() => setPillar(key)}
-                  aria-pressed={active}
-                  style={{
-                    width: "100%",
-                    textAlign: "left",
-                    cursor: "pointer",
-                    background: active ? INK : PAPER,
-                    color: active ? "#fff" : INK,
-                    border: `2.5px solid ${INK}`,
-                    borderRadius: 16,
-                    padding: "14px 16px",
-                    boxShadow: active ? `4px 4px 0 ${CORAL}` : `4px 4px 0 ${INK}`,
-                    fontFamily: FONT_DISPLAY,
-                  }}
-                >
-                  <div style={{ fontWeight: 800, fontSize: 17, display: "flex", alignItems: "center", gap: 8 }}>
-                    <span>{icon}</span>
-                    {title}
-                  </div>
-                  <div style={{ fontWeight: 600, fontSize: 12.5, marginTop: 5, lineHeight: 1.4, color: active ? "rgba(255,255,255,0.85)" : SUBINK }}>
-                    {text}
-                  </div>
-                </button>
-                {/* Sous-raccourcis d'intention de la porte Décider — propositions ou
-                    dates (même vocabulaire que l'écran de création, préconfiguré). */}
-                {key === "vote" && active && (
-                  <div style={{ marginTop: 10, display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-                    <span style={{ fontWeight: 600, fontSize: 13, color: SUBINK }}>{tc("voteOnLabel")}</span>
-                    {(
-                      [
-                        ["text", tc("voteOnProposals")],
-                        ["slot", tc("voteOnDates")],
-                      ] as const
-                    ).map(([kind, label]) => (
-                      <button
-                        key={kind}
-                        onClick={() => {
-                          setOptionKind(kind);
-                          go("create");
-                        }}
-                        style={{
-                          fontFamily: "inherit",
-                          fontWeight: 700,
-                          fontSize: 13,
-                          cursor: "pointer",
-                          border: `2px solid ${INK}`,
-                          borderRadius: 9,
-                          padding: "7px 12px",
-                          background: "#fff",
-                          color: INK,
-                        }}
-                      >
-                        {label}
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-            );
-          })}
-        </div>
-        <div style={{ marginTop: 18, display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap" }}>
-          <button
-            onClick={() => (pillar === "assign" ? startAssign() : go("create"))}
-            className="dc-lift"
-            style={{
-              fontFamily: FONT_DISPLAY,
-              fontWeight: 700,
-              fontSize: 17,
-              cursor: "pointer",
-              border: `2.5px solid ${INK}`,
-              background: CORAL,
-              color: "#fff",
-              padding: "15px 26px",
-              borderRadius: 14,
-              ...lift(`5px 5px 0 ${INK}`, `7px 7px 0 ${INK}`),
-            }}
+        {/* L'intention d'abord : on pose SA question, puis on choisit quoi en
+            faire. Le libellé évite « le groupe » — on n'a pas besoin d'un groupe
+            constitué pour lancer, on partage un lien. */}
+        <div style={{ marginTop: learn ? 28 : 16, maxWidth: 620 }}>
+          <label
+            htmlFor="home-question"
+            style={{ display: "block", fontWeight: 700, fontSize: 12, color: MUTED, letterSpacing: "0.05em", textTransform: "uppercase", marginBottom: 7 }}
           >
-            {pillar === "assign" ? t("createAssignCta") : t("createCta")}
-          </button>
+            {t("askLabel")}
+          </label>
+          <input
+            id="home-question"
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") start("decide");
+            }}
+            placeholder={t("askPlaceholder")}
+            style={{
+              width: "100%",
+              fontFamily: FONT_DISPLAY,
+              fontWeight: 600,
+              fontSize: 16,
+              padding: "13px 15px",
+              border: `2.5px solid ${INK}`,
+              borderRadius: 13,
+              background: PAPER,
+              outline: "none",
+              boxSizing: "border-box",
+              boxShadow: `4px 4px 0 ${INK}`,
+            }}
+          />
+        </div>
+
+        {/* Les 4 intentions — chacune illustre sa mécanique. */}
+        <div style={{ marginTop: 16, fontWeight: 700, fontSize: 13, color: SUBINK }}>{t("intentLabel")}</div>
+        <div
+          style={{
+            marginTop: 10,
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit,minmax(215px,1fr))",
+            gap: 12,
+          }}
+        >
+          {INTENTS.map((it) => (
+            <button
+              key={it.kind}
+              onClick={() => start(it.kind)}
+              className="dc-lift"
+              style={{
+                textAlign: "left",
+                cursor: "pointer",
+                width: "100%",
+                fontFamily: "inherit",
+                background: PAPER,
+                border: `2.5px solid ${INK}`,
+                borderRadius: 16,
+                padding: 14,
+                ...lift(`4px 4px 0 ${it.color}`, `6px 6px 0 ${it.color}`),
+              }}
+            >
+              <IntentArt kind={it.kind} />
+              <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 16, marginTop: 9 }}>{t(it.titleKey)}</div>
+              <div style={{ fontSize: 12.5, color: SUBINK, lineHeight: 1.4, marginTop: 3 }}>{t(it.textKey)}</div>
+            </button>
+          ))}
+        </div>
+        <div style={{ marginTop: 16 }}>
           <AboutPlacet />
         </div>
       </div>
