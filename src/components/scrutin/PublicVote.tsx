@@ -39,12 +39,14 @@ import {
 } from "@/lib/voting/engine";
 import { resolveScale } from "@/lib/voting/scales";
 import { getPollBrand, type Brand } from "@/lib/db/brand";
+import { getArguments, type Argument } from "@/lib/db/arguments";
 import type { Ballot, BallotMode, ComputeResult } from "@/lib/voting/types";
 import { APP_URL } from "@/lib/voting/aiPrompt";
 import InstallInline from "@/components/pwa/InstallInline";
 import NotifyButton from "@/components/pwa/NotifyButton";
 import BallotCard, { EMPTY_DRAFT, type BallotDraft } from "./BallotCard";
 import ResultCard from "./ResultCard";
+import ArgumentsPanel from "./ArgumentsPanel";
 import AssignResult from "./AssignResult";
 import { ASSIGN_METHODS, isAssignMethod } from "@/lib/assign/methods";
 import type { AssignRowData } from "@/lib/assign/run";
@@ -566,6 +568,7 @@ export default function PublicVote({
   const [pseudo, setPseudo] = useState("");
   const [comment, setComment] = useState("");
   const [comments, setComments] = useState<BallotComment[]>([]);
+  const [args, setArgs] = useState<Argument[]>([]);
   const [privMessages, setPrivMessages] = useState<PollMessage[]>([]);
   const [result, setResult] = useState<ComputeResult | null>(null);
   const [ballotCount, setBallotCount] = useState(0);
@@ -574,7 +577,15 @@ export default function PublicVote({
   const [error, setError] = useState<string | null>(null);
   const [working, setWorking] = useState(false);
 
+  // Le débat (arguments par option) se recharge aux mêmes moments que les
+  // résultats. Pas de débat sur les affectations (pas d'options à défendre).
+  const reloadArgs = useCallback(async (p: PollRow) => {
+    if (isAssignMethod(p.recipe.assign)) return;
+    setArgs(await getArguments(p.token).catch(() => [] as Argument[]));
+  }, []);
+
   const loadResults = useCallback(async (p: PollRow) => {
+    await reloadArgs(p);
     // Affectation : pas de « gagnant » à calculer — on charge votants + classements
     // (RPC publique uniquement une fois le scrutin clos) pour AssignResult.
     if (isAssignMethod(p.recipe.assign)) {
@@ -588,7 +599,7 @@ export default function PublicVote({
     setBallotCount(ballots.length);
     setResult(compute({ recipe: p.recipe, options: p.options, ballots, districtElectors: electorsOf(p) }, locale));
     setComments(await getComments(p.token));
-  }, [locale]);
+  }, [locale, reloadArgs]);
 
   const refreshOrganizer = useCallback(
     async (p: PollRow) => {
@@ -616,6 +627,9 @@ export default function PublicVote({
         }
         setPoll(p);
         setBrand(b);
+        // La vue « vote » ne passe pas par loadResults : on charge le débat ici
+        // pour qu'il soit disponible sous le bulletin (compteur ou lecture).
+        void reloadArgs(p);
         const phase = pollPhase(p);
 
         if (adminKey) {
@@ -664,7 +678,7 @@ export default function PublicVote({
     return () => {
       alive = false;
     };
-  }, [token, adminKey, voterToken, refreshOrganizer, loadResults]);
+  }, [token, adminKey, voterToken, refreshOrganizer, loadResults, reloadArgs]);
 
   // ---------- états simples ----------
   if (view === "loading") {
@@ -937,6 +951,17 @@ export default function PublicVote({
             <div style={{ ...card, color: MUTED, fontSize: 15 }}>{t("noBallotsYet")}</div>
           )}
         </div>
+        {/* Le débat : lecture complète pour l'organisateur, dépôt tant que c'est ouvert. */}
+        {!aDef && (
+          <ArgumentsPanel
+            token={token}
+            options={poll.options}
+            args={args}
+            showList
+            canAdd={phase !== "closed"}
+            onAdded={() => reloadArgs(poll)}
+          />
+        )}
         <PrivateMessagesCard owned={Boolean(poll.created_by)} messages={privMessages} locale={locale} />
       </Shell>
     );
@@ -1052,6 +1077,17 @@ export default function PublicVote({
         ) : (
           <div style={{ ...card, color: MUTED }}>{t("noBallotsCast")}</div>
         )}
+        {/* Débat en lecture seule : le scrutin est clos, on n'argumente plus. */}
+        {!aDef && (
+          <ArgumentsPanel
+            token={token}
+            options={poll.options}
+            args={args}
+            showList
+            canAdd={false}
+            onAdded={() => reloadArgs(poll)}
+          />
+        )}
         {showMsgOrga && <MessageToOrganizer token={token} />}
       </Shell>
     );
@@ -1097,6 +1133,17 @@ export default function PublicVote({
         {poll.quorum != null && <QuorumBanner quorum={poll.quorum} count={ballotCount} />}
         <ResultCard result={result} question={poll.question} ballotCount={ballotCount} footer={footer} calendarSlot={winnerSlot} calendarUrl={voteShareUrl} calendarDuration={poll.slot_minutes ?? undefined} survey={isSurvey} decided={phase === "closed"} />
         <CommentsFeed comments={comments} />
+        {/* Débat complet ; on peut encore argumenter tant que le scrutin est ouvert. */}
+        {!aDef && (
+          <ArgumentsPanel
+            token={token}
+            options={poll.options}
+            args={args}
+            showList
+            canAdd={phase !== "closed"}
+            onAdded={() => reloadArgs(poll)}
+          />
+        )}
         {showMsgOrga && <MessageToOrganizer token={token} />}
         <OfficialRecordCta token={token} />
       </Shell>
@@ -1321,6 +1368,20 @@ export default function PublicVote({
           {submitting ? t("submitting") : `✓ ${t("vote")}`}
         </button>
       </div>
+
+      {/* Le débat sous le bulletin : argumenter est indépendant du vote. Si les
+          résultats sont cachés, la lecture l'est aussi (un débat déséquilibré
+          télégraphierait les tendances) — seuls la saisie et un compteur restent. */}
+      {!aDef && (
+        <ArgumentsPanel
+          token={token}
+          options={poll.options}
+          args={args}
+          showList={voterCanSeeResults(poll)}
+          canAdd
+          onAdded={() => reloadArgs(poll)}
+        />
+      )}
 
       {poll.closes_at && (
         <Countdown closesAt={poll.closes_at} onExpire={() => loadResults(poll).then(() => setView("closed"))} />
