@@ -11,6 +11,7 @@ import {
   closePoll,
   getAssignData,
   getBallots,
+  addComment,
   getComments,
   getPollByToken,
   getPollMessages,
@@ -580,13 +581,13 @@ export default function PublicVote({
       const rows = await getAssignData(p.token).catch(() => [] as AssignRowData[]);
       setAssignRows(rows);
       setBallotCount(rows.filter((r) => r.voted).length);
-      setComments(await getComments(p.id));
+      setComments(await getComments(p.token));
       return;
     }
     const ballots = await getBallots(p.id);
     setBallotCount(ballots.length);
     setResult(compute({ recipe: p.recipe, options: p.options, ballots, districtElectors: electorsOf(p) }, locale));
-    setComments(await getComments(p.id));
+    setComments(await getComments(p.token));
   }, [locale]);
 
   const refreshOrganizer = useCallback(
@@ -1145,7 +1146,9 @@ export default function PublicVote({
           setError(t("invalidVoteLink"));
         }
       } else {
-        await addBallot(poll.id, ballot, { comment, author: pseudo });
+        await addBallot(poll.id, ballot);
+        // Le « mot au groupe » part dans une table dédiée, détaché du bulletin.
+        if (comment.trim()) await addComment(token, comment, pseudo).catch(() => {});
         pingPollEvent(token);
         if (voterCanSeeResults(poll)) {
           await loadResults(poll);

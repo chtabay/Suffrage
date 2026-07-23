@@ -142,14 +142,33 @@ const cleanNote = (n?: BallotNote) => ({
   author: n?.author?.trim().slice(0, 40) || null,
 });
 
-/** Dépose un bulletin (mode ouvert). Bloqué par RLS si le scrutin est clos ou sur invitation. */
-export async function addBallot(pollId: string, b: Ballot, note?: BallotNote): Promise<void> {
+/**
+ * Dépose un bulletin (mode ouvert). Bloqué par RLS si le scrutin est clos ou sur
+ * invitation. Le bulletin ne porte AUCUN commentaire : le « mot au groupe » va
+ * dans une table dédiée (voir addComment), détachée du choix — secret du vote.
+ */
+export async function addBallot(pollId: string, b: Ballot): Promise<void> {
   const supabase = createClient();
-  const { comment, author } = cleanNote(note);
   const { error } = await supabase
     .from("scrutin_ballots")
-    .insert({ poll_id: pollId, ranking: b.ranking, grades: b.grades, district: b.district, comment, author });
+    .insert({ poll_id: pollId, ranking: b.ranking, grades: b.grades, district: b.district });
   if (error) throw error;
+}
+
+/**
+ * Dépose un « mot au groupe » (commentaire public + pseudo facultatif), dans la
+ * table dédiée scrutin_comments — jamais rattaché à un bulletin. Renvoie
+ * 'ok' | 'empty' | 'not_found' | 'closed'.
+ */
+export async function addComment(token: string, body: string, author?: string): Promise<string> {
+  const supabase = createClient();
+  const { data, error } = await supabase.rpc("add_comment", {
+    p_token: token,
+    p_body: body,
+    p_author: author?.trim() || null,
+  });
+  if (error) throw error;
+  return data as string;
 }
 
 /** Récupère tous les bulletins d'un scrutin pour le dépouillement. */
@@ -169,17 +188,12 @@ export interface BallotComment {
   created_at: string;
 }
 
-/** Messages laissés par les votants (détachés des choix). À n'afficher que si les résultats sont publics. */
-export async function getComments(pollId: string): Promise<BallotComment[]> {
+/** Mots au groupe (table dédiée, détachés des choix). À n'afficher que si les résultats sont publics. */
+export async function getComments(token: string): Promise<BallotComment[]> {
   const supabase = createClient();
-  const { data, error } = await supabase
-    .from("scrutin_ballots")
-    .select("author, comment, created_at")
-    .eq("poll_id", pollId)
-    .not("comment", "is", null)
-    .order("created_at", { ascending: true });
+  const { data, error } = await supabase.rpc("get_comments", { p_token: token });
   if (error) throw error;
-  return (data ?? []) as BallotComment[];
+  return ((data ?? []) as BallotComment[]) || [];
 }
 
 // ---------- messages privés à l'organisateur ----------
