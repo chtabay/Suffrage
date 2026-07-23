@@ -725,8 +725,13 @@ export default function PublicVote({
 
   const phase = pollPhase(poll);
   // Vote de dates clos → créneau gagnant (option .at) pour proposer un .ics.
+  // `hasWinner` est indispensable : sans lui, un paradoxe de Condorcet ou une
+  // égalité (result.noWinner) proposerait quand même « Ajouter au calendrier »
+  // pour une décision qui n'a PAS été prise — bars[0] n'est que la tête de tri.
   const winnerSlot =
-    result && phase === "closed" && !isSurvey && result.bars[0] ? poll.options[result.bars[0].idx]?.at : undefined;
+    result && phase === "closed" && !isSurvey && result.hasWinner && result.bars[0]
+      ? poll.options[result.bars[0].idx]?.at
+      : undefined;
   const statusPill = (
     <span
       style={{

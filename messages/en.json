@@ -12,7 +12,7 @@
     "heroA": "Vote right,",
     "heroB": "decide better.",
     "subtitle": "Pick an option, find a date, allocate offices, form pairs: every decision has its method — and the result is computed by its exact rules, not just another poll.",
-    "createCta": "Create my vote →",
+    "createCta": "Make a decision →",
     "createAssignCta": "Create my assignment →",
     "doorVoteTitle": "Decide",
     "doorVoteText": "Elect an option or find a date: group choices, serious polls, elections, meeting slots.",
@@ -61,9 +61,10 @@
     }
   },
   "Create": {
-    "pageTitle": "Set up your vote",
-    "pageTitleAssign": "Set up your assignment",
-    "questionTitle": "The question",
+    "pageTitle": "What are you deciding?",
+    "pageTitleSurvey": "What do you want the group's view on?",
+    "pageTitleAssign": "What do you have to share out?",
+    "questionTitle": "The decision to make",
     "questionPlaceholder": "E.g. Where should we go this weekend?",
     "descriptionPlaceholder": "Context (optional) — e.g. Marie's birthday, €25/person budget, ideally downtown",
     "voteOnLabel": "We're voting on…",

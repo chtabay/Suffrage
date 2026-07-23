@@ -12,7 +12,7 @@
     "heroA": "Vote well,",
     "heroB": "decide betta.",
     "subtitle": "Pick option, find date, share offices, form pairs: every decision get im method — and we go calculate di result with im exact rules, no be just anoda poll.",
-    "createCta": "Create my vote →",
+    "createCta": "Make a decision →",
     "createAssignCta": "Create my assignment →",
     "doorVoteTitle": "Decide",
     "doorVoteText": "Elect option or find date: group choices, serious polls, elections, meeting slots.",
@@ -61,9 +61,10 @@
     }
   },
   "Create": {
-    "pageTitle": "Set up your vote",
-    "pageTitleAssign": "Set up your assignment",
-    "questionTitle": "Di question",
+    "pageTitle": "Wetin you wan decide?",
+    "pageTitleSurvey": "Wetin you wan hear di group opinion on?",
+    "pageTitleAssign": "Wetin you get to share out?",
+    "questionTitle": "Di decision to make",
     "questionPlaceholder": "E.g. Where we go go dis weekend?",
     "descriptionPlaceholder": "Context (optional) — e.g. Marie birthday, ₦25 per person budget, betta if e dey town",
     "voteOnLabel": "Wetin we dey vote on…",

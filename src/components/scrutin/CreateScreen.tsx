@@ -423,7 +423,9 @@ export default function CreateScreen({ ctrl }: { ctrl: ScrutinController }) {
           margin: "10px 0 0",
         }}
       >
-        {isAssign ? t("pageTitleAssign") : t("pageTitle")}
+        {/* Cadrage par porte ET par objectif : en sondage, le titre ne promet pas
+            une décision (personne n'est déclaré vainqueur — cf. goalSurveyHint). */}
+        {isAssign ? t("pageTitleAssign") : state.survey ? t("pageTitleSurvey") : t("pageTitle")}
       </h1>
       <PrefillPanel ctrl={ctrl} />
 

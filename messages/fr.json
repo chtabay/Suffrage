@@ -12,7 +12,7 @@
     "heroA": "Votez juste,",
     "heroB": "décidez mieux.",
     "subtitle": "Choisir une option, trouver une date, attribuer des bureaux, former des binômes : chaque décision a sa méthode — et le résultat est calculé selon ses règles exactes, pas un sondage de plus.",
-    "createCta": "Créer mon vote →",
+    "createCta": "Prendre une décision →",
     "createAssignCta": "Créer mon affectation →",
     "doorVoteTitle": "Décider",
     "doorVoteText": "Élire une option ou trouver une date : choix de groupe, sondage sérieux, élection, créneau de réunion.",
@@ -61,9 +61,10 @@
     }
   },
   "Create": {
-    "pageTitle": "Réglez votre scrutin",
-    "pageTitleAssign": "Réglez votre affectation",
-    "questionTitle": "La question",
+    "pageTitle": "Quelle décision prenez-vous ?",
+    "pageTitleSurvey": "Sur quoi voulez-vous l'avis du groupe ?",
+    "pageTitleAssign": "Qu'avez-vous à répartir ?",
+    "questionTitle": "La décision à prendre",
     "questionPlaceholder": "Ex : On part où en week-end ?",
     "descriptionPlaceholder": "Contexte (facultatif) — ex : anniv de Marie, budget 25 €/pers, plutôt centre-ville",
     "voteOnLabel": "On vote sur…",

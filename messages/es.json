@@ -12,7 +12,7 @@
     "heroA": "Vota bien,",
     "heroB": "decide mejor.",
     "subtitle": "Elegir una opción, encontrar una fecha, repartir despachos, formar parejas: cada decisión tiene su método — y el resultado se calcula según sus reglas exactas, no una encuesta más.",
-    "createCta": "Crear mi votación →",
+    "createCta": "Tomar una decisión →",
     "createAssignCta": "Crear mi asignación →",
     "doorVoteTitle": "Decidir",
     "doorVoteText": "Elegir una opción o encontrar una fecha: decisiones de grupo, encuestas serias, elecciones, franjas de reunión.",
@@ -61,9 +61,10 @@
     }
   },
   "Create": {
-    "pageTitle": "Configura tu votación",
-    "pageTitleAssign": "Configura tu asignación",
-    "questionTitle": "La pregunta",
+    "pageTitle": "¿Qué decisión vas a tomar?",
+    "pageTitleSurvey": "¿Sobre qué quieres la opinión del grupo?",
+    "pageTitleAssign": "¿Qué tienes que repartir?",
+    "questionTitle": "La decisión a tomar",
     "questionPlaceholder": "Ej.: ¿Adónde vamos este fin de semana?",
     "descriptionPlaceholder": "Contexto (opcional) — ej.: cumple de Marie, presupuesto 25 €/persona, mejor en el centro",
     "voteOnLabel": "Votamos sobre…",
