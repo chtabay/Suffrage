@@ -49,6 +49,8 @@
     "aboutClose": "Cerrar",
     "methodsTitleLearn": "No hay una sola forma de elegir un ganador",
     "methodsTitleLean": "Elegir un método",
+    "methodsForVote": "Para decidir",
+    "methodsForAssign": "Para repartir",
     "compareCta": "Comparar los 10 métodos →",
     "slackTitle": "También en Slack.",
     "slackText": "Lanza una votación sin salir de tus canales — /placet, todos votan en la web y el resultado vuelve al canal.",

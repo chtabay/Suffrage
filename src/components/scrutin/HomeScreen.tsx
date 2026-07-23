@@ -270,6 +270,39 @@ export default function HomeScreen({ ctrl }: { ctrl: ScrutinController }) {
         <h2 style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: learn ? 30 : 23, letterSpacing: "-0.02em", margin: 0 }}>
           {learn ? (pillar === "assign" ? t("methodsTitleLearnAssign") : t("methodsTitleLearn")) : t("methodsTitleLean")}
         </h2>
+        {/* Les cartes d'intention filent droit dans la création : cette section a
+            donc besoin de son PROPRE sélecteur pour rester dynamique (elle pilote
+            aussi les étapes plus bas). */}
+        <div style={{ marginTop: 12, display: "flex", gap: 8, flexWrap: "wrap" }}>
+          {(
+            [
+              ["vote", t("methodsForVote")],
+              ["assign", t("methodsForAssign")],
+            ] as const
+          ).map(([key, label]) => {
+            const on = pillar === key;
+            return (
+              <button
+                key={key}
+                onClick={() => setPillar(key)}
+                aria-pressed={on}
+                style={{
+                  fontFamily: "inherit",
+                  fontWeight: 700,
+                  fontSize: 13,
+                  cursor: "pointer",
+                  border: `2px solid ${INK}`,
+                  borderRadius: 20,
+                  padding: "7px 14px",
+                  background: on ? INK : "transparent",
+                  color: on ? "#fff" : INK,
+                }}
+              >
+                {label}
+              </button>
+            );
+          })}
+        </div>
         <div
           style={{
             display: "grid",

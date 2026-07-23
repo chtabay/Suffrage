@@ -49,6 +49,8 @@
     "aboutClose": "Fermer",
     "methodsTitleLearn": "Il n'y a pas qu'une façon de désigner un gagnant",
     "methodsTitleLean": "Choisir une méthode",
+    "methodsForVote": "Pour décider",
+    "methodsForAssign": "Pour répartir",
     "compareCta": "Comparer les 10 méthodes →",
     "slackTitle": "Aussi dans Slack.",
     "slackText": "Lancez un vote sans quitter vos canaux — /placet, on vote sur le web, le résultat revient dans le canal.",
