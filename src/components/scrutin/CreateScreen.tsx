@@ -239,6 +239,9 @@ export default function CreateScreen({ ctrl }: { ctrl: ScrutinController }) {
   const [urlRows, setUrlRows] = useState<Record<number, boolean>>({});
   const [emojiRow, setEmojiRow] = useState<number | null>(null);
   const [methodOpen, setMethodOpen] = useState(false);
+  // Carte méthode repliée par défaut : c'est un réglage de PERSONNALISATION, pas
+  // la 1re chose à décider. Auto-ouverte si une méthode non-défaut est en jeu.
+  const [methodCardOpen, setMethodCardOpen] = useState(false);
   const resolved = describeRecipe(state.recipe);
   const tm = useTranslations("Methods");
   const axes = buildAxes(state.recipe, setRecipe, state.optionKind === "slot", t);
@@ -433,7 +436,7 @@ export default function CreateScreen({ ctrl }: { ctrl: ScrutinController }) {
         className="create-grid"
         style={{
           display: "grid",
-          gridTemplateColumns: "1.3fr 1fr",
+          gridTemplateColumns: "minmax(0, 1.3fr) minmax(0, 1fr)",
           gap: 24,
           marginTop: 26,
           alignItems: "start",
@@ -899,7 +902,7 @@ export default function CreateScreen({ ctrl }: { ctrl: ScrutinController }) {
                   <AssignDetail />
                 </div>
               </>
-            ) : (
+            ) : methodCardOpen || curKey !== "fptp" ? (
               <>
             <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 18 }}>{t("methodTitle")}</div>
             <div style={{ fontSize: 12.5, color: MUTED, margin: "4px 0 12px", lineHeight: 1.4 }}>
@@ -969,6 +972,23 @@ export default function CreateScreen({ ctrl }: { ctrl: ScrutinController }) {
               <MethodDetail />
             </div>
               </>
+            ) : (
+              // Résumé replié : la méthode courante + accès pour la changer.
+              <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+                <span style={{ width: 40, height: 40, flex: "none", borderRadius: 11, border: `2px solid ${INK}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20, background: CREAM }}>
+                  {resolved.icon}
+                </span>
+                <div style={{ flex: 1, minWidth: 120 }}>
+                  <div style={{ fontFamily: FONT_BODY, fontWeight: 700, fontSize: 12, color: MUTED }}>{t("methodTitle")}</div>
+                  <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 16, lineHeight: 1.1 }}>{methodName}</div>
+                </div>
+                <button
+                  onClick={() => setMethodCardOpen(true)}
+                  style={{ fontFamily: FONT_BODY, fontWeight: 700, fontSize: 13, cursor: "pointer", border: `2px solid ${INK}`, borderRadius: 10, padding: "9px 14px", background: "#fff", color: INK }}
+                >
+                  {t("methodChoose")}
+                </button>
+              </div>
             )}
           </div>
 
