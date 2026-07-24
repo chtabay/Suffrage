@@ -7,6 +7,7 @@ import { ASSIGN_METHODS, ASSIGN_METHOD_KEYS, type AssignMethodKey } from "@/lib/
 import type { ScrutinController } from "@/lib/voting/useScrutin";
 import AiSideRail from "./AiSideRail";
 import AiHelper from "./AiHelper";
+import PublicFeedStrip from "./PublicFeedStrip";
 import SlackMark from "@/components/SlackMark";
 import { Link } from "@/i18n/navigation";
 import { Btn } from "@/components/ui/kit";
@@ -454,6 +455,9 @@ export default function HomeScreen({ ctrl }: { ctrl: ScrutinController }) {
       <div className="ai-home-inline" style={{ marginTop: 28 }}>
         <AiHelper ctrl={ctrl} />
       </div>
+
+      {/* Feed public — bande des derniers scrutins publiés (rien si <3 entrées) */}
+      <PublicFeedStrip />
 
       {/* Intégration Slack — point d'entrée discret vers l'install */}
       <div

@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useLocale } from "next-intl";
 import { pickLocale } from "@/i18n/locales";
 import { addLocalPoll } from "@/lib/db/localPolls";
-import { addVoters, createPoll, type AccessMode, type District, type VoterInput } from "@/lib/db/polls";
+import { addVoters, createPoll, setPollVisibility, type AccessMode, type District, type VoterInput } from "@/lib/db/polls";
 import { ASSIGN_METHODS, type AssignMethodKey } from "@/lib/assign/methods";
 import { SLOT_ICON, slotLabel, type ScrutinDraft } from "./draft";
 import { DEFAULT_RECIPE, recipeForSystem } from "./engine";
@@ -37,6 +37,8 @@ export interface ScrutinState {
   recipe: Recipe;
   access: AccessMode;
   hideResults: boolean;
+  /** Publier sur le feed public /explorer au lancement (accès ouvert uniquement). */
+  publicListing: boolean;
   voterNames: string;
   districts: DistrictDraft[];
   opensAt: string;
@@ -74,6 +76,7 @@ const INITIAL: ScrutinState = {
   recipe: { ...DEFAULT_RECIPE },
   access: "open",
   hideResults: false,
+  publicListing: false,
   voterNames: "",
   districts: [
     { name: "Circonscription 1", electors: 3, voterNames: "" },
@@ -311,6 +314,11 @@ export function useScrutin(draft?: ScrutinDraft) {
     setState((s) => ({ ...s, hideResults: !s.hideResults, ...CLEAR_SHARE }));
   }, []);
 
+  // Feed public : opt-in explicite du créateur (défaut privé, comme en base).
+  const setPublicListing = useCallback((publicListing: boolean) => {
+    setState((s) => ({ ...s, publicListing, ...CLEAR_SHARE }));
+  }, []);
+
   const setVoterNames = useCallback((voterNames: string) => {
     setState((s) => ({ ...s, voterNames, ...CLEAR_SHARE }));
   }, []);
@@ -521,6 +529,16 @@ export function useScrutin(draft?: ScrutinDraft) {
       });
       const origin = window.location.origin;
 
+      // Feed public : publication APRÈS le lancement réussi, en silence — un
+      // échec (rate-limit, réseau) ne doit JAMAIS faire échouer le lancement.
+      if (s.publicListing && s.access === "open" && !isAssign) {
+        try {
+          await setPollVisibility(token, secret, true);
+        } catch {
+          /* le scrutin reste privé, le créateur pourra republier depuis sa page admin */
+        }
+      }
+
       let voterLinks: { label: string; url: string }[] = [];
       if (access === "invite" && voters.length) {
         const created = await addVoters(token, secret, voters);
@@ -566,6 +584,7 @@ export function useScrutin(draft?: ScrutinDraft) {
     setSlotMinutes,
     setAccess,
     toggleHideResults,
+    setPublicListing,
     setVoterNames,
     setAssignMethod,
     setAssignSideB,

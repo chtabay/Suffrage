@@ -23,6 +23,7 @@ export default function AdvancedSettings({ ctrl }: { ctrl: ScrutinController }) 
     s.access !== "open" ||
     s.hideResults ||
     s.closeOnComplete ||
+    s.publicListing ||
     Boolean(s.opensAt) ||
     s.quorum != null;
   const [open, setOpen] = useState(false);

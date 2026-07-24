@@ -4,6 +4,8 @@ import type { Ballot, Option, Recipe } from "@/lib/voting/types";
 
 export type PollStatus = "open" | "closed";
 export type AccessMode = "open" | "invite";
+/** Visibilité du feed public : private = lien seulement (défaut), public = listé sur /explorer. */
+export type PollVisibility = "private" | "public";
 
 export interface District {
   name: string;
@@ -29,6 +31,8 @@ export interface PollRow {
   slot_minutes: number | null;
   /** Compte propriétaire (scrutin réclamé). Sert uniquement de booléen côté client. */
   created_by: string | null;
+  /** Feed public : la publication passe UNIQUEMENT par la RPC set_poll_visibility. */
+  visibility: PollVisibility;
 }
 
 export interface VoterInput {
@@ -52,7 +56,7 @@ export interface VoterContext {
 }
 
 const POLL_COLS =
-  "id, token, question, description, options, recipe, created_at, status, hide_results, access_mode, districts, opens_at, closes_at, close_on_complete, quorum, slot_minutes, created_by";
+  "id, token, question, description, options, recipe, created_at, status, hide_results, access_mode, districts, opens_at, closes_at, close_on_complete, quorum, slot_minutes, created_by, visibility";
 
 /** SHA-256 hex (mêmes octets que sha256(convert_to(...,'UTF8')) côté Postgres). */
 async function sha256Hex(input: string): Promise<string> {
@@ -229,6 +233,59 @@ export async function getPollMessages(token: string, secret?: string): Promise<P
   });
   if (error) throw error;
   return ((data ?? []) as PollMessage[]) || [];
+}
+
+// ---------- feed public (visibilité, signalement, vote dédupliqué) ----------
+
+/** Raisons de signalement acceptées par la RPC report_poll. */
+export type ReportReason = "spam" | "offensive" | "illegal" | "other";
+
+/**
+ * Publie (ou dépublie) un scrutin sur le feed public. Passe par la RPC :
+ * une policy RESTRICTIVE interdit tout INSERT/UPDATE client de visibility.
+ * Renvoie 'ok' | 'invalid' | 'rate_limited' (5 publications / 24 h).
+ */
+export async function setPollVisibility(token: string, secret: string, isPublic: boolean): Promise<string> {
+  const supabase = createClient();
+  const { data, error } = await supabase.rpc("set_poll_visibility", {
+    p_token: token,
+    p_secret: secret,
+    p_public: isPublic,
+  });
+  if (error) throw error;
+  return data as string;
+}
+
+/**
+ * Signalement anonyme d'un scrutin public (masquage automatique à 3 signalements).
+ * Renvoie 'ok' | 'already' | 'not_found'.
+ */
+export async function reportPoll(token: string, reason: ReportReason, detail?: string): Promise<string> {
+  const supabase = createClient();
+  const { data, error } = await supabase.rpc("report_poll", {
+    p_token: token,
+    p_reason: reason,
+    p_detail: detail?.trim() || null,
+  });
+  if (error) throw error;
+  return data as string;
+}
+
+/**
+ * Dépose un bulletin sur un scrutin PUBLIC, avec déduplication par empreinte IP
+ * DÉTACHÉE du bulletin (le choix reste secret). Le vote privé, lui, garde addBallot.
+ * Renvoie 'ok' | 'already' | 'closed' | 'notopen' | 'invalid'.
+ */
+export async function castPublicBallot(token: string, b: Ballot): Promise<string> {
+  const supabase = createClient();
+  const { data, error } = await supabase.rpc("cast_public_ballot", {
+    p_token: token,
+    p_ranking: b.ranking,
+    p_grades: b.grades,
+    p_district: b.district,
+  });
+  if (error) throw error;
+  return data as string;
 }
 
 // ---------- gestion (admin via secret) ----------

@@ -8,6 +8,7 @@ import PlacetMark from "./PlacetMark";
 import {
   addBallot,
   castInvitedBallot,
+  castPublicBallot,
   closePoll,
   getAssignData,
   getBallots,
@@ -20,9 +21,12 @@ import {
   leavePollMessage,
   pollPhase,
   reopenPoll,
+  reportPoll,
+  setPollVisibility,
   type BallotComment,
   type PollMessage,
   type PollRow,
+  type ReportReason,
   type Voter,
   type VoterContext,
 } from "@/lib/db/polls";
@@ -113,6 +117,134 @@ function pingPollEvent(token: string) {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ token }),
   }).catch(() => {});
+}
+
+// Marqueur local « déjà voté » des scrutins PUBLICS : la dédup serveur (empreinte
+// IP) est la vraie garde ; ce marqueur évite juste de représenter un bulletin
+// inutile au retour sur la page.
+const votedKey = (token: string) => `scrutin.voted.${token}`;
+const hasVotedLocally = (token: string) => {
+  try {
+    return localStorage.getItem(votedKey(token)) === "1";
+  } catch {
+    return false;
+  }
+};
+const markVotedLocally = (token: string) => {
+  try {
+    localStorage.setItem(votedKey(token), "1");
+  } catch {
+    /* stockage indisponible : la dédup serveur suffit */
+  }
+};
+
+// Signalement d'un scrutin public : lien discret en pied de page, 4 raisons,
+// envoi anonyme via la RPC (masquage automatique à 3 signalements).
+function ReportFold({ token }: { token: string }) {
+  const t = useTranslations("Vote");
+  const [open, setOpen] = useState(false);
+  const [reason, setReason] = useState<ReportReason | null>(null);
+  const [sending, setSending] = useState(false);
+  const [done, setDone] = useState<string | null>(null);
+  const REASONS: { key: ReportReason; labelKey: string }[] = [
+    { key: "spam", labelKey: "reasonSpam" },
+    { key: "offensive", labelKey: "reasonOffensive" },
+    { key: "illegal", labelKey: "reasonIllegal" },
+    { key: "other", labelKey: "reasonOther" },
+  ];
+  if (done) {
+    return (
+      <div style={{ marginTop: 26, textAlign: "center", fontSize: 12.5, color: MUTED, fontWeight: 600 }}>
+        ✓ {done}
+      </div>
+    );
+  }
+  const send = async () => {
+    if (!reason) return;
+    setSending(true);
+    try {
+      const r = await reportPoll(token, reason);
+      setDone(r === "already" ? t("reportAlready") : t("reportSent"));
+    } catch {
+      // Confirmation sobre même en échec réseau : pas de friction sur un signalement.
+      setDone(t("reportSent"));
+    } finally {
+      setSending(false);
+    }
+  };
+  return (
+    <div style={{ marginTop: 26, textAlign: "center" }}>
+      {!open ? (
+        <button
+          type="button"
+          onClick={() => setOpen(true)}
+          style={{
+            fontFamily: FONT_BODY,
+            fontWeight: 600,
+            fontSize: 12.5,
+            cursor: "pointer",
+            border: "none",
+            background: "none",
+            color: MUTED,
+            textDecoration: "underline",
+            padding: 4,
+          }}
+        >
+          🚩 {t("reportCta")}
+        </button>
+      ) : (
+        <div style={{ ...card, textAlign: "left", maxWidth: 420, margin: "0 auto" }}>
+          <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 15 }}>🚩 {t("reportTitle")}</div>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 11 }}>
+            {REASONS.map((r) => {
+              const on = reason === r.key;
+              return (
+                <button
+                  key={r.key}
+                  type="button"
+                  onClick={() => setReason(r.key)}
+                  style={{
+                    fontFamily: FONT_BODY,
+                    fontWeight: 700,
+                    fontSize: 12.5,
+                    cursor: "pointer",
+                    border: `2px solid ${INK}`,
+                    padding: "7px 12px",
+                    borderRadius: 9,
+                    background: on ? INK : CREAM,
+                    color: on ? "#fff" : INK,
+                  }}
+                >
+                  {t(r.labelKey)}
+                </button>
+              );
+            })}
+          </div>
+          <button
+            type="button"
+            onClick={send}
+            disabled={!reason || sending}
+            style={{
+              marginTop: 12,
+              width: "100%",
+              fontFamily: FONT_DISPLAY,
+              fontWeight: 700,
+              fontSize: 13.5,
+              cursor: !reason || sending ? "default" : "pointer",
+              border: `2px solid ${INK}`,
+              background: INK,
+              color: "#fff",
+              padding: 10,
+              borderRadius: 10,
+              opacity: !reason || sending ? 0.5 : 1,
+            }}
+          >
+            {sending ? t("submitting") : t("reportCta")}
+          </button>
+        </div>
+      )}
+    </div>
+  );
 }
 
 // Partage replié côté votant : la viralité reste à un tap, sans encombrer
@@ -576,6 +708,10 @@ export default function PublicVote({
   const [assignRows, setAssignRows] = useState<AssignRowData[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [working, setWorking] = useState(false);
+  // Bandeau d'info (ex. « déjà voté » sur un scrutin public) affiché sur les résultats.
+  const [notice, setNotice] = useState<string | null>(null);
+  // Retour de la publication/dépublication côté organisateur (ex. rate-limit).
+  const [pubNotice, setPubNotice] = useState<string | null>(null);
 
   // Le débat (arguments par option) se recharge aux mêmes moments que les
   // résultats. Pas de débat sur les affectations (pas d'options à défendre).
@@ -668,6 +804,13 @@ export default function PublicVote({
           if (alive) setView("closed");
         } else if (phase === "scheduled") {
           if (alive) setView("scheduled");
+        } else if (p.visibility === "public" && hasVotedLocally(token)) {
+          // Scrutin public déjà voté sur cet appareil : droit aux résultats
+          // (ou au merci si l'organisateur les cache), pas de second bulletin.
+          if (voterCanSeeResults(p)) {
+            await loadResults(p);
+            if (alive) setView("results");
+          } else if (alive) setView("thanks");
         } else if (alive) {
           setView("vote");
         }
@@ -737,6 +880,8 @@ export default function PublicVote({
   const voteShareUrl = `${APP_URL}/v/${poll.token}`;
   // Message privé à l'organisateur : uniquement si le scrutin est rattaché à un compte.
   const showMsgOrga = Boolean(poll.created_by) && !adminKey;
+  // Signalement : réservé aux scrutins publics, jamais montré à l'organisateur.
+  const showReport = poll.visibility === "public" && !adminKey;
 
   const phase = pollPhase(poll);
   // Vote de dates clos → créneau gagnant (option .at) pour proposer un .ics.
@@ -785,6 +930,25 @@ export default function PublicVote({
         setWorking(false);
       }
     };
+    // Publication/dépublication sur le feed /explorer (RPC, rate-limit 5/24 h).
+    const togglePublish = async (makePublic: boolean) => {
+      if (!adminKey) return;
+      setWorking(true);
+      setPubNotice(null);
+      try {
+        const r = await setPollVisibility(token, adminKey, makePublic);
+        if (r === "rate_limited") {
+          setPubNotice(t("publishRateLimited"));
+        } else if (r === "ok") {
+          const fresh = await getPollByToken(token);
+          if (fresh) setPoll(fresh);
+        }
+      } catch {
+        /* échec réseau : l'état affiché reste inchangé, on pourra réessayer */
+      } finally {
+        setWorking(false);
+      }
+    };
     return (
       <Shell brand={brand}>
         <div
@@ -805,6 +969,24 @@ export default function PublicVote({
         >
           <span>🔑 {t("youAdminister")}</span>
           {statusPill}
+          {poll.visibility === "public" && (
+            <span
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 6,
+                background: YELLOW,
+                color: INK,
+                border: `2px solid ${INK}`,
+                borderRadius: 20,
+                padding: "4px 11px",
+                fontWeight: 700,
+                fontSize: 12,
+              }}
+            >
+              📣 {t("publishedBadge")}
+            </span>
+          )}
         </div>
 
         <div style={{ ...card, marginTop: 16 }}>
@@ -895,7 +1077,51 @@ export default function PublicVote({
             >
               {poll.status === "open" ? `🔒 ${t("closeVote")}` : `↺ ${t("reopenVote")}`}
             </button>
+            {/* Feed public : dépublier si public ; publier si privé ET ouvert
+                (un scrutin sur invitation n'a rien à faire sur /explorer). */}
+            {poll.visibility === "public" ? (
+              <button
+                onClick={() => togglePublish(false)}
+                disabled={working}
+                style={{
+                  fontFamily: FONT_BODY,
+                  fontWeight: 600,
+                  fontSize: 13,
+                  cursor: working ? "default" : "pointer",
+                  border: `2px solid ${INK}`,
+                  background: "#fff",
+                  color: INK,
+                  padding: "9px 13px",
+                  borderRadius: 10,
+                  opacity: working ? 0.7 : 1,
+                }}
+              >
+                🙈 {t("unpublishCta")}
+              </button>
+            ) : poll.access_mode === "open" ? (
+              <button
+                onClick={() => togglePublish(true)}
+                disabled={working}
+                style={{
+                  fontFamily: FONT_BODY,
+                  fontWeight: 600,
+                  fontSize: 13,
+                  cursor: working ? "default" : "pointer",
+                  border: `2px solid ${INK}`,
+                  background: "#fff",
+                  color: INK,
+                  padding: "9px 13px",
+                  borderRadius: 10,
+                  opacity: working ? 0.7 : 1,
+                }}
+              >
+                📣 {t("publishCta")}
+              </button>
+            ) : null}
           </div>
+          {pubNotice && (
+            <div style={{ marginTop: 10, fontSize: 12.5, color: REDTXT, fontWeight: 700 }}>{pubNotice}</div>
+          )}
           {poll.hide_results && (
             <div style={{ marginTop: 10, fontSize: 12.5, color: MUTED }}>
               {t("resultsHiddenNote")}
@@ -1004,8 +1230,9 @@ export default function PublicVote({
     return (
       <Shell brand={brand}>
         <div style={{ ...card, textAlign: "center" }}>
-          <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 24, color: "#1f6b34" }}>
-            ✓ {t("voteRecorded")}
+          {/* « Déjà voté » (scrutin public) : on ne prétend pas avoir enregistré un bulletin. */}
+          <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 24, color: notice ? INK : "#1f6b34" }}>
+            {notice ? `ℹ️ ${notice}` : `✓ ${t("voteRecorded")}`}
           </div>
           <p style={{ color: MUTED, marginTop: 8, lineHeight: 1.5 }}>
             {t("thanksHiddenResults", { name: voter ? ` ${voter.label}` : "" })}
@@ -1089,6 +1316,7 @@ export default function PublicVote({
           />
         )}
         {showMsgOrga && <MessageToOrganizer token={token} />}
+        {showReport && <ReportFold token={token} />}
       </Shell>
     );
   }
@@ -1130,6 +1358,22 @@ export default function PublicVote({
     );
     return (
       <Shell brand={brand}>
+        {notice && (
+          <div
+            style={{
+              background: "#fff4e0",
+              border: `2px solid ${INK}`,
+              borderRadius: 12,
+              padding: "12px 14px",
+              fontWeight: 700,
+              fontSize: 13.5,
+              color: "#8a5a00",
+              marginBottom: 14,
+            }}
+          >
+            ℹ️ {notice}
+          </div>
+        )}
         {poll.quorum != null && <QuorumBanner quorum={poll.quorum} count={ballotCount} />}
         <ResultCard result={result} question={poll.question} ballotCount={ballotCount} footer={footer} calendarSlot={winnerSlot} calendarUrl={voteShareUrl} calendarDuration={poll.slot_minutes ?? undefined} survey={isSurvey} decided={phase === "closed"} />
         <CommentsFeed comments={comments} />
@@ -1146,6 +1390,7 @@ export default function PublicVote({
         )}
         {showMsgOrga && <MessageToOrganizer token={token} />}
         <OfficialRecordCta token={token} />
+        {showReport && <ReportFold token={token} />}
       </Shell>
     );
   }
@@ -1191,6 +1436,35 @@ export default function PublicVote({
           setView("closed");
         } else {
           setError(t("invalidVoteLink"));
+        }
+      } else if (poll.visibility === "public") {
+        // Scrutin PUBLIC : dépôt via la RPC (dédup par empreinte IP détachée du
+        // bulletin). Le vote privé garde addBallot — flux inchangé.
+        const r = await castPublicBallot(token, ballot);
+        if (r === "ok") {
+          markVotedLocally(token);
+          // Le « mot au groupe » part dans une table dédiée, détaché du bulletin.
+          if (comment.trim()) await addComment(token, comment, pseudo).catch(() => {});
+          pingPollEvent(token);
+          if (voterCanSeeResults(poll)) {
+            await loadResults(poll);
+            setView("results");
+          } else setView("thanks");
+        } else if (r === "already") {
+          // Déjà voté (empreinte connue) : on l'explique et on bascule sur les résultats.
+          markVotedLocally(token);
+          setNotice(t("voteAlreadyPublic"));
+          if (voterCanSeeResults(poll)) {
+            await loadResults(poll);
+            setView("results");
+          } else setView("thanks");
+        } else if (r === "closed") {
+          await loadResults(poll);
+          setView("closed");
+        } else if (r === "notopen") {
+          setView("scheduled");
+        } else {
+          setError(t("ballotSaveError"));
         }
       } else {
         await addBallot(poll.id, ballot);
@@ -1418,6 +1692,7 @@ export default function PublicVote({
           <ShareRow question={poll.question} url={voteShareUrl} withCopy style={{ justifyContent: "center" }} />
         </ShareFold>
       )}
+      {showReport && <ReportFold token={token} />}
     </Shell>
   );
 }

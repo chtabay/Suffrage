@@ -11,7 +11,8 @@ export async function generateMetadata({
   const { locale, token } = await params;
   const t = await getTranslations({ locale, namespace: "Share" });
   const info = await getPollShareInfo(token);
-  if (!info) return { title: t("fallbackTitle") };
+  // Introuvable : pas d'indexation d'une page vide.
+  if (!info) return { title: t("fallbackTitle"), robots: { index: false, follow: true } };
   const tm = await getTranslations({ locale, namespace: "Methods" });
   const ta = await getTranslations({ locale, namespace: "Assign" });
   const method = info.assignKey ? ta(`methods.${info.assignKey}.name`) : tm(`${info.methodKey}.name`);
@@ -32,6 +33,9 @@ export async function generateMetadata({
   return {
     title,
     description,
+    // Seuls les scrutins PUBLIÉS sont indexables ; un lien privé partagé
+    // (WhatsApp, mail…) ne doit jamais finir dans Google.
+    robots: { index: info.visibility === "public", follow: true },
     openGraph: {
       title,
       description,

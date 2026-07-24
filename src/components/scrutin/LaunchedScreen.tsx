@@ -210,6 +210,24 @@ export default function LaunchedScreen({ ctrl }: { ctrl: ScrutinController }) {
             {t("savedNotice")}
           </div>
 
+          {/* Feed public : confirmation de la publication (mêmes conditions que le launch). */}
+          {state.publicListing && state.access === "open" && state.optionKind !== "assign" && (
+            <div
+              style={{
+                marginTop: 10,
+                background: YELLOW,
+                border: `2px solid ${INK}`,
+                borderRadius: 11,
+                padding: "10px 12px",
+                fontSize: 13,
+                fontWeight: 600,
+                color: INK,
+              }}
+            >
+              📣 {t("publishedLine")}
+            </div>
+          )}
+
           {state.voterLinks.length > 0 && (
             <div style={{ marginTop: 18 }}>
               <div style={{ fontWeight: 700, fontSize: 12, color: MUTED, marginBottom: 7 }}>

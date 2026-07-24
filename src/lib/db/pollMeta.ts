@@ -16,6 +16,8 @@ export interface PollShareInfo {
   phase: "scheduled" | "open" | "closed";
   ballotCount: number;
   winner: { name: string; icon: string } | null;
+  /** Feed public : pilote l'indexation robots de la page /v/{token}. */
+  visibility: "private" | "public";
 }
 
 interface Row {
@@ -28,6 +30,7 @@ interface Row {
   opens_at: string | null;
   closes_at: string | null;
   districts: { name: string; electors: number }[] | null;
+  visibility: "private" | "public" | null;
 }
 
 export async function getPollShareInfo(
@@ -45,7 +48,7 @@ export async function getPollShareInfo(
   try {
     const res = await fetch(
       `${base}/rest/v1/scrutin_polls?token=eq.${encodeURIComponent(token)}` +
-        `&select=id,question,description,options,recipe,status,opens_at,closes_at,districts&limit=1`,
+        `&select=id,question,description,options,recipe,status,opens_at,closes_at,districts,visibility&limit=1`,
       { headers, ...cacheInit },
     );
     if (!res.ok) return null;
@@ -91,6 +94,8 @@ export async function getPollShareInfo(
       phase,
       ballotCount,
       winner,
+      // Défaut prudent : privé (jamais indexé) si la colonne manque.
+      visibility: p.visibility === "public" ? "public" : "private",
     };
   } catch {
     return null;

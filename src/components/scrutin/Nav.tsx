@@ -104,6 +104,15 @@ export default function Nav({ ctrl, auth }: { ctrl: ScrutinController; auth: Aut
           <button onClick={act(() => go("gallery"))} className="dc-paper" style={secondary}>
             {t("methods")}
           </button>
+          {/* Feed public : accessible à tous, sans compte. */}
+          <Link
+            href="/explorer"
+            onClick={() => setOpen(false)}
+            className="dc-paper"
+            style={{ ...secondary, textDecoration: "none", display: "inline-flex", alignItems: "center", justifyContent: "center" }}
+          >
+            {t("explore")}
+          </Link>
           {/* Aide « C'est quoi Placet ? » — dans le header, sans couper le flux de création. */}
           <AboutPlacet compact />
           <button

@@ -67,6 +67,7 @@ export default function AccessCard({ ctrl }: { ctrl: ScrutinController }) {
     state,
     setAccess,
     toggleHideResults,
+    setPublicListing,
     setVoterNames,
     setDistrictField,
     addDistrict,
@@ -133,6 +134,23 @@ export default function AccessCard({ ctrl }: { ctrl: ScrutinController }) {
       <div style={{ marginTop: 16 }}>
         <Toggle on={state.hideResults} label={t("hideResults")} onClick={toggleHideResults} />
       </div>
+
+      {/* feed public : uniquement en vote ouvert (un vote sur invitation listé
+          publiquement n'aurait aucun sens). Consentement explicite sous le toggle. */}
+      {!invite && (
+        <div style={{ marginTop: 10 }}>
+          <Toggle
+            on={state.publicListing}
+            label={t("publishLabel")}
+            onClick={() => setPublicListing(!state.publicListing)}
+          />
+          {state.publicListing && (
+            <div style={{ marginTop: 7, fontSize: 12.5, color: MUTED, lineHeight: 1.45 }}>
+              {t("publishConsent")}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* clôture sur complétude (invitation) */}
       {invite && (
