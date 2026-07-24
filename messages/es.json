@@ -308,7 +308,8 @@
     "ballots": "{count, plural, one {# papeleta} other {# papeletas}}",
     "options": "{count, plural, one {# opción} other {# opciones}}",
     "seeAll": "Explorar todo",
-    "stripTitle": "Ahora mismo en Placet"
+    "stripTitle": "Ahora mismo en Placet",
+    "publishYours": "Publica la tuya"
   },
   "Access": {
     "title": "Acceso y censo electoral",

@@ -308,7 +308,8 @@
     "ballots": "{count, plural, one {# ballot} other {# ballots}}",
     "options": "{count, plural, one {# option} other {# options}}",
     "seeAll": "Explore all",
-    "stripTitle": "Right now on Placet"
+    "stripTitle": "Right now on Placet",
+    "publishYours": "Publish yours"
   },
   "Access": {
     "title": "Access & electorate",

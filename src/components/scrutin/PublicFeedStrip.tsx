@@ -39,7 +39,11 @@ export default function PublicFeedStrip() {
     };
   }, []);
 
-  if (polls.length < 3) return null;
+  // Dès le PREMIER scrutin public, la bande vit : un feed naissant se complète
+  // par une carte d'invitation au lieu de se cacher (retour du premier publieur :
+  // « j'ai publié et je ne vois rien » — le seuil à 3 était trop strict).
+  if (polls.length === 0) return null;
+  const showInvite = polls.length < 3;
 
   const fmt = new Intl.DateTimeFormat(intlLocale(locale), { day: "numeric", month: "short" });
 
@@ -133,6 +137,30 @@ export default function PublicFeedStrip() {
               </Link>
             );
           })}
+          {showInvite && (
+            <Link
+              href="/new"
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 7,
+                width: 230,
+                flex: "none",
+                textDecoration: "none",
+                color: INK,
+                background: "transparent",
+                border: `2px dashed ${INK}`,
+                borderRadius: 13,
+                padding: "12px 14px",
+                textAlign: "center",
+              }}
+            >
+              <span style={{ fontSize: 22 }}>📣</span>
+              <span style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 14.5 }}>{t("publishYours")}</span>
+            </Link>
+          )}
         </div>
       </div>
     </div>

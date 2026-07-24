@@ -308,7 +308,8 @@
     "ballots": "{count, plural, one {# vote} other {# votes}}",
     "options": "{count, plural, one {# option} other {# options}}",
     "seeAll": "See all",
-    "stripTitle": "Wetin dey happen for Placet now"
+    "stripTitle": "Wetin dey happen for Placet now",
+    "publishYours": "Publish your own"
   },
   "Access": {
     "title": "Access & electorate",

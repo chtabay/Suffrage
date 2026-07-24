@@ -308,7 +308,8 @@
     "ballots": "{count, plural, one {# bulletin} other {# bulletins}}",
     "options": "{count, plural, one {# option} other {# options}}",
     "seeAll": "Tout explorer",
-    "stripTitle": "En ce moment sur Placet"
+    "stripTitle": "En ce moment sur Placet",
+    "publishYours": "Publiez le vôtre"
   },
   "Access": {
     "title": "Accès & corps électoral",
