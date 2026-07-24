@@ -1,5 +1,6 @@
 {
   "Nav": {
+    "explore": "Explorar",
     "spaces": "Espacios",
     "myPolls": "Mis decisiones",
     "methods": "Los métodos",
@@ -216,6 +217,19 @@
     "argueError": "No se pudo publicar el argumento. Inténtalo de nuevo.",
     "argueClosedError": "La votación está cerrada — el debate también.",
     "argueCountHidden": "{count, plural, one {# argumento ya publicado} other {# argumentos ya publicados}} — se revelan con los resultados.",
+    "voteAlreadyPublic": "Ya se registró un voto desde tu conexión: una sola papeleta por persona en las votaciones públicas.",
+    "reportCta": "Denunciar esta votación",
+    "reportTitle": "¿Por qué denunciarla?",
+    "reasonSpam": "Spam",
+    "reasonOffensive": "Contenido ofensivo",
+    "reasonIllegal": "Contenido ilegal",
+    "reasonOther": "Otro",
+    "reportSent": "Denuncia enviada. Gracias por cuidar de Placet.",
+    "reportAlready": "Ya has denunciado esta votación.",
+    "publishedBadge": "Publicado en Placet",
+    "unpublishCta": "Despublicar",
+    "publishCta": "Publicar en Placet",
+    "publishRateLimited": "Límite alcanzado: 5 publicaciones por 24 h. Inténtalo más tarde.",
     "addToCalendar": "📅 Añadir al calendario",
     "icsNote": "Franja elegida con Placet.",
     "resultHowTitle": "🔍 Cómo se ha obtenido este resultado",
@@ -283,8 +297,22 @@
     "subtitle": "voto verificado · votantes · duración · quórum",
     "closureResume": "cierra el {date}"
   },
+  "Explore": {
+    "title": "Explorar los votos públicos",
+    "subtitle": "Votaciones que sus creadores decidieron publicar. Vota, mira los resultados, lanza la tuya.",
+    "empty": "Todavía no hay votaciones públicas. ¡Sé la primera persona en publicar la tuya!",
+    "emptyCta": "Crear una votación",
+    "openBadge": "En curso",
+    "closedBadge": "Terminado",
+    "ballots": "{count, plural, one {# papeleta} other {# papeletas}}",
+    "options": "{count, plural, one {# opción} other {# opciones}}",
+    "seeAll": "Explorar todo",
+    "stripTitle": "Ahora mismo en Placet"
+  },
   "Access": {
     "title": "Acceso y censo electoral",
+    "publishLabel": "Publicar en Placet",
+    "publishConsent": "Tu votación aparecerá en la página pública Explorar y podrá ser indexada por los buscadores. No incluyas nada confidencial: podrás despublicarla en cualquier momento desde tu enlace de administración.",
     "whoCanVote": "¿Quién puede votar?",
     "quickVote": "Voto rápido",
     "verifiedVote": "Voto verificado",
@@ -451,6 +479,7 @@
     "brandSaved": "✓ Marca guardada"
   },
   "Launched": {
+    "publishedLine": "Publicado en Placet: tu votación es visible en la página Explorar.",
     "copy": "Copiar",
     "copied": "✓ Copiado",
     "badge": "Votación lanzada",

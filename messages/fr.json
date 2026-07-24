@@ -1,5 +1,6 @@
 {
   "Nav": {
+    "explore": "Explorer",
     "spaces": "Espaces",
     "myPolls": "Mes décisions",
     "methods": "Les méthodes",
@@ -216,6 +217,19 @@
     "argueError": "Impossible de publier l'argument. Réessayez.",
     "argueClosedError": "Le scrutin est clos : le débat aussi.",
     "argueCountHidden": "{count, plural, one {# argument déjà déposé} other {# arguments déjà déposés}} — à découvrir avec les résultats.",
+    "voteAlreadyPublic": "Un vote a déjà été enregistré depuis votre connexion — un seul bulletin par personne sur les scrutins publics.",
+    "reportCta": "Signaler ce scrutin",
+    "reportTitle": "Pourquoi le signaler ?",
+    "reasonSpam": "Spam",
+    "reasonOffensive": "Contenu offensant",
+    "reasonIllegal": "Contenu illégal",
+    "reasonOther": "Autre",
+    "reportSent": "Signalement transmis. Merci de veiller sur Placet.",
+    "reportAlready": "Vous avez déjà signalé ce scrutin.",
+    "publishedBadge": "Publié sur Placet",
+    "unpublishCta": "Dépublier",
+    "publishCta": "Publier sur Placet",
+    "publishRateLimited": "Limite atteinte : 5 publications par 24 h. Réessayez plus tard.",
     "addToCalendar": "📅 Ajouter au calendrier",
     "icsNote": "Créneau retenu via Placet.",
     "resultHowTitle": "🔍 Comment ce résultat a été obtenu",
@@ -283,8 +297,22 @@
     "subtitle": "vote vérifié · votants · durée · quorum",
     "closureResume": "clôture le {date}"
   },
+  "Explore": {
+    "title": "Explorer les votes publics",
+    "subtitle": "Les scrutins que leurs créateurs ont choisi de publier. Votez, suivez les résultats, lancez le vôtre.",
+    "empty": "Aucun scrutin public pour l'instant. Soyez le premier à publier le vôtre !",
+    "emptyCta": "Créer un scrutin",
+    "openBadge": "En cours",
+    "closedBadge": "Terminé",
+    "ballots": "{count, plural, one {# bulletin} other {# bulletins}}",
+    "options": "{count, plural, one {# option} other {# options}}",
+    "seeAll": "Tout explorer",
+    "stripTitle": "En ce moment sur Placet"
+  },
   "Access": {
     "title": "Accès & corps électoral",
+    "publishLabel": "Publier sur Placet",
+    "publishConsent": "Votre scrutin apparaîtra sur la page publique Explorer et pourra être indexé par les moteurs de recherche. N'y mettez rien de confidentiel — vous pourrez le dépublier à tout moment depuis votre lien d'administration.",
     "whoCanVote": "Qui peut voter ?",
     "quickVote": "Vote rapide",
     "verifiedVote": "Vote vérifié",
@@ -451,6 +479,7 @@
     "brandSaved": "✓ Marque enregistrée"
   },
   "Launched": {
+    "publishedLine": "Publié sur Placet — votre scrutin est visible sur la page Explorer.",
     "copy": "Copier",
     "copied": "✓ Copié",
     "badge": "Scrutin lancé",

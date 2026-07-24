@@ -1,5 +1,6 @@
 {
   "Nav": {
+    "explore": "Explore",
     "spaces": "Spaces",
     "myPolls": "My decisions",
     "methods": "Methods",
@@ -216,6 +217,19 @@
     "argueError": "Could not post the argument. Please try again.",
     "argueClosedError": "The poll is closed — so is the debate.",
     "argueCountHidden": "{count, plural, one {# argument already posted} other {# arguments already posted}} — revealed with the results.",
+    "voteAlreadyPublic": "A vote was already recorded from your connection — one ballot per person on public polls.",
+    "reportCta": "Report this poll",
+    "reportTitle": "Why report it?",
+    "reasonSpam": "Spam",
+    "reasonOffensive": "Offensive content",
+    "reasonIllegal": "Illegal content",
+    "reasonOther": "Other",
+    "reportSent": "Report sent. Thanks for looking out for Placet.",
+    "reportAlready": "You already reported this poll.",
+    "publishedBadge": "Published on Placet",
+    "unpublishCta": "Unpublish",
+    "publishCta": "Publish on Placet",
+    "publishRateLimited": "Limit reached: 5 publications per 24 hours. Try again later.",
     "addToCalendar": "📅 Add to calendar",
     "icsNote": "Slot selected via Placet.",
     "resultHowTitle": "🔍 How this result was computed",
@@ -283,8 +297,22 @@
     "subtitle": "verified vote · voters · duration · quorum",
     "closureResume": "closes {date}"
   },
+  "Explore": {
+    "title": "Explore public votes",
+    "subtitle": "Polls their creators chose to make public. Vote, watch the results, launch your own.",
+    "empty": "No public polls yet. Be the first to publish yours!",
+    "emptyCta": "Create a poll",
+    "openBadge": "Open",
+    "closedBadge": "Closed",
+    "ballots": "{count, plural, one {# ballot} other {# ballots}}",
+    "options": "{count, plural, one {# option} other {# options}}",
+    "seeAll": "Explore all",
+    "stripTitle": "Right now on Placet"
+  },
   "Access": {
     "title": "Access & electorate",
+    "publishLabel": "Publish on Placet",
+    "publishConsent": "Your poll will appear on the public Explore page and may be indexed by search engines. Don't include anything confidential — you can unpublish it anytime from your admin link.",
     "whoCanVote": "Who can vote?",
     "quickVote": "Quick vote",
     "verifiedVote": "Verified vote",
@@ -451,6 +479,7 @@
     "brandSaved": "✓ Brand saved"
   },
   "Launched": {
+    "publishedLine": "Published on Placet — your poll is visible on the Explore page.",
     "copy": "Copy",
     "copied": "✓ Copied",
     "badge": "Poll launched",

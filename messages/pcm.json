@@ -1,5 +1,6 @@
 {
   "Nav": {
+    "explore": "Explore",
     "spaces": "Spaces",
     "myPolls": "My decisions",
     "methods": "Methods",
@@ -216,6 +217,19 @@
     "argueError": "E no fit post di argument. Try again.",
     "argueClosedError": "Di vote don close — di debate too.",
     "argueCountHidden": "{count, plural, one {# argument don land} other {# argument dem don land}} — you go see dem with di result.",
+    "voteAlreadyPublic": "Vote don already enter from your connection — na one vote per person for public polls.",
+    "reportCta": "Report dis poll",
+    "reportTitle": "Why you wan report am?",
+    "reasonSpam": "Spam",
+    "reasonOffensive": "Bad content",
+    "reasonIllegal": "Illegal content",
+    "reasonOther": "Anoda reason",
+    "reportSent": "We don receive your report. Thank you as you dey look out for Placet.",
+    "reportAlready": "You don already report dis poll.",
+    "publishedBadge": "Published for Placet",
+    "unpublishCta": "Unpublish am",
+    "publishCta": "Publish am for Placet",
+    "publishRateLimited": "You don reach di limit: 5 publish per 24 hours. Try again later.",
     "addToCalendar": "📅 Add to calendar",
     "icsNote": "Slot wey we pick through Placet.",
     "resultHowTitle": "🔍 How we take calculate dis result",
@@ -283,8 +297,22 @@
     "subtitle": "verified vote · voters · duration · quorum",
     "closureResume": "e go close {date}"
   },
+  "Explore": {
+    "title": "Explore public votes dem",
+    "subtitle": "Na polls wey di people wey create dem choose make everybody see. Vote, check results, start your own.",
+    "empty": "No public poll dey yet. Be di first person to publish your own!",
+    "emptyCta": "Create poll",
+    "openBadge": "Dey open",
+    "closedBadge": "Don close",
+    "ballots": "{count, plural, one {# vote} other {# votes}}",
+    "options": "{count, plural, one {# option} other {# options}}",
+    "seeAll": "See all",
+    "stripTitle": "Wetin dey happen for Placet now"
+  },
   "Access": {
     "title": "Access & electorate",
+    "publishLabel": "Publish am for Placet",
+    "publishConsent": "Your poll go show for di public Explore page and search engines fit find am. No put anything wey suppose dey secret — you fit remove am anytime from your admin link.",
     "whoCanVote": "Who fit vote?",
     "quickVote": "Quick vote",
     "verifiedVote": "Verified vote",
@@ -451,6 +479,7 @@
     "brandSaved": "✓ Brand don save"
   },
   "Launched": {
+    "publishedLine": "Published for Placet — your poll dey show for di Explore page.",
     "copy": "Copy",
     "copied": "✓ Don copy",
     "badge": "Vote don launch",
