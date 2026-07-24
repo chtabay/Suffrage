@@ -26,6 +26,18 @@ export function cardIsOpen(c: PublicPollCard, now: number = Date.now()): boolean
 }
 
 /**
+ * Intention d'une carte, dans la taxonomie de l'accueil : sonder (panorama sans
+ * vainqueur), trouver une date (options-créneaux), ou décider. L'affectation
+ * n'est pas publiable — pas de 4e cas.
+ */
+export type CardIntent = "decide" | "survey" | "date";
+export function cardIntent(c: PublicPollCard): CardIntent {
+  if (c.recipe.survey) return "survey";
+  if (c.options.some((o) => o.at)) return "date";
+  return "decide";
+}
+
+/**
  * Liste paginée des scrutins publics (client). Tri published_at desc ;
  * pagination keyset : passer le published_at de la dernière carte en `before`.
  */

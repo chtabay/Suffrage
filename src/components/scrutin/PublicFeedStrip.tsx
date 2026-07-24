@@ -4,8 +4,15 @@ import { useEffect, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { intlLocale } from "@/i18n/locales";
-import { cardIsOpen, getPublicPolls, type PublicPollCard } from "@/lib/db/publicFeed";
-import { FONT_DISPLAY, GREEN, INK, MUTED, PAPER, lift } from "./theme";
+import { cardIntent, cardIsOpen, getPublicPolls, type CardIntent, type PublicPollCard } from "@/lib/db/publicFeed";
+import { CORAL, FONT_DISPLAY, GREEN, INK, MUTED, PAPER, lift } from "./theme";
+
+// Taxonomie de l'accueil, portée jusqu'au feed : on sait ce qu'on va y FAIRE.
+const INTENT_BADGE: Record<CardIntent, { color: string; icon: string; labelKey: string }> = {
+  decide: { color: CORAL, icon: "🏆", labelKey: "doorVoteTitle" },
+  survey: { color: "#2A9D8F", icon: "📊", labelKey: "doorSurveyTitle" },
+  date: { color: "#5B5BD6", icon: "📅", labelKey: "doorDateTitle" },
+};
 
 /**
  * Bande « en ce moment sur Placet » de la landing : mini-cartes des derniers
@@ -14,6 +21,7 @@ import { FONT_DISPLAY, GREEN, INK, MUTED, PAPER, lift } from "./theme";
  */
 export default function PublicFeedStrip() {
   const t = useTranslations("Explore");
+  const th = useTranslations("Home");
   const locale = useLocale();
   const [polls, setPolls] = useState<PublicPollCard[]>([]);
 
@@ -71,7 +79,23 @@ export default function PublicFeedStrip() {
                   ...lift(`3px 3px 0 ${open ? GREEN : INK}`, `5px 5px 0 ${open ? GREEN : INK}`),
                 }}
               >
-                <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 7, flexWrap: "wrap" }}>
+                  <span
+                    style={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: 4,
+                      background: INTENT_BADGE[cardIntent(p)].color,
+                      color: "#fff",
+                      border: `2px solid ${INK}`,
+                      borderRadius: 20,
+                      padding: "2px 8px",
+                      fontWeight: 700,
+                      fontSize: 10.5,
+                    }}
+                  >
+                    {INTENT_BADGE[cardIntent(p)].icon} {th(INTENT_BADGE[cardIntent(p)].labelKey)}
+                  </span>
                   <span
                     style={{
                       display: "inline-flex",

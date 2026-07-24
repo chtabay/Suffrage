@@ -22,24 +22,28 @@ export default function AboutPlacet({ compact }: { compact?: boolean }) {
   return (
     <>
       {compact ? (
-        // Version discrète pour le header : n'interrompt plus le flux de création.
+        // Icône seule pour le header : l'aide reste à un clic sans occuper la Nav.
         <button
           type="button"
           onClick={() => setOpen(true)}
           className="dc-paper"
+          aria-label={t("aboutCta")}
+          title={t("aboutCta")}
           style={{
             fontFamily: FONT_BODY,
-            fontWeight: 600,
-            fontSize: 14,
+            fontWeight: 700,
+            fontSize: 16,
             cursor: "pointer",
             border: `2px solid ${INK}`,
             background: CREAM,
             color: INK,
-            padding: "9px 15px",
+            width: 38,
+            height: 38,
             borderRadius: 10,
+            lineHeight: 1,
           }}
         >
-          ⓘ {t("aboutCta")}
+          ⓘ
         </button>
       ) : (
         <button

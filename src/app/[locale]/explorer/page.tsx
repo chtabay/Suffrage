@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import PlacetMark from "@/components/scrutin/PlacetMark";
-import { cardIsOpen, fetchPublicPollsServer } from "@/lib/db/publicFeed";
+import { cardIntent, cardIsOpen, fetchPublicPollsServer, type CardIntent } from "@/lib/db/publicFeed";
 import { intlLocale } from "@/i18n/locales";
 
 // Feed public : page ISR (60 s) listant les scrutins PUBLIÉS par leurs créateurs.
@@ -31,8 +31,35 @@ export default async function ExplorerPage({ params }: { params: Promise<{ local
   const { locale } = await params;
   setRequestLocale(locale);
   const t = await getTranslations({ locale, namespace: "Explore" });
+  const th = await getTranslations({ locale, namespace: "Home" });
   const polls = await fetchPublicPollsServer(24);
   const fmt = new Intl.DateTimeFormat(intlLocale(locale), { day: "numeric", month: "short", year: "numeric" });
+
+  // Badge d'intention : la taxonomie de l'accueil (Décider / Sonder / Trouver une
+  // date) suit le scrutin jusque dans le feed — on sait ce qu'on va y FAIRE.
+  const INTENTS: Record<CardIntent, { color: string; icon: string; labelKey: string }> = {
+    decide: { color: CORAL, icon: "🏆", labelKey: "doorVoteTitle" },
+    survey: { color: "#2A9D8F", icon: "📊", labelKey: "doorSurveyTitle" },
+    date: { color: "#5B5BD6", icon: "📅", labelKey: "doorDateTitle" },
+  };
+  const intentBadge = (it: CardIntent) => (
+    <span
+      style={{
+        display: "inline-flex",
+        alignItems: "center",
+        gap: 5,
+        background: INTENTS[it].color,
+        color: "#fff",
+        border: `2px solid ${INK}`,
+        borderRadius: 20,
+        padding: "3px 10px",
+        fontWeight: 700,
+        fontSize: 11.5,
+      }}
+    >
+      {INTENTS[it].icon} {th(INTENTS[it].labelKey)}
+    </span>
+  );
 
   const badge = (open: boolean) => (
     <span
@@ -121,6 +148,7 @@ export default async function ExplorerPage({ params }: { params: Promise<{ local
                   }}
                 >
                   <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+                    {intentBadge(cardIntent(p))}
                     {badge(open)}
                     <span style={{ fontSize: 12, color: MUTED, fontWeight: 600 }}>{fmt.format(new Date(p.published_at))}</span>
                   </div>

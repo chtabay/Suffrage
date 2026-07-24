@@ -239,7 +239,7 @@ function ReportFold({ token }: { token: string }) {
               opacity: !reason || sending ? 0.5 : 1,
             }}
           >
-            {sending ? t("submitting") : t("reportCta")}
+            {sending ? t("submitting") : t("reportSend")}
           </button>
         </div>
       )}
