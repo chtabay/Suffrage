@@ -39,6 +39,8 @@ export interface ScrutinState {
   hideResults: boolean;
   /** Publier sur le feed public /explorer au lancement (accès ouvert uniquement). */
   publicListing: boolean;
+  /** Ouvrir une phase de collecte : les votants ajoutent des options avant le vote (invitation seulement). */
+  proposalsPhase: boolean;
   voterNames: string;
   districts: DistrictDraft[];
   opensAt: string;
@@ -77,6 +79,7 @@ const INITIAL: ScrutinState = {
   access: "open",
   hideResults: false,
   publicListing: false,
+  proposalsPhase: false,
   voterNames: "",
   districts: [
     { name: "Circonscription 1", electors: 3, voterNames: "" },
@@ -319,6 +322,11 @@ export function useScrutin(draft?: ScrutinDraft) {
     setState((s) => ({ ...s, publicListing, ...CLEAR_SHARE }));
   }, []);
 
+  // Phase de propositions : collecte d'options par les votants avant le vote.
+  const setProposalsPhase = useCallback((proposalsPhase: boolean) => {
+    setState((s) => ({ ...s, proposalsPhase, ...CLEAR_SHARE }));
+  }, []);
+
   const setVoterNames = useCallback((voterNames: string) => {
     setState((s) => ({ ...s, voterNames, ...CLEAR_SHARE }));
   }, []);
@@ -405,6 +413,9 @@ export function useScrutin(draft?: ScrutinDraft) {
     const isSlot = s.optionKind === "slot";
     const isAssign = s.optionKind === "assign";
     const assignDef = ASSIGN_METHODS[s.assignMethod];
+    // Phase de collecte : réservée à l'invitation simple (ni affectation, ni GE).
+    // Garde-fou impératif : impossible sur un vote public (spam d'audience anonyme).
+    const collecting = s.proposalsPhase && s.access === "invite" && !isAssign && s.recipe.suffrage !== "indirect";
     // Objets = créneaux (affectation à sens unique) : filtrage comme un vote de dates.
     const slotObjects = isAssign && assignDef.oneSided && s.assignSlots;
     const participants = splitNames(s.voterNames);
@@ -470,7 +481,9 @@ export function useScrutin(draft?: ScrutinDraft) {
         }
       }
     }
-    if (cleanOptions.length < 2) {
+    // En phase de collecte, l'organisateur peut ne semer aucune option (les
+    // votants les proposeront) ; sinon il en faut au moins deux.
+    if (!collecting && cleanOptions.length < 2) {
       setState((p) => ({ ...p, error: isSlot ? "Ajoutez au moins 2 créneaux." : "Ajoutez au moins 2 options." }));
       return;
     }
@@ -526,6 +539,7 @@ export function useScrutin(draft?: ScrutinDraft) {
         closeOnComplete: s.closeOnComplete,
         quorum: s.quorum,
         slotMinutes: isSlot || slotObjects ? s.slotMinutes : null,
+        initialStatus: collecting ? "proposals" : undefined,
       });
       const origin = window.location.origin;
 
@@ -585,6 +599,7 @@ export function useScrutin(draft?: ScrutinDraft) {
     setAccess,
     toggleHideResults,
     setPublicListing,
+    setProposalsPhase,
     setVoterNames,
     setAssignMethod,
     setAssignSideB,

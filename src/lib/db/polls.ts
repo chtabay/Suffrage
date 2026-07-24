@@ -2,7 +2,13 @@
 import { createClient } from "@/lib/supabase/client";
 import type { Ballot, Option, Recipe } from "@/lib/voting/types";
 
-export type PollStatus = "open" | "closed";
+/**
+ * 'proposals' = phase amont de COLLECTE (les votants ajoutent des options avant
+ * le vote, uniquement en mode invitation) ; l'organisateur bascule ensuite en
+ * 'open' (open_voting), ce qui fige les options — les bulletins référencent les
+ * options par index, donc plus aucune mutation après ouverture.
+ */
+export type PollStatus = "proposals" | "open" | "closed";
 export type AccessMode = "open" | "invite";
 /** Visibilité du feed public : private = lien seulement (défaut), public = listé sur /explorer. */
 export type PollVisibility = "private" | "public";
@@ -74,6 +80,8 @@ export interface CreatePollOptions {
   closeOnComplete?: boolean;
   quorum?: number | null;
   slotMinutes?: number | null;
+  /** Statut initial. Omis → défaut base ('open'). 'proposals' ouvre la phase de collecte. */
+  initialStatus?: PollStatus;
 }
 
 /**
@@ -98,6 +106,7 @@ export async function createPoll(
       recipe,
       created_by: null,
       admin_hash,
+      ...(opts.initialStatus ? { status: opts.initialStatus } : {}),
       hide_results: opts.hideResults ?? false,
       access_mode: opts.accessMode ?? "open",
       districts: opts.districts ?? null,
@@ -125,10 +134,13 @@ export async function getPollByToken(token: string): Promise<PollRow | null> {
   return (data as PollRow | null) ?? null;
 }
 
-export type Phase = "scheduled" | "open" | "closed";
+export type Phase = "proposals" | "scheduled" | "open" | "closed";
 
 /** Phase effective d'un scrutin (statut manuel + bornes temporelles). */
 export function pollPhase(p: PollRow, now: number = Date.now()): Phase {
+  // La collecte prime : tant que l'organisateur n'a pas ouvert le vote, on reste
+  // en 'proposals' (les bornes temporelles ne s'appliquent qu'au vote lui-même).
+  if (p.status === "proposals") return "proposals";
   if (p.status === "closed") return "closed";
   if (p.closes_at && now >= Date.parse(p.closes_at)) return "closed";
   if (p.opens_at && now < Date.parse(p.opens_at)) return "scheduled";
@@ -334,6 +346,33 @@ export async function getVoterContext(voterToken: string): Promise<VoterContext 
   const { data, error } = await supabase.rpc("get_voter_context", { p_voter_token: voterToken });
   if (error) throw error;
   return (data as VoterContext | null) ?? null;
+}
+
+/**
+ * Phase de propositions : un votant invité ajoute une option pendant la collecte.
+ * Réservé aux scrutins en mode invitation et en statut 'proposals' (jamais public).
+ * Renvoie 'ok' | 'invalid' | 'notcollecting' | 'full' | 'empty' | 'dup'.
+ */
+export async function addProposal(voterToken: string, name: string, icon?: string): Promise<string> {
+  const supabase = createClient();
+  const { data, error } = await supabase.rpc("add_proposal", {
+    p_voter_token: voterToken,
+    p_name: name,
+    p_icon: icon?.trim() || null,
+  });
+  if (error) throw error;
+  return data as string;
+}
+
+/**
+ * Ouvre le vote (organisateur) : fige les options et passe de 'proposals' à
+ * 'open'. Idempotent (renvoie false si le scrutin n'était pas en collecte).
+ */
+export async function openVoting(token: string, secret: string): Promise<boolean> {
+  const supabase = createClient();
+  const { data, error } = await supabase.rpc("open_voting", { p_token: token, p_secret: secret });
+  if (error) throw error;
+  return data === true;
 }
 
 /** Dépose un bulletin nominatif. Renvoie 'ok' | 'already' | 'closed' | 'invalid'. */

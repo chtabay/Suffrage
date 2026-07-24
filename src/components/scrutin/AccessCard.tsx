@@ -68,6 +68,7 @@ export default function AccessCard({ ctrl }: { ctrl: ScrutinController }) {
     setAccess,
     toggleHideResults,
     setPublicListing,
+    setProposalsPhase,
     setVoterNames,
     setDistrictField,
     addDistrict,
@@ -160,6 +161,23 @@ export default function AccessCard({ ctrl }: { ctrl: ScrutinController }) {
             label={t("closeOnComplete")}
             onClick={toggleCloseOnComplete}
           />
+        </div>
+      )}
+
+      {/* phase de propositions : les votants ajoutent des options avant le vote.
+          Réservée à l'invitation simple (pool maîtrisé) — jamais en GE ni en public. */}
+      {invite && !isGE && (
+        <div style={{ marginTop: 10 }}>
+          <Toggle
+            on={state.proposalsPhase}
+            label={t("proposalsLabel")}
+            onClick={() => setProposalsPhase(!state.proposalsPhase)}
+          />
+          {state.proposalsPhase && (
+            <div style={{ marginTop: 7, fontSize: 12.5, color: MUTED, lineHeight: 1.45 }}>
+              {t("proposalsHint")}
+            </div>
+          )}
         </div>
       )}
 

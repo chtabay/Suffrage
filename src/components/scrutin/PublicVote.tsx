@@ -7,9 +7,11 @@ import { intlLocale } from "@/i18n/locales";
 import PlacetMark from "./PlacetMark";
 import {
   addBallot,
+  addProposal,
   castInvitedBallot,
   castPublicBallot,
   closePoll,
+  openVoting,
   getAssignData,
   getBallots,
   addComment,
@@ -44,7 +46,7 @@ import {
 import { resolveScale } from "@/lib/voting/scales";
 import { getPollBrand, type Brand } from "@/lib/db/brand";
 import { getArguments, type Argument } from "@/lib/db/arguments";
-import type { Ballot, BallotMode, ComputeResult } from "@/lib/voting/types";
+import type { Ballot, BallotMode, ComputeResult, Option } from "@/lib/voting/types";
 import { APP_URL } from "@/lib/voting/aiPrompt";
 import InstallInline from "@/components/pwa/InstallInline";
 import NotifyButton from "@/components/pwa/NotifyButton";
@@ -455,6 +457,7 @@ type View =
   | "notfound"
   | "needsInvite"
   | "scheduled"
+  | "proposals"
   | "vote"
   | "thanks"
   | "results"
@@ -678,6 +681,215 @@ function QuorumBanner({ quorum, count }: { quorum: number; count: number }) {
   );
 }
 
+const PROPOSAL_ICONS = ["💡", "✅", "🔥", "⭐", "🎯", "🌱", "🚀", "🎨"];
+
+/**
+ * Vue votant pendant la phase de COLLECTE : le votant propose des options (il ne
+ * vote pas encore). Isole son propre état d'input et recharge la liste courante
+ * après chaque ajout. Si l'organisateur ouvre le vote entre-temps, l'ajout
+ * renvoie 'notcollecting' → invitation à recharger pour passer au bulletin.
+ */
+function ProposalsView({
+  token,
+  voterToken,
+  poll,
+  brand,
+  statusPill,
+}: {
+  token: string;
+  voterToken: string;
+  poll: PollRow;
+  brand: Brand | null;
+  statusPill: React.ReactNode;
+}) {
+  const t = useTranslations("Vote");
+  const [opts, setOpts] = useState<Option[]>(poll.options);
+  const [name, setName] = useState("");
+  const [icon, setIcon] = useState(PROPOSAL_ICONS[0]);
+  const [busy, setBusy] = useState(false);
+  const [notice, setNotice] = useState<string | null>(null);
+  const [ended, setEnded] = useState(false);
+
+  const submit = async () => {
+    const clean = name.trim();
+    if (!clean || busy) return;
+    setBusy(true);
+    setNotice(null);
+    try {
+      const r = await addProposal(voterToken, clean, icon);
+      if (r === "ok") {
+        setName("");
+        setNotice(t("proposalAdded"));
+        const fresh = await getPollByToken(token).catch(() => null);
+        if (fresh) setOpts(fresh.options);
+      } else if (r === "dup") {
+        setNotice(t("proposalDup"));
+      } else if (r === "full") {
+        setNotice(t("proposalFull"));
+      } else if (r === "notcollecting") {
+        // Le vote a été ouvert (ou clos) pendant la saisie : les options sont figées.
+        setEnded(true);
+      } else {
+        setNotice(t("proposalError"));
+      }
+    } catch {
+      setNotice(t("proposalError"));
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <Shell brand={brand}>
+      <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", marginBottom: 12 }}>
+        {statusPill}
+      </div>
+      <h1 style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 26, lineHeight: 1.2 }}>{poll.question}</h1>
+      <div style={{ ...card, marginTop: 16, background: "#fffaf0" }}>
+        <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 16 }}>✎ {t("proposalsTitle")}</div>
+        <p style={{ color: SUBINK, fontSize: 14, lineHeight: 1.55, marginTop: 8 }}>{t("proposalsIntro")}</p>
+
+        {ended ? (
+          <div
+            style={{
+              marginTop: 12,
+              border: `2px solid ${INK}`,
+              borderRadius: 12,
+              background: GREEN,
+              color: "#fff",
+              padding: "13px 15px",
+              fontWeight: 700,
+              fontSize: 14,
+              lineHeight: 1.5,
+            }}
+          >
+            ▶ {t("proposalsEnded")}
+            <button
+              onClick={() => window.location.reload()}
+              style={{
+                display: "block",
+                marginTop: 10,
+                fontFamily: FONT_DISPLAY,
+                fontWeight: 800,
+                fontSize: 14,
+                cursor: "pointer",
+                border: `2.5px solid ${INK}`,
+                background: "#fff",
+                color: INK,
+                padding: "10px 16px",
+                borderRadius: 11,
+              }}
+            >
+              {t("proposalsGoVote")}
+            </button>
+          </div>
+        ) : (
+          <div style={{ marginTop: 14 }}>
+            <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 10 }}>
+              {PROPOSAL_ICONS.map((e) => (
+                <button
+                  key={e}
+                  onClick={() => setIcon(e)}
+                  aria-label={e}
+                  style={{
+                    width: 40,
+                    height: 40,
+                    fontSize: 20,
+                    cursor: "pointer",
+                    borderRadius: 10,
+                    border: `2px solid ${INK}`,
+                    background: icon === e ? YELLOW : "#fff",
+                  }}
+                >
+                  {e}
+                </button>
+              ))}
+            </div>
+            <div style={{ display: "flex", gap: 9, flexWrap: "wrap" }}>
+              <input
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") submit();
+                }}
+                maxLength={60}
+                placeholder={t("proposalPlaceholder")}
+                style={{
+                  flex: 1,
+                  minWidth: 200,
+                  fontFamily: FONT_BODY,
+                  fontSize: 15,
+                  fontWeight: 600,
+                  padding: "11px 13px",
+                  border: `2px solid ${INK}`,
+                  borderRadius: 11,
+                  background: CREAM,
+                  outline: "none",
+                }}
+              />
+              <button
+                onClick={submit}
+                disabled={busy || !name.trim()}
+                className="dc-lift"
+                style={{
+                  fontFamily: FONT_DISPLAY,
+                  fontWeight: 800,
+                  fontSize: 15,
+                  cursor: busy || !name.trim() ? "default" : "pointer",
+                  border: `2.5px solid ${INK}`,
+                  background: CORAL,
+                  color: "#fff",
+                  padding: "11px 18px",
+                  borderRadius: 11,
+                  opacity: busy || !name.trim() ? 0.6 : 1,
+                  ...lift(`3px 3px 0 ${INK}`, `4px 4px 0 ${INK}`),
+                }}
+              >
+                ＋ {t("proposalAdd")}
+              </button>
+            </div>
+            {notice && (
+              <div style={{ marginTop: 10, fontSize: 13, fontWeight: 700, color: SUBINK }}>{notice}</div>
+            )}
+            <div style={{ marginTop: 8, fontSize: 12.5, color: MUTED, lineHeight: 1.45 }}>{t("proposalsWait")}</div>
+          </div>
+        )}
+      </div>
+
+      <div style={{ ...card, marginTop: 16 }}>
+        <div style={{ fontWeight: 800, fontFamily: FONT_DISPLAY, fontSize: 15, marginBottom: 10 }}>
+          {t("proposalsListTitle", { count: opts.length })}
+        </div>
+        {opts.length === 0 ? (
+          <div style={{ color: MUTED, fontSize: 14 }}>{t("proposalsListEmpty")}</div>
+        ) : (
+          <div style={{ display: "flex", flexDirection: "column", gap: 7 }}>
+            {opts.map((o, i) => (
+              <div
+                key={i}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 10,
+                  border: `2px solid ${INK}`,
+                  borderRadius: 10,
+                  background: CREAM,
+                  padding: "9px 12px",
+                  fontWeight: 600,
+                  fontSize: 14,
+                }}
+              >
+                <span style={{ fontSize: 18 }}>{o.icon}</span>
+                <span>{o.name}</span>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </Shell>
+  );
+}
+
 export default function PublicVote({
   token,
   adminKey,
@@ -739,7 +951,10 @@ export default function PublicVote({
 
   const refreshOrganizer = useCallback(
     async (p: PollRow) => {
-      await loadResults(p);
+      // Pendant la collecte, rien à dépouiller (options non figées, 0 bulletin) —
+      // et compute() n'aime pas une liste d'options vide. On charge juste le corps
+      // électoral et les messages.
+      if (pollPhase(p) !== "proposals") await loadResults(p);
       if (adminKey) {
         setPrivMessages(await getPollMessages(token, adminKey).catch(() => [] as PollMessage[]));
         if (p.access_mode === "invite") {
@@ -785,7 +1000,10 @@ export default function PublicVote({
             return;
           }
           setVoter(vc);
-          if (phase === "closed") {
+          if (phase === "proposals") {
+            // Phase de collecte : le votant propose des options, il ne vote pas encore.
+            if (alive) setView("proposals");
+          } else if (phase === "closed") {
             await loadResults(p);
             if (alive) setView("closed");
           } else if (phase === "scheduled") {
@@ -802,7 +1020,9 @@ export default function PublicVote({
         if (phase === "closed") {
           await loadResults(p);
           if (alive) setView("closed");
-        } else if (phase === "scheduled") {
+        } else if (phase === "scheduled" || phase === "proposals") {
+          // 'proposals' ne peut pas arriver en accès ouvert (collecte réservée à
+          // l'invitation) ; garde défensive au cas où — pas encore ouvert au vote.
           if (alive) setView("scheduled");
         } else if (p.visibility === "public" && hasVotedLocally(token)) {
           // Scrutin public déjà voté sur cet appareil : droit aux résultats
@@ -898,8 +1118,8 @@ export default function PublicVote({
         display: "inline-flex",
         alignItems: "center",
         gap: 6,
-        background: phase === "open" ? GREEN : phase === "scheduled" ? YELLOW : INK,
-        color: phase === "scheduled" ? INK : "#fff",
+        background: phase === "open" ? GREEN : phase === "scheduled" || phase === "proposals" ? YELLOW : INK,
+        color: phase === "scheduled" || phase === "proposals" ? INK : "#fff",
         border: `2px solid ${INK}`,
         borderRadius: 20,
         padding: "4px 11px",
@@ -907,7 +1127,13 @@ export default function PublicVote({
         fontSize: 12,
       }}
     >
-      {phase === "open" ? `● ${t("statusOpen")}` : phase === "scheduled" ? `◷ ${t("statusScheduled")}` : `■ ${t("statusClosed")}`}
+      {phase === "open"
+        ? `● ${t("statusOpen")}`
+        : phase === "proposals"
+          ? `✎ ${t("statusProposals")}`
+          : phase === "scheduled"
+            ? `◷ ${t("statusScheduled")}`
+            : `■ ${t("statusClosed")}`}
     </span>
   );
 
@@ -945,6 +1171,21 @@ export default function PublicVote({
         }
       } catch {
         /* échec réseau : l'état affiché reste inchangé, on pourra réessayer */
+      } finally {
+        setWorking(false);
+      }
+    };
+    // Fin de la phase de collecte : fige les options et ouvre le vote.
+    const openVote = async () => {
+      if (!adminKey) return;
+      setWorking(true);
+      try {
+        await openVoting(token, adminKey);
+        const fresh = await getPollByToken(token);
+        if (fresh) {
+          setPoll(fresh);
+          await refreshOrganizer(fresh);
+        }
       } finally {
         setWorking(false);
       }
@@ -988,6 +1229,48 @@ export default function PublicVote({
             </span>
           )}
         </div>
+
+        {phase === "proposals" && (
+          <div
+            style={{
+              ...card,
+              marginTop: 16,
+              background: "#fffaf0",
+              borderColor: INK,
+            }}
+          >
+            <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 16 }}>
+              ✎ {t("orgProposalsTitle")}
+            </div>
+            <p style={{ color: SUBINK, fontSize: 13.5, lineHeight: 1.55, marginTop: 8 }}>
+              {t("orgProposalsDesc")}
+            </p>
+            <button
+              onClick={openVote}
+              disabled={working}
+              className="dc-lift"
+              style={{
+                marginTop: 12,
+                fontFamily: FONT_DISPLAY,
+                fontWeight: 800,
+                fontSize: 15,
+                cursor: working ? "default" : "pointer",
+                border: `2.5px solid ${INK}`,
+                background: GREEN,
+                color: "#fff",
+                padding: "12px 20px",
+                borderRadius: 12,
+                opacity: working ? 0.7 : 1,
+                ...lift(`3px 3px 0 ${INK}`, `4px 4px 0 ${INK}`),
+              }}
+            >
+              ▶ {t("openVoteCta")}
+            </button>
+            <div style={{ marginTop: 9, fontSize: 12, color: MUTED, lineHeight: 1.45 }}>
+              {t("openVoteWarn")}
+            </div>
+          </div>
+        )}
 
         <div style={{ ...card, marginTop: 16 }}>
           <div style={{ fontWeight: 700, fontSize: 12, color: MUTED, marginBottom: 7 }}>
@@ -1057,26 +1340,28 @@ export default function PublicVote({
             >
               ↻ {t("refresh")}
             </button>
-            <button
-              onClick={toggleClose}
-              disabled={working}
-              className="dc-lift"
-              style={{
-                fontFamily: FONT_DISPLAY,
-                fontWeight: 700,
-                fontSize: 14,
-                cursor: working ? "default" : "pointer",
-                border: `2.5px solid ${INK}`,
-                background: poll.status === "open" ? CORAL : GREEN,
-                color: "#fff",
-                padding: "11px 16px",
-                borderRadius: 11,
-                opacity: working ? 0.7 : 1,
-                ...lift(`3px 3px 0 ${INK}`, `4px 4px 0 ${INK}`),
-              }}
-            >
-              {poll.status === "open" ? `🔒 ${t("closeVote")}` : `↺ ${t("reopenVote")}`}
-            </button>
+            {phase !== "proposals" && (
+              <button
+                onClick={toggleClose}
+                disabled={working}
+                className="dc-lift"
+                style={{
+                  fontFamily: FONT_DISPLAY,
+                  fontWeight: 700,
+                  fontSize: 14,
+                  cursor: working ? "default" : "pointer",
+                  border: `2.5px solid ${INK}`,
+                  background: poll.status === "open" ? CORAL : GREEN,
+                  color: "#fff",
+                  padding: "11px 16px",
+                  borderRadius: 11,
+                  opacity: working ? 0.7 : 1,
+                  ...lift(`3px 3px 0 ${INK}`, `4px 4px 0 ${INK}`),
+                }}
+              >
+                {poll.status === "open" ? `🔒 ${t("closeVote")}` : `↺ ${t("reopenVote")}`}
+              </button>
+            )}
             {/* Feed public : dépublier si public ; publier si privé ET ouvert
                 (un scrutin sur invitation n'a rien à faire sur /explorer). */}
             {poll.visibility === "public" ? (
@@ -1148,45 +1433,82 @@ export default function PublicVote({
           </div>
         )}
 
-        <div style={{ marginTop: 16 }}>
-          {aDef ? (
-            phase === "closed" && assignRows.length ? (
-              <>
-                <AssignResult poll={poll} rows={assignRows} />
-                <CommentsFeed comments={comments} />
-              </>
+        {/* Pendant la collecte, ni résultats ni débat : les options ne sont pas
+            figées. On montre à l'organisateur ce qui a été proposé (revue). */}
+        {phase === "proposals" ? (
+          <div style={{ ...card, marginTop: 16 }}>
+            <div style={{ fontWeight: 800, fontFamily: FONT_DISPLAY, fontSize: 15, marginBottom: 10 }}>
+              {t("orgProposalsListTitle", { count: poll.options.length })}
+            </div>
+            {poll.options.length === 0 ? (
+              <div style={{ color: MUTED, fontSize: 14 }}>{t("orgProposalsEmpty")}</div>
             ) : (
-              <div style={{ ...card, color: MUTED, fontSize: 15 }}>{ta("resultsAtClose")}</div>
-            )
-          ) : result ? (
-            <>
-              {poll.quorum != null && <QuorumBanner quorum={poll.quorum} count={ballotCount} />}
-              <ResultCard result={result} question={poll.question} ballotCount={ballotCount} calendarSlot={winnerSlot} calendarUrl={voteShareUrl} calendarDuration={poll.slot_minutes ?? undefined} survey={isSurvey} decided={phase === "closed"} />
-              <ResultShare
-                question={poll.question}
-                result={result}
-                ballotCount={ballotCount}
-                optionsCount={poll.options.length}
-                url={voteShareUrl}
-                survey={isSurvey}
+              <div style={{ display: "flex", flexDirection: "column", gap: 7 }}>
+                {poll.options.map((o, i) => (
+                  <div
+                    key={i}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 10,
+                      border: `2px solid ${INK}`,
+                      borderRadius: 10,
+                      background: CREAM,
+                      padding: "9px 12px",
+                      fontWeight: 600,
+                      fontSize: 14,
+                    }}
+                  >
+                    <span style={{ fontSize: 18 }}>{o.icon}</span>
+                    <span>{o.name}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        ) : (
+          <>
+            <div style={{ marginTop: 16 }}>
+              {aDef ? (
+                phase === "closed" && assignRows.length ? (
+                  <>
+                    <AssignResult poll={poll} rows={assignRows} />
+                    <CommentsFeed comments={comments} />
+                  </>
+                ) : (
+                  <div style={{ ...card, color: MUTED, fontSize: 15 }}>{ta("resultsAtClose")}</div>
+                )
+              ) : result ? (
+                <>
+                  {poll.quorum != null && <QuorumBanner quorum={poll.quorum} count={ballotCount} />}
+                  <ResultCard result={result} question={poll.question} ballotCount={ballotCount} calendarSlot={winnerSlot} calendarUrl={voteShareUrl} calendarDuration={poll.slot_minutes ?? undefined} survey={isSurvey} decided={phase === "closed"} />
+                  <ResultShare
+                    question={poll.question}
+                    result={result}
+                    ballotCount={ballotCount}
+                    optionsCount={poll.options.length}
+                    url={voteShareUrl}
+                    survey={isSurvey}
+                  />
+                  <CommentsFeed comments={comments} />
+                  <OfficialRecordCta token={token} />
+                </>
+              ) : (
+                <div style={{ ...card, color: MUTED, fontSize: 15 }}>{t("noBallotsYet")}</div>
+              )}
+            </div>
+            {/* Le débat : lecture complète pour l'organisateur, dépôt tant que c'est ouvert. */}
+            {!aDef && (
+              <ArgumentsPanel
+                token={token}
+                options={poll.options}
+                args={args}
+                showList
+                canAdd={phase !== "closed"}
+                onAdded={() => reloadArgs(poll)}
               />
-              <CommentsFeed comments={comments} />
-              <OfficialRecordCta token={token} />
-            </>
-          ) : (
-            <div style={{ ...card, color: MUTED, fontSize: 15 }}>{t("noBallotsYet")}</div>
-          )}
-        </div>
-        {/* Le débat : lecture complète pour l'organisateur, dépôt tant que c'est ouvert. */}
-        {!aDef && (
-          <ArgumentsPanel
-            token={token}
-            options={poll.options}
-            args={args}
-            showList
-            canAdd={phase !== "closed"}
-            onAdded={() => reloadArgs(poll)}
-          />
+            )}
+          </>
         )}
         <PrivateMessagesCard owned={Boolean(poll.created_by)} messages={privMessages} locale={locale} />
       </Shell>
@@ -1205,6 +1527,11 @@ export default function PublicVote({
         </div>
       </Shell>
     );
+  }
+
+  // ---------- phase de propositions (votant) ----------
+  if (view === "proposals" && voterToken) {
+    return <ProposalsView token={token} voterToken={voterToken} poll={poll} brand={brand} statusPill={statusPill} />;
   }
 
   if (view === "scheduled") {
