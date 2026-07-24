@@ -255,7 +255,8 @@ export type ReportReason = "spam" | "offensive" | "illegal" | "other";
 /**
  * Publie (ou dépublie) un scrutin sur le feed public. Passe par la RPC :
  * une policy RESTRICTIVE interdit tout INSERT/UPDATE client de visibility.
- * Renvoie 'ok' | 'invalid' | 'rate_limited' (5 publications / 24 h).
+ * Renvoie 'ok' | 'invalid' | 'rate_limited' (5 publications / 24 h) |
+ * 'collecting' (publication refusée tant que la liste n'est pas figée).
  */
 export async function setPollVisibility(token: string, secret: string, isPublic: boolean): Promise<string> {
   const supabase = createClient();
@@ -362,6 +363,37 @@ export async function addProposal(voterToken: string, name: string, icon?: strin
   });
   if (error) throw error;
   return data as string;
+}
+
+/**
+ * Phase de propositions en mode OUVERT : une personne ayant le lien (privé)
+ * ajoute une option. Autorisé seulement si accès ouvert + status 'proposals' +
+ * visibilité privée. Renvoie 'ok' | 'invalid' | 'notcollecting' | 'full' | 'empty' | 'dup'.
+ */
+export async function addProposalOpen(pollToken: string, name: string, icon?: string): Promise<string> {
+  const supabase = createClient();
+  const { data, error } = await supabase.rpc("add_proposal_open", {
+    p_poll_token: pollToken,
+    p_name: name,
+    p_icon: icon?.trim() || null,
+  });
+  if (error) throw error;
+  return data as string;
+}
+
+/**
+ * Retrait d'une option proposée par l'organisateur, UNIQUEMENT pendant la
+ * collecte (aucun bulletin déposé → l'index ne référence encore aucun vote).
+ */
+export async function removeProposal(token: string, secret: string, index: number): Promise<boolean> {
+  const supabase = createClient();
+  const { data, error } = await supabase.rpc("remove_proposal", {
+    p_token: token,
+    p_secret: secret,
+    p_index: index,
+  });
+  if (error) throw error;
+  return data === true;
 }
 
 /**

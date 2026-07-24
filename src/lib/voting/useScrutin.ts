@@ -413,9 +413,11 @@ export function useScrutin(draft?: ScrutinDraft) {
     const isSlot = s.optionKind === "slot";
     const isAssign = s.optionKind === "assign";
     const assignDef = ASSIGN_METHODS[s.assignMethod];
-    // Phase de collecte : réservée à l'invitation simple (ni affectation, ni GE).
-    // Garde-fou impératif : impossible sur un vote public (spam d'audience anonyme).
-    const collecting = s.proposalsPhase && s.access === "invite" && !isAssign && s.recipe.suffrage !== "indirect";
+    // Phase de collecte : disponible sur tout vote à propositions (rapide OU vérifié),
+    // hors dates/affectation/GE. Le garde-fou n'est plus le mode d'accès mais la
+    // VISIBILITÉ : le scrutin reste privé pendant la collecte et ne peut être publié
+    // qu'une fois la liste figée (cf. blocage de setPollVisibility en 'proposals').
+    const collecting = s.proposalsPhase && s.optionKind === "text" && s.recipe.suffrage !== "indirect";
     // Objets = créneaux (affectation à sens unique) : filtrage comme un vote de dates.
     const slotObjects = isAssign && assignDef.oneSided && s.assignSlots;
     const participants = splitNames(s.voterNames);
@@ -545,7 +547,9 @@ export function useScrutin(draft?: ScrutinDraft) {
 
       // Feed public : publication APRÈS le lancement réussi, en silence — un
       // échec (rate-limit, réseau) ne doit JAMAIS faire échouer le lancement.
-      if (s.publicListing && s.access === "open" && !isAssign) {
+      // Jamais pendant la collecte : on ne publie qu'une fois la liste figée
+      // (l'organisateur publiera depuis sa page après « Ouvrir le vote »).
+      if (s.publicListing && s.access === "open" && !isAssign && !collecting) {
         try {
           await setPollVisibility(token, secret, true);
         } catch {

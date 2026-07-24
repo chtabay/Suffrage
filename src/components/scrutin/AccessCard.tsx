@@ -129,31 +129,6 @@ export default function AccessCard({ ctrl }: { ctrl: ScrutinController }) {
             {t("geWarning")}
           </div>
         )}
-        {/* Découvrabilité de la phase de propositions : elle exige des votants
-            nominatifs → on l'indique en vote rapide, avec un raccourci d'un clic. */}
-        {!invite && (
-          <button
-            onClick={() => setAccess("invite")}
-            style={{
-              marginTop: 8,
-              display: "block",
-              width: "100%",
-              textAlign: "left",
-              cursor: "pointer",
-              background: "none",
-              border: "none",
-              padding: 0,
-              fontFamily: FONT_BODY,
-              fontSize: 12.5,
-              color: MUTED,
-              lineHeight: 1.45,
-            }}
-          >
-            {t.rich("proposalsDiscover", {
-              a: (chunks) => <strong style={{ color: INK, textDecoration: "underline" }}>{chunks}</strong>,
-            })}
-          </button>
-        )}
       </div>
 
       {/* résultats cachés */}
@@ -161,19 +136,56 @@ export default function AccessCard({ ctrl }: { ctrl: ScrutinController }) {
         <Toggle on={state.hideResults} label={t("hideResults")} onClick={toggleHideResults} />
       </div>
 
-      {/* feed public : uniquement en vote ouvert (un vote sur invitation listé
-          publiquement n'aurait aucun sens). Consentement explicite sous le toggle. */}
-      {!invite && (
+      {/* phase de propositions : les votants ajoutent des options avant le vote.
+          Disponible sur tout vote à propositions (rapide OU vérifié), hors dates,
+          affectation et grands électeurs. Le scrutin reste privé pendant la collecte
+          et ne peut être publié qu'une fois la liste figée. */}
+      {state.optionKind === "text" && !isGE && (
         <div style={{ marginTop: 10 }}>
           <Toggle
-            on={state.publicListing}
-            label={t("publishLabel")}
-            onClick={() => setPublicListing(!state.publicListing)}
+            on={state.proposalsPhase}
+            label={t("proposalsLabel")}
+            onClick={() => setProposalsPhase(!state.proposalsPhase)}
           />
-          {state.publicListing && (
+          {state.proposalsPhase && (
             <div style={{ marginTop: 7, fontSize: 12.5, color: MUTED, lineHeight: 1.45 }}>
-              {t("publishConsent")}
+              {t("proposalsHint")}
             </div>
+          )}
+        </div>
+      )}
+
+      {/* feed public : uniquement en vote ouvert. Impossible tant qu'on collecte
+          (liste non figée) → on l'annonce au lieu du toggle. */}
+      {!invite && (
+        <div style={{ marginTop: 10 }}>
+          {state.proposalsPhase && state.optionKind === "text" ? (
+            <div
+              style={{
+                fontSize: 12.5,
+                color: MUTED,
+                lineHeight: 1.45,
+                background: CREAM,
+                border: `2px solid ${INK}`,
+                borderRadius: 10,
+                padding: "9px 12px",
+              }}
+            >
+              {t("publishAfterOpen")}
+            </div>
+          ) : (
+            <>
+              <Toggle
+                on={state.publicListing}
+                label={t("publishLabel")}
+                onClick={() => setPublicListing(!state.publicListing)}
+              />
+              {state.publicListing && (
+                <div style={{ marginTop: 7, fontSize: 12.5, color: MUTED, lineHeight: 1.45 }}>
+                  {t("publishConsent")}
+                </div>
+              )}
+            </>
           )}
         </div>
       )}
@@ -186,23 +198,6 @@ export default function AccessCard({ ctrl }: { ctrl: ScrutinController }) {
             label={t("closeOnComplete")}
             onClick={toggleCloseOnComplete}
           />
-        </div>
-      )}
-
-      {/* phase de propositions : les votants ajoutent des options avant le vote.
-          Réservée à l'invitation simple (pool maîtrisé) — jamais en GE ni en public. */}
-      {invite && !isGE && (
-        <div style={{ marginTop: 10 }}>
-          <Toggle
-            on={state.proposalsPhase}
-            label={t("proposalsLabel")}
-            onClick={() => setProposalsPhase(!state.proposalsPhase)}
-          />
-          {state.proposalsPhase && (
-            <div style={{ marginTop: 7, fontSize: 12.5, color: MUTED, lineHeight: 1.45 }}>
-              {t("proposalsHint")}
-            </div>
-          )}
         </div>
       )}
 

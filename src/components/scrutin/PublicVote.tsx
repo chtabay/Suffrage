@@ -8,10 +8,12 @@ import PlacetMark from "./PlacetMark";
 import {
   addBallot,
   addProposal,
+  addProposalOpen,
   castInvitedBallot,
   castPublicBallot,
   closePoll,
   openVoting,
+  removeProposal,
   getAssignData,
   getBallots,
   addComment,
@@ -697,7 +699,7 @@ function ProposalsView({
   statusPill,
 }: {
   token: string;
-  voterToken: string;
+  voterToken: string | null;
   poll: PollRow;
   brand: Brand | null;
   statusPill: React.ReactNode;
@@ -716,7 +718,8 @@ function ProposalsView({
     setBusy(true);
     setNotice(null);
     try {
-      const r = await addProposal(voterToken, clean, icon);
+      // Vérifié : jeton nominatif. Rapide : par le lien du scrutin (accès ouvert).
+      const r = voterToken ? await addProposal(voterToken, clean, icon) : await addProposalOpen(token, clean, icon);
       if (r === "ok") {
         setName("");
         setNotice(t("proposalAdded"));
@@ -1020,9 +1023,10 @@ export default function PublicVote({
         if (phase === "closed") {
           await loadResults(p);
           if (alive) setView("closed");
-        } else if (phase === "scheduled" || phase === "proposals") {
-          // 'proposals' ne peut pas arriver en accès ouvert (collecte réservée à
-          // l'invitation) ; garde défensive au cas où — pas encore ouvert au vote.
+        } else if (phase === "proposals") {
+          // Collecte en accès ouvert : toute personne ayant le lien (privé) propose.
+          if (alive) setView("proposals");
+        } else if (phase === "scheduled") {
           if (alive) setView("scheduled");
         } else if (p.visibility === "public" && hasVotedLocally(token)) {
           // Scrutin public déjà voté sur cet appareil : droit aux résultats
@@ -1190,6 +1194,18 @@ export default function PublicVote({
         setWorking(false);
       }
     };
+    // Retrait d'une option proposée (modération), possible seulement en collecte.
+    const removeOpt = async (index: number) => {
+      if (!adminKey || working) return;
+      setWorking(true);
+      try {
+        await removeProposal(token, adminKey, index);
+        const fresh = await getPollByToken(token);
+        if (fresh) setPoll(fresh);
+      } finally {
+        setWorking(false);
+      }
+    };
     return (
       <Shell brand={brand}>
         <div
@@ -1268,6 +1284,7 @@ export default function PublicVote({
             </button>
             <div style={{ marginTop: 9, fontSize: 12, color: MUTED, lineHeight: 1.45 }}>
               {t("openVoteWarn")}
+              {poll.access_mode === "open" ? ` ${t("openVoteThenPublish")}` : ""}
             </div>
           </div>
         )}
@@ -1363,8 +1380,10 @@ export default function PublicVote({
               </button>
             )}
             {/* Feed public : dépublier si public ; publier si privé ET ouvert
-                (un scrutin sur invitation n'a rien à faire sur /explorer). */}
-            {poll.visibility === "public" ? (
+                (un scrutin sur invitation n'a rien à faire sur /explorer).
+                Pendant la collecte : rien — la publication n'est possible qu'une
+                fois la liste figée (voir le bandeau « Ouvrir le vote »). */}
+            {phase === "proposals" ? null : poll.visibility === "public" ? (
               <button
                 onClick={() => togglePublish(false)}
                 disabled={working}
@@ -1460,7 +1479,28 @@ export default function PublicVote({
                     }}
                   >
                     <span style={{ fontSize: 18 }}>{o.icon}</span>
-                    <span>{o.name}</span>
+                    <span style={{ flex: 1, minWidth: 0 }}>{o.name}</span>
+                    <button
+                      onClick={() => removeOpt(i)}
+                      disabled={working}
+                      title={t("orgProposalRemove")}
+                      aria-label={t("orgProposalRemove")}
+                      style={{
+                        flex: "none",
+                        width: 30,
+                        height: 30,
+                        border: `2px solid ${INK}`,
+                        background: "#fff",
+                        borderRadius: 8,
+                        cursor: working ? "default" : "pointer",
+                        fontSize: 15,
+                        color: REDTXT,
+                        lineHeight: 1,
+                        opacity: working ? 0.6 : 1,
+                      }}
+                    >
+                      ×
+                    </button>
                   </div>
                 ))}
               </div>
@@ -1530,8 +1570,8 @@ export default function PublicVote({
   }
 
   // ---------- phase de propositions (votant) ----------
-  if (view === "proposals" && voterToken) {
-    return <ProposalsView token={token} voterToken={voterToken} poll={poll} brand={brand} statusPill={statusPill} />;
+  if (view === "proposals") {
+    return <ProposalsView token={token} voterToken={voterToken ?? null} poll={poll} brand={brand} statusPill={statusPill} />;
   }
 
   if (view === "scheduled") {
