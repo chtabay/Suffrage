@@ -340,6 +340,7 @@
     "verifiedVote": "Vote vérifié",
     "verifiedHint": "Résultat vérifié — liste de votants, 1 vote par personne (liens nominatifs).",
     "quickHint": "Résultat indicatif — lien ouvert à tous ; on peut voter plusieurs fois.",
+    "proposalsDiscover": "✎ Envie que les votants proposent eux-mêmes les options ? <a>Passez en « Vote vérifié »</a>.",
     "geWarning": "Pour de vrais grands électeurs, choisis « Vote vérifié » : sinon les circonscriptions sont attribuées au hasard.",
     "hideResults": "Cacher les résultats jusqu'à la clôture",
     "closeOnComplete": "Clôturer dès que tout le monde a voté",

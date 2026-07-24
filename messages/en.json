@@ -340,6 +340,7 @@
     "verifiedVote": "Verified vote",
     "verifiedHint": "Verified result — voter list, 1 vote per person (named links).",
     "quickHint": "Indicative result — link open to everyone; multiple votes possible.",
+    "proposalsDiscover": "✎ Want voters to suggest the options themselves? <a>Switch to \"Verified vote\"</a>.",
     "geWarning": "For real electoral-college voters, choose \"Verified vote\": otherwise districts are assigned at random.",
     "hideResults": "Hide results until closing",
     "closeOnComplete": "Close as soon as everyone has voted",

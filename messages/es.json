@@ -340,6 +340,7 @@
     "verifiedVote": "Voto verificado",
     "verifiedHint": "Resultado verificado — lista de votantes, 1 voto por persona (enlaces nominativos).",
     "quickHint": "Resultado orientativo — enlace abierto a todos; se puede votar varias veces.",
+    "proposalsDiscover": "✎ ¿Quieres que los votantes propongan ellos mismos las opciones? <a>Cambia a « Voto verificado »</a>.",
     "geWarning": "Para grandes electores reales, elige « Voto verificado »: de lo contrario los distritos se asignan al azar.",
     "hideResults": "Ocultar los resultados hasta el cierre",
     "closeOnComplete": "Cerrar en cuanto todos hayan votado",

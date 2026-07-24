@@ -129,6 +129,31 @@ export default function AccessCard({ ctrl }: { ctrl: ScrutinController }) {
             {t("geWarning")}
           </div>
         )}
+        {/* Découvrabilité de la phase de propositions : elle exige des votants
+            nominatifs → on l'indique en vote rapide, avec un raccourci d'un clic. */}
+        {!invite && (
+          <button
+            onClick={() => setAccess("invite")}
+            style={{
+              marginTop: 8,
+              display: "block",
+              width: "100%",
+              textAlign: "left",
+              cursor: "pointer",
+              background: "none",
+              border: "none",
+              padding: 0,
+              fontFamily: FONT_BODY,
+              fontSize: 12.5,
+              color: MUTED,
+              lineHeight: 1.45,
+            }}
+          >
+            {t.rich("proposalsDiscover", {
+              a: (chunks) => <strong style={{ color: INK, textDecoration: "underline" }}>{chunks}</strong>,
+            })}
+          </button>
+        )}
       </div>
 
       {/* résultats cachés */}
