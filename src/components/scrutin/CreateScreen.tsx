@@ -164,7 +164,15 @@ function buildAxes(r: Recipe, setRecipe: (p: Partial<Recipe>) => void, slotMode 
       });
     }
   }
-  axes.forEach((a, i) => (a.label = `${i + 1} · ${a.label}`));
+  // L'axe « échelle » est extrait du dépliable (rendu en évidence sous les chips
+  // de méthode) : on ne le numérote pas pour garder la suite 1..n continue.
+  let n = 0;
+  axes.forEach((a) => {
+    if (a.key !== "scale") {
+      n += 1;
+      a.label = `${n} · ${a.label}`;
+    }
+  });
   return axes;
 }
 
@@ -251,6 +259,10 @@ export default function CreateScreen({ ctrl }: { ctrl: ScrutinController }) {
   const resolved = describeRecipe(state.recipe);
   const tm = useTranslations("Methods");
   const axes = buildAxes(state.recipe, setRecipe, state.optionKind === "slot", t);
+  // Échelle de mentions : réglage ESSENTIEL du jugement majoritaire (surtout en
+  // sondage) — rendue en évidence sous les chips de méthode, pas dans le dépliable.
+  const scaleAxis = axes.find((a) => a.key === "scale");
+  const foldAxes = axes.filter((a) => a.key !== "scale");
   const curKey = resolveKey(state.recipe);
   const twoRound = state.recipe.suffrage !== "indirect" && state.recipe.rounds === 2 && state.recipe.counting !== "majority";
   const methodName = twoRound ? `${tm(`${curKey}.name`)} ${tm("twoRounds")}` : tm(`${curKey}.name`);
@@ -973,6 +985,36 @@ export default function CreateScreen({ ctrl }: { ctrl: ScrutinController }) {
               {t("methodSubtitle")}
             </div>
             <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>{MAIN_METHODS.map(methodChip)}</div>
+            {scaleAxis && (
+              <div style={{ marginTop: 16 }}>
+                <div style={{ fontWeight: 700, fontSize: 13.5, marginBottom: 3 }}>{scaleAxis.label}</div>
+                <div style={{ fontSize: 12.5, color: MUTED, marginBottom: 9, lineHeight: 1.35 }}>{scaleAxis.hint}</div>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+                  {scaleAxis.options.map((o, j) => (
+                    <button
+                      key={j}
+                      onClick={o.onClick}
+                      disabled={o.disabled}
+                      style={{
+                        fontFamily: FONT_BODY,
+                        fontWeight: 600,
+                        fontSize: 13,
+                        cursor: o.disabled ? "default" : "pointer",
+                        border: `2px solid ${INK}`,
+                        padding: "8px 13px",
+                        borderRadius: 9,
+                        background: o.bg,
+                        color: o.fg,
+                        opacity: o.op,
+                      }}
+                    >
+                      {o.label}
+                    </button>
+                  ))}
+                </div>
+                <ScalePreview scale={state.recipe.scale} locale={locale} />
+              </div>
+            )}
             <button
               onClick={() => setMethodOpen((o) => !o)}
               style={{
@@ -995,7 +1037,7 @@ export default function CreateScreen({ ctrl }: { ctrl: ScrutinController }) {
                   <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 18 }}>{otherMethods.map(methodChip)}</div>
                 )}
                 <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
-                  {axes.map((axis) => (
+                  {foldAxes.map((axis) => (
                     <div key={axis.key}>
                       <div style={{ fontWeight: 700, fontSize: 13.5, marginBottom: 3 }}>{axis.label}</div>
                       <div style={{ fontSize: 12.5, color: MUTED, marginBottom: 9, lineHeight: 1.35 }}>{axis.hint}</div>
@@ -1022,7 +1064,6 @@ export default function CreateScreen({ ctrl }: { ctrl: ScrutinController }) {
                           </button>
                         ))}
                       </div>
-                      {axis.key === "scale" && <ScalePreview scale={state.recipe.scale} locale={locale} />}
                     </div>
                   ))}
                 </div>

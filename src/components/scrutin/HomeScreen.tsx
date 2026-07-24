@@ -138,6 +138,12 @@ export default function HomeScreen({ ctrl }: { ctrl: ScrutinController }) {
     setPillar("vote");
     setSurvey(kind === "survey");
     setOptionKind(kind === "date" ? "slot" : "text");
+    if (kind === "survey") {
+      // Un diagnostic n'est jamais un choix unique : l'approbation (prévalence)
+      // est le bon défaut — même préréglage que les liens survey=1.
+      selectSystemRecipe("approval");
+      return;
+    }
     go("create");
   };
 
