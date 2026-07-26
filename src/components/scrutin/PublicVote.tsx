@@ -34,6 +34,7 @@ import {
   type Voter,
   type VoterContext,
 } from "@/lib/db/polls";
+import { trackShare } from "@/lib/db/track";
 import {
   compute,
   describeRecipe,
@@ -482,6 +483,8 @@ function LinkCopyBtn({ url }: { url: string }) {
   const copy = async () => {
     try {
       await navigator.clipboard?.writeText(url);
+      // Sans API clipboard, `?.` résout sans copier : on ne compte alors rien.
+      if (navigator.clipboard) trackShare(url, "copy");
       setCopied(true);
       setTimeout(() => setCopied(false), 1600);
     } catch {
@@ -1384,6 +1387,9 @@ export default function PublicVote({
         const r = await setPollVisibility(token, adminKey, makePublic);
         if (r === "rate_limited") {
           setPubNotice(t("publishRateLimited"));
+        } else if (r === "moderated") {
+          // Masqué par la modération : seule la régie peut lever le masquage.
+          setPubNotice(t("publishModerated"));
         } else if (r === "ok") {
           const fresh = await getPollByToken(token);
           if (fresh) setPoll(fresh);

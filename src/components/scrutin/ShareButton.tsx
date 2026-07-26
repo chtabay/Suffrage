@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
+import { trackShare } from "@/lib/db/track";
 import { FONT_DISPLAY, INK, YELLOW } from "./theme";
 
 // Partage « classique » : ouvre la feuille de partage native de l'OS (WhatsApp,
@@ -23,6 +24,8 @@ export default function ShareButton({ question, url, iconOnly = false }: { quest
       // Le lien passe par le champ `url` (pas dans `text`) pour éviter de le
       // dupliquer dans les cibles qui gèrent l'aperçu de lien.
       await navigator.share({ title: question || "Placet", text: `🗳️ ${question}`, url });
+      // Compté seulement si la feuille de partage a abouti (annulation → throw).
+      trackShare(url, "native");
     } catch {
       /* partage annulé par l'utilisateur */
     }

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { QRCodeSVG } from "qrcode.react";
 import { useTranslations } from "next-intl";
+import { trackShare } from "@/lib/db/track";
 import { CREAM, INK } from "./theme";
 
 // QR code du lien de vote — pour un scrutin PUBLIC (lien ouvert), permet à une
@@ -26,6 +27,8 @@ export default function QrCode({
   if (!url) return null;
 
   const openZoom = () => {
+    // L'agrandissement = intention de faire scanner la pièce : c'est le partage.
+    trackShare(url, "qr");
     if (typeof window !== "undefined") {
       const s = Math.max(220, Math.min(480, Math.floor(Math.min(window.innerWidth, window.innerHeight) * 0.8)));
       setBigSize(s);

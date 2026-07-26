@@ -4,6 +4,7 @@ import { useState, type CSSProperties } from "react";
 import { useTranslations } from "next-intl";
 import WhatsAppShare from "./WhatsAppShare";
 import ShareButton from "./ShareButton";
+import { trackShare } from "@/lib/db/track";
 import { CREAM, FONT_DISPLAY, GREEN, INK } from "./theme";
 
 // Rangée de partage du lien de vote : (option « copier le lien ») + WhatsApp
@@ -32,6 +33,8 @@ export default function ShareRow({
   const copy = async () => {
     try {
       await navigator.clipboard?.writeText(url);
+      // Sans API clipboard, `?.` résout sans copier : on ne compte alors rien.
+      if (navigator.clipboard) trackShare(url, "copy");
       setCopied(true);
       setTimeout(() => setCopied(false), 1600);
     } catch {
