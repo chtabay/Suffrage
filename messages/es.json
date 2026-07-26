@@ -341,6 +341,18 @@
     "stripTitle": "Ahora mismo en Placet",
     "publishYours": "Publica la tuya"
   },
+  "CreateErrors": {
+    "needQuestion": "Añade una pregunta.",
+    "needParticipants": "Añade al menos 2 participantes (un nombre por línea).",
+    "oddCount": "Número impar: las parejas requieren un número par.",
+    "dupNames": "Cada participante debe tener un nombre único.",
+    "dupNamesBoth": "Cada participante debe tener un nombre único (en ambos lados).",
+    "needBothSides": "Añade participantes en ambos lados.",
+    "endowCount": "Hacen falta exactamente tantas cosas como participantes.",
+    "needTwoOptions": "Añade al menos 2 opciones.",
+    "needTwoSlots": "Añade al menos 2 franjas horarias.",
+    "launchFailed": "No se pudo lanzar la votación. Inténtalo de nuevo."
+  },
   "Access": {
     "title": "Acceso y censo electoral",
     "publishLabel": "Publicar en Placet",

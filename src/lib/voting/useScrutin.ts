@@ -425,7 +425,7 @@ export function useScrutin(draft?: ScrutinDraft) {
       .filter((o) => (isSlot || slotObjects ? Boolean(o.at) : o.name.trim() !== ""))
       .map((o) => ({ ...o, name: o.name.trim() }));
     if (!question) {
-      setState((p) => ({ ...p, error: "Ajoutez une question." }));
+      setState((p) => ({ ...p, error: "needQuestion" }));
       return;
     }
     // Deux groupes (Gale-Shapley) : côté 2 au format « Nom ; capacité ».
@@ -440,16 +440,16 @@ export function useScrutin(draft?: ScrutinDraft) {
       // Garde-fous d'affectation : nominative, effectif suffisant, pair et
       // sans doublon pour les binômes (prévisible dès la création).
       if (participants.length < 2) {
-        setState((p) => ({ ...p, error: "Ajoutez au moins 2 participants (un nom par ligne)." }));
+        setState((p) => ({ ...p, error: "needParticipants" }));
         return;
       }
       if (!assignDef.oneSided) {
         if (participants.length % 2) {
-          setState((p) => ({ ...p, error: "Effectif impair : les binômes exigent un nombre pair." }));
+          setState((p) => ({ ...p, error: "oddCount" }));
           return;
         }
         if (new Set(participants).size !== participants.length) {
-          setState((p) => ({ ...p, error: "Chaque participant doit avoir un nom unique." }));
+          setState((p) => ({ ...p, error: "dupNames" }));
           return;
         }
         // Les « options » sont les participants eux-mêmes (chacun classe les autres).
@@ -457,12 +457,12 @@ export function useScrutin(draft?: ScrutinDraft) {
       }
       if (assignDef.twoLists) {
         if (participants.length < 1 || sideB.length < 1) {
-          setState((p) => ({ ...p, error: "Renseignez des participants dans les deux côtés." }));
+          setState((p) => ({ ...p, error: "needBothSides" }));
           return;
         }
         const all = [...participants, ...sideB.map((e) => e.name)];
         if (new Set(all).size !== all.length) {
-          setState((p) => ({ ...p, error: "Chaque participant doit avoir un nom unique (dans les deux côtés)." }));
+          setState((p) => ({ ...p, error: "dupNamesBoth" }));
           return;
         }
         cleanOptions = [
@@ -474,11 +474,11 @@ export function useScrutin(draft?: ScrutinDraft) {
       if (assignDef.endowed) {
         // Bourse d'échanges : la N-ième personne possède la N-ième chose.
         if (new Set(participants).size !== participants.length) {
-          setState((p) => ({ ...p, error: "Chaque participant doit avoir un nom unique." }));
+          setState((p) => ({ ...p, error: "dupNames" }));
           return;
         }
         if (participants.length !== cleanOptions.length) {
-          setState((p) => ({ ...p, error: "Il faut exactement autant de choses que de participants." }));
+          setState((p) => ({ ...p, error: "endowCount" }));
           return;
         }
       }
@@ -486,7 +486,7 @@ export function useScrutin(draft?: ScrutinDraft) {
     // En phase de collecte, l'organisateur peut ne semer aucune option (les
     // votants les proposeront) ; sinon il en faut au moins deux.
     if (!collecting && cleanOptions.length < 2) {
-      setState((p) => ({ ...p, error: isSlot ? "Ajoutez au moins 2 créneaux." : "Ajoutez au moins 2 options." }));
+      setState((p) => ({ ...p, error: isSlot ? "needTwoSlots" : "needTwoOptions" }));
       return;
     }
     setState((p) => ({ ...p, launching: true, error: null }));
@@ -574,7 +574,7 @@ export function useScrutin(draft?: ScrutinDraft) {
       }));
       scrollTop();
     } catch {
-      setState((p) => ({ ...p, launching: false, error: "Impossible de lancer le scrutin. Réessayez." }));
+      setState((p) => ({ ...p, launching: false, error: "launchFailed" }));
     }
   }, []);
 

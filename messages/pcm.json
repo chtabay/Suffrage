@@ -341,6 +341,18 @@
     "stripTitle": "Wetin dey happen for Placet now",
     "publishYours": "Publish your own"
   },
+  "CreateErrors": {
+    "needQuestion": "Add question.",
+    "needParticipants": "Add at least 2 participants (one name per line).",
+    "oddCount": "Di number be odd: pairs need even number.",
+    "dupNames": "Every participant must get unique name.",
+    "dupNamesBoth": "Every participant must get unique name (for di two sides).",
+    "needBothSides": "Add participants for di two sides.",
+    "endowCount": "You need exactly as many things as participants.",
+    "needTwoOptions": "Add at least 2 options.",
+    "needTwoSlots": "Add at least 2 time slots.",
+    "launchFailed": "We no fit launch di poll. Try again."
+  },
   "Access": {
     "title": "Access & electorate",
     "publishLabel": "Publish am for Placet",

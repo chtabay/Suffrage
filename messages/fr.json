@@ -341,6 +341,18 @@
     "stripTitle": "En ce moment sur Placet",
     "publishYours": "Publiez le vôtre"
   },
+  "CreateErrors": {
+    "needQuestion": "Ajoutez une question.",
+    "needParticipants": "Ajoutez au moins 2 participants (un nom par ligne).",
+    "oddCount": "Effectif impair : les binômes exigent un nombre pair.",
+    "dupNames": "Chaque participant doit avoir un nom unique.",
+    "dupNamesBoth": "Chaque participant doit avoir un nom unique (dans les deux côtés).",
+    "needBothSides": "Renseignez des participants dans les deux côtés.",
+    "endowCount": "Il faut exactement autant de choses que de participants.",
+    "needTwoOptions": "Ajoutez au moins 2 options.",
+    "needTwoSlots": "Ajoutez au moins 2 créneaux.",
+    "launchFailed": "Impossible de lancer le scrutin. Réessayez."
+  },
   "Access": {
     "title": "Accès & corps électoral",
     "publishLabel": "Publier sur Placet",

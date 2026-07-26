@@ -341,6 +341,18 @@
     "stripTitle": "Right now on Placet",
     "publishYours": "Publish yours"
   },
+  "CreateErrors": {
+    "needQuestion": "Add a question.",
+    "needParticipants": "Add at least 2 participants (one name per line).",
+    "oddCount": "Odd headcount: pairs require an even number.",
+    "dupNames": "Each participant must have a unique name.",
+    "dupNamesBoth": "Each participant must have a unique name (on both sides).",
+    "needBothSides": "Add participants on both sides.",
+    "endowCount": "You need exactly as many things as participants.",
+    "needTwoOptions": "Add at least 2 options.",
+    "needTwoSlots": "Add at least 2 time slots.",
+    "launchFailed": "Couldn't launch the poll. Try again."
+  },
   "Access": {
     "title": "Access & electorate",
     "publishLabel": "Publish on Placet",

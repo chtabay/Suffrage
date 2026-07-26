@@ -240,6 +240,7 @@ const EMOJI_PALETTE = [
 
 export default function CreateScreen({ ctrl }: { ctrl: ScrutinController }) {
   const t = useTranslations("Create");
+  const te = useTranslations("CreateErrors");
   const locale = useLocale();
   // Exemples évocateurs montrés en placeholder (pas des valeurs à supprimer).
   const optionPlaceholders = t.raw("optionPlaceholders") as string[];
@@ -1196,7 +1197,9 @@ export default function CreateScreen({ ctrl }: { ctrl: ScrutinController }) {
               {state.launching ? t("launching") : t("launch")}
             </button>
             {state.error && (
-              <div style={{ marginTop: 10, color: "#d23b3b", fontWeight: 700, fontSize: 13 }}>{state.error}</div>
+              <div role="alert" aria-live="assertive" style={{ marginTop: 10, color: "#d23b3b", fontWeight: 700, fontSize: 13 }}>
+                {te(state.error)}
+              </div>
             )}
           </div>
         </div>
