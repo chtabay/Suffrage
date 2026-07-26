@@ -12,6 +12,17 @@ const INK = "#16213A";
 const CREAM = "#FBF6EC";
 const display = "var(--font-display), 'Bricolage Grotesque', sans-serif";
 
+// hreflang : chaque locale pointe vers son URL (fr = défaut sans préfixe). Sans ça,
+// les 4 langues risquent d'être vues comme du contenu dupliqué.
+const HREFLANG_LOCALES = ["fr", "en", "es", "pcm"] as const;
+export function hreflangAlternates(path: string, locale: string) {
+  const url = (loc: string) => (loc === "fr" ? path : `/${loc}${path}`);
+  return {
+    canonical: url(locale),
+    languages: { ...Object.fromEntries(HREFLANG_LOCALES.map((l) => [l, url(l)])), "x-default": url("fr") },
+  };
+}
+
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "Gallery" });
@@ -19,6 +30,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
     title: `${t("title")} — Placet`,
     description: t("subtitle"),
     robots: { index: true, follow: true },
+    alternates: hreflangAlternates("/methodes", locale),
   };
 }
 
@@ -28,13 +40,13 @@ export default async function MethodsIndex({ params }: { params: Promise<{ local
   const tm = await getTranslations({ locale, namespace: "Methods" });
   const ta = await getTranslations({ locale, namespace: "Assign" });
 
-  const card = (href: string, icon: string, color: string, name: string, tagline: string) => (
+  const card = (href: string, icon: string, color: string, name: string, tagline: string, when?: string) => (
     <Link
       key={href}
       href={href}
       style={{
         display: "flex",
-        alignItems: "center",
+        alignItems: "flex-start",
         gap: 13,
         textDecoration: "none",
         color: INK,
@@ -49,6 +61,9 @@ export default async function MethodsIndex({ params }: { params: Promise<{ local
       <span>
         <span style={{ display: "block", fontFamily: display, fontWeight: 800, fontSize: 16.5 }}>{name}</span>
         <span style={{ display: "block", fontSize: 13, color: "#5a6178", marginTop: 2, lineHeight: 1.4 }}>{tagline}</span>
+        {when && (
+          <span style={{ display: "block", fontSize: 12, color: "#7a8196", marginTop: 5, lineHeight: 1.4 }}>👉 {when}</span>
+        )}
       </span>
     </Link>
   );
@@ -68,7 +83,7 @@ export default async function MethodsIndex({ params }: { params: Promise<{ local
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(min(100%,340px),1fr))", gap: 14, marginTop: 28 }}>
           {PUBLIC_METHODS.map((m) => {
             const s = SYSTEMS[m.system];
-            return card(`/methodes/${m.key}`, s.icon, s.color, tm(`${m.system}.name`), tm(`${m.system}.tagline`));
+            return card(`/methodes/${m.key}`, s.icon, s.color, tm(`${m.system}.name`), tm(`${m.system}.tagline`), tm(`whenToUse.${m.system}`));
           })}
         </div>
 

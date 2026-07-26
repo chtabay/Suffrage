@@ -6,6 +6,7 @@ import PlacetMark from "@/components/scrutin/PlacetMark";
 import { PUBLIC_METHODS, publicMethodToSystem } from "@/lib/voting/methods";
 import { SYSTEMS } from "@/lib/voting/systems";
 import { ASSIGN_METHODS, ASSIGN_METHOD_KEYS, isAssignMethod } from "@/lib/assign/methods";
+import { hreflangAlternates } from "../page";
 
 // Fiche SEO d'une méthode (vote ou affectation) : contenu des fiches i18n
 // existantes, page statique crawlable, CTA vers /new pré-configuré.
@@ -81,6 +82,7 @@ export async function generateMetadata({
     title: `${fiche.name} — Placet`,
     description: `${fiche.tagline} ${fiche.how}`.slice(0, 160),
     robots: { index: true, follow: true },
+    alternates: hreflangAlternates(`/methodes/${key}`, locale),
   };
 }
 
