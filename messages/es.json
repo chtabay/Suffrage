@@ -178,6 +178,7 @@
     "msgOrgaSent": "Mensaje enviado al organizador.",
     "msgOrgaError": "No se pudo enviar. Inténtalo de nuevo.",
     "privateMessagesTitle": "Mensajes privados",
+    "leadsPill": "{count, plural, one {# mensaje} other {# mensajes}}",
     "privateMessagesOnlyYou": "Solo tú puedes verlos — nunca se publican con los resultados.",
     "privateMessagesEmpty": "Aún no hay mensajes. Después de votar, los votantes pueden escribirte en privado y dejar sus datos de contacto.",
     "privateMessagesTeaser": "Inicia sesión para vincular esta votación a tu cuenta: los votantes podrán dejarte un mensaje privado y sus datos de contacto.",

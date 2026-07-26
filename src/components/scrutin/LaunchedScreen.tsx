@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import type { ScrutinController } from "@/lib/voting/useScrutin";
 import InstallInline from "@/components/pwa/InstallInline";
@@ -11,12 +11,16 @@ import { CREAM, FONT_BODY, FONT_DISPLAY, GREEN, INK, MUTED, YELLOW, lift } from 
 function CopyRow({ url, label, hint }: { url: string; label: string; hint?: string }) {
   const t = useTranslations("Launched");
   const [copied, setCopied] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
   const copy = async () => {
     try {
       await navigator.clipboard?.writeText(url);
       setCopied(true);
+      setTimeout(() => setCopied(false), 1600);
     } catch {
-      /* presse-papiers indisponible : le lien reste sélectionnable */
+      // Repli si le presse-papiers est indisponible : on sélectionne le lien.
+      inputRef.current?.focus();
+      inputRef.current?.select();
     }
   };
   return (
@@ -24,6 +28,7 @@ function CopyRow({ url, label, hint }: { url: string; label: string; hint?: stri
       <div style={{ fontWeight: 700, fontSize: 12, color: MUTED, marginBottom: 7 }}>{label}</div>
       <div style={{ display: "flex", gap: 9, flexWrap: "wrap" }}>
         <input
+          ref={inputRef}
           readOnly
           value={url}
           onFocus={(e) => e.currentTarget.select()}
@@ -42,6 +47,7 @@ function CopyRow({ url, label, hint }: { url: string; label: string; hint?: stri
         />
         <button
           onClick={copy}
+          aria-live="polite"
           className="dc-lift"
           style={{
             fontFamily: FONT_DISPLAY,
@@ -49,8 +55,8 @@ function CopyRow({ url, label, hint }: { url: string; label: string; hint?: stri
             fontSize: 14,
             cursor: "pointer",
             border: `2.5px solid ${INK}`,
-            background: YELLOW,
-            color: INK,
+            background: copied ? GREEN : YELLOW,
+            color: copied ? "#fff" : INK,
             padding: "11px 16px",
             borderRadius: 11,
             ...lift(`3px 3px 0 ${INK}`, `4px 4px 0 ${INK}`),
@@ -67,16 +73,19 @@ function CopyRow({ url, label, hint }: { url: string; label: string; hint?: stri
 function VoterRow({ label, url }: { label: string; url: string }) {
   const t = useTranslations("Launched");
   const [copied, setCopied] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
   const copy = async () => {
     try {
       await navigator.clipboard?.writeText(url);
       setCopied(true);
+      setTimeout(() => setCopied(false), 1600);
     } catch {
-      /* ignore */
+      inputRef.current?.focus();
+      inputRef.current?.select();
     }
   };
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+    <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
       <div
         style={{
           width: 96,
@@ -91,6 +100,7 @@ function VoterRow({ label, url }: { label: string; url: string }) {
         {label}
       </div>
       <input
+        ref={inputRef}
         readOnly
         value={url}
         onFocus={(e) => e.currentTarget.select()}
@@ -109,6 +119,7 @@ function VoterRow({ label, url }: { label: string; url: string }) {
       />
       <button
         onClick={copy}
+        aria-live="polite"
         style={{
           flex: "none",
           fontWeight: 700,

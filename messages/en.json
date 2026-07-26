@@ -178,6 +178,7 @@
     "msgOrgaSent": "Message delivered to the organizer.",
     "msgOrgaError": "Could not send. Please try again.",
     "privateMessagesTitle": "Private messages",
+    "leadsPill": "{count, plural, one {# message} other {# messages}}",
     "privateMessagesOnlyYou": "Only you can see them — never published with the results.",
     "privateMessagesEmpty": "No messages yet. After voting, voters can write to you privately and leave their contact details.",
     "privateMessagesTeaser": "Sign in to attach this poll to your account: voters will then be able to leave you a private message and their contact details.",

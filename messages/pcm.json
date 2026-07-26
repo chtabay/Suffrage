@@ -178,6 +178,7 @@
     "msgOrgaSent": "Message don reach di organizer.",
     "msgOrgaError": "E no send. Abeg try again.",
     "privateMessagesTitle": "Private messages",
+    "leadsPill": "{count, plural, one {# message} other {# messages}}",
     "privateMessagesOnlyYou": "Na only you fit see dem — dem no go show with di results.",
     "privateMessagesEmpty": "No message yet. After dem vote, voters fit send you private message and drop dia contact.",
     "privateMessagesTeaser": "Sign in make dis poll join your account: voters go fit leave you private message and dia contact.",

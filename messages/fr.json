@@ -178,6 +178,7 @@
     "msgOrgaSent": "Message transmis à l'organisateur.",
     "msgOrgaError": "Envoi impossible. Réessayez.",
     "privateMessagesTitle": "Messages privés",
+    "leadsPill": "{count, plural, one {# message} other {# messages}}",
     "privateMessagesOnlyYou": "Visibles de vous seul — jamais publiés avec les résultats.",
     "privateMessagesEmpty": "Aucun message pour l'instant. Après leur vote, les votants peuvent vous écrire en privé et laisser leurs coordonnées.",
     "privateMessagesTeaser": "Connectez-vous pour rattacher ce scrutin à votre compte : les votants pourront alors vous laisser un message privé et leurs coordonnées.",

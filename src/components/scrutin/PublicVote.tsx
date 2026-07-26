@@ -421,6 +421,96 @@ function InviteMoreVoters({ question, url }: { question: string; url: string }) 
   );
 }
 
+// Rend un contact laissé par un votant ACTIONNABLE : lien mailto/tel si on
+// reconnaît un email ou un téléphone, sinon texte ; toujours un bouton copier.
+function contactHref(c: string): string | null {
+  const s = c.trim();
+  if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s)) return `mailto:${s}`;
+  const digits = s.replace(/[^\d+]/g, "");
+  if (digits.replace(/\D/g, "").length >= 7) return `tel:${digits}`;
+  return null;
+}
+
+function ContactRow({ contact }: { contact: string }) {
+  const t = useTranslations("Vote");
+  const [copied, setCopied] = useState(false);
+  const href = contactHref(contact);
+  const copy = async () => {
+    try {
+      await navigator.clipboard?.writeText(contact);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1600);
+    } catch {
+      /* presse-papiers indisponible : le contact reste sélectionnable */
+    }
+  };
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 5, flexWrap: "wrap" }}>
+      <span style={{ fontSize: 13 }}>📇</span>
+      {href ? (
+        <a href={href} style={{ fontWeight: 700, fontSize: 13, color: INK }}>
+          {contact}
+        </a>
+      ) : (
+        <span style={{ fontWeight: 700, fontSize: 13, color: INK }}>{contact}</span>
+      )}
+      <button
+        onClick={copy}
+        aria-live="polite"
+        style={{
+          fontWeight: 700,
+          fontSize: 11.5,
+          cursor: "pointer",
+          border: `2px solid ${INK}`,
+          background: copied ? GREEN : "#fff",
+          color: copied ? "#fff" : INK,
+          padding: "3px 9px",
+          borderRadius: 8,
+        }}
+      >
+        {copied ? "✓" : t("copy")}
+      </button>
+    </div>
+  );
+}
+
+// Bouton « copier le lien » cohérent (reset après 1,6 s, annonce a11y). Le lien
+// maître du scrutin n'en avait aucun, alors que chaque lien votant en a un.
+function LinkCopyBtn({ url }: { url: string }) {
+  const t = useTranslations("Vote");
+  const [copied, setCopied] = useState(false);
+  const copy = async () => {
+    try {
+      await navigator.clipboard?.writeText(url);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1600);
+    } catch {
+      /* presse-papiers indisponible : le champ reste sélectionnable */
+    }
+  };
+  return (
+    <button
+      type="button"
+      onClick={copy}
+      aria-live="polite"
+      className="dc-lift"
+      style={{
+        fontFamily: FONT_DISPLAY,
+        fontWeight: 700,
+        fontSize: 14,
+        cursor: "pointer",
+        border: `2.5px solid ${INK}`,
+        background: copied ? GREEN : CREAM,
+        color: copied ? "#fff" : INK,
+        padding: "11px 16px",
+        borderRadius: 11,
+      }}
+    >
+      {copied ? t("linkCopied") : t("copyLink")}
+    </button>
+  );
+}
+
 // Boîte de réception privée de l'organisateur. Scrutin non rattaché à un compte :
 // simple incitation à se connecter (le dépôt est de toute façon bloqué en base).
 function PrivateMessagesCard({ owned, messages, locale }: { owned: boolean; messages: PollMessage[]; locale: string }) {
@@ -433,7 +523,7 @@ function PrivateMessagesCard({ owned, messages, locale }: { owned: boolean; mess
     );
   }
   return (
-    <div style={{ ...card, marginTop: 16 }}>
+    <div id="leads" style={{ ...card, marginTop: 16, scrollMarginTop: 16 }}>
       <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 16 }}>
         ✉️ {t("privateMessagesTitle")} ({messages.length})
       </div>
@@ -445,7 +535,7 @@ function PrivateMessagesCard({ owned, messages, locale }: { owned: boolean; mess
           {messages.map((m, i) => (
             <div key={i} style={{ borderLeft: `3px solid ${CORAL}`, paddingLeft: 11 }}>
               <div style={{ fontSize: 14, color: SUBINK, lineHeight: 1.45, whiteSpace: "pre-wrap" }}>{m.body}</div>
-              {m.contact && <div style={{ fontWeight: 700, fontSize: 13, color: INK, marginTop: 3 }}>📇 {m.contact}</div>}
+              {m.contact && <ContactRow contact={m.contact} />}
               <div style={{ fontSize: 11.5, color: MUTED, marginTop: 3 }}>{fmtDateTime(m.created_at, locale)}</div>
             </div>
           ))}
@@ -1245,6 +1335,29 @@ export default function PublicVote({
               📣 {t("publishedBadge")}
             </span>
           )}
+          {/* Signal de leads en tête : les messages/coordonnées reçus sont l'action
+              la plus stratégique côté organisateur — on les remonte du bas de page. */}
+          {Boolean(poll.created_by) && privMessages.length > 0 && (
+            <button
+              type="button"
+              onClick={() => document.getElementById("leads")?.scrollIntoView({ behavior: "smooth", block: "start" })}
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 6,
+                cursor: "pointer",
+                background: CORAL,
+                color: "#fff",
+                border: `2px solid ${INK}`,
+                borderRadius: 20,
+                padding: "4px 12px",
+                fontWeight: 800,
+                fontSize: 12,
+              }}
+            >
+              ✉️ {t("leadsPill", { count: privMessages.length })}
+            </button>
+          )}
         </div>
 
         {phase === "proposals" && (
@@ -1301,7 +1414,7 @@ export default function PublicVote({
               onFocus={(e) => e.currentTarget.select()}
               style={{
                 flex: 1,
-                minWidth: 220,
+                minWidth: 200,
                 fontFamily: FONT_DISPLAY,
                 fontSize: 14,
                 fontWeight: 600,
@@ -1312,6 +1425,7 @@ export default function PublicVote({
                 outline: "none",
               }}
             />
+            <LinkCopyBtn url={voteShareUrl} />
             <a
               href={voteShareUrl}
               target="_blank"
