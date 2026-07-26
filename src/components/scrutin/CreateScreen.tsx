@@ -8,6 +8,7 @@ import { SYSTEMS, SYSTEM_ORDER, candColor } from "@/lib/voting/systems";
 import type { CountingMethod, Recipe } from "@/lib/voting/types";
 import type { ScrutinController } from "@/lib/voting/useScrutin";
 import AdvancedSettings from "./AdvancedSettings";
+import AccessModeChips from "./AccessModeChips";
 import AiHelper from "./AiHelper";
 import ClosureLine from "./ClosureLine";
 import PrefillPanel from "./PrefillPanel";
@@ -1098,6 +1099,13 @@ export default function CreateScreen({ ctrl }: { ctrl: ScrutinController }) {
             )}
           </div>
 
+          {/* Choix d'accès TOUJOURS visible (hors affectation, où l'accès est
+              nominatif imposé) — décision structurante sortie du repli. */}
+          {!isAssign && (
+            <div style={{ marginBottom: 20 }}>
+              <AccessModeChips ctrl={ctrl} />
+            </div>
+          )}
           {/* La clôture vit désormais dans le repli des réglages avancés ; en
               affectation ce repli n'existe pas → elle reste visible directement. */}
           {isAssign ? <ClosureLine ctrl={ctrl} /> : <AdvancedSettings ctrl={ctrl} />}

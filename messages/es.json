@@ -325,7 +325,7 @@
   },
   "Advanced": {
     "title": "Ajustes avanzados",
-    "subtitle": "voto verificado · votantes · duración · quórum",
+    "subtitle": "votantes · duración · quórum · publicación",
     "closureResume": "cierra el {date}"
   },
   "Explore": {

@@ -325,7 +325,7 @@
   },
   "Advanced": {
     "title": "Advanced settings",
-    "subtitle": "verified vote · voters · duration · quorum",
+    "subtitle": "voters · duration · quorum · publishing",
     "closureResume": "closes {date}"
   },
   "Explore": {

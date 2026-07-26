@@ -65,7 +65,6 @@ export default function AccessCard({ ctrl }: { ctrl: ScrutinController }) {
   const t = useTranslations("Access");
   const {
     state,
-    setAccess,
     toggleHideResults,
     setPublicListing,
     setProposalsPhase,
@@ -78,58 +77,12 @@ export default function AccessCard({ ctrl }: { ctrl: ScrutinController }) {
   const isGE = state.recipe.suffrage === "indirect";
   const invite = state.access === "invite";
 
-  const chip = (active: boolean, label: string, onClick: () => void) => (
-    <button
-      onClick={onClick}
-      style={{
-        fontFamily: FONT_BODY,
-        fontWeight: 700,
-        fontSize: 13,
-        cursor: "pointer",
-        border: `2px solid ${INK}`,
-        padding: "9px 14px",
-        borderRadius: 9,
-        background: active ? INK : CREAM,
-        color: active ? "#fff" : INK,
-      }}
-    >
-      {label}
-    </button>
-  );
-
   return (
     <div style={cardStyle}>
+      {/* Le choix Vote rapide / vérifié vit désormais TOUJOURS visible au-dessus
+          (AccessModeChips) ; cette carte ne porte plus que le corps électoral et
+          les options liées (résultats cachés, propositions, publication, clôture). */}
       <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 18 }}>{t("title")}</div>
-
-      {/* mode d'accès reframé */}
-      <div style={{ marginTop: 14 }}>
-        <div style={{ fontWeight: 700, fontSize: 13.5, marginBottom: 9 }}>{t("whoCanVote")}</div>
-        <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-          {chip(!invite, `⚡ ${t("quickVote")}`, () => setAccess("open"))}
-          {chip(invite, `🔒 ${t("verifiedVote")}`, () => setAccess("invite"))}
-        </div>
-        <div
-          style={{
-            marginTop: 10,
-            fontSize: 12.5,
-            color: MUTED,
-            lineHeight: 1.45,
-            background: CREAM,
-            border: `2px solid ${INK}`,
-            borderRadius: 10,
-            padding: "9px 12px",
-          }}
-        >
-          {invite
-            ? `🔒 ${t("verifiedHint")}`
-            : `⚡ ${t("quickHint")}`}
-        </div>
-        {isGE && !invite && (
-          <div style={{ marginTop: 8, fontSize: 12.5, color: REDTXT, fontWeight: 600, lineHeight: 1.4 }}>
-            {t("geWarning")}
-          </div>
-        )}
-      </div>
 
       {/* résultats cachés */}
       <div style={{ marginTop: 16 }}>
