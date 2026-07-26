@@ -337,6 +337,8 @@
     "empty": "No public polls yet. Be the first to publish yours!",
     "emptyCta": "Create a poll",
     "openBadge": "Open",
+    "closesOn": "Closes {date}",
+    "publishedOn": "Published {date}",
     "closedBadge": "Closed",
     "ballots": "{count, plural, one {# ballot} other {# ballots}}",
     "options": "{count, plural, one {# option} other {# options}}",

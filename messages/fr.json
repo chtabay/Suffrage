@@ -337,6 +337,8 @@
     "empty": "Aucun scrutin public pour l'instant. Soyez le premier à publier le vôtre !",
     "emptyCta": "Créer un scrutin",
     "openBadge": "En cours",
+    "closesOn": "Ferme le {date}",
+    "publishedOn": "Publié le {date}",
     "closedBadge": "Terminé",
     "ballots": "{count, plural, one {# bulletin} other {# bulletins}}",
     "options": "{count, plural, one {# option} other {# options}}",

@@ -980,6 +980,10 @@ function ProposalsView({
           </div>
         )}
       </div>
+
+      {/* Collecte en accès ouvert : élargir le cercle a le plus de valeur ici
+          (plus de monde = plus de propositions, puis plus de votes). */}
+      {poll.access_mode === "open" && <InviteMoreVoters question={poll.question} url={`${APP_URL}/v/${token}`} />}
     </Shell>
   );
 }

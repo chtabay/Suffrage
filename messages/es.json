@@ -337,6 +337,8 @@
     "empty": "Todavía no hay votaciones públicas. ¡Sé la primera persona en publicar la tuya!",
     "emptyCta": "Crear una votación",
     "openBadge": "En curso",
+    "closesOn": "Cierra el {date}",
+    "publishedOn": "Publicado el {date}",
     "closedBadge": "Terminado",
     "ballots": "{count, plural, one {# papeleta} other {# papeletas}}",
     "options": "{count, plural, one {# opción} other {# opciones}}",

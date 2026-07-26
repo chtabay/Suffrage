@@ -151,7 +151,11 @@ export default async function ExplorerPage({ params }: { params: Promise<{ local
                   <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
                     {intentBadge(cardIntent(p))}
                     {badge(open)}
-                    <span style={{ fontSize: 12, color: MUTED, fontWeight: 600 }}>{fmt.format(new Date(p.published_at))}</span>
+                    <span style={{ fontSize: 12, color: MUTED, fontWeight: 600 }}>
+                      {open && p.closes_at
+                        ? t("closesOn", { date: fmt.format(new Date(p.closes_at)) })
+                        : t("publishedOn", { date: fmt.format(new Date(p.published_at)) })}
+                    </span>
                   </div>
                   <div style={{ fontFamily: display, fontWeight: 800, fontSize: 17, lineHeight: 1.2 }}>{p.question}</div>
                   <div style={{ marginTop: "auto", fontSize: 12.5, color: MUTED, fontWeight: 600 }}>

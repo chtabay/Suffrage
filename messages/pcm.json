@@ -337,6 +337,8 @@
     "empty": "No public poll dey yet. Be di first person to publish your own!",
     "emptyCta": "Create poll",
     "openBadge": "Dey open",
+    "closesOn": "E go close {date}",
+    "publishedOn": "Dem publish {date}",
     "closedBadge": "Don close",
     "ballots": "{count, plural, one {# vote} other {# votes}}",
     "options": "{count, plural, one {# option} other {# options}}",
