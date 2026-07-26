@@ -1171,6 +1171,24 @@ export default function PublicVote({
     };
   }, [token, adminKey, voterToken, refreshOrganizer, loadResults, reloadArgs]);
 
+  // Suivi de participation en direct (organisateur) : rafraîchit tant que le scrutin
+  // est ouvert, en pause si l'onglet est masqué — sinon les chiffres restent figés.
+  useEffect(() => {
+    if (view !== "organizer" || !adminKey) return;
+    const id = setInterval(() => {
+      if (typeof document !== "undefined" && document.hidden) return;
+      getPollByToken(token)
+        .then((fresh) => {
+          if (fresh && pollPhase(fresh) !== "closed") {
+            setPoll(fresh);
+            refreshOrganizer(fresh);
+          }
+        })
+        .catch(() => {});
+    }, 25000);
+    return () => clearInterval(id);
+  }, [view, adminKey, token, refreshOrganizer]);
+
   // ---------- états simples ----------
   if (view === "loading") {
     return (
@@ -1287,6 +1305,8 @@ export default function PublicVote({
     // Publication/dépublication sur le feed /explorer (RPC, rate-limit 5/24 h).
     const togglePublish = async (makePublic: boolean) => {
       if (!adminKey) return;
+      // Publier est peu réversible côté perception (indexable) : on confirme.
+      if (makePublic && typeof window !== "undefined" && !window.confirm(t("publishConfirm"))) return;
       setWorking(true);
       setPubNotice(null);
       try {
@@ -1351,11 +1371,14 @@ export default function PublicVote({
           <span>🔑 {t("youAdminister")}</span>
           {statusPill}
           {poll.visibility === "public" && (
-            <span
+            <Link
+              href="/explorer"
+              title={t("viewOnFeed")}
               style={{
                 display: "inline-flex",
                 alignItems: "center",
                 gap: 6,
+                textDecoration: "none",
                 background: YELLOW,
                 color: INK,
                 border: `2px solid ${INK}`,
@@ -1365,8 +1388,8 @@ export default function PublicVote({
                 fontSize: 12,
               }}
             >
-              📣 {t("publishedBadge")}
-            </span>
+              📣 {t("publishedBadge")} ↗
+            </Link>
           )}
           {/* Signal de leads en tête : les messages/coordonnées reçus sont l'action
               la plus stratégique côté organisateur — on les remonte du bas de page. */}
@@ -1573,6 +1596,10 @@ export default function PublicVote({
           </div>
           {pubNotice && (
             <div style={{ marginTop: 10, fontSize: 12.5, color: REDTXT, fontWeight: 700 }}>{pubNotice}</div>
+          )}
+          {/* Conséquence de la publication annoncée avant l'action (peu réversible). */}
+          {poll.visibility !== "public" && poll.access_mode === "open" && phase !== "proposals" && (
+            <div style={{ marginTop: 8, fontSize: 12, color: MUTED, lineHeight: 1.45 }}>{t("publishDesc")}</div>
           )}
           {poll.hide_results && (
             <div style={{ marginTop: 10, fontSize: 12.5, color: MUTED }}>
