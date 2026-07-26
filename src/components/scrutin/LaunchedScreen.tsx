@@ -3,6 +3,7 @@
 import { useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import type { ScrutinController } from "@/lib/voting/useScrutin";
+import type { AuthController } from "@/lib/auth/useAuth";
 import InstallInline from "@/components/pwa/InstallInline";
 import ShareRow from "./ShareRow";
 import QrCode from "./QrCode";
@@ -138,9 +139,10 @@ function VoterRow({ label, url }: { label: string; url: string }) {
   );
 }
 
-export default function LaunchedScreen({ ctrl }: { ctrl: ScrutinController }) {
+export default function LaunchedScreen({ ctrl, auth }: { ctrl: ScrutinController; auth: AuthController }) {
   const t = useTranslations("Launched");
   const { state, newScrutin, go } = ctrl;
+  const [showQr, setShowQr] = useState(false);
   const voteUrl = state.shareUrl ?? "";
   const adminUrl = state.adminUrl ?? "";
 
@@ -192,9 +194,33 @@ export default function LaunchedScreen({ ctrl }: { ctrl: ScrutinController }) {
 
           <ShareRow question={state.question} url={voteUrl} style={{ marginTop: 12 }} />
 
+          {/* QR replié par défaut : c'était la plus grosse surface du partage — on
+              le garde à un tap, sans occuper tout l'écran. */}
           {state.access === "open" && (
             <div style={{ marginTop: 12 }}>
-              <QrCode url={voteUrl} />
+              <button
+                type="button"
+                onClick={() => setShowQr((v) => !v)}
+                aria-expanded={showQr}
+                style={{
+                  fontFamily: FONT_DISPLAY,
+                  fontWeight: 700,
+                  fontSize: 13,
+                  cursor: "pointer",
+                  border: `2px solid ${INK}`,
+                  background: showQr ? INK : "transparent",
+                  color: showQr ? "#fff" : INK,
+                  padding: "7px 14px",
+                  borderRadius: 20,
+                }}
+              >
+                {showQr ? `📱 ${t("qrHide")}` : `📱 ${t("qrShow")}`}
+              </button>
+              {showQr && (
+                <div style={{ marginTop: 12 }}>
+                  <QrCode url={voteUrl} />
+                </div>
+              )}
             </div>
           )}
 
@@ -220,6 +246,42 @@ export default function LaunchedScreen({ ctrl }: { ctrl: ScrutinController }) {
           >
             {t("savedNotice")}
           </div>
+
+          {/* Proposition de compte APRÈS le lancement : moment d'onboarding naturel.
+              À la connexion, ce scrutin (déjà sauvé localement) est rattaché au compte
+              (claimPolls) → retrouvable partout + réception des messages des votants. */}
+          {!auth.user && (
+            <div
+              style={{
+                marginTop: 12,
+                background: YELLOW,
+                border: `2px solid ${INK}`,
+                borderRadius: 12,
+                padding: "13px 15px",
+              }}
+            >
+              <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 15 }}>👤 {t("accountCtaTitle")}</div>
+              <p style={{ fontSize: 13, color: INK, lineHeight: 1.5, margin: "5px 0 11px" }}>{t("accountCtaSub")}</p>
+              <button
+                onClick={auth.signIn}
+                className="dc-lift"
+                style={{
+                  fontFamily: FONT_DISPLAY,
+                  fontWeight: 700,
+                  fontSize: 14,
+                  cursor: "pointer",
+                  border: `2.5px solid ${INK}`,
+                  background: INK,
+                  color: "#fff",
+                  padding: "10px 16px",
+                  borderRadius: 11,
+                  ...lift(`3px 3px 0 ${INK}`, `4px 4px 0 ${INK}`),
+                }}
+              >
+                {t("accountCtaBtn")}
+              </button>
+            </div>
+          )}
 
           {/* Feed public : confirmation de la publication (mêmes conditions que le launch). */}
           {state.publicListing && state.access === "open" && state.optionKind !== "assign" && (

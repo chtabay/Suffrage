@@ -32,7 +32,7 @@ Duty roster / shifts (assign TIME SLOTS instead of things — combine "assign" w
 ${APP_URL}/new?title=...&assign=serial_dictatorship&dates=2026-07-20T19:00|2026-07-21T19:00|2026-07-22T19:00|2026-07-23T19:00&participants=Alice|Bob&per=2&source=${source}&why=...
 Encode the values properly, put your rationale in "why", and include no sensitive data (emails, IDs…).
 
-Images: DO NOT put them in the link (it makes it long and often breaks). Just tell the user they can add an image per option in the app (🔗 button).
+Per-option links: you can attach ONE link to each option (website, menu, document — and for a PLACE, look up its Google Maps link and suggest it). If you can POST to the API (see below), put them in "media" (one per option, same order; empty string if none). Otherwise don't bloat the /new link: tell the user they can paste each option's link (or an image) in the app (🔗 button).
 
 This /new link works EVERYWHERE, including inside ChatGPT, Claude or Gemini: it's your default output. ONLY if you can actually make HTTP requests (an agent, a GPT with "Actions", MCP — a plain chat cannot) may you instead POST ${APP_URL}/api/poll-drafts with { title, description, options (or dates), media, method, deadline, source, why } and present the returned { draft_url } as a clickable link. When in doubt, give the /new link.`;
 
@@ -40,7 +40,7 @@ This /new link works EVERYWHERE, including inside ChatGPT, Claude or Gemini: it'
       // Cold start (home rail): no topic known yet.
       return `I want to run a group vote with Placet (${APP_URL}), but I haven't defined the topic yet.
 
-Start by asking me, one step at a time: what decision are we settling? what options are possible? who votes and how many people? is there a deadline? are we after a clear winner or a broad consensus? Ask me these questions and wait for my answers — don't guess the topic and don't invent any options, everything must come from me.
+First, tell me in one sentence what Placet lets me do: settle a decision with real voting methods, gauge opinion, find a date, or allocate things/seats. Then ask me ALL your questions AT ONCE (not one by one): what decision to settle? what options are possible? who votes and how many? a deadline? a clear winner or a broad consensus? Then wait for my answers (I can answer in one go) — don't guess the topic and don't invent any options, everything must come from me.
 
 ${proposal}`;
     }
@@ -57,7 +57,7 @@ ${proposal}`;
 Here's what I have so far (to confirm, not final):
 ${startLines}
 
-Before wrapping up, ask me the useful questions to clear up any ambiguity: options to add/merge, who votes, deadline, clear winner or consensus. Wait for my answers, don't fill in for me.
+Remind me in one sentence what Placet lets me do (decide with real methods, survey, find a date, allocate), then ask me ALL AT ONCE the useful questions to clear up any ambiguity: options to add/merge, who votes, deadline, clear winner or consensus. Wait for my answers (in one go), don't fill in for me.
 
 ${proposal}`;
   }
@@ -82,7 +82,7 @@ Turnos / guardias (asignar FRANJAS en lugar de cosas — combina "assign" con "d
 ${APP_URL}/new?title=...&assign=serial_dictatorship&dates=2026-07-20T19:00|2026-07-21T19:00|2026-07-22T19:00|2026-07-23T19:00&participants=Alice|Bob&per=2&source=${source}&why=...
 Codifica correctamente los valores, pon tu justificación en "why" y no incluyas ningún dato sensible (correos, identificadores…).
 
-Imágenes: NO LAS PONGAS en el enlace (lo alarga y a menudo lo rompe). Solo dile al usuario que puede añadir una imagen por opción en la app (botón 🔗).
+Enlaces por opción: puedes asociar UN enlace a cada opción (web, menú, documento — y para un LUGAR, busca su enlace de Google Maps y propónlo). Si puedes hacer POST a la API (ver abajo), ponlos en "media" (uno por opción, en el mismo orden; cadena vacía si no hay). Si no, no recargues el enlace /new: dile al usuario que podrá pegar el enlace (o una imagen) de cada opción en la app (botón 🔗).
 
 Este enlace /new funciona EN TODAS PARTES, incluso dentro de ChatGPT, Claude o Gemini: es tu salida por defecto. SOLO si realmente puedes hacer peticiones HTTP (un agente, un GPT con "Actions", MCP — un simple chat no puede) puedes en su lugar hacer POST a ${APP_URL}/api/poll-drafts con { title, description, options (o dates), media, method, deadline, source, why } y presentar el { draft_url } recibido como enlace clicable. En caso de duda, da el enlace /new.`;
 
@@ -90,7 +90,7 @@ Este enlace /new funciona EN TODAS PARTES, incluso dentro de ChatGPT, Claude o G
       // Arranque en frío (rail de inicio): aún no se conoce el tema.
       return `Quiero organizar una votación de grupo con Placet (${APP_URL}), pero aún no he definido el tema.
 
-Empieza preguntándome, paso a paso: ¿qué decisión queremos zanjar? ¿qué opciones son posibles? ¿quién vota y cuántas personas? ¿hay una fecha límite? ¿buscamos un ganador claro o más bien un consenso amplio? Hazme estas preguntas y espera mis respuestas — no adivines el tema y no inventes ninguna opción, todo debe venir de mí.
+Primero, explícame en una frase qué permite Placet: zanjar una decisión con métodos de voto de verdad, sondear una opinión, encontrar una fecha o repartir cosas/plazas. Luego hazme TODAS tus preguntas DE UNA VEZ (no una a una): ¿qué decisión zanjar? ¿qué opciones son posibles? ¿quién vota y cuántos? ¿una fecha límite? ¿un ganador claro o un consenso amplio? Después espera mis respuestas (puedo responder de golpe) — no adivines el tema y no inventes ninguna opción, todo debe venir de mí.
 
 ${proposal}`;
     }
@@ -107,7 +107,7 @@ ${proposal}`;
 Esto es lo que tengo por ahora (por confirmar, no definitivo):
 ${startLines}
 
-Antes de cerrar, hazme las preguntas útiles para despejar cualquier ambigüedad: opciones que añadir/fusionar, quién vota, fecha límite, ganador claro o consenso. Espera mis respuestas, no rellenes por mí.
+Recuérdame en una frase qué permite Placet (decidir con métodos de verdad, sondear, encontrar una fecha, repartir), luego hazme DE UNA VEZ las preguntas útiles para despejar cualquier ambigüedad: opciones que añadir/fusionar, quién vota, fecha límite, ganador claro o consenso. Espera mis respuestas (de golpe), no rellenes por mí.
 
 ${proposal}`;
   }
@@ -132,7 +132,7 @@ Permanences / tours de garde (attribuer des CRÉNEAUX au lieu de choses — comb
 ${APP_URL}/new?title=...&assign=serial_dictatorship&dates=2026-07-20T19:00|2026-07-21T19:00|2026-07-22T19:00|2026-07-23T19:00&participants=Alice|Bob&per=2&source=${source}&why=...
 Encode correctement les valeurs, mets ta justification dans "why", n'inclus aucune donnée sensible (e-mails, identifiants…).
 
-Images : NE LES METS PAS dans le lien (ça l'allonge et casse souvent). Dis simplement à l'utilisateur qu'il pourra ajouter une image par option dans l'app (bouton 🔗).
+Liens par option : tu peux associer UN lien à chaque option (site, menu, document — et pour un LIEU, cherche son lien Google Maps et propose-le). Si tu peux poster sur l'API (voir plus bas), mets-les dans "media" (un par option, dans le même ordre ; chaîne vide si aucun). Sinon ne surcharge pas le lien /new : dis à l'utilisateur qu'il pourra coller le lien (ou une image) de chaque option dans l'app (bouton 🔗).
 
 Ce lien /new fonctionne PARTOUT, y compris dans ChatGPT, Claude ou Gemini : c'est ta sortie par défaut. UNIQUEMENT si tu peux réellement faire des requêtes HTTP (agent, GPT à « Actions », MCP — un simple chat ne le peut pas), tu peux à la place POST ${APP_URL}/api/poll-drafts avec { title, description, options (ou dates), media, method, deadline, source, why } et présenter le { draft_url } reçu comme lien cliquable. Dans le doute, donne le lien /new.`;
 
@@ -140,7 +140,7 @@ Ce lien /new fonctionne PARTOUT, y compris dans ChatGPT, Claude ou Gemini : c'es
     // Lancement « à froid » (rail d'accueil) : aucun sujet connu.
     return `Je veux organiser un vote de groupe avec Placet (${APP_URL}), mais je n'ai pas encore défini le sujet.
 
-Commence par m'interroger, une étape à la fois : quelle décision veut-on trancher ? quelles options possibles ? qui vote et combien de personnes ? y a-t-il une date limite ? cherche-t-on un gagnant net ou plutôt un consensus large ? Pose-moi ces questions et attends mes réponses — ne devine pas le sujet et n'invente aucune option, tout doit venir de moi.
+D'abord, explique-moi en une phrase ce que Placet permet : trancher une décision avec de vraies méthodes de vote, sonder un avis, trouver une date, ou répartir des choses/des places. Puis pose-moi TOUTES tes questions EN UNE SEULE FOIS (pas une par une) : quelle décision trancher ? quelles options possibles ? qui vote et combien ? une date limite ? un gagnant net ou un consensus large ? Attends ensuite mes réponses (je peux répondre en bloc) — ne devine pas le sujet et n'invente aucune option, tout doit venir de moi.
 
 ${proposal}`;
   }
@@ -158,7 +158,7 @@ ${proposal}`;
 Voici ce que j'ai pour l'instant (à confirmer, pas figé) :
 ${startLines}
 
-Avant de conclure, pose-moi les questions utiles pour lever les ambiguïtés : options à ajouter/fusionner, qui vote, date limite, gagnant net ou consensus. Attends mes réponses, ne complète pas à ma place.
+Rappelle-moi en une phrase ce que Placet permet (décider avec de vraies méthodes, sonder, trouver une date, répartir), puis pose-moi EN UNE SEULE FOIS les questions utiles pour lever les ambiguïtés : options à ajouter/fusionner, qui vote, date limite, gagnant net ou consensus. Attends mes réponses (en bloc), ne complète pas à ma place.
 
 ${proposal}`;
 }

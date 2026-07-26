@@ -34,7 +34,7 @@ export default function ScrutinApp({ draft }: { draft?: ScrutinDraft }) {
       {screen === "home" && <HomeScreen ctrl={ctrl} />}
       {screen === "gallery" && <GalleryScreen ctrl={ctrl} />}
       {screen === "create" && <CreateScreen ctrl={ctrl} />}
-      {screen === "launched" && <LaunchedScreen ctrl={ctrl} />}
+      {screen === "launched" && <LaunchedScreen ctrl={ctrl} auth={auth} />}
       {screen === "mine" && <MesScrutinsScreen ctrl={ctrl} auth={auth} />}
     </div>
   );
