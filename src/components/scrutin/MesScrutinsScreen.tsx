@@ -4,19 +4,21 @@ import { useCallback, useEffect, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import type { AuthController } from "@/lib/auth/useAuth";
 import { getLocalPolls, removeLocalPoll, type LocalPoll } from "@/lib/db/localPolls";
-import { getMyPolls, type PollRow } from "@/lib/db/polls";
+import { getMyPolls, pollPhase, type Phase, type PollRow } from "@/lib/db/polls";
 import { APP_URL } from "@/lib/voting/aiPrompt";
 import type { ScrutinController } from "@/lib/voting/useScrutin";
 import NotifyButton from "@/components/pwa/NotifyButton";
 import BrandSettings from "./BrandSettings";
+import ShareRow from "./ShareRow";
 import { intlLocale } from "@/i18n/locales";
-import { CREAM, FONT_DISPLAY, INK, MUTED, REDTXT, SUBINK } from "./theme";
+import { CREAM, FONT_DISPLAY, GREEN, INK, MUTED, REDTXT, SUBINK, YELLOW } from "./theme";
 
 interface Item {
   token: string;
   question: string;
   createdAt: number;
   secret: string | null;
+  poll: PollRow | null;
 }
 
 export default function MesScrutinsScreen({ ctrl, auth }: { ctrl: ScrutinController; auth: AuthController }) {
@@ -51,12 +53,45 @@ export default function MesScrutinsScreen({ ctrl, auth }: { ctrl: ScrutinControl
     Number.isFinite(ms) ? new Date(ms).toLocaleDateString(intlLocale(locale), { day: "numeric", month: "short", year: "numeric" }) : "";
 
   const localTokens = new Set(locals.map((p) => p.token));
+  // On garde le PollRow cloud accessible par token pour afficher l'état (phase) même
+  // sur une ligne locale qui a aussi été rattachée au compte.
+  const cloudByToken = new Map(cloud.map((c) => [c.token, c]));
   const items: Item[] = [
-    ...locals.map((p) => ({ token: p.token, question: p.question, createdAt: p.createdAt, secret: p.secret })),
+    ...locals.map((p) => ({ token: p.token, question: p.question, createdAt: p.createdAt, secret: p.secret, poll: cloudByToken.get(p.token) ?? null })),
     ...cloud
       .filter((c) => !localTokens.has(c.token))
-      .map((c) => ({ token: c.token, question: c.question, createdAt: Date.parse(c.created_at), secret: null })),
+      .map((c) => ({ token: c.token, question: c.question, createdAt: Date.parse(c.created_at), secret: null, poll: c })),
   ].sort((a, b) => b.createdAt - a.createdAt);
+
+  // Badge d'état (phase) : « gérer » ses scrutins est impossible sans voir lequel est
+  // ouvert / clos / en collecte / programmé.
+  const PHASE_STYLE: Record<Phase, { bg: string; fg: string; key: string }> = {
+    open: { bg: GREEN, fg: "#fff", key: "phaseOpen" },
+    proposals: { bg: YELLOW, fg: INK, key: "phaseProposals" },
+    scheduled: { bg: YELLOW, fg: INK, key: "phaseScheduled" },
+    closed: { bg: INK, fg: "#fff", key: "phaseClosed" },
+  };
+  const phaseBadge = (poll: PollRow) => {
+    const ph = pollPhase(poll);
+    const s = PHASE_STYLE[ph];
+    return (
+      <span
+        style={{
+          display: "inline-flex",
+          alignItems: "center",
+          background: s.bg,
+          color: s.fg,
+          border: `2px solid ${INK}`,
+          borderRadius: 20,
+          padding: "2px 10px",
+          fontWeight: 700,
+          fontSize: 11.5,
+        }}
+      >
+        {t(s.key)}
+      </span>
+    );
+  };
 
   return (
     <div className="pad" style={{ maxWidth: 880, margin: "0 auto", padding: "40px 24px 100px" }}>
@@ -184,9 +219,10 @@ export default function MesScrutinsScreen({ ctrl, auth }: { ctrl: ScrutinControl
                     <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 18, lineHeight: 1.15 }}>
                       {p.question}
                     </div>
-                    <div style={{ fontSize: 12.5, color: MUTED, marginTop: 4 }}>
-                      {fmtDate(p.createdAt)}
-                      {!p.secret && <span style={{ marginLeft: 8 }}>{t("cloudAccount")}</span>}
+                    <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", fontSize: 12.5, color: MUTED, marginTop: 6 }}>
+                      {p.poll && phaseBadge(p.poll)}
+                      <span>{fmtDate(p.createdAt)}</span>
+                      {!p.secret && <span>{t("cloudAccount")}</span>}
                     </div>
                   </div>
                   {p.secret && (
@@ -248,6 +284,14 @@ export default function MesScrutinsScreen({ ctrl, auth }: { ctrl: ScrutinControl
                     </a>
                   )}
                 </div>
+                {/* Relancer la participation depuis « Mes décisions » : partage du lien
+                    de vote nu (jamais le lien admin) tant que le scrutin est ouvert. */}
+                {p.poll && pollPhase(p.poll) !== "closed" && p.poll.access_mode === "open" && (
+                  <div style={{ marginTop: 12 }}>
+                    <div style={{ fontSize: 12, color: MUTED, fontWeight: 700, marginBottom: 7 }}>{t("inviteToVote")}</div>
+                    <ShareRow question={p.question} url={voteUrl} withCopy />
+                  </div>
+                )}
               </div>
             );
           })}
