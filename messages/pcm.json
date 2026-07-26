@@ -563,6 +563,7 @@
     "accountCtaSub": "Create free account: manage your polls anywhere and collect di messages wey voters drop for you.",
     "accountCtaBtn": "Create account / sign in",
     "voterLinksLabel": "🎟️ NAMED LINKS — {count} {count, plural, one {voter} other {voters}} (one per person)",
+    "copyAllVoterLinks": "Copy all di links",
     "openVotePage": "Open di vote page →",
     "myPolls": "My decisions",
     "createAnother": "← Create anoda one"

@@ -139,6 +139,42 @@ function VoterRow({ label, url }: { label: string; url: string }) {
   );
 }
 
+// Distribution en masse : copier les paires « Nom : lien » d'un coup. Copier
+// 10-30 liens un par un décourageait l'envoi complet (participation en berne).
+function CopyAllVoterLinks({ links }: { links: { label: string; url: string }[] }) {
+  const t = useTranslations("Launched");
+  const [copied, setCopied] = useState(false);
+  const copyAll = async () => {
+    const text = links.map((v) => `${v.label}: ${v.url}`).join("\n");
+    try {
+      await navigator.clipboard?.writeText(text);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1600);
+    } catch {
+      /* presse-papiers indisponible */
+    }
+  };
+  return (
+    <button
+      onClick={copyAll}
+      aria-live="polite"
+      style={{
+        fontFamily: FONT_DISPLAY,
+        fontWeight: 700,
+        fontSize: 12,
+        cursor: "pointer",
+        border: `2px solid ${INK}`,
+        background: copied ? GREEN : "#fff",
+        color: copied ? "#fff" : INK,
+        padding: "5px 11px",
+        borderRadius: 9,
+      }}
+    >
+      {copied ? `✓ ${t("copied")}` : `📋 ${t("copyAllVoterLinks")}`}
+    </button>
+  );
+}
+
 export default function LaunchedScreen({ ctrl, auth }: { ctrl: ScrutinController; auth: AuthController }) {
   const t = useTranslations("Launched");
   const { state, newScrutin, go } = ctrl;
@@ -323,8 +359,11 @@ export default function LaunchedScreen({ ctrl, auth }: { ctrl: ScrutinController
 
           {state.voterLinks.length > 0 && (
             <div style={{ marginTop: 18 }}>
-              <div style={{ fontWeight: 700, fontSize: 12, color: MUTED, marginBottom: 7 }}>
-                {t("voterLinksLabel", { count: state.voterLinks.length })}
+              <div style={{ display: "flex", alignItems: "center", gap: 10, justifyContent: "space-between", flexWrap: "wrap", marginBottom: 7 }}>
+                <div style={{ fontWeight: 700, fontSize: 12, color: MUTED }}>
+                  {t("voterLinksLabel", { count: state.voterLinks.length })}
+                </div>
+                <CopyAllVoterLinks links={state.voterLinks} />
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: 8, maxHeight: 280, overflowY: "auto" }}>
                 {state.voterLinks.map((v, i) => (

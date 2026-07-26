@@ -563,6 +563,7 @@
     "accountCtaSub": "Créez un compte gratuit : gérez vos scrutins partout et recevez les messages laissés par les votants.",
     "accountCtaBtn": "Créer un compte / se connecter",
     "voterLinksLabel": "🎟️ LIENS NOMINATIFS — {count} {count, plural, one {votant} other {votants}} (un par personne)",
+    "copyAllVoterLinks": "Copier tous les liens",
     "openVotePage": "Ouvrir la page de vote →",
     "myPolls": "Mes décisions",
     "createAnother": "← Créer un autre"

@@ -563,6 +563,7 @@
     "accountCtaSub": "Crea una cuenta gratis: gestiona tus votaciones en cualquier lugar y recibe los mensajes que dejan los votantes.",
     "accountCtaBtn": "Crear una cuenta / iniciar sesión",
     "voterLinksLabel": "🎟️ ENLACES NOMINATIVOS — {count} {count, plural, one {votante} other {votantes}} (uno por persona)",
+    "copyAllVoterLinks": "Copiar todos los enlaces",
     "openVotePage": "Abrir la página de voto →",
     "myPolls": "Mis decisiones",
     "createAnother": "← Crear otra"

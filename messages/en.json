@@ -563,6 +563,7 @@
     "accountCtaSub": "Create a free account: manage your polls anywhere and receive the messages voters leave you.",
     "accountCtaBtn": "Create an account / sign in",
     "voterLinksLabel": "🎟️ NAMED LINKS — {count} {count, plural, one {voter} other {voters}} (one per person)",
+    "copyAllVoterLinks": "Copy all links",
     "openVotePage": "Open the vote page →",
     "myPolls": "My decisions",
     "createAnother": "← Create another"
