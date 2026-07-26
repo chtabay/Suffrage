@@ -204,6 +204,8 @@
     "poweredBy": "powered by",
     "resultBallots": "{count, plural, one {# ballot} other {# ballots}}",
     "resultWinner": "🏆 WINNER",
+    "resultLeading": "🥇 LEADING",
+    "resultProvisional": "Provisional result — the vote is still open",
     "surveyBanner": "📊 Opinion panorama",
     "meritProfileLabel": "Opinion breakdown",
     "decisionTakenTitle": "Decision made",

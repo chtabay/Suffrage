@@ -116,7 +116,11 @@ export default function ResultCard({ result, question, ballotCount, footer, cale
               {result.winnerIcon}
             </div>
             <div>
-              <div style={{ fontSize: 13, fontWeight: 700, color: "rgba(255,255,255,0.92)" }}>{t("resultWinner")}</div>
+              {/* Tant que le vote n'est pas clos, on ne PROCLAME pas un vainqueur :
+                  on affiche la tête PROVISOIRE (le scrutin est encore ouvert). */}
+              <div style={{ fontSize: 13, fontWeight: 700, color: "rgba(255,255,255,0.92)" }}>
+                {decided ? t("resultWinner") : t("resultLeading")}
+              </div>
               <div
                 className="winner"
                 style={{
@@ -130,6 +134,11 @@ export default function ResultCard({ result, question, ballotCount, footer, cale
               >
                 {result.winnerName}
               </div>
+              {!decided && (
+                <div style={{ fontSize: 12, fontWeight: 600, color: "rgba(255,255,255,0.88)", marginTop: 5 }}>
+                  {t("resultProvisional")}
+                </div>
+              )}
             </div>
           </div>
         )}

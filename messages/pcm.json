@@ -204,6 +204,8 @@
     "poweredBy": "powered by",
     "resultBallots": "{count, plural, one {# vote} other {# votes}}",
     "resultWinner": "🏆 WINNER",
+    "resultLeading": "🥇 DEY LEAD",
+    "resultProvisional": "Provisional result — di vote still dey open",
     "surveyBanner": "📊 Opinion panorama",
     "meritProfileLabel": "How di opinions spread",
     "decisionTakenTitle": "Decision don land",

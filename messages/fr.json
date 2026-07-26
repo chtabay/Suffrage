@@ -204,6 +204,8 @@
     "poweredBy": "propulsé par",
     "resultBallots": "{count, plural, one {# bulletin} other {# bulletins}}",
     "resultWinner": "🏆 VAINQUEUR",
+    "resultLeading": "🥇 EN TÊTE",
+    "resultProvisional": "Résultat provisoire — le vote est encore ouvert",
     "surveyBanner": "📊 Panorama des avis",
     "meritProfileLabel": "Répartition des avis",
     "decisionTakenTitle": "Décision prise",

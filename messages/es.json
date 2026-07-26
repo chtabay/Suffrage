@@ -204,6 +204,8 @@
     "poweredBy": "con la tecnología de",
     "resultBallots": "{count, plural, one {# papeleta} other {# papeletas}}",
     "resultWinner": "🏆 GANADOR",
+    "resultLeading": "🥇 EN CABEZA",
+    "resultProvisional": "Resultado provisional — la votación sigue abierta",
     "surveyBanner": "📊 Panorama de opiniones",
     "meritProfileLabel": "Distribución de opiniones",
     "decisionTakenTitle": "Decisión tomada",

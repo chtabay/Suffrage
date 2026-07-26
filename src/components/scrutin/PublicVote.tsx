@@ -1323,6 +1323,12 @@ export default function PublicVote({
   // doublon → on ne le montre QUE si cette bande n'est pas là (sondage, sans
   // vainqueur, ou vote encore ouvert).
   const decisionAnnounced = phase === "closed" && !isSurvey && Boolean(result?.hasWinner);
+  // On ne propose de PARTAGER LE RÉSULTAT que quand il a du sens : scrutin clos
+  // (résultat final) ou sondage (panorama). Tant qu'un vote de décision est OUVERT,
+  // le résultat est provisoire → pas de bouton « partager le résultat » (et le
+  // partage utile à ce stade, c'est amener des votants). Et jamais en doublon de la
+  // bande « Annoncer » de la carte (decisionAnnounced).
+  const showResultShare = !decisionAnnounced && (phase === "closed" || isSurvey);
   const statusPill = (
     <span
       style={{
@@ -1432,7 +1438,7 @@ export default function PublicVote({
           <>
             {poll.quorum != null && <QuorumBanner quorum={poll.quorum} count={ballotCount} />}
             <ResultCard result={result} question={poll.question} ballotCount={ballotCount} calendarSlot={winnerSlot} calendarUrl={voteShareUrl} calendarDuration={poll.slot_minutes ?? undefined} survey={isSurvey} decided={phase === "closed"} />
-            {!decisionAnnounced && (
+            {showResultShare && (
               <ResultShare
                 question={poll.question}
                 result={result}
@@ -1946,7 +1952,7 @@ export default function PublicVote({
           <>
             {poll.quorum != null && <QuorumBanner quorum={poll.quorum} count={ballotCount} />}
             <ResultCard result={result} question={poll.question} ballotCount={ballotCount} calendarSlot={winnerSlot} calendarUrl={voteShareUrl} calendarDuration={poll.slot_minutes ?? undefined} survey={isSurvey} decided={phase === "closed"} />
-            {!decisionAnnounced && (
+            {showResultShare && (
               <ShareFold label={t("shareFoldResult")}>
                 <ResultShare
                   question={poll.question}
@@ -2008,7 +2014,7 @@ export default function PublicVote({
   if (view === "results" && result) {
     const footer = (
       <>
-        {!decisionAnnounced && (
+        {showResultShare && (
           <ShareFold label={t("shareFoldResult")}>
             <ResultShare
               question={poll.question}
