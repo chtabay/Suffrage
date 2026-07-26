@@ -264,6 +264,7 @@
     "youAdminister": "Tú administras esta votación.",
     "linkLabelInvite": "ENLACE DE LA VOTACIÓN (los votantes usan su enlace personal)",
     "linkLabelOpen": "ENLACE DE VOTO PARA COMPARTIR",
+    "shareResultsLabel": "COMPARTIR LOS RESULTADOS (ENLACE + QR)",
     "open": "Abrir →",
     "refresh": "Actualizar",
     "closeVote": "Cerrar la votación",

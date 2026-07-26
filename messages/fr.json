@@ -264,6 +264,7 @@
     "youAdminister": "Vous administrez ce scrutin.",
     "linkLabelInvite": "LIEN DU SCRUTIN (les votants utilisent leur lien nominatif)",
     "linkLabelOpen": "LIEN DE VOTE À PARTAGER",
+    "shareResultsLabel": "PARTAGER LES RÉSULTATS (LIEN + QR)",
     "open": "Ouvrir →",
     "refresh": "Rafraîchir",
     "closeVote": "Clôturer le vote",

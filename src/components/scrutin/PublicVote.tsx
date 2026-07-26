@@ -1318,6 +1318,11 @@ export default function PublicVote({
     result && phase === "closed" && !isSurvey && result.hasWinner && result.bars[0]
       ? poll.options[result.bars[0].idx]?.at
       : undefined;
+  // La décision prise est déjà ANNONÇABLE/COPIABLE dans la carte de résultat
+  // (bande « Et maintenant ? »). Dans ce cas, le bloc ResultShare séparé fait
+  // doublon → on ne le montre QUE si cette bande n'est pas là (sondage, sans
+  // vainqueur, ou vote encore ouvert).
+  const decisionAnnounced = phase === "closed" && !isSurvey && Boolean(result?.hasWinner);
   const statusPill = (
     <span
       style={{
@@ -1410,6 +1415,41 @@ export default function PublicVote({
         setWorking(false);
       }
     };
+    // Bloc résultat extrait : on le rend EN TÊTE quand le scrutin est clos (la
+    // décision s'impose), sinon à sa place habituelle sous la carte de gestion.
+    const orgResult = (
+      <div style={{ marginTop: 16 }}>
+        {aDef ? (
+          phase === "closed" && assignRows.length ? (
+            <>
+              <AssignResult poll={poll} rows={assignRows} />
+              <CommentsFeed comments={comments} />
+            </>
+          ) : (
+            <div style={{ ...card, color: MUTED, fontSize: 15 }}>{ta("resultsAtClose")}</div>
+          )
+        ) : result ? (
+          <>
+            {poll.quorum != null && <QuorumBanner quorum={poll.quorum} count={ballotCount} />}
+            <ResultCard result={result} question={poll.question} ballotCount={ballotCount} calendarSlot={winnerSlot} calendarUrl={voteShareUrl} calendarDuration={poll.slot_minutes ?? undefined} survey={isSurvey} decided={phase === "closed"} />
+            {!decisionAnnounced && (
+              <ResultShare
+                question={poll.question}
+                result={result}
+                ballotCount={ballotCount}
+                optionsCount={poll.options.length}
+                url={voteShareUrl}
+                survey={isSurvey}
+              />
+            )}
+            <CommentsFeed comments={comments} />
+            <OfficialRecordCta token={token} />
+          </>
+        ) : (
+          <div style={{ ...card, color: MUTED, fontSize: 15 }}>{t("noBallotsYet")}</div>
+        )}
+      </div>
+    );
     return (
       <Shell brand={brand}>
         <div
@@ -1519,9 +1559,12 @@ export default function PublicVote({
           </div>
         )}
 
+        {/* Scrutin clos : la décision s'impose EN TÊTE, avant la gestion/partage. */}
+        {phase === "closed" && orgResult}
+
         <div style={{ ...card, marginTop: 16 }}>
           <div style={{ fontWeight: 700, fontSize: 12, color: MUTED, marginBottom: 7 }}>
-            {poll.access_mode === "invite" ? t("linkLabelInvite") : t("linkLabelOpen")}
+            {phase === "closed" ? t("shareResultsLabel") : poll.access_mode === "invite" ? t("linkLabelInvite") : t("linkLabelOpen")}
           </div>
           <div style={{ display: "flex", gap: 9, flexWrap: "wrap" }}>
             <input
@@ -1750,35 +1793,9 @@ export default function PublicVote({
           </div>
         ) : (
           <>
-            <div style={{ marginTop: 16 }}>
-              {aDef ? (
-                phase === "closed" && assignRows.length ? (
-                  <>
-                    <AssignResult poll={poll} rows={assignRows} />
-                    <CommentsFeed comments={comments} />
-                  </>
-                ) : (
-                  <div style={{ ...card, color: MUTED, fontSize: 15 }}>{ta("resultsAtClose")}</div>
-                )
-              ) : result ? (
-                <>
-                  {poll.quorum != null && <QuorumBanner quorum={poll.quorum} count={ballotCount} />}
-                  <ResultCard result={result} question={poll.question} ballotCount={ballotCount} calendarSlot={winnerSlot} calendarUrl={voteShareUrl} calendarDuration={poll.slot_minutes ?? undefined} survey={isSurvey} decided={phase === "closed"} />
-                  <ResultShare
-                    question={poll.question}
-                    result={result}
-                    ballotCount={ballotCount}
-                    optionsCount={poll.options.length}
-                    url={voteShareUrl}
-                    survey={isSurvey}
-                  />
-                  <CommentsFeed comments={comments} />
-                  <OfficialRecordCta token={token} />
-                </>
-              ) : (
-                <div style={{ ...card, color: MUTED, fontSize: 15 }}>{t("noBallotsYet")}</div>
-              )}
-            </div>
+            {/* Ouvert/programmé : le résultat reste à sa place, sous la gestion.
+                Clos : il a déjà été rendu en tête (orgResult), on ne le répète pas. */}
+            {phase !== "closed" && orgResult}
             {/* Le débat : lecture complète pour l'organisateur, dépôt tant que c'est ouvert. */}
             {!aDef && (
               <ArgumentsPanel
@@ -1929,16 +1946,18 @@ export default function PublicVote({
           <>
             {poll.quorum != null && <QuorumBanner quorum={poll.quorum} count={ballotCount} />}
             <ResultCard result={result} question={poll.question} ballotCount={ballotCount} calendarSlot={winnerSlot} calendarUrl={voteShareUrl} calendarDuration={poll.slot_minutes ?? undefined} survey={isSurvey} decided={phase === "closed"} />
-            <ShareFold label={t("shareFoldResult")}>
-              <ResultShare
-                question={poll.question}
-                result={result}
-                ballotCount={ballotCount}
-                optionsCount={poll.options.length}
-                url={voteShareUrl}
-                survey={isSurvey}
-              />
-            </ShareFold>
+            {!decisionAnnounced && (
+              <ShareFold label={t("shareFoldResult")}>
+                <ResultShare
+                  question={poll.question}
+                  result={result}
+                  ballotCount={ballotCount}
+                  optionsCount={poll.options.length}
+                  url={voteShareUrl}
+                  survey={isSurvey}
+                />
+              </ShareFold>
+            )}
             <CommentsFeed comments={comments} />
             <OfficialRecordCta token={token} />
           </>
@@ -1989,16 +2008,18 @@ export default function PublicVote({
   if (view === "results" && result) {
     const footer = (
       <>
-        <ShareFold label={t("shareFoldResult")}>
-          <ResultShare
-            question={poll.question}
-            result={result}
-            ballotCount={ballotCount}
-            optionsCount={poll.options.length}
-            url={voteShareUrl}
-            survey={isSurvey}
-          />
-        </ShareFold>
+        {!decisionAnnounced && (
+          <ShareFold label={t("shareFoldResult")}>
+            <ResultShare
+              question={poll.question}
+              result={result}
+              ballotCount={ballotCount}
+              optionsCount={poll.options.length}
+              url={voteShareUrl}
+              survey={isSurvey}
+            />
+          </ShareFold>
+        )}
         <Link
           href="/"
           style={{

@@ -264,6 +264,7 @@
     "youAdminister": "You administer this poll.",
     "linkLabelInvite": "POLL LINK (voters use their personal link)",
     "linkLabelOpen": "VOTE LINK TO SHARE",
+    "shareResultsLabel": "SHARE THE RESULTS (LINK + QR)",
     "open": "Open →",
     "refresh": "Refresh",
     "closeVote": "Close the vote",
