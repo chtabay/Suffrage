@@ -61,6 +61,8 @@ export interface Option {
   url?: string;
   /** Pour un vote « dates » : créneau date/heure (valeur datetime-local). */
   at?: string;
+  /** Justification courte d'une option proposée par un votant (phase de collecte). */
+  note?: string;
 }
 
 /** Un bulletin normalisé : classement complet + mentions + circonscription. */

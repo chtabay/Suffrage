@@ -354,12 +354,20 @@ export async function getVoterContext(voterToken: string): Promise<VoterContext 
  * Réservé aux scrutins en mode invitation et en statut 'proposals' (jamais public).
  * Renvoie 'ok' | 'invalid' | 'notcollecting' | 'full' | 'empty' | 'dup'.
  */
-export async function addProposal(voterToken: string, name: string, icon?: string): Promise<string> {
+export async function addProposal(
+  voterToken: string,
+  name: string,
+  icon?: string,
+  url?: string,
+  note?: string,
+): Promise<string> {
   const supabase = createClient();
   const { data, error } = await supabase.rpc("add_proposal", {
     p_voter_token: voterToken,
     p_name: name,
     p_icon: icon?.trim() || null,
+    p_url: url?.trim() || null,
+    p_note: note?.trim() || null,
   });
   if (error) throw error;
   return data as string;
@@ -370,12 +378,20 @@ export async function addProposal(voterToken: string, name: string, icon?: strin
  * ajoute une option. Autorisé seulement si accès ouvert + status 'proposals' +
  * visibilité privée. Renvoie 'ok' | 'invalid' | 'notcollecting' | 'full' | 'empty' | 'dup'.
  */
-export async function addProposalOpen(pollToken: string, name: string, icon?: string): Promise<string> {
+export async function addProposalOpen(
+  pollToken: string,
+  name: string,
+  icon?: string,
+  url?: string,
+  note?: string,
+): Promise<string> {
   const supabase = createClient();
   const { data, error } = await supabase.rpc("add_proposal_open", {
     p_poll_token: pollToken,
     p_name: name,
     p_icon: icon?.trim() || null,
+    p_url: url?.trim() || null,
+    p_note: note?.trim() || null,
   });
   if (error) throw error;
   return data as string;

@@ -416,7 +416,7 @@ function InviteMoreVoters({ question, url }: { question: string; url: string }) 
     <div style={{ ...card, marginTop: 16, background: "#fffaf0" }}>
       <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 15 }}>📣 {t("inviteVotersTitle")}</div>
       <p style={{ color: MUTED, fontSize: 13, lineHeight: 1.5, margin: "5px 0 12px" }}>{t("inviteVotersSub")}</p>
-      <ShareRow question={question} url={url} withCopy />
+      <ShareRow question={question} url={url} withCopy iconOnly />
     </div>
   );
 }
@@ -803,7 +803,9 @@ function QuorumBanner({ quorum, count }: { quorum: number; count: number }) {
   );
 }
 
-const PROPOSAL_ICONS = ["💡", "✅", "🔥", "⭐", "🎯", "🌱", "🚀", "🎨"];
+// Suggestions rapides ; le champ emoji libre permet en plus N'IMPORTE quel emoji
+// (clavier emoji de l'OS) — le choix n'est plus limité à cette liste.
+const PROPOSAL_ICONS = ["💡", "✅", "🔥", "⭐", "🎯", "🌱", "🚀", "🎨", "💬", "📌", "❤️", "👍", "📍", "🍕", "🎉", "⚡", "🌍", "🏆"];
 
 /**
  * Vue votant pendant la phase de COLLECTE : le votant propose des options (il ne
@@ -828,6 +830,8 @@ function ProposalsView({
   const [opts, setOpts] = useState<Option[]>(poll.options);
   const [name, setName] = useState("");
   const [icon, setIcon] = useState(PROPOSAL_ICONS[0]);
+  const [url, setUrl] = useState("");
+  const [note, setNote] = useState("");
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
   const [ended, setEnded] = useState(false);
@@ -839,9 +843,13 @@ function ProposalsView({
     setNotice(null);
     try {
       // Vérifié : jeton nominatif. Rapide : par le lien du scrutin (accès ouvert).
-      const r = voterToken ? await addProposal(voterToken, clean, icon) : await addProposalOpen(token, clean, icon);
+      const r = voterToken
+        ? await addProposal(voterToken, clean, icon, url, note)
+        : await addProposalOpen(token, clean, icon, url, note);
       if (r === "ok") {
         setName("");
+        setUrl("");
+        setNote("");
         setNotice(t("proposalAdded"));
         const fresh = await getPollByToken(token).catch(() => null);
         if (fresh) setOpts(fresh.options);
@@ -908,25 +916,47 @@ function ProposalsView({
           </div>
         ) : (
           <div style={{ marginTop: 14 }}>
-            <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 10 }}>
-              {PROPOSAL_ICONS.map((e) => (
-                <button
-                  key={e}
-                  onClick={() => setIcon(e)}
-                  aria-label={e}
-                  style={{
-                    width: 40,
-                    height: 40,
-                    fontSize: 20,
-                    cursor: "pointer",
-                    borderRadius: 10,
-                    border: `2px solid ${INK}`,
-                    background: icon === e ? YELLOW : "#fff",
-                  }}
-                >
-                  {e}
-                </button>
-              ))}
+            {/* Emoji : champ LIBRE (n'importe quel emoji via le clavier de l'OS) +
+                suggestions rapides. Le choix n'est plus limité. */}
+            <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap", marginBottom: 10 }}>
+              <input
+                value={icon}
+                onChange={(e) => setIcon(e.target.value)}
+                maxLength={8}
+                aria-label={t("proposalEmojiLabel")}
+                title={t("proposalEmojiLabel")}
+                style={{
+                  width: 54,
+                  height: 44,
+                  flex: "none",
+                  textAlign: "center",
+                  fontSize: 22,
+                  border: `2px solid ${INK}`,
+                  borderRadius: 10,
+                  background: "#fff",
+                  outline: "none",
+                }}
+              />
+              <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                {PROPOSAL_ICONS.map((e) => (
+                  <button
+                    key={e}
+                    onClick={() => setIcon(e)}
+                    aria-label={e}
+                    style={{
+                      width: 36,
+                      height: 36,
+                      fontSize: 18,
+                      cursor: "pointer",
+                      borderRadius: 9,
+                      border: `2px solid ${INK}`,
+                      background: icon === e ? YELLOW : "#fff",
+                    }}
+                  >
+                    {e}
+                  </button>
+                ))}
+              </div>
             </div>
             <div style={{ display: "flex", gap: 9, flexWrap: "wrap" }}>
               <input
@@ -971,6 +1001,24 @@ function ProposalsView({
                 ＋ {t("proposalAdd")}
               </button>
             </div>
+            {/* Étayer la proposition : lien + commentaire, facultatifs. */}
+            <input
+              value={url}
+              onChange={(e) => setUrl(e.target.value)}
+              maxLength={500}
+              placeholder={t("proposalUrlPlaceholder")}
+              style={{ width: "100%", boxSizing: "border-box", marginTop: 9, fontFamily: FONT_BODY, fontSize: 14, fontWeight: 500, padding: "10px 12px", border: `2px solid ${INK}`, borderRadius: 10, background: "#fff", outline: "none" }}
+            />
+            <input
+              value={note}
+              onChange={(e) => setNote(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") submit();
+              }}
+              maxLength={280}
+              placeholder={t("proposalNotePlaceholder")}
+              style={{ width: "100%", boxSizing: "border-box", marginTop: 9, fontFamily: FONT_BODY, fontSize: 14, fontWeight: 500, padding: "10px 12px", border: `2px solid ${INK}`, borderRadius: 10, background: "#fff", outline: "none" }}
+            />
             {notice && (
               <div style={{ marginTop: 10, fontSize: 13, fontWeight: 700, color: SUBINK }}>{notice}</div>
             )}
@@ -992,18 +1040,30 @@ function ProposalsView({
                 key={i}
                 style={{
                   display: "flex",
-                  alignItems: "center",
+                  alignItems: "flex-start",
                   gap: 10,
                   border: `2px solid ${INK}`,
                   borderRadius: 10,
                   background: CREAM,
                   padding: "9px 12px",
-                  fontWeight: 600,
                   fontSize: 14,
                 }}
               >
-                <span style={{ fontSize: 18 }}>{o.icon}</span>
-                <span>{o.name}</span>
+                <span style={{ fontSize: 18, flex: "none" }}>{o.icon}</span>
+                <div style={{ minWidth: 0 }}>
+                  <div style={{ fontWeight: 600 }}>{o.name}</div>
+                  {o.note && <div style={{ fontSize: 12.5, color: SUBINK, marginTop: 2, lineHeight: 1.4 }}>{o.note}</div>}
+                  {o.url && /^https?:\/\//i.test(o.url) && (
+                    <a
+                      href={o.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{ display: "inline-block", marginTop: 4, fontSize: 12, fontWeight: 700, color: INK, textDecoration: "underline" }}
+                    >
+                      🔗 {t("proposalLinkLabel")}
+                    </a>
+                  )}
+                </div>
               </div>
             ))}
           </div>
@@ -1507,7 +1567,7 @@ export default function PublicVote({
             </div>
           )}
           {poll.access_mode === "open" && (
-            <ShareRow question={poll.question} url={voteShareUrl} style={{ marginTop: 12 }} />
+            <ShareRow question={poll.question} url={voteShareUrl} iconOnly style={{ marginTop: 12 }} />
           )}
           <div style={{ display: "flex", gap: 11, marginTop: 14, flexWrap: "wrap", alignItems: "center" }}>
             <button
@@ -1643,18 +1703,25 @@ export default function PublicVote({
                     key={i}
                     style={{
                       display: "flex",
-                      alignItems: "center",
+                      alignItems: "flex-start",
                       gap: 10,
                       border: `2px solid ${INK}`,
                       borderRadius: 10,
                       background: CREAM,
                       padding: "9px 12px",
-                      fontWeight: 600,
                       fontSize: 14,
                     }}
                   >
-                    <span style={{ fontSize: 18 }}>{o.icon}</span>
-                    <span style={{ flex: 1, minWidth: 0 }}>{o.name}</span>
+                    <span style={{ fontSize: 18, flex: "none" }}>{o.icon}</span>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontWeight: 600 }}>{o.name}</div>
+                      {o.note && <div style={{ fontSize: 12.5, color: SUBINK, marginTop: 2, lineHeight: 1.4 }}>{o.note}</div>}
+                      {o.url && /^https?:\/\//i.test(o.url) && (
+                        <a href={o.url} target="_blank" rel="noopener noreferrer" style={{ display: "inline-block", marginTop: 4, fontSize: 12, fontWeight: 700, color: INK, textDecoration: "underline" }}>
+                          🔗 {t("proposalLinkLabel")}
+                        </a>
+                      )}
+                    </div>
                     <button
                       onClick={() => removeOpt(i)}
                       disabled={working}
@@ -2328,7 +2395,7 @@ export default function PublicVote({
       </div>
       {poll.access_mode === "open" && (
         <ShareFold label={t("shareFold")}>
-          <ShareRow question={poll.question} url={voteShareUrl} withCopy style={{ justifyContent: "center" }} />
+          <ShareRow question={poll.question} url={voteShareUrl} withCopy iconOnly style={{ justifyContent: "center" }} />
         </ShareFold>
       )}
       {showReport && <ReportFold token={token} />}

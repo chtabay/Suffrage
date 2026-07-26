@@ -245,7 +245,8 @@ export default function CreateScreen({ ctrl }: { ctrl: ScrutinController }) {
   const locale = useLocale();
   // Exemples évocateurs montrés en placeholder (pas des valeurs à supprimer).
   const optionPlaceholders = t.raw("optionPlaceholders") as string[];
-  const { state, selectSystemRecipe, setRecipe, setQuestion, setDescription, setOptionName, setOptionUrl, setOptionIcon, removeOption, addOption, setOptionKind, setSlots, setSlotMinutes, setAssignMethod, setAssignSideB, setAssignSlots, setAssignPer, setSurvey, setVoterNames, launch } = ctrl;
+  const { state, selectSystemRecipe, setRecipe, setQuestion, setDescription, setOptionName, setOptionUrl, setOptionIcon, removeOption, addOption, setOptionKind, setSlots, setSlotMinutes, setAssignMethod, setAssignSideB, setAssignSlots, setAssignPer, setSurvey, setProposalsPhase, setVoterNames, launch } = ctrl;
+  const tac = useTranslations("Access");
   const [urlRows, setUrlRows] = useState<Record<number, boolean>>({});
   const [emojiRow, setEmojiRow] = useState<number | null>(null);
   const [methodOpen, setMethodOpen] = useState(false);
@@ -748,6 +749,55 @@ export default function CreateScreen({ ctrl }: { ctrl: ScrutinController }) {
               >
                 {t("addProposal")}
               </button>
+            )}
+
+            {/* Phase de propositions : remontée ICI (visible d'emblée) plutôt que
+                cachée dans les réglages avancés. Sur un vote à propositions, hors
+                grands électeurs. Le vote reste privé pendant la collecte. */}
+            {state.optionKind === "text" && state.recipe.suffrage !== "indirect" && (
+              <div style={{ marginTop: 14 }}>
+                <button
+                  onClick={() => setProposalsPhase(!state.proposalsPhase)}
+                  role="switch"
+                  aria-checked={state.proposalsPhase}
+                  style={{
+                    width: "100%",
+                    textAlign: "left",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 10,
+                    cursor: "pointer",
+                    border: `2px solid ${INK}`,
+                    borderRadius: 10,
+                    background: state.proposalsPhase ? INK : CREAM,
+                    color: state.proposalsPhase ? "#fff" : INK,
+                    padding: "10px 13px",
+                    fontWeight: 700,
+                    fontSize: 13.5,
+                    fontFamily: FONT_BODY,
+                  }}
+                >
+                  <span
+                    style={{
+                      width: 20,
+                      height: 20,
+                      flex: "none",
+                      borderRadius: 6,
+                      border: `2px solid ${state.proposalsPhase ? "#fff" : INK}`,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      fontSize: 13,
+                    }}
+                  >
+                    {state.proposalsPhase ? "✓" : ""}
+                  </span>
+                  💡 {tac("proposalsLabel")}
+                </button>
+                {state.proposalsPhase && (
+                  <div style={{ marginTop: 7, fontSize: 12.5, color: MUTED, lineHeight: 1.45 }}>{tac("proposalsHint")}</div>
+                )}
+              </div>
             )}
             {/* Type de vote & objectif : divulgation progressive, SOUS les
                 propositions. La ligne-résumé garde le réglage lisible et

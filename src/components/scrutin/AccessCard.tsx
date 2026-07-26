@@ -70,7 +70,6 @@ export default function AccessCard({ ctrl }: { ctrl: ScrutinController }) {
     state,
     toggleHideResults,
     setPublicListing,
-    setProposalsPhase,
     setVoterNames,
     setDistrictField,
     addDistrict,
@@ -92,24 +91,9 @@ export default function AccessCard({ ctrl }: { ctrl: ScrutinController }) {
         <Toggle on={state.hideResults} label={t("hideResults")} onClick={toggleHideResults} />
       </div>
 
-      {/* phase de propositions : les votants ajoutent des options avant le vote.
-          Disponible sur tout vote à propositions (rapide OU vérifié), hors dates,
-          affectation et grands électeurs. Le scrutin reste privé pendant la collecte
-          et ne peut être publié qu'une fois la liste figée. */}
-      {state.optionKind === "text" && !isGE && (
-        <div style={{ marginTop: 10 }}>
-          <Toggle
-            on={state.proposalsPhase}
-            label={t("proposalsLabel")}
-            onClick={() => setProposalsPhase(!state.proposalsPhase)}
-          />
-          {state.proposalsPhase && (
-            <div style={{ marginTop: 7, fontSize: 12.5, color: MUTED, lineHeight: 1.45 }}>
-              {t("proposalsHint")}
-            </div>
-          )}
-        </div>
-      )}
+      {/* NB : le toggle « phase de propositions » a été remonté dans la section
+          des options (CreateScreen) pour être visible d'emblée. Ici on ne garde
+          que sa CONSÉQUENCE sur la publication (ci-dessous). */}
 
       {/* feed public : uniquement en vote ouvert. Impossible tant qu'on collecte
           (liste non figée) → on l'annonce au lieu du toggle. */}

@@ -228,7 +228,7 @@ export default function LaunchedScreen({ ctrl, auth }: { ctrl: ScrutinController
 
           <CopyRow url={voteUrl} label={t("voteLinkLabel")} />
 
-          <ShareRow question={state.question} url={voteUrl} style={{ marginTop: 12 }} />
+          <ShareRow question={state.question} url={voteUrl} iconOnly style={{ marginTop: 12 }} />
 
           {/* QR replié par défaut : c'était la plus grosse surface du partage — on
               le garde à un tap, sans occuper tout l'écran. */}
