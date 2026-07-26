@@ -306,6 +306,8 @@
     "pseudoLabel": "Your nickname",
     "wordToGroupTitle": "Word to di group?",
     "ballotSecretNote": "Your ballot still secret. Dis word (optional) na di group go see am, sign with your nickname.",
+    "gradeProgress": "{done}/{total} options wey you don grade — grade all to vote",
+    "rankProgress": "{done}/{total} wey you don rank",
     "commentPlaceholder": "One word for di group? (optional)",
     "submitting": "Dey save…",
     "vote": "Vote",

@@ -306,6 +306,8 @@
     "pseudoLabel": "Tu apodo",
     "wordToGroupTitle": "¿Unas palabras al grupo?",
     "ballotSecretNote": "Tu voto sigue siendo secreto. Estas palabras (opcionales) son visibles para el grupo, firmadas con tu apodo.",
+    "gradeProgress": "{done}/{total} opciones puntuadas — puntúalas todas para votar",
+    "rankProgress": "{done}/{total} clasificadas",
     "commentPlaceholder": "¿Una palabra para el grupo? (opcional)",
     "submitting": "Guardando…",
     "vote": "Votar",

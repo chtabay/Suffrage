@@ -306,6 +306,8 @@
     "pseudoLabel": "Votre pseudo",
     "wordToGroupTitle": "Un mot au groupe ?",
     "ballotSecretNote": "Votre bulletin reste secret. Ce mot (facultatif) est visible par le groupe, signé de votre pseudo.",
+    "gradeProgress": "{done}/{total} options notées — notez-les toutes pour voter",
+    "rankProgress": "{done}/{total} classées",
     "commentPlaceholder": "Un mot à laisser au groupe ? (facultatif)",
     "submitting": "Enregistrement…",
     "vote": "Voter",

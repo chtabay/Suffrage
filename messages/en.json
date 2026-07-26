@@ -306,6 +306,8 @@
     "pseudoLabel": "Your nickname",
     "wordToGroupTitle": "A word to the group?",
     "ballotSecretNote": "Your ballot stays secret. This word (optional) is visible to the group, signed with your nickname.",
+    "gradeProgress": "{done}/{total} options graded — grade them all to vote",
+    "rankProgress": "{done}/{total} ranked",
     "commentPlaceholder": "A word for the group? (optional)",
     "submitting": "Saving…",
     "vote": "Vote",

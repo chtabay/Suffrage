@@ -1981,10 +1981,20 @@ export default function PublicVote({
     }
     return [self];
   })();
+  // Options que le votant doit renseigner (hors options masquées en affectation).
+  const gradeableCount = poll.options.length - (hiddenIdx?.length ?? 0);
+  const gradedCount = poll.options.reduce(
+    (n, _, i) => (hiddenIdx?.includes(i) ? n : n + (draft.grades[i] !== undefined ? 1 : 0)),
+    0,
+  );
   // Affectation : classement COMPLET exigé (pas de complétion aléatoire du bulletin).
+  // Jugement majoritaire : TOUTES les options doivent être notées — sinon une option
+  // omise recevrait une mention médiane jamais choisie (l'inverse d'un bulletin sûr).
   const ballotValid = aDef
-    ? draft.rank.length >= poll.options.length - (hiddenIdx?.length ?? 0)
-    : draftToBallot(mode, draft, poll.options.length, gradeCount) !== null;
+    ? draft.rank.length >= gradeableCount
+    : mode === "grade"
+      ? gradeableCount > 0 && gradedCount === gradeableCount
+      : draftToBallot(mode, draft, poll.options.length, gradeCount) !== null;
 
   const submit = async () => {
     const ballot = draftToBallot(mode, draft, poll.options.length, gradeCount);
@@ -2145,7 +2155,14 @@ export default function PublicVote({
               approved: d.approved.includes(i) ? d.approved.filter((x) => x !== i) : [...d.approved, i],
             }))
           }
-          onRank={(i) => setDraft((d) => (d.rank.includes(i) ? d : { ...d, rank: [...d.rank, i] }))}
+          onRank={(i) =>
+            setDraft((d) => ({
+              ...d,
+              // Re-tap sur une option déjà classée = la retirer (le reste se renumérote
+              // tout seul) ; sinon on l'ajoute au bout. Plus besoin de tout recommencer.
+              rank: d.rank.includes(i) ? d.rank.filter((x) => x !== i) : [...d.rank, i],
+            }))
+          }
           onResetRank={() => setDraft((d) => ({ ...d, rank: [] }))}
           onGrade={(i, gi) => setDraft((d) => ({ ...d, grades: { ...d.grades, [i]: gi } }))}
         />
@@ -2201,6 +2218,18 @@ export default function PublicVote({
         </div>
 
         {error && <div style={{ marginTop: 12, color: REDTXT, fontWeight: 700, fontSize: 13 }}>{error}</div>}
+
+        {/* Progression : nudge à compléter (JM = tout noter ; classement partiel). */}
+        {mode === "grade" && gradedCount < gradeableCount && (
+          <div style={{ marginTop: 12, fontSize: 13, fontWeight: 700, color: MUTED, textAlign: "center" }}>
+            {t("gradeProgress", { done: gradedCount, total: gradeableCount })}
+          </div>
+        )}
+        {mode === "rank" && draft.rank.length > 0 && draft.rank.length < gradeableCount && (
+          <div style={{ marginTop: 12, fontSize: 13, fontWeight: 700, color: MUTED, textAlign: "center" }}>
+            {t("rankProgress", { done: draft.rank.length, total: gradeableCount })}
+          </div>
+        )}
 
         <button
           onClick={submit}
