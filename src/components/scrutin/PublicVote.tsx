@@ -621,12 +621,41 @@ function Header({ brand }: { brand?: Brand | null }) {
             </a>
           </>
         ) : (
-          <Link href="/" style={{ display: "flex", alignItems: "center", gap: 11, textDecoration: "none", color: INK }}>
-            <PlacetMark size={38} />
-            <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 21, letterSpacing: "-0.02em" }}>
-              Placet
+          <>
+            <Link href="/" style={{ display: "flex", alignItems: "center", gap: 11, textDecoration: "none", color: INK }}>
+              <PlacetMark size={38} />
+              <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 21, letterSpacing: "-0.02em" }}>
+                Placet
+              </div>
+            </Link>
+            {/* Pont vers le produit : la page de vote est la 1re surface d'acquisition
+                (on y arrive par lien partagé) — offrir une sortie « découvrir / créer »
+                sans concurrencer le bulletin. Uniquement en en-tête non brandé. */}
+            <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+              <Link
+                href="/explorer"
+                style={{ textDecoration: "none", color: MUTED, fontSize: 13, fontWeight: 700 }}
+              >
+                {t("discoverExploreLink")}
+              </Link>
+              <Link
+                href="/new"
+                style={{
+                  textDecoration: "none",
+                  fontFamily: FONT_DISPLAY,
+                  fontWeight: 700,
+                  fontSize: 13,
+                  color: INK,
+                  border: `2px solid ${INK}`,
+                  background: CREAM,
+                  padding: "7px 13px",
+                  borderRadius: 10,
+                }}
+              >
+                {t("discoverCreateCta")}
+              </Link>
             </div>
-          </Link>
+          </>
         )}
       </div>
     </div>

@@ -1080,18 +1080,16 @@ export default function CreateScreen({ ctrl }: { ctrl: ScrutinController }) {
             </div>
               </>
             ) : (
-              // Résumé replié : la méthode courante + accès pour la changer.
-              <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
-                <span style={{ width: 40, height: 40, flex: "none", borderRadius: 11, border: `2px solid ${INK}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20, background: CREAM }}>
-                  {resolved.icon}
-                </span>
-                <div style={{ flex: 1, minWidth: 120 }}>
-                  <div style={{ fontFamily: FONT_BODY, fontWeight: 700, fontSize: 12, color: MUTED }}>{t("methodTitle")}</div>
-                  <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 16, lineHeight: 1.1 }}>{methodName}</div>
-                </div>
+              // Résumé replié = teaser ACTIF : les 4 méthodes phares directement
+              // cliquables (le différenciateur de Placet reste visible sans déplier).
+              // Choisir une méthode ≠ fptp rouvre le détail automatiquement.
+              <div>
+                <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 18 }}>{t("methodTitle")}</div>
+                <div style={{ fontSize: 12.5, color: MUTED, margin: "4px 0 12px", lineHeight: 1.4 }}>{t("methodSubtitle")}</div>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>{MAIN_METHODS.map(methodChip)}</div>
                 <button
                   onClick={() => setMethodCardOpen(true)}
-                  style={{ fontFamily: FONT_BODY, fontWeight: 700, fontSize: 13, cursor: "pointer", border: `2px solid ${INK}`, borderRadius: 10, padding: "9px 14px", background: "#fff", color: INK }}
+                  style={{ marginTop: 12, background: "none", border: "none", fontFamily: FONT_BODY, fontWeight: 700, fontSize: 13.5, color: CORAL, cursor: "pointer", padding: 0 }}
                 >
                   {t("methodChoose")}
                 </button>

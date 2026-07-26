@@ -198,6 +198,8 @@
     "notFoundTitle": "Scrutin introuvable",
     "notFoundDesc": "Ce lien n'existe pas ou a expiré.",
     "createMyPoll": "Créer mon scrutin →",
+    "discoverExploreLink": "Explorer",
+    "discoverCreateCta": "Créer un vote",
     "poweredBy": "propulsé par",
     "resultBallots": "{count, plural, one {# bulletin} other {# bulletins}}",
     "resultWinner": "🏆 VAINQUEUR",

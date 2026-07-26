@@ -198,6 +198,8 @@
     "notFoundTitle": "Poll not found",
     "notFoundDesc": "This link doesn't exist or has expired.",
     "createMyPoll": "Create my poll →",
+    "discoverExploreLink": "Explore",
+    "discoverCreateCta": "Create a vote",
     "poweredBy": "powered by",
     "resultBallots": "{count, plural, one {# ballot} other {# ballots}}",
     "resultWinner": "🏆 WINNER",

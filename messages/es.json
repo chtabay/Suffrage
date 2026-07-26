@@ -198,6 +198,8 @@
     "notFoundTitle": "Votación no encontrada",
     "notFoundDesc": "Este enlace no existe o ha caducado.",
     "createMyPoll": "Crear mi votación →",
+    "discoverExploreLink": "Explorar",
+    "discoverCreateCta": "Crear una votación",
     "poweredBy": "con la tecnología de",
     "resultBallots": "{count, plural, one {# papeleta} other {# papeletas}}",
     "resultWinner": "🏆 GANADOR",
