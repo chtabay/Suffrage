@@ -14,7 +14,7 @@ const CREAM = "#FBF6EC";
 const GREEN = "#5DBB2E";
 const MUTED = "#5b6379";
 const SUBINK = "#3a4258";
-const CORAL = "#FF5E5B";
+const CORAL = "#E23E3B";
 const display = "var(--font-display), 'Bricolage Grotesque', sans-serif";
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {

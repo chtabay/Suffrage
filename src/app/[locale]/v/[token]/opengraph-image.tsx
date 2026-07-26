@@ -8,7 +8,7 @@ export const alt = "Placet";
 
 const INK = "#16213A";
 const CREAM = "#FBF6EC";
-const CORAL = "#FF5E5B";
+const CORAL = "#E23E3B";
 const YELLOW = "#FFB627";
 
 export default async function OgImage({ params }: { params: Promise<{ locale: string; token: string }> }) {

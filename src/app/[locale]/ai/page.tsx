@@ -13,7 +13,7 @@ export async function generateMetadata() {
 const INK = "#16213A";
 const CREAM = "#FBF6EC";
 const MUTED = "#5b6379";
-const CORAL = "#FF5E5B";
+const CORAL = "#E23E3B";
 const display = "var(--font-display), 'Bricolage Grotesque', sans-serif";
 const mono = "ui-monospace, SFMono-Regular, Menlo, monospace";
 

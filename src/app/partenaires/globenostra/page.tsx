@@ -18,7 +18,7 @@ const MUTEDT = "#7A8399";
 const TEAL = "#2A9D8F"; // accent sarcelle (bouton Login GlobéNostra)
 const PURPLE = "#8B6FE8"; // souligné « Art »
 const BLUE = "#3D8BFD"; // souligné « Science »
-const CORAL = "#FF5E5B"; // accent Placet
+const CORAL = "#E23E3B"; // accent Placet
 const display = "var(--font-display), 'Bricolage Grotesque', sans-serif";
 
 export const metadata: Metadata = {

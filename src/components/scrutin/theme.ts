@@ -4,7 +4,10 @@ import type { CSSProperties } from "react";
 export const INK = "#16213A";
 export const CREAM = "#FBF6EC";
 export const PAPER = "#fff";
-export const CORAL = "#FF5E5B";
+// Corail assombri (#E23E3B) : le texte blanc sur corail plein passe désormais le
+// contraste WCAG AA-large (~4,2:1 contre ~2,8:1 avec l'ancien #FF5E5B), tout en
+// gardant la même famille chromatique. Appliqué partout où CORAL est un aplat de CTA.
+export const CORAL = "#E23E3B";
 export const YELLOW = "#FFB627";
 export const GREEN = "#5DBB2E";
 export const SUBINK = "#3a4258";

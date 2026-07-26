@@ -162,8 +162,12 @@ input:focus-visible,
 textarea:focus-visible,
 select:focus-visible,
 [role="button"]:focus-visible {
-  outline: 3px solid #ff5e5b;
+  /* Anneau INK (au lieu de corail) : reste visible sur les CTA corail, où un anneau
+     corail se confondait avec le bouton. Le halo blanc le détache aussi des aplats
+     sombres (boutons INK). */
+  outline: 3px solid #16213a;
   outline-offset: 2px;
+  box-shadow: 0 0 0 5px rgba(255, 255, 255, 0.9);
 }
 
 /* Rail latéral des assistants : desktop large uniquement. En dessous, c'est le
