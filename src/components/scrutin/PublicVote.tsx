@@ -724,7 +724,7 @@ function fmtDateTime(iso: string, locale = "fr") {
   return new Date(iso).toLocaleString(intlLocale(locale), { dateStyle: "long", timeStyle: "short" });
 }
 
-function Countdown({ closesAt, onExpire }: { closesAt: string; onExpire: () => void }) {
+function Countdown({ closesAt, onExpire, prefix }: { closesAt: string; onExpire: () => void; prefix?: string }) {
   const t = useTranslations("Vote");
   const [now, setNow] = useState<number | null>(null);
   const target = Date.parse(closesAt);
@@ -749,7 +749,7 @@ function Countdown({ closesAt, onExpire }: { closesAt: string; onExpire: () => v
         ? `${h} ${t("unitHour")} ${m} ${t("unitMin")} ${s} ${t("unitSec")}`
         : `${m} ${t("unitMin")} ${s} ${t("unitSec")}`;
   return (
-    <div style={{ marginTop: 12, fontSize: 13, fontWeight: 700, color: MUTED }}>⏲ {t("closesIn")} {label}</div>
+    <div style={{ marginTop: 12, fontSize: 13, fontWeight: 700, color: MUTED }}>⏲ {prefix ?? t("closesIn")} {label}</div>
   );
 }
 
@@ -1679,6 +1679,27 @@ export default function PublicVote({
           <p style={{ color: MUTED, marginTop: 8, lineHeight: 1.5 }}>
             {t.rich("inviteOnlyDesc", { strong: (chunks) => <strong>{chunks}</strong> })}
           </p>
+          {/* Pas de cul-de-sac : on aide (redemander son lien) et on offre une sortie
+              vers la création — sans jamais révéler la question (scrutin privé). */}
+          <div style={{ fontSize: 13, color: MUTED, lineHeight: 1.5, marginTop: 12 }}>{t("inviteOnlyHelp")}</div>
+          <Link
+            href="/"
+            style={{
+              display: "inline-block",
+              marginTop: 16,
+              textDecoration: "none",
+              fontFamily: FONT_DISPLAY,
+              fontWeight: 700,
+              fontSize: 14,
+              border: `2.5px solid ${INK}`,
+              background: CORAL,
+              color: "#fff",
+              padding: "11px 18px",
+              borderRadius: 12,
+            }}
+          >
+            {t("createMyPoll")}
+          </Link>
         </div>
       </Shell>
     );
@@ -1702,6 +1723,16 @@ export default function PublicVote({
               strong: (chunks) => <strong>{chunks}</strong>,
             })}
           </p>
+          {/* Un votant motivé arrivé trop tôt ne doit pas repartir : compte à rebours
+              vers l'ouverture + rappel pour revenir au bon moment. */}
+          {poll.opens_at && (
+            <div style={{ display: "flex", justifyContent: "center" }}>
+              <Countdown closesAt={poll.opens_at} prefix={t("opensIn")} onExpire={() => window.location.reload()} />
+            </div>
+          )}
+        </div>
+        <div style={{ marginTop: 16, display: "flex", justifyContent: "center" }}>
+          <NotifyButton pollToken={token} label={`🔔 ${t("notifyAtOpen")}`} />
         </div>
       </Shell>
     );
@@ -1799,6 +1830,29 @@ export default function PublicVote({
           />
         )}
         {showMsgOrga && <MessageToOrganizer token={token} />}
+        {/* Scrutin public clos atteint via /explorer : moment de conversion — proposer
+            de créer le sien plutôt que de laisser un cul-de-sac. */}
+        {poll.visibility === "public" && (
+          <div style={{ marginTop: 16, textAlign: "center" }}>
+            <Link
+              href="/"
+              style={{
+                display: "inline-block",
+                textDecoration: "none",
+                fontFamily: FONT_DISPLAY,
+                fontWeight: 700,
+                fontSize: 14,
+                border: `2.5px solid ${INK}`,
+                background: CORAL,
+                color: "#fff",
+                padding: "11px 18px",
+                borderRadius: 12,
+              }}
+            >
+              {t("createMyPoll")}
+            </Link>
+          </div>
+        )}
         {showReport && <ReportFold token={token} />}
       </Shell>
     );

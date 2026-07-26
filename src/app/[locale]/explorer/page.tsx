@@ -127,6 +127,7 @@ export default async function ExplorerPage({ params }: { params: Promise<{ local
             </Link>
           </div>
         ) : (
+          <>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(min(100%,300px),1fr))", gap: 14, marginTop: 28 }}>
             {polls.map((p) => {
               const open = cardIsOpen(p);
@@ -160,6 +161,29 @@ export default async function ExplorerPage({ params }: { params: Promise<{ local
               );
             })}
           </div>
+          {/* Conversion découvreur → créateur : point de sortie vers /new même quand
+              le feed est peuplé (avant, /new n'existait que dans l'état vide). */}
+          <div style={{ marginTop: 30, textAlign: "center" }}>
+            <Link
+              href="/new"
+              style={{
+                display: "inline-block",
+                fontFamily: display,
+                fontWeight: 700,
+                fontSize: 15,
+                textDecoration: "none",
+                border: `2.5px solid ${INK}`,
+                background: CORAL,
+                color: "#fff",
+                padding: "12px 22px",
+                borderRadius: 12,
+                boxShadow: `4px 4px 0 ${INK}`,
+              }}
+            >
+              {t("emptyCta")}
+            </Link>
+          </div>
+          </>
         )}
       </div>
     </div>
