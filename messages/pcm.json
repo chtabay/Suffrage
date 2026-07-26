@@ -267,6 +267,7 @@
     "linkLabelInvite": "POLL LINK (voters go use dia personal link)",
     "linkLabelOpen": "VOTE LINK TO SHARE",
     "shareResultsLabel": "SHARE DI RESULTS (LINK + QR)",
+    "manageSectionLabel": "MANAGE DI POLL",
     "open": "Open →",
     "refresh": "Refresh",
     "closeVote": "Close di vote",

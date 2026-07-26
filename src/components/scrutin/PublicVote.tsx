@@ -1610,15 +1610,20 @@ export default function PublicVote({
               {t("open")}
             </a>
           </div>
+          {/* Partage compact : icônes (copier/WhatsApp/natif) + mini-QR (vignette
+              qui s'agrandit au clic) — plus le gros QR qui prenait tout l'espace. */}
           {poll.access_mode === "open" && (
-            <div style={{ marginTop: 12 }}>
-              <QrCode url={voteShareUrl} />
+            <div style={{ display: "flex", gap: 10, marginTop: 11, alignItems: "center", flexWrap: "wrap" }}>
+              <ShareRow question={poll.question} url={voteShareUrl} iconOnly />
+              <QrCode url={voteShareUrl} mini size={58} />
             </div>
           )}
-          {poll.access_mode === "open" && (
-            <ShareRow question={poll.question} url={voteShareUrl} iconOnly style={{ marginTop: 12 }} />
-          )}
-          <div style={{ display: "flex", gap: 11, marginTop: 14, flexWrap: "wrap", alignItems: "center" }}>
+
+          {/* ── GÉRER : actions sur le scrutin, séparées visuellement du partage
+              (trait + intitulé) pour ne plus confondre « partager » et « gérer ». */}
+          <div style={{ marginTop: 16, paddingTop: 14, borderTop: `2px dashed ${INK}` }}>
+          <div style={{ fontWeight: 700, fontSize: 12, color: MUTED, marginBottom: 9 }}>{t("manageSectionLabel")}</div>
+          <div style={{ display: "flex", gap: 11, flexWrap: "wrap", alignItems: "center" }}>
             <button
               onClick={() => refreshOrganizer(poll)}
               className="dc-lift"
@@ -1720,6 +1725,7 @@ export default function PublicVote({
               ⏲ {t("autoCloseAt", { date: fmtDateTime(poll.closes_at, locale) })}
             </div>
           )}
+          </div>
         </div>
 
         {poll.access_mode === "invite" && (

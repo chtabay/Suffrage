@@ -267,6 +267,7 @@
     "linkLabelInvite": "ENLACE DE LA VOTACIÓN (los votantes usan su enlace personal)",
     "linkLabelOpen": "ENLACE DE VOTO PARA COMPARTIR",
     "shareResultsLabel": "COMPARTIR LOS RESULTADOS (ENLACE + QR)",
+    "manageSectionLabel": "GESTIONAR LA VOTACIÓN",
     "open": "Abrir →",
     "refresh": "Actualizar",
     "closeVote": "Cerrar la votación",
