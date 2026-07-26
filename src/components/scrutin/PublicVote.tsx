@@ -313,9 +313,11 @@ function CommentsFeed({ comments }: { comments: BallotComment[] }) {
 
 // Message privé à l'organisateur (scrutins rattachés à un compte uniquement) :
 // stocké à part des bulletins — impossible de relier un message à un choix de vote.
+// Carte « mot à l'organisateur » : action à valeur (lead-gen opt-in). Visible et
+// non repliée — bénéfice explicite + ligne de confiance TOUJOURS affichée (le
+// message et les coordonnées vont dans une table détachée, jamais reliés au vote).
 function MessageToOrganizer({ token }: { token: string }) {
   const t = useTranslations("Vote");
-  const [open, setOpen] = useState(false);
   const [body, setBody] = useState("");
   const [contact, setContact] = useState("");
   const [sending, setSending] = useState(false);
@@ -323,8 +325,10 @@ function MessageToOrganizer({ token }: { token: string }) {
   const [failed, setFailed] = useState(false);
   if (sent) {
     return (
-      <div style={{ marginTop: 16, textAlign: "center", fontWeight: 700, fontSize: 13.5, color: "#1f6b34" }}>
-        ✓ {t("msgOrgaSent")}
+      <div style={{ ...card, marginTop: 16, textAlign: "center", background: "#f2faf4" }}>
+        <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 15, color: "#1f6b34" }}>
+          ✓ {t("msgOrgaSent")}
+        </div>
       </div>
     );
   }
@@ -354,68 +358,65 @@ function MessageToOrganizer({ token }: { token: string }) {
     width: "100%",
   } as const;
   return (
-    <div style={{ marginTop: 16, textAlign: "center" }}>
+    <div style={{ ...card, marginTop: 16, background: CREAM }}>
+      <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 16 }}>✉️ {t("msgOrgaCardTitle")}</div>
+      <p style={{ color: MUTED, fontSize: 13.5, lineHeight: 1.5, marginTop: 6 }}>{t("msgOrgaCardSub")}</p>
+      <div style={{ display: "flex", flexDirection: "column", gap: 9, marginTop: 12 }}>
+        <textarea
+          value={body}
+          onChange={(e) => setBody(e.target.value)}
+          placeholder={t("msgOrgaPlaceholder")}
+          maxLength={1000}
+          rows={3}
+          style={{ ...field, background: "#fff", resize: "vertical" }}
+        />
+        <input
+          value={contact}
+          onChange={(e) => setContact(e.target.value)}
+          placeholder={t("msgOrgaContactPlaceholder")}
+          maxLength={160}
+          style={{ ...field, background: "#fff" }}
+        />
+      </div>
+      <div style={{ fontSize: 12, color: MUTED, fontWeight: 600, marginTop: 9, lineHeight: 1.45 }}>
+        🔒 {t("msgOrgaHint")}
+      </div>
+      {failed && <div style={{ marginTop: 10, color: REDTXT, fontWeight: 700, fontSize: 13 }}>{t("msgOrgaError")}</div>}
       <button
-        type="button"
-        onClick={() => setOpen((o) => !o)}
-        aria-expanded={open}
+        onClick={send}
+        disabled={!body.trim() || sending}
         style={{
+          marginTop: 12,
+          width: "100%",
           fontFamily: FONT_DISPLAY,
           fontWeight: 700,
-          fontSize: 13.5,
-          cursor: "pointer",
-          border: `2px solid ${INK}`,
-          background: open ? INK : "transparent",
-          color: open ? "#fff" : INK,
-          padding: "8px 16px",
-          borderRadius: 20,
+          fontSize: 14,
+          cursor: !body.trim() || sending ? "default" : "pointer",
+          border: `2.5px solid ${INK}`,
+          background: INK,
+          color: "#fff",
+          padding: 11,
+          borderRadius: 11,
+          opacity: !body.trim() || sending ? 0.5 : 1,
         }}
       >
-        ✉️ {t("msgOrgaFold")} {open ? "▴" : "▸"}
+        {sending ? t("submitting") : `✉️ ${t("msgOrgaSend")}`}
       </button>
-      {open && (
-        <div style={{ ...card, marginTop: 12, textAlign: "left" }}>
-          <div style={{ fontSize: 12.5, color: MUTED, fontWeight: 600, lineHeight: 1.45 }}>🔒 {t("msgOrgaHint")}</div>
-          <div style={{ display: "flex", flexDirection: "column", gap: 9, marginTop: 12 }}>
-            <textarea
-              value={body}
-              onChange={(e) => setBody(e.target.value)}
-              placeholder={t("msgOrgaPlaceholder")}
-              maxLength={1000}
-              rows={3}
-              style={{ ...field, resize: "vertical" }}
-            />
-            <input
-              value={contact}
-              onChange={(e) => setContact(e.target.value)}
-              placeholder={t("msgOrgaContactPlaceholder")}
-              maxLength={160}
-              style={field}
-            />
-          </div>
-          {failed && <div style={{ marginTop: 10, color: REDTXT, fontWeight: 700, fontSize: 13 }}>{t("msgOrgaError")}</div>}
-          <button
-            onClick={send}
-            disabled={!body.trim() || sending}
-            style={{
-              marginTop: 12,
-              width: "100%",
-              fontFamily: FONT_DISPLAY,
-              fontWeight: 700,
-              fontSize: 14,
-              cursor: !body.trim() || sending ? "default" : "pointer",
-              border: `2.5px solid ${INK}`,
-              background: INK,
-              color: "#fff",
-              padding: 11,
-              borderRadius: 11,
-              opacity: !body.trim() || sending ? 0.5 : 1,
-            }}
-          >
-            {sending ? t("submitting") : `✉️ ${t("msgOrgaSend")}`}
-          </button>
-        </div>
-      )}
+    </div>
+  );
+}
+
+// Bloc COMPACT « amener d'autres votants » : partage du SCRUTIN (pas du résultat)
+// tant qu'il est ouvert. Réservé à l'accès ouvert (en invitation, le lien nu
+// mènerait à « invitation requise »). Réutilise la barre de partage compacte.
+function InviteMoreVoters({ question, url }: { question: string; url: string }) {
+  const t = useTranslations("Vote");
+  if (!url) return null;
+  return (
+    <div style={{ ...card, marginTop: 16, background: "#fffaf0" }}>
+      <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 15 }}>📣 {t("inviteVotersTitle")}</div>
+      <p style={{ color: MUTED, fontSize: 13, lineHeight: 1.5, margin: "5px 0 12px" }}>{t("inviteVotersSub")}</p>
+      <ShareRow question={question} url={url} withCopy />
     </div>
   );
 }
@@ -1605,6 +1606,7 @@ export default function PublicVote({
             {t("thanksHiddenResults", { name: voter ? ` ${voter.label}` : "" })}
           </p>
         </div>
+        {poll.access_mode === "open" && <InviteMoreVoters question={poll.question} url={voteShareUrl} />}
         {showMsgOrga && <MessageToOrganizer token={token} />}
         <div style={{ marginTop: 16, display: "flex", justifyContent: "center" }}>
           <NotifyButton pollToken={token} />
@@ -1743,6 +1745,8 @@ export default function PublicVote({
         )}
         {poll.quorum != null && <QuorumBanner quorum={poll.quorum} count={ballotCount} />}
         <ResultCard result={result} question={poll.question} ballotCount={ballotCount} footer={footer} calendarSlot={winnerSlot} calendarUrl={voteShareUrl} calendarDuration={poll.slot_minutes ?? undefined} survey={isSurvey} decided={phase === "closed"} />
+        {/* Scrutin encore ouvert : inviter à amener d'autres votants (partage du SCRUTIN). */}
+        {phase !== "closed" && poll.access_mode === "open" && <InviteMoreVoters question={poll.question} url={voteShareUrl} />}
         <CommentsFeed comments={comments} />
         {/* Débat complet ; on peut encore argumenter tant que le scrutin est ouvert. */}
         {!aDef && (
