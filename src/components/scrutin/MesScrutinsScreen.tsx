@@ -3,7 +3,16 @@
 import { useCallback, useEffect, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import type { AuthController } from "@/lib/auth/useAuth";
-import { getLocalPolls, removeLocalPoll, type LocalPoll } from "@/lib/db/localPolls";
+import {
+  getHiddenTokens,
+  getLocalPolls,
+  getTrash,
+  purgeFromTrash,
+  restoreFromTrash,
+  trashPoll,
+  type LocalPoll,
+  type TrashedPoll,
+} from "@/lib/db/localPolls";
 import { getMyPolls, pollPhase, type Phase, type PollRow } from "@/lib/db/polls";
 import { APP_URL } from "@/lib/voting/aiPrompt";
 import type { ScrutinController } from "@/lib/voting/useScrutin";
@@ -27,8 +36,13 @@ export default function MesScrutinsScreen({ ctrl, auth }: { ctrl: ScrutinControl
   const locale = useLocale();
   const [locals, setLocals] = useState<LocalPoll[]>([]);
   const [cloud, setCloud] = useState<PollRow[]>([]);
+  const [trash, setTrash] = useState<TrashedPoll[]>([]);
+  const [showTrash, setShowTrash] = useState(false);
 
-  const reloadLocal = useCallback(() => setLocals(getLocalPolls()), []);
+  const reloadLocal = useCallback(() => {
+    setLocals(getLocalPolls());
+    setTrash(getTrash());
+  }, []);
 
   useEffect(() => {
     reloadLocal();
@@ -44,8 +58,19 @@ export default function MesScrutinsScreen({ ctrl, auth }: { ctrl: ScrutinControl
       .catch(() => setCloud([]));
   }, [auth.user]);
 
-  const remove = (token: string) => {
-    removeLocalPoll(token);
+  // Suppression = mise à la CORBEILLE (recouvrable), pas un effacement immédiat.
+  const trashItem = (p: Item) => {
+    if (!p.secret) return;
+    trashPoll({ token: p.token, secret: p.secret, question: p.question, createdAt: p.createdAt });
+    reloadLocal();
+  };
+  const onRestore = (token: string) => {
+    restoreFromTrash(token);
+    reloadLocal();
+  };
+  const onPurge = (token: string) => {
+    if (typeof window !== "undefined" && !window.confirm(t("confirmPurge"))) return;
+    purgeFromTrash(token);
     reloadLocal();
   };
 
@@ -53,6 +78,9 @@ export default function MesScrutinsScreen({ ctrl, auth }: { ctrl: ScrutinControl
     Number.isFinite(ms) ? new Date(ms).toLocaleDateString(intlLocale(locale), { day: "numeric", month: "short", year: "numeric" }) : "";
 
   const localTokens = new Set(locals.map((p) => p.token));
+  // Exclut de la liste principale ce qui est à la corbeille ou masqué définitivement
+  // (y compris les lignes cloud qui reviendraient du compte).
+  const hidden = getHiddenTokens();
   // On garde le PollRow cloud accessible par token pour afficher l'état (phase) même
   // sur une ligne locale qui a aussi été rattachée au compte.
   const cloudByToken = new Map(cloud.map((c) => [c.token, c]));
@@ -61,7 +89,9 @@ export default function MesScrutinsScreen({ ctrl, auth }: { ctrl: ScrutinControl
     ...cloud
       .filter((c) => !localTokens.has(c.token))
       .map((c) => ({ token: c.token, question: c.question, createdAt: Date.parse(c.created_at), secret: null, poll: c })),
-  ].sort((a, b) => b.createdAt - a.createdAt);
+  ]
+    .filter((it) => !hidden.has(it.token))
+    .sort((a, b) => b.createdAt - a.createdAt);
 
   // Badge d'état (phase) : « gérer » ses scrutins est impossible sans voir lequel est
   // ouvert / clos / en collecte / programmé.
@@ -227,8 +257,9 @@ export default function MesScrutinsScreen({ ctrl, auth }: { ctrl: ScrutinControl
                   </div>
                   {p.secret && (
                     <button
-                      onClick={() => remove(p.token)}
-                      title={t("removeFromDevice")}
+                      onClick={() => trashItem(p)}
+                      title={t("moveToTrash")}
+                      aria-label={t("moveToTrash")}
                       style={{
                         flex: "none",
                         width: 32,
@@ -284,17 +315,95 @@ export default function MesScrutinsScreen({ ctrl, auth }: { ctrl: ScrutinControl
                     </a>
                   )}
                 </div>
-                {/* Relancer la participation depuis « Mes décisions » : partage du lien
-                    de vote nu (jamais le lien admin) tant que le scrutin est ouvert. */}
+                {/* Relancer la participation : partage du lien de vote nu (jamais le
+                    lien admin) tant que le scrutin est ouvert. Boutons à ICÔNE (compact,
+                    surtout mobile) : copier, WhatsApp, partage natif. */}
                 {p.poll && pollPhase(p.poll) !== "closed" && p.poll.access_mode === "open" && (
-                  <div style={{ marginTop: 12 }}>
-                    <div style={{ fontSize: 12, color: MUTED, fontWeight: 700, marginBottom: 7 }}>{t("inviteToVote")}</div>
-                    <ShareRow question={p.question} url={voteUrl} withCopy />
+                  <div style={{ marginTop: 12, display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+                    <div style={{ fontSize: 12, color: MUTED, fontWeight: 700 }}>{t("inviteToVote")}</div>
+                    <ShareRow question={p.question} url={voteUrl} withCopy iconOnly />
                   </div>
                 )}
               </div>
             );
           })}
+        </div>
+      )}
+
+      {/* Corbeille : scrutins retirés mais recouvrables (restaurer / supprimer). */}
+      {trash.length > 0 && (
+        <div style={{ marginTop: 24 }}>
+          <button
+            onClick={() => setShowTrash((v) => !v)}
+            aria-expanded={showTrash}
+            style={{
+              fontFamily: FONT_DISPLAY,
+              fontWeight: 700,
+              fontSize: 13.5,
+              cursor: "pointer",
+              border: `2px solid ${INK}`,
+              background: showTrash ? INK : "transparent",
+              color: showTrash ? "#fff" : INK,
+              padding: "8px 15px",
+              borderRadius: 20,
+            }}
+          >
+            🗑 {t("trashTitle", { count: trash.length })} {showTrash ? "▴" : "▸"}
+          </button>
+          {showTrash && (
+            <div style={{ display: "flex", flexDirection: "column", gap: 10, marginTop: 12 }}>
+              {trash.map((p) => (
+                <div
+                  key={p.token}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 12,
+                    flexWrap: "wrap",
+                    background: CREAM,
+                    border: `2px solid ${INK}`,
+                    borderRadius: 12,
+                    padding: "11px 14px",
+                  }}
+                >
+                  <div style={{ flex: 1, minWidth: 160 }}>
+                    <div style={{ fontWeight: 700, fontSize: 14, lineHeight: 1.2 }}>{p.question}</div>
+                    <div style={{ fontSize: 11.5, color: MUTED, marginTop: 2 }}>{fmtDate(p.createdAt)}</div>
+                  </div>
+                  <button
+                    onClick={() => onRestore(p.token)}
+                    style={{
+                      fontWeight: 700,
+                      fontSize: 12.5,
+                      cursor: "pointer",
+                      border: `2px solid ${INK}`,
+                      background: GREEN,
+                      color: "#fff",
+                      padding: "7px 12px",
+                      borderRadius: 9,
+                    }}
+                  >
+                    ↩ {t("restore")}
+                  </button>
+                  <button
+                    onClick={() => onPurge(p.token)}
+                    style={{
+                      fontWeight: 700,
+                      fontSize: 12.5,
+                      cursor: "pointer",
+                      border: `2px solid ${INK}`,
+                      background: "#fff",
+                      color: REDTXT,
+                      padding: "7px 12px",
+                      borderRadius: 9,
+                    }}
+                  >
+                    {t("deleteForever")}
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
     </div>

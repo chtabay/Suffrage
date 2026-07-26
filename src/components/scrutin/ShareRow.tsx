@@ -16,11 +16,14 @@ export default function ShareRow({
   url,
   style,
   withCopy = false,
+  iconOnly = false,
 }: {
   question: string;
   url: string;
   style?: CSSProperties;
   withCopy?: boolean;
+  // Variante compacte : boutons carrés à icône seule (mobile / listes denses).
+  iconOnly?: boolean;
 }) {
   const t = useTranslations("Vote");
   const [copied, setCopied] = useState(false);
@@ -36,6 +39,14 @@ export default function ShareRow({
     }
   };
 
+  const iconBtn = {
+    width: 44,
+    height: 44,
+    padding: 0,
+    fontSize: 18,
+    borderRadius: 11,
+  } as const;
+
   return (
     <div style={{ display: "flex", gap: 9, flexWrap: "wrap", ...style }}>
       {withCopy && (
@@ -43,6 +54,8 @@ export default function ShareRow({
           type="button"
           onClick={copy}
           className="dc-lift"
+          aria-label={t("copyLink")}
+          title={t("copyLink")}
           style={{
             display: "inline-flex",
             alignItems: "center",
@@ -51,19 +64,17 @@ export default function ShareRow({
             cursor: "pointer",
             fontFamily: FONT_DISPLAY,
             fontWeight: 700,
-            fontSize: 15,
             border: `2.5px solid ${INK}`,
             background: copied ? GREEN : CREAM,
             color: copied ? "#fff" : INK,
-            padding: "12px 16px",
-            borderRadius: 12,
+            ...(iconOnly ? iconBtn : { fontSize: 15, padding: "12px 16px", borderRadius: 12 }),
           }}
         >
-          {copied ? t("linkCopied") : t("copyLink")}
+          {iconOnly ? (copied ? "✓" : "🔗") : copied ? t("linkCopied") : t("copyLink")}
         </button>
       )}
-      <WhatsAppShare question={question} url={url} />
-      <ShareButton question={question} url={url} />
+      <WhatsAppShare question={question} url={url} iconOnly={iconOnly} />
+      <ShareButton question={question} url={url} iconOnly={iconOnly} />
     </div>
   );
 }

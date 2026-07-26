@@ -8,7 +8,7 @@ import { FONT_DISPLAY, INK, YELLOW } from "./theme";
 // Messages, Mail, AirDrop, copier…). Ne s'affiche que si l'API Web Share existe
 // (mobile iOS/Android, Chrome/Edge desktop) ; ailleurs, le bouton « Copier »
 // déjà présent prend le relais.
-export default function ShareButton({ question, url }: { question: string; url: string }) {
+export default function ShareButton({ question, url, iconOnly = false }: { question: string; url: string; iconOnly?: boolean }) {
   const t = useTranslations("Vote");
   const [canShare, setCanShare] = useState(false);
 
@@ -33,6 +33,8 @@ export default function ShareButton({ question, url }: { question: string; url: 
       type="button"
       onClick={share}
       className="dc-lift"
+      aria-label={t("shareNative")}
+      title={t("shareNative")}
       style={{
         display: "inline-flex",
         alignItems: "center",
@@ -41,15 +43,15 @@ export default function ShareButton({ question, url }: { question: string; url: 
         cursor: "pointer",
         fontFamily: FONT_DISPLAY,
         fontWeight: 700,
-        fontSize: 15,
         border: `2.5px solid ${INK}`,
         background: YELLOW,
         color: INK,
-        padding: "12px 16px",
-        borderRadius: 12,
+        ...(iconOnly
+          ? { width: 44, height: 44, padding: 0, fontSize: 18, borderRadius: 11 }
+          : { fontSize: 15, padding: "12px 16px", borderRadius: 12 }),
       }}
     >
-      {t("shareNative")}
+      {iconOnly ? "↗" : t("shareNative")}
     </button>
   );
 }
