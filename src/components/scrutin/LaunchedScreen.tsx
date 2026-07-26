@@ -260,9 +260,38 @@ export default function LaunchedScreen({ ctrl, auth }: { ctrl: ScrutinController
             </div>
           )}
 
+          {/* Feed public : confirmation de la publication (fait partie du PARTAGE). */}
+          {state.publicListing && state.access === "open" && state.optionKind !== "assign" && (
+            <div style={{ marginTop: 10, background: YELLOW, border: `2px solid ${INK}`, borderRadius: 11, padding: "10px 12px", fontSize: 13, fontWeight: 600, color: INK }}>
+              📣 {t("publishedLine")}
+            </div>
+          )}
+
+          {/* Liens nominatifs : le canal de distribution pour un scrutin sur invitation. */}
+          {state.voterLinks.length > 0 && (
+            <div style={{ marginTop: 18 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 10, justifyContent: "space-between", flexWrap: "wrap", marginBottom: 7 }}>
+                <div style={{ fontWeight: 700, fontSize: 12, color: MUTED }}>
+                  {t("voterLinksLabel", { count: state.voterLinks.length })}
+                </div>
+                <CopyAllVoterLinks links={state.voterLinks} />
+              </div>
+              <div style={{ display: "flex", flexDirection: "column", gap: 8, maxHeight: 280, overflowY: "auto" }}>
+                {state.voterLinks.map((v, i) => (
+                  <VoterRow key={i} label={v.label} url={v.url} />
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* ── Séparation PARTAGER / GÉRER : la clé d'admin + le compte, à part. ── */}
+          <div style={{ marginTop: 18, paddingTop: 14, borderTop: `2px dashed ${INK}`, fontWeight: 700, fontSize: 12, color: MUTED }}>
+            {t("manageSectionLabel")}
+          </div>
+
           {/* Bloc admin distingué (cadre accentué) : c'est LA clé à conserver.
               Canal de sauvegarde « me l'envoyer » (mailto) pour ne pas la perdre. */}
-          <div style={{ marginTop: 18, background: "#fff9ec", border: `2.5px solid ${INK}`, borderRadius: 14, padding: 14 }}>
+          <div style={{ marginTop: 12, background: "#fff9ec", border: `2.5px solid ${INK}`, borderRadius: 14, padding: 14 }}>
             <CopyRow
               url={adminUrl}
               label={t("adminLinkLabel")}
@@ -336,40 +365,6 @@ export default function LaunchedScreen({ ctrl, auth }: { ctrl: ScrutinController
               >
                 {t("accountCtaBtn")}
               </button>
-            </div>
-          )}
-
-          {/* Feed public : confirmation de la publication (mêmes conditions que le launch). */}
-          {state.publicListing && state.access === "open" && state.optionKind !== "assign" && (
-            <div
-              style={{
-                marginTop: 10,
-                background: YELLOW,
-                border: `2px solid ${INK}`,
-                borderRadius: 11,
-                padding: "10px 12px",
-                fontSize: 13,
-                fontWeight: 600,
-                color: INK,
-              }}
-            >
-              📣 {t("publishedLine")}
-            </div>
-          )}
-
-          {state.voterLinks.length > 0 && (
-            <div style={{ marginTop: 18 }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 10, justifyContent: "space-between", flexWrap: "wrap", marginBottom: 7 }}>
-                <div style={{ fontWeight: 700, fontSize: 12, color: MUTED }}>
-                  {t("voterLinksLabel", { count: state.voterLinks.length })}
-                </div>
-                <CopyAllVoterLinks links={state.voterLinks} />
-              </div>
-              <div style={{ display: "flex", flexDirection: "column", gap: 8, maxHeight: 280, overflowY: "auto" }}>
-                {state.voterLinks.map((v, i) => (
-                  <VoterRow key={i} label={v.label} url={v.url} />
-                ))}
-              </div>
             </div>
           )}
 

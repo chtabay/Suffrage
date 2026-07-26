@@ -1456,6 +1456,26 @@ export default function PublicVote({
         )}
       </div>
     );
+    // Corps électoral / participation. Sur un scrutin sur INVITATION en cours, c'est
+    // le HERO (les liens nominatifs sont le vrai canal — le lien générique mène à
+    // « invitation requise ») : rendu en tête quand ouvert, à sa place sinon.
+    const votersCard =
+      poll.access_mode === "invite" ? (
+        <div style={{ ...card, marginTop: 16 }}>
+          <div style={{ fontWeight: 800, fontFamily: FONT_DISPLAY, fontSize: 15, marginBottom: 4 }}>
+            {t("votersVotedCount", { voted: votedCount, total: voters.length })}
+          </div>
+          {phase === "open" && voters.length > 0 && (
+            <div style={{ fontSize: 12.5, color: MUTED, marginBottom: 4 }}>{t("distributeVoterLinks")}</div>
+          )}
+          <div style={{ display: "flex", flexDirection: "column", gap: 8, marginTop: 10, maxHeight: 320, overflowY: "auto" }}>
+            {voters.map((v) => (
+              <VoterLinkRow key={v.token} v={{ ...v, url: `${origin}/v/${token}?u=${v.token}` }} />
+            ))}
+            {voters.length === 0 && <div style={{ color: MUTED, fontSize: 14 }}>{t("noVotersRegistered")}</div>}
+          </div>
+        </div>
+      ) : null;
     return (
       <Shell brand={brand}>
         <div
@@ -1567,6 +1587,8 @@ export default function PublicVote({
 
         {/* Scrutin clos : la décision s'impose EN TÊTE, avant la gestion/partage. */}
         {phase === "closed" && orgResult}
+        {/* Invitation en cours : la PARTICIPATION + les liens nominatifs en HERO. */}
+        {phase === "open" && votersCard}
 
         <div style={{ ...card, marginTop: 16 }}>
           <div style={{ fontWeight: 700, fontSize: 12, color: MUTED, marginBottom: 7 }}>
@@ -1728,19 +1750,8 @@ export default function PublicVote({
           </div>
         </div>
 
-        {poll.access_mode === "invite" && (
-          <div style={{ ...card, marginTop: 16 }}>
-            <div style={{ fontWeight: 800, fontFamily: FONT_DISPLAY, fontSize: 15, marginBottom: 4 }}>
-              {t("votersVotedCount", { voted: votedCount, total: voters.length })}
-            </div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 8, marginTop: 10, maxHeight: 320, overflowY: "auto" }}>
-              {voters.map((v) => (
-                <VoterLinkRow key={v.token} v={{ ...v, url: `${origin}/v/${token}?u=${v.token}` }} />
-              ))}
-              {voters.length === 0 && <div style={{ color: MUTED, fontSize: 14 }}>{t("noVotersRegistered")}</div>}
-            </div>
-          </div>
-        )}
+        {/* Ouvert : déjà rendu en tête (hero). Clos / collecte : à sa place ici. */}
+        {phase !== "open" && votersCard}
 
         {/* Pendant la collecte, ni résultats ni débat : les options ne sont pas
             figées. On montre à l'organisateur ce qui a été proposé (revue). */}
