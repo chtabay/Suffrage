@@ -749,6 +749,7 @@
     "permissionsNote": "Placet dey request di minimal permissions (<code>commands</code>, <code>chat:write</code>) to post and update voting messages. Ballots dey stay for web; no voter need account. Type <code>/placet help</code> for Slack anytime."
   },
   "Org": {
+    "confirmRemoveMember": "Remove dis member from di roster? You no fit undo am.",
     "signInPrompt": "Sign in to create and manage your spaces, electorates and events (AGMs, elections…).",
     "featuresTitle": "Everything you fit do once you sign in",
     "featMembersLabel": "Spaces & members",

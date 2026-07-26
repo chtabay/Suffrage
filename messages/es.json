@@ -749,6 +749,7 @@
     "permissionsNote": "Placet solicita los permisos mínimos (<code>commands</code>, <code>chat:write</code>) para publicar y actualizar los mensajes de votación. Las papeletas se quedan en la web; ningún votante necesita una cuenta. Escribe <code>/placet ayuda</code> en Slack en cualquier momento."
   },
   "Org": {
+    "confirmRemoveMember": "¿Quitar este miembro del cuerpo electoral? Esta acción es definitiva.",
     "signInPrompt": "Inicia sesión para crear y gestionar tus espacios, cuerpos electorales y eventos (asambleas, elecciones…).",
     "featuresTitle": "Todo lo que puedes hacer una vez conectado",
     "featMembersLabel": "Espacios y miembros",

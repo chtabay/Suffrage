@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useTranslations } from "next-intl";
 import { CREAM, FONT_BODY, FONT_DISPLAY, INK, PAPER, SUBINK, lift } from "./theme";
@@ -18,6 +18,23 @@ const ROWS = [
 export default function AboutPlacet({ compact }: { compact?: boolean }) {
   const t = useTranslations("Home");
   const [open, setOpen] = useState(false);
+  const closeRef = useRef<HTMLButtonElement>(null);
+
+  // A11y modale : Échap ferme, le focus part sur le bouton fermer et revient au
+  // déclencheur à la fermeture (sinon l'utilisateur clavier est piégé/perdu).
+  useEffect(() => {
+    if (!open) return;
+    const opener = document.activeElement as HTMLElement | null;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setOpen(false);
+    };
+    document.addEventListener("keydown", onKey);
+    closeRef.current?.focus();
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      opener?.focus?.();
+    };
+  }, [open]);
 
   return (
     <>
@@ -73,6 +90,7 @@ export default function AboutPlacet({ compact }: { compact?: boolean }) {
             onClick={() => setOpen(false)}
             role="dialog"
             aria-modal="true"
+            aria-labelledby="about-title"
             style={{
               position: "fixed",
               inset: 0,
@@ -112,9 +130,10 @@ export default function AboutPlacet({ compact }: { compact?: boolean }) {
                 gap: 12,
               }}
             >
-              <span style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 20 }}>{t("aboutTitle")}</span>
+              <span id="about-title" style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 20 }}>{t("aboutTitle")}</span>
               <button
                 type="button"
+                ref={closeRef}
                 onClick={() => setOpen(false)}
                 aria-label={t("aboutClose")}
                 style={{

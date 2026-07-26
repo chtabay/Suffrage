@@ -158,6 +158,21 @@ export default async function ExplorerPage({ params }: { params: Promise<{ local
                     </span>
                   </div>
                   <div style={{ fontFamily: display, fontWeight: 800, fontSize: 17, lineHeight: 1.2 }}>{p.question}</div>
+                  {p.description && (
+                    <div
+                      style={{
+                        fontSize: 13,
+                        color: MUTED,
+                        lineHeight: 1.4,
+                        display: "-webkit-box",
+                        WebkitLineClamp: 2,
+                        WebkitBoxOrient: "vertical",
+                        overflow: "hidden",
+                      }}
+                    >
+                      {p.description}
+                    </div>
+                  )}
                   <div style={{ marginTop: "auto", fontSize: 12.5, color: MUTED, fontWeight: 600 }}>
                     🗳 {t("ballots", { count: p.ballot_count })} · {t("options", { count: p.options.length })}
                   </div>

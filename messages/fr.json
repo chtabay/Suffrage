@@ -749,6 +749,7 @@
     "permissionsNote": "Placet demande les permissions minimales (<code>commands</code>, <code>chat:write</code>) pour poster et mettre à jour les messages de vote. Les bulletins restent sur le web ; aucun votant n'a besoin de compte. Tapez <code>/placet aide</code> dans Slack à tout moment."
   },
   "Org": {
+    "confirmRemoveMember": "Retirer ce membre du corps électoral ? Cette action est définitive.",
     "signInPrompt": "Connectez-vous pour créer et gérer vos espaces, vos corps électoraux et vos événements (AG, élections…).",
     "featuresTitle": "Tout ce que vous pouvez faire une fois connecté",
     "featMembersLabel": "Espaces & membres",

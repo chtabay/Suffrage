@@ -749,6 +749,7 @@
     "permissionsNote": "Placet requests the minimal permissions (<code>commands</code>, <code>chat:write</code>) to post and update voting messages. Ballots stay on the web; no voter needs an account. Type <code>/placet help</code> in Slack anytime."
   },
   "Org": {
+    "confirmRemoveMember": "Remove this member from the roster? This cannot be undone.",
     "signInPrompt": "Sign in to create and manage your spaces, electorates and events (AGMs, elections…).",
     "featuresTitle": "Everything you can do once signed in",
     "featMembersLabel": "Spaces & members",

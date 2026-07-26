@@ -136,6 +136,8 @@ export default function SpaceDashboard({ spaceId }: { spaceId: string }) {
   };
 
   const onRemoveMember = async (id: string) => {
+    // Retrait destructif sans undo (un membre du roster = un lead) : on confirme.
+    if (typeof window !== "undefined" && !window.confirm(t("confirmRemoveMember"))) return;
     await removeMember(id);
     setMembers((l) => l.filter((m) => m.id !== id));
   };
