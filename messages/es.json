@@ -1,5 +1,6 @@
 {
   "Nav": {
+    "menu": "Menú",
     "explore": "Explorar",
     "spaces": "Espacios",
     "myPolls": "Mis decisiones",
@@ -548,6 +549,9 @@
     "intro": "Comparte el enlace de voto: cada uno vota sin crear una cuenta, y los resultados se calculan en directo en la misma página.",
     "voteLinkLabel": "ENLACE DE VOTO (para compartir)",
     "adminLinkLabel": "🔑 ENLACE DE GESTIÓN (privado)",
+    "adminMailSelf": "Enviármelo por correo",
+    "adminMailSubject": "Mi enlace de gestión de Placet (guárdalo)",
+    "adminMailBody": "Este es el enlace privado que gestiona mi votación en Placet. Guárdalo, no lo compartas:",
     "adminLinkHint": "Guárdalo para administrar esta votación desde cualquier dispositivo. No lo compartas.",
     "savedNotice": "✓ Guardado en « Mis decisiones » en este dispositivo.",
     "qrShow": "Mostrar el código QR",

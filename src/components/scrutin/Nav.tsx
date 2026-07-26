@@ -68,7 +68,7 @@ export default function Nav({ ctrl, auth }: { ctrl: ScrutinController; auth: Aut
         <button
           className="nav-burger"
           onClick={() => setOpen((o) => !o)}
-          aria-label="Menu"
+          aria-label={t("menu")}
           aria-expanded={open}
           style={{
             width: 42,

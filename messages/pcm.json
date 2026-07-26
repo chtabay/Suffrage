@@ -1,5 +1,6 @@
 {
   "Nav": {
+    "menu": "Menu",
     "explore": "Explore",
     "spaces": "Spaces",
     "myPolls": "My decisions",
@@ -548,6 +549,9 @@
     "intro": "Share di vote link: everybody go vote without create account, and di result dey count live for di same page.",
     "voteLinkLabel": "VOTE LINK (to share)",
     "adminLinkLabel": "🔑 MANAGEMENT LINK (private)",
+    "adminMailSelf": "Send am to my email",
+    "adminMailSubject": "My Placet management link (keep am)",
+    "adminMailBody": "Na di private link wey dey manage my poll for Placet. Keep am, no share am:",
     "adminLinkHint": "Keep am to manage dis vote from any device. No share am.",
     "savedNotice": "✓ We don save am for \"My decisions\" on dis device.",
     "qrShow": "Show QR code",

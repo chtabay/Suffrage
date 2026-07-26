@@ -224,12 +224,32 @@ export default function LaunchedScreen({ ctrl, auth }: { ctrl: ScrutinController
             </div>
           )}
 
-          <div style={{ marginTop: 18 }}>
+          {/* Bloc admin distingué (cadre accentué) : c'est LA clé à conserver.
+              Canal de sauvegarde « me l'envoyer » (mailto) pour ne pas la perdre. */}
+          <div style={{ marginTop: 18, background: "#fff9ec", border: `2.5px solid ${INK}`, borderRadius: 14, padding: 14 }}>
             <CopyRow
               url={adminUrl}
               label={t("adminLinkLabel")}
               hint={t("adminLinkHint")}
             />
+            <a
+              href={`mailto:?subject=${encodeURIComponent(t("adminMailSubject"))}&body=${encodeURIComponent(`${t("adminMailBody")}\n\n${adminUrl}`)}`}
+              style={{
+                display: "inline-block",
+                marginTop: 10,
+                fontFamily: FONT_DISPLAY,
+                fontWeight: 700,
+                fontSize: 13,
+                textDecoration: "none",
+                border: `2px solid ${INK}`,
+                background: "#fff",
+                color: INK,
+                padding: "8px 13px",
+                borderRadius: 10,
+              }}
+            >
+              ✉️ {t("adminMailSelf")}
+            </a>
           </div>
 
           <div

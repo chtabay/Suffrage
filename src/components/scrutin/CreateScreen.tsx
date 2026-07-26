@@ -278,6 +278,7 @@ export default function CreateScreen({ ctrl }: { ctrl: ScrutinController }) {
       <button
         key={key}
         onClick={() => selectSystemRecipe(key)}
+        aria-pressed={active}
         style={{
           display: "flex",
           alignItems: "center",

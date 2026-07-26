@@ -25,6 +25,9 @@ function Toggle({ on, label, onClick }: { on: boolean; label: string; onClick: (
   return (
     <button
       onClick={onClick}
+      role="switch"
+      aria-checked={on}
+      aria-label={label}
       style={{
         width: "100%",
         textAlign: "left",
