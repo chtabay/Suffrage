@@ -2117,43 +2117,54 @@ export default function PublicVote({
           onGrade={(i, gi) => setDraft((d) => ({ ...d, grades: { ...d.grades, [i]: gi } }))}
         />
 
-        <div style={{ marginTop: 18, display: "flex", flexDirection: "column", gap: 9 }}>
-          <input
-            value={pseudo}
-            onChange={(e) => setPseudo(e.target.value)}
-            placeholder={t("pseudoPlaceholder")}
-            maxLength={40}
-            style={{
-              fontFamily: FONT_BODY,
-              fontSize: 14,
-              fontWeight: 600,
-              padding: "10px 12px",
-              border: `2px solid ${INK}`,
-              borderRadius: 10,
-              background: CREAM,
-              outline: "none",
-              boxSizing: "border-box",
-            }}
-          />
-          <textarea
-            value={comment}
-            onChange={(e) => setComment(e.target.value)}
-            placeholder={t("commentPlaceholder")}
-            maxLength={280}
-            rows={2}
-            style={{
-              fontFamily: FONT_BODY,
-              fontSize: 14,
-              fontWeight: 500,
-              padding: "10px 12px",
-              border: `2px solid ${INK}`,
-              borderRadius: 10,
-              background: CREAM,
-              outline: "none",
-              boxSizing: "border-box",
-              resize: "vertical",
-            }}
-          />
+        {/* « Mot au groupe » séparé visuellement du bulletin + rassurance de secret
+            posée exactement là où le votant écrit son nom : le bulletin reste secret,
+            seul ce mot (facultatif) est visible, signé du pseudo. */}
+        <div style={{ ...card, marginTop: 18, background: CREAM }}>
+          <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 14.5 }}>✍️ {t("wordToGroupTitle")}</div>
+          <div style={{ fontSize: 12, color: MUTED, fontWeight: 600, marginTop: 5, lineHeight: 1.45 }}>
+            🔒 {t("ballotSecretNote")}
+          </div>
+          <div style={{ marginTop: 11, display: "flex", flexDirection: "column", gap: 9 }}>
+            <input
+              value={pseudo}
+              onChange={(e) => setPseudo(e.target.value)}
+              placeholder={t("pseudoPlaceholder")}
+              aria-label={t("pseudoLabel")}
+              maxLength={40}
+              style={{
+                fontFamily: FONT_BODY,
+                fontSize: 14,
+                fontWeight: 600,
+                padding: "10px 12px",
+                border: `2px solid ${INK}`,
+                borderRadius: 10,
+                background: "#fff",
+                outline: "none",
+                boxSizing: "border-box",
+              }}
+            />
+            <textarea
+              value={comment}
+              onChange={(e) => setComment(e.target.value)}
+              placeholder={t("commentPlaceholder")}
+              aria-label={t("wordToGroupTitle")}
+              maxLength={280}
+              rows={2}
+              style={{
+                fontFamily: FONT_BODY,
+                fontSize: 14,
+                fontWeight: 500,
+                padding: "10px 12px",
+                border: `2px solid ${INK}`,
+                borderRadius: 10,
+                background: "#fff",
+                outline: "none",
+                boxSizing: "border-box",
+                resize: "vertical",
+              }}
+            />
+          </div>
         </div>
 
         {error && <div style={{ marginTop: 12, color: REDTXT, fontWeight: 700, fontSize: 13 }}>{error}</div>}
