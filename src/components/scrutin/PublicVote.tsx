@@ -1613,32 +1613,35 @@ export default function PublicVote({
               }}
             />
             <LinkCopyBtn url={voteShareUrl} />
-            <a
-              href={voteShareUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{
-                textDecoration: "none",
-                fontFamily: FONT_DISPLAY,
-                fontWeight: 700,
-                fontSize: 14,
-                border: `2.5px solid ${INK}`,
-                background: YELLOW,
-                color: INK,
-                padding: "11px 16px",
-                borderRadius: 11,
-              }}
-            >
-              {t("open")}
-            </a>
           </div>
-          {/* Partage compact : icônes (copier/WhatsApp/natif) + mini-QR (vignette
-              qui s'agrandit au clic) — plus le gros QR qui prenait tout l'espace. */}
+          {/* Envoyer directement : WhatsApp / partage natif / mini-QR (vignette qui
+              s'agrandit au clic). Ligne dédiée, sous le lien+copie — flux direct. */}
           {poll.access_mode === "open" && (
             <div style={{ display: "flex", gap: 10, marginTop: 11, alignItems: "center", flexWrap: "wrap" }}>
               <ShareRow question={poll.question} url={voteShareUrl} iconOnly />
               <QrCode url={voteShareUrl} mini size={58} />
             </div>
+          )}
+          {/* Prévisualiser la page publique — action utilitaire secondaire, démotée
+              en lien discret (ce n'est pas un canal de partage). */}
+          {poll.access_mode === "open" && (
+            <a
+              href={voteShareUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                display: "inline-block",
+                marginTop: 11,
+                fontFamily: FONT_DISPLAY,
+                fontWeight: 600,
+                fontSize: 13,
+                color: MUTED,
+                textDecoration: "underline",
+                textUnderlineOffset: 3,
+              }}
+            >
+              {t("previewPublicPage")} ↗
+            </a>
           )}
 
           {/* ── GÉRER : actions sur le scrutin, séparées visuellement du partage
