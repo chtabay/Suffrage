@@ -255,6 +255,35 @@
     "copied": "✓ Prompt copié",
     "pasteHint": "Collez-le dans votre assistant, puis recopiez ici les propositions qui vous convainquent (nom, commentaire, lien du lieu)."
   },
+  "Welcome": {
+    "title": "Ce que Placet sait faire",
+    "subtitle": "Quatre usages, la même promesse : une décision de groupe qu'on peut assumer devant tout le monde.",
+    "items": [
+      {
+        "icon": "🗳️",
+        "title": "Trancher une décision",
+        "text": "Avec une vraie méthode de scrutin — majoritaire, jugement majoritaire, approbation, Condorcet — et non un simple sondage."
+      },
+      {
+        "icon": "📊",
+        "title": "Sonder un groupe",
+        "text": "Mesurer des avis et dresser un état des lieux, sans couronner personne."
+      },
+      {
+        "icon": "📅",
+        "title": "Trouver une date",
+        "text": "Chacun coche ses créneaux ; le plus disponible l'emporte, et le gagnant part dans l'agenda."
+      },
+      {
+        "icon": "🎯",
+        "title": "Répartir des places",
+        "text": "Bureaux, tâches, binômes, mentors : chacun classe ses vœux, l'affectation est calculée et vérifiable."
+      }
+    ],
+    "cta": "Créer un vote",
+    "later": "Plus tard",
+    "close": "Fermer"
+  },
   "Vote": {
     "mapTitle": "Où se situent les options",
     "mapOpen": "Voir en grand",

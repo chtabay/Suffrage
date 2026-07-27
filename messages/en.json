@@ -255,6 +255,35 @@
     "copied": "✓ Prompt copied",
     "pasteHint": "Paste it into your assistant, then copy back here the proposals that convince you (name, comment, place link)."
   },
+  "Welcome": {
+    "title": "What Placet can do",
+    "subtitle": "Four uses, one promise: a group decision you can stand behind in front of everyone.",
+    "items": [
+      {
+        "icon": "🗳️",
+        "title": "Settle a decision",
+        "text": "With a real voting method — majority, majority judgment, approval, Condorcet — not just a poll."
+      },
+      {
+        "icon": "📊",
+        "title": "Survey a group",
+        "text": "Measure opinions and map a situation, without crowning anyone."
+      },
+      {
+        "icon": "📅",
+        "title": "Find a date",
+        "text": "Everyone ticks the slots that work; the most available wins, and the winner goes to the calendar."
+      },
+      {
+        "icon": "🎯",
+        "title": "Allocate places",
+        "text": "Desks, tasks, pairs, mentors: everyone ranks their wishes, the allocation is computed and verifiable."
+      }
+    ],
+    "cta": "Create a vote",
+    "later": "Later",
+    "close": "Close"
+  },
   "Vote": {
     "mapTitle": "Where the options are",
     "mapOpen": "Open larger",

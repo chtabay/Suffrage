@@ -1,9 +1,12 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useAuth } from "@/lib/auth/useAuth";
 import { getLocalPolls } from "@/lib/db/localPolls";
 import { claimPolls } from "@/lib/db/polls";
+import { markWelcomeShown, shouldShowWelcome, touchLastOpen } from "@/lib/pwa/onboarding";
+import { useInstall } from "@/lib/pwa/install";
+import WelcomeSheet from "@/components/pwa/WelcomeSheet";
 import type { ScrutinDraft } from "@/lib/voting/draft";
 import { useScrutin } from "@/lib/voting/useScrutin";
 import CreateScreen from "./CreateScreen";
@@ -18,6 +21,24 @@ export default function ScrutinApp({ draft }: { draft?: ScrutinDraft }) {
   const auth = useAuth();
   const { screen } = ctrl.state;
   const userId = auth.user?.id;
+  const { standalone } = useInstall();
+  const [welcome, setWelcome] = useState(false);
+
+  // Repères d'usage : app INSTALLÉE, écran d'accueil, et pas de brouillon en
+  // cours (arriver avec un lien /new prérempli, c'est déjà savoir quoi faire).
+  useEffect(() => {
+    if (!standalone) return;
+    if (draft && Object.keys(draft).length > 0) return;
+    // L'ordre compte : décider AVANT d'horodater cette ouverture, sinon la
+    // longue absence serait effacée par l'ouverture qui vient de la révéler.
+    const show = screen === "home" && shouldShowWelcome();
+    if (show) markWelcomeShown();
+    else touchLastOpen();
+    setWelcome(show);
+    // Une seule évaluation par montage : les repères ne doivent pas resurgir
+    // en revenant sur l'accueil au cours de la même session.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [standalone]);
 
   // À la connexion, rattache les scrutins anonymes de cet appareil au compte.
   useEffect(() => {
@@ -36,6 +57,15 @@ export default function ScrutinApp({ draft }: { draft?: ScrutinDraft }) {
       {screen === "create" && <CreateScreen ctrl={ctrl} />}
       {screen === "launched" && <LaunchedScreen ctrl={ctrl} auth={auth} />}
       {screen === "mine" && <MesScrutinsScreen ctrl={ctrl} auth={auth} />}
+      {welcome && (
+        <WelcomeSheet
+          onClose={() => setWelcome(false)}
+          onCreate={() => {
+            setWelcome(false);
+            ctrl.go("create");
+          }}
+        />
+      )}
     </div>
   );
 }

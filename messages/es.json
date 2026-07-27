@@ -255,6 +255,35 @@
     "copied": "✓ Prompt copiado",
     "pasteHint": "Pégalo en tu asistente y luego copia aquí las propuestas que te convenzan (nombre, comentario, enlace del lugar)."
   },
+  "Welcome": {
+    "title": "Lo que Placet sabe hacer",
+    "subtitle": "Cuatro usos, una misma promesa: una decisión de grupo que puedes defender ante todos.",
+    "items": [
+      {
+        "icon": "🗳️",
+        "title": "Zanjar una decisión",
+        "text": "Con un método de voto de verdad — mayoría, juicio mayoritario, aprobación, Condorcet — no una simple encuesta."
+      },
+      {
+        "icon": "📊",
+        "title": "Sondear a un grupo",
+        "text": "Medir opiniones y hacer un diagnóstico, sin coronar a nadie."
+      },
+      {
+        "icon": "📅",
+        "title": "Encontrar una fecha",
+        "text": "Cada cual marca sus franjas; gana la más disponible, y la ganadora va a la agenda."
+      },
+      {
+        "icon": "🎯",
+        "title": "Repartir plazas",
+        "text": "Despachos, tareas, parejas, mentores: cada cual ordena sus deseos, la asignación se calcula y se verifica."
+      }
+    ],
+    "cta": "Crear una votación",
+    "later": "Más tarde",
+    "close": "Cerrar"
+  },
   "Vote": {
     "mapTitle": "Dónde están las opciones",
     "mapOpen": "Ver en grande",

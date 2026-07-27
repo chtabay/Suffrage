@@ -255,6 +255,35 @@
     "copied": "✓ Prompt don copy",
     "pasteHint": "Paste am for your assistant, den copy di proposals wey convince you come back here (name, comment, place link)."
   },
+  "Welcome": {
+    "title": "Wetin Placet fit do",
+    "subtitle": "Four uses, one promise: group decision wey you fit stand for front of everybody.",
+    "items": [
+      {
+        "icon": "🗳️",
+        "title": "Settle decision",
+        "text": "With real voting method — majority, majority judgment, approval, Condorcet — no be ordinary poll."
+      },
+      {
+        "icon": "📊",
+        "title": "Survey group",
+        "text": "Measure wetin people think and see di full picture, without crown anybody."
+      },
+      {
+        "icon": "📅",
+        "title": "Find date",
+        "text": "Everybody tick di times wey work; di one wey plenty pesin fit make e win, and e enter calendar."
+      },
+      {
+        "icon": "🎯",
+        "title": "Share places",
+        "text": "Desks, tasks, pairs, mentors: everybody rank wetin dem want, di sharing dey calculated and verifiable."
+      }
+    ],
+    "cta": "Create vote",
+    "later": "Later",
+    "close": "Close"
+  },
   "Vote": {
     "mapTitle": "Where di options dey",
     "mapOpen": "Open big",
