@@ -248,6 +248,13 @@
     "axisRandomLocalLabel": "Part d'aléatoire (local)",
     "axisRandomLocalHint": "Tirage au sort si une circonscription a un blocage Condorcet."
   },
+  "ProposalAi": {
+    "toggle": "Me faire aider par mon IA",
+    "intro": "Le prompt embarque déjà la question, le contexte et ce qui a été proposé — votre assistant complétera sans doublon, et vous demandera s'il doit poursuivre ses recherches dans la même veine.",
+    "copy": "Copier le prompt",
+    "copied": "✓ Prompt copié",
+    "pasteHint": "Collez-le dans votre assistant, puis recopiez ici les propositions qui vous convainquent (nom, commentaire, lien du lieu)."
+  },
   "Vote": {
     "mapTitle": "Où se situent les options",
     "mapOpen": "Voir en grand",
@@ -397,6 +404,7 @@
     "proposalPlacePlaceholder": "📍 Lien de carte du lieu (facultatif)",
     "proposalNotePlaceholder": "Un mot pour l'expliquer (facultatif)",
     "proposalLinkLabel": "Voir le lien",
+    "proposalAddOpen": "Ajouter une proposition",
     "proposalAdd": "Proposer",
     "proposalAdded": "✓ Proposition ajoutée.",
     "proposalDup": "Cette option a déjà été proposée.",

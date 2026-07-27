@@ -6,6 +6,70 @@ import type { Option } from "./types";
 
 export const APP_URL = "https://placet.app";
 
+/**
+ * Prompt du PARTICIPANT pendant la phase de collecte : son IA connaît le sujet
+ * du scrutin et ce qui est déjà proposé (pas de doublon), rend des propositions
+ * au format exact des trois champs du formulaire, et — demande de Guillaume —
+ * propose de POURSUIVRE la recherche dans la même veine avant qu'on recopie.
+ */
+export function buildProposalPrompt(
+  question: string,
+  description: string | null,
+  options: Option[],
+  locale = "fr",
+): string {
+  if (locale === "pcm") locale = "en";
+  const already = options
+    .map((o) => `- ${o.icon} ${o.name}${o.note ? ` — ${o.note}` : ""}`)
+    .join("\n");
+
+  if (locale === "en") {
+    return `I'm taking part in a group decision on Placet (${APP_URL}): we are collecting proposals before voting.
+
+THE QUESTION: ${question}
+${description ? `CONTEXT GIVEN BY THE ORGANIZER: ${description}\n` : ""}${already ? `ALREADY PROPOSED (do not repeat these):\n${already}\n` : "Nothing has been proposed yet.\n"}
+Suggest 3 to 5 NEW proposals that answer this question and fit alongside what is already there. For each one, use EXACTLY this format, one block per proposal, nothing else:
+
+🍕 Short name of the proposal
+Comment: one sentence on why it deserves a place in the list
+Place: the Google Maps link IF it is a physical place (otherwise write "—")
+
+Rules: start every name with a relevant emoji; NEVER invent a link — if you are unsure of the address, write "—"; respect any budget or constraint stated above.
+
+When you're done, ASK ME whether you should keep looking along the same lines (other neighbourhoods, another price range, another format) before I copy these into Placet.`;
+  }
+
+  if (locale === "es") {
+    return `Participo en una decisión de grupo en Placet (${APP_URL}): estamos recogiendo propuestas antes de votar.
+
+LA PREGUNTA: ${question}
+${description ? `CONTEXTO DADO POR LA ORGANIZACIÓN: ${description}\n` : ""}${already ? `YA PROPUESTO (no lo repitas):\n${already}\n` : "Aún no hay ninguna propuesta.\n"}
+Propón de 3 a 5 propuestas NUEVAS que respondan a esta pregunta y encajen con lo que ya hay. Para cada una, usa EXACTAMENTE este formato, un bloque por propuesta, nada más:
+
+🍕 Nombre corto de la propuesta
+Comentario: una frase que explique por qué merece estar en la lista
+Lugar: el enlace de Google Maps SI es un sitio físico (si no, escribe «—»)
+
+Reglas: empieza cada nombre con un emoji pertinente; NUNCA inventes un enlace — si no estás seguro de la dirección, escribe «—»; respeta el presupuesto o las restricciones indicadas arriba.
+
+Cuando termines, PREGÚNTAME si debes seguir buscando en la misma línea (otros barrios, otra gama de precios, otro formato) antes de que copie esto en Placet.`;
+  }
+
+  return `Je participe à une décision de groupe sur Placet (${APP_URL}) : nous rassemblons des propositions avant de voter.
+
+LA QUESTION POSÉE : ${question}
+${description ? `CONTEXTE DONNÉ PAR L'ORGANISATEUR : ${description}\n` : ""}${already ? `DÉJÀ PROPOSÉ (ne le repropose pas) :\n${already}\n` : "Rien n'a encore été proposé.\n"}
+Propose-moi 3 à 5 propositions NOUVELLES qui répondent à cette question et tiennent à côté de ce qui existe déjà. Pour chacune, respecte EXACTEMENT ce format, un bloc par proposition, rien d'autre :
+
+🍕 Nom court de la proposition
+Commentaire : une phrase qui explique pourquoi elle mérite sa place dans la liste
+Lieu : le lien Google Maps SI c'est un endroit physique (sinon écris « — »)
+
+Règles : commence chaque nom par un emoji pertinent ; n'invente JAMAIS un lien — si tu n'es pas sûr de l'adresse, écris « — » ; respecte le budget ou les contraintes indiqués plus haut.
+
+Quand tu as fini, DEMANDE-MOI si tu dois poursuivre les recherches dans la même veine (autres quartiers, autre gamme de prix, autre format) avant que je recopie tout cela dans Placet.`;
+}
+
 export function buildAiPrompt(question: string, options: Option[], source: string, locale = "fr"): string {
   if (locale === "pcm") locale = "en"; // créole anglophone → prompt anglais
   const methods = PUBLIC_METHODS.map((m) => m.key).join(", ");

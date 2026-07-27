@@ -57,6 +57,7 @@ import InstallInline from "@/components/pwa/InstallInline";
 import NotifyButton from "@/components/pwa/NotifyButton";
 import BallotCard, { EMPTY_DRAFT, type BallotDraft } from "./BallotCard";
 import PollMap from "./PollMap";
+import ProposalAiHelper from "./ProposalAiHelper";
 import ResultCard from "./ResultCard";
 import ArgumentsPanel from "./ArgumentsPanel";
 import AssignResult from "./AssignResult";
@@ -842,6 +843,8 @@ function ProposalsView({
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
   const [ended, setEnded] = useState(false);
+  // Le formulaire est replié : la liste des propositions passe en premier.
+  const [addOpen, setAddOpen] = useState(false);
 
   const submit = async () => {
     const clean = name.trim();
@@ -929,8 +932,67 @@ function ProposalsView({
               {t("proposalsGoVote")}
             </button>
           </div>
+        ) : null}
+      </div>
+
+      <div style={{ ...card, marginTop: 16 }}>
+        <div style={{ fontWeight: 800, fontFamily: FONT_DISPLAY, fontSize: 15, marginBottom: 10 }}>
+          {t("proposalsListTitle", { count: opts.length })}
+        </div>
+        {opts.length === 0 ? (
+          <div style={{ color: MUTED, fontSize: 14 }}>{t("proposalsListEmpty")}</div>
         ) : (
-          <div style={{ marginTop: 14 }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 7 }}>
+            {opts.map((o, i) => (
+              <div
+                key={i}
+                style={{
+                  display: "flex",
+                  alignItems: "flex-start",
+                  gap: 10,
+                  border: `2px solid ${INK}`,
+                  borderRadius: 10,
+                  background: CREAM,
+                  padding: "9px 12px",
+                  fontSize: 14,
+                }}
+              >
+                <span style={{ fontSize: 18, flex: "none" }}>{o.icon}</span>
+                <div style={{ minWidth: 0 }}>
+                  <div style={{ fontWeight: 600 }}>{o.name}</div>
+                  {o.note && <div style={{ fontSize: 12.5, color: SUBINK, marginTop: 2, lineHeight: 1.4 }}>{o.note}</div>}
+                  {optionIllustration(o) && (
+                    <a
+                      href={optionIllustration(o)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{ display: "inline-block", marginTop: 4, fontSize: 12, fontWeight: 700, color: INK, textDecoration: "underline" }}
+                    >
+                      🔗 {t("proposalLinkLabel")}
+                    </a>
+                  )}
+                  {optionPlace(o) && /^https?:\/\//i.test(optionPlace(o)!) && (
+                    <a
+                      href={optionPlace(o)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{ display: "inline-block", marginTop: 4, marginLeft: o.url ? 10 : 0, fontSize: 12, fontWeight: 700, color: INK, textDecoration: "underline" }}
+                    >
+                      📍 {t("placeChip")}
+                    </a>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Ajouter une proposition : un bouton qui se déplie À LA SUITE de la
+            liste — on lit d'abord ce qui existe, on complète ensuite. */}
+        {!ended && (
+          <div style={{ marginTop: 14, paddingTop: 14, borderTop: `2px dashed ${INK}` }}>
+            {addOpen ? (
+              <div>
             {/* Emoji : champ LIBRE (n'importe quel emoji via le clavier de l'OS) +
                 suggestions rapides. Le choix n'est plus limité. */}
             <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap", marginBottom: 10 }}>
@@ -1046,59 +1108,30 @@ function ProposalsView({
               <div style={{ marginTop: 10, fontSize: 13, fontWeight: 700, color: SUBINK }}>{notice}</div>
             )}
             <div style={{ marginTop: 8, fontSize: 12.5, color: MUTED, lineHeight: 1.45 }}>{t("proposalsWait")}</div>
-          </div>
-        )}
-      </div>
-
-      <div style={{ ...card, marginTop: 16 }}>
-        <div style={{ fontWeight: 800, fontFamily: FONT_DISPLAY, fontSize: 15, marginBottom: 10 }}>
-          {t("proposalsListTitle", { count: opts.length })}
-        </div>
-        {opts.length === 0 ? (
-          <div style={{ color: MUTED, fontSize: 14 }}>{t("proposalsListEmpty")}</div>
-        ) : (
-          <div style={{ display: "flex", flexDirection: "column", gap: 7 }}>
-            {opts.map((o, i) => (
-              <div
-                key={i}
+            {/* Son propre assistant, avec le contexte du scrutin déjà dedans. */}
+            <ProposalAiHelper question={poll.question} description={poll.description} options={opts} />
+              </div>
+            ) : (
+              <button
+                onClick={() => setAddOpen(true)}
+                aria-expanded={false}
+                className="dc-lift"
                 style={{
-                  display: "flex",
-                  alignItems: "flex-start",
-                  gap: 10,
-                  border: `2px solid ${INK}`,
-                  borderRadius: 10,
-                  background: CREAM,
-                  padding: "9px 12px",
-                  fontSize: 14,
+                  fontFamily: FONT_DISPLAY,
+                  fontWeight: 800,
+                  fontSize: 15,
+                  cursor: "pointer",
+                  border: `2.5px solid ${INK}`,
+                  background: CORAL,
+                  color: "#fff",
+                  padding: "11px 18px",
+                  borderRadius: 11,
+                  ...lift(`3px 3px 0 ${INK}`, `4px 4px 0 ${INK}`),
                 }}
               >
-                <span style={{ fontSize: 18, flex: "none" }}>{o.icon}</span>
-                <div style={{ minWidth: 0 }}>
-                  <div style={{ fontWeight: 600 }}>{o.name}</div>
-                  {o.note && <div style={{ fontSize: 12.5, color: SUBINK, marginTop: 2, lineHeight: 1.4 }}>{o.note}</div>}
-                  {optionIllustration(o) && (
-                    <a
-                      href={optionIllustration(o)}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      style={{ display: "inline-block", marginTop: 4, fontSize: 12, fontWeight: 700, color: INK, textDecoration: "underline" }}
-                    >
-                      🔗 {t("proposalLinkLabel")}
-                    </a>
-                  )}
-                  {optionPlace(o) && /^https?:\/\//i.test(optionPlace(o)!) && (
-                    <a
-                      href={optionPlace(o)}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      style={{ display: "inline-block", marginTop: 4, marginLeft: o.url ? 10 : 0, fontSize: 12, fontWeight: 700, color: INK, textDecoration: "underline" }}
-                    >
-                      📍 {t("placeChip")}
-                    </a>
-                  )}
-                </div>
-              </div>
-            ))}
+                ＋ {t("proposalAddOpen")}
+              </button>
+            )}
           </div>
         )}
       </div>

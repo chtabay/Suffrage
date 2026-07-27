@@ -248,6 +248,13 @@
     "axisRandomLocalLabel": "Randomness (local)",
     "axisRandomLocalHint": "Draw lots if a district hits a Condorcet deadlock."
   },
+  "ProposalAi": {
+    "toggle": "Get help from my AI",
+    "intro": "The prompt already carries the question, the context and what has been proposed — your assistant will add to it without repeating, and will ask whether it should keep looking along the same lines.",
+    "copy": "Copy the prompt",
+    "copied": "✓ Prompt copied",
+    "pasteHint": "Paste it into your assistant, then copy back here the proposals that convince you (name, comment, place link)."
+  },
   "Vote": {
     "mapTitle": "Where the options are",
     "mapOpen": "Open larger",
@@ -397,6 +404,7 @@
     "proposalPlacePlaceholder": "📍 Map link of the place (optional)",
     "proposalNotePlaceholder": "A word to explain it (optional)",
     "proposalLinkLabel": "Open link",
+    "proposalAddOpen": "Add a proposal",
     "proposalAdd": "Propose",
     "proposalAdded": "✓ Proposal added.",
     "proposalDup": "That option has already been proposed.",

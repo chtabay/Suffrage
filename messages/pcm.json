@@ -248,6 +248,13 @@
     "axisRandomLocalLabel": "Randomness (local)",
     "axisRandomLocalHint": "Draw luck if district hit Condorcet lock."
   },
+  "ProposalAi": {
+    "toggle": "Make my AI help me",
+    "intro": "Di prompt already carry di question, di context and wetin dem don propose — your assistant go add without repeat, and e go ask if e should continue to search for di same line.",
+    "copy": "Copy di prompt",
+    "copied": "✓ Prompt don copy",
+    "pasteHint": "Paste am for your assistant, den copy di proposals wey convince you come back here (name, comment, place link)."
+  },
   "Vote": {
     "mapTitle": "Where di options dey",
     "mapOpen": "Open big",
@@ -397,6 +404,7 @@
     "proposalPlacePlaceholder": "📍 Map link of di place (optional)",
     "proposalNotePlaceholder": "Small word to explain am (optional)",
     "proposalLinkLabel": "Open link",
+    "proposalAddOpen": "Add proposal",
     "proposalAdd": "Propose",
     "proposalAdded": "✓ Proposal don enter.",
     "proposalDup": "Dem don propose dat option before.",

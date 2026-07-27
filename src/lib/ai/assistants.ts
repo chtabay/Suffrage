@@ -58,3 +58,13 @@ export async function openAssistant(a: Assistant, question: string, options: Opt
 export async function copyAiPrompt(question: string, options: Option[], locale: string) {
   await copy(buildAiPrompt(question, options, "ai", locale));
 }
+
+/** Même chose pour un prompt déjà construit (ex. propositions en phase de collecte). */
+export async function openAssistantWith(a: Assistant, prompt: string) {
+  await copy(prompt);
+  window.open(a.url(prompt), "_blank", "noopener,noreferrer");
+}
+
+export async function copyPrompt(prompt: string) {
+  await copy(prompt);
+}

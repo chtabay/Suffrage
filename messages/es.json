@@ -248,6 +248,13 @@
     "axisRandomLocalLabel": "Dosis de azar (local)",
     "axisRandomLocalHint": "Sorteo si un distrito tiene un bloqueo de Condorcet."
   },
+  "ProposalAi": {
+    "toggle": "Que me ayude mi IA",
+    "intro": "El prompt ya lleva la pregunta, el contexto y lo ya propuesto — tu asistente completará sin repetir, y te preguntará si debe seguir buscando en la misma línea.",
+    "copy": "Copiar el prompt",
+    "copied": "✓ Prompt copiado",
+    "pasteHint": "Pégalo en tu asistente y luego copia aquí las propuestas que te convenzan (nombre, comentario, enlace del lugar)."
+  },
   "Vote": {
     "mapTitle": "Dónde están las opciones",
     "mapOpen": "Ver en grande",
@@ -397,6 +404,7 @@
     "proposalPlacePlaceholder": "📍 Enlace de mapa del lugar (opcional)",
     "proposalNotePlaceholder": "Unas palabras para explicarla (opcional)",
     "proposalLinkLabel": "Abrir enlace",
+    "proposalAddOpen": "Añadir una propuesta",
     "proposalAdd": "Proponer",
     "proposalAdded": "✓ Propuesta añadida.",
     "proposalDup": "Esa opción ya se ha propuesto.",
