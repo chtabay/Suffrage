@@ -121,6 +121,8 @@ export default async function AiDocPage() {
                 <li><b>description</b>{t.rich("paramDescription", { b, code: codeTag })}</li>
                 <li><b>options</b>{t.rich("paramOptions", { b, code: codeTag })}</li>
                 <li><b>media</b>{t.rich("paramMedia", { b, code: codeTag })}</li>
+                <li><b>places</b>{t.rich("paramPlaces", { b, code: codeTag })}</li>
+                <li><b>notes</b>{t.rich("paramNotes", { b, code: codeTag })}</li>
                 <li><b>dates</b>{t.rich("paramDates", { b, code: codeTag })}</li>
                 <li><b>method</b>{t.rich("paramMethod", { b, code: codeTag })}</li>
                 <li><b>survey</b>{t.rich("paramSurvey", { b, code: codeTag })}</li>
@@ -188,6 +190,8 @@ Content-Type: application/json
   "description": "Budget 80 €/pers, départ vendredi soir.",
   "options": ["La montagne", "Le bord de mer", "La campagne"],
   "media": ["https://exemple.com/montagne.jpg", "", "https://exemple.com/campagne.jpg"],
+  "places": ["https://maps.app.goo.gl/abc123", "", ""],
+  "notes": ["2 h de route", "Plage à 10 min", "Gîte déjà repéré"],
   "method": "majority_judgment",
   "source": "mon-agent",
   "why": "Plusieurs options, un consensus est recherché"

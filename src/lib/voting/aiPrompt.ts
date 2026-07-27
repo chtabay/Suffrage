@@ -32,9 +32,14 @@ Duty roster / shifts (assign TIME SLOTS instead of things — combine "assign" w
 ${APP_URL}/new?title=...&assign=serial_dictatorship&dates=2026-07-20T19:00|2026-07-21T19:00|2026-07-22T19:00|2026-07-23T19:00&participants=Alice|Bob&per=2&source=${source}&why=...
 Encode the values properly, put your rationale in "why", and include no sensitive data (emails, IDs…).
 
-Per-option links: you can attach ONE link to each option (website, menu, document — and for a PLACE, look up its Google Maps link and suggest it). If you can POST to the API (see below), put them in "media" (one per option, same order; empty string if none). Otherwise don't bloat the /new link: tell the user they can paste each option's link (or an image) in the app (🔗 button).
+Per-option extras — three SEPARATE, aligned-by-index lists (same order as the options, empty string when there is none):
+- "places" = LOCATION links (Google Maps, OpenStreetMap, Apple Plans). Whenever an option is a PLACE (restaurant, venue, hotel, meeting point…), look up its map link and put it HERE, not in "media": Placet then draws a MAP under the vote showing where the options are relative to each other. A link carrying coordinates (…/@48.8584,2.2945,17z, ?q=lat,lng, #map=z/lat/lng) is ideal; a short link (maps.app.goo.gl) works too, the app resolves it;
+- "media" = ILLUSTRATIONS (photo, menu, document, video) — what you look at, not where it is;
+- "notes" = a SHORT comment per option (why it's on the list: "heated terrace", "5 min walk") — one line max, no pipe character.
+Keep the /new link short: with more than 3-4 options, prefer the API below, or tell the user they can paste these per option in the app (🔗 button on each option).
+${APP_URL}/new?title=...&options=🍕 Mario|🍣 Kyoto&places=https://maps.google.com/...|https://maps.app.goo.gl/...&notes=Heated terrace|5 min walk&method=...&source=${source}
 
-This /new link works EVERYWHERE, including inside ChatGPT, Claude or Gemini: it's your default output. ONLY if you can actually make HTTP requests (an agent, a GPT with "Actions", MCP — a plain chat cannot) may you instead POST ${APP_URL}/api/poll-drafts with { title, description, options (or dates), media, method, deadline, source, why } and present the returned { draft_url } as a clickable link. When in doubt, give the /new link.`;
+This /new link works EVERYWHERE, including inside ChatGPT, Claude or Gemini: it's your default output. ONLY if you can actually make HTTP requests (an agent, a GPT with "Actions", MCP — a plain chat cannot) may you instead POST ${APP_URL}/api/poll-drafts with { title, description, options (or dates), media, places, notes, method, deadline, source, why } and present the returned { draft_url } as a clickable link. When in doubt, give the /new link.`;
 
     if (!hasContext) {
       // Cold start (home rail): no topic known yet.
@@ -82,9 +87,14 @@ Turnos / guardias (asignar FRANJAS en lugar de cosas — combina "assign" con "d
 ${APP_URL}/new?title=...&assign=serial_dictatorship&dates=2026-07-20T19:00|2026-07-21T19:00|2026-07-22T19:00|2026-07-23T19:00&participants=Alice|Bob&per=2&source=${source}&why=...
 Codifica correctamente los valores, pon tu justificación en "why" y no incluyas ningún dato sensible (correos, identificadores…).
 
-Enlaces por opción: puedes asociar UN enlace a cada opción (web, menú, documento — y para un LUGAR, busca su enlace de Google Maps y propónlo). Si puedes hacer POST a la API (ver abajo), ponlos en "media" (uno por opción, en el mismo orden; cadena vacía si no hay). Si no, no recargues el enlace /new: dile al usuario que podrá pegar el enlace (o una imagen) de cada opción en la app (botón 🔗).
+Extras por opción — tres listas SEPARADAS, alineadas por índice (mismo orden que las opciones, cadena vacía si no hay):
+- "places" = enlaces de UBICACIÓN (Google Maps, OpenStreetMap, Apple Mapas). Siempre que una opción sea un LUGAR (restaurante, sala, hotel, punto de encuentro…), busca su enlace de mapa y ponlo AQUÍ, no en "media": Placet dibuja entonces un MAPA bajo la votación que muestra dónde están las opciones unas respecto de otras. Un enlace con coordenadas (…/@48.8584,2.2945,17z, ?q=lat,lng, #map=z/lat/lng) es lo ideal; un enlace corto (maps.app.goo.gl) también sirve, la app lo resuelve;
+- "media" = ILUSTRACIONES (foto, menú, documento, vídeo) — lo que se mira, no dónde está;
+- "notes" = un comentario CORTO por opción (por qué está en la lista: «terraza climatizada», «a 5 min a pie») — una línea como máximo, sin barra vertical.
+Mantén corto el enlace /new: con más de 3-4 opciones, prefiere la API de abajo, o dile al usuario que puede pegar esto en cada opción dentro de la app (botón 🔗).
+${APP_URL}/new?title=...&options=🍕 Mario|🍣 Kyoto&places=https://maps.google.com/...|https://maps.app.goo.gl/...&notes=Terraza climatizada|A 5 min a pie&method=...&source=${source}
 
-Este enlace /new funciona EN TODAS PARTES, incluso dentro de ChatGPT, Claude o Gemini: es tu salida por defecto. SOLO si realmente puedes hacer peticiones HTTP (un agente, un GPT con "Actions", MCP — un simple chat no puede) puedes en su lugar hacer POST a ${APP_URL}/api/poll-drafts con { title, description, options (o dates), media, method, deadline, source, why } y presentar el { draft_url } recibido como enlace clicable. En caso de duda, da el enlace /new.`;
+Este enlace /new funciona EN TODAS PARTES, incluso dentro de ChatGPT, Claude o Gemini: es tu salida por defecto. SOLO si realmente puedes hacer peticiones HTTP (un agente, un GPT con "Actions", MCP — un simple chat no puede) puedes en su lugar hacer POST a ${APP_URL}/api/poll-drafts con { title, description, options (o dates), media, places, notes, method, deadline, source, why } y presentar el { draft_url } recibido como enlace clicable. En caso de duda, da el enlace /new.`;
 
     if (!hasContext) {
       // Arranque en frío (rail de inicio): aún no se conoce el tema.
@@ -132,9 +142,14 @@ Permanences / tours de garde (attribuer des CRÉNEAUX au lieu de choses — comb
 ${APP_URL}/new?title=...&assign=serial_dictatorship&dates=2026-07-20T19:00|2026-07-21T19:00|2026-07-22T19:00|2026-07-23T19:00&participants=Alice|Bob&per=2&source=${source}&why=...
 Encode correctement les valeurs, mets ta justification dans "why", n'inclus aucune donnée sensible (e-mails, identifiants…).
 
-Liens par option : tu peux associer UN lien à chaque option (site, menu, document — et pour un LIEU, cherche son lien Google Maps et propose-le). Si tu peux poster sur l'API (voir plus bas), mets-les dans "media" (un par option, dans le même ordre ; chaîne vide si aucun). Sinon ne surcharge pas le lien /new : dis à l'utilisateur qu'il pourra coller le lien (ou une image) de chaque option dans l'app (bouton 🔗).
+Compléments par option — trois listes SÉPARÉES, alignées par index (même ordre que les options, chaîne vide s'il n'y a rien) :
+- "places" = liens de LOCALISATION (Google Maps, OpenStreetMap, Plans). Dès qu'une option est un LIEU (restaurant, salle, hôtel, point de rendez-vous…), cherche son lien de carte et mets-le ICI, pas dans "media" : Placet dessine alors une CARTE sous le vote qui montre où sont les options les unes par rapport aux autres. Un lien portant les coordonnées (…/@48.8584,2.2945,17z, ?q=lat,lng, #map=z/lat/lng) est idéal ; un lien court (maps.app.goo.gl) marche aussi, l'app le résout ;
+- "media" = ILLUSTRATIONS (photo, menu, document, vidéo) — ce qu'on regarde, pas où c'est ;
+- "notes" = un commentaire COURT par option (pourquoi elle est dans la liste : « terrasse chauffée », « à 5 min à pied ») — une ligne maximum, sans barre verticale.
+Garde le lien /new court : au-delà de 3-4 options, préfère l'API ci-dessous, ou dis à l'utilisateur qu'il pourra coller tout cela option par option dans l'app (bouton 🔗).
+${APP_URL}/new?title=...&options=🍕 Mario|🍣 Kyoto&places=https://maps.google.com/...|https://maps.app.goo.gl/...&notes=Terrasse chauffée|À 5 min à pied&method=...&source=${source}
 
-Ce lien /new fonctionne PARTOUT, y compris dans ChatGPT, Claude ou Gemini : c'est ta sortie par défaut. UNIQUEMENT si tu peux réellement faire des requêtes HTTP (agent, GPT à « Actions », MCP — un simple chat ne le peut pas), tu peux à la place POST ${APP_URL}/api/poll-drafts avec { title, description, options (ou dates), media, method, deadline, source, why } et présenter le { draft_url } reçu comme lien cliquable. Dans le doute, donne le lien /new.`;
+Ce lien /new fonctionne PARTOUT, y compris dans ChatGPT, Claude ou Gemini : c'est ta sortie par défaut. UNIQUEMENT si tu peux réellement faire des requêtes HTTP (agent, GPT à « Actions », MCP — un simple chat ne le peut pas), tu peux à la place POST ${APP_URL}/api/poll-drafts avec { title, description, options (ou dates), media, places, notes, method, deadline, source, why } et présenter le { draft_url } reçu comme lien cliquable. Dans le doute, donne le lien /new.`;
 
   if (!hasContext) {
     // Lancement « à froid » (rail d'accueil) : aucun sujet connu.

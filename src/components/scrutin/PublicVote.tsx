@@ -35,6 +35,7 @@ import {
   type VoterContext,
 } from "@/lib/db/polls";
 import { trackShare } from "@/lib/db/track";
+import { isPlaceUrl, resolvePlace } from "@/lib/voting/geo";
 import {
   compute,
   describeRecipe,
@@ -54,6 +55,7 @@ import { APP_URL } from "@/lib/voting/aiPrompt";
 import InstallInline from "@/components/pwa/InstallInline";
 import NotifyButton from "@/components/pwa/NotifyButton";
 import BallotCard, { EMPTY_DRAFT, type BallotDraft } from "./BallotCard";
+import PollMap from "./PollMap";
 import ResultCard from "./ResultCard";
 import ArgumentsPanel from "./ArgumentsPanel";
 import AssignResult from "./AssignResult";
@@ -834,6 +836,7 @@ function ProposalsView({
   const [name, setName] = useState("");
   const [icon, setIcon] = useState(PROPOSAL_ICONS[0]);
   const [url, setUrl] = useState("");
+  const [place, setPlace] = useState("");
   const [note, setNote] = useState("");
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
@@ -845,13 +848,21 @@ function ProposalsView({
     setBusy(true);
     setNotice(null);
     try {
+      // Un lien de carte collé dans « illustration » est en fait un lieu — mais
+      // seulement si le champ lieu est vide : sinon on écraserait sa saisie.
+      const isMap = isPlaceUrl(url) && !place.trim();
+      const finalUrl = isMap ? "" : url;
+      const finalPlace = isMap ? url : place;
+      // Coordonnées résolues côté client : le lieu apparaît sur la carte tout de suite.
+      const geo = finalPlace ? await resolvePlace(finalPlace) : null;
       // Vérifié : jeton nominatif. Rapide : par le lien du scrutin (accès ouvert).
       const r = voterToken
-        ? await addProposal(voterToken, clean, icon, url, note)
-        : await addProposalOpen(token, clean, icon, url, note);
+        ? await addProposal(voterToken, clean, icon, finalUrl, note, finalPlace, geo?.lat, geo?.lng)
+        : await addProposalOpen(token, clean, icon, finalUrl, note, finalPlace, geo?.lat, geo?.lng);
       if (r === "ok") {
         setName("");
         setUrl("");
+        setPlace("");
         setNote("");
         setNotice(t("proposalAdded"));
         const fresh = await getPollByToken(token).catch(() => null);
@@ -1012,6 +1023,14 @@ function ProposalsView({
               placeholder={t("proposalUrlPlaceholder")}
               style={{ width: "100%", boxSizing: "border-box", marginTop: 9, fontFamily: FONT_BODY, fontSize: 14, fontWeight: 500, padding: "10px 12px", border: `2px solid ${INK}`, borderRadius: 10, background: "#fff", outline: "none" }}
             />
+            {/* Lieu : distinct de l'illustration — il place l'option sur la carte. */}
+            <input
+              value={place}
+              onChange={(e) => setPlace(e.target.value)}
+              maxLength={500}
+              placeholder={t("proposalPlacePlaceholder")}
+              style={{ width: "100%", boxSizing: "border-box", marginTop: 9, fontFamily: FONT_BODY, fontSize: 14, fontWeight: 500, padding: "10px 12px", border: `2px solid ${INK}`, borderRadius: 10, background: "#fff", outline: "none" }}
+            />
             <input
               value={note}
               onChange={(e) => setNote(e.target.value)}
@@ -1064,6 +1083,16 @@ function ProposalsView({
                       style={{ display: "inline-block", marginTop: 4, fontSize: 12, fontWeight: 700, color: INK, textDecoration: "underline" }}
                     >
                       🔗 {t("proposalLinkLabel")}
+                    </a>
+                  )}
+                  {o.place && /^https?:\/\//i.test(o.place) && (
+                    <a
+                      href={o.place}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{ display: "inline-block", marginTop: 4, marginLeft: o.url ? 10 : 0, fontSize: 12, fontWeight: 700, color: INK, textDecoration: "underline" }}
+                    >
+                      📍 {t("placeChip")}
                     </a>
                   )}
                 </div>
@@ -1796,6 +1825,11 @@ export default function PublicVote({
                           🔗 {t("proposalLinkLabel")}
                         </a>
                       )}
+                      {o.place && /^https?:\/\//i.test(o.place) && (
+                        <a href={o.place} target="_blank" rel="noopener noreferrer" style={{ display: "inline-block", marginTop: 4, marginLeft: o.url ? 10 : 0, fontSize: 12, fontWeight: 700, color: INK, textDecoration: "underline" }}>
+                          📍 {t("placeChip")}
+                        </a>
+                      )}
                     </div>
                     <button
                       onClick={() => removeOpt(i)}
@@ -1828,6 +1862,7 @@ export default function PublicVote({
             {/* Ouvert/programmé : le résultat reste à sa place, sous la gestion.
                 Clos : il a déjà été rendu en tête (orgResult), on ne le répète pas. */}
             {phase !== "closed" && orgResult}
+            <PollMap options={poll.options} />
             {/* Le débat : lecture complète pour l'organisateur, dépôt tant que c'est ouvert. */}
             {!aDef && (
               <ArgumentsPanel
@@ -1990,6 +2025,7 @@ export default function PublicVote({
                 />
               </ShareFold>
             )}
+            <PollMap options={poll.options} />
             <CommentsFeed comments={comments} />
             <OfficialRecordCta token={token} />
           </>
@@ -2095,6 +2131,7 @@ export default function PublicVote({
         <ResultCard result={result} question={poll.question} ballotCount={ballotCount} footer={footer} calendarSlot={winnerSlot} calendarUrl={voteShareUrl} calendarDuration={poll.slot_minutes ?? undefined} survey={isSurvey} decided={phase === "closed"} />
         {/* Scrutin encore ouvert : inviter à amener d'autres votants (partage du SCRUTIN). */}
         {phase !== "closed" && poll.access_mode === "open" && <InviteMoreVoters question={poll.question} url={voteShareUrl} />}
+        <PollMap options={poll.options} />
         <CommentsFeed comments={comments} />
         {/* Débat complet ; on peut encore argumenter tant que le scrutin est ouvert. */}
         {!aDef && (
@@ -2401,6 +2438,10 @@ export default function PublicVote({
           {submitting ? t("submitting") : `✓ ${t("vote")}`}
         </button>
       </div>
+
+      {/* Carte des lieux : sous le bulletin, elle situe les options les unes par
+          rapport aux autres — ce qu'aucune liste ne montre. */}
+      <PollMap options={poll.options} />
 
       {/* Le débat sous le bulletin : argumenter est indépendant du vote. Si les
           résultats sont cachés, la lecture l'est aussi (un débat déséquilibré

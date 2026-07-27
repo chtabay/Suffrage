@@ -7,6 +7,7 @@ import { addLocalPoll } from "@/lib/db/localPolls";
 import { addVoters, createPoll, setPollVisibility, type AccessMode, type District, type VoterInput } from "@/lib/db/polls";
 import { ASSIGN_METHODS, type AssignMethodKey } from "@/lib/assign/methods";
 import { SLOT_ICON, slotLabel, type ScrutinDraft } from "./draft";
+import { resolvePlace } from "./geo";
 import { DEFAULT_RECIPE, recipeForSystem } from "./engine";
 import type { Option, Recipe } from "./types";
 
@@ -228,6 +229,38 @@ export function useScrutin(draft?: ScrutinDraft) {
     });
   }, []);
 
+  // Justification courte affichée sous l'option (même champ que les propositions).
+  const setOptionNote = useCallback((i: number, note: string) => {
+    setState((s) => {
+      const options = s.options.slice();
+      options[i] = { ...options[i], note: note.trim() || undefined };
+      return { ...s, options, ...CLEAR_SHARE };
+    });
+  }, []);
+
+  // Localisation : le lien est posé tout de suite, les coordonnées arrivent
+  // ensuite (lien court à résoudre) — d'où la mise à jour en deux temps.
+  const setOptionPlace = useCallback((i: number, place: string) => {
+    setState((s) => {
+      const options = s.options.slice();
+      const value = place.trim() || undefined;
+      const { lat: _lat, lng: _lng, ...rest } = options[i];
+      options[i] = value ? { ...rest, place: value } : { ...rest, place: undefined };
+      return { ...s, options, ...CLEAR_SHARE };
+    });
+  }, []);
+
+  const setOptionGeo = useCallback((i: number, place: string, lat?: number, lng?: number) => {
+    setState((s) => {
+      const options = s.options.slice();
+      // Le champ a pu changer pendant la résolution : on n'écrase que si c'est
+      // toujours le même lien.
+      if (options[i]?.place !== place) return s;
+      options[i] = { ...options[i], lat, lng };
+      return { ...s, options, ...CLEAR_SHARE };
+    });
+  }, []);
+
   const setOptionIcon = useCallback((i: number, icon: string) => {
     setState((s) => {
       const options = s.options.slice();
@@ -237,8 +270,18 @@ export function useScrutin(draft?: ScrutinDraft) {
   }, []);
 
   // Remplace tous les créneaux d'un coup (sélecteur de dates calendaire).
+  // Le calendrier ne connaît que les dates : on RECONDUIT les détails déjà
+  // attachés au même créneau (commentaire, lien, lieu) — sinon toucher une case
+  // effacerait en silence les notes d'un brouillon d'IA.
   const setSlots = useCallback((options: Option[]) => {
-    setState((s) => ({ ...s, options, ...CLEAR_SHARE }));
+    setState((s) => {
+      const kept = new Map(s.options.filter((o) => o.at).map((o) => [o.at, o]));
+      const merged = options.map((o) => {
+        const prev = o.at ? kept.get(o.at) : undefined;
+        return prev ? { ...o, url: prev.url, note: prev.note, place: prev.place, lat: prev.lat, lng: prev.lng } : o;
+      });
+      return { ...s, options: merged, ...CLEAR_SHARE };
+    });
   }, []);
 
   // Durée d'un créneau (pour le .ics du gagnant) — votes de dates.
@@ -530,6 +573,17 @@ export function useScrutin(draft?: ScrutinDraft) {
           : s.recipe;
       const access: AccessMode = isAssign ? "invite" : s.access;
 
+      // Dernière chance de localiser : un lien court collé juste avant le clic
+      // n'a peut-être pas fini d'être résolu, et les options sont FIGÉES après
+      // le lancement — sans coordonnées, le lieu n'apparaîtrait jamais sur la carte.
+      cleanOptions = await Promise.all(
+        cleanOptions.map(async (o) => {
+          if (!o.place || typeof o.lat === "number") return o;
+          const geo = await resolvePlace(o.place);
+          return geo ? { ...o, lat: geo.lat, lng: geo.lng } : o;
+        }),
+      );
+
       const toISO = (str: string) => (str ? new Date(str).toISOString() : null);
       const { token, secret } = await createPoll(question, cleanOptions, recipe, {
         description: s.description,
@@ -592,6 +646,9 @@ export function useScrutin(draft?: ScrutinDraft) {
     setDescription,
     setOptionName,
     setOptionUrl,
+    setOptionNote,
+    setOptionPlace,
+    setOptionGeo,
     setOptionIcon,
     removeOption,
     addOption,

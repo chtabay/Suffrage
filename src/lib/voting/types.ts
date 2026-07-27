@@ -61,8 +61,17 @@ export interface Option {
   url?: string;
   /** Pour un vote « dates » : créneau date/heure (valeur datetime-local). */
   at?: string;
-  /** Justification courte d'une option proposée par un votant (phase de collecte). */
+  /** Justification courte de l'option (saisie à la création ou par un votant). */
   note?: string;
+  /**
+   * LOCALISATION : lien de carte (Google/Apple Maps, OSM…), distinct de `url`.
+   * Un lieu se situe ; une illustration se regarde. Quand des options sont
+   * localisées, le scrutin affiche une carte pour les situer les unes / autres.
+   */
+  place?: string;
+  /** Coordonnées extraites de `place` (absentes si le lien n'en donne pas). */
+  lat?: number;
+  lng?: number;
 }
 
 /** Un bulletin normalisé : classement complet + mentions + circonscription. */

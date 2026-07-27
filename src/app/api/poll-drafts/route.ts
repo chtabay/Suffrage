@@ -22,13 +22,19 @@ export function GET(req: Request) {
   return NextResponse.json(
     {
       usage:
-        "POST un JSON { title, description?, options[] OU dates[] (vote de créneaux ISO), media?[], method, deadline, source, why } et recevez { draft_url }.",
+        "POST un JSON { title, description?, options[] OU dates[] (vote de créneaux ISO), media?[] (illustrations), places?[] (liens de carte : les options localisées apparaissent sur la carte du vote), notes?[] (commentaires), method, deadline, source, why } et recevez { draft_url }.",
       methods_doc: `${origin}/ai`,
       example: {
-        title: "On part où ce week-end ?",
-        description: "Budget 80 €/pers, départ vendredi soir.",
-        options: ["La montagne", "Le bord de mer", "La campagne"],
-        media: ["https://exemple.com/montagne.jpg", "", "https://exemple.com/campagne.jpg"],
+        title: "On dîne où vendredi ?",
+        description: "Budget 25 €/pers, à côté du bureau.",
+        options: ["🍕 Chez Mario", "🍣 Kyoto", "🥗 Le Potager"],
+        media: ["https://exemple.com/mario-menu.pdf", "", ""],
+        places: [
+          "https://www.google.com/maps/place/.../@48.8584,2.2945,17z",
+          "https://maps.app.goo.gl/abc123",
+          "",
+        ],
+        notes: ["Terrasse chauffée", "À 5 min à pied", "Menu végétarien"],
         method: "majority_judgment",
         source: "api",
       },
@@ -58,6 +64,13 @@ export async function POST(req: Request) {
   const media = Array.isArray(b.media)
     ? b.media.map((m) => (typeof m === "string" ? m : "")).slice(0, 12)
     : undefined;
+  // Localisations (liens de carte) et commentaires, alignés par index sur options.
+  const places = Array.isArray(b.places)
+    ? b.places.map((m) => (typeof m === "string" ? m : "")).slice(0, 12)
+    : undefined;
+  const notes = Array.isArray(b.notes)
+    ? b.notes.map((m) => (typeof m === "string" ? m.slice(0, 200) : "")).slice(0, 12)
+    : undefined;
   const dates = Array.isArray(b.dates)
     ? b.dates.filter((d): d is string => typeof d === "string").map((d) => d.trim()).filter(Boolean).slice(0, 12)
     : undefined;
@@ -81,7 +94,7 @@ export async function POST(req: Request) {
   const why = typeof b.why === "string" ? b.why.trim().slice(0, 280) : undefined;
 
   const origin = new URL(req.url).origin;
-  const draft_url = buildNewUrl(origin, { title, description, options, media, dates, method, assign, participants, sideb, per, survey, scale, deadline, source, why });
+  const draft_url = buildNewUrl(origin, { title, description, options, media, places, notes, dates, method, assign, participants, sideb, per, survey, scale, deadline, source, why });
 
   return NextResponse.json(
     {

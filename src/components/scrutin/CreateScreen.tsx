@@ -12,6 +12,7 @@ import AccessModeChips from "./AccessModeChips";
 import AiHelper from "./AiHelper";
 import ClosureLine from "./ClosureLine";
 import PrefillPanel from "./PrefillPanel";
+import OptionDetails from "./OptionDetails";
 import { ASSIGN_METHODS, ASSIGN_METHOD_KEYS, type AssignMethodKey } from "@/lib/assign/methods";
 import SlotPicker from "./SlotPicker";
 import { CORAL, CREAM, FONT_BODY, FONT_DISPLAY, GREENTXT, INK, MUTED, REDTXT, YELLOW, lift } from "./theme";
@@ -181,27 +182,6 @@ function buildAxes(r: Recipe, setRecipe: (p: Partial<Recipe>) => void, slotMode 
 const MAIN_METHODS = ["fptp", "approval", "mj", "condorcet"];
 
 
-const isImageUrl = (u: string) => /\.(png|jpe?g|gif|webp|avif|svg)(\?|$)/i.test(u);
-const isHttpUrl = (u: string) => /^https?:\/\//i.test(u);
-
-// Aperçu d'une illustration dans le formulaire : vignette si l'image charge,
-// avertissement sinon — pour valider le lien AVANT de lancer le vote.
-function ImgPreview({ url, notFoundLabel }: { url: string; notFoundLabel: string }) {
-  const [err, setErr] = useState(false);
-  if (err) {
-    return <div style={{ fontSize: 12, fontWeight: 700, color: REDTXT }}>{notFoundLabel}</div>;
-  }
-  return (
-    // eslint-disable-next-line @next/next/no-img-element
-    <img
-      src={url}
-      alt=""
-      onError={() => setErr(true)}
-      style={{ width: 56, height: 56, objectFit: "cover", border: `2px solid ${INK}`, borderRadius: 8, alignSelf: "flex-start" }}
-    />
-  );
-}
-
 // Aperçu vivant des mentions du preset d'échelle sélectionné : on ne choisit pas
 // un registre à l'aveugle (« Gravité »), on voit les 6 mentions réelles et leurs
 // couleurs — exactement ce que le votant aura sous les yeux. Une seule bande.
@@ -245,9 +225,9 @@ export default function CreateScreen({ ctrl }: { ctrl: ScrutinController }) {
   const locale = useLocale();
   // Exemples évocateurs montrés en placeholder (pas des valeurs à supprimer).
   const optionPlaceholders = t.raw("optionPlaceholders") as string[];
-  const { state, selectSystemRecipe, setRecipe, setQuestion, setDescription, setOptionName, setOptionUrl, setOptionIcon, removeOption, addOption, setOptionKind, setSlots, setSlotMinutes, setAssignMethod, setAssignSideB, setAssignSlots, setAssignPer, setSurvey, setProposalsPhase, setVoterNames, launch } = ctrl;
+  const { state, selectSystemRecipe, setRecipe, setQuestion, setDescription, setOptionName, setOptionUrl, setOptionNote, setOptionPlace, setOptionGeo, setOptionIcon, removeOption, addOption, setOptionKind, setSlots, setSlotMinutes, setAssignMethod, setAssignSideB, setAssignSlots, setAssignPer, setSurvey, setProposalsPhase, setVoterNames, launch } = ctrl;
   const tac = useTranslations("Access");
-  const [urlRows, setUrlRows] = useState<Record<number, boolean>>({});
+  const [urlRows, setUrlRows] = useState<Record<number, boolean | undefined>>({});
   const [emojiRow, setEmojiRow] = useState<number | null>(null);
   const [methodOpen, setMethodOpen] = useState(false);
   // Carte méthode repliée par défaut : c'est un réglage de PERSONNALISATION, pas
@@ -567,7 +547,13 @@ export default function CreateScreen({ ctrl }: { ctrl: ScrutinController }) {
                     </>
                   )
                 : state.options.map((opt, i) => {
-                const urlOpen = urlRows[i] || Boolean(opt.url);
+                // Détails (illustration / lieu / commentaire) : ouverts d'office
+                // si l'option en porte déjà — un brouillon d'IA ne doit rien cacher.
+                const hasDetails = Boolean(opt.url || opt.place || opt.note);
+                // État à trois valeurs : undefined = auto (ouvert si l'option porte
+                // déjà des détails), sinon le choix explicite de l'organisateur —
+                // sans quoi le panneau ne pourrait plus jamais être refermé.
+                const urlOpen = urlRows[i] ?? hasDetails;
                 return (
                   <div key={i} style={{ display: "flex", flexDirection: "column", gap: 7 }}>
                     <div style={{ display: "flex", alignItems: "center", gap: 9 }}>
@@ -614,19 +600,20 @@ export default function CreateScreen({ ctrl }: { ctrl: ScrutinController }) {
                         onClick={() => setUrlRows((m) => ({ ...m, [i]: !urlOpen }))}
                         title={t("attachIllustrationTitle")}
                         aria-label={t("attachIllustrationAria")}
+                        aria-expanded={urlOpen}
                         style={{
                           width: 34,
                           height: 34,
                           flex: "none",
                           border: `2px solid ${INK}`,
-                          background: opt.url ? YELLOW : "#fff",
+                          background: hasDetails ? YELLOW : "#fff",
                           borderRadius: 9,
                           cursor: "pointer",
                           fontSize: 15,
                           lineHeight: 1,
                         }}
                       >
-                        🔗
+                        {opt.place ? "📍" : "🔗"}
                       </button>
                       <button
                         onClick={() => removeOption(i)}
@@ -683,49 +670,14 @@ export default function CreateScreen({ ctrl }: { ctrl: ScrutinController }) {
                       </div>
                     )}
                     {urlOpen && (
-                      <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                        <input
-                          value={opt.url ?? ""}
-                          onChange={(e) => setOptionUrl(i, e.target.value)}
-                          placeholder={t("urlPlaceholder")}
-                          style={{
-                            fontFamily: FONT_BODY,
-                            fontSize: 13,
-                            fontWeight: 500,
-                            padding: "8px 11px",
-                            border: `2px solid ${INK}`,
-                            borderRadius: 9,
-                            background: CREAM,
-                            outline: "none",
-                            boxSizing: "border-box",
-                          }}
-                        />
-                        {opt.url && isHttpUrl(opt.url) &&
-                          (isImageUrl(opt.url) ? (
-                            <ImgPreview key={opt.url} url={opt.url} notFoundLabel={t("imageNotFound")} />
-                          ) : (
-                            <a
-                              href={opt.url}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              style={{
-                                alignSelf: "flex-start",
-                                display: "inline-flex",
-                                alignItems: "center",
-                                gap: 6,
-                                fontSize: 12.5,
-                                fontWeight: 700,
-                                color: INK,
-                                textDecoration: "none",
-                                border: `2px solid ${INK}`,
-                                borderRadius: 8,
-                                padding: "5px 10px",
-                              }}
-                            >
-                              {t("linkAddedTest")}
-                            </a>
-                          ))}
-                      </div>
+                      <OptionDetails
+                        opt={opt}
+                        index={i}
+                        onUrl={setOptionUrl}
+                        onPlace={setOptionPlace}
+                        onNote={setOptionNote}
+                        onGeo={setOptionGeo}
+                      />
                     )}
                   </div>
                 );

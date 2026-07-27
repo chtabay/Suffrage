@@ -360,6 +360,9 @@ export async function addProposal(
   icon?: string,
   url?: string,
   note?: string,
+  place?: string,
+  lat?: number,
+  lng?: number,
 ): Promise<string> {
   const supabase = createClient();
   const { data, error } = await supabase.rpc("add_proposal", {
@@ -368,6 +371,9 @@ export async function addProposal(
     p_icon: icon?.trim() || null,
     p_url: url?.trim() || null,
     p_note: note?.trim() || null,
+    p_place: place?.trim() || null,
+    p_lat: lat ?? null,
+    p_lng: lng ?? null,
   });
   if (error) throw error;
   return data as string;
@@ -384,6 +390,9 @@ export async function addProposalOpen(
   icon?: string,
   url?: string,
   note?: string,
+  place?: string,
+  lat?: number,
+  lng?: number,
 ): Promise<string> {
   const supabase = createClient();
   const { data, error } = await supabase.rpc("add_proposal_open", {
@@ -392,6 +401,9 @@ export async function addProposalOpen(
     p_icon: icon?.trim() || null,
     p_url: url?.trim() || null,
     p_note: note?.trim() || null,
+    p_place: place?.trim() || null,
+    p_lat: lat ?? null,
+    p_lng: lng ?? null,
   });
   if (error) throw error;
   return data as string;

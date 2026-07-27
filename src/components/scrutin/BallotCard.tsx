@@ -50,27 +50,60 @@ export default function BallotCard({
   const t = useTranslations("Vote");
   const locale = useLocale();
   const { labels: gradeLabels, colors: gradeColors } = resolveScale({ scale }, locale);
-  const optionRow = (i: number, children: React.ReactNode, onClick: () => void, bg: string) => (
-    <button
-      key={i}
-      onClick={onClick}
-      className="dc-dim"
-      style={{
-        display: "flex",
-        alignItems: "center",
-        gap: 13,
-        textAlign: "left",
-        cursor: "pointer",
-        border: `2.5px solid ${INK}`,
-        background: bg,
-        padding: "13px 15px",
-        borderRadius: 13,
-        fontFamily: FONT_BODY,
-      }}
-    >
-      {children}
-    </button>
-  );
+  const optionRow = (i: number, children: React.ReactNode, onClick: () => void, bg: string) => {
+    const row = (
+      <button
+        onClick={onClick}
+        className="dc-dim"
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: 13,
+          width: "100%",
+          textAlign: "left",
+          cursor: "pointer",
+          border: `2.5px solid ${INK}`,
+          background: bg,
+          padding: "13px 15px",
+          borderRadius: 13,
+          fontFamily: FONT_BODY,
+        }}
+      >
+        {children}
+      </button>
+    );
+    const link = placeLink(opts[i]);
+    // Le lien du lieu vit HORS du bouton : un lien imbriqué dans un bouton est
+    // inatteignable au clavier et parasiterait le nom accessible du vote.
+    return link ? (
+      <div key={i} style={{ display: "flex", flexDirection: "column", gap: 5 }}>
+        {row}
+        {link}
+      </div>
+    ) : (
+      <div key={i}>{row}</div>
+    );
+  };
+
+  /** Lien « Situer » d'une option localisée (rendu sous sa ligne de bulletin). */
+  const placeLink = (o: Option) =>
+    o.place && /^https?:\/\//i.test(o.place) ? (
+      <a
+        href={o.place}
+        target="_blank"
+        rel="noopener noreferrer"
+        style={{
+          alignSelf: "flex-start",
+          marginLeft: 15,
+          fontSize: 12,
+          fontWeight: 700,
+          color: INK,
+          textDecoration: "underline",
+        }}
+      >
+        📍 {t("placeChip")} — {o.name}
+      </a>
+    ) : null;
 
   const iconBox = (i: number, size = 38, radius = 10) => (
     <span
@@ -88,6 +121,16 @@ export default function BallotCard({
       }}
     >
       {opts[i].icon}
+    </span>
+  );
+
+  /** Bloc de libellé : le nom et sa justification éventuelle. */
+  const label = (o: Option, size = 16) => (
+    <span style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: 3 }}>
+      <span style={{ fontWeight: 700, fontSize: size, color: INK }}>{o.name}</span>
+      {o.note && (
+        <span style={{ fontSize: 12.5, fontWeight: 500, color: MUTED, lineHeight: 1.35 }}>{o.note}</span>
+      )}
     </span>
   );
 
@@ -141,7 +184,7 @@ export default function BallotCard({
             i,
             <>
               {iconBox(i)}
-              <span style={{ fontWeight: 700, fontSize: 16, flex: 1, color: INK }}>{o.name}</span>
+              {label(o)}
               {media(o.url)}
               <span
                 style={{
@@ -171,7 +214,7 @@ export default function BallotCard({
             i,
             <>
               {iconBox(i)}
-              <span style={{ fontWeight: 700, fontSize: 16, flex: 1, color: INK }}>{o.name}</span>
+              {label(o)}
               {media(o.url)}
               <span
                 style={{
@@ -248,7 +291,7 @@ export default function BallotCard({
                 >
                   {o.icon}
                 </span>
-                <span style={{ fontWeight: 700, fontSize: 15.5, flex: 1, color: INK }}>{o.name}</span>
+                {label(o, 15.5)}
                 {media(o.url)}
               </>,
               () => onRank(i),
@@ -298,9 +341,10 @@ export default function BallotCard({
             >
               {o.icon}
             </span>
-            <span style={{ fontWeight: 700, fontSize: 16, flex: 1, color: INK }}>{o.name}</span>
+            {label(o)}
             {media(o.url)}
           </div>
+          {placeLink(o) && <div style={{ marginBottom: 8 }}>{placeLink(o)}</div>}
           <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
             {gradeLabels.map((gl, gi) => {
               const sel = (draft.grades[i] ?? null) === gi;

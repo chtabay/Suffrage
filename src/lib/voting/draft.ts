@@ -4,6 +4,7 @@ import { recipeForSystem } from "./engine";
 import { publicMethodToSystem } from "./methods";
 import { SCALE_KEYS } from "./scales";
 import { isAssignMethod, type AssignMethodKey } from "@/lib/assign/methods";
+import { isPlaceUrl, parseLatLng, sanitizePlace } from "./geo";
 import type { Option, Recipe } from "./types";
 import { intlLocale, pickLocale } from "@/i18n/locales";
 
@@ -87,8 +88,11 @@ export function parseDraft(params: RawParams, locale = "fr"): ScrutinDraft {
   } else {
     const opts = first(params.options);
     if (opts) {
+      // La virgule n'est un séparateur QUE s'il n'y a pas de barre verticale :
+      // sinon « Chez Mario, Bastille » créerait deux options et décalerait d'un
+      // cran les listes alignées par index (places, notes, media).
       const names = opts
-        .split(/[|,]/)
+        .split(opts.includes("|") ? "|" : /[|,]/)
         .map((x) => x.trim())
         .filter(Boolean)
         .slice(0, 12);
@@ -101,14 +105,42 @@ export function parseDraft(params: RawParams, locale = "fr"): ScrutinDraft {
     }
 
     // Illustrations par option : paramètre séparé `media`, aligné par index (séparateur |).
+    // Un lien de CARTE passé dans `media` est en réalité une localisation : on le
+    // reclasse (les IA ont longtemps mis les liens Maps ici — rétro-compatibilité).
     const media = first(params.media);
     if (media && draft.options) {
       const urls = media.split("|");
       draft.options = draft.options.map((o, i) => {
         const u = safeUrl(urls[i]);
-        return u ? { ...o, url: u } : o;
+        if (!u) return o;
+        return isPlaceUrl(u) ? { ...o, place: u } : { ...o, url: u };
       });
     }
+
+    // Localisations par option : `places`, aligné par index. Les coordonnées sont
+    // extraites quand le lien les porte (un lien court sera résolu dans l'écran).
+    const places = first(params.places);
+    if (places && draft.options) {
+      const list = places.split("|");
+      draft.options = draft.options.map((o, i) => {
+        // Lien de carte reconnu ou coordonnées brutes, rien d'autre : un lien
+        // quelconque ne doit pas emprunter la crédibilité d'une carte.
+        const p = sanitizePlace(list[i]);
+        if (!p) return o;
+        const geo = parseLatLng(p);
+        return { ...o, place: p, ...(geo ? { lat: geo.lat, lng: geo.lng } : {}) };
+      });
+    }
+  }
+
+  // Commentaires par option : `notes`, aligné par index (vaut aussi pour les créneaux).
+  const notes = first(params.notes);
+  if (notes && draft.options) {
+    const list = notes.split("|");
+    draft.options = draft.options.map((o, i) => {
+      const n = list[i]?.trim().slice(0, 200);
+      return n ? { ...o, note: n } : o;
+    });
   }
 
   const method = first(params.method);
@@ -199,6 +231,10 @@ export interface DraftInput {
   options?: string[];
   /** URLs d'illustration alignées par index sur `options` (chaîne vide = aucune). */
   media?: string[];
+  /** Liens de LOCALISATION (carte) alignés par index — situent les options sur la carte du vote. */
+  places?: string[];
+  /** Commentaires courts alignés par index (pourquoi cette option). */
+  notes?: string[];
   /** Vote « dates » : créneaux ISO/datetime-local. S'ils sont fournis, remplacent `options`. */
   dates?: string[];
   method?: string;
@@ -226,9 +262,18 @@ export function buildNewUrl(base: string, d: DraftInput): string {
     p.set("dates", d.dates.map((s) => s.trim()).filter(Boolean).join("|"));
   } else {
     if (d.options && d.options.length) p.set("options", d.options.join("|"));
+    // Une barre verticale À L'INTÉRIEUR d'une URL (waypoints Google Maps…) est
+    // échappée : sans cela elle créerait une entrée et décalerait tout le reste.
+    const pipeSafe = (u: string | undefined) => (safeUrl(u) ?? "").replace(/\|/g, "%7C");
     if (d.media && d.media.some((u) => safeUrl(u))) {
-      p.set("media", d.media.map((u) => safeUrl(u) ?? "").join("|"));
+      p.set("media", d.media.map(pipeSafe).join("|"));
     }
+    if (d.places && d.places.some((u) => sanitizePlace(u))) {
+      p.set("places", d.places.map((u) => (sanitizePlace(u) ?? "").replace(/\|/g, "%7C")).join("|"));
+    }
+  }
+  if (d.notes && d.notes.some((n) => n && n.trim())) {
+    p.set("notes", d.notes.map((n) => (n ?? "").trim().replace(/\|/g, " ").slice(0, 200)).join("|"));
   }
   if (d.method) p.set("method", d.method);
   if (d.assign) p.set("assign", d.assign);
