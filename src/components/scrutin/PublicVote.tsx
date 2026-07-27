@@ -13,6 +13,7 @@ import {
   castPublicBallot,
   closePoll,
   openVoting,
+  editProposalNote,
   removeProposal,
   getAssignData,
   getBallots,
@@ -1147,6 +1148,8 @@ export default function PublicVote({
   const [notice, setNotice] = useState<string | null>(null);
   // Retour de la publication/dépublication côté organisateur (ex. rate-limit).
   const [pubNotice, setPubNotice] = useState<string | null>(null);
+  // Commentaire de proposition en cours d'édition par l'organisateur.
+  const [editNote, setEditNote] = useState<{ index: number; text: string } | null>(null);
 
   // Le débat (arguments par option) se recharge aux mêmes moments que les
   // résultats. Pas de débat sur les affectations (pas d'options à défendre).
@@ -1449,6 +1452,19 @@ export default function PublicVote({
       }
     };
     // Retrait d'une option proposée (modération), possible seulement en collecte.
+    // Curation du commentaire d'une proposition (collecte seulement).
+    const saveNote = async (index: number, note: string) => {
+      if (!adminKey || working) return;
+      setWorking(true);
+      try {
+        await editProposalNote(token, adminKey, index, note);
+        const fresh = await getPollByToken(token);
+        if (fresh) setPoll(fresh);
+        setEditNote(null);
+      } finally {
+        setWorking(false);
+      }
+    };
     const removeOpt = async (index: number) => {
       if (!adminKey || working) return;
       setWorking(true);
@@ -1823,7 +1839,62 @@ export default function PublicVote({
                     <span style={{ fontSize: 18, flex: "none" }}>{o.icon}</span>
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ fontWeight: 600 }}>{o.name}</div>
-                      {o.note && <div style={{ fontSize: 12.5, color: SUBINK, marginTop: 2, lineHeight: 1.4 }}>{o.note}</div>}
+                      {/* Commentaire : l'organisateur peut le réécrire, le compléter
+                          ou l'effacer tant que la liste n'est pas figée. */}
+                      {editNote?.index === i ? (
+                        <div style={{ display: "flex", gap: 6, marginTop: 5, flexWrap: "wrap" }}>
+                          <input
+                            autoFocus
+                            value={editNote.text}
+                            onChange={(e) => setEditNote({ index: i, text: e.target.value.slice(0, 280) })}
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter") saveNote(i, editNote.text);
+                              if (e.key === "Escape") setEditNote(null);
+                            }}
+                            placeholder={t("orgProposalNotePlaceholder")}
+                            aria-label={t("orgProposalEditNote")}
+                            style={{
+                              flex: 1,
+                              minWidth: 160,
+                              fontFamily: FONT_BODY,
+                              fontSize: 13,
+                              fontWeight: 500,
+                              padding: "7px 10px",
+                              border: `2px solid ${INK}`,
+                              borderRadius: 8,
+                              background: "#fff",
+                              outline: "none",
+                            }}
+                          />
+                          <button
+                            onClick={() => saveNote(i, editNote.text)}
+                            disabled={working}
+                            style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 12.5, cursor: "pointer", border: `2px solid ${INK}`, background: GREEN, color: "#fff", padding: "6px 11px", borderRadius: 8 }}
+                          >
+                            ✓ {t("orgProposalNoteSave")}
+                          </button>
+                          <button
+                            onClick={() => setEditNote(null)}
+                            disabled={working}
+                            style={{ fontFamily: FONT_DISPLAY, fontWeight: 700, fontSize: 12.5, cursor: "pointer", border: `2px solid ${INK}`, background: "#fff", color: INK, padding: "6px 11px", borderRadius: 8 }}
+                          >
+                            {t("orgProposalNoteCancel")}
+                          </button>
+                        </div>
+                      ) : (
+                        <div style={{ display: "flex", alignItems: "baseline", gap: 8, flexWrap: "wrap" }}>
+                          {o.note ? (
+                            <div style={{ fontSize: 12.5, color: SUBINK, marginTop: 2, lineHeight: 1.4 }}>{o.note}</div>
+                          ) : null}
+                          <button
+                            onClick={() => setEditNote({ index: i, text: o.note ?? "" })}
+                            disabled={working}
+                            style={{ fontSize: 11.5, fontWeight: 700, cursor: "pointer", border: "none", background: "none", color: MUTED, padding: 0, textDecoration: "underline" }}
+                          >
+                            ✏️ {o.note ? t("orgProposalEditNote") : t("orgProposalAddNote")}
+                          </button>
+                        </div>
+                      )}
                       {optionIllustration(o) && (
                         <a href={optionIllustration(o)} target="_blank" rel="noopener noreferrer" style={{ display: "inline-block", marginTop: 4, fontSize: 12, fontWeight: 700, color: INK, textDecoration: "underline" }}>
                           🔗 {t("proposalLinkLabel")}

@@ -410,6 +410,29 @@ export async function addProposalOpen(
 }
 
 /**
+ * Ajuste le commentaire d'une proposition (curation par l'organisateur).
+ * Uniquement pendant la collecte : après ouverture, changer le libellé d'une
+ * option sous les yeux des votants fausserait le scrutin.
+ * Renvoie 'ok' | 'invalid' | 'notcollecting' | 'range'.
+ */
+export async function editProposalNote(
+  token: string,
+  secret: string,
+  index: number,
+  note: string,
+): Promise<string> {
+  const supabase = createClient();
+  const { data, error } = await supabase.rpc("edit_proposal", {
+    p_token: token,
+    p_secret: secret,
+    p_index: index,
+    p_note: note.trim() || null,
+  });
+  if (error) throw error;
+  return data as string;
+}
+
+/**
  * Retrait d'une option proposée par l'organisateur, UNIQUEMENT pendant la
  * collecte (aucun bulletin déposé → l'index ne référence encore aucun vote).
  */
