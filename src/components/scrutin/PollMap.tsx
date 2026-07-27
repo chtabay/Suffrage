@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import type { Option } from "@/lib/voting/types";
-import { mapsPointUrl } from "@/lib/voting/geo";
+import { mapsPointUrl, optionPlace, resolvePlace } from "@/lib/voting/geo";
 import { candColor } from "@/lib/voting/systems";
 import { CREAM, FONT_DISPLAY, INK, MUTED, PAPER } from "./theme";
 
@@ -87,15 +87,51 @@ export default function PollMap({
     return () => ro.disconnect();
   }, []);
 
-  const located = useMemo(
+  // Coordonnées trouvées à l'affichage, pour les options qui n'en portent pas :
+  // scrutins créés avant la fonctionnalité, ou lieu donné par une ADRESSE (le
+  // lien type « maps/search/?query=… » n'a pas de coordonnées à l'intérieur).
+  // Résolution en série (politesse envers le géocodeur) et mutualisée par le
+  // cache serveur ; rien n'est réécrit dans le scrutin, qui peut être figé.
+  const [found, setFound] = useState<Record<number, { lat: number; lng: number }>>({});
+  const toResolve = useMemo(
     () =>
       options
         .map((option, idx) => ({ option, idx }))
+        .filter((o) => typeof o.option.lat !== "number" && Boolean(optionPlace(o.option)))
+        .slice(0, 12),
+    [options],
+  );
+  const resolveKey = toResolve.map((o) => `${o.idx}:${optionPlace(o.option)}`).join("|");
+  useEffect(() => {
+    if (!toResolve.length) return;
+    let alive = true;
+    (async () => {
+      for (const { option, idx } of toResolve) {
+        const geo = await resolvePlace(optionPlace(option));
+        if (!alive) return;
+        if (geo) setFound((m) => ({ ...m, [idx]: geo }));
+      }
+    })();
+    return () => {
+      alive = false;
+    };
+    // resolveKey décrit exactement le travail à faire (indices + liens).
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [resolveKey]);
+
+  const located = useMemo(
+    () =>
+      options
+        .map((option, idx) => {
+          const lat = typeof option.lat === "number" ? option.lat : found[idx]?.lat;
+          const lng = typeof option.lng === "number" ? option.lng : found[idx]?.lng;
+          return { option: { ...option, lat, lng }, idx };
+        })
         .filter(
           (o): o is { option: Option & { lat: number; lng: number }; idx: number } =>
             typeof o.option.lat === "number" && typeof o.option.lng === "number",
         ),
-    [options],
+    [options, found],
   );
 
   const view = useMemo(() => {
@@ -168,7 +204,7 @@ export default function PollMap({
   // Lien d'un point : le champ « lieu » peut être une simple paire de coordonnées
   // (saisie proposée par le placeholder) — jamais un href relatif.
   const linkFor = (pin: Pin) =>
-    isHttp(pin.option.place) ? pin.option.place : mapsPointUrl({ lat: pin.option.lat!, lng: pin.option.lng! });
+    isHttp(optionPlace(pin.option)) ? optionPlace(pin.option)! : mapsPointUrl({ lat: pin.option.lat!, lng: pin.option.lng! });
 
   return (
     <div

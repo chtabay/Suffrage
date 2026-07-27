@@ -35,7 +35,7 @@ import {
   type VoterContext,
 } from "@/lib/db/polls";
 import { trackShare } from "@/lib/db/track";
-import { isPlaceUrl, resolvePlace } from "@/lib/voting/geo";
+import { isPlaceUrl, optionIllustration, optionPlace, resolvePlace } from "@/lib/voting/geo";
 import {
   compute,
   describeRecipe,
@@ -1075,9 +1075,9 @@ function ProposalsView({
                 <div style={{ minWidth: 0 }}>
                   <div style={{ fontWeight: 600 }}>{o.name}</div>
                   {o.note && <div style={{ fontSize: 12.5, color: SUBINK, marginTop: 2, lineHeight: 1.4 }}>{o.note}</div>}
-                  {o.url && /^https?:\/\//i.test(o.url) && (
+                  {optionIllustration(o) && (
                     <a
-                      href={o.url}
+                      href={optionIllustration(o)}
                       target="_blank"
                       rel="noopener noreferrer"
                       style={{ display: "inline-block", marginTop: 4, fontSize: 12, fontWeight: 700, color: INK, textDecoration: "underline" }}
@@ -1085,9 +1085,9 @@ function ProposalsView({
                       🔗 {t("proposalLinkLabel")}
                     </a>
                   )}
-                  {o.place && /^https?:\/\//i.test(o.place) && (
+                  {optionPlace(o) && /^https?:\/\//i.test(optionPlace(o)!) && (
                     <a
-                      href={o.place}
+                      href={optionPlace(o)}
                       target="_blank"
                       rel="noopener noreferrer"
                       style={{ display: "inline-block", marginTop: 4, marginLeft: o.url ? 10 : 0, fontSize: 12, fontWeight: 700, color: INK, textDecoration: "underline" }}
@@ -1101,6 +1101,10 @@ function ProposalsView({
           </div>
         )}
       </div>
+
+      {/* La carte vaut DÉJÀ pendant la collecte : voir où tombent les propositions
+          des autres est précisément ce qui aide à en ajouter une utile. */}
+      <PollMap options={opts} />
 
       {/* Collecte en accès ouvert : élargir le cercle a le plus de valeur ici
           (plus de monde = plus de propositions, puis plus de votes). */}
@@ -1820,13 +1824,13 @@ export default function PublicVote({
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ fontWeight: 600 }}>{o.name}</div>
                       {o.note && <div style={{ fontSize: 12.5, color: SUBINK, marginTop: 2, lineHeight: 1.4 }}>{o.note}</div>}
-                      {o.url && /^https?:\/\//i.test(o.url) && (
-                        <a href={o.url} target="_blank" rel="noopener noreferrer" style={{ display: "inline-block", marginTop: 4, fontSize: 12, fontWeight: 700, color: INK, textDecoration: "underline" }}>
+                      {optionIllustration(o) && (
+                        <a href={optionIllustration(o)} target="_blank" rel="noopener noreferrer" style={{ display: "inline-block", marginTop: 4, fontSize: 12, fontWeight: 700, color: INK, textDecoration: "underline" }}>
                           🔗 {t("proposalLinkLabel")}
                         </a>
                       )}
-                      {o.place && /^https?:\/\//i.test(o.place) && (
-                        <a href={o.place} target="_blank" rel="noopener noreferrer" style={{ display: "inline-block", marginTop: 4, marginLeft: o.url ? 10 : 0, fontSize: 12, fontWeight: 700, color: INK, textDecoration: "underline" }}>
+                      {optionPlace(o) && /^https?:\/\//i.test(optionPlace(o)!) && (
+                        <a href={optionPlace(o)} target="_blank" rel="noopener noreferrer" style={{ display: "inline-block", marginTop: 4, marginLeft: o.url ? 10 : 0, fontSize: 12, fontWeight: 700, color: INK, textDecoration: "underline" }}>
                           📍 {t("placeChip")}
                         </a>
                       )}

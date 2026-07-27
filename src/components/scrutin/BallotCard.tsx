@@ -2,6 +2,7 @@
 
 import { useLocale, useTranslations } from "next-intl";
 import { candColor } from "@/lib/voting/systems";
+import { optionIllustration, optionPlace } from "@/lib/voting/geo";
 import { resolveScale, textOn } from "@/lib/voting/scales";
 import type { BallotMode, Option } from "@/lib/voting/types";
 import { CREAM, FONT_BODY, FONT_DISPLAY, GREEN, INK, MUTED } from "./theme";
@@ -86,10 +87,11 @@ export default function BallotCard({
   };
 
   /** Lien « Situer » d'une option localisée (rendu sous sa ligne de bulletin). */
-  const placeLink = (o: Option) =>
-    o.place && /^https?:\/\//i.test(o.place) ? (
+  const placeLink = (o: Option) => {
+    const place = optionPlace(o);
+    return place && /^https?:\/\//i.test(place) ? (
       <a
-        href={o.place}
+        href={place}
         target="_blank"
         rel="noopener noreferrer"
         style={{
@@ -104,6 +106,7 @@ export default function BallotCard({
         📍 {t("placeChip")} — {o.name}
       </a>
     ) : null;
+  };
 
   const iconBox = (i: number, size = 38, radius = 10) => (
     <span
@@ -185,7 +188,7 @@ export default function BallotCard({
             <>
               {iconBox(i)}
               {label(o)}
-              {media(o.url)}
+              {media(optionIllustration(o))}
               <span
                 style={{
                   width: 24,
@@ -215,7 +218,7 @@ export default function BallotCard({
             <>
               {iconBox(i)}
               {label(o)}
-              {media(o.url)}
+              {media(optionIllustration(o))}
               <span
                 style={{
                   width: 26,
@@ -292,7 +295,7 @@ export default function BallotCard({
                   {o.icon}
                 </span>
                 {label(o, 15.5)}
-                {media(o.url)}
+                {media(optionIllustration(o))}
               </>,
               () => onRank(i),
               pos >= 0 ? PICKED : CREAM,
@@ -342,7 +345,7 @@ export default function BallotCard({
               {o.icon}
             </span>
             {label(o)}
-            {media(o.url)}
+            {media(optionIllustration(o))}
           </div>
           {placeLink(o) && <div style={{ marginBottom: 8 }}>{placeLink(o)}</div>}
           <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>

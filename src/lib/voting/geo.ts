@@ -154,13 +154,55 @@ export function isShortMapLink(raw: string | undefined): boolean {
 }
 
 /**
+ * ADRESSE portée par un lien de carte, quand il ne contient pas de coordonnées :
+ * c'est la forme que produit naturellement une IA (« maps/search/?api=1&query=… »)
+ * et celle de `mapsSearchUrl`. Sans géocodage, ces lieux ne peuvent pas être
+ * placés sur la carte — d'où /api/geo/resolve.
+ */
+export function addressFromMapUrl(raw: string | undefined): string | null {
+  if (!raw || parseLatLng(raw)) return null;
+  let u: URL;
+  try {
+    u = new URL(raw.trim());
+  } catch {
+    return null;
+  }
+  if (!isMapHost(u.hostname)) return null;
+  for (const key of ["query", "q", "daddr", "destination", "address", "near"]) {
+    const v = u.searchParams.get(key)?.trim();
+    if (v && !/^-?\d+(\.\d+)?,-?\d+(\.\d+)?$/.test(v)) return v.slice(0, 300);
+  }
+  // .../maps/place/Nom+Du+Lieu/... (sans @coordonnées)
+  const m = u.pathname.match(/\/maps\/(?:place|search)\/([^/@]+)/);
+  if (m) {
+    const name = decodeURIComponent(m[1]).replace(/\+/g, " ").trim();
+    if (name && name !== "?api=1") return name.slice(0, 300);
+  }
+  return null;
+}
+
+/** Le lieu d'une option, y compris les scrutins d'avant la distinction lieu/illustration. */
+export function optionPlace(o: { url?: string; place?: string }): string | undefined {
+  if (o.place) return o.place;
+  return isPlaceUrl(o.url) ? o.url : undefined;
+}
+
+/** L'illustration d'une option — jamais le lien de carte, qui a son propre rôle. */
+export function optionIllustration(o: { url?: string; place?: string }): string | undefined {
+  if (!o.url) return undefined;
+  return o.place || !isPlaceUrl(o.url) ? o.url : undefined;
+}
+
+/**
  * Coordonnées d'un lien de localisation : lecture directe si possible, sinon
  * (lien court) résolution par l'API. Jamais bloquant — null si on ne sait pas.
  */
 export async function resolvePlace(raw: string | undefined): Promise<LatLng | null> {
   const direct = parseLatLng(raw);
   if (direct) return direct;
-  if (!isShortMapLink(raw)) return null;
+  // Lien court (à suivre) ou lien portant une adresse (à géocoder) : les deux
+  // passent par l'API, qui mutualise le cache.
+  if (!isShortMapLink(raw) && !addressFromMapUrl(raw)) return null;
   try {
     const res = await fetch(`/api/geo/resolve?url=${encodeURIComponent(raw!.trim())}`);
     if (!res.ok) return null;
