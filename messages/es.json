@@ -285,6 +285,8 @@
     "close": "Cerrar"
   },
   "Vote": {
+    "calendarTitle": "Cuándo caen los intervalos",
+    "calendarHeat": "Cuanto más oscuro, más votos",
     "mapTitle": "Dónde están las opciones",
     "mapOpen": "Ver en grande",
     "placeChip": "Situar",
@@ -749,6 +751,13 @@
     "hint": "Notificación cuando la votación se cierre. En iPhone, instala antes la app en la pantalla de inicio."
   },
   "SlotPicker": {
+    "modeDay": "Un día",
+    "modeRange": "Varios días",
+    "pickEnd": "Desde el {day} — elige el último día",
+    "cancelRange": "Cancelar",
+    "touchRange": "Elige el primer y luego el último día del intervalo.",
+    "rangeDays": "{n} días, todo el día",
+    "rangeTooLong": "Un intervalo no puede superar los {n} días.",
     "prevMonth": "Mes anterior",
     "nextMonth": "Mes siguiente",
     "touchAtLeast2": "Toca al menos 2 días en el calendario.",

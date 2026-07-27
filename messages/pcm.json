@@ -285,6 +285,8 @@
     "close": "Close"
   },
   "Vote": {
+    "calendarTitle": "Wen di slots dey fall",
+    "calendarHeat": "Di darker am be, na so votes plenty",
     "mapTitle": "Where di options dey",
     "mapOpen": "Open big",
     "placeChip": "Locate",
@@ -749,6 +751,13 @@
     "hint": "Notification when di vote close. For iPhone, install di app for your home screen first."
   },
   "SlotPicker": {
+    "modeDay": "One day",
+    "modeRange": "Plenty days",
+    "pickEnd": "From {day} — pick di last day",
+    "cancelRange": "Cancel",
+    "touchRange": "Pick di first den di last day of di slot.",
+    "rangeDays": "{n} days, full day",
+    "rangeTooLong": "Slot no fit pass {n} days.",
     "prevMonth": "Previous month",
     "nextMonth": "Next month",
     "touchAtLeast2": "Tap at least 2 days for di calendar.",

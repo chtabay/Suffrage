@@ -285,6 +285,8 @@
     "close": "Fermer"
   },
   "Vote": {
+    "calendarTitle": "Quand tombent les créneaux",
+    "calendarHeat": "Plus c'est foncé, plus il y a de voix",
     "mapTitle": "Où se situent les options",
     "mapOpen": "Voir en grand",
     "placeChip": "Situer",
@@ -749,6 +751,13 @@
     "hint": "Notification quand le vote se clôt. Sur iPhone, installez d'abord l'appli sur l'écran d'accueil."
   },
   "SlotPicker": {
+    "modeDay": "Un jour",
+    "modeRange": "Plusieurs jours",
+    "pickEnd": "Depuis le {day} — choisissez le dernier jour",
+    "cancelRange": "Annuler",
+    "touchRange": "Choisissez le premier puis le dernier jour du créneau.",
+    "rangeDays": "{n} jours, journée entière",
+    "rangeTooLong": "Un créneau ne peut pas dépasser {n} jours.",
     "prevMonth": "Mois précédent",
     "nextMonth": "Mois suivant",
     "touchAtLeast2": "Touchez au moins 2 jours dans le calendrier.",

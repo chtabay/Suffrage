@@ -275,9 +275,10 @@ export function useScrutin(draft?: ScrutinDraft) {
   // effacerait en silence les notes d'un brouillon d'IA.
   const setSlots = useCallback((options: Option[]) => {
     setState((s) => {
-      const kept = new Map(s.options.filter((o) => o.at).map((o) => [o.at, o]));
+      const key = (o: Option) => `${o.at ?? ""}|${o.end ?? ""}`;
+      const kept = new Map(s.options.filter((o) => o.at).map((o) => [key(o), o]));
       const merged = options.map((o) => {
-        const prev = o.at ? kept.get(o.at) : undefined;
+        const prev = o.at ? kept.get(key(o)) : undefined;
         return prev ? { ...o, url: prev.url, note: prev.note, place: prev.place, lat: prev.lat, lng: prev.lng } : o;
       });
       return { ...s, options: merged, ...CLEAR_SHARE };

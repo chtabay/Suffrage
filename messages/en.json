@@ -285,6 +285,8 @@
     "close": "Close"
   },
   "Vote": {
+    "calendarTitle": "When the slots fall",
+    "calendarHeat": "The darker, the more votes",
     "mapTitle": "Where the options are",
     "mapOpen": "Open larger",
     "placeChip": "Locate",
@@ -749,6 +751,13 @@
     "hint": "Notification when the vote closes. On iPhone, install the app to your home screen first."
   },
   "SlotPicker": {
+    "modeDay": "One day",
+    "modeRange": "Several days",
+    "pickEnd": "From {day} — pick the last day",
+    "cancelRange": "Cancel",
+    "touchRange": "Pick the first then the last day of the slot.",
+    "rangeDays": "{n} days, all day",
+    "rangeTooLong": "A slot cannot exceed {n} days.",
     "prevMonth": "Previous month",
     "nextMonth": "Next month",
     "touchAtLeast2": "Tap at least 2 days in the calendar.",

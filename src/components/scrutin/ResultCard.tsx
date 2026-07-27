@@ -15,6 +15,8 @@ interface Props {
   footer?: React.ReactNode;
   /** Créneau gagnant (datetime-local) d'un vote de dates clos → bouton .ics. */
   calendarSlot?: string;
+  /** Créneau de plusieurs jours : dernier jour inclus (événement journée entière). */
+  calendarEnd?: string;
   calendarUrl?: string;
   calendarDuration?: number;
   /** Mode sondage : panorama des avis — pas de vainqueur, pas de contrefactuel. */
@@ -24,7 +26,7 @@ interface Props {
 }
 
 /** Carte de résultat : vainqueur, barres, explication et contrefactuel. */
-export default function ResultCard({ result, question, ballotCount, footer, calendarSlot, calendarUrl, calendarDuration, survey, decided }: Props) {
+export default function ResultCard({ result, question, ballotCount, footer, calendarSlot, calendarEnd, calendarUrl, calendarDuration, survey, decided }: Props) {
   const t = useTranslations("Vote");
   const tm = useTranslations("Methods");
   const locale = useLocale();
@@ -49,7 +51,7 @@ export default function ResultCard({ result, question, ballotCount, footer, cale
   const addToCalendar = () =>
     downloadIcs(
       "placet.ics",
-      buildIcs({ summary: question, startLocal: calendarSlot ?? "", durationMin: calendarDuration, description: t("icsNote"), url: calendarUrl }),
+      buildIcs({ summary: question, startLocal: calendarSlot ?? "", endDay: calendarEnd, durationMin: calendarDuration, description: t("icsNote"), url: calendarUrl }),
     );
   return (
     <div

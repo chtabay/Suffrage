@@ -62,6 +62,34 @@ export function slotLabel(local: string, locale = "fr"): string {
   return d.toLocaleString(intlLocale(locale), opts);
 }
 
+/**
+ * Libellé d'un créneau qui peut s'étendre sur plusieurs jours :
+ * « sam. 11 – dim. 12 juil. » (week-end) ou le libellé simple sans `end`.
+ */
+export function slotRangeLabel(at: string, end: string | undefined, locale = "fr"): string {
+  if (!end || end <= at.split("T")[0]) return slotLabel(at, locale);
+  return `${slotLabel(at, locale)} – ${slotLabel(end, locale)}`;
+}
+
+/** Encodage d'un créneau dans le paramètre `dates` : "JOUR" ou "DÉBUT..FIN". */
+export function encodeSlot(o: { at?: string; end?: string }): string {
+  if (!o.at) return "";
+  return o.end ? `${o.at}..${o.end}` : o.at;
+}
+
+/** Lecture inverse : "2026-07-11..2026-07-12" → { at, end }. */
+export function decodeSlot(raw: string): { at: string; end?: string } | null {
+  const s = raw.trim();
+  if (!s) return null;
+  const [a, b] = s.split("..");
+  const at = a.trim();
+  if (!at) return null;
+  const end = b?.trim();
+  // Une plage est une suite de JOURS entiers : ni heure, ni fin antérieure au début.
+  if (end && /^\d{4}-\d{2}-\d{2}$/.test(end) && !at.includes("T") && end > at) return { at, end };
+  return { at };
+}
+
 /** Convertit les paramètres d'URL /new en brouillon (toujours un objet, possiblement vide). */
 export function parseDraft(params: RawParams, locale = "fr"): ScrutinDraft {
   const draft: ScrutinDraft = {};
@@ -83,7 +111,11 @@ export function parseDraft(params: RawParams, locale = "fr"): ScrutinDraft {
       .slice(0, 12);
     if (slots.length >= 2) {
       draft.optionKind = "slot";
-      draft.options = slots.map((at) => ({ icon: SLOT_ICON, name: slotLabel(at, locale), at }));
+      // « DÉBUT..FIN » = créneau de plusieurs jours (un week-end, un séminaire).
+      draft.options = slots
+        .map(decodeSlot)
+        .filter((s): s is { at: string; end?: string } => s !== null)
+        .map((s) => ({ icon: SLOT_ICON, name: slotRangeLabel(s.at, s.end, locale), at: s.at, ...(s.end ? { end: s.end } : {}) }));
     }
   } else {
     const opts = first(params.options);
@@ -259,6 +291,7 @@ export function buildNewUrl(base: string, d: DraftInput): string {
   if (d.title) p.set("title", d.title);
   if (d.description) p.set("description", d.description);
   if (d.dates && d.dates.length) {
+    // Les créneaux acceptent la forme « DÉBUT..FIN » (plusieurs jours).
     p.set("dates", d.dates.map((s) => s.trim()).filter(Boolean).join("|"));
   } else {
     if (d.options && d.options.length) p.set("options", d.options.join("|"));

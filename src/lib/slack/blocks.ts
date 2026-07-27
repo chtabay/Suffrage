@@ -6,7 +6,7 @@
 // i18n : ces fonctions reçoivent DEUX traducteurs déjà construits par l'appelant —
 //   `t`  = namespace "Slack"   (libellés propres à Slack)
 //   `tm` = namespace "Methods" (noms/descriptions des méthodes, partagés avec le web)
-import { buildNewUrl } from "@/lib/voting/draft";
+import { buildNewUrl, encodeSlot } from "@/lib/voting/draft";
 import { publicMethodCatalog, publicMethodToSystem } from "@/lib/voting/methods";
 import { APP_URL } from "@/lib/voting/aiPrompt";
 import { supportedLocale } from "@/i18n/locales";
@@ -153,7 +153,7 @@ export function builderMessage(b: SlackBuilder, t: SlackT, tm: SlackT): { blocks
   const webBase = webLoc === "fr" ? APP_URL : `${APP_URL}/${webLoc}`;
   const advancedUrl = buildNewUrl(webBase, {
     title: b.question || undefined,
-    dates: slot ? b.options.map((o) => o.at ?? "").filter(Boolean) : undefined,
+    dates: slot ? b.options.map(encodeSlot).filter(Boolean) : undefined,
     options: !slot && b.options.length ? b.options.map((o) => `${o.icon} ${o.name}`) : undefined,
     method: slot ? undefined : b.method,
   });

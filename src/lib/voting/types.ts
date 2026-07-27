@@ -61,6 +61,12 @@ export interface Option {
   url?: string;
   /** Pour un vote « dates » : créneau date/heure (valeur datetime-local). */
   at?: string;
+  /**
+   * Vote « dates » : dernier JOUR d'un créneau qui s'étend sur plusieurs jours
+   * (« YYYY-MM-DD », inclus) — typiquement un week-end. Une plage est par nature
+   * une journée entière : `at` est alors un jour nu, sans heure.
+   */
+  end?: string;
   /** Justification courte de l'option (saisie à la création ou par un votant). */
   note?: string;
   /**

@@ -57,6 +57,7 @@ import InstallInline from "@/components/pwa/InstallInline";
 import NotifyButton from "@/components/pwa/NotifyButton";
 import BallotCard, { EMPTY_DRAFT, type BallotDraft } from "./BallotCard";
 import PollMap from "./PollMap";
+import PollCalendar from "./PollCalendar";
 import ProposalAiHelper from "./ProposalAiHelper";
 import ResultCard from "./ResultCard";
 import ArgumentsPanel from "./ArgumentsPanel";
@@ -1386,15 +1387,26 @@ export default function PublicVote({
   // `hasWinner` est indispensable : sans lui, un paradoxe de Condorcet ou une
   // égalité (result.noWinner) proposerait quand même « Ajouter au calendrier »
   // pour une décision qui n'a PAS été prise — bars[0] n'est que la tête de tri.
-  const winnerSlot =
+  const winnerOption =
     result && phase === "closed" && !isSurvey && result.hasWinner && result.bars[0]
-      ? poll.options[result.bars[0].idx]?.at
+      ? poll.options[result.bars[0].idx]
       : undefined;
+  const winnerSlot = winnerOption?.at;
+  const winnerEnd = winnerOption?.end;
   // La décision prise est déjà ANNONÇABLE/COPIABLE dans la carte de résultat
   // (bande « Et maintenant ? »). Dans ce cas, le bloc ResultShare séparé fait
   // doublon → on ne le montre QUE si cette bande n'est pas là (sondage, sans
   // vainqueur, ou vote encore ouvert).
   const decisionAnnounced = phase === "closed" && !isSurvey && Boolean(result?.hasWinner);
+  // Calendrier des créneaux : chauffé par les voix dès que le résultat est
+  // visible ici (sinon la grille montre seulement les créneaux candidats).
+  // Garde explicite : résultats masqués ⇒ la grille ne doit rien laisser filtrer
+  // des tendances. L'organisateur, lui, voit toujours (adminKey).
+  const slotCounts =
+    result && (adminKey || voterCanSeeResults(poll))
+      ? Object.fromEntries(result.bars.map((b) => [b.idx, b.value]))
+      : undefined;
+  const isSlotPoll = poll.options.some((o) => o.at);
   // On ne propose de PARTAGER LE RÉSULTAT que quand il a du sens : scrutin clos
   // (résultat final) ou sondage (panorama). Tant qu'un vote de décision est OUVERT,
   // le résultat est provisoire → pas de bouton « partager le résultat » (et le
@@ -1525,7 +1537,7 @@ export default function PublicVote({
         ) : result ? (
           <>
             {poll.quorum != null && <QuorumBanner quorum={poll.quorum} count={ballotCount} />}
-            <ResultCard result={result} question={poll.question} ballotCount={ballotCount} calendarSlot={winnerSlot} calendarUrl={voteShareUrl} calendarDuration={poll.slot_minutes ?? undefined} survey={isSurvey} decided={phase === "closed"} />
+            <ResultCard result={result} question={poll.question} ballotCount={ballotCount} calendarSlot={winnerSlot} calendarEnd={winnerEnd} calendarUrl={voteShareUrl} calendarDuration={poll.slot_minutes ?? undefined} survey={isSurvey} decided={phase === "closed"} />
             {showResultShare && (
               <ResultShare
                 question={poll.question}
@@ -1971,6 +1983,7 @@ export default function PublicVote({
                 Clos : il a déjà été rendu en tête (orgResult), on ne le répète pas. */}
             {phase !== "closed" && orgResult}
             <PollMap options={poll.options} />
+            {isSlotPoll && <PollCalendar options={poll.options} counts={slotCounts} />}
             {/* Le débat : lecture complète pour l'organisateur, dépôt tant que c'est ouvert. */}
             {!aDef && (
               <ArgumentsPanel
@@ -2120,7 +2133,7 @@ export default function PublicVote({
         ) : result ? (
           <>
             {poll.quorum != null && <QuorumBanner quorum={poll.quorum} count={ballotCount} />}
-            <ResultCard result={result} question={poll.question} ballotCount={ballotCount} calendarSlot={winnerSlot} calendarUrl={voteShareUrl} calendarDuration={poll.slot_minutes ?? undefined} survey={isSurvey} decided={phase === "closed"} />
+            <ResultCard result={result} question={poll.question} ballotCount={ballotCount} calendarSlot={winnerSlot} calendarEnd={winnerEnd} calendarUrl={voteShareUrl} calendarDuration={poll.slot_minutes ?? undefined} survey={isSurvey} decided={phase === "closed"} />
             {showResultShare && (
               <ShareFold label={t("shareFoldResult")}>
                 <ResultShare
@@ -2134,6 +2147,7 @@ export default function PublicVote({
               </ShareFold>
             )}
             <PollMap options={poll.options} />
+            {isSlotPoll && <PollCalendar options={poll.options} counts={slotCounts} />}
             <CommentsFeed comments={comments} />
             <OfficialRecordCta token={token} />
           </>
@@ -2236,10 +2250,11 @@ export default function PublicVote({
           </div>
         )}
         {poll.quorum != null && <QuorumBanner quorum={poll.quorum} count={ballotCount} />}
-        <ResultCard result={result} question={poll.question} ballotCount={ballotCount} footer={footer} calendarSlot={winnerSlot} calendarUrl={voteShareUrl} calendarDuration={poll.slot_minutes ?? undefined} survey={isSurvey} decided={phase === "closed"} />
+        <ResultCard result={result} question={poll.question} ballotCount={ballotCount} footer={footer} calendarSlot={winnerSlot} calendarEnd={winnerEnd} calendarUrl={voteShareUrl} calendarDuration={poll.slot_minutes ?? undefined} survey={isSurvey} decided={phase === "closed"} />
         {/* Scrutin encore ouvert : inviter à amener d'autres votants (partage du SCRUTIN). */}
         {phase !== "closed" && poll.access_mode === "open" && <InviteMoreVoters question={poll.question} url={voteShareUrl} />}
         <PollMap options={poll.options} />
+        {isSlotPoll && <PollCalendar options={poll.options} counts={slotCounts} />}
         <CommentsFeed comments={comments} />
         {/* Débat complet ; on peut encore argumenter tant que le scrutin est ouvert. */}
         {!aDef && (
@@ -2550,6 +2565,7 @@ export default function PublicVote({
       {/* Carte des lieux : sous le bulletin, elle situe les options les unes par
           rapport aux autres — ce qu'aucune liste ne montre. */}
       <PollMap options={poll.options} />
+      {isSlotPoll && <PollCalendar options={poll.options} counts={slotCounts} />}
 
       {/* Le débat sous le bulletin : argumenter est indépendant du vote. Si les
           résultats sont cachés, la lecture l'est aussi (un débat déséquilibré
