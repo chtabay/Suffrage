@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useTranslations } from "next-intl";
 import type { AuthController } from "@/lib/auth/useAuth";
 import type { ScrutinController } from "@/lib/voting/useScrutin";
+import { useIsAdmin } from "@/lib/db/admin";
 import { Link } from "@/i18n/navigation";
 import LocaleSwitch from "@/components/LocaleSwitch";
 import AboutPlacet from "./AboutPlacet";
@@ -14,6 +15,8 @@ export default function Nav({ ctrl, auth }: { ctrl: ScrutinController; auth: Aut
   const { go } = ctrl;
   const t = useTranslations("Nav");
   const [open, setOpen] = useState(false);
+  // Lien Régie : visible uniquement pour un admin de plateforme (allowlist en base).
+  const isAdmin = useIsAdmin(auth.user?.id);
   // Toute action ferme le menu mobile.
   const act = (fn: () => void) => () => {
     setOpen(false);
@@ -88,6 +91,16 @@ export default function Nav({ ctrl, auth }: { ctrl: ScrutinController; auth: Aut
 
         <div className={`nav-links${open ? " open" : ""}`}>
           <LocaleSwitch />
+          {isAdmin && (
+            <Link
+              href="/admin"
+              onClick={() => setOpen(false)}
+              className="dc-paper"
+              style={{ ...secondary, textDecoration: "none", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 6 }}
+            >
+              🎛️ {t("regie")}
+            </Link>
+          )}
           {!auth.loading && auth.user && (
             <Link
               href="/espaces"

@@ -9,10 +9,14 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { useAuth } from "@/lib/auth/useAuth";
 import {
+  adminDeleteUser,
+  adminListUsers,
   adminModerate,
   adminOverview,
+  adminSetRole,
   type AdminOverview,
   type AdminPollRow,
+  type AdminUser,
 } from "@/lib/db/admin";
 import { intlLocale } from "@/i18n/locales";
 import PlacetMark from "@/components/scrutin/PlacetMark";
@@ -97,19 +101,22 @@ export default function AdminScreen() {
   const locale = useLocale();
   const { user, loading: authLoading, signIn } = useAuth();
   const [data, setData] = useState<AdminOverview | null>(null);
+  const [users, setUsers] = useState<AdminUser[]>([]);
   const [state, setState] = useState<"loading" | "denied" | "error" | "ready">("loading");
   const [query, setQuery] = useState("");
   const [busy, setBusy] = useState<string | null>(null);
+  const [usersNotice, setUsersNotice] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     try {
-      const overview = await adminOverview();
+      const [overview, userList] = await Promise.all([adminOverview(), adminListUsers()]);
       if (!overview) {
         // null = la RPC a répondu « pas admin » ; les erreurs réseau lèvent.
         setState("denied");
         return;
       }
       setData(overview);
+      setUsers(userList ?? []);
       setState("ready");
     } catch {
       setState("error");
@@ -140,6 +147,34 @@ export default function AdminScreen() {
         await adminModerate(row.token, action);
       } catch {
         /* échec réseau : le rechargement ci-dessous fait foi */
+      } finally {
+        await load().catch(() => {});
+        setBusy(null);
+      }
+    },
+    [busy, load, t],
+  );
+
+  const actUser = useCallback(
+    async (u: AdminUser, action: "promote" | "demote" | "delete") => {
+      if (busy) return;
+      const confirms = {
+        promote: t("confirmPromote", { email: u.email }),
+        demote: t("confirmDemote", { email: u.email }),
+        delete: t("confirmDeleteUser", { email: u.email }),
+      } as const;
+      if (!window.confirm(confirms[action])) return;
+      setUsersNotice(null);
+      setBusy(u.id + action);
+      try {
+        const r =
+          action === "delete"
+            ? await adminDeleteUser(u.id)
+            : await adminSetRole(u.id, action === "promote");
+        if (r === "linked_elsewhere") setUsersNotice(t("userLinkedElsewhere"));
+        else if (r !== "ok") setUsersNotice(t("userActionFailed"));
+      } catch {
+        setUsersNotice(t("userActionFailed"));
       } finally {
         await load().catch(() => {});
         setBusy(null);
@@ -534,6 +569,80 @@ export default function AdminScreen() {
             </table>
           </div>
         )}
+      </div>
+
+      {/* ── Comptes : gestion des utilisateurs connus de Placet ─ */}
+      <div style={{ ...card, marginTop: 16 }}>
+        <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 15, marginBottom: 12 }}>
+          👥 {t("usersTitle", { n: users.length })}
+        </div>
+        {usersNotice && (
+          <div style={{ marginBottom: 10, fontSize: 13, color: REDTXT, fontWeight: 700 }}>{usersNotice}</div>
+        )}
+        <div style={{ overflowX: "auto" }}>
+          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+            <thead>
+              <tr>
+                {[t("thUser"), t("thCreated"), t("thLastSeen"), t("thPolls"), t("thSpaces"), ""].map((h, i) => (
+                  <th
+                    key={i}
+                    scope="col"
+                    style={{
+                      textAlign: i === 3 || i === 4 ? "right" : "left",
+                      fontFamily: FONT_DISPLAY,
+                      fontWeight: 800,
+                      fontSize: 11.5,
+                      color: MUTED,
+                      padding: "6px 8px",
+                      borderBottom: `2px solid ${INK}`,
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    {h}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {users.map((u) => {
+                const isSelf = u.id === user?.id;
+                return (
+                  <tr key={u.id} style={{ borderBottom: `1px solid rgba(22,33,58,0.12)` }}>
+                    <td style={{ padding: "9px 8px", minWidth: 220 }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 7, flexWrap: "wrap" }}>
+                        <span style={{ fontWeight: 700 }}>{u.email || u.id}</span>
+                        {u.isAdmin && <span style={chip(YELLOW)}>🎛️ {t("roleAdmin")}</span>}
+                        {isSelf && <span style={{ fontSize: 11.5, fontWeight: 700, color: MUTED }}>({t("userYou")})</span>}
+                      </div>
+                      {u.provider && (
+                        <div style={{ fontSize: 11, fontWeight: 600, color: MUTED, marginTop: 2 }}>{u.provider}</div>
+                      )}
+                    </td>
+                    <td style={{ padding: "9px 8px", fontWeight: 600, color: MUTED, whiteSpace: "nowrap" }}>{fmtDate(u.created_at)}</td>
+                    <td style={{ padding: "9px 8px", fontWeight: 600, color: MUTED, whiteSpace: "nowrap" }}>
+                      {u.last_sign_in_at ? fmtDate(u.last_sign_in_at) : t("neverSignedIn")}
+                    </td>
+                    <td style={{ padding: "9px 8px", textAlign: "right", fontFamily: FONT_DISPLAY, fontWeight: 800 }}>{u.polls}</td>
+                    <td style={{ padding: "9px 8px", textAlign: "right", fontFamily: FONT_DISPLAY, fontWeight: 800 }}>{u.spaces}</td>
+                    <td style={{ padding: "9px 8px" }}>
+                      {/* Jamais d'action sur soi-même (anti-lockout, garde aussi en base).
+                          Un admin doit être rétrogradé avant d'être supprimable. */}
+                      {!isSelf && (
+                        <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                          {u.isAdmin
+                            ? actionBtn(`⬇ ${t("actDemote")}`, () => void actUser(u, "demote"), busy === u.id + "demote")
+                            : actionBtn(`⭐ ${t("actPromote")}`, () => void actUser(u, "promote"), busy === u.id + "promote")}
+                          {!u.isAdmin &&
+                            actionBtn(`🗑️ ${t("actDeleteUser")}`, () => void actUser(u, "delete"), busy === u.id + "delete", "#ffe1e0")}
+                        </div>
+                      )}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
       </div>
     </>,
   );
