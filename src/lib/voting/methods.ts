@@ -41,6 +41,11 @@ export function publicMethodToSystem(key: string): string | undefined {
   return RESOLVE[key.trim().toLowerCase()];
 }
 
+/** Réciproque : clé interne de système → clé publique canonique (URLs /methodes). */
+export function systemToPublicMethod(system: string): string | undefined {
+  return PUBLIC_METHODS.find((d) => d.system === system)?.key;
+}
+
 /** Catalogue enrichi (label/tagline/icône depuis SYSTEMS) — pour la doc /ai et l'UI. */
 export function publicMethodCatalog() {
   return PUBLIC_METHODS.map((d) => {

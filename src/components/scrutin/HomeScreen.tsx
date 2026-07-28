@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { SYSTEMS } from "@/lib/voting/systems";
+import { systemToPublicMethod } from "@/lib/voting/methods";
 import { ASSIGN_METHODS, ASSIGN_METHOD_KEYS, type AssignMethodKey } from "@/lib/assign/methods";
 import type { ScrutinController } from "@/lib/voting/useScrutin";
 import AiSideRail from "./AiSideRail";
@@ -36,7 +37,9 @@ const INTENTS: { kind: IntentKind; color: string; titleKey: string; textKey: str
  * ce qui se répartit), pas une icône décorative. SVG inline — aucun asset.
  */
 function IntentArt({ kind }: { kind: IntentKind }) {
-  const box = { width: 64, height: 44, display: "block" } as const;
+  // Vignette posée À CÔTÉ du titre (et non au-dessus) : la carte perd un tiers
+  // de sa hauteur sans rien retirer du dessin, qui se contente d'être à l'échelle.
+  const box = { width: 50, height: 34, display: "block", flex: "none" } as const;
   if (kind === "decide") {
     return (
       <svg viewBox="0 0 64 44" style={box} aria-hidden="true">
@@ -111,11 +114,112 @@ function useHomeMode(): "learn" | "lean" {
   return mode;
 }
 
+/**
+ * Carte de méthode (vote ou affectation) : deux gestes DISTINCTS sur la même
+ * carte — le corps prérègle le scrutin, le petit lien ouvre la fiche de fond.
+ * D'où un <button> et un <a> VOISINS : un lien dans un bouton serait invalide,
+ * et seul un vrai <a href> est suivi par les moteurs de recherche.
+ */
+function MethodCard({
+  icon,
+  tint,
+  color,
+  name,
+  tagline,
+  strength,
+  href,
+  more,
+  onPick,
+}: {
+  icon: string;
+  tint: string;
+  color: string;
+  name: string;
+  tagline: string;
+  strength: string;
+  href: string;
+  more: string;
+  onPick: () => void;
+}) {
+  return (
+    <div
+      className="dc-lift"
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        background: PAPER,
+        border: `2.5px solid ${INK}`,
+        borderRadius: 14,
+        ...lift(`4px 4px 0 ${color}`, `6px 6px 0 ${color}`),
+      }}
+    >
+      <button
+        onClick={onPick}
+        style={{
+          flex: 1,
+          cursor: "pointer",
+          textAlign: "left",
+          fontFamily: "inherit",
+          color: INK,
+          background: "none",
+          border: 0,
+          padding: "12px 12px 0",
+        }}
+      >
+        <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <span
+            style={{
+              width: 30,
+              height: 30,
+              borderRadius: 9,
+              border: `2px solid ${INK}`,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontSize: 16,
+              background: tint,
+              flex: "none",
+            }}
+          >
+            {icon}
+          </span>
+          <span style={{ fontFamily: FONT_DISPLAY, fontWeight: 700, fontSize: 14.5, lineHeight: 1.1 }}>{name}</span>
+        </span>
+        <span style={{ display: "block", color: MUTED, fontSize: 11.5, marginTop: 6, lineHeight: 1.35 }}>{tagline}</span>
+        <span
+          style={{
+            marginTop: 7,
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 5,
+            background: tint,
+            borderRadius: 999,
+            padding: "2px 8px 2px 6px",
+            fontSize: 10,
+            fontWeight: 800,
+            color: INK,
+          }}
+        >
+          <span style={{ width: 5, height: 5, borderRadius: "50%", background: color, flex: "none" }} />
+          {strength}
+        </span>
+      </button>
+      <Link
+        href={href}
+        style={{ display: "block", padding: "7px 12px 10px", fontSize: 11, fontWeight: 700, color: SUBINK, textDecoration: "underline" }}
+      >
+        {more} →
+      </Link>
+    </div>
+  );
+}
+
 export default function HomeScreen({ ctrl }: { ctrl: ScrutinController }) {
   const { go, selectSystemRecipe, setOptionKind, setAssignMethod, setQuestion, setSurvey } = ctrl;
   const t = useTranslations("Home");
   const tm = useTranslations("Methods");
   const ta = useTranslations("Assign");
+  const td = useTranslations("Deep");
   const learn = useHomeMode() === "learn";
   // Deux portes : décider (vote) ou affecter — CTA, cartes et étapes s'adaptent.
   const [pillar, setPillar] = useState<"vote" | "assign">("vote");
@@ -255,14 +359,16 @@ export default function HomeScreen({ ctrl }: { ctrl: ScrutinController }) {
                 fontFamily: "inherit",
                 background: PAPER,
                 border: `2px solid ${INK}`,
-                borderRadius: 14,
-                padding: 13,
+                borderRadius: 13,
+                padding: 11,
                 ...lift(`3px 3px 0 ${it.color}`, `5px 5px 0 ${it.color}`),
               }}
             >
-              <IntentArt kind={it.kind} />
-              <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 15.5, marginTop: 8 }}>{t(it.titleKey)}</div>
-              <div style={{ fontSize: 12.5, color: SUBINK, lineHeight: 1.4, marginTop: 3 }}>{t(it.textKey)}</div>
+              <div style={{ display: "flex", alignItems: "center", gap: 9 }}>
+                <IntentArt kind={it.kind} />
+                <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 15, lineHeight: 1.15 }}>{t(it.titleKey)}</div>
+              </div>
+              <div style={{ fontSize: 12, color: SUBINK, lineHeight: 1.38, marginTop: 6 }}>{t(it.textKey)}</div>
             </button>
           ))}
         </div>
@@ -322,94 +428,38 @@ export default function HomeScreen({ ctrl }: { ctrl: ScrutinController }) {
             ASSIGN_METHOD_KEYS.map((key) => {
               const def = ASSIGN_METHODS[key];
               return (
-                <button
+                <MethodCard
                   key={key}
-                  onClick={() => startAssign(key)}
-                  className="dc-lift"
-                  style={{
-                    cursor: "pointer",
-                    textAlign: "left",
-                    width: "100%",
-                    fontFamily: "inherit",
-                    background: PAPER,
-                    border: `2.5px solid ${INK}`,
-                    borderRadius: 16,
-                    padding: 16,
-                    ...lift(`4px 4px 0 ${def.color}`, `6px 6px 0 ${def.color}`),
-                  }}
-                >
-                  <div style={{ width: 42, height: 42, borderRadius: 12, border: `2px solid ${INK}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22, background: def.tint }}>
-                    {def.icon}
-                  </div>
-                  <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 700, fontSize: 16, marginTop: 11, lineHeight: 1.1 }}>
-                    {ta(`methods.${key}.name`)}
-                  </div>
-                  <div style={{ color: MUTED, fontSize: 12.5, marginTop: 4, lineHeight: 1.35 }}>{ta(`methods.${key}.tagline`)}</div>
-                  <div style={{ marginTop: 10, display: "inline-flex", alignItems: "center", gap: 6, background: def.tint, borderRadius: 999, padding: "3px 9px 3px 7px", fontSize: 10.5, fontWeight: 800, color: INK }}>
-                    <span style={{ width: 6, height: 6, borderRadius: "50%", background: def.color, flex: "none" }} />
-                    {ta(`methods.${key}.strength`)}
-                  </div>
-                </button>
+                  icon={def.icon}
+                  tint={def.tint}
+                  color={def.color}
+                  name={ta(`methods.${key}.name`)}
+                  tagline={ta(`methods.${key}.tagline`)}
+                  strength={ta(`methods.${key}.strength`)}
+                  href={`/methodes/${key}`}
+                  more={td("learnMore")}
+                  onPick={() => startAssign(key)}
+                />
               );
             })}
-          {pillar === "vote" && HOME_METHODS.map((key) => {
-            const sys = SYSTEMS[key];
-            return (
-              <button
-                key={key}
-                onClick={() => selectSystemRecipe(key)}
-                className="dc-lift"
-                style={{
-                  cursor: "pointer",
-                  textAlign: "left",
-                  width: "100%",
-                  fontFamily: "inherit",
-                  background: PAPER,
-                  border: `2.5px solid ${INK}`,
-                  borderRadius: 16,
-                  padding: 16,
-                  ...lift(`4px 4px 0 ${sys.color}`, `6px 6px 0 ${sys.color}`),
-                }}
-              >
-                <div
-                  style={{
-                    width: 42,
-                    height: 42,
-                    borderRadius: 12,
-                    border: `2px solid ${INK}`,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    fontSize: 22,
-                    background: sys.tint,
-                  }}
-                >
-                  {sys.icon}
-                </div>
-                <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 700, fontSize: 16, marginTop: 11, lineHeight: 1.1 }}>
-                  {tm(`${key}.name`)}
-                </div>
-                <div style={{ color: MUTED, fontSize: 12.5, marginTop: 4, lineHeight: 1.35 }}>{tm(`${key}.tagline`)}</div>
-                <div
-                  style={{
-                    marginTop: 10,
-                    display: "inline-flex",
-                    alignItems: "center",
-                    gap: 6,
-                    background: sys.tint,
-                    borderRadius: 999,
-                    padding: "3px 9px 3px 7px",
-                    fontSize: 10.5,
-                    fontWeight: 800,
-                    color: INK,
-                  }}
-                >
-                  <span style={{ width: 6, height: 6, borderRadius: "50%", background: sys.color, flex: "none" }} />
-                  {tm(`${key}.strength`)}
-                </div>
-              </button>
-            );
-          })}
+          {pillar === "vote" &&
+            HOME_METHODS.map((key) => {
+              const sys = SYSTEMS[key];
+              return (
+                <MethodCard
+                  key={key}
+                  icon={sys.icon}
+                  tint={sys.tint}
+                  color={sys.color}
+                  name={tm(`${key}.name`)}
+                  tagline={tm(`${key}.tagline`)}
+                  strength={tm(`${key}.strength`)}
+                  href={`/methodes/${systemToPublicMethod(key) ?? key}`}
+                  more={td("learnMore")}
+                  onPick={() => selectSystemRecipe(key)}
+                />
+              );
+            })}
         </div>
 
         {/* après les cartes : comparer toutes les méthodes (galerie = vote) */}

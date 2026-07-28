@@ -1153,5 +1153,16 @@
     "descWinner": "{winner} wins — {method}, {count, plural, one {# vote} other {# votes}}.",
     "descClosed": "Voting closed — {method}, {count, plural, one {# vote} other {# votes}}.",
     "descOpen": "Vote online — {method} method, {count, plural, one {# option} other {# options}}."
+  },
+  "Deep": {
+    "learnMore": "Learn more",
+    "toc": "On this page",
+    "mechanics": "How it works, precisely",
+    "example": "A worked example",
+    "history": "Where it comes from",
+    "useCases": "Where it is used",
+    "limits": "Limits and pitfalls",
+    "faq": "Frequently asked questions",
+    "related": "See also"
   }
 }

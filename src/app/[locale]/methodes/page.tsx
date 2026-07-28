@@ -5,23 +5,13 @@ import PlacetMark from "@/components/scrutin/PlacetMark";
 import { PUBLIC_METHODS } from "@/lib/voting/methods";
 import { SYSTEMS } from "@/lib/voting/systems";
 import { ASSIGN_METHODS, ASSIGN_METHOD_KEYS } from "@/lib/assign/methods";
+import { hreflangAlternates } from "@/lib/seo/hreflang";
 
 // Index SEO des méthodes (vote + affectation) : pages statiques crawlables,
 // séparées de l'app — la galerie in-app reste l'expérience interactive.
 const INK = "#16213A";
 const CREAM = "#FBF6EC";
 const display = "var(--font-display), 'Bricolage Grotesque', sans-serif";
-
-// hreflang : chaque locale pointe vers son URL (fr = défaut sans préfixe). Sans ça,
-// les 4 langues risquent d'être vues comme du contenu dupliqué.
-const HREFLANG_LOCALES = ["fr", "en", "es", "pcm"] as const;
-export function hreflangAlternates(path: string, locale: string) {
-  const url = (loc: string) => (loc === "fr" ? path : `/${loc}${path}`);
-  return {
-    canonical: url(locale),
-    languages: { ...Object.fromEntries(HREFLANG_LOCALES.map((l) => [l, url(l)])), "x-default": url("fr") },
-  };
-}
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;

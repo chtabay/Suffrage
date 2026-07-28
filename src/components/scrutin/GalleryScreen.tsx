@@ -5,13 +5,39 @@ import { SYSTEMS, SYSTEM_ORDER } from "@/lib/voting/systems";
 import { ASSIGN_METHODS, ASSIGN_METHOD_KEYS, type AssignMethodKey } from "@/lib/assign/methods";
 import type { ScrutinController } from "@/lib/voting/useScrutin";
 import { Btn } from "@/components/ui/kit";
+import { Link } from "@/i18n/navigation";
+import { systemToPublicMethod } from "@/lib/voting/methods";
 import { FONT_DISPLAY, GREENTXT, INK, REDTXT, SUBINK } from "./theme";
+
+/**
+ * Petit lien vers la fiche approfondie (/methodes/<clé>) : la galerie sert à
+ * CHOISIR, la fiche à COMPRENDRE. Un vrai <a href>, donc suivi par les moteurs.
+ */
+function DeepLink({ href, label }: { href: string; label: string }) {
+  return (
+    <Link
+      href={href}
+      style={{
+        display: "block",
+        textAlign: "center",
+        marginTop: 9,
+        fontSize: 12.5,
+        fontWeight: 700,
+        color: SUBINK,
+        textDecoration: "underline",
+      }}
+    >
+      {label} →
+    </Link>
+  );
+}
 
 export default function GalleryScreen({ ctrl }: { ctrl: ScrutinController }) {
   const { selectSystemRecipe, setOptionKind, setAssignMethod, go } = ctrl;
   const t = useTranslations("Gallery");
   const tm = useTranslations("Methods");
   const ta = useTranslations("Assign");
+  const td = useTranslations("Deep");
   const startAssign = (key: AssignMethodKey) => {
     setOptionKind("assign");
     setAssignMethod(key);
@@ -174,6 +200,7 @@ export default function GalleryScreen({ ctrl }: { ctrl: ScrutinController }) {
                 >
                   {t("launchWithMethod")}
                 </Btn>
+                <DeepLink href={`/methodes/${systemToPublicMethod(key) ?? key}`} label={td("learnMore")} />
               </div>
             </div>
           );
@@ -292,6 +319,7 @@ export default function GalleryScreen({ ctrl }: { ctrl: ScrutinController }) {
                 >
                   {t("launchAssign")}
                 </Btn>
+                <DeepLink href={`/methodes/${key}`} label={td("learnMore")} />
               </div>
             </div>
           );

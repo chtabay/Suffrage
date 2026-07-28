@@ -1153,5 +1153,16 @@
     "descWinner": "{winner} l'emporte — {method}, {count, plural, one {# vote} other {# votes}}.",
     "descClosed": "Vote clos — {method}, {count, plural, one {# vote} other {# votes}}.",
     "descOpen": "Votez en ligne — méthode « {method} », {count, plural, one {# option} other {# options}}."
+  },
+  "Deep": {
+    "learnMore": "En savoir plus",
+    "toc": "Sur cette page",
+    "mechanics": "Comment ça marche, précisément",
+    "example": "Un exemple chiffré",
+    "history": "D'où ça vient",
+    "useCases": "Où on s'en sert",
+    "limits": "Limites et pièges",
+    "faq": "Questions fréquentes",
+    "related": "À voir aussi"
   }
 }

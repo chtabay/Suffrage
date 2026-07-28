@@ -1153,5 +1153,16 @@
     "descWinner": "{winner} win — {method}, {count, plural, one {# vote} other {# votes}}.",
     "descClosed": "Voting don close — {method}, {count, plural, one {# vote} other {# votes}}.",
     "descOpen": "Vote online — {method} method, {count, plural, one {# option} other {# options}}."
+  },
+  "Deep": {
+    "learnMore": "Sabi more",
+    "toc": "For dis page",
+    "mechanics": "How e dey work, well well",
+    "example": "Example wey get figures",
+    "history": "Where e come from",
+    "useCases": "Where dem dey use am",
+    "limits": "Limits and wahala",
+    "faq": "Questions wey people dey ask",
+    "related": "Check dis too"
   }
 }
