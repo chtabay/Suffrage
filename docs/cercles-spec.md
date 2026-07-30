@@ -1,6 +1,7 @@
 # Cercles — spécification P1
 
-**État : à valider.** Aucun code écrit. Trois questions à trancher en fin de document.
+**État : validée le 2026-07-29.** Les trois questions ouvertes ont été tranchées
+par Guillaume (voir § 8). Prêt à coder, lot 1 en premier.
 
 Produit par un panel de trois conceptions indépendantes, chacune attaquée par un
 adversaire distinct, puis synthétisée. Tous les faits techniques ci-dessous ont
@@ -14,8 +15,9 @@ et dans le code, pas déduits.
 Une communauté professionnelle établie — le cas concret est l'**immobilier
 locatif** — veut interroger régulièrement ses membres et faire de la veille,
 alors qu'elle subit le harcèlement téléphonique des agences. Placet est le
-**tampon** : le membre répond à ses conditions, son contact n'est jamais exposé,
-et le nombre de sollicitations est plafonné.
+**tampon** : le membre répond à ses conditions, son contact n'est jamais
+communiqué à personne, son bulletin n'est pas rattaché à son nom, il part en un
+clic, et le cercle s'engage sur une fréquence maximale de sollicitation.
 
 Le beachhead est **first-party** : l'animateur interroge sa propre communauté.
 La marketplace (une start-up publie dans un cercle qu'elle ne possède pas) est
@@ -129,9 +131,11 @@ Chacune a été vérifiée en base par un attaquant dédié. Elles sont réelles
    d'emails non sollicités.
    → **Parade** : réponse **`ok` dans tous les cas**, rien n'entre dans le roster
    avant un clic de confirmation, débit borné par cercle et par adresse.
-6. **Plafond décoratif.** Un plafond affiché mais appliqué dans l'interface n'est
-   pas un plafond.
-   → **Parade** : compté et **refusé en base** dans la RPC d'ouverture.
+6. **Plafond décoratif.** Un plafond affiché mais appliqué dans l'interface
+   n'est pas un plafond : l'animateur appelle la RPC directement.
+   → **Parade** : compté et **refusé en base** dans `open_circle_consultation`.
+   Et on n'affiche au membre que la valeur réellement configurée sur ce
+   cercle — jamais un chiffre générique (décision 1).
 
 ### Ce que ce modèle ne garantit PAS — à dire en clair
 
@@ -156,8 +160,9 @@ reste tel quel), la structure de `scrutin_ballots`.
 ### Colonnes ajoutées
 
 - **`scrutin_spaces`** : `join_token` (unique, défaut aléatoire), `join_open`
-  (bool, défaut `false`), `join_cap`, `join_closes_at`, `pitch`, `monthly_cap`
-  (défaut 2). *Un espace est un cercle si et seulement si `join_open`.*
+  (bool, défaut `false`), `join_cap`, `join_closes_at`, `pitch`,
+  `solicit_per_day` (smallint **nullable**, défaut `1` — `NULL` = aucune limite,
+  décision 1). *Un espace est un cercle si et seulement si `join_open`.*
 - **`scrutin_members`** : `token` (unique — le jeton stable qui manquait),
   `self_joined`, `consent_at`, `consent_source`.
 - **`scrutin_events`** : `secret_ballot` (bool, défaut **`false`** — aucune
@@ -187,8 +192,9 @@ dépouillement d'une consultation secrète doit passer par `get_event_results`.
 `get_circle_info` (publique, sans jeton) · `request_join_circle` et
 `confirm_join_circle` (gardées par le secret serveur, patron `self_enroll`) ·
 `get_member_home` (par jeton, **`STABLE`, sans effet de bord**) · `leave_circle` ·
-`open_circle_consultation` (vérifie le plafond mensuel **en base**, convoque tout
-le roster, pose `secret_ballot`).
+`open_circle_consultation` (**refuse si le plafond du jour est atteint**,
+convoque tout le roster — c'est ce qui interdit l'attaque par cardinalité — et
+pose `secret_ballot`).
 
 ### RPC modifiées (3, chirurgical)
 
@@ -203,15 +209,17 @@ mot pour mot) · `get_event_context` (`voted` lit l'émargement) ·
 
 **Animateur.** Un bloc « Cercle » dans `SpaceDashboard` (entre roster et
 événements) : interrupteur, lien `placet.app/cercle/<join_token>` copiable,
-pitch, plafond mensuel. Puis, pour interroger : créer l'événement et sa question
-comme aujourd'hui, et **un seul bouton « Ouvrir la consultation »** — désactivé
-avec son motif si le plafond du mois est atteint. Suivi par un compteur anonyme.
-Une relance maximum.
+pitch, et le réglage « au plus N consultation(s) par jour » (ou « je ne
+m'engage pas »). Puis, pour interroger : créer l'événement et sa question comme
+aujourd'hui, et **un seul bouton « Ouvrir la consultation »** — désactivé avec
+son motif si le plafond du jour est atteint. Suivi par un compteur anonyme. Une
+relance maximum.
 
 **Membre.** `/cercle/<token>` (calque de `JoinForm`) affiche le nom du cercle,
-le pitch, et **la promesse chiffrée** : « au plus 2 questions par mois, 1 utilisée
-ce mois-ci », « votre email n'est jamais communiqué », « vos réponses ne sont pas
-rattachées à votre nom ». Puis email de confirmation → **un bouton** (un POST,
+le pitch, et **ce qu'on garantit vraiment** : « votre email n'est jamais
+communiqué », « vos réponses ne sont pas rattachées à votre nom », « vous partez
+en un clic » — plus l'engagement de fréquence **de ce cercle précisément**, s'il
+en a pris un (décision 1). Puis email de confirmation → **un bouton** (un POST,
 jamais un GET : les anti-phishing d'entreprise cliquent les liens des emails et
 valideraient le double opt-in tout seuls) → atterrissage sur `/m/<token>`, sa
 page personnelle : consultations ouvertes, historique, résultats, et **quitter le
@@ -227,7 +235,7 @@ cercle en un clic**, également depuis le pied de chaque email.
 |---|---|---|
 | **1. Le bulletin scellé** | `secret_ballot`, émargement, les 3 RPC modifiées, la policy, la case dans `EventEditor` | N'importe quel espace peut tenir un vote à bulletin secret **démontrable** — sans aucun cercle |
 | **2. L'adhésion** | colonnes espace/membre, index unique, file d'attente, 4 RPC, 3 pages, 3 routes | L'animateur construit son roster seul ; chaque membre a une page de retrait (RGPD) |
-| **3. La consultation de cercle** | `open_circle_consultation`, plafond en base, relance | La promesse anti-harcèlement devient **opposable** |
+| **3. La consultation de cercle** | `open_circle_consultation` (plafond du jour refusé en base + convocation de tout le roster), relance sur l'émargement | Interroger son cercle en un bouton, sans jamais choisir qui répond, dans la limite que le cercle s'est fixée |
 | **4. Finitions de confiance** | pied de retrait sur tous les emails, badge « auto-inscrit », date de consentement | — |
 
 Ordre imposé : **1 avant 3** (on n'ouvre pas un cercle dont les bulletins ne sont
@@ -240,29 +248,47 @@ même requête avec la clé publique doit renvoyer zéro ligne tout court.
 
 ---
 
-## 8. Trois questions à trancher avant le code
+## 8. Les trois décisions (tranchées le 2026-07-29)
 
-**1. Le plafond mensuel est-il un verrou dur, ou une promesse affichée ?**
-*Recommandation : verrou dur, refusé en base.* C'est le seul engagement qui
-distingue Placet du démarchage qu'il dénonce, et il est affiché sous notre
-marque. Un plafond promis puis dépassé est pire que pas de plafond. S'il est jugé
-trop contraignant pour l'animateur, alors il faut ne rien promettre du tout —
-pas d'entre-deux.
+**1. Plafond de sollicitations → RÉGLABLE PAR CERCLE, verrou dur, défaut 1/jour.**
 
-**2. Combien de bulletins minimum avant d'afficher un résultat ?**
-*Recommandation : 5, refusé par la base, avec un message explicite à
-l'animateur.* Un seuil appliqué dans le composant de résultats n'est pas un
-seuil, c'est une décoration. Le vrai réglage à discuter est le chiffre : 3 serait
-défendable, 1 ne l'est pas.
+Ce n'est pas Placet qui promet un chiffre à la place de l'animateur : **c'est le
+cercle qui s'engage**, et on n'affiche au membre que ce que ce cercle-là a
+réellement fixé.
 
-**3. Un membre importé par CSV — qui n'a rien demandé — peut-il entrer dans un
-cercle ? Et un membre sans email peut-il en faire partie ?**
-*Recommandation : import autorisé mais marqué comme tel, avec un premier email
-qui dit ce que le cercle sait de lui et comment sortir ; et **email obligatoire
-dans un cercle**.* Aujourd'hui `scrutin_members.email` est nullable et la
-convocation filtre les membres sans adresse : un membre sans email est
-silencieusement injoignable, jamais convoqué, et sans moyen d'exercer son
-retrait. Ce n'est pas un membre, c'est une donnée personnelle orpheline.
+- Colonne `scrutin_spaces.solicit_per_day` (smallint, **nullable**, défaut `1`).
+- **`NULL` = aucune limite** → la page d'adhésion n'affiche alors **aucun
+  chiffre** et ne promet rien. C'est l'option « je ne m'engage pas ».
+- Une valeur → **refus en base** dans `open_circle_consultation`, et la page
+  d'adhésion affiche l'engagement réel : « ce cercle s'engage à ne pas ouvrir
+  plus de N consultation(s) par jour ».
+
+Un plafond affiché doit être opposable, sinon c'est une décoration — d'où le
+refus en base et non dans l'interface.
+
+**Réserve consignée** : 1/jour ≈ 30/mois. C'est un garde-fou contre le
+pathologique, pas l'argument commercial « on ne vous spammera pas ». Si cet
+argument doit porter, il faudra un second plafond sur une fenêtre plus longue ;
+la mécanique de comptage sera identique, l'ajout est d'une colonne.
+
+Ce qui porte l'anti-harcèlement indépendamment du chiffre, et qui est
+structurel : **le contact du membre n'est jamais communiqué à personne**, le
+bulletin n'est pas rattaché à son nom, et le retrait se fait en un clic depuis
+n'importe quel email.
+
+**2. Seuil de publication → 5 bulletins, refusé en base.**
+En dessous, `get_event_results` refuse et l'animateur lit « 3 réponses : les
+résultats s'afficheront à partir de 5 ». Un seuil appliqué dans le composant
+n'est pas un seuil, c'est une décoration.
+
+**3. Adhésion → import CSV autorisé, email obligatoire.**
+L'animateur peut importer sa liste existante ; ces membres sont marqués
+`consent_source='import'` et reçoivent un premier email qui dit ce que le cercle
+sait d'eux et comment sortir. Et **`email` devient obligatoire dans un cercle** :
+aujourd'hui la colonne est nullable et la convocation filtre les membres sans
+adresse — un tel membre est silencieusement injoignable, jamais convoqué, et sans
+moyen d'exercer son retrait. Ce n'est pas un membre, c'est une donnée
+personnelle orpheline.
 
 ---
 
