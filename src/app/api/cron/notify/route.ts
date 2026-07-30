@@ -7,8 +7,12 @@ import { APP_URL } from "@/lib/voting/aiPrompt";
 export const dynamic = "force-dynamic";
 
 export async function GET(req: Request) {
+  // Échoue FERMÉ. L'écriture précédente — `if (cronSecret && …)` — désarmait la
+  // garde quand la variable était absente : un simple GET public clôturait alors
+  // TOUS les scrutins échus et déclenchait toutes les notifications. Une variable
+  // oubliée doit casser le cron, pas ouvrir la porte.
   const cronSecret = process.env.CRON_SECRET;
-  if (cronSecret && req.headers.get("authorization") !== `Bearer ${cronSecret}`) {
+  if (!cronSecret || req.headers.get("authorization") !== `Bearer ${cronSecret}`) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
   // Liens des notifications = domaine canonique (jamais l'URL de déploiement Vercel,
