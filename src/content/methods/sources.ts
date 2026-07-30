@@ -221,6 +221,15 @@ export const SOURCES: Record<string, Source[]> = {
 
   proportional: [
     {
+      // Première exposition de la méthode, parue ANONYMEMENT — d'où la
+      // signature « par un électeur », qui n'est pas un morceau du titre.
+      // Bruxelles, et non Gand : la brochure gantoise est celle de 1885.
+      a: "D'Hondt, Victor (signé « par un électeur »)",
+      t: "Question électorale. La représentation proportionnelle des partis",
+      w: "Bruxelles",
+      y: "1878",
+    },
+    {
       a: "D'Hondt, Victor",
       t: "Système pratique et raisonné de représentation proportionnelle",
       w: "Librairie C. Muquardt, Bruxelles",

@@ -468,7 +468,7 @@ const pcm: DeepFiches = {
     summary:
       "Instead of one winner, dem dey share seats according to votes with di D'Hondt method. Na di voting of assemblies, no be of decisions.",
     history: [
-      "Di Belgian jurist Victor d'Hondt work out im method for late 1870s and publish am as book for 1882; Belgium adopt am through di 1899 law and use am from di 1900 elections — first for di whole world. Dem don already sabi di formula: Thomas Jefferson propose am for 1792 to share House seats among di American states.",
+      "Di Belgian jurist Victor d'Hondt bring out im method since 1878, for one pamphlet wey e publish without im name, and systematise am as book for 1882; Belgium adopt am through di 1899 law and use am from di 1900 elections — first for di whole world. Dem don already sabi di formula: Thomas Jefferson propose am for 1792 to share House seats among di American states.",
       "Rival variants dey since dat time: Sainte-Laguë (1910), same as di Webster method of 1832, dey treat small parties better and e still be di reference for Scandinavia and New Zealand.",
       "Di largest-remainder method, wey dem call Hamilton own, dem drop am for United States after di Alabama paradox: for 1880 dem see say to raise di total seats from 299 to 300 MAKE Alabama lose one seat. United States dey use di Huntington-Hill method since 1941.",
     ],

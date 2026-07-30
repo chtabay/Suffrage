@@ -474,7 +474,7 @@ const en: DeepFiches = {
     summary:
       "Instead of a single winner, seats are shared in proportion to votes using the D'Hondt method. This is the method of assemblies, not of decisions.",
     history: [
-      "The Belgian jurist Victor d'Hondt worked out his method in the late 1870s and published it in book form in 1882; Belgium adopted it by the law of 1899 and applied it from the 1900 elections — a world first. The formula was in fact already known: Thomas Jefferson had proposed it in 1792 to apportion House seats among the American states.",
+      "The Belgian jurist Victor d'Hondt set out his method as early as 1878, in an anonymously published pamphlet, and systematised it in book form in 1882; Belgium adopted it by the law of 1899 and applied it from the 1900 elections — a world first. The formula was in fact already known: Thomas Jefferson had proposed it in 1792 to apportion House seats among the American states.",
       "Rival variants have existed just as long: Sainte-Laguë (1910), equivalent to the Webster method of 1832, treats smaller parties more favourably and remains the reference in Scandinavia and New Zealand.",
       "The largest-remainder method, known as Hamilton's, was abandoned in the United States after the Alabama paradox: in 1880 it was found that raising the total number of seats from 299 to 300 COST Alabama a seat. The United States has used the Huntington-Hill method since 1941.",
     ],

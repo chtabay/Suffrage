@@ -485,7 +485,7 @@ const fr: DeepFiches = {
     summary:
       "Au lieu d'un vainqueur unique, on répartit des sièges au prorata des voix par la méthode d'Hondt. C'est le scrutin des assemblées, pas des décisions.",
     history: [
-      "Le juriste belge Victor d'Hondt formalise sa méthode à la fin des années 1870 et la publie en ouvrage en 1882 ; la Belgique l'adopte par la loi de 1899 et l'applique dès les élections de 1900, en première mondiale. La formule était en réalité déjà connue : Thomas Jefferson l'avait proposée en 1792 pour répartir les sièges de la Chambre des représentants entre les États américains.",
+      "Le juriste belge Victor d'Hondt expose sa méthode dès 1878, dans une brochure publiée anonymement, et la systématise en ouvrage en 1882 ; la Belgique l'adopte par la loi de 1899 et l'applique dès les élections de 1900, en première mondiale. La formule était en réalité déjà connue : Thomas Jefferson l'avait proposée en 1792 pour répartir les sièges de la Chambre des représentants entre les États américains.",
       "Des variantes concurrentes existent depuis aussi longtemps : Sainte-Laguë (1910), équivalente à la méthode Webster de 1832, répartit plus favorablement les petites formations, et reste la référence en Scandinavie et en Nouvelle-Zélande.",
       "La méthode des restes les plus forts, dite de Hamilton, a été abandonnée aux États-Unis après le paradoxe de l'Alabama : en 1880, on constata qu'augmenter le nombre total de sièges de 299 à 300 FAISAIT PERDRE un siège à l'Alabama. Les États-Unis utilisent depuis 1941 la méthode Huntington-Hill.",
     ],

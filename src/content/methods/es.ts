@@ -468,7 +468,7 @@ const es: DeepFiches = {
     summary:
       "En vez de un ganador único, se reparten escaños en proporción a los votos con el método D'Hondt. Es el escrutinio de las asambleas, no de las decisiones.",
     history: [
-      "El jurista belga Victor d'Hondt formaliza su método a finales de la década de 1870 y lo publica como libro en 1882; Bélgica lo adopta por la ley de 1899 y lo aplica ya en las elecciones de 1900, en primicia mundial. La fórmula ya se conocía: Thomas Jefferson la había propuesto en 1792 para repartir los escaños de la Cámara de Representantes entre los estados.",
+      "El jurista belga Victor d'Hondt expone su método ya en 1878, en un folleto publicado de forma anónima, y lo sistematiza como libro en 1882; Bélgica lo adopta por la ley de 1899 y lo aplica ya en las elecciones de 1900, en primicia mundial. La fórmula ya se conocía: Thomas Jefferson la había propuesto en 1792 para repartir los escaños de la Cámara de Representantes entre los estados.",
       "Existen variantes rivales desde hace igual de tiempo: Sainte-Laguë (1910), equivalente al método Webster de 1832, reparte de forma más favorable a las pequeñas formaciones y sigue siendo la referencia en Escandinavia y Nueva Zelanda.",
       "El método de los restos mayores, llamado de Hamilton, fue abandonado en Estados Unidos tras la paradoja de Alabama: en 1880 se constató que aumentar el total de escaños de 299 a 300 HACÍA PERDER un escaño a Alabama. Estados Unidos usa desde 1941 el método Huntington-Hill.",
     ],
