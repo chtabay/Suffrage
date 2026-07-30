@@ -1163,6 +1163,8 @@
     "useCases": "Where it is used",
     "limits": "Limits and pitfalls",
     "faq": "Frequently asked questions",
+    "sources": "Sources",
+    "sourcesNote": "The primary references this page relies on.",
     "related": "See also"
   }
 }

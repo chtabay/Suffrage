@@ -1163,6 +1163,8 @@
     "useCases": "Où on s'en sert",
     "limits": "Limites et pièges",
     "faq": "Questions fréquentes",
+    "sources": "Sources",
+    "sourcesNote": "Les références primaires sur lesquelles s'appuie cette fiche.",
     "related": "À voir aussi"
   }
 }

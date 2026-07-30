@@ -7,6 +7,7 @@ import { PUBLIC_METHODS, publicMethodToSystem } from "@/lib/voting/methods";
 import { SYSTEMS } from "@/lib/voting/systems";
 import { ASSIGN_METHODS, ASSIGN_METHOD_KEYS, isAssignMethod } from "@/lib/assign/methods";
 import { deepFiche, RELATED, type DeepFiche } from "@/content/methods";
+import { SOURCES } from "@/content/methods/sources";
 import { hreflangAlternates } from "@/lib/seo/hreflang";
 
 // Fiche d'une méthode (vote ou affectation) : la fiche courte i18n sert d'en-tête,
@@ -123,6 +124,7 @@ export default async function MethodPage({ params }: { params: Promise<{ locale:
   const tg = await getTranslations({ locale, namespace: "Gallery" });
   const td = await getTranslations({ locale, namespace: "Deep" });
   const deep: DeepFiche | undefined = deepFiche(locale, key);
+  const sources = SOURCES[key] ?? [];
   const related = await Promise.all(
     (RELATED[key] ?? []).map(async (k) => ({ key: k, name: await relatedName(locale, k) })),
   );
@@ -135,7 +137,8 @@ export default async function MethodPage({ params }: { params: Promise<{ locale:
         ["usecases", td("useCases")],
         ["limits", td("limits")],
         ["faq", td("faq")],
-      ] as const)
+        ...(sources.length ? [["sources", td("sources")]] : []),
+      ] as [string, string][])
     : [];
 
   // JSON-LD : la FAQ est le format le plus lisible par les moteurs et les LLM,
@@ -151,6 +154,28 @@ export default async function MethodPage({ params }: { params: Promise<{ locale:
           { "@type": "ListItem", position: 3, name: fiche.name },
         ],
       },
+      // `citation` rend la bibliographie exploitable par les moteurs et les LLM :
+      // la page ne dit plus seulement « d'après Gale et Shapley », elle le prouve.
+      ...(sources.length
+        ? [
+            {
+              "@type": "Article",
+              headline: fiche.name,
+              inLanguage: locale,
+              citation: sources.map((s) => ({
+                "@type": "CreativeWork",
+                name: s.t,
+                // `author` en TEXTE et non en Person : une entrée porte souvent
+                // plusieurs auteurs, et en faire une seule Person inventerait
+                // une personne qui n'existe pas.
+                ...(s.a ? { author: s.a } : {}),
+                datePublished: s.y,
+                publisher: s.w,
+                ...(s.url ? { url: s.url } : {}),
+              })),
+            },
+          ]
+        : []),
       ...(deep
         ? [
             {
@@ -403,6 +428,49 @@ export default async function MethodPage({ params }: { params: Promise<{ locale:
                 </div>
               ))}
             </div>
+
+            {/* Sources : ce qui sépare une fiche vérifiable d'un texte d'opinion.
+                Sans langue (une référence ne se traduit pas) — d'où le rendu
+                typographique neutre plutôt qu'une phrase à trous localisée. */}
+            {sources.length > 0 && (
+              <>
+                <h2 id="sources" style={h2}>
+                  {td("sources")}
+                </h2>
+                <p style={{ ...para, fontSize: 14.5, color: "#5a6178" }}>{td("sourcesNote")}</p>
+                <ol style={{ margin: "14px 0 0", padding: 0, listStyle: "none", display: "grid", gap: 11 }}>
+                  {sources.map((s, i) => (
+                    <li
+                      key={i}
+                      style={{
+                        fontSize: 14.5,
+                        lineHeight: 1.5,
+                        color: BODY,
+                        paddingLeft: 14,
+                        borderLeft: `3px solid ${fiche.color}`,
+                      }}
+                    >
+                      {s.a && <span style={{ fontWeight: 700, color: INK }}>{s.a}</span>}
+                      {s.a && ", "}
+                      <cite style={{ fontStyle: "italic" }}>{s.t}</cite>, {s.w}, {s.y}.
+                      {s.url && (
+                        <>
+                          {" "}
+                          <a
+                            href={s.url}
+                            target="_blank"
+                            rel="noopener nofollow"
+                            style={{ color: INK, fontWeight: 700, whiteSpace: "nowrap" }}
+                          >
+                            {s.url.includes("doi.org") ? "DOI ↗" : "↗"}
+                          </a>
+                        </>
+                      )}
+                    </li>
+                  ))}
+                </ol>
+              </>
+            )}
           </article>
         )}
 

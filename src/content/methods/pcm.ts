@@ -7,7 +7,7 @@ const pcm: DeepFiches = {
     summary:
       "One round, one vote, di one wey get pass votes na im win. Na di method wey plenty for world, and na im dem dey criticise pass: di winner fit convince only small part of di people.",
     history: [
-      "First-past-the-post no get person wey invent am: e come from wetin people dey do for old English assemblies, where each county dey send one representative. Di name na horse-race talk — first person wey pass di post, nobody dey ask by how much.",
+      "First-past-the-post no get person wey invent am: e come from wetin people dey do for old English assemblies, where each county dey send two representatives go Parliament. Di name na horse-race talk — first person wey pass di post, nobody dey ask by how much.",
       "British Empire carry am go almost everywhere: United Kingdom, India, Canada, United States, Nigeria. Today e still dey rule big part of di world, na colonial inheritance cause am pass any theory.",
       "For 1951, di jurist Maurice Duverger talk di pattern wey carry im name: one-round plurality voting dey push country go two-party system, because if you vote third option, your vote just waste. E no be law like physics law, but di pattern hold well since then.",
     ],
@@ -73,7 +73,7 @@ const pcm: DeepFiches = {
     summary:
       "If nobody reach 50 % for first round, di top two go clash for second one. Di winner must get absolute majority — but only against di finalist wey dem put am with.",
     history: [
-      "Two-round voting na French invention of di 19th century, wey spread under di Third Republic. Di Fifth Republic take am for 1958 for parliament elections, then for 1962 for presidential election by direct vote — dem first use am for 1965.",
+      "Two-round voting take root for France for di 19th century and spread under di Third Republic. Di Fifth Republic take am for 1958 for parliament elections, then for 1962 for presidential election by direct vote — dem first use am for 1965.",
       "Di idea na political compromise: keep di clearness of majority voting while dem fix im worst problem, di minority winner. Di runoff force clear choice between two options only.",
       "E spread far pass France: Austria, Portugal, Brazil, Poland, most Latin American presidential elections, and plenty French-speaking association votes.",
     ],
@@ -141,7 +141,7 @@ const pcm: DeepFiches = {
     history: [
       "Approval voting get old papa: Venice Republic dey use am from di 13th century for some stages of picking di Doge, and several religious orders dey use am to pick dia leaders.",
       "Di modern formal work na 1978: Steven Brams and Peter Fishburn publish « Approval Voting » for di American Political Science Review, and e become di method wey dem study pass for di American revival of social choice theory.",
-      "Today several learned societies dey use am (including IEEE and di American Mathematical Society), di UN Security Council dey use am for straw polls to pick Secretary-General, and since 2018 na so Fargo (North Dakota) dey run municipal elections, with St. Louis (Missouri) joining for 2020.",
+      "Plenty learned societies adopt am from 1987; IEEE use am reach 2002 before dem drop am, because im members no dey use am. Di UN Security Council still dey use am for straw polls to pick Secretary-General. Fargo (North Dakota) adopt am by referendum for 2018 and use am from 2020 to 2024, until North Dakota ban am for 2025; St. Louis (Missouri) don dey use am since 2021 for im primary, and di top two go enter second round.",
     ],
     mechanics: [
       "Each voter tick as many option as dem want — none, one, or all. Each tick na one point; dem add am up.",
@@ -167,7 +167,7 @@ const pcm: DeepFiches = {
     useCases: [
       "To pick date, place or restaurant: plenty answers fit work.",
       "To shortlist applications before interview.",
-      "Municipal elections for Fargo and St. Louis, internal IEEE votes.",
+      "Di St. Louis municipal primary, and UN Security Council straw polls.",
       "Prevalence surveys, where you dey look for wetin common pass wetin come first.",
     ],
     limits: [
@@ -206,7 +206,7 @@ const pcm: DeepFiches = {
     history: [
       "Jean-Charles de Borda — sailor, mathematician and physicist — carry im paper on election by ballot go di Royal Academy of Sciences for 1770; dem publish am for 1781. Im point simple: normal voting fit elect candidate wey di majority no want.",
       "Di idea old pass dat. Di Majorcan philosopher Ramon Llull describe pairwise comparison and ranking since end of di 13th century — na for 2001 dem come find di manuscripts. Nicholas of Cusa propose points method for 1433 to elect di Holy Roman Emperor.",
-      "Di Academy of Sciences use Borda method to elect members, until Napoleon, wey join for 1797, make dem drop am. Borda don already answer di manipulation talk before: im scheme, e talk, na for honest people only.",
+      "Di Academy of Sciences use Borda method to elect members; according to one tradition wey Duncan Black report, Napoleon, wey join for 1797, na im make dem drop am — but people dey argue dat story. Dem credit Borda with dis answer to di manipulation talk: im scheme, e talk, na for honest people only.",
     ],
     mechanics: [
       "With n options, first place carry n−1 points, second n−2, and so on down to 0 for last. Dem add each option points.",
@@ -342,7 +342,7 @@ const pcm: DeepFiches = {
     history: [
       "To draw lots no be last resort: na di normal way of Athenian democracy, wey dey use di kleroterion to share most public offices, and dem keep election for technical roles.",
       "E still dey inside modern electoral law as tie-break: plenty electoral codes, French own included, dey settle exact tie by lot or by age. Some US states dey do am literally, dem go draw card or flip coin.",
-      "For social choice theory, lottery get serious standing: na di only known way to stay neutral between options and anonymous between voters when preferences block. Randomisation dey bring back fairness wey determinism no fit give.",
+      "For social choice theory, lottery get serious standing: e still be one of di few ways to settle matter without favouring any option or any voter when preferences block. Randomisation dey bring back fairness wey determinism no fit give.",
     ],
     mechanics: [
       "As long as Condorcet winner dey, dis variant na exactly Condorcet: chance no dey enter at all.",
@@ -468,7 +468,7 @@ const pcm: DeepFiches = {
     summary:
       "Instead of one winner, dem dey share seats according to votes with di D'Hondt method. Na di voting of assemblies, no be of decisions.",
     history: [
-      "Di Belgian jurist Victor d'Hondt publish im method for 1878; for 1899 Belgium become di first country to use am for national elections. Dem don already sabi di formula: Thomas Jefferson propose am for 1792 to share House seats among di American states.",
+      "Di Belgian jurist Victor d'Hondt work out im method for late 1870s and publish am as book for 1882; Belgium adopt am through di 1899 law and use am from di 1900 elections — first for di whole world. Dem don already sabi di formula: Thomas Jefferson propose am for 1792 to share House seats among di American states.",
       "Rival variants dey since dat time: Sainte-Laguë (1910), same as di Webster method of 1832, dey treat small parties better and e still be di reference for Scandinavia and New Zealand.",
       "Di largest-remainder method, wey dem call Hamilton own, dem drop am for United States after di Alabama paradox: for 1880 dem see say to raise di total seats from 299 to 300 MAKE Alabama lose one seat. United States dey use di Huntington-Hill method since 1941.",
     ],
@@ -538,8 +538,8 @@ const pcm: DeepFiches = {
       "You dey vote for full list; di one wey come first collect half of di seats automatically, and dem share di rest proportionally. Na di French municipal election method.",
     history: [
       "List voting with majority bonus na di law of 19 November 1982 fix am for French communes of 3,500 people and above; e end pure majority list voting and bring small proportionality.",
-      "Di same law create di special regime of Paris, Lyon and Marseille (dem call am PLM), with elections by sector — mechanism wey don several times produce mayor wey no lead di city-wide vote.",
-      "Dem extend di principle go regional elections, with bonus reduced to 25 % of seats, through di reforms of 1999 and 2003. Di logic no change: to arbitrate openly between representation and power to govern.",
+      "Anoda law, of 31 December 1982, create di special regime of Paris, Lyon and Marseille (dem call am PLM), with elections by sector — mechanism wey don several times produce mayor wey no lead di city-wide vote.",
+      "Dem extend di principle go regional elections, with bonus reduced to 25 % of seats, through di reforms of 1999 and 2003. Di logic no change: to arbitrate openly between representation and power to govern. Last last, di law of 21 May 2025 comot di threshold — since di March 2026 municipal elections, every commune dey vote by list, and panachage don finish.",
     ],
     mechanics: [
       "Each voter pick one list, no mixing. Di list wey lead collect 50 % of di seats one time — na di majority bonus.",
@@ -563,7 +563,7 @@ const pcm: DeepFiches = {
         "Di distortion no be mistake: na di whole point of di mechanism. Governing majority dey come out di same night, and di price wey dem accept na say di other lists no get full representation.",
     },
     useCases: [
-      "French municipal elections for communes of 1,000 people and above.",
+      "French municipal elections — for every commune since di 2025 reform.",
       "Regional elections, with 25 % bonus.",
       "To elect committee or board from competing slates.",
       "Any assembly wey must represent people and still fit decide.",
@@ -661,8 +661,8 @@ const pcm: DeepFiches = {
       "Dem fix order, often by draw, then each person take dia favourite from wetin remain, one after di other. Simple, nobody fit challenge am, and e honest: to lie no dey ever help.",
     history: [
       "Di procedure old like sharing itself, but social choice theory formalise am as « serial dictatorship »: for each step, one person dey decide alone — na why dem use dat word, wey describe di algorithm, no be any government.",
-      "E don structure North American sports drafts since 1947 (NBA), with di order reversed from di standings to balance di teams; di draft lottery, wey start for 1985, add chance to discourage teams from losing on purpose.",
-      "Economists study am under di house allocation problem (Hylland and Zeckhauser, 1979). Dem establish say na one of di few mechanisms wey dey efficient and nobody fit manipulate.",
+      "E dey structure North American sports drafts, where dem reverse di order from di standings to balance di teams; di draft lottery, wey NBA start for 1985, add chance to discourage teams from losing on purpose.",
+      "Economists study am under di house allocation problem, wey Hylland and Zeckhauser raise for 1979. Di proof say na one of di few mechanisms wey dey efficient and nobody fit manipulate come later, with Abdulkadiroğlu and Sönmez (1998) and then Svensson (1999).",
     ],
     mechanics: [
       "Dem fix di order. Draw na di sensible default, because any other order need explanation — seniority, need and merit all dey legitimate, but na political decisions.",

@@ -1163,6 +1163,8 @@
     "useCases": "Dónde se usa",
     "limits": "Límites y trampas",
     "faq": "Preguntas frecuentes",
+    "sources": "Fuentes",
+    "sourcesNote": "Las referencias primarias en las que se apoya esta ficha.",
     "related": "Ver también"
   }
 }

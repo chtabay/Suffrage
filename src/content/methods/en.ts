@@ -7,7 +7,7 @@ const en: DeepFiches = {
     summary:
       "One round, one vote, most votes wins. It is the most widespread voting method in the world, and the most criticised: the winner may have convinced only a minority.",
     history: [
-      "First-past-the-post has no inventor: it grew out of practice in medieval English assemblies, where each county sent one representative. The name is a horse-racing metaphor — first past the post, with nobody asking by how many lengths.",
+      "First-past-the-post has no inventor: it grew out of practice in medieval English assemblies, where each county sent two representatives to Parliament. The name is a horse-racing metaphor — first past the post, with nobody asking by how many lengths.",
       "The British Empire exported it almost everywhere: the United Kingdom, India, Canada, the United States, Nigeria. It still governs a considerable share of the world's population, largely through colonial inheritance rather than theoretical choice.",
       "In 1951 the jurist Maurice Duverger stated the regularity that bears his name: single-round plurality voting tends to produce a two-party system, because voting for a third option wastes your vote. It is not a law in the physical sense, but the correlation has held up well since.",
     ],
@@ -73,7 +73,7 @@ const en: DeepFiches = {
     summary:
       "If nobody reaches 50 % in the first round, the top two face off in a second. The winner necessarily holds an absolute majority — but only against the finalist they were paired with.",
     history: [
-      "The two-round system is a French nineteenth-century invention, generalised under the Third Republic. The Fifth Republic adopted it in 1958 for parliamentary elections, then in 1962 for the direct presidential election — first used in 1965.",
+      "The two-round system took hold in France during the nineteenth century and became general under the Third Republic. The Fifth Republic adopted it in 1958 for parliamentary elections, then in 1962 for the direct presidential election — first used in 1965.",
       "The idea is a political compromise: keep the clarity of majority voting while fixing its most visible flaw, the minority winner. The runoff forces an explicit choice between two options only.",
       "It spread far beyond France: Austria, Portugal, Brazil, Poland, most Latin American presidential elections, and a large share of French-speaking association ballots.",
     ],
@@ -144,7 +144,7 @@ const en: DeepFiches = {
     history: [
       "Approval voting has ancestors: the Republic of Venice used it from the thirteenth century in some stages of electing the Doge, and several religious orders used it to choose their superiors.",
       "Its modern formalisation dates from 1978, when Steven Brams and Peter Fishburn published « Approval Voting » in the American Political Science Review, making it the most studied method of the American revival in social choice theory.",
-      "It is used today by several learned societies (including the IEEE and the American Mathematical Society), by the UN Security Council for its straw polls on selecting the Secretary-General, and since 2018 for municipal elections in Fargo, North Dakota, joined in 2020 by St. Louis, Missouri.",
+      "Several learned societies adopted it from 1987 onwards; the IEEE used it until 2002 before dropping it, for lack of use by its members. The UN Security Council still relies on it for its straw polls on selecting the Secretary-General. Fargo, North Dakota adopted it by referendum in 2018 and used it from 2020 to 2024, until North Dakota banned it in 2025; St. Louis, Missouri has used it since 2021 in its primary, with the top two going through to a run-off.",
     ],
     mechanics: [
       "Each voter ticks as many options as they like — none, one, all of them. Every tick is worth one point; the points are added up.",
@@ -170,7 +170,7 @@ const en: DeepFiches = {
     useCases: [
       "Picking a date, a venue or a restaurant, where several answers are acceptable.",
       "Shortlisting applications before interviews.",
-      "Municipal elections in Fargo and St. Louis, internal IEEE ballots.",
+      "The St. Louis municipal primary, and UN Security Council straw polls.",
       "Prevalence surveys, where you want what is widespread rather than what comes first.",
     ],
     limits: [
@@ -209,7 +209,7 @@ const en: DeepFiches = {
     history: [
       "Jean-Charles de Borda — sailor, mathematician and physicist — presented his memoir on election by ballot to the Royal Academy of Sciences in 1770; it was published in 1781. His observation was simple: ordinary voting can elect a candidate the majority rejects.",
       "The idea is older. The Majorcan philosopher Ramon Llull described pairwise comparison and ranking procedures at the end of the thirteenth century — manuscripts rediscovered only in 2001. Nicholas of Cusa proposed a points-based method for electing the Holy Roman Emperor in 1433.",
-      "The Academy of Sciences used Borda's method to elect its members until Napoleon, who joined in 1797, had it dropped. Borda had already answered the charge of manipulability in advance: his scheme, he said, was only intended for honest men.",
+      "The Academy of Sciences used Borda's method to elect its members; by a tradition reported by Duncan Black, Napoleon, who joined in 1797, is said to have had it dropped — the account is disputed. Borda is credited with this answer to the charge of manipulability: his scheme, he said, was only intended for honest men.",
     ],
     mechanics: [
       "With n options, a first place is worth n−1 points, a second n−2, and so on down to 0 for last. Each option's points are summed.",
@@ -345,7 +345,7 @@ const en: DeepFiches = {
     history: [
       "Drawing lots is no last resort: it was the ordinary method of Athenian democracy, which allotted most public offices by kleroterion and reserved election for technical roles.",
       "It survives in modern electoral law as a tie-break: many electoral codes, the French one included, settle exact ties by lot or by age. Several US states do it literally, drawing a card or flipping a coin.",
-      "In social choice theory, lotteries have serious standing: they are the only known way to stay both neutral between options and anonymous between voters when preferences deadlock. Randomisation restores a form of fairness that determinism cannot offer.",
+      "In social choice theory, lotteries have serious standing: they remain one of the few ways to settle matters without favouring either an option or a voter when preferences deadlock. Randomisation restores a form of fairness that determinism cannot offer.",
     ],
     mechanics: [
       "As long as a Condorcet winner exists, this variant is strictly identical to Condorcet: chance never intervenes.",
@@ -474,7 +474,7 @@ const en: DeepFiches = {
     summary:
       "Instead of a single winner, seats are shared in proportion to votes using the D'Hondt method. This is the method of assemblies, not of decisions.",
     history: [
-      "The Belgian jurist Victor d'Hondt published his method in 1878; in 1899 Belgium became the first country to apply it to national elections. The formula was in fact already known: Thomas Jefferson had proposed it in 1792 to apportion House seats among the American states.",
+      "The Belgian jurist Victor d'Hondt worked out his method in the late 1870s and published it in book form in 1882; Belgium adopted it by the law of 1899 and applied it from the 1900 elections — a world first. The formula was in fact already known: Thomas Jefferson had proposed it in 1792 to apportion House seats among the American states.",
       "Rival variants have existed just as long: Sainte-Laguë (1910), equivalent to the Webster method of 1832, treats smaller parties more favourably and remains the reference in Scandinavia and New Zealand.",
       "The largest-remainder method, known as Hamilton's, was abandoned in the United States after the Alabama paradox: in 1880 it was found that raising the total number of seats from 299 to 300 COST Alabama a seat. The United States has used the Huntington-Hill method since 1941.",
     ],
@@ -544,8 +544,8 @@ const en: DeepFiches = {
       "You vote for a whole list; the one that comes first automatically receives half the seats, and the rest is shared proportionally. This is the French municipal election method.",
     history: [
       "List voting with a majority bonus was set for French communes of 3,500 inhabitants and more by the law of 19 November 1982, which ended pure majority list voting and introduced a dose of proportionality.",
-      "The same law created the special regime for Paris, Lyon and Marseille (known as PLM), with elections by sector — a mechanism that has repeatedly produced a mayor elected without leading the city-wide vote.",
-      "The principle was extended to regional elections, with a reduced 25 % bonus, by the reforms of 1999 and 2003. The logic is constant: to arbitrate explicitly between representativeness and the ability to govern.",
+      "A second law, of 31 December 1982, created the special regime for Paris, Lyon and Marseille (known as PLM), with elections by sector — a mechanism that has repeatedly produced a mayor elected without leading the city-wide vote.",
+      "The principle was extended to regional elections, with a reduced 25 % bonus, by the reforms of 1999 and 2003. The logic is constant: to arbitrate explicitly between representativeness and the ability to govern. Finally, the law of 21 May 2025 removed the threshold — since the March 2026 municipal elections, every commune votes by list, and vote-splitting between lists is gone.",
     ],
     mechanics: [
       "Each voter picks one list, with no splitting between lists. The leading list immediately receives 50 % of the seats — the majority bonus.",
@@ -569,7 +569,7 @@ const en: DeepFiches = {
         "The distortion is not a flaw: it is the very point of the mechanism. A governing majority emerges on election night, at the accepted cost of under-representing the other lists.",
     },
     useCases: [
-      "French municipal elections in communes of 1,000 inhabitants and more.",
+      "French municipal elections — in every commune since the 2025 reform.",
       "Regional elections, with a 25 % bonus.",
       "Electing a committee or board from competing slates.",
       "Any assembly that must be both representative and able to decide.",
@@ -670,8 +670,8 @@ const en: DeepFiches = {
       "An order is fixed, usually at random, then each person in turn takes their favourite among whatever is left. Simple, incontestable and honest: lying never helps.",
     history: [
       "The procedure is as old as sharing, but social choice theory formalised it as « serial dictatorship »: at each step one person decides alone — hence the term, which describes the algorithm and not a regime.",
-      "It has structured North American sports drafts since 1947 (the NBA), with the order reversed from the standings to rebalance the teams; the draft lottery, introduced in 1985, added chance to discourage deliberate losing.",
-      "Economists studied it as the house allocation problem (Hylland and Zeckhauser, 1979). They established that it is one of the rare mechanisms that is both efficient and immune to manipulation.",
+      "It structures North American sports drafts, where the order is reversed from the standings to rebalance the teams; the draft lottery, introduced by the NBA in 1985, added chance to discourage deliberate losing.",
+      "Economists studied it as the house allocation problem, posed by Hylland and Zeckhauser in 1979. The proof that it is one of the rare mechanisms both efficient and immune to manipulation came later, with Abdulkadiroğlu and Sönmez (1998) and then Svensson (1999).",
     ],
     mechanics: [
       "An order is fixed. Drawing lots is the sensible default, because any other order needs justifying — seniority, need and merit are all legitimate, but they are political decisions.",

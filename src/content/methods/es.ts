@@ -7,7 +7,7 @@ const es: DeepFiches = {
     summary:
       "Una vuelta, un voto, gana quien más votos reúne. Es el sistema más extendido del mundo y el más criticado: el ganador puede haber convencido solo a una minoría.",
     history: [
-      "El escrutinio mayoritario a una vuelta no tiene inventor: nace del uso, en las asambleas medievales inglesas, donde cada condado designaba un representante. Su apodo inglés, « first past the post », es una metáfora hípica: el primero en la meta, sin preguntar por cuánto.",
+      "El escrutinio mayoritario a una vuelta no tiene inventor: nace del uso, en las asambleas medievales inglesas, donde cada condado enviaba dos representantes al Parlamento. Su apodo inglés, « first past the post », es una metáfora hípica: el primero en la meta, sin preguntar por cuánto.",
       "El Imperio británico lo exportó casi a todas partes: Reino Unido, India, Canadá, Estados Unidos, Nigeria. Hoy sigue rigiendo a una parte considerable de la población mundial, más por herencia colonial que por elección teórica.",
       "En 1951, el jurista Maurice Duverger enunció la regularidad que lleva su nombre: el escrutinio mayoritario a una vuelta tiende a producir un bipartidismo, porque votar a una tercera opción equivale a desperdiciar el voto. No es una ley en sentido físico, pero la correlación se ha sostenido desde entonces.",
     ],
@@ -73,7 +73,7 @@ const es: DeepFiches = {
     summary:
       "Si nadie alcanza el 50 % en la primera vuelta, los dos mejores se enfrentan en la segunda. El ganador tiene necesariamente mayoría absoluta, pero solo frente al finalista que le tocó.",
     history: [
-      "El escrutinio a dos vueltas es un invento francés del siglo XIX, generalizado bajo la Tercera República. La Quinta República lo retoma en 1958 para las legislativas y en 1962 para la elección presidencial por sufragio universal directo, aplicada por primera vez en 1965.",
+      "El escrutinio a dos vueltas se impone en Francia en el siglo XIX y se generaliza bajo la Tercera República. La Quinta República lo retoma en 1958 para las legislativas y en 1962 para la elección presidencial por sufragio universal directo, aplicada por primera vez en 1965.",
       "La idea es un compromiso político: conservar la claridad del escrutinio mayoritario corrigiendo su defecto más visible, el ganador minoritario. La segunda vuelta obliga a un arbitraje explícito entre dos opciones.",
       "Se difundió mucho más allá de Francia: Austria, Portugal, Brasil, Polonia, la mayoría de las presidenciales latinoamericanas y buena parte de las votaciones asociativas francófonas.",
     ],
@@ -141,7 +141,7 @@ const es: DeepFiches = {
     history: [
       "La aprobación tiene antepasados: la República de Venecia la usaba desde el siglo XIII en algunas fases de la elección del dux, y varias órdenes religiosas la empleaban para designar a sus superiores.",
       "Su formalización moderna data de 1978: Steven Brams y Peter Fishburn publican « Approval Voting » en la American Political Science Review y la convierten en el método más estudiado de la renovación estadounidense de la teoría de la elección social.",
-      "Hoy la usan varias sociedades científicas (entre ellas el IEEE y la American Mathematical Society), el Consejo de Seguridad de la ONU en sus votaciones indicativas para designar al secretario general y, desde 2018, las elecciones municipales de Fargo (Dakota del Norte), a las que se sumó San Luis (Misuri) en 2020.",
+      "Varias sociedades científicas la adoptan a partir de 1987; el IEEE la practicó hasta 2002 y luego renunció a ella, por falta de uso de sus miembros. El Consejo de Seguridad de la ONU sigue empleándola en sus votaciones indicativas para designar al secretario general. Fargo (Dakota del Norte) la adoptó por referéndum en 2018 y la aplicó de 2020 a 2024, hasta que Dakota del Norte la prohibió en 2025; San Luis (Misuri) la usa desde 2021 en su primaria, y los dos primeros pasan a una segunda vuelta.",
     ],
     mechanics: [
       "Cada votante marca tantas opciones como quiera: ninguna, una sola, todas. Cada marca vale un punto; se suman.",
@@ -167,7 +167,7 @@ const es: DeepFiches = {
     useCases: [
       "Elegir fecha, lugar o restaurante: varias respuestas son aceptables.",
       "Preseleccionar candidaturas antes de una entrevista.",
-      "Elecciones municipales de Fargo y San Luis, votaciones internas del IEEE.",
+      "Primaria municipal de San Luis (Misuri) y votaciones indicativas del Consejo de Seguridad de la ONU.",
       "Sondeos de prevalencia, donde se busca lo extendido más que lo primero.",
     ],
     limits: [
@@ -206,7 +206,7 @@ const es: DeepFiches = {
     history: [
       "Jean-Charles de Borda, marino, matemático y físico, presenta su memoria sobre las elecciones por escrutinio a la Real Academia de Ciencias en 1770; se publica en 1781. Su constatación es simple: el escrutinio ordinario puede elegir a un candidato que la mayoría rechaza.",
       "La idea es más antigua. El filósofo mallorquín Ramon Llull describe ya a finales del siglo XIII procedimientos de comparación por pares y de ordenación, en manuscritos redescubiertos solo en 2001. Nicolás de Cusa propone en 1433 un método por puntos para elegir al emperador del Sacro Imperio.",
-      "La Academia de Ciencias adopta el método de Borda para elegir a sus miembros, hasta que Napoleón, incorporado en 1797, lo hace abandonar. Borda ya había respondido de antemano a las críticas sobre su manipulabilidad: su escrutinio, decía, estaba hecho solo para gente honesta.",
+      "La Academia de Ciencias adopta el método de Borda para elegir a sus miembros; según una tradición recogida por Duncan Black, Napoleón, incorporado en 1797, lo habría hecho abandonar — el relato es discutido. Se atribuye a Borda esta respuesta a las críticas sobre su manipulabilidad: su escrutinio, decía, estaba hecho solo para gente honesta.",
     ],
     mechanics: [
       "Con n opciones, un primer puesto vale n−1 puntos, el segundo n−2, y así hasta 0 para el último. Se suman los puntos de cada opción.",
@@ -342,7 +342,7 @@ const es: DeepFiches = {
     history: [
       "El sorteo no es un mal menor: era el modo de designación ordinario de la democracia ateniense, que atribuía por el kleroterion la mayoría de las magistraturas y reservaba la elección a las funciones técnicas.",
       "Sobrevive en el derecho electoral contemporáneo como desempate: numerosos códigos electorales, entre ellos el francés, resuelven el empate exacto por sorteo o por edad. Varios estados de EE. UU. lo hacen literalmente, sacando una carta o lanzando una moneda.",
-      "En teoría de la elección social, la lotería tiene un estatus serio: es el único medio conocido de seguir siendo a la vez neutral entre opciones y anónimo entre votantes cuando las preferencias se bloquean. La aleatorización restaura una equidad que el determinismo no puede ofrecer.",
+      "En teoría de la elección social, la lotería tiene un estatus serio: sigue siendo uno de los pocos medios de decidir sin privilegiar ni una opción ni un votante cuando las preferencias se bloquean. La aleatorización restaura una equidad que el determinismo no puede ofrecer.",
     ],
     mechanics: [
       "Mientras exista un ganador de Condorcet, esta variante es estrictamente idéntica a Condorcet: el azar nunca interviene.",
@@ -468,7 +468,7 @@ const es: DeepFiches = {
     summary:
       "En vez de un ganador único, se reparten escaños en proporción a los votos con el método D'Hondt. Es el escrutinio de las asambleas, no de las decisiones.",
     history: [
-      "El jurista belga Victor d'Hondt publica su método en 1878; Bélgica se convierte en 1899 en el primer país en aplicarlo a elecciones nacionales. La fórmula ya se conocía: Thomas Jefferson la había propuesto en 1792 para repartir los escaños de la Cámara de Representantes entre los estados.",
+      "El jurista belga Victor d'Hondt formaliza su método a finales de la década de 1870 y lo publica como libro en 1882; Bélgica lo adopta por la ley de 1899 y lo aplica ya en las elecciones de 1900, en primicia mundial. La fórmula ya se conocía: Thomas Jefferson la había propuesto en 1792 para repartir los escaños de la Cámara de Representantes entre los estados.",
       "Existen variantes rivales desde hace igual de tiempo: Sainte-Laguë (1910), equivalente al método Webster de 1832, reparte de forma más favorable a las pequeñas formaciones y sigue siendo la referencia en Escandinavia y Nueva Zelanda.",
       "El método de los restos mayores, llamado de Hamilton, fue abandonado en Estados Unidos tras la paradoja de Alabama: en 1880 se constató que aumentar el total de escaños de 299 a 300 HACÍA PERDER un escaño a Alabama. Estados Unidos usa desde 1941 el método Huntington-Hill.",
     ],
@@ -538,8 +538,8 @@ const es: DeepFiches = {
       "Se vota por una lista entera; la que llega primera recibe de oficio la mitad de los escaños y el resto se reparte proporcionalmente. Es el escrutinio de las municipales francesas.",
     history: [
       "El escrutinio de lista con prima mayoritaria se fija para los municipios franceses de 3 500 habitantes o más por la ley del 19 de noviembre de 1982, que pone fin al escrutinio mayoritario de lista integral e introduce una dosis de proporcionalidad.",
-      "La misma ley crea el régimen particular de París, Lyon y Marsella (llamado PLM), con elecciones por sectores, mecanismo que ha producido varias veces un alcalde elegido sin encabezar los votos de la ciudad.",
-      "El principio se extendió a las elecciones regionales, con una prima reducida al 25 % de los escaños, por las reformas de 1999 y 2003. La lógica es constante: arbitrar explícitamente entre representatividad y capacidad de gobernar.",
+      "Una segunda ley, de 31 de diciembre de 1982, crea el régimen particular de París, Lyon y Marsella (llamado PLM), con elecciones por sectores, mecanismo que ha producido varias veces un alcalde elegido sin encabezar los votos de la ciudad.",
+      "El principio se extendió a las elecciones regionales, con una prima reducida al 25 % de los escaños, por las reformas de 1999 y 2003. La lógica es constante: arbitrar explícitamente entre representatividad y capacidad de gobernar. Por último, la ley de 21 de mayo de 2025 suprime el umbral: desde las municipales de marzo de 2026, todos los municipios votan por listas y desaparece el panachage.",
     ],
     mechanics: [
       "Cada votante elige una lista, sin mezclar. La lista más votada recibe inmediatamente el 50 % de los escaños: es la prima mayoritaria.",
@@ -563,7 +563,7 @@ const es: DeepFiches = {
         "La distorsión no es un defecto: es el objeto mismo del mecanismo. Una mayoría de gestión emerge la noche electoral, al precio asumido de infrarrepresentar a las demás listas.",
     },
     useCases: [
-      "Elecciones municipales francesas en municipios de 1 000 habitantes o más.",
+      "Elecciones municipales francesas — en todos los municipios desde la reforma de 2025.",
       "Elecciones regionales, con una prima del 25 %.",
       "Elección de una junta o un consejo con listas competidoras.",
       "Toda asamblea que deba ser a la vez representativa y capaz de decidir.",
@@ -664,8 +664,8 @@ const es: DeepFiches = {
       "Se fija un orden de paso, a menudo por sorteo, y cada cual toma por turno lo que prefiere entre lo que queda. Sencillo, incontestable y honesto: mentir nunca sirve.",
     history: [
       "El procedimiento es tan viejo como el reparto, pero la teoría de la elección social lo formalizó con el nombre de « dictadura serial »: en cada etapa una persona decide sola, de ahí el término, que describe el algoritmo y no un régimen.",
-      "Estructura los drafts deportivos norteamericanos desde 1947 (NBA), con un orden invertido de la clasificación para reequilibrar los equipos; la lotería del draft, introducida en 1985, añade azar para desalentar las derrotas voluntarias.",
-      "Los economistas lo estudiaron en el marco del problema de asignación de viviendas (Hylland y Zeckhauser, 1979). Establecen que es uno de los raros mecanismos a la vez eficiente y no manipulable.",
+      "Estructura los drafts deportivos norteamericanos, donde el orden invertido de la clasificación sirve para reequilibrar los equipos; la lotería del draft, introducida por la NBA en 1985, añade azar para desalentar las derrotas voluntarias.",
+      "Los economistas lo estudian en el marco del problema de asignación de viviendas, planteado por Hylland y Zeckhauser en 1979. La demostración de que es uno de los raros mecanismos a la vez eficiente y no manipulable llegará más tarde, con Abdulkadiroğlu y Sönmez (1998) y luego Svensson (1999).",
     ],
     mechanics: [
       "Se fija un orden de paso. El sorteo es la opción por defecto, porque cualquier otro orden debe justificarse: la antigüedad, la necesidad y el mérito son legítimos, pero son decisiones políticas.",

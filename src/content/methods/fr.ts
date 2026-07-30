@@ -8,7 +8,7 @@ const fr: DeepFiches = {
     summary:
       "Un tour, une voix, le plus grand nombre l'emporte. C'est le scrutin le plus répandu au monde, et le plus critiqué : le vainqueur peut n'avoir convaincu qu'une minorité.",
     history: [
-      "Le scrutin uninominal majoritaire à un tour n'a pas d'inventeur : il naît de l'usage, dans les assemblées médiévales anglaises, où l'on désigne un représentant par comté. Son surnom anglais, « first past the post », est une métaphore hippique — le premier au poteau, sans qu'on demande de quelle longueur.",
+      "Le scrutin uninominal majoritaire à un tour n'a pas d'inventeur : il naît de l'usage, dans les assemblées médiévales anglaises, où chaque comté envoyait deux représentants au Parlement. Son surnom anglais, « first past the post », est une métaphore hippique — le premier au poteau, sans qu'on demande de quelle longueur.",
       "L'Empire britannique l'exporte à peu près partout : Royaume-Uni, Inde, Canada, États-Unis, Nigeria. Il reste aujourd'hui le mode de scrutin d'une part considérable de la population mondiale, largement par héritage colonial plutôt que par choix théorique.",
       "En 1951, le juriste Maurice Duverger énonce la régularité qui porte son nom : le scrutin majoritaire à un tour tend à produire un système à deux partis, parce que voter pour un troisième revient à gaspiller sa voix. Ce n'est pas une loi au sens physique, mais la corrélation est solide et documentée depuis.",
     ],
@@ -77,7 +77,7 @@ const fr: DeepFiches = {
     summary:
       "Si personne n'atteint 50 % au premier tour, les deux meilleurs s'affrontent au second. Le vainqueur a nécessairement la majorité absolue — mais seulement face au finaliste qui lui a été opposé.",
     history: [
-      "Le scrutin à deux tours est une invention française du XIXᵉ siècle, généralisée sous la IIIᵉ République. La Vᵉ République le reprend en 1958 pour les élections législatives, puis en 1962 pour l'élection présidentielle au suffrage universel direct — première application en 1965.",
+      "Le scrutin à deux tours s'impose en France au XIXᵉ siècle et se généralise sous la IIIᵉ République. La Vᵉ République le reprend en 1958 pour les élections législatives, puis en 1962 pour l'élection présidentielle au suffrage universel direct — première application en 1965.",
       "L'idée est un compromis politique : garder la clarté du scrutin majoritaire tout en corrigeant son défaut le plus visible, le vainqueur minoritaire. Le second tour force un arbitrage explicite entre deux options seulement.",
       "Il s'est diffusé bien au-delà de la France : Autriche, Portugal, Brésil, Pologne, la plupart des présidentielles d'Amérique latine, et une bonne partie des scrutins associatifs francophones.",
     ],
@@ -148,7 +148,7 @@ const fr: DeepFiches = {
     history: [
       "L'approbation a des ancêtres : la République de Venise l'utilisait dès le XIIIᵉ siècle dans certaines phases de l'élection du doge, et plusieurs ordres religieux l'employaient pour désigner leurs supérieurs.",
       "Sa formalisation moderne date de 1978 : Steven Brams et Peter Fishburn publient « Approval Voting » dans l'American Political Science Review, et en font la méthode la plus étudiée du renouveau de la théorie du choix social américaine.",
-      "Elle est aujourd'hui utilisée par plusieurs sociétés savantes (dont l'IEEE et l'American Mathematical Society), par le Conseil de sécurité de l'ONU pour ses votes indicatifs de désignation du secrétaire général, et depuis 2018 pour les élections municipales de Fargo (Dakota du Nord), rejointe en 2020 par Saint-Louis (Missouri).",
+      "Plusieurs sociétés savantes l'adoptent à partir de 1987 ; l'IEEE l'a pratiquée jusqu'en 2002 avant d'y renoncer, faute d'usage par ses membres. Le Conseil de sécurité de l'ONU y recourt pour ses votes indicatifs de désignation du secrétaire général. Fargo (Dakota du Nord) l'a adoptée par référendum en 2018 et appliquée de 2020 à 2024, jusqu'à son interdiction par le Dakota du Nord en 2025 ; Saint-Louis (Missouri) l'emploie depuis 2021, en primaire, les deux premiers s'affrontant ensuite au second tour.",
     ],
     mechanics: [
       "Chaque votant coche autant d'options qu'il le souhaite — aucune, une seule, toutes. Chaque coche vaut un point ; on additionne.",
@@ -174,7 +174,7 @@ const fr: DeepFiches = {
     useCases: [
       "Choisir une date, un lieu, un restaurant : plusieurs réponses sont acceptables.",
       "Présélectionner des candidatures avant un entretien.",
-      "Élections municipales de Fargo et Saint-Louis, votes internes de l'IEEE.",
+      "Primaire municipale de Saint-Louis (Missouri), votes indicatifs du Conseil de sécurité de l'ONU.",
       "Sondages de prévalence, où l'on cherche ce qui est répandu plus que ce qui arrive en tête.",
     ],
     limits: [
@@ -213,7 +213,7 @@ const fr: DeepFiches = {
     history: [
       "Jean-Charles de Borda, marin, mathématicien et physicien, présente son « Mémoire sur les élections au scrutin » à l'Académie royale des sciences en 1770 ; il est publié en 1781. Son constat est simple : le scrutin ordinaire peut élire un candidat que la majorité rejette.",
       "L'idée est plus ancienne. Le philosophe majorquin Raymond Lulle décrit dès la fin du XIIIᵉ siècle des procédures de comparaison par paires et de classement — manuscrits redécouverts seulement en 2001. Nicolas de Cues propose en 1433 une méthode par points pour l'élection de l'empereur du Saint-Empire.",
-      "L'Académie des sciences adopte la méthode de Borda pour élire ses membres, jusqu'à ce que Napoléon, entré à l'Académie en 1797, la fasse abandonner. Borda avait déjà répondu par avance aux critiques sur sa manipulabilité : « mon scrutin n'est fait que pour d'honnêtes gens ».",
+      "L'Académie des sciences adopte la méthode de Borda pour élire ses membres ; selon une tradition rapportée par Duncan Black, Napoléon, entré à l'Académie en 1797, l'aurait fait abandonner — le récit est discuté. On prête à Borda cette réponse aux critiques sur la manipulabilité : « mon scrutin n'est fait que pour d'honnêtes gens ».",
     ],
     mechanics: [
       "Avec n options, un premier rang rapporte n−1 points, le deuxième n−2, et ainsi de suite jusqu'à 0 pour le dernier. On somme les points de chaque option.",
@@ -353,7 +353,7 @@ const fr: DeepFiches = {
     history: [
       "Le tirage au sort n'est pas un pis-aller : c'était le mode de désignation ordinaire de la démocratie athénienne, qui attribuait par le klérotérion la plupart des magistratures, réservant l'élection aux fonctions techniques.",
       "Il survit dans le droit électoral contemporain comme départage : de nombreux codes électoraux, dont le français, tranchent l'égalité parfaite par le sort ou par l'âge. Plusieurs États américains le font au sens littéral, en tirant une carte ou une pièce.",
-      "En théorie du choix social, la loterie a un statut sérieux : elle est le seul moyen connu de rester à la fois neutre entre les options et anonyme entre les votants quand les préférences bloquent. La randomisation restaure une forme d'équité que le déterminisme ne peut pas offrir.",
+      "En théorie du choix social, la loterie a un statut sérieux : elle reste l'un des rares moyens de trancher sans privilégier ni une option ni un votant quand les préférences bloquent. La randomisation restaure une forme d'équité que le déterminisme ne peut pas offrir.",
     ],
     mechanics: [
       "Tant qu'un vainqueur de Condorcet existe, cette variante est strictement identique à Condorcet : le hasard n'intervient jamais.",
@@ -485,7 +485,7 @@ const fr: DeepFiches = {
     summary:
       "Au lieu d'un vainqueur unique, on répartit des sièges au prorata des voix par la méthode d'Hondt. C'est le scrutin des assemblées, pas des décisions.",
     history: [
-      "Le juriste belge Victor d'Hondt publie sa méthode en 1878 ; la Belgique devient en 1899 le premier pays à l'appliquer à des élections nationales. La formule était en réalité déjà connue : Thomas Jefferson l'avait proposée en 1792 pour répartir les sièges de la Chambre des représentants entre les États américains.",
+      "Le juriste belge Victor d'Hondt formalise sa méthode à la fin des années 1870 et la publie en ouvrage en 1882 ; la Belgique l'adopte par la loi de 1899 et l'applique dès les élections de 1900, en première mondiale. La formule était en réalité déjà connue : Thomas Jefferson l'avait proposée en 1792 pour répartir les sièges de la Chambre des représentants entre les États américains.",
       "Des variantes concurrentes existent depuis aussi longtemps : Sainte-Laguë (1910), équivalente à la méthode Webster de 1832, répartit plus favorablement les petites formations, et reste la référence en Scandinavie et en Nouvelle-Zélande.",
       "La méthode des restes les plus forts, dite de Hamilton, a été abandonnée aux États-Unis après le paradoxe de l'Alabama : en 1880, on constata qu'augmenter le nombre total de sièges de 299 à 300 FAISAIT PERDRE un siège à l'Alabama. Les États-Unis utilisent depuis 1941 la méthode Huntington-Hill.",
     ],
@@ -555,8 +555,8 @@ const fr: DeepFiches = {
       "On vote pour une liste entière ; celle qui arrive en tête reçoit d'office la moitié des sièges, le reste étant réparti à la proportionnelle. C'est le scrutin des municipales françaises.",
     history: [
       "Le scrutin de liste avec prime majoritaire est fixé pour les communes françaises de 3 500 habitants et plus par la loi du 19 novembre 1982, qui met fin au scrutin majoritaire de liste intégral et introduit une dose de proportionnelle.",
-      "La même loi crée le régime particulier de Paris, Lyon et Marseille (dit PLM), avec des élections par secteurs — mécanisme qui produira plusieurs fois un maire élu sans être en tête des voix de la ville.",
-      "Le principe a été étendu aux élections régionales, avec une prime réduite à 25 % des sièges, par les réformes de 1999 et 2003. La logique est constante : arbitrer explicitement entre représentativité et capacité à gouverner.",
+      "Une seconde loi, du 31 décembre 1982, crée le régime particulier de Paris, Lyon et Marseille (dit PLM), avec des élections par secteurs — mécanisme qui produira plusieurs fois un maire élu sans être en tête des voix de la ville.",
+      "Le principe a été étendu aux élections régionales, avec une prime réduite à 25 % des sièges, par les réformes de 1999 et 2003. La logique est constante : arbitrer explicitement entre représentativité et capacité à gouverner. Enfin, la loi du 21 mai 2025 supprime le seuil — depuis les municipales de mars 2026, toutes les communes votent au scrutin de liste, et le panachage disparaît.",
     ],
     mechanics: [
       "Chaque votant choisit une liste, sans panachage. La liste arrivée en tête reçoit immédiatement 50 % des sièges — c'est la prime majoritaire.",
@@ -580,7 +580,7 @@ const fr: DeepFiches = {
         "La distorsion n'est pas un défaut : elle est l'objet même du mécanisme. Une majorité de gestion se dégage dès le soir du vote, au prix assumé d'une sous-représentation des autres listes.",
     },
     useCases: [
-      "Élections municipales françaises dans les communes de 1 000 habitants et plus.",
+      "Élections municipales françaises — dans toutes les communes depuis la réforme de 2025.",
       "Élections régionales, avec une prime de 25 %.",
       "Élections d'un bureau ou d'un conseil sur listes concurrentes.",
       "Toute assemblée qui doit être à la fois représentative et capable de décider.",
@@ -690,8 +690,8 @@ const fr: DeepFiches = {
       "Un ordre de passage est fixé, souvent par tirage au sort, puis chacun prend à son tour ce qu'il préfère parmi ce qui reste. Simple, incontestable, et honnête : mentir n'y sert jamais.",
     history: [
       "Le procédé est aussi vieux que le partage, mais la théorie du choix social l'a formalisé sous le nom de « serial dictatorship » : à chaque étape, une personne décide seule — d'où le terme, qui décrit l'algorithme et non un régime.",
-      "Il structure les drafts sportifs nord-américains depuis 1947 (NBA), avec un ordre inversé du classement pour rééquilibrer les équipes ; la loterie du draft, introduite en 1985, y ajoute du hasard pour décourager les défaites volontaires.",
-      "Les économistes s'y intéressent dans le cadre du problème d'attribution de logements étudiants (« house allocation », Hylland et Zeckhauser, 1979). Ils établissent qu'il s'agit d'un des rares mécanismes à la fois efficace et non manipulable.",
+      "Il structure les drafts sportifs nord-américains, où l'ordre inversé du classement sert à rééquilibrer les équipes ; la loterie du draft, introduite par la NBA en 1985, y ajoute du hasard pour décourager les défaites volontaires.",
+      "Les économistes l'étudient dans le cadre du problème d'attribution de logements (« house allocation »), posé par Hylland et Zeckhauser en 1979. La démonstration qu'il s'agit d'un des rares mécanismes à la fois efficace et non manipulable viendra plus tard, avec Abdulkadiroğlu et Sönmez (1998) puis Svensson (1999).",
     ],
     mechanics: [
       "On fixe un ordre de passage. Le tirage au sort est le choix par défaut, car tout autre ordre doit être justifié — l'ancienneté, le besoin, le mérite sont légitimes, mais ce sont des décisions politiques.",
