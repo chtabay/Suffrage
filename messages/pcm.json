@@ -548,6 +548,10 @@
     "optional": "(optional)",
     "opensHint": "We no go accept any vote before dis date. Empty = e open sharp sharp.",
     "quorumLabel": "Quorum",
+    "secretBallot": "Sealed ballot",
+    "secretBallotHint": "Di answers no dey attach to anybody: we dey record who take part, never who answer wetin. Neither you nor anybody fit link one ballot to one member. For exchange: no comment, no weighted vote, and results go show only from 5 answers go up.",
+    "sealedTooFewTitle": "Results never show yet",
+    "sealedTooFew": "{n} answer(s): results go show from {min} go up. Below dat, to show result na to point finger for di people wey answer.",
     "quorumHint": "Di least number of votes wey go make di result valid.",
     "quorumPlaceholder": "e.g. 5"
   },

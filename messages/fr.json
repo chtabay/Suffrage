@@ -548,6 +548,10 @@
     "optional": "(option)",
     "opensHint": "Aucun bulletin n'est accepté avant cette date. Vide = ouvert tout de suite.",
     "quorumLabel": "Quorum",
+    "secretBallot": "Bulletin scellé",
+    "secretBallotHint": "Les réponses ne sont rattachées à personne : on enregistre qui a participé, jamais qui a répondu quoi. Ni vous ni personne ne peut relier un bulletin à un membre. En contrepartie, pas de commentaire et pas de vote pondéré, et les résultats n'apparaissent qu'à partir de 5 réponses.",
+    "sealedTooFewTitle": "Résultats pas encore visibles",
+    "sealedTooFew": "{n} réponse(s) : les résultats s'afficheront à partir de {min}. En dessous, afficher un résultat reviendrait à désigner ceux qui ont répondu.",
     "quorumHint": "Nombre minimum de bulletins pour que le résultat soit considéré valable.",
     "quorumPlaceholder": "ex : 5"
   },

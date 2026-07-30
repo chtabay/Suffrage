@@ -33,20 +33,12 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
   const spaceName = (ev as { scrutin_spaces?: { name?: string } | null }).scrutin_spaces?.name;
   const senderName = spaceName ? `${spaceName} · Placet` : "Placet";
 
-  // Résolutions de l'événement.
-  const { data: polls } = await supabase.from("scrutin_polls").select("id").eq("event_id", id);
-  const pollIds = (polls ?? []).map((p) => p.id as string);
-
-  // Membres ayant déjà voté (au moins un bulletin sur une résolution).
-  const voted = new Set<string>();
-  if (pollIds.length) {
-    const { data: ballots } = await supabase
-      .from("scrutin_ballots")
-      .select("event_member_id")
-      .in("poll_id", pollIds)
-      .not("event_member_id", "is", null);
-    for (const b of ballots ?? []) if (b.event_member_id) voted.add(b.event_member_id as string);
-  }
+  // Membres ayant déjà voté. Passe par une RPC et NON par une lecture directe des
+  // bulletins : sur une consultation scellée le bulletin ne porte plus l'identité,
+  // l'ensemble « a voté » serait vide, et on relancerait TOUT LE MONDE — l'inverse
+  // exact de ce que la relance doit faire. La RPC lit l'émargement dans ce cas.
+  const { data: votedIds } = await supabase.rpc("get_event_voted_members", { p_event_id: id });
+  const voted = new Set<string>((votedIds as string[] | null) ?? []);
 
   // Cible : membres convoqués, avec email, n'ayant pas encore voté.
   const { data: members } = await supabase

@@ -1,7 +1,7 @@
 "use client";
 
 import { useLocale, useTranslations } from "next-intl";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Link, useRouter } from "@/i18n/navigation";
 import { useAuth } from "@/lib/auth/useAuth";
 import {
@@ -22,8 +22,11 @@ import {
   type EventRow,
   type Member,
   type ResolutionRow,
+  getEventResultsOwner,
+  type EventResultsData,
 } from "@/lib/db/events";
 import { recipeForSystem, resolveKey } from "@/lib/voting/engine";
+import type { Ballot } from "@/lib/voting/types";
 import { ASSIGN_METHODS, isAssignMethod } from "@/lib/assign/methods";
 import { APP_URL } from "@/lib/voting/aiPrompt";
 import { splitLeadingEmoji } from "@/lib/voting/draft";
@@ -79,6 +82,31 @@ export default function EventEditor({ eventId }: { eventId: string }) {
   const [quorumInput, setQuorumInput] = useState("");
   const [liveCount, setLiveCount] = useState(0);
   const [votedCount, setVotedCount] = useState(0);
+  // Consultation scellée : le dépouillement ne passe QUE par la RPC, et il peut
+  // refuser (seuil). On garde le motif pour l'afficher au lieu d'un résultat vide.
+  const [sealed, setSealed] = useState<EventResultsData | null>(null);
+  const sealedRef = useRef<EventResultsData | null>(null);
+
+  /**
+   * Lecteur de bulletins d'une consultation SCELLÉE. La policy RESTRICTIVE ferme
+   * la lecture directe : on passe par la RPC organisateur, une seule fois pour
+   * tout l'événement, puis on sert chaque résolution depuis ce résultat.
+   */
+  const sealedBallots = useCallback(
+    async (r: ResolutionRow) => {
+      if (!ev) return [];
+      const data = sealedRef.current ?? (await getEventResultsOwner(ev.id));
+      sealedRef.current = data;
+      setSealed(data);
+      if (data.status !== "closed") return [];
+      const res = (data.resolutions ?? []).find((x) => x.id === r.id);
+      return (res?.ballots ?? []).map((b) => ({
+        ballot: { ranking: b.ranking, grades: b.grades, district: b.district } as Ballot,
+        weight: b.weight,
+      }));
+    },
+    [ev],
+  );
 
   const load = useCallback(async () => {
     if (!user) return;
@@ -582,8 +610,58 @@ export default function EventEditor({ eventId }: { eventId: string }) {
         </div>
       )}
 
+      {/* ---- Bulletin scellé : réglable UNIQUEMENT en brouillon ----
+          Après l'ouverture, basculer changerait la nature des bulletins déjà
+          déposés (les uns signés, les autres non) : le dépouillement deviendrait
+          incohérent et la promesse faite aux premiers votants serait rompue. */}
+      {ev.status === "draft" && (
+        <div style={{ ...card, marginTop: 16 }}>
+          <label style={{ display: "flex", alignItems: "flex-start", gap: 11, cursor: "pointer" }}>
+            <input
+              type="checkbox"
+              checked={ev.secret_ballot}
+              onChange={async (e) => {
+                const on = e.target.checked;
+                await updateEvent(ev.id, { secret_ballot: on });
+                setEv({ ...ev, secret_ballot: on });
+              }}
+              style={{ width: 18, height: 18, marginTop: 2, flex: "none", accentColor: INK }}
+            />
+            <span>
+              <span style={{ display: "block", fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 15 }}>
+                {t("secretBallot")}
+              </span>
+              <span style={{ display: "block", fontSize: 13.5, color: SUBINK, lineHeight: 1.45, marginTop: 3 }}>
+                {t("secretBallotHint")}
+              </span>
+            </span>
+          </label>
+        </div>
+      )}
+
+      {/* Seuil de dépouillement atteint ou non — dit franchement, plutôt qu'un
+          tableau vide qui laisserait croire que personne n'a voté. */}
+      {ev.secret_ballot && sealed?.status === "too_few" && (
+        <div style={{ ...card, marginTop: 16, borderColor: INK, background: "#FFF8E5" }}>
+          <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 15 }}>{t("sealedTooFewTitle")}</div>
+          <div style={{ fontSize: 14, color: SUBINK, lineHeight: 1.5, marginTop: 5 }}>
+            {t("sealedTooFew", { n: sealed.ballots ?? 0, min: sealed.min ?? 5 })}
+          </div>
+        </div>
+      )}
+
       {/* ---- Résultats ---- */}
-      {ev.status !== "draft" && <EventResults resolutions={resolutions} convenedCount={convened.length} quorum={ev.quorum} />}
+      {ev.status !== "draft" && (
+        <EventResults
+          resolutions={resolutions}
+          convenedCount={convened.length}
+          quorum={ev.quorum}
+          /* Consultation scellée : la lecture directe des bulletins est fermée par
+             une policy RESTRICTIVE, la RPC est le seul chemin — et elle refuse tant
+             que le seuil de dépouillement n'est pas atteint. */
+          getBallots={ev.secret_ballot ? sealedBallots : undefined}
+        />
+      )}
 
       {/* ---- Ouverture / clôture ---- */}
       <div style={{ marginTop: 20, display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap" }}>

@@ -47,6 +47,12 @@ export interface EventRow {
   enroll_closes_at: string | null;
   enroll_token: string;
   quorum: number;
+  /**
+   * Bulletin scellé : le bulletin est écrit SANS identité et l'unicité passe par
+   * l'émargement (scrutin_event_signins). Le secret est une propriété de la
+   * CONSULTATION, pas du cercle — n'importe quel groupe peut en profiter.
+   */
+  secret_ballot: boolean;
 }
 
 export interface EventMember {
@@ -93,6 +99,7 @@ export interface EventContext {
     status: EventStatus;
     closes_at: string | null;
     current_poll_id: string | null;
+    secret_ballot?: boolean;
   };
   member: { name: string };
   resolutions: {
@@ -111,7 +118,7 @@ export interface EventContext {
 const SPACE_COLS = "id, name, created_at";
 const MEMBER_COLS = "id, space_id, name, email, district, weight";
 const EVENT_COLS =
-  "id, space_id, title, description, mode, status, current_poll_id, opens_at, closes_at, created_at, enroll_open, enroll_cap, enroll_closes_at, enroll_token, quorum";
+  "id, space_id, title, description, mode, status, current_poll_id, opens_at, closes_at, created_at, enroll_open, enroll_cap, enroll_closes_at, enroll_token, quorum, secret_ballot";
 const EVENT_MEMBER_COLS =
   "id, event_id, member_id, name, email, district, weight, token, invited_at, self_enrolled";
 const RESOLUTION_COLS = "id, token, question, description, options, recipe, status, order_index, closes_at";
@@ -283,6 +290,7 @@ export interface EventPatch {
   enroll_cap?: number | null;
   enroll_closes_at?: string | null;
   quorum?: number;
+  secret_ballot?: boolean;
 }
 export async function updateEvent(id: string, patch: EventPatch): Promise<void> {
   const supabase = createClient();
@@ -433,10 +441,15 @@ export interface VoterBallot {
   weight: number;
 }
 export interface EventResultsData {
-  status: "closed" | "not_closed" | "invalid";
+  /** `too_few` : consultation scellée sous le seuil de dépouillement. */
+  status: "closed" | "not_closed" | "invalid" | "forbidden" | "too_few";
   title?: string;
   quorum?: number;
   convened?: number;
+  secret_ballot?: boolean;
+  /** Renseignés seulement quand status = 'too_few'. */
+  ballots?: number;
+  min?: number;
   resolutions?: (ResolutionRow & { ballots: VoterBallot[] })[];
 }
 
@@ -446,6 +459,31 @@ export async function getEventResults(token: string): Promise<EventResultsData> 
   const { data, error } = await supabase.rpc("get_event_results", { p_token: token });
   if (error) throw error;
   return (data as EventResultsData | null) ?? { status: "invalid" };
+}
+
+/**
+ * Résultats vus par l'ORGANISATEUR. Indispensable pour une consultation scellée :
+ * une policy RESTRICTIVE retire ces bulletins de toute lecture directe, donc
+ * `getResolutionBallots` renverrait zéro. La RPC est le seul chemin, et elle
+ * applique le seuil de dépouillement — l'organisateur n'a aucun privilège dessus.
+ */
+export async function getEventResultsOwner(eventId: string): Promise<EventResultsData> {
+  const supabase = createClient();
+  const { data, error } = await supabase.rpc("get_event_results_owner", { p_event_id: eventId });
+  if (error) throw error;
+  return (data as EventResultsData | null) ?? { status: "invalid" };
+}
+
+/**
+ * Identifiants des convoqués ayant déjà voté — pour ne relancer que les autres.
+ * En scellé, le bulletin ne porte plus l'identité : sans cette RPC, la relance
+ * croirait que personne n'a voté et écrirait à tout le monde.
+ */
+export async function getVotedMemberIds(eventId: string): Promise<string[]> {
+  const supabase = createClient();
+  const { data, error } = await supabase.rpc("get_event_voted_members", { p_event_id: eventId });
+  if (error) throw error;
+  return (data as string[] | null) ?? [];
 }
 
 export async function getEventContext(token: string): Promise<EventContext | null> {

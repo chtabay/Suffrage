@@ -548,6 +548,10 @@
     "optional": "(opcional)",
     "opensHint": "No se acepta ninguna papeleta antes de esta fecha. Vacío = abierto de inmediato.",
     "quorumLabel": "Quórum",
+    "secretBallot": "Voto sellado",
+    "secretBallotHint": "Las respuestas no se vinculan a nadie: se registra quién participó, nunca quién respondió qué. Ni usted ni nadie puede vincular un voto a un miembro. A cambio: sin comentarios, sin voto ponderado, y los resultados solo aparecen a partir de 5 respuestas.",
+    "sealedTooFewTitle": "Resultados aún no visibles",
+    "sealedTooFew": "{n} respuesta(s): los resultados se mostrarán a partir de {min}. Por debajo, mostrar un resultado equivaldría a señalar a quienes respondieron.",
     "quorumHint": "Número mínimo de papeletas para que el resultado se considere válido.",
     "quorumPlaceholder": "ej.: 5"
   },
