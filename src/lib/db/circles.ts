@@ -67,3 +67,44 @@ export async function leaveCircle(token: string): Promise<{ status: string; circ
   if (error) throw error;
   return (data as { status: string; circle?: string } | null) ?? { status: "invalid" };
 }
+
+/** Sortie de `open_circle_consultation`. Chaque refus porte de quoi l'expliquer. */
+export interface OpenConsultationResult {
+  status: "ok" | "capped" | "too_small" | "not_a_circle" | "forbidden" | "invalid";
+  event_id?: string;
+  poll_token?: string;
+  convened?: number;
+  /** `capped` : plafond du cercle, et nombre déjà ouvert aujourd'hui. */
+  cap?: number;
+  today?: number;
+  /** `too_small` : effectif du roster, et minimum requis. */
+  roster?: number;
+  min?: number;
+}
+
+/**
+ * Ouvre une consultation de cercle. C'est la RPC qui ferme l'attaque par
+ * cardinalité : elle convoque TOUT le roster, sans laisser choisir. Elle refuse
+ * aussi en base si le plafond du jour est atteint ou si le roster est sous le
+ * seuil de dépouillement — un plafond appliqué dans l'interface n'en est pas un.
+ */
+export async function openCircleConsultation(args: {
+  spaceId: string;
+  question: string;
+  options: unknown;
+  recipe: unknown;
+  description?: string | null;
+  closesAt?: string | null;
+}): Promise<OpenConsultationResult> {
+  const supabase = createClient();
+  const { data, error } = await supabase.rpc("open_circle_consultation", {
+    p_space_id: args.spaceId,
+    p_question: args.question,
+    p_options: args.options,
+    p_recipe: args.recipe,
+    p_description: args.description ?? null,
+    p_closes_at: args.closesAt ?? null,
+  });
+  if (error) throw error;
+  return (data as OpenConsultationResult | null) ?? { status: "invalid" };
+}

@@ -18,6 +18,8 @@ import {
   type Space,
 } from "@/lib/db/events";
 import { OrgShell } from "./SpacesHome";
+import { openCircleConsultation } from "@/lib/db/circles";
+import { recipeForSystem } from "@/lib/voting/engine";
 import { APP_URL } from "@/lib/voting/aiPrompt";
 import { CREAM, FONT_BODY, FONT_DISPLAY, GREEN, INK, MUTED, REDTXT, SUBINK } from "./theme";
 
@@ -92,6 +94,9 @@ export default function SpaceDashboard({ spaceId }: { spaceId: string }) {
   const [paceInput, setPaceInput] = useState("");
   const [circleErr, setCircleErr] = useState("");
   const [copiedJoin, setCopiedJoin] = useState(false);
+  const [ask, setAsk] = useState("");
+  const [askMsg, setAskMsg] = useState("");
+  const [asking, setAsking] = useState(false);
   const [events, setEvents] = useState<EventRow[]>([]);
   const [memberText, setMemberText] = useState("");
   const [eventTitle, setEventTitle] = useState("");
@@ -182,6 +187,42 @@ export default function SpaceDashboard({ spaceId }: { spaceId: string }) {
       const msg = String((e as { message?: string })?.message ?? "");
       setCircleErr(msg.includes("circle_members_without_email") ? t("circleNeedEmails") : t("circleSaveError"));
     }
+  };
+
+  /**
+   * Ouvrir une consultation. UN SEUL bouton, et surtout : aucun choix de
+   * destinataires. C'est la RPC qui convoque tout le roster — pouvoir désigner
+   * qui répond suffirait à lever le secret (on convoque une personne, on lit le
+   * bulletin qui arrive). Les refus viennent de la base et sont affichés tels quels.
+   */
+  const openConsultation = async () => {
+    if (!space || asking) return;
+    const question = ask.trim();
+    if (!question) return;
+    setAsking(true);
+    setAskMsg("");
+    try {
+      const r = await openCircleConsultation({
+        spaceId: space.id,
+        question,
+        options: [t("presetFor"), t("presetAgainst"), t("presetAbstain")].map((name) => ({ name })),
+        recipe: recipeForSystem("fptp"),
+      });
+      if (r.status === "ok") {
+        setAsk("");
+        await load();
+        router.push(`/evenement/${r.event_id}`);
+      } else if (r.status === "capped") {
+        setAskMsg(t("askCapped", { cap: r.cap ?? 1 }));
+      } else if (r.status === "too_small") {
+        setAskMsg(t("askTooSmall", { n: r.roster ?? 0, min: r.min ?? 5 }));
+      } else {
+        setAskMsg(t("circleSaveError"));
+      }
+    } catch {
+      setAskMsg(t("circleSaveError"));
+    }
+    setAsking(false);
   };
 
   const savePace = () => {
@@ -331,6 +372,32 @@ export default function SpaceDashboard({ spaceId }: { spaceId: string }) {
               rows={2}
               style={{ width: "100%", marginTop: 10, fontFamily: FONT_BODY, fontSize: 14, padding: "10px 12px", border: `2px solid ${INK}`, borderRadius: 11, resize: "vertical" }}
             />
+
+            {/* ---- Interroger le cercle : un seul bouton, aucun choix de destinataires ---- */}
+            <div style={{ marginTop: 14, borderTop: `2px dashed ${INK}22`, paddingTop: 14 }}>
+              <div style={{ fontWeight: 800, fontSize: 14.5, fontFamily: FONT_DISPLAY }}>{t("askTitle")}</div>
+              <div style={{ fontSize: 12.5, color: MUTED, marginTop: 3, lineHeight: 1.45 }}>{t("askSubtitle")}</div>
+              <div style={{ display: "flex", gap: 10, marginTop: 10, flexWrap: "wrap" }}>
+                <input
+                  value={ask}
+                  onChange={(e) => setAsk(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && openConsultation()}
+                  placeholder={t("askPlaceholder")}
+                  style={{ flex: 1, minWidth: 220, fontFamily: FONT_BODY, fontSize: 15, fontWeight: 600, padding: "11px 13px", border: `2px solid ${INK}`, borderRadius: 11 }}
+                />
+                <button
+                  onClick={openConsultation}
+                  disabled={asking || !ask.trim()}
+                  className="dc-bright"
+                  style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 14.5, cursor: asking || !ask.trim() ? "not-allowed" : "pointer", border: `2.5px solid ${INK}`, background: INK, color: "#fff", padding: "11px 18px", borderRadius: 11, opacity: asking || !ask.trim() ? 0.5 : 1 }}
+                >
+                  {asking ? t("asking") : t("askCta")}
+                </button>
+              </div>
+              {askMsg && (
+                <div style={{ marginTop: 9, color: REDTXT, fontWeight: 700, fontSize: 13, lineHeight: 1.45 }}>{askMsg}</div>
+              )}
+            </div>
 
             <div style={{ marginTop: 12, display: "flex", gap: 9, alignItems: "center", flexWrap: "wrap" }}>
               <span style={{ fontWeight: 700, fontSize: 13.5, color: SUBINK }}>{t("circlePaceLabel")}</span>

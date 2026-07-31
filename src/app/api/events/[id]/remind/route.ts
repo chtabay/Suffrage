@@ -26,12 +26,22 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
   // RLS : l'événement n'est visible que par son propriétaire.
   const { data: ev } = await supabase
     .from("scrutin_events")
-    .select("title, scrutin_spaces(name)")
+    .select("title, reminded_at, scrutin_spaces(name, join_open)")
     .eq("id", id)
     .maybeSingle();
   if (!ev) return NextResponse.json({ error: "not_found" }, { status: 404 });
-  const spaceName = (ev as { scrutin_spaces?: { name?: string } | null }).scrutin_spaces?.name;
+  const space = (ev as { scrutin_spaces?: { name?: string; join_open?: boolean } | null }).scrutin_spaces;
+  const spaceName = space?.name;
   const senderName = spaceName ? `${spaceName} · Placet` : "Placet";
+
+  // UNE SEULE RELANCE dans un cercle. Au-delà, ce n'est plus un rappel, c'est du
+  // harcèlement — et c'est précisément ce qu'on promet au membre de ne pas faire.
+  // La garde vit ici parce que la contrainte porte sur l'ENVOI d'emails, et que
+  // cette route en est l'unique source : ce n'est pas une décoration d'interface.
+  // Les assemblées classiques gardent l'ancien comportement, elles n'ont rien promis.
+  if (space?.join_open && ev.reminded_at) {
+    return NextResponse.json({ error: "already_reminded", sent: 0, pending: 0 }, { status: 409 });
+  }
 
   // Membres ayant déjà voté. Passe par une RPC et NON par une lecture directe des
   // bulletins : sur une consultation scellée le bulletin ne porte plus l'identité,
@@ -64,6 +74,10 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
       replyTo: user.email ?? undefined,
     });
     if (ok) sent++;
+  }
+
+  if (sent > 0) {
+    await supabase.from("scrutin_events").update({ reminded_at: new Date().toISOString() }).eq("id", id);
   }
 
   return NextResponse.json({ sent, pending: pending.length });
