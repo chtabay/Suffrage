@@ -19,6 +19,8 @@ export interface Space {
   pitch: string | null;
   /** Plafond de consultations par jour. `null` = aucune limite, et on n'affiche alors aucun chiffre. */
   solicit_per_day: number | null;
+  /** Lien d'invitation à la conversation de groupe. Hôtes restreints par contrainte en base. */
+  chat_url: string | null;
 }
 
 export interface Member {
@@ -129,7 +131,7 @@ export interface EventContext {
 }
 
 const SPACE_COLS =
-  "id, name, created_at, join_open, join_token, join_cap, join_closes_at, pitch, solicit_per_day";
+  "id, name, created_at, join_open, join_token, join_cap, join_closes_at, pitch, solicit_per_day, chat_url";
 const MEMBER_COLS = "id, space_id, name, email, district, weight, token, self_joined, consent_at, consent_source";
 const EVENT_COLS =
   "id, space_id, title, description, mode, status, current_poll_id, opens_at, closes_at, created_at, enroll_open, enroll_cap, enroll_closes_at, enroll_token, quorum, secret_ballot";
@@ -169,6 +171,7 @@ export interface SpacePatch {
   pitch?: string | null;
   /** `null` = aucun engagement de fréquence ; la page d'adhésion n'affiche alors rien. */
   solicit_per_day?: number | null;
+  chat_url?: string | null;
 }
 
 /**
@@ -177,6 +180,16 @@ export interface SpacePatch {
  * injoignable, donc jamais convoqué et sans moyen de se retirer). L'appelant doit
  * présenter ce refus, pas l'avaler.
  */
+/**
+ * Hôtes autorisés pour le lien de conversation. Ce contrôle est un CONFORT : la
+ * vraie garde est une contrainte CHECK en base, parce qu'une validation côté
+ * client se contourne en appelant l'API REST directement. Le bouton porte le nom
+ * du cercle — il ne doit pas pouvoir mener ailleurs.
+ */
+export function isChatUrl(raw: string): boolean {
+  return /^https:\/\/(chat\.whatsapp\.com|wa\.me)\/[^\s]{1,255}$/.test(raw.trim());
+}
+
 export async function updateSpace(id: string, patch: SpacePatch): Promise<void> {
   const supabase = createClient();
   const upd: Record<string, unknown> = { ...patch };

@@ -7,6 +7,7 @@ import { useAuth } from "@/lib/auth/useAuth";
 import {
   addMembers,
   updateSpace,
+  isChatUrl,
   createEvent,
   deleteSpace,
   getSpace,
@@ -94,6 +95,7 @@ export default function SpaceDashboard({ spaceId }: { spaceId: string }) {
   const [pitch, setPitch] = useState("");
   const [paceInput, setPaceInput] = useState("");
   const [circleErr, setCircleErr] = useState("");
+  const [chatUrl, setChatUrl] = useState("");
   const [copiedJoin, setCopiedJoin] = useState(false);
   const [ask, setAsk] = useState("");
   const [askMsg, setAskMsg] = useState("");
@@ -113,6 +115,7 @@ export default function SpaceDashboard({ spaceId }: { spaceId: string }) {
       setMembers(m);
       setPitch(s?.pitch ?? "");
       setPaceInput(s?.solicit_per_day == null ? "" : String(s.solicit_per_day));
+      setChatUrl(s?.chat_url ?? "");
       setEvents(e);
     } catch {
       /* noop */
@@ -224,6 +227,19 @@ export default function SpaceDashboard({ spaceId }: { spaceId: string }) {
       setAskMsg(t("circleSaveError"));
     }
     setAsking(false);
+  };
+
+  // Le lien de conversation. Vidé = retiré. La liste blanche d'hôtes est doublée
+  // en base par une contrainte CHECK : ce bouton portera le nom du cercle auprès
+  // des membres, il ne doit pas pouvoir mener ailleurs.
+  const saveChatUrl = () => {
+    const raw = chatUrl.trim();
+    if (raw && !isChatUrl(raw)) {
+      setCircleErr(t("chatUrlInvalid"));
+      return;
+    }
+    setCircleErr("");
+    void saveCircle({ chat_url: raw || null });
   };
 
   const savePace = () => {
@@ -378,6 +394,18 @@ export default function SpaceDashboard({ spaceId }: { spaceId: string }) {
               >
                 {copiedJoin ? t("copied") : t("copyLink")}
               </button>
+            </div>
+
+            <div style={{ marginTop: 10 }}>
+              <input
+                value={chatUrl}
+                onChange={(e) => setChatUrl(e.target.value)}
+                onBlur={saveChatUrl}
+                onKeyDown={(e) => e.key === "Enter" && (e.target as HTMLInputElement).blur()}
+                placeholder={t("chatUrlPlaceholder")}
+                style={{ width: "100%", fontFamily: FONT_BODY, fontSize: 14, padding: "10px 12px", border: `2px solid ${INK}`, borderRadius: 11 }}
+              />
+              <div style={{ fontSize: 12, color: MUTED, marginTop: 4, lineHeight: 1.45 }}>{t("chatUrlHint")}</div>
             </div>
 
             <textarea

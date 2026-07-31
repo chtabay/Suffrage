@@ -62,6 +62,9 @@ export default function MemberHome({ token }: { token: string }) {
         <div style={card}>
           <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 22 }}>{t("leftTitle")}</div>
           <div style={{ color: SUBINK, marginTop: 8, lineHeight: 1.55 }}>{t("leftDesc")}</div>
+          {home.chat_url && (
+            <div style={{ color: SUBINK, marginTop: 10, fontSize: 13.5, lineHeight: 1.5 }}>{t("leaveChatWarning")}</div>
+          )}
         </div>
       </CircleShell>
     );
@@ -103,6 +106,27 @@ export default function MemberHome({ token }: { token: string }) {
           </p>
         )}
       </div>
+
+      {/* ---- La conversation de groupe ----
+          Facultative, et jamais présentée comme un prolongement automatique de
+          l'adhésion : y entrer expose SON NUMÉRO à tous les autres membres, ce
+          qui est l'inverse de ce qu'on lui promet sur l'email. On l'écrit sous le
+          bouton, il décide. */}
+      {home.chat_url && (
+        <div style={{ ...card, marginTop: 16 }}>
+          <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 17 }}>{t("chatTitle")}</div>
+          <div style={{ color: SUBINK, marginTop: 7, fontSize: 14, lineHeight: 1.5 }}>{t("chatDesc")}</div>
+          <a
+            href={home.chat_url}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ display: "inline-flex", alignItems: "center", gap: 9, marginTop: 13, textDecoration: "none", fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 15, border: `2.5px solid ${INK}`, background: "#25D366", color: "#fff", padding: "11px 18px", borderRadius: 11 }}
+          >
+            💬 {t("chatCta")}
+          </a>
+          <div style={{ fontSize: 12.5, color: MUTED, marginTop: 10, lineHeight: 1.5 }}>{t("chatPhoneWarning")}</div>
+        </div>
+      )}
 
       {open.length > 0 && (
         <div style={{ ...card, marginTop: 16 }}>
@@ -160,6 +184,13 @@ export default function MemberHome({ token }: { token: string }) {
           <>
             <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 17 }}>{t("leaveConfirmTitle")}</div>
             <div style={{ color: SUBINK, marginTop: 7, fontSize: 14, lineHeight: 1.5 }}>{t("leaveConfirmDesc")}</div>
+            {/* Placet n'a aucune prise sur WhatsApp : sans cette phrase, « je pars
+                en un clic » deviendrait faux pour qui a rejoint le groupe. */}
+            {home.chat_url && (
+              <div style={{ color: REDTXT, marginTop: 8, fontSize: 13.5, fontWeight: 700, lineHeight: 1.5 }}>
+                {t("leaveChatWarning")}
+              </div>
+            )}
             <div style={{ display: "flex", gap: 10, marginTop: 14, flexWrap: "wrap" }}>
               <button
                 onClick={doLeave}

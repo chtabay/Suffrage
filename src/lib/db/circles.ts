@@ -34,6 +34,8 @@ export interface MemberHome {
   circle?: string;
   pitch?: string | null;
   solicit_per_day?: number | null;
+  /** Conversation de groupe — servie aux seuls membres CONFIRMÉS, jamais sur la page publique. */
+  chat_url?: string | null;
   name?: string;
   email?: string | null;
   self_joined?: boolean;
