@@ -8,7 +8,7 @@ import { isPlaceUrl, parseLatLng, sanitizePlace } from "./geo";
 import type { Option, Recipe } from "./types";
 import { intlLocale, pickLocale } from "@/i18n/locales";
 
-const DRAFT_ICONS = ["📌", "⭐", "🔥", "🌟", "🎯", "🎪", "🎨", "🍀", "🌈", "🚀", "🎲", "🧭"];
+export const DRAFT_ICONS = ["📌", "⭐", "🔥", "🌟", "🎯", "🎪", "🎨", "🍀", "🌈", "🚀", "🎲", "🧭"];
 
 // Emoji de tête d'un libellé d'option (« 🍕 Italien » → icône 🍕 + nom « Italien »).
 const LEADING_EMOJI = /^(\p{Extended_Pictographic}(?:‍\p{Extended_Pictographic})*️?)\s+(.+)$/u;

@@ -1,5 +1,8 @@
 {
   "crons": [
-    { "path": "/api/cron/notify", "schedule": "0 8 * * *" }
+    { "path": "/api/cron/notify", "schedule": "0 8 * * *" },
+    { "path": "/api/agent/tick", "schedule": "0 9 * * *" },
+    { "path": "/api/agent/tick", "schedule": "0 14 * * *" },
+    { "path": "/api/agent/tick", "schedule": "0 19 * * *" }
   ]
 }
