@@ -98,6 +98,17 @@ export default function MemberHome({ token }: { token: string }) {
         {/* Ce que le cercle sait de vous, et depuis quand. Un membre importé n'a
             rien demandé : on le lui dit franchement plutôt que de le laisser
             deviner pourquoi il reçoit ces emails. */}
+        {/* Ses segments. Même principe que la date de consentement : ce qui décide
+            de ce qu'il reçoit doit lui être lisible, pas deviné. */}
+        {(home.segments ?? []).length > 0 && (
+          <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginTop: 10 }}>
+            {(home.segments ?? []).map((name) => (
+              <span key={name} style={{ fontSize: 12, fontWeight: 800, color: INK, border: `1.5px solid ${INK}`, borderRadius: 8, padding: "2px 8px" }}>
+                {name}
+              </span>
+            ))}
+          </div>
+        )}
         {home.consent_at && (
           <p style={{ color: MUTED, marginTop: 6, fontSize: 12.5, lineHeight: 1.5 }}>
             {home.self_joined
@@ -142,6 +153,7 @@ export default function MemberHome({ token }: { token: string }) {
                 <div style={{ fontSize: 12.5, color: c.voted ? GREEN : MUTED, fontWeight: 700, marginTop: 3 }}>
                   {c.voted ? t("alreadyVoted") : t("toVote")}
                   {c.secret_ballot ? ` · ${t("sealedTag")}` : ""}
+                  {c.audience ? ` · ${t("audienceTag", { audience: c.audience })}` : ""}
                 </div>
               </a>
             ))}
@@ -160,7 +172,10 @@ export default function MemberHome({ token }: { token: string }) {
                 style={{ display: "block", textDecoration: "none", color: INK, border: `2px solid #e3e3e3`, borderRadius: 12, padding: "12px 14px" }}
               >
                 <div style={{ fontWeight: 800, fontSize: 15 }}>{c.title}</div>
-                <div style={{ fontSize: 12.5, color: MUTED, fontWeight: 700, marginTop: 3 }}>{t("seeResults")}</div>
+                <div style={{ fontSize: 12.5, color: MUTED, fontWeight: 700, marginTop: 3 }}>
+                  {t("seeResults")}
+                  {c.audience ? ` · ${t("audienceTag", { audience: c.audience })}` : ""}
+                </div>
               </a>
             ))}
           </div>

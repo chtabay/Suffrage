@@ -19,7 +19,16 @@ import {
   type Space,
 } from "@/lib/db/events";
 import { OrgShell } from "./SpacesHome";
-import { openCircleConsultation } from "@/lib/db/circles";
+import {
+  openCircleConsultation,
+  listSegments,
+  createSegment,
+  deleteSegment,
+  listMemberSegments,
+  assignSegment,
+  unassignSegment,
+  type Segment,
+} from "@/lib/db/circles";
 import { recipeForSystem } from "@/lib/voting/engine";
 import { APP_URL } from "@/lib/voting/aiPrompt";
 import { CREAM, FONT_BODY, FONT_DISPLAY, GREEN, INK, MUTED, REDTXT, SUBINK } from "./theme";
@@ -96,6 +105,13 @@ export default function SpaceDashboard({ spaceId }: { spaceId: string }) {
   const [paceInput, setPaceInput] = useState("");
   const [circleErr, setCircleErr] = useState("");
   const [chatUrl, setChatUrl] = useState("");
+  const [segments, setSegments] = useState<Segment[]>([]);
+  const [memberSegs, setMemberSegs] = useState<Record<string, string[]>>({});
+  const [segName, setSegName] = useState("");
+  const [segRanked, setSegRanked] = useState(false);
+  // Cible de la prochaine consultation. "" = tout le cercle.
+  const [target, setTarget] = useState("");
+  const [andAbove, setAndAbove] = useState(true);
   const [copiedJoin, setCopiedJoin] = useState(false);
   const [ask, setAsk] = useState("");
   const [askMsg, setAskMsg] = useState("");
@@ -117,6 +133,9 @@ export default function SpaceDashboard({ spaceId }: { spaceId: string }) {
       setPaceInput(s?.solicit_per_day == null ? "" : String(s.solicit_per_day));
       setChatUrl(s?.chat_url ?? "");
       setEvents(e);
+      const [sg, ms] = await Promise.all([listSegments(spaceId), listMemberSegments(spaceId)]);
+      setSegments(sg);
+      setMemberSegs(ms);
     } catch {
       /* noop */
     }
@@ -211,6 +230,7 @@ export default function SpaceDashboard({ spaceId }: { spaceId: string }) {
         question,
         options: [t("presetFor"), t("presetAgainst"), t("presetAbstain")].map((name) => ({ name })),
         recipe: recipeForSystem("fptp"),
+        segmentIds: targetIds(),
       });
       if (r.status === "ok") {
         setAsk("");
@@ -219,7 +239,13 @@ export default function SpaceDashboard({ spaceId }: { spaceId: string }) {
       } else if (r.status === "capped") {
         setAskMsg(t("askCapped", { cap: r.cap ?? 1 }));
       } else if (r.status === "too_small") {
-        setAskMsg(t("askTooSmall", { n: r.roster ?? 0, min: r.min ?? 5 }));
+        // Le motif nomme le PUBLIC visé : « Avancé compte 3 membres » est
+        // actionnable, « le cercle compte 3 membres » serait faux et déroutant.
+        setAskMsg(
+          r.audience
+            ? t("askTooSmallSegment", { audience: r.audience, n: r.roster ?? 0, min: r.min ?? 5 })
+            : t("askTooSmall", { n: r.roster ?? 0, min: r.min ?? 5 }),
+        );
       } else {
         setAskMsg(t("circleSaveError"));
       }
@@ -232,6 +258,53 @@ export default function SpaceDashboard({ spaceId }: { spaceId: string }) {
   // Le lien de conversation. Vidé = retiré. La liste blanche d'hôtes est doublée
   // en base par une contrainte CHECK : ce bouton portera le nom du cercle auprès
   // des membres, il ne doit pas pouvoir mener ailleurs.
+  /**
+   * Cible effective : la liste d'identifiants de segments envoyée à la base.
+   * C'est ICI que l'échelle se traduit — la RPC ne connaît QUE des segments,
+   * jamais un rang. « Standard et au-dessus » devient [Standard, Avancé].
+   */
+  const targetIds = (): string[] => {
+    if (!target) return [];
+    const seg = segments.find((g) => g.id === target);
+    if (!seg) return [];
+    if (andAbove && seg.rank != null) {
+      return segments.filter((g) => g.rank != null && g.rank >= seg.rank!).map((g) => g.id);
+    }
+    return [seg.id];
+  };
+
+  const addSegment = async () => {
+    const name = segName.trim();
+    if (!space || !name) return;
+    try {
+      // Un groupe qui numérote ses segments déclare une échelle ; sinon ce sont
+      // des étiquettes sans ordre. Le choix est fait au premier segment créé.
+      const rank = segRanked ? segments.length + 1 : null;
+      const seg = await createSegment(space.id, name, rank, segments.length);
+      setSegments((l) => [...l, seg]);
+      setSegName("");
+    } catch {
+      setCircleErr(t("segmentDuplicate"));
+    }
+  };
+
+  const removeSegment = async (id: string) => {
+    if (typeof window !== "undefined" && !window.confirm(t("segmentRemoveConfirm"))) return;
+    await deleteSegment(id);
+    setSegments((l) => l.filter((g) => g.id !== id));
+    setMemberSegs((m) => Object.fromEntries(Object.entries(m).map(([k, v]) => [k, v.filter((x) => x !== id)])));
+    if (target === id) setTarget("");
+  };
+
+  const toggleMemberSegment = async (memberId: string, segmentId: string, on: boolean) => {
+    if (on) await assignSegment(memberId, segmentId);
+    else await unassignSegment(memberId, segmentId);
+    setMemberSegs((m) => {
+      const cur = m[memberId] ?? [];
+      return { ...m, [memberId]: on ? [...cur, segmentId] : cur.filter((x) => x !== segmentId) };
+    });
+  };
+
   const saveChatUrl = () => {
     const raw = chatUrl.trim();
     if (raw && !isChatUrl(raw)) {
@@ -292,6 +365,38 @@ export default function SpaceDashboard({ spaceId }: { spaceId: string }) {
               )}
               {m.email && <span style={{ color: MUTED, fontSize: 12.5 }}>{m.email}</span>}
               {m.weight > 1 && <span style={{ color: SUBINK, fontSize: 12.5, fontWeight: 700 }}>×{m.weight}</span>}
+              {/* Segments du membre. Visibles sur la ligne : c'est ce qui décide
+                  qui reçoit quoi, ça ne doit pas être caché dans un sous-écran. */}
+              {segments.length > 0 && (
+                <span style={{ display: "flex", gap: 5, alignItems: "center", flexWrap: "wrap" }}>
+                  {(memberSegs[m.id] ?? []).map((sid) => {
+                    const seg = segments.find((g) => g.id === sid);
+                    if (!seg) return null;
+                    return (
+                      <button
+                        key={sid}
+                        onClick={() => toggleMemberSegment(m.id, sid, false)}
+                        title={t("segmentRemoveFrom")}
+                        style={{ fontSize: 11, fontWeight: 800, color: INK, border: `1.5px solid ${INK}`, background: "#fff", borderRadius: 7, padding: "1px 6px", cursor: "pointer", whiteSpace: "nowrap" }}
+                      >
+                        {seg.name} ×
+                      </button>
+                    );
+                  })}
+                  <select
+                    value=""
+                    onChange={(e) => e.target.value && toggleMemberSegment(m.id, e.target.value, true)}
+                    style={{ fontSize: 11.5, fontFamily: FONT_BODY, border: `1.5px solid ${MUTED}`, borderRadius: 7, padding: "2px 4px", background: "#fff", color: SUBINK, cursor: "pointer" }}
+                  >
+                    <option value="">{t("segmentAdd")}</option>
+                    {segments
+                      .filter((g) => !(memberSegs[m.id] ?? []).includes(g.id))
+                      .map((g) => (
+                        <option key={g.id} value={g.id}>{g.name}</option>
+                      ))}
+                  </select>
+                </span>
+              )}
               <button onClick={() => onRemoveMember(m.id)} title={t("remove")} style={{ border: "none", background: "none", color: REDTXT, cursor: "pointer", fontSize: 17, lineHeight: 1 }}>×</button>
             </div>
           ))}
@@ -417,10 +522,69 @@ export default function SpaceDashboard({ spaceId }: { spaceId: string }) {
               style={{ width: "100%", marginTop: 10, fontFamily: FONT_BODY, fontSize: 14, padding: "10px 12px", border: `2px solid ${INK}`, borderRadius: 11, resize: "vertical" }}
             />
 
+            {/* ---- Segments ----
+                Placet n'impose aucun vocabulaire : le groupe nomme les siens.
+                L'échelle (rang) est une OPTION, décidée au premier segment. */}
+            <div style={{ marginTop: 14, borderTop: `2px dashed ${INK}22`, paddingTop: 14 }}>
+              <div style={{ fontWeight: 800, fontSize: 14.5, fontFamily: FONT_DISPLAY }}>{t("segmentsTitle")}</div>
+              <div style={{ fontSize: 12.5, color: MUTED, marginTop: 3, lineHeight: 1.45 }}>{t("segmentsHint")}</div>
+              {segments.length > 0 && (
+                <div style={{ display: "flex", gap: 7, flexWrap: "wrap", marginTop: 10 }}>
+                  {segments.map((g) => (
+                    <span key={g.id} style={{ display: "inline-flex", alignItems: "center", gap: 7, border: `2px solid ${INK}`, borderRadius: 9, padding: "5px 9px", fontSize: 13, fontWeight: 700 }}>
+                      {g.rank != null && <span style={{ color: MUTED, fontSize: 11.5 }}>{g.rank}</span>}
+                      {g.name}
+                      <button onClick={() => removeSegment(g.id)} title={t("remove")} style={{ border: "none", background: "none", color: REDTXT, cursor: "pointer", fontSize: 15, lineHeight: 1, padding: 0 }}>×</button>
+                    </span>
+                  ))}
+                </div>
+              )}
+              <div style={{ display: "flex", gap: 9, marginTop: 10, flexWrap: "wrap", alignItems: "center" }}>
+                <input
+                  value={segName}
+                  onChange={(e) => setSegName(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && addSegment()}
+                  placeholder={t("segmentPlaceholder")}
+                  style={{ flex: 1, minWidth: 170, fontFamily: FONT_BODY, fontSize: 14, padding: "9px 12px", border: `2px solid ${INK}`, borderRadius: 10 }}
+                />
+                <button onClick={addSegment} disabled={!segName.trim()} style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 13.5, cursor: segName.trim() ? "pointer" : "not-allowed", border: `2.5px solid ${INK}`, background: "#fff", color: INK, padding: "9px 14px", borderRadius: 10, opacity: segName.trim() ? 1 : 0.5 }}>
+                  {t("segmentAddCta")}
+                </button>
+              </div>
+              {segments.length === 0 && (
+                <label style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 9, fontSize: 12.5, color: SUBINK, cursor: "pointer" }}>
+                  <input type="checkbox" checked={segRanked} onChange={(e) => setSegRanked(e.target.checked)} style={{ width: 15, height: 15, accentColor: INK }} />
+                  {t("segmentRanked")}
+                </label>
+              )}
+            </div>
+
             {/* ---- Interroger le cercle : un seul bouton, aucun choix de destinataires ---- */}
             <div style={{ marginTop: 14, borderTop: `2px dashed ${INK}22`, paddingTop: 14 }}>
               <div style={{ fontWeight: 800, fontSize: 14.5, fontFamily: FONT_DISPLAY }}>{t("askTitle")}</div>
               <div style={{ fontSize: 12.5, color: MUTED, marginTop: 3, lineHeight: 1.45 }}>{t("askSubtitle")}</div>
+              {segments.length > 0 && (
+                <div style={{ display: "flex", gap: 9, marginTop: 10, alignItems: "center", flexWrap: "wrap" }}>
+                  <span style={{ fontSize: 13, fontWeight: 700, color: SUBINK }}>{t("askAudience")}</span>
+                  <select
+                    value={target}
+                    onChange={(e) => setTarget(e.target.value)}
+                    style={{ fontFamily: FONT_BODY, fontSize: 14, fontWeight: 600, padding: "8px 10px", border: `2px solid ${INK}`, borderRadius: 10, background: "#fff" }}
+                  >
+                    <option value="">{t("askAudienceAll")}</option>
+                    {segments.map((g) => (
+                      <option key={g.id} value={g.id}>{g.name}</option>
+                    ))}
+                  </select>
+                  {/* N'apparaît que si le segment visé appartient à une échelle. */}
+                  {target && segments.find((g) => g.id === target)?.rank != null && (
+                    <label style={{ display: "flex", alignItems: "center", gap: 7, fontSize: 12.5, color: SUBINK, cursor: "pointer" }}>
+                      <input type="checkbox" checked={andAbove} onChange={(e) => setAndAbove(e.target.checked)} style={{ width: 15, height: 15, accentColor: INK }} />
+                      {t("askAudienceAndAbove")}
+                    </label>
+                  )}
+                </div>
+              )}
               <div style={{ display: "flex", gap: 10, marginTop: 10, flexWrap: "wrap" }}>
                 <input
                   value={ask}
