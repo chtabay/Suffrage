@@ -35,7 +35,7 @@ import {
   type Voter,
   type VoterContext,
 } from "@/lib/db/polls";
-import { trackShare } from "@/lib/db/track";
+import { shareUrl, trackShare, trackVisit } from "@/lib/db/track";
 import { isPlaceUrl, optionIllustration, optionPlace, resolvePlace } from "@/lib/voting/geo";
 import {
   compute,
@@ -487,7 +487,7 @@ function LinkCopyBtn({ url }: { url: string }) {
   const [copied, setCopied] = useState(false);
   const copy = async () => {
     try {
-      await navigator.clipboard?.writeText(url);
+      await navigator.clipboard?.writeText(shareUrl(url, "copy"));
       // Sans API clipboard, `?.` résout sans copier : on ne compte alors rien.
       if (navigator.clipboard) trackShare(url, "copy");
       setCopied(true);
@@ -1161,6 +1161,17 @@ export default function PublicVote({
   const tm = useTranslations("Methods");
   const ta = useTranslations("Assign");
   const locale = useLocale();
+  // Entonnoir : le lien portait-il son canal d'origine ? On le compte UNE fois,
+  // au montage, et on retient l'origine jusqu'à une éventuelle création.
+  useEffect(() => {
+    if (adminKey) return; // l'organisateur qui ouvre son propre scrutin n'est pas une visite
+    try {
+      trackVisit(token, new URLSearchParams(window.location.search).get("s"));
+    } catch {
+      /* pas de fenêtre : rien à compter */
+    }
+  }, [token, adminKey]);
+
   const [view, setView] = useState<View>("loading");
   const [poll, setPoll] = useState<PollRow | null>(null);
   const [brand, setBrand] = useState<Brand | null>(null);

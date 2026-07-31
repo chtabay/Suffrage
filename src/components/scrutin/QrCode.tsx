@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { QRCodeSVG } from "qrcode.react";
 import { useTranslations } from "next-intl";
-import { trackShare } from "@/lib/db/track";
+import { shareUrl, trackShare } from "@/lib/db/track";
 import { CREAM, INK } from "./theme";
 
 // QR code du lien de vote — pour un scrutin PUBLIC (lien ouvert), permet à une
@@ -25,6 +25,8 @@ export default function QrCode({
   const [zoom, setZoom] = useState(false);
   const [bigSize, setBigSize] = useState(320);
   if (!url) return null;
+  // Le QR encode le lien DÉCORÉ : un scan doit être attribuable comme le reste.
+  const qr = shareUrl(url, "qr");
 
   const openZoom = () => {
     // L'agrandissement = intention de faire scanner la pièce : c'est le partage.
@@ -44,7 +46,7 @@ export default function QrCode({
       title={t("qrEnlarge")}
       style={{ background: "#fff", border: `2px solid ${INK}`, borderRadius: 10, padding: 8, lineHeight: 0, flex: "none", cursor: "zoom-in" }}
     >
-      <QRCodeSVG value={url} size={size} level="M" bgColor="#ffffff" fgColor={INK} />
+      <QRCodeSVG value={qr} size={size} level="M" bgColor="#ffffff" fgColor={INK} />
     </button>
   );
 
@@ -58,7 +60,7 @@ export default function QrCode({
           title={t("qrEnlarge")}
           style={{ position: "relative", background: "#fff", border: `2px solid ${INK}`, borderRadius: 10, padding: 6, lineHeight: 0, cursor: "zoom-in", flex: "none" }}
         >
-          <QRCodeSVG value={url} size={size} level="M" bgColor="#ffffff" fgColor={INK} />
+          <QRCodeSVG value={qr} size={size} level="M" bgColor="#ffffff" fgColor={INK} />
           <span
             aria-hidden="true"
             style={{ position: "absolute", right: -7, bottom: -7, width: 20, height: 20, borderRadius: 999, background: INK, color: "#fff", border: "2px solid #fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10 }}
@@ -102,7 +104,7 @@ export default function QrCode({
           }}
         >
           <div style={{ background: "#fff", border: `3px solid ${INK}`, borderRadius: 18, padding: 20, lineHeight: 0 }}>
-            <QRCodeSVG value={url} size={bigSize} level="M" bgColor="#ffffff" fgColor={INK} />
+            <QRCodeSVG value={qr} size={bigSize} level="M" bgColor="#ffffff" fgColor={INK} />
           </div>
           <div style={{ color: "#fff", fontWeight: 700, fontSize: 15, textAlign: "center", maxWidth: 440, lineHeight: 1.4 }}>{t("qrScan")}</div>
           <div style={{ color: "rgba(255,255,255,0.7)", fontWeight: 600, fontSize: 13 }}>{t("qrClose")}</div>

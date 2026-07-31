@@ -2,7 +2,7 @@
 
 import { useLocale, useTranslations } from "next-intl";
 import { buildVoteShareText, waUrl } from "@/lib/share";
-import { trackShare } from "@/lib/db/track";
+import { shareUrl, trackShare } from "@/lib/db/track";
 import { FONT_DISPLAY, INK } from "./theme";
 
 export default function WhatsAppShare({ question, url, iconOnly = false }: { question: string; url: string; iconOnly?: boolean }) {
@@ -11,7 +11,7 @@ export default function WhatsAppShare({ question, url, iconOnly = false }: { que
   if (!url) return null;
   return (
     <a
-      href={waUrl(buildVoteShareText(question, url, locale))}
+      href={waUrl(buildVoteShareText(question, shareUrl(url, "whatsapp"), locale))}
       target="_blank"
       rel="noopener noreferrer"
       onClick={() => trackShare(url, "whatsapp")}

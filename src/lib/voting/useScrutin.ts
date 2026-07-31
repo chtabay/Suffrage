@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useLocale } from "next-intl";
 import { pickLocale } from "@/i18n/locales";
+import { trackConversion } from "@/lib/db/track";
 import { addLocalPoll } from "@/lib/db/localPolls";
 import { addVoters, createPoll, setPollVisibility, type AccessMode, type District, type VoterInput } from "@/lib/db/polls";
 import { ASSIGN_METHODS, type AssignMethodKey } from "@/lib/assign/methods";
@@ -599,6 +600,11 @@ export function useScrutin(draft?: ScrutinDraft) {
         initialStatus: collecting ? "proposals" : undefined,
       });
       const origin = window.location.origin;
+
+      // Boucle fermée : ce créateur était-il arrivé par un lien partagé ? C'est
+      // la seule mesure qui dise si publier sert à quelque chose. Silencieuse et
+      // consommée une fois, pour qu'un même parcours ne compte pas deux fois.
+      trackConversion();
 
       // Feed public : publication APRÈS le lancement réussi, en silence — un
       // échec (rate-limit, réseau) ne doit JAMAIS faire échouer le lancement.

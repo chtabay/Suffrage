@@ -6,6 +6,7 @@ import { Link, useRouter } from "@/i18n/navigation";
 import { useAuth } from "@/lib/auth/useAuth";
 import {
   addMembers,
+  updateSpace,
   createEvent,
   deleteSpace,
   getSpace,
@@ -17,7 +18,8 @@ import {
   type Space,
 } from "@/lib/db/events";
 import { OrgShell } from "./SpacesHome";
-import { CREAM, FONT_BODY, FONT_DISPLAY, INK, MUTED, REDTXT, SUBINK } from "./theme";
+import { APP_URL } from "@/lib/voting/aiPrompt";
+import { CREAM, FONT_BODY, FONT_DISPLAY, GREEN, INK, MUTED, REDTXT, SUBINK } from "./theme";
 
 const card = {
   background: "#fff",
@@ -86,6 +88,10 @@ export default function SpaceDashboard({ spaceId }: { spaceId: string }) {
   const { user, loading } = useAuth();
   const [space, setSpace] = useState<Space | null>(null);
   const [members, setMembers] = useState<Member[]>([]);
+  const [pitch, setPitch] = useState("");
+  const [paceInput, setPaceInput] = useState("");
+  const [circleErr, setCircleErr] = useState("");
+  const [copiedJoin, setCopiedJoin] = useState(false);
   const [events, setEvents] = useState<EventRow[]>([]);
   const [memberText, setMemberText] = useState("");
   const [eventTitle, setEventTitle] = useState("");
@@ -99,6 +105,8 @@ export default function SpaceDashboard({ spaceId }: { spaceId: string }) {
       const [s, m, e] = await Promise.all([getSpace(spaceId), listMembers(spaceId), listEvents(spaceId)]);
       setSpace(s);
       setMembers(m);
+      setPitch(s?.pitch ?? "");
+      setPaceInput(s?.solicit_per_day == null ? "" : String(s.solicit_per_day));
       setEvents(e);
     } catch {
       /* noop */
@@ -158,6 +166,31 @@ export default function SpaceDashboard({ spaceId }: { spaceId: string }) {
     if (!delMatches) return;
     await deleteSpace(spaceId);
     router.push("/espaces");
+  };
+
+  // ---- Cercle ----
+  // Le refus d'ouverture vient de la BASE (déclencheur) : un cercle dont un membre
+  // est sans email aurait un membre injoignable, jamais convoqué et sans moyen de
+  // se retirer. On présente ce refus tel quel, on ne l'avale pas.
+  const saveCircle = async (patch: Parameters<typeof updateSpace>[1]) => {
+    if (!space) return;
+    setCircleErr("");
+    try {
+      await updateSpace(space.id, patch);
+      setSpace({ ...space, ...patch } as typeof space);
+    } catch (e) {
+      const msg = String((e as { message?: string })?.message ?? "");
+      setCircleErr(msg.includes("circle_members_without_email") ? t("circleNeedEmails") : t("circleSaveError"));
+    }
+  };
+
+  const savePace = () => {
+    const raw = paceInput.trim();
+    // Vide = aucun engagement (NULL en base) : la page d'adhésion n'affichera
+    // alors aucun chiffre, plutôt qu'une promesse que ce cercle n'a pas faite.
+    const n = raw === "" ? null : Math.min(50, Math.max(1, parseInt(raw, 10) || 1));
+    setPaceInput(n == null ? "" : String(n));
+    void saveCircle({ solicit_per_day: n });
   };
 
   if (loading) return <OrgShell><div style={{ ...card, color: MUTED }}>{t("loading")}</div></OrgShell>;
@@ -250,6 +283,72 @@ export default function SpaceDashboard({ spaceId }: { spaceId: string }) {
             </label>
           </div>
         </div>
+      </div>
+
+      {/* ---- Cercle ---- */}
+      <div style={{ ...card, marginTop: 16 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 12, flexWrap: "wrap" }}>
+          <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 19 }}>{t("circle")}</div>
+          <label style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer", fontSize: 13.5, fontWeight: 700, color: SUBINK }}>
+            <input
+              type="checkbox"
+              checked={space?.join_open ?? false}
+              onChange={(e) => saveCircle({ join_open: e.target.checked })}
+              style={{ width: 17, height: 17, accentColor: INK }}
+            />
+            {t("circleOpen")}
+          </label>
+        </div>
+        <div style={{ fontSize: 12.5, color: MUTED, marginTop: 4, lineHeight: 1.5 }}>{t("circleSubtitle")}</div>
+
+        {circleErr && (
+          <div style={{ marginTop: 10, color: REDTXT, fontWeight: 700, fontSize: 13, lineHeight: 1.45 }}>{circleErr}</div>
+        )}
+
+        {space?.join_open && (
+          <>
+            <div style={{ marginTop: 14, display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
+              <code style={{ flex: "1 1 240px", minWidth: 0, overflowX: "auto", whiteSpace: "nowrap", fontSize: 12.5, background: "#f6f6f4", border: `2px solid ${INK}`, borderRadius: 10, padding: "9px 11px" }}>
+                {`${APP_URL}/cercle/${space.join_token}`}
+              </code>
+              <button
+                onClick={() => {
+                  void navigator.clipboard?.writeText(`${APP_URL}/cercle/${space.join_token}`);
+                  setCopiedJoin(true);
+                  setTimeout(() => setCopiedJoin(false), 1600);
+                }}
+                style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 13.5, cursor: "pointer", border: `2.5px solid ${INK}`, background: copiedJoin ? GREEN : "#fff", color: copiedJoin ? "#fff" : INK, padding: "9px 14px", borderRadius: 10 }}
+              >
+                {copiedJoin ? t("copied") : t("copyLink")}
+              </button>
+            </div>
+
+            <textarea
+              value={pitch}
+              onChange={(e) => setPitch(e.target.value)}
+              onBlur={() => saveCircle({ pitch })}
+              placeholder={t("circlePitchPlaceholder")}
+              rows={2}
+              style={{ width: "100%", marginTop: 10, fontFamily: FONT_BODY, fontSize: 14, padding: "10px 12px", border: `2px solid ${INK}`, borderRadius: 11, resize: "vertical" }}
+            />
+
+            <div style={{ marginTop: 12, display: "flex", gap: 9, alignItems: "center", flexWrap: "wrap" }}>
+              <span style={{ fontWeight: 700, fontSize: 13.5, color: SUBINK }}>{t("circlePaceLabel")}</span>
+              <input
+                value={paceInput}
+                onChange={(e) => setPaceInput(e.target.value.replace(/[^0-9]/g, ""))}
+                onBlur={savePace}
+                onKeyDown={(e) => e.key === "Enter" && (e.target as HTMLInputElement).blur()}
+                placeholder={t("circlePaceNone")}
+                inputMode="numeric"
+                style={{ width: 92, fontFamily: FONT_BODY, fontSize: 14, fontWeight: 600, padding: "8px 11px", border: `2px solid ${INK}`, borderRadius: 10 }}
+              />
+              <span style={{ fontSize: 12.5, color: MUTED, lineHeight: 1.45, flex: "1 1 200px" }}>
+                {paceInput.trim() === "" ? t("circlePaceHintNone") : t("circlePaceHint", { n: paceInput.trim() })}
+              </span>
+            </div>
+          </>
+        )}
       </div>
 
       {/* ---- Événements ---- */}

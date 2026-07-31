@@ -7,7 +7,7 @@ import type { AuthController } from "@/lib/auth/useAuth";
 import InstallInline from "@/components/pwa/InstallInline";
 import ShareRow from "./ShareRow";
 import QrCode from "./QrCode";
-import { trackShare } from "@/lib/db/track";
+import { shareUrl, trackShare } from "@/lib/db/track";
 import { CREAM, FONT_BODY, FONT_DISPLAY, GREEN, INK, MUTED, YELLOW, lift } from "./theme";
 
 function CopyRow({ url, label, hint }: { url: string; label: string; hint?: string }) {
@@ -16,7 +16,7 @@ function CopyRow({ url, label, hint }: { url: string; label: string; hint?: stri
   const inputRef = useRef<HTMLInputElement>(null);
   const copy = async () => {
     try {
-      await navigator.clipboard?.writeText(url);
+      await navigator.clipboard?.writeText(shareUrl(url, "copy"));
       // Sans API clipboard, `?.` résout sans copier : on ne compte alors rien.
       if (navigator.clipboard) trackShare(url, "copy");
       setCopied(true);

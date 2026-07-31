@@ -11,6 +11,14 @@ export interface Space {
   id: string;
   name: string;
   created_at: string;
+  /** Un espace EST un cercle si et seulement si `join_open`. Pas de table dédiée. */
+  join_open: boolean;
+  join_token: string;
+  join_cap: number | null;
+  join_closes_at: string | null;
+  pitch: string | null;
+  /** Plafond de consultations par jour. `null` = aucune limite, et on n'affiche alors aucun chiffre. */
+  solicit_per_day: number | null;
 }
 
 export interface Member {
@@ -20,6 +28,11 @@ export interface Member {
   email: string | null;
   district: number | null;
   weight: number;
+  /** Jeton stable du membre — son adresse à lui, `/m/<token>`, indépendante de tout événement. */
+  token: string;
+  self_joined: boolean;
+  consent_at: string | null;
+  consent_source: string | null;
 }
 export interface MemberInput {
   name: string;
@@ -115,8 +128,9 @@ export interface EventContext {
   }[];
 }
 
-const SPACE_COLS = "id, name, created_at";
-const MEMBER_COLS = "id, space_id, name, email, district, weight";
+const SPACE_COLS =
+  "id, name, created_at, join_open, join_token, join_cap, join_closes_at, pitch, solicit_per_day";
+const MEMBER_COLS = "id, space_id, name, email, district, weight, token, self_joined, consent_at, consent_source";
 const EVENT_COLS =
   "id, space_id, title, description, mode, status, current_poll_id, opens_at, closes_at, created_at, enroll_open, enroll_cap, enroll_closes_at, enroll_token, quorum, secret_ballot";
 const EVENT_MEMBER_COLS =
@@ -144,6 +158,32 @@ export async function createSpace(name: string): Promise<Space> {
     .single();
   if (error) throw error;
   return data as Space;
+}
+
+/** Réglages d'un espace, dont son ouverture en cercle. */
+export interface SpacePatch {
+  name?: string;
+  join_open?: boolean;
+  join_cap?: number | null;
+  join_closes_at?: string | null;
+  pitch?: string | null;
+  /** `null` = aucun engagement de fréquence ; la page d'adhésion n'affiche alors rien. */
+  solicit_per_day?: number | null;
+}
+
+/**
+ * Met à jour un espace. Peut ÉCHOUER volontairement : un déclencheur en base
+ * refuse d'ouvrir un cercle tant qu'un membre est sans adresse email (il serait
+ * injoignable, donc jamais convoqué et sans moyen de se retirer). L'appelant doit
+ * présenter ce refus, pas l'avaler.
+ */
+export async function updateSpace(id: string, patch: SpacePatch): Promise<void> {
+  const supabase = createClient();
+  const upd: Record<string, unknown> = { ...patch };
+  if (patch.name !== undefined) upd.name = patch.name.trim().slice(0, 120);
+  if (patch.pitch !== undefined) upd.pitch = patch.pitch?.trim().slice(0, 400) || null;
+  const { error } = await supabase.from("scrutin_spaces").update(upd).eq("id", id);
+  if (error) throw error;
 }
 
 export async function listSpaces(): Promise<Space[]> {
