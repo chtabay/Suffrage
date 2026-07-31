@@ -233,10 +233,10 @@ cercle en un clic**, également depuis le pied de chaque email.
 
 | Lot | Contenu | Valeur seule |
 |---|---|---|
-| **1. Le bulletin scellé** | `secret_ballot`, émargement, les 3 RPC modifiées, la policy, la case dans `EventEditor` | N'importe quel espace peut tenir un vote à bulletin secret **démontrable** — sans aucun cercle |
-| **2. L'adhésion** | colonnes espace/membre, index unique, file d'attente, 4 RPC, 3 pages, 3 routes | L'animateur construit son roster seul ; chaque membre a une page de retrait (RGPD) |
-| **3. La consultation de cercle** | `open_circle_consultation` (plafond du jour refusé en base + convocation de tout le roster), relance sur l'émargement | Interroger son cercle en un bouton, sans jamais choisir qui répond, dans la limite que le cercle s'est fixée |
-| **4. Finitions de confiance** | pied de retrait sur tous les emails, badge « auto-inscrit », date de consentement | — |
+| **1. Le bulletin scellé** ✅ | `secret_ballot`, émargement, les 3 RPC modifiées, la policy, la case dans `EventEditor` | N'importe quel espace peut tenir un vote à bulletin secret **démontrable** — sans aucun cercle |
+| **2. L'adhésion** ✅ | colonnes espace/membre, index unique, file d'attente, 4 RPC, 3 pages, 3 routes | L'animateur construit son roster seul ; chaque membre a une page de retrait (RGPD) |
+| **3. La consultation de cercle** ✅ | `open_circle_consultation` (plafond du jour refusé en base + convocation de tout le roster), relance sur l'émargement | Interroger son cercle en un bouton, sans jamais choisir qui répond, dans la limite que le cercle s'est fixée |
+| **4. Finitions de confiance** ✅ | pied de retrait sur tous les emails, badge « auto-inscrit », date de consentement | — |
 
 Ordre imposé : **1 avant 3** (on n'ouvre pas un cercle dont les bulletins ne sont
 pas scellés), **2 avant 3**. Le lot 4 peut se glisser n'importe où, mais pas
@@ -289,6 +289,36 @@ aujourd'hui la colonne est nullable et la convocation filtre les membres sans
 adresse — un tel membre est silencieusement injoignable, jamais convoqué, et sans
 moyen d'exercer son retrait. Ce n'est pas un membre, c'est une donnée
 personnelle orpheline.
+
+---
+
+## État de livraison (2026-07-31)
+
+**Les quatre lots sont livrés.** Commits : `cec1193` (lot 1), `40bda06` +
+`692d1d3` (lot 2), `b0f49e0` (lot 3 + verrou de publication), `87f8cc1` (lot 4).
+Le SQL vit dans `supabase/migrations/` (4 fichiers `20260731-*`).
+
+**Le trou n° 1 de l'annexe est corrigé** (`20260731-polls-verrou-publication.sql`) :
+une policy ne pouvait pas l'exprimer — `WITH CHECK` ne voit que la ligne
+nouvelle, or la règle porte sur le *changement* de `visibility` — d'où un
+déclencheur qui distingue le rôle effectif. Le trou n° 2 est précisément ce que
+le lot 1 rend optionnel.
+
+**Écarts assumés par rapport à cette spec, décidés en cours de route :**
+
+- `open_circle_consultation` refuse aussi un roster de **moins de 5 membres**
+  (`too_small`). La spec ne le prévoyait pas ; sous le seuil de dépouillement la
+  consultation ne pourrait jamais livrer de résultat, et c'est exactement la
+  forme que prend l'attaque par cardinalité.
+- Le plafond du jour compte **tous les événements ouverts** de l'espace
+  (brouillons exclus), pas seulement ceux ouverts par la RPC : la promesse porte
+  sur la boîte mail du membre, pas sur le mécanisme.
+- L'unique relance est appliquée **dans la route** et non en base : la contrainte
+  porte sur l'envoi d'emails, dont cette route est la seule source.
+
+**Un bug préexistant a été corrigé au passage** : `cast_event_ballot` plantait
+sur un convoqué sans district (le client envoie `null`, la colonne est
+`NOT NULL`).
 
 ---
 
