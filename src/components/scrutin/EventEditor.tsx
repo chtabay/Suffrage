@@ -33,6 +33,7 @@ import { splitLeadingEmoji } from "@/lib/voting/draft";
 import { SYSTEM_ORDER } from "@/lib/voting/systems";
 import { OrgShell } from "./SpacesHome";
 import EventResults from "./EventResults";
+import { getNamedAnswers, type NamedAnswers } from "@/lib/db/circles";
 import { CREAM, FONT_BODY, FONT_DISPLAY, GREEN, INK, MUTED, REDTXT, SUBINK } from "./theme";
 
 const card = {
@@ -86,6 +87,7 @@ export default function EventEditor({ eventId }: { eventId: string }) {
   // refuser (seuil). On garde le motif pour l'afficher au lieu d'un résultat vide.
   const [sealed, setSealed] = useState<EventResultsData | null>(null);
   const sealedRef = useRef<EventResultsData | null>(null);
+  const [named, setNamed] = useState<NamedAnswers | null>(null);
 
   /**
    * Lecteur de bulletins d'une consultation SCELLÉE. La policy RESTRICTIVE ferme
@@ -107,6 +109,22 @@ export default function EventEditor({ eventId }: { eventId: string }) {
     },
     [ev],
   );
+
+  // Réponses nominatives : chargées seulement si la consultation n'est PAS
+  // scellée. La RPC refuse de toute façon dans l'autre cas — la garde est en base.
+  useEffect(() => {
+    if (!ev || ev.secret_ballot || ev.status === "draft") {
+      setNamed(null);
+      return;
+    }
+    let cancel = false;
+    void getNamedAnswers(ev.id)
+      .then((r) => !cancel && setNamed(r))
+      .catch(() => !cancel && setNamed(null));
+    return () => {
+      cancel = true;
+    };
+  }, [ev]);
 
   const load = useCallback(async () => {
     if (!user) return;
@@ -649,6 +667,39 @@ export default function EventEditor({ eventId }: { eventId: string }) {
           </div>
         </div>
       )}
+
+      {/* ---- Qui a répondu quoi ----
+          N'existe qu'en mode nominatif, et c'est tout son intérêt : un décompte
+          anonyme ne sert à rien pour organiser une sortie. « Sans réponse » est
+          affiché aussi — c'est souvent l'information la plus utile. */}
+      {named?.status === "ok" &&
+        (named.resolutions ?? []).map((r) => (
+          <div key={r.id} style={{ ...card, marginTop: 16 }}>
+            <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 17 }}>{t("namedAnswersTitle")}</div>
+            <div style={{ fontSize: 12.5, color: MUTED, marginTop: 3 }}>{r.question}</div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 7, marginTop: 12 }}>
+              {r.answers.map((a, i) => {
+                const opts = (r.options ?? []) as { name?: string }[];
+                const grades = (a.grades ?? {}) as Record<string, number>;
+                const picked = Object.keys(grades)
+                  .filter((k) => grades[k] > 0)
+                  .map((k) => opts[Number(k)]?.name ?? k)
+                  .join(", ");
+                return (
+                  <div key={`${a.name}-${i}`} style={{ display: "flex", alignItems: "center", gap: 10, background: CREAM, border: `2px solid ${INK}`, borderRadius: 11, padding: "9px 12px" }}>
+                    <span style={{ fontWeight: 700, fontSize: 14.5, flex: 1 }}>{a.name}</span>
+                    <span style={{ fontSize: 13, color: SUBINK, fontWeight: 700 }}>{picked || "—"}</span>
+                  </div>
+                );
+              })}
+              {r.pending.length > 0 && (
+                <div style={{ fontSize: 13, color: MUTED, marginTop: 4, lineHeight: 1.5 }}>
+                  {t("namedPending", { names: r.pending.join(", ") })}
+                </div>
+              )}
+            </div>
+          </div>
+        ))}
 
       {/* ---- Résultats ---- */}
       {ev.status !== "draft" && (

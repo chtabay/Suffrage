@@ -152,7 +152,7 @@ export default function MemberHome({ token }: { token: string }) {
                 <div style={{ fontWeight: 800, fontSize: 15 }}>{c.title}</div>
                 <div style={{ fontSize: 12.5, color: c.voted ? GREEN : MUTED, fontWeight: 700, marginTop: 3 }}>
                   {c.voted ? t("alreadyVoted") : t("toVote")}
-                  {c.secret_ballot ? ` · ${t("sealedTag")}` : ""}
+                  {c.secret_ballot ? ` · ${t("sealedTag")}` : ` · ${t("namedTag")}`}
                   {c.audience ? ` · ${t("audienceTag", { audience: c.audience })}` : ""}
                 </div>
               </a>

@@ -112,6 +112,7 @@ export default function SpaceDashboard({ spaceId }: { spaceId: string }) {
   // Cible de la prochaine consultation. "" = tout le cercle.
   const [target, setTarget] = useState("");
   const [andAbove, setAndAbove] = useState(true);
+  const [sealed, setSealed] = useState(true);
   const [copiedJoin, setCopiedJoin] = useState(false);
   const [ask, setAsk] = useState("");
   const [askMsg, setAskMsg] = useState("");
@@ -231,6 +232,7 @@ export default function SpaceDashboard({ spaceId }: { spaceId: string }) {
         options: [t("presetFor"), t("presetAgainst"), t("presetAbstain")].map((name) => ({ name })),
         recipe: recipeForSystem("fptp"),
         segmentIds: targetIds(),
+        sealed,
       });
       if (r.status === "ok") {
         setAsk("");
@@ -585,6 +587,23 @@ export default function SpaceDashboard({ spaceId }: { spaceId: string }) {
                   )}
                 </div>
               )}
+              {/* ---- Le régime de réponse. Deux promesses opposées : il faut
+                   choisir, et le votant sera informé de celle qui s'applique. ---- */}
+              <div style={{ display: "flex", gap: 8, marginTop: 10, flexWrap: "wrap" }}>
+                {[true, false].map((mode) => (
+                  <button
+                    key={String(mode)}
+                    onClick={() => setSealed(mode)}
+                    style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 13, cursor: "pointer", border: `2px solid ${INK}`, background: sealed === mode ? INK : "#fff", color: sealed === mode ? "#fff" : INK, padding: "7px 13px", borderRadius: 9 }}
+                  >
+                    {mode ? t("modeSealed") : t("modeNamed")}
+                  </button>
+                ))}
+              </div>
+              <div style={{ fontSize: 12.5, color: MUTED, marginTop: 6, lineHeight: 1.45 }}>
+                {sealed ? t("modeSealedHint") : t("modeNamedHint")}
+              </div>
+
               <div style={{ display: "flex", gap: 10, marginTop: 10, flexWrap: "wrap" }}>
                 <input
                   value={ask}

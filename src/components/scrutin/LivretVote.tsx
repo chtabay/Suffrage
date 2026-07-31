@@ -143,6 +143,30 @@ export default function LivretVote({ token }: { token: string }) {
         </div>
       </div>
 
+      {/* ---- LE RÉGIME, dit avant de voter et jamais après ----
+          Deux promesses opposées cohabitent : scellé, personne ne peut relier
+          votre réponse à vous ; nominatif, l'animateur le voit. Laisser le votant
+          le découvrir après coup serait le tromper — dans un sens comme dans
+          l'autre, car croire au secret quand il n'y en a pas est le pire des deux. */}
+      {ev.secret_ballot !== undefined && (
+        <div
+          style={{
+            ...card,
+            marginTop: 16,
+            background: ev.secret_ballot ? "#eef7ef" : "#fff4e0",
+            borderColor: INK,
+            padding: "14px 18px",
+          }}
+        >
+          <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 15 }}>
+            {ev.secret_ballot ? `🔒 ${t("sealedTitle")}` : `👁 ${t("namedTitle")}`}
+          </div>
+          <div style={{ fontSize: 13.5, color: SUBINK, marginTop: 5, lineHeight: 1.5 }}>
+            {ev.secret_ballot ? t("sealedExplain") : t("namedExplain")}
+          </div>
+        </div>
+      )}
+
       {ev.status === "draft" && (
         <div style={{ ...card, marginTop: 16, background: "#fff4e0" }}>{t("notOpen")}</div>
       )}

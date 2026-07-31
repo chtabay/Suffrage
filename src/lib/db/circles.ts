@@ -102,6 +102,37 @@ export interface OpenConsultationResult {
   min?: number;
   /** Libellé du public visé. `null` = tout le cercle. */
   audience?: string | null;
+  sealed?: boolean;
+}
+
+/** Une réponse nominative : qui a répondu quoi. */
+export interface NamedAnswer {
+  name: string;
+  ranking: unknown;
+  grades: unknown;
+}
+export interface NamedAnswers {
+  /** `sealed` : la consultation est scellée, il n'y a PAS de noms à donner. */
+  status: "ok" | "sealed" | "forbidden" | "invalid";
+  resolutions?: {
+    id: string;
+    question: string;
+    options: unknown;
+    answers: NamedAnswer[];
+    pending: string[];
+  }[];
+}
+
+/**
+ * Qui a répondu quoi — le seul intérêt du mode nominatif.
+ * La RPC REFUSE sur une consultation scellée : la garde est en base, pas ici,
+ * pour qu'un futur branchement au mauvais endroit se heurte à un mur.
+ */
+export async function getNamedAnswers(eventId: string): Promise<NamedAnswers> {
+  const supabase = createClient();
+  const { data, error } = await supabase.rpc("get_event_named_answers", { p_event_id: eventId });
+  if (error) throw error;
+  return (data as NamedAnswers | null) ?? { status: "invalid" };
 }
 
 /**
@@ -119,6 +150,12 @@ export async function openCircleConsultation(args: {
   closesAt?: string | null;
   /** Vide ou absent = tout le cercle. Le seuil de 5 porte sur le public VISÉ. */
   segmentIds?: string[];
+  /**
+   * `true` (défaut) : bulletin scellé, aucun nom, seuil de 5, pas de commentaire.
+   * `false` : réponses nominatives, aucun seuil, commentaires — pour un « qui
+   * vient ? », où un décompte anonyme ne servirait à rien.
+   */
+  sealed?: boolean;
 }): Promise<OpenConsultationResult> {
   const supabase = createClient();
   const { data, error } = await supabase.rpc("open_circle_consultation", {
@@ -129,6 +166,7 @@ export async function openCircleConsultation(args: {
     p_description: args.description ?? null,
     p_closes_at: args.closesAt ?? null,
     p_segment_ids: args.segmentIds?.length ? args.segmentIds : null,
+    p_sealed: args.sealed ?? true,
   });
   if (error) throw error;
   return (data as OpenConsultationResult | null) ?? { status: "invalid" };
