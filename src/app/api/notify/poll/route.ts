@@ -33,10 +33,13 @@ export async function POST(req: Request) {
   const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
   let sent = 0;
   if (base && key) {
-    const res = await fetch(
-      `${base}/rest/v1/scrutin_polls?token=eq.${encodeURIComponent(token)}&select=status,closes_at&limit=1`,
-      { headers: { apikey: key, Authorization: `Bearer ${key}` } },
-    );
+    // Par la RPC : voir get_poll — la lecture directe de la table suppose une
+    // policy ouverte à tous, qui laisse lister les scrutins privés.
+    const res = await fetch(`${base}/rest/v1/rpc/get_poll`, {
+      method: "POST",
+      headers: { apikey: key, Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
+      body: JSON.stringify({ p_token: token }),
+    });
     if (res.ok) {
       const p = ((await res.json()) as { status: string; closes_at: string | null }[])[0];
       const closed = !!p && (p.status === "closed" || (!!p.closes_at && Date.now() >= Date.parse(p.closes_at)));

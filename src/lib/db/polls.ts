@@ -122,16 +122,19 @@ export async function createPoll(
   return { token: data.token as string, secret };
 }
 
-/** Charge un scrutin par son token (null si introuvable). */
+/**
+ * Charge un scrutin par son token (null si introuvable).
+ *
+ * Passe par la RPC `get_poll` et NON par la table : lire directement
+ * `scrutin_polls` suppose une policy ouverte à tous, qui laisse alors lister
+ * les scrutins privés — token compris, c'est-à-dire leur accès. La fonction
+ * rend un scrutin contre son token, et rien d'autre.
+ */
 export async function getPollByToken(token: string): Promise<PollRow | null> {
   const supabase = createClient();
-  const { data, error } = await supabase
-    .from("scrutin_polls")
-    .select(POLL_COLS)
-    .eq("token", token)
-    .maybeSingle();
+  const { data, error } = await supabase.rpc("get_poll", { p_token: token });
   if (error) throw error;
-  return (data as PollRow | null) ?? null;
+  return ((data as PollRow[] | null)?.[0] as PollRow | undefined) ?? null;
 }
 
 export type Phase = "proposals" | "scheduled" | "open" | "closed";

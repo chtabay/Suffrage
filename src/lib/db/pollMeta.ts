@@ -55,11 +55,14 @@ export async function getPollShareInfo(
   // à « closed » et le dépouillement est sauté (0 vote).
   const cacheInit = opts.fresh ? { cache: "no-store" as const } : { next: { revalidate: 30 } };
   try {
-    const res = await fetch(
-      `${base}/rest/v1/scrutin_polls?token=eq.${encodeURIComponent(token)}` +
-        `&select=id,question,description,options,recipe,status,opens_at,closes_at,districts,visibility,hide_results&limit=1`,
-      { headers, ...cacheInit },
-    );
+    // Par la RPC et non par la table : la lecture directe suppose une policy
+    // ouverte à tous, qui laisse lister les scrutins privés avec leur token.
+    const res = await fetch(`${base}/rest/v1/rpc/get_poll`, {
+      method: "POST",
+      headers: { ...headers, "Content-Type": "application/json" },
+      body: JSON.stringify({ p_token: token }),
+      ...cacheInit,
+    });
     if (!res.ok) return null;
     const p = ((await res.json()) as Row[])[0];
     if (!p) return null;
