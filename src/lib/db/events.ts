@@ -253,6 +253,11 @@ export async function addMembers(spaceId: string, members: MemberInput[]): Promi
       email: m.email?.trim() || null,
       district: m.district ?? null,
       weight: Math.max(1, Math.round(m.weight ?? 1)),
+      // Décision 3 de la spec des cercles : un membre ajouté par l'animateur est
+      // marqué comme tel. Il n'a rien demandé — on doit pouvoir le distinguer
+      // d'un adhérent volontaire, et le lui dire dans son premier email.
+      consent_source: "import",
+      consent_at: new Date().toISOString(),
     }));
   if (!rows.length) return [];
   const { data, error } = await supabase.from("scrutin_members").insert(rows).select(MEMBER_COLS);

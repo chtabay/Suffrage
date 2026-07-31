@@ -92,6 +92,16 @@ export default function MemberHome({ token }: { token: string }) {
             {t("promisePace", { n: home.solicit_per_day })}
           </p>
         )}
+        {/* Ce que le cercle sait de vous, et depuis quand. Un membre importé n'a
+            rien demandé : on le lui dit franchement plutôt que de le laisser
+            deviner pourquoi il reçoit ces emails. */}
+        {home.consent_at && (
+          <p style={{ color: MUTED, marginTop: 6, fontSize: 12.5, lineHeight: 1.5 }}>
+            {home.self_joined
+              ? t("memberSince", { date: new Date(home.consent_at).toLocaleDateString(locale) })
+              : t("memberAdded", { date: new Date(home.consent_at).toLocaleDateString(locale) })}
+          </p>
+        )}
       </div>
 
       {open.length > 0 && (

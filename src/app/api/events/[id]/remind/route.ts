@@ -10,6 +10,34 @@ import { reminderEmail } from "@/lib/email/convocation";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
+/**
+ * Résout le lien de RETRAIT de chaque convoqué, pour un cercle uniquement.
+ * La convocation (`scrutin_event_members`) ne porte pas le jeton stable du
+ * membre : il vit sur le roster (`scrutin_members.token`), atteint par
+ * `member_id`. Sans cette résolution, la promesse « vous partez en un clic
+ * depuis n'importe quel email » ne tiendrait que sur les emails d'adhésion.
+ * Renvoie une table vide si l'espace n'est pas un cercle.
+ */
+async function leaveUrlsByEventMember(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  eventMembers: { id: string; member_id: string | null }[],
+  isCircle: boolean,
+  base: string,
+): Promise<Map<string, string>> {
+  const out = new Map<string, string>();
+  if (!isCircle) return out;
+  const rosterIds = eventMembers.map((m) => m.member_id).filter((x): x is string => Boolean(x));
+  if (!rosterIds.length) return out;
+  const { data: roster } = await supabase.from("scrutin_members").select("id, token").in("id", rosterIds);
+  const tokenByRoster = new Map((roster ?? []).map((r) => [r.id as string, r.token as string]));
+  for (const m of eventMembers) {
+    const tok = m.member_id ? tokenByRoster.get(m.member_id) : undefined;
+    if (tok) out.set(m.id, `${base}/m/${tok}?quitter=1`);
+  }
+  return out;
+}
+
+
 export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const body = (await req.json().catch(() => ({}))) as { locale?: string };
@@ -53,10 +81,16 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
   // Cible : membres convoqués, avec email, n'ayant pas encore voté.
   const { data: members } = await supabase
     .from("scrutin_event_members")
-    .select("id, name, email, token, invited_at")
+    .select("id, name, email, token, invited_at, member_id")
     .eq("event_id", id);
   const pending = (members ?? []).filter((m) => m.email && m.invited_at && !voted.has(m.id as string));
   const base = loc === "fr" ? APP_URL : `${APP_URL}/${loc}`;
+  const leaveUrls = await leaveUrlsByEventMember(
+    supabase,
+    pending as { id: string; member_id: string | null }[],
+    Boolean(space?.join_open),
+    base,
+  );
 
   let sent = 0;
   for (const m of pending) {
@@ -64,6 +98,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
       eventTitle: ev.title as string,
       memberName: m.name as string,
       voteUrl: `${base}/e/${m.token}`,
+      leaveUrl: leaveUrls.get(m.id as string),
     });
     const ok = await sendEmail({
       to: m.email as string,

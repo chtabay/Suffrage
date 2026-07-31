@@ -4,12 +4,32 @@ interface Args {
   eventTitle: string;
   memberName: string;
   voteUrl: string;
+  /**
+   * Lien de retrait, pour les membres d'un CERCLE uniquement. On a promis sur la
+   * page d'adhésion « vous partez en un clic, depuis n'importe quel email » : la
+   * promesse ne vaut que si elle est tenue sur CHAQUE email, y compris les
+   * convocations et les relances — pas seulement sur ceux du parcours d'adhésion.
+   * Absent pour une assemblée classique, où l'on ne quitte pas un corps électoral.
+   */
+  leaveUrl?: string;
 }
 
 type Parts = { subject: string; intro: string; cta: string; outro: string };
 
+// Le pied de retrait est localisé ici et non dans chaque gabarit : il doit être
+// impossible d'ajouter un email en oubliant de le mettre.
+const LEAVE_LINE: Record<string, string> = {
+  fr: "Vous ne souhaitez plus faire partie de ce cercle ? Partez en un clic :",
+  en: "No longer want to be part of this circle? Leave in one click:",
+  es: "¿Ya no quieres formar parte de este círculo? Sal con un clic:",
+  pcm: "You no wan dey dis circle again? Comot with one click:",
+};
+
 // Gabarit HTML commun. Logotype texte (pas d'emoji), cohérent avec la marque.
-function build(parts: Parts, url: string): { subject: string; html: string } {
+function build(parts: Parts, url: string, locale?: string, leaveUrl?: string): { subject: string; html: string } {
+  const foot = leaveUrl
+    ? `<p style="font-size:12px;color:#5b6379;line-height:1.5;margin:22px 0 0;border-top:1px solid #e6e6e6;padding-top:14px">${LEAVE_LINE[locale ?? "fr"] ?? LEAVE_LINE.fr} <a href="${leaveUrl}" style="color:#16213A">${leaveUrl}</a></p>`
+    : "";
   const html = `<div style="font-family:Arial,Helvetica,sans-serif;max-width:520px;margin:0 auto;color:#16213A;padding:8px">
   <div style="font-size:22px;font-weight:800;color:#16213A;margin-bottom:18px;letter-spacing:-0.02em">Placet</div>
   <p style="font-size:15px;line-height:1.6;margin:0 0 8px">${parts.intro}</p>
@@ -17,6 +37,7 @@ function build(parts: Parts, url: string): { subject: string; html: string } {
     <a href="${url}" style="display:inline-block;background:#16213A;color:#ffffff;font-weight:700;font-size:16px;text-decoration:none;padding:14px 28px;border-radius:10px">${parts.cta}</a>
   </p>
   <p style="font-size:12px;color:#5b6379;line-height:1.5;margin:0">${parts.outro}<br><a href="${url}" style="color:#16213A">${url}</a></p>
+  ${foot}
 </div>`;
   return { subject: parts.subject, html };
 }
@@ -44,7 +65,7 @@ const CONVOKE: Record<string, (a: Args) => Parts> = {
 };
 
 export function convocationEmail(locale: string, a: Args): { subject: string; html: string } {
-  return build((CONVOKE[locale] ?? CONVOKE.fr)(a), a.voteUrl);
+  return build((CONVOKE[locale] ?? CONVOKE.fr)(a), a.voteUrl, locale, a.leaveUrl);
 }
 
 // ------------------------------------------------------- confirmation d'inscription
@@ -71,7 +92,7 @@ const ENROLL: Record<string, (a: Args) => Parts> = {
 };
 
 export function enrollEmail(locale: string, a: Args): { subject: string; html: string } {
-  return build((ENROLL[locale] ?? ENROLL.fr)(a), a.voteUrl);
+  return build((ENROLL[locale] ?? ENROLL.fr)(a), a.voteUrl, locale, a.leaveUrl);
 }
 
 // ----------------------------------------------------------------- relance
@@ -98,5 +119,5 @@ const REMIND: Record<string, (a: Args) => Parts> = {
 };
 
 export function reminderEmail(locale: string, a: Args): { subject: string; html: string } {
-  return build((REMIND[locale] ?? REMIND.fr)(a), a.voteUrl);
+  return build((REMIND[locale] ?? REMIND.fr)(a), a.voteUrl, locale, a.leaveUrl);
 }

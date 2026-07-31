@@ -1,6 +1,6 @@
 "use client";
 
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useRouter } from "@/i18n/navigation";
 import { useAuth } from "@/lib/auth/useAuth";
@@ -86,6 +86,7 @@ function buildPreview(text: string, existing: Member[]): ParsedRow[] {
 
 export default function SpaceDashboard({ spaceId }: { spaceId: string }) {
   const t = useTranslations("Org");
+  const locale = useLocale();
   const router = useRouter();
   const { user, loading } = useAuth();
   const [space, setSpace] = useState<Space | null>(null);
@@ -258,6 +259,21 @@ export default function SpaceDashboard({ spaceId }: { spaceId: string }) {
           {members.map((m) => (
             <div key={m.id} style={{ display: "flex", alignItems: "center", gap: 10, background: CREAM, border: `2px solid ${INK}`, borderRadius: 11, padding: "9px 12px" }}>
               <span style={{ fontWeight: 700, fontSize: 14.5, flex: 1 }}>{m.name}</span>
+              {/* D'où vient ce membre, et depuis quand. Un adhérent volontaire et
+                  une ligne importée n'ont pas le même statut : la distinction doit
+                  être visible pour celui qui écrit au cercle. */}
+              {m.self_joined && (
+                <span title={m.consent_at ? t("consentOn", { date: new Date(m.consent_at).toLocaleDateString(locale) }) : undefined}
+                      style={{ fontSize: 11, fontWeight: 800, color: GREEN, border: `1.5px solid ${GREEN}`, borderRadius: 7, padding: "1px 6px", whiteSpace: "nowrap" }}>
+                  {t("tagSelfJoined")}
+                </span>
+              )}
+              {!m.self_joined && m.consent_source === "import" && (
+                <span title={m.consent_at ? t("consentAdded", { date: new Date(m.consent_at).toLocaleDateString(locale) }) : undefined}
+                      style={{ fontSize: 11, fontWeight: 800, color: MUTED, border: `1.5px solid ${MUTED}`, borderRadius: 7, padding: "1px 6px", whiteSpace: "nowrap" }}>
+                  {t("tagImported")}
+                </span>
+              )}
               {m.email && <span style={{ color: MUTED, fontSize: 12.5 }}>{m.email}</span>}
               {m.weight > 1 && <span style={{ color: SUBINK, fontSize: 12.5, fontWeight: 700 }}>×{m.weight}</span>}
               <button onClick={() => onRemoveMember(m.id)} title={t("remove")} style={{ border: "none", background: "none", color: REDTXT, cursor: "pointer", fontSize: 17, lineHeight: 1 }}>×</button>
