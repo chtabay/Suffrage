@@ -195,6 +195,13 @@ interface TallyResult {
   winner: number;
   condorcetNull?: boolean;
   smith?: number[];
+  /**
+   * Options EX ÆQUO en tête (2 ou plus). Calculé ici et nulle part ailleurs :
+   * seul le décompte sait comment l'ordre a été produit. Comparer `vals` de
+   * l'extérieur serait faux pour le jugement majoritaire, où `vals` porte la
+   * médiane alors que le classement vient du retrait successif des médianes.
+   */
+  tied?: number[];
 }
 
 /** Décompte mono-vainqueur restreint à un sous-ensemble de candidats. */
@@ -241,7 +248,8 @@ function tally(
       return 0;
     };
     const order = cands.slice().sort(cmp);
-    return { vals, order, winner: order[0] };
+    const tiedMj = order.filter((c) => cmp(order[0], c) === 0);
+    return { vals, order, winner: order[0], tied: tiedMj.length > 1 ? tiedMj : undefined };
   } else if (method === "condorcet") {
     const m = cands.length;
     const mat = Array.from({ length: m }, () => Array(m).fill(0));
@@ -300,7 +308,11 @@ function tally(
   }
 
   const order = cands.slice().sort((a, b) => vals[b] - vals[a]);
-  return { vals, order, winner: order[0] };
+  // Un vainqueur de Condorcet bat TOUTES les autres : son score de Copeland est
+  // strictement le plus haut. Ce test ne peut donc pas inventer une égalité là
+  // où le critère de Condorcet a tranché.
+  const tied = order.filter((c) => vals[c] === vals[order[0]]);
+  return { vals, order, winner: order[0], tied: tied.length > 1 ? tied : undefined };
 }
 
 // ---------- contexte & barres ----------
@@ -346,6 +358,53 @@ const toVals = (arr: number[]): Record<number, number> => {
 };
 
 /** Dépouille l'urne selon la recette. `null` si aucun bulletin. */
+/**
+ * Bloc « personne n'a gagné » pour une ÉGALITÉ PARFAITE.
+ *
+ * Le moteur déclarait jusqu'ici `hasWinner: true` en toutes circonstances hors
+ * paradoxe de Condorcet : à égalité, la première du tri était sacrée vainqueur.
+ * C'était faux, et contraire à ce que les fiches de méthode promettent — « aucune
+ * règle interne ne tranche, Placet affiche l'égalité plutôt que d'inventer un
+ * vainqueur ». Départager relève d'une règle EXTÉRIEURE au scrutin (tirage au
+ * sort, voix prépondérante, ancienneté) : l'outil ne peut pas la choisir à la
+ * place du groupe, il doit dire qu'elle est nécessaire.
+ */
+function tieResult(
+  base: { color: string; methodName: string; methodKey: string },
+  names: string[],
+  resBars: ResultBar[],
+  tallyLabel: string,
+  steps: ResultStep[],
+  stepNo: number,
+  locale: string,
+): ComputeResult {
+  const list = names.join(", ");
+  return {
+    ...base,
+    hasWinner: false,
+    noWinner: true,
+    noWinnerLabel: pickLocale(locale, { fr: "Égalité", en: "Tie", es: "Empate" }),
+    bars: resBars,
+    tallyLabel,
+    steps: [
+      ...steps,
+      {
+        n: stepNo,
+        text: pickLocale(locale, {
+          fr: `Égalité parfaite : ${list}. Aucune règle interne ne départage — il faut un départage extérieur au scrutin (tirage au sort, voix prépondérante).`,
+          en: `Exact tie: ${list}. No internal rule settles it — an external tie-break is needed (a draw, a casting vote).`,
+          es: `Empate exacto: ${list}. Ninguna regla interna decide — hace falta un desempate externo (sorteo, voto de calidad).`,
+        }),
+      },
+    ],
+    counterfactual: pickLocale(locale, {
+      fr: "Une égalité n'est pas un échec du vote : c'est une information. Le groupe n'a pas tranché.",
+      en: "A tie is not a failed vote: it is information. The group has not decided.",
+      es: "Un empate no es un fracaso de la votación: es información. El grupo no ha decidido.",
+    }),
+  };
+}
+
 export function compute(ctx: ComputeCtx, locale: string = "fr"): ComputeResult | null {
   const { recipe: r, options: opts, ballots } = ctx;
   const scaleDef = resolveScale(r, locale);
@@ -385,9 +444,19 @@ export function compute(ctx: ComputeCtx, locale: string = "fr"): ComputeResult |
     const seats = alloc.slice();
     seats[win] += bonus;
     const w = opts[win];
+    // Égalité en TÊTE : c'est le rang qui donne la prime majoritaire, donc à
+    // égalité de voix c'est toute la répartition des sièges qui est arbitraire,
+    // pas seulement le nom du vainqueur.
+    const tieLead = all.filter((i) => votes[i] === votes[win]).length > 1;
     return {
       ...res,
-      hasWinner: true,
+      hasWinner: !tieLead,
+      ...(tieLead
+        ? {
+            noWinner: true,
+            noWinnerLabel: pickLocale(locale, { fr: "Égalité en tête", en: "Tie for the lead", es: "Empate en cabeza" }),
+          }
+        : {}),
       winnerName: pickLocale(locale, {
         fr: `${w.name} — ${seats[win]} sièges`,
         en: `${w.name} — ${seats[win]} seat${seats[win] > 1 ? "s" : ""}`,
@@ -461,9 +530,18 @@ export function compute(ctx: ComputeCtx, locale: string = "fr"): ComputeResult |
       }),
     );
     const w = allBars[0];
+    // La répartition reste valide et complète : seule la « première liste » est
+    // indécidable. On ne couronne personne, on montre l'assemblée.
+    const tieSeats = allBars.length > 1 && allBars[1].value === w.value;
     return {
       ...res,
-      hasWinner: true,
+      hasWinner: !tieSeats,
+      ...(tieSeats
+        ? {
+            noWinner: true,
+            noWinnerLabel: pickLocale(locale, { fr: "Égalité en sièges", en: "Tie on seats", es: "Empate en escaños" }),
+          }
+        : {}),
       winnerName: pickLocale(locale, {
         fr: `${w.name} — ${w.value} sièges`,
         en: `${w.name} — ${w.value} seat${w.value > 1 ? "s" : ""}`,
@@ -548,9 +626,22 @@ export function compute(ctx: ComputeCtx, locale: string = "fr"): ComputeResult |
     let popW = 0;
     for (let i = 1; i < n; i++) if (pop[i] > pop[popW]) popW = i;
     const upset = w.idx !== popW;
+    // Égalité de grands électeurs : c'est le cas qui, aux États-Unis, renverrait
+    // l'élection devant la Chambre. Aucune règle interne au scrutin ne tranche.
+    const tieElectors = allBars.length > 1 && allBars[1].value === w.value;
     return {
       ...res,
-      hasWinner: true,
+      hasWinner: !tieElectors,
+      ...(tieElectors
+        ? {
+            noWinner: true,
+            noWinnerLabel: pickLocale(locale, {
+              fr: "Égalité de grands électeurs",
+              en: "Tie in the electoral college",
+              es: "Empate de compromisarios",
+            }),
+          }
+        : {}),
       winnerName: w.name,
       winnerIcon: w.icon,
       bars: allBars,
@@ -739,6 +830,21 @@ export function compute(ctx: ComputeCtx, locale: string = "fr"): ComputeResult |
     (round1
       ? pickLocale(locale, { fr: " — 2nd tour", en: " — second round", es: " — segunda vuelta" })
       : "");
+
+  // Égalité parfaite : on le dit, au lieu de couronner la tête du tri. Placé
+  // AVANT le paradoxe de Condorcet, qui a son propre libellé plus précis —
+  // sauf que le paradoxe n'est pas une égalité, d'où l'ordre inverse ci-dessous.
+  if (t.tied && t.tied.length > 1 && !(method === "condorcet" && t.condorcetNull)) {
+    return tieResult(
+      res,
+      t.tied.map((c) => opts[c].name),
+      resBars,
+      tallyLabel,
+      steps,
+      sN,
+      locale,
+    );
+  }
 
   if (method === "condorcet" && t.condorcetNull && !r.random) {
     const smith = t.smith ?? [];
