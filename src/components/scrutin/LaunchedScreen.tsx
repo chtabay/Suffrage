@@ -8,7 +8,7 @@ import InstallInline from "@/components/pwa/InstallInline";
 import ShareRow from "./ShareRow";
 import QrCode from "./QrCode";
 import { shareUrl, trackShare } from "@/lib/db/track";
-import { CREAM, FONT_BODY, FONT_DISPLAY, GREEN, INK, MUTED, YELLOW, lift } from "./theme";
+import { CREAM, FONT_BODY, FONT_DISPLAY, GREEN, GREENTXT, INK, MUTED, YELLOW, lift } from "./theme";
 
 function CopyRow({ url, label, hint }: { url: string; label: string; hint?: string }) {
   const t = useTranslations("Launched");
@@ -59,7 +59,7 @@ function CopyRow({ url, label, hint }: { url: string; label: string; hint?: stri
             fontSize: 14,
             cursor: "pointer",
             border: `2.5px solid ${INK}`,
-            background: copied ? GREEN : YELLOW,
+            background: copied ? GREENTXT : YELLOW,
             color: copied ? "#fff" : INK,
             padding: "11px 16px",
             borderRadius: 11,
@@ -130,7 +130,7 @@ function VoterRow({ label, url }: { label: string; url: string }) {
           fontSize: 12.5,
           cursor: "pointer",
           border: `2px solid ${INK}`,
-          background: copied ? GREEN : YELLOW,
+          background: copied ? GREENTXT : YELLOW,
           color: copied ? "#fff" : INK,
           padding: "8px 12px",
           borderRadius: 9,
@@ -167,7 +167,7 @@ function CopyAllVoterLinks({ links }: { links: { label: string; url: string }[] 
         fontSize: 12,
         cursor: "pointer",
         border: `2px solid ${INK}`,
-        background: copied ? GREEN : "#fff",
+        background: copied ? GREENTXT : "#fff",
         color: copied ? "#fff" : INK,
         padding: "5px 11px",
         borderRadius: 9,

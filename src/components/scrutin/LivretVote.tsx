@@ -20,7 +20,7 @@ import BallotCard, { EMPTY_DRAFT, type BallotDraft } from "./BallotCard";
 import { ASSIGN_METHODS, isAssignMethod } from "@/lib/assign/methods";
 import EventResults from "./EventResults";
 import PlacetMark from "./PlacetMark";
-import { CREAM, FONT_BODY, FONT_DISPLAY, GREEN, INK, MUTED, SUBINK } from "./theme";
+import { CREAM, FONT_BODY, FONT_DISPLAY, GREEN, GREENTXT, INK, MUTED, SUBINK } from "./theme";
 
 type Resolution = EventContext["resolutions"][number];
 
@@ -203,8 +203,8 @@ export default function LivretVote({ token }: { token: string }) {
               {res.description && <div style={{ fontSize: 14, color: MUTED, marginTop: 6, lineHeight: 1.5 }}>{res.description}</div>}
 
               {isVoted ? (
-                <div style={{ marginTop: 14, display: "inline-flex", alignItems: "center", gap: 8, fontWeight: 700, color: GREEN }}>
-                  <span style={{ width: 24, height: 24, borderRadius: "50%", background: GREEN, color: "#fff", display: "inline-flex", alignItems: "center", justifyContent: "center", fontWeight: 800 }}>✓</span>
+                <div style={{ marginTop: 14, display: "inline-flex", alignItems: "center", gap: 8, fontWeight: 700, color: GREENTXT }}>
+                  <span style={{ width: 24, height: 24, borderRadius: "50%", background: GREENTXT, color: "#fff", display: "inline-flex", alignItems: "center", justifyContent: "center", fontWeight: 800 }}>✓</span>
                   {t("voted")}
                 </div>
               ) : locked ? (

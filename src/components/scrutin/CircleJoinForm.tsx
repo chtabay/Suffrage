@@ -10,7 +10,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { getCircleInfo, type CircleInfo } from "@/lib/db/circles";
 import PlacetMark from "./PlacetMark";
-import { CREAM, FONT_BODY, FONT_DISPLAY, GREEN, INK, MUTED, SUBINK } from "./theme";
+import { CREAM, FONT_BODY, FONT_DISPLAY, GREEN, GREENTXT, INK, MUTED, SUBINK } from "./theme";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -152,7 +152,7 @@ export default function CircleJoinForm({ token }: { token: string }) {
         <ul style={{ margin: "14px 0 0", padding: 0, listStyle: "none", display: "grid", gap: 7 }}>
           {[t("promiseEmail"), t("promiseSecret"), t("promiseLeave")].map((line) => (
             <li key={line} style={{ display: "flex", gap: 9, fontSize: 13.5, color: SUBINK, lineHeight: 1.45 }}>
-              <span aria-hidden style={{ color: GREEN, fontWeight: 900 }}>✓</span>
+              <span aria-hidden style={{ color: GREENTXT, fontWeight: 900 }}>✓</span>
               <span>{line}</span>
             </li>
           ))}
@@ -160,7 +160,7 @@ export default function CircleJoinForm({ token }: { token: string }) {
               Jamais un chiffre générique promis par Placet à sa place. */}
           {info.solicit_per_day != null && (
             <li style={{ display: "flex", gap: 9, fontSize: 13.5, color: SUBINK, lineHeight: 1.45 }}>
-              <span aria-hidden style={{ color: GREEN, fontWeight: 900 }}>✓</span>
+              <span aria-hidden style={{ color: GREENTXT, fontWeight: 900 }}>✓</span>
               <span>{t("promisePace", { n: info.solicit_per_day })}</span>
             </li>
           )}

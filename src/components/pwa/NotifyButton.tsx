@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { subscribeNotifications, useNotify } from "@/lib/pwa/notify";
-import { CREAM, FONT_BODY, GREEN, INK, MUTED } from "@/components/scrutin/theme";
+import { CREAM, FONT_BODY, GREENTXT, INK, MUTED } from "@/components/scrutin/theme";
 
 type State = "idle" | "busy" | "done" | "denied" | "error";
 
@@ -55,7 +55,7 @@ export default function NotifyButton({
         border: `2px solid ${INK}`,
         borderRadius: 11,
         padding: "10px 16px",
-        background: done ? GREEN : CREAM,
+        background: done ? GREENTXT : CREAM,
         color: done ? "#fff" : INK,
         opacity: state === "denied" ? 0.6 : 1,
       }}

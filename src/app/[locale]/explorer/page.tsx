@@ -11,7 +11,11 @@ export const revalidate = 60;
 
 const INK = "#16213A";
 const CREAM = "#FBF6EC";
+// GREEN reste l'aplat vif (ombre portée), GREENTXT le vert LISIBLE : blanc sur
+// #5DBB2E ne fait que 2,44:1, sous la barre AA de 4,5. Valeurs dupliquées ici
+// parce que cette page serveur n'importe pas le thème — à réunifier un jour.
 const GREEN = "#5DBB2E";
+const GREENTXT = "#1c7f45";
 const MUTED = "#5b6379";
 const SUBINK = "#3a4258";
 const CORAL = "#E23E3B";
@@ -67,7 +71,7 @@ export default async function ExplorerPage({ params }: { params: Promise<{ local
         display: "inline-flex",
         alignItems: "center",
         gap: 6,
-        background: open ? GREEN : INK,
+        background: open ? GREENTXT : INK,
         color: "#fff",
         border: `2px solid ${INK}`,
         borderRadius: 20,

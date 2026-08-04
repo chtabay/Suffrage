@@ -5,7 +5,7 @@ import { candColor } from "@/lib/voting/systems";
 import { optionIllustration, optionPlace } from "@/lib/voting/geo";
 import { resolveScale, textOn } from "@/lib/voting/scales";
 import type { BallotMode, Option } from "@/lib/voting/types";
-import { CREAM, FONT_BODY, FONT_DISPLAY, GREEN, INK, MUTED } from "./theme";
+import { CREAM, FONT_BODY, FONT_DISPLAY, GREENTXT, INK, MUTED } from "./theme";
 
 const PICKED = "#FFF4DF";
 
@@ -226,7 +226,7 @@ export default function BallotCard({
                   flex: "none",
                   borderRadius: 7,
                   border: `2.5px solid ${INK}`,
-                  background: on ? GREEN : "transparent",
+                  background: on ? GREENTXT : "transparent",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",

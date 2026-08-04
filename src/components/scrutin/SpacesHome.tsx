@@ -6,7 +6,7 @@ import { Link } from "@/i18n/navigation";
 import { useAuth } from "@/lib/auth/useAuth";
 import { createSpace, listSpacesWithStats, type SpaceStats } from "@/lib/db/events";
 import PlacetMark from "./PlacetMark";
-import { CREAM, FONT_BODY, FONT_DISPLAY, GREEN, INK, MUTED, REDTXT, SUBINK } from "./theme";
+import { CREAM, FONT_BODY, FONT_DISPLAY, GREENTXT, INK, MUTED, REDTXT, SUBINK } from "./theme";
 
 const card = {
   background: "#fff",
@@ -118,7 +118,7 @@ export default function SpacesHome() {
           <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 22 }}>{t("recoveryTitle")}</div>
           {recState === "done" ? (
             <>
-              <div style={{ color: GREEN, fontWeight: 700, marginTop: 12 }}>{t("recoveryDone")}</div>
+              <div style={{ color: GREENTXT, fontWeight: 700, marginTop: 12 }}>{t("recoveryDone")}</div>
               <button
                 onClick={() => setRecovery(false)}
                 className="dc-bright"
@@ -185,7 +185,7 @@ export default function SpacesHome() {
             {pwTab === "magic" ? (
               <>
                 {magic === "sent" ? (
-                  <div style={{ color: GREEN, fontWeight: 700, fontSize: 14, lineHeight: 1.5 }}>{t("magicSent", { email: email.trim() })}</div>
+                  <div style={{ color: GREENTXT, fontWeight: 700, fontSize: 14, lineHeight: 1.5 }}>{t("magicSent", { email: email.trim() })}</div>
                 ) : (
                   <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
                     <input
@@ -261,8 +261,8 @@ export default function SpacesHome() {
                   )}
                 </div>
                 {pwState === "error" && <div style={{ color: REDTXT, fontWeight: 700, fontSize: 13.5, marginTop: 9 }}>{t("pwError")}</div>}
-                {pwState === "confirm" && <div style={{ color: GREEN, fontWeight: 700, fontSize: 13.5, marginTop: 9, lineHeight: 1.5 }}>{t("pwConfirm", { email: email.trim() })}</div>}
-                {pwState === "reset" && <div style={{ color: GREEN, fontWeight: 700, fontSize: 13.5, marginTop: 9, lineHeight: 1.5 }}>{t("pwResetSent", { email: email.trim() })}</div>}
+                {pwState === "confirm" && <div style={{ color: GREENTXT, fontWeight: 700, fontSize: 13.5, marginTop: 9, lineHeight: 1.5 }}>{t("pwConfirm", { email: email.trim() })}</div>}
+                {pwState === "reset" && <div style={{ color: GREENTXT, fontWeight: 700, fontSize: 13.5, marginTop: 9, lineHeight: 1.5 }}>{t("pwResetSent", { email: email.trim() })}</div>}
                 <div style={{ marginTop: 9, fontSize: 12, color: MUTED }}>{t("pwMin")}</div>
               </>
             )}
@@ -352,7 +352,7 @@ export default function SpacesHome() {
             </div>
             <div style={{ display: "flex", gap: 12, flexWrap: "wrap", fontSize: 13, color: SUBINK, fontWeight: 600 }}>
               <span>{t("memberCount", { count: s.members })}</span>
-              {s.events_open > 0 && <span style={{ color: GREEN }}>{t("statOpen", { count: s.events_open })}</span>}
+              {s.events_open > 0 && <span style={{ color: GREENTXT }}>{t("statOpen", { count: s.events_open })}</span>}
               {s.events_closed > 0 && <span>{t("statClosed", { count: s.events_closed })}</span>}
               {s.events_draft > 0 && <span style={{ color: MUTED }}>{t("statDraft", { count: s.events_draft })}</span>}
             </div>

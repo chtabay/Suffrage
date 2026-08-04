@@ -9,20 +9,7 @@ import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { addArgument, type Argument, type Stance } from "@/lib/db/arguments";
 import type { Option } from "@/lib/voting/types";
-import {
-  CORAL,
-  CREAM,
-  FONT_BODY,
-  FONT_DISPLAY,
-  GREEN,
-  GREENTXT,
-  INK,
-  MUTED,
-  REDTXT,
-  SUBINK,
-  YELLOW,
-  lift,
-} from "./theme";
+import { CORAL, CREAM, FONT_BODY, FONT_DISPLAY, GREEN, GREENTXT, INK, MUTED, REDTXT, SUBINK, YELLOW, lift } from "./theme";
 
 interface Props {
   token: string;
@@ -185,7 +172,7 @@ function AddArgumentForm({ token, options, onAdded }: { token: string; options: 
             ))}
           </div>
           <div style={{ display: "flex", gap: 8, marginTop: 12 }}>
-            {stanceBtn("pro", GREEN, `👍 ${t("arguePro")}`)}
+            {stanceBtn("pro", GREENTXT, `👍 ${t("arguePro")}`)}
             {stanceBtn("con", CORAL, `👎 ${t("argueCon")}`)}
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: 9, marginTop: 12 }}>

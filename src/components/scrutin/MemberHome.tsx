@@ -8,7 +8,7 @@ import { useSearchParams } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { getMemberHome, leaveCircle, type MemberHome as Home } from "@/lib/db/circles";
 import { CircleShell } from "./CircleJoinForm";
-import { FONT_DISPLAY, GREEN, INK, MUTED, REDTXT, SUBINK } from "./theme";
+import { FONT_DISPLAY, GREENTXT, INK, MUTED, REDTXT, SUBINK } from "./theme";
 
 const card = {
   background: "#fff",
@@ -150,7 +150,7 @@ export default function MemberHome({ token }: { token: string }) {
                 style={{ display: "block", textDecoration: "none", color: INK, border: `2px solid ${INK}`, borderRadius: 12, padding: "12px 14px" }}
               >
                 <div style={{ fontWeight: 800, fontSize: 15 }}>{c.title}</div>
-                <div style={{ fontSize: 12.5, color: c.voted ? GREEN : MUTED, fontWeight: 700, marginTop: 3 }}>
+                <div style={{ fontSize: 12.5, color: c.voted ? GREENTXT : MUTED, fontWeight: 700, marginTop: 3 }}>
                   {c.voted ? t("alreadyVoted") : t("toVote")}
                   {c.secret_ballot ? ` · ${t("sealedTag")}` : ` · ${t("namedTag")}`}
                   {c.audience ? ` · ${t("audienceTag", { audience: c.audience })}` : ""}

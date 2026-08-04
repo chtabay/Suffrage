@@ -5,7 +5,7 @@ import { useTranslations } from "next-intl";
 import WhatsAppShare from "./WhatsAppShare";
 import ShareButton from "./ShareButton";
 import { shareUrl, trackShare } from "@/lib/db/track";
-import { CREAM, FONT_DISPLAY, GREEN, INK } from "./theme";
+import { CREAM, FONT_DISPLAY, GREENTXT, INK } from "./theme";
 
 // Rangée de partage du lien de vote : (option « copier le lien ») + WhatsApp
 // (lien direct) + partage natif de l'OS (si l'API Web Share existe). Réutilisée
@@ -68,7 +68,7 @@ export default function ShareRow({
             fontFamily: FONT_DISPLAY,
             fontWeight: 700,
             border: `2.5px solid ${INK}`,
-            background: copied ? GREEN : CREAM,
+            background: copied ? GREENTXT : CREAM,
             color: copied ? "#fff" : INK,
             ...(iconOnly ? iconBtn : { fontSize: 15, padding: "12px 16px", borderRadius: 12 }),
           }}

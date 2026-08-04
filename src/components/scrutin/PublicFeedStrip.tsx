@@ -5,7 +5,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { intlLocale } from "@/i18n/locales";
 import { cardIntent, cardIsOpen, getPublicPolls, type CardIntent, type PublicPollCard } from "@/lib/db/publicFeed";
-import { CORAL, FONT_DISPLAY, GREEN, INK, MUTED, PAPER, lift } from "./theme";
+import { CORAL, FONT_DISPLAY, GREEN, GREENTXT, INK, MUTED, PAPER, lift } from "./theme";
 
 // Taxonomie de l'accueil, portée jusqu'au feed : on sait ce qu'on va y FAIRE.
 const INTENT_BADGE: Record<CardIntent, { color: string; icon: string; labelKey: string }> = {
@@ -104,7 +104,7 @@ export default function PublicFeedStrip() {
                     style={{
                       display: "inline-flex",
                       alignItems: "center",
-                      background: open ? GREEN : INK,
+                      background: open ? GREENTXT : INK,
                       color: "#fff",
                       border: `2px solid ${INK}`,
                       borderRadius: 20,

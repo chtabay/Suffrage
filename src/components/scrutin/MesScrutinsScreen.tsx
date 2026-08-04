@@ -20,7 +20,7 @@ import NotifyButton from "@/components/pwa/NotifyButton";
 import BrandSettings from "./BrandSettings";
 import ShareRow from "./ShareRow";
 import { intlLocale } from "@/i18n/locales";
-import { CREAM, FONT_DISPLAY, GREEN, INK, MUTED, REDTXT, SUBINK, YELLOW } from "./theme";
+import { CREAM, FONT_DISPLAY, GREEN, GREENTXT, INK, MUTED, REDTXT, SUBINK, YELLOW } from "./theme";
 
 interface Item {
   token: string;
@@ -377,7 +377,7 @@ export default function MesScrutinsScreen({ ctrl, auth }: { ctrl: ScrutinControl
                       fontSize: 12.5,
                       cursor: "pointer",
                       border: `2px solid ${INK}`,
-                      background: GREEN,
+                      background: GREENTXT,
                       color: "#fff",
                       padding: "7px 12px",
                       borderRadius: 9,

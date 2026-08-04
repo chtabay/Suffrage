@@ -33,7 +33,7 @@ import { OrgShell } from "./SpacesHome";
 import EventResults from "./EventResults";
 import QuestionComposer, { type ComposedQuestion } from "./QuestionComposer";
 import { getNamedAnswers, type NamedAnswers } from "@/lib/db/circles";
-import { CREAM, FONT_BODY, FONT_DISPLAY, GREEN, INK, MUTED, REDTXT, SUBINK } from "./theme";
+import { CREAM, FONT_BODY, FONT_DISPLAY, GREEN, GREENTXT, INK, MUTED, REDTXT, SUBINK } from "./theme";
 
 const card = {
   background: "#fff",
@@ -351,7 +351,7 @@ export default function EventEditor({ eventId }: { eventId: string }) {
       )}
       <div style={{ display: "flex", alignItems: "center", gap: 12, margin: "10px 0 0", flexWrap: "wrap" }}>
         <h1 style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: "clamp(24px,5vw,34px)", letterSpacing: "-0.03em", margin: 0 }}>{ev.title}</h1>
-        <span style={{ fontSize: 12, fontWeight: 800, color: "#fff", background: ev.status === "open" ? GREEN : INK, padding: "5px 11px", borderRadius: 20, textTransform: "uppercase", letterSpacing: "0.04em" }}>{t(statusKey)}</span>
+        <span style={{ fontSize: 12, fontWeight: 800, color: "#fff", background: ev.status === "open" ? GREENTXT : INK, padding: "5px 11px", borderRadius: 20, textTransform: "uppercase", letterSpacing: "0.04em" }}>{t(statusKey)}</span>
         <span style={{ fontSize: 12, fontWeight: 800, color: INK, background: "#FFE08A", padding: "5px 11px", borderRadius: 20, textTransform: "uppercase", letterSpacing: "0.04em" }}>{t(ev.mode === "live" ? "modeLive" : "modeAsync")}</span>
       </div>
 
@@ -423,11 +423,11 @@ export default function EventEditor({ eventId }: { eventId: string }) {
                     <span style={{ fontSize: 12, fontWeight: 800, color: SUBINK }}>{t("liveClosed")}</span>
                   ) : active ? (
                     <>
-                      <span style={{ fontSize: 12.5, fontWeight: 800, color: GREEN }}>🔴 {t("participation", { voted: liveCount, total: convened.length })}</span>
+                      <span style={{ fontSize: 12.5, fontWeight: 800, color: GREENTXT }}>🔴 {t("participation", { voted: liveCount, total: convened.length })}</span>
                       <button onClick={() => closeLive(r.id)} style={btn(INK, "#fff")}>{t("liveClose")}</button>
                     </>
                   ) : (
-                    <button onClick={() => openLive(r.id)} style={btn(GREEN, "#fff")}>{t("liveOpen")}</button>
+                    <button onClick={() => openLive(r.id)} style={btn(GREENTXT, "#fff")}>{t("liveOpen")}</button>
                   )}
                 </div>
               );
@@ -457,8 +457,8 @@ export default function EventEditor({ eventId }: { eventId: string }) {
                 <div key={c.id} style={{ display: "flex", alignItems: "center", gap: 10, background: CREAM, border: `2px solid ${INK}`, borderRadius: 11, padding: "9px 12px" }}>
                   <span style={{ fontWeight: 700, fontSize: 14, flex: 1 }}>{c.name}</span>
                   {c.self_enrolled && <span style={{ fontSize: 11, fontWeight: 800, color: SUBINK }}>{t("selfEnrolledBadge")}</span>}
-                  {c.invited_at && <span style={{ fontSize: 11, fontWeight: 800, color: GREEN }}>{t("invitedBadge")}</span>}
-                  <button onClick={() => copy(c.token)} style={{ border: `2px solid ${INK}`, background: copied === c.token ? GREEN : "#fff", color: copied === c.token ? "#fff" : INK, cursor: "pointer", fontSize: 12.5, fontWeight: 700, padding: "6px 11px", borderRadius: 9 }}>
+                  {c.invited_at && <span style={{ fontSize: 11, fontWeight: 800, color: GREENTXT }}>{t("invitedBadge")}</span>}
+                  <button onClick={() => copy(c.token)} style={{ border: `2px solid ${INK}`, background: copied === c.token ? GREENTXT : "#fff", color: copied === c.token ? "#fff" : INK, cursor: "pointer", fontSize: 12.5, fontWeight: 700, padding: "6px 11px", borderRadius: 9 }}>
                     {copied === c.token ? t("copied") : t("copyLink")}
                   </button>
                   {ev.status === "draft" && (
@@ -485,7 +485,7 @@ export default function EventEditor({ eventId }: { eventId: string }) {
                 {reminding ? t("remindingNonVoters") : t("remindNonVoters")}
               </button>
             )}
-            {sendMsg && <div style={{ marginTop: 10, fontWeight: 700, fontSize: 13.5, color: GREEN }}>{sendMsg}</div>}
+            {sendMsg && <div style={{ marginTop: 10, fontWeight: 700, fontSize: 13.5, color: GREENTXT }}>{sendMsg}</div>}
           </>
         )}
       </div>
@@ -512,7 +512,7 @@ export default function EventEditor({ eventId }: { eventId: string }) {
                 />
                 <button
                   onClick={copyEnroll}
-                  style={{ border: `2px solid ${INK}`, background: copied === "__enroll__" ? GREEN : "#fff", color: copied === "__enroll__" ? "#fff" : INK, cursor: "pointer", fontSize: 12.5, fontWeight: 700, padding: "8px 13px", borderRadius: 9 }}
+                  style={{ border: `2px solid ${INK}`, background: copied === "__enroll__" ? GREENTXT : "#fff", color: copied === "__enroll__" ? "#fff" : INK, cursor: "pointer", fontSize: 12.5, fontWeight: 700, padding: "8px 13px", borderRadius: 9 }}
                 >
                   {copied === "__enroll__" ? t("copied") : t("copyLink")}
                 </button>
@@ -643,7 +643,7 @@ export default function EventEditor({ eventId }: { eventId: string }) {
         {ev.status === "draft" && (
           <button
             onClick={() => (resolutions.length ? setStatus("open") : alert(t("needResolutions")))}
-            style={btn(GREEN, "#fff")}
+            style={btn(GREENTXT, "#fff")}
           >
             {t("openEvent")}
           </button>

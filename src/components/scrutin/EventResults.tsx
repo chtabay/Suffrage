@@ -9,7 +9,7 @@ import { isAssignMethod } from "@/lib/assign/methods";
 import type { AssignRowData } from "@/lib/assign/run";
 import AssignResult from "./AssignResult";
 import ResultCard from "./ResultCard";
-import { FONT_DISPLAY, GREEN, INK, MUTED, REDTXT, SUBINK } from "./theme";
+import { FONT_DISPLAY, GREENTXT, INK, MUTED, REDTXT, SUBINK } from "./theme";
 
 // Vote pondéré : on duplique chaque bulletin selon le poids du membre (tantièmes…)
 // avant le dépouillement — exact pour des poids entiers, sans toucher au moteur.
@@ -171,7 +171,7 @@ export default function EventResults({
                   </span>
                   {d.required > 0 &&
                     (d.quorumMet
-                      ? badge("#e7f6ec", GREEN, t("quorumMet"))
+                      ? badge("#e7f6ec", GREENTXT, t("quorumMet"))
                       : badge("#fdecec", REDTXT, t("quorumNotMet", { required: d.required })))}
                 </div>
                 <div style={{ fontWeight: 700, marginBottom: 8 }}>{r.question}</div>
@@ -201,12 +201,12 @@ export default function EventResults({
                 </span>
                 {d.required > 0 &&
                   (d.quorumMet
-                    ? badge("#e7f6ec", GREEN, t("quorumMet"))
+                    ? badge("#e7f6ec", GREENTXT, t("quorumMet"))
                     : badge("#fdecec", REDTXT, t("quorumNotMet", { required: d.required })))}
                 {d.verdict &&
                   d.quorumMet &&
                   (d.verdict.adopted
-                    ? badge("#e7f6ec", GREEN, t("adopted"))
+                    ? badge("#e7f6ec", GREENTXT, t("adopted"))
                     : badge("#fdecec", REDTXT, t("rejected")))}
                 {d.verdict && d.quorumMet && (
                   <span style={{ fontSize: 12, color: MUTED, fontWeight: 600 }}>

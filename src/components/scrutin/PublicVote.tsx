@@ -67,7 +67,7 @@ import type { AssignRowData } from "@/lib/assign/run";
 import ResultShare from "./ResultShare";
 import QrCode from "./QrCode";
 import ShareRow from "./ShareRow";
-import { CORAL, CREAM, FONT_BODY, FONT_DISPLAY, GREEN, INK, MUTED, REDTXT, SUBINK, YELLOW, lift } from "./theme";
+import { CORAL, CREAM, FONT_BODY, FONT_DISPLAY, GREEN, GREENTXT, INK, MUTED, REDTXT, SUBINK, YELLOW, lift } from "./theme";
 
 // Clés i18n des consignes par mode de vote (résolues via t() au rendu).
 const INSTRUCTIONS: Record<string, string> = {
@@ -468,7 +468,7 @@ function ContactRow({ contact }: { contact: string }) {
           fontSize: 11.5,
           cursor: "pointer",
           border: `2px solid ${INK}`,
-          background: copied ? GREEN : "#fff",
+          background: copied ? GREENTXT : "#fff",
           color: copied ? "#fff" : INK,
           padding: "3px 9px",
           borderRadius: 8,
@@ -508,7 +508,7 @@ function LinkCopyBtn({ url }: { url: string }) {
         fontSize: 14,
         cursor: "pointer",
         border: `2.5px solid ${INK}`,
-        background: copied ? GREEN : CREAM,
+        background: copied ? GREENTXT : CREAM,
         color: copied ? "#fff" : INK,
         padding: "11px 16px",
         borderRadius: 11,
@@ -696,7 +696,7 @@ function VoterLinkRow({ v }: { v: Voter & { url: string } }) {
     <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
       <span
         title={v.voted ? t("hasVoted") : t("pending")}
-        style={{ flex: "none", fontSize: 14, color: v.voted ? GREEN : MUTED, fontWeight: 800 }}
+        style={{ flex: "none", fontSize: 14, color: v.voted ? GREENTXT : MUTED, fontWeight: 800 }}
       >
         {v.voted ? "✓" : "•"}
       </span>
@@ -745,7 +745,7 @@ function VoterLinkRow({ v }: { v: Voter & { url: string } }) {
           fontSize: 12,
           cursor: "pointer",
           border: `2px solid ${INK}`,
-          background: copied ? GREEN : YELLOW,
+          background: copied ? GREENTXT : YELLOW,
           color: copied ? "#fff" : INK,
           padding: "7px 11px",
           borderRadius: 9,
@@ -905,7 +905,7 @@ function ProposalsView({
               marginTop: 12,
               border: `2px solid ${INK}`,
               borderRadius: 12,
-              background: GREEN,
+              background: GREENTXT,
               color: "#fff",
               padding: "13px 15px",
               fontWeight: 700,
@@ -1679,7 +1679,7 @@ export default function PublicVote({
                 fontSize: 15,
                 cursor: working ? "default" : "pointer",
                 border: `2.5px solid ${INK}`,
-                background: GREEN,
+                background: GREENTXT,
                 color: "#fff",
                 padding: "12px 20px",
                 borderRadius: 12,
@@ -1789,7 +1789,7 @@ export default function PublicVote({
                   fontSize: 14,
                   cursor: working ? "default" : "pointer",
                   border: `2.5px solid ${INK}`,
-                  background: poll.status === "open" ? CORAL : GREEN,
+                  background: poll.status === "open" ? CORAL : GREENTXT,
                   color: "#fff",
                   padding: "11px 16px",
                   borderRadius: 11,
@@ -1925,7 +1925,7 @@ export default function PublicVote({
                           <button
                             onClick={() => saveNote(i, editNote.text)}
                             disabled={working}
-                            style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 12.5, cursor: "pointer", border: `2px solid ${INK}`, background: GREEN, color: "#fff", padding: "6px 11px", borderRadius: 8 }}
+                            style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 12.5, cursor: "pointer", border: `2px solid ${INK}`, background: GREENTXT, color: "#fff", padding: "6px 11px", borderRadius: 8 }}
                           >
                             ✓ {t("orgProposalNoteSave")}
                           </button>
@@ -2561,7 +2561,7 @@ export default function PublicVote({
             fontSize: 16,
             cursor: !ballotValid || submitting ? "default" : "pointer",
             border: `2.5px solid ${INK}`,
-            background: GREEN,
+            background: GREENTXT,
             color: "#fff",
             padding: 14,
             borderRadius: 13,
