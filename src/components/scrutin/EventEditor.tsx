@@ -25,14 +25,13 @@ import {
   getEventResultsOwner,
   type EventResultsData,
 } from "@/lib/db/events";
-import { recipeForSystem, resolveKey } from "@/lib/voting/engine";
+import { resolveKey } from "@/lib/voting/engine";
 import type { Ballot } from "@/lib/voting/types";
 import { ASSIGN_METHODS, isAssignMethod } from "@/lib/assign/methods";
 import { APP_URL } from "@/lib/voting/aiPrompt";
-import { splitLeadingEmoji } from "@/lib/voting/draft";
-import { SYSTEM_ORDER } from "@/lib/voting/systems";
 import { OrgShell } from "./SpacesHome";
 import EventResults from "./EventResults";
+import QuestionComposer, { type ComposedQuestion } from "./QuestionComposer";
 import { getNamedAnswers, type NamedAnswers } from "@/lib/db/circles";
 import { CREAM, FONT_BODY, FONT_DISPLAY, GREEN, INK, MUTED, REDTXT, SUBINK } from "./theme";
 
@@ -70,16 +69,12 @@ export default function EventEditor({ eventId }: { eventId: string }) {
   const [resolutions, setResolutions] = useState<ResolutionRow[]>([]);
   const [roster, setRoster] = useState<Member[]>([]);
   const [convened, setConvened] = useState<EventMember[]>([]);
-  const [q, setQ] = useState("");
-  const [opts, setOpts] = useState<string[]>(presetOpts);
-  const [method, setMethod] = useState("fptp");
   const [busy, setBusy] = useState(false);
   const [copied, setCopied] = useState<string | null>(null);
   const [sendMsg, setSendMsg] = useState("");
   const [sending, setSending] = useState(false);
   const [reminding, setReminding] = useState(false);
   const [capInput, setCapInput] = useState("");
-  const [majority, setMajority] = useState(50);
   const [quorumInput, setQuorumInput] = useState("");
   const [liveCount, setLiveCount] = useState(0);
   const [votedCount, setVotedCount] = useState(0);
@@ -186,33 +181,14 @@ export default function EventEditor({ eventId }: { eventId: string }) {
     };
   }, [ev?.mode, ev?.status, resIdsKey]);
 
-  const setOpt = (i: number, v: string) => setOpts((a) => a.map((o, j) => (j === i ? v : o)));
-  const addOpt = () => setOpts((a) => (a.length < 8 ? [...a, ""] : a));
-  const removeOpt = (i: number) => setOpts((a) => (a.length > 2 ? a.filter((_, j) => j !== i) : a));
-  const canAddRes = q.trim().length > 0 && opts.filter((o) => o.trim()).length >= 2;
-
-  const addRes = async () => {
-    if (!canAddRes || busy) return;
-    const options = opts
-      .map((l) => l.trim())
-      .filter(Boolean)
-      .slice(0, 8)
-      .map((l) => {
-        const { icon, name } = splitLeadingEmoji(l, "•");
-        return { icon, name: name.slice(0, 80) };
-      });
+  // La composition de la question (libellé, options, méthode, seuil) vit désormais
+  // dans QuestionComposer, partagé avec le cercle. Ici on ne fait plus qu'écrire.
+  const addRes = async (composed: ComposedQuestion) => {
+    if (busy) return;
     setBusy(true);
     try {
-      // Résolution d'affectation : bulletin = classement (borda → mode « rank »),
-      // le dépouillement passe par le moteur d'affectation. Seules les méthodes
-      // indépendantes du roster sont proposées ici (les objets sont fixes).
-      const recipe = method.startsWith("assign:")
-        ? { ...recipeForSystem("borda"), assign: method.slice(7) }
-        : { ...recipeForSystem(method), threshold: majority };
-      await addResolution(eventId, { question: q, options, recipe, orderIndex: resolutions.length });
+      await addResolution(eventId, { ...composed, orderIndex: resolutions.length });
       setResolutions(await listResolutions(eventId));
-      setQ("");
-      setOpts(presetOpts());
     } catch {
       /* noop */
     }
@@ -419,64 +395,12 @@ export default function EventEditor({ eventId }: { eventId: string }) {
         {ev.status === "draft" && (
           <div style={{ marginTop: 15, borderTop: `2px dashed #E4DBC6`, paddingTop: 15 }}>
             <div style={{ fontWeight: 700, fontSize: 13, color: SUBINK, marginBottom: 8 }}>{t("addResolutionTitle")}</div>
-            <input value={q} onChange={(e) => setQ(e.target.value)} placeholder={t("resQuestionPlaceholder")} style={{ width: "100%", fontFamily: FONT_BODY, fontSize: 15, fontWeight: 600, padding: "10px 12px", border: `2px solid ${INK}`, borderRadius: 11, marginBottom: 8 }} />
-            <div style={{ marginBottom: 8 }}>
-              <div style={{ fontWeight: 700, fontSize: 13, color: SUBINK, marginBottom: 6 }}>{t("resOptionsTitle")}</div>
-              <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                {opts.map((o, i) => (
-                  <div key={i} style={{ display: "flex", gap: 8, alignItems: "center" }}>
-                    <input
-                      value={o}
-                      onChange={(e) => setOpt(i, e.target.value)}
-                      placeholder={t("resOptionPlaceholder", { n: i + 1 })}
-                      style={{ flex: 1, fontFamily: FONT_BODY, fontSize: 14, padding: "9px 11px", border: `2px solid ${INK}`, borderRadius: 10 }}
-                    />
-                    {opts.length > 2 && (
-                      <button onClick={() => removeOpt(i)} title={t("remove")} style={{ border: "none", background: "none", color: REDTXT, cursor: "pointer", fontSize: 18, lineHeight: 1 }}>×</button>
-                    )}
-                  </div>
-                ))}
-              </div>
-              <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 7 }}>
-                {opts.length < 8 && (
-                  <button onClick={addOpt} style={{ border: `2px dashed ${INK}`, background: "none", color: SUBINK, cursor: "pointer", fontSize: 13, fontWeight: 700, padding: "7px 12px", borderRadius: 10 }}>
-                    {t("addOption")}
-                  </button>
-                )}
-                <button onClick={() => setOpts(presetOpts())} style={{ border: `2px dashed ${INK}`, background: "none", color: SUBINK, cursor: "pointer", fontSize: 13, fontWeight: 700, padding: "7px 12px", borderRadius: 10 }}>
-                  {t("presetButton")}
-                </button>
-                <button onClick={() => setOpts(["", ""])} style={{ border: `2px dashed ${INK}`, background: "none", color: MUTED, cursor: "pointer", fontSize: 13, fontWeight: 700, padding: "7px 12px", borderRadius: 10 }}>
-                  {t("clearOptions")}
-                </button>
-              </div>
-            </div>
-            <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
-              <span style={{ fontWeight: 700, fontSize: 13, color: SUBINK }}>{t("resMethod")}</span>
-              <select value={method} onChange={(e) => setMethod(e.target.value)} style={{ fontFamily: FONT_BODY, fontSize: 14, fontWeight: 600, padding: "9px 11px", border: `2px solid ${INK}`, borderRadius: 10, background: "#fff" }}>
-                <optgroup label={t("resKindVote")}>
-                  {SYSTEM_ORDER.map((k) => (
-                    <option key={k} value={k}>{tm(`${k}.name`)}</option>
-                  ))}
-                </optgroup>
-                <optgroup label={t("resKindAssign")}>
-                  {(["serial_dictatorship", "optimal_sum"] as const).map((k) => (
-                    <option key={k} value={`assign:${k}`}>{ASSIGN_METHODS[k].icon} {ta(`methods.${k}.name`)}</option>
-                  ))}
-                </optgroup>
-              </select>
-              {(method === "fptp" || method === "runoff") && (
-                <>
-                  <span style={{ fontWeight: 700, fontSize: 13, color: SUBINK }}>{t("resMajority")}</span>
-                  <select value={majority} onChange={(e) => setMajority(Number(e.target.value))} style={{ fontFamily: FONT_BODY, fontSize: 14, fontWeight: 600, padding: "9px 11px", border: `2px solid ${INK}`, borderRadius: 10, background: "#fff" }}>
-                    <option value={50}>{t("thrAbsolute")}</option>
-                    <option value={67}>{t("thrTwoThirds")}</option>
-                    <option value={75}>{t("thrThreeQuarters")}</option>
-                  </select>
-                </>
-              )}
-              <button onClick={addRes} disabled={busy || !canAddRes} style={{ ...btn("#FFB627", INK), marginLeft: "auto", opacity: canAddRes ? 1 : 0.5, cursor: canAddRes ? "pointer" : "not-allowed" }}>{t("addResolution")}</button>
-            </div>
+            <QuestionComposer
+              presetOptions={presetOpts}
+              submitLabel={t("addResolution")}
+              busy={busy}
+              onSubmit={addRes}
+            />
           </div>
         )}
       </div>

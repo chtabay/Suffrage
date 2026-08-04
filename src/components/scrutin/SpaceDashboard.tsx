@@ -29,7 +29,7 @@ import {
   unassignSegment,
   type Segment,
 } from "@/lib/db/circles";
-import { recipeForSystem } from "@/lib/voting/engine";
+import QuestionComposer, { type ComposedQuestion } from "./QuestionComposer";
 import { APP_URL } from "@/lib/voting/aiPrompt";
 import { CREAM, FONT_BODY, FONT_DISPLAY, GREEN, INK, MUTED, REDTXT, SUBINK } from "./theme";
 
@@ -97,6 +97,10 @@ function buildPreview(text: string, existing: Member[]): ParsedRow[] {
 export default function SpaceDashboard({ spaceId }: { spaceId: string }) {
   const t = useTranslations("Org");
   const locale = useLocale();
+  // Préréglage du cas le plus courant : Pour / Contre / Abstention (localisé).
+  // Le composeur part de là, mais on peut tout remplacer — c'est un défaut, pas
+  // une limite, contrairement à ce que faisait l'ancien bloc « Interroger ».
+  const presetOpts = () => [t("presetFor"), t("presetAgainst"), t("presetAbstain")];
   const router = useRouter();
   const { user, loading } = useAuth();
   const [space, setSpace] = useState<Space | null>(null);
@@ -114,7 +118,6 @@ export default function SpaceDashboard({ spaceId }: { spaceId: string }) {
   const [andAbove, setAndAbove] = useState(true);
   const [sealed, setSealed] = useState(true);
   const [copiedJoin, setCopiedJoin] = useState(false);
-  const [ask, setAsk] = useState("");
   const [askMsg, setAskMsg] = useState("");
   const [asking, setAsking] = useState(false);
   const [events, setEvents] = useState<EventRow[]>([]);
@@ -219,23 +222,20 @@ export default function SpaceDashboard({ spaceId }: { spaceId: string }) {
    * qui répond suffirait à lever le secret (on convoque une personne, on lit le
    * bulletin qui arrive). Les refus viennent de la base et sont affichés tels quels.
    */
-  const openConsultation = async () => {
+  const openConsultation = async (composed: ComposedQuestion) => {
     if (!space || asking) return;
-    const question = ask.trim();
-    if (!question) return;
     setAsking(true);
     setAskMsg("");
     try {
       const r = await openCircleConsultation({
         spaceId: space.id,
-        question,
-        options: [t("presetFor"), t("presetAgainst"), t("presetAbstain")].map((name) => ({ name })),
-        recipe: recipeForSystem("fptp"),
+        question: composed.question,
+        options: composed.options,
+        recipe: composed.recipe,
         segmentIds: targetIds(),
         sealed,
       });
       if (r.status === "ok") {
-        setAsk("");
         await load();
         router.push(`/evenement/${r.event_id}`);
       } else if (r.status === "capped") {
@@ -565,62 +565,61 @@ export default function SpaceDashboard({ spaceId }: { spaceId: string }) {
             <div style={{ marginTop: 14, borderTop: `2px dashed ${INK}22`, paddingTop: 14 }}>
               <div style={{ fontWeight: 800, fontSize: 14.5, fontFamily: FONT_DISPLAY }}>{t("askTitle")}</div>
               <div style={{ fontSize: 12.5, color: MUTED, marginTop: 3, lineHeight: 1.45 }}>{t("askSubtitle")}</div>
-              {segments.length > 0 && (
-                <div style={{ display: "flex", gap: 9, marginTop: 10, alignItems: "center", flexWrap: "wrap" }}>
-                  <span style={{ fontSize: 13, fontWeight: 700, color: SUBINK }}>{t("askAudience")}</span>
-                  <select
-                    value={target}
-                    onChange={(e) => setTarget(e.target.value)}
-                    style={{ fontFamily: FONT_BODY, fontSize: 14, fontWeight: 600, padding: "8px 10px", border: `2px solid ${INK}`, borderRadius: 10, background: "#fff" }}
-                  >
-                    <option value="">{t("askAudienceAll")}</option>
-                    {segments.map((g) => (
-                      <option key={g.id} value={g.id}>{g.name}</option>
-                    ))}
-                  </select>
-                  {/* N'apparaît que si le segment visé appartient à une échelle. */}
-                  {target && segments.find((g) => g.id === target)?.rank != null && (
-                    <label style={{ display: "flex", alignItems: "center", gap: 7, fontSize: 12.5, color: SUBINK, cursor: "pointer" }}>
-                      <input type="checkbox" checked={andAbove} onChange={(e) => setAndAbove(e.target.checked)} style={{ width: 15, height: 15, accentColor: INK }} />
-                      {t("askAudienceAndAbove")}
-                    </label>
-                  )}
-                </div>
-              )}
-              {/* ---- Le régime de réponse. Deux promesses opposées : il faut
-                   choisir, et le votant sera informé de celle qui s'applique. ---- */}
-              <div style={{ display: "flex", gap: 8, marginTop: 10, flexWrap: "wrap" }}>
-                {[true, false].map((mode) => (
-                  <button
-                    key={String(mode)}
-                    onClick={() => setSealed(mode)}
-                    style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 13, cursor: "pointer", border: `2px solid ${INK}`, background: sealed === mode ? INK : "#fff", color: sealed === mode ? "#fff" : INK, padding: "7px 13px", borderRadius: 9 }}
-                  >
-                    {mode ? t("modeSealed") : t("modeNamed")}
-                  </button>
-                ))}
-              </div>
-              <div style={{ fontSize: 12.5, color: MUTED, marginTop: 6, lineHeight: 1.45 }}>
-                {sealed ? t("modeSealedHint") : t("modeNamedHint")}
-              </div>
-
-              <div style={{ display: "flex", gap: 10, marginTop: 10, flexWrap: "wrap" }}>
-                <input
-                  value={ask}
-                  onChange={(e) => setAsk(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && openConsultation()}
-                  placeholder={t("askPlaceholder")}
-                  style={{ flex: 1, minWidth: 220, fontFamily: FONT_BODY, fontSize: 15, fontWeight: 600, padding: "11px 13px", border: `2px solid ${INK}`, borderRadius: 11 }}
-                />
-                <button
-                  onClick={openConsultation}
-                  disabled={asking || !ask.trim()}
-                  className="dc-bright"
-                  style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 14.5, cursor: asking || !ask.trim() ? "not-allowed" : "pointer", border: `2.5px solid ${INK}`, background: INK, color: "#fff", padding: "11px 18px", borderRadius: 11, opacity: asking || !ask.trim() ? 0.5 : 1 }}
-                >
-                  {asking ? t("asking") : t("askCta")}
-                </button>
-              </div>
+              {/* Le composeur est le MÊME que celui des événements : le cercle a
+                  désormais accès aux douze méthodes et à des options libres, là où
+                  il ne proposait que Pour/Contre/Abstention en uninominal. Ses
+                  contrôles propres — public visé, régime — passent en `extras`,
+                  car ils qualifient le PUBLIC et non la question. */}
+              <QuestionComposer
+                presetOptions={presetOpts}
+                submitLabel={asking ? t("asking") : t("askCta")}
+                busy={asking}
+                onSubmit={openConsultation}
+                extras={
+                  <>
+                    {segments.length > 0 && (
+                      <div style={{ display: "flex", gap: 9, marginTop: 10, alignItems: "center", flexWrap: "wrap" }}>
+                        <span style={{ fontSize: 13, fontWeight: 700, color: SUBINK }}>{t("askAudience")}</span>
+                        <select
+                          value={target}
+                          onChange={(e) => setTarget(e.target.value)}
+                          aria-label={t("askAudience")}
+                          style={{ fontFamily: FONT_BODY, fontSize: 14, fontWeight: 600, padding: "8px 10px", border: `2px solid ${INK}`, borderRadius: 10, background: "#fff" }}
+                        >
+                          <option value="">{t("askAudienceAll")}</option>
+                          {segments.map((g) => (
+                            <option key={g.id} value={g.id}>{g.name}</option>
+                          ))}
+                        </select>
+                        {/* N'apparaît que si le segment visé appartient à une échelle. */}
+                        {target && segments.find((g) => g.id === target)?.rank != null && (
+                          <label style={{ display: "flex", alignItems: "center", gap: 7, fontSize: 12.5, color: SUBINK, cursor: "pointer" }}>
+                            <input type="checkbox" checked={andAbove} onChange={(e) => setAndAbove(e.target.checked)} style={{ width: 16, height: 16, accentColor: INK }} />
+                            {t("askAudienceAndAbove")}
+                          </label>
+                        )}
+                      </div>
+                    )}
+                    {/* ---- Le régime de réponse. Deux promesses opposées : il faut
+                         choisir, et le votant sera informé de celle qui s'applique. ---- */}
+                    <div style={{ display: "flex", gap: 8, marginTop: 10, flexWrap: "wrap" }}>
+                      {[true, false].map((mode) => (
+                        <button
+                          key={String(mode)}
+                          onClick={() => setSealed(mode)}
+                          aria-pressed={sealed === mode}
+                          style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 13, cursor: "pointer", border: `2px solid ${INK}`, background: sealed === mode ? INK : "#fff", color: sealed === mode ? "#fff" : INK, padding: "8px 13px", borderRadius: 9 }}
+                        >
+                          {mode ? t("modeSealed") : t("modeNamed")}
+                        </button>
+                      ))}
+                    </div>
+                    <div style={{ fontSize: 12.5, color: MUTED, marginTop: 6, lineHeight: 1.45 }}>
+                      {sealed ? t("modeSealedHint") : t("modeNamedHint")}
+                    </div>
+                  </>
+                }
+              />
               {askMsg && (
                 <div style={{ marginTop: 9, color: REDTXT, fontWeight: 700, fontSize: 13, lineHeight: 1.45 }}>{askMsg}</div>
               )}

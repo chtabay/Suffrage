@@ -914,6 +914,7 @@
     "permissionsNote": "Placet requests the minimal permissions (<code>commands</code>, <code>chat:write</code>) to post and update voting messages. Ballots stay on the web; no voter needs an account. Type <code>/placet help</code> in Slack anytime."
   },
   "Org": {
+    "removeOptionAria": "Remove option {n}",
     "namedAnswersTitle": "Who answered what",
     "namedPending": "No answer yet: {names}",
     "modeSealed": "Anonymous answers",
