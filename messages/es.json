@@ -914,6 +914,10 @@
     "permissionsNote": "Placet solicita los permisos mínimos (<code>commands</code>, <code>chat:write</code>) para publicar y actualizar los mensajes de votación. Las papeletas se quedan en la web; ningún votante necesita una cuenta. Escribe <code>/placet ayuda</code> en Slack en cualquier momento."
   },
   "Org": {
+    "circleSettings": "Ajustes del círculo",
+    "segmentRemoveFromAria": "Quitar a {name} del segmento {segment}",
+    "segmentAddAria": "Añadir a {name} a un segmento",
+    "removeMemberAria": "Quitar a {name} del grupo",
     "removeOptionAria": "Quitar la opción {n}",
     "namedAnswersTitle": "Quién respondió qué",
     "namedPending": "Sin respuesta por ahora: {names}",

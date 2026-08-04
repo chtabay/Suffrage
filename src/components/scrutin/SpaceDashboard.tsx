@@ -31,7 +31,7 @@ import {
 } from "@/lib/db/circles";
 import QuestionComposer, { type ComposedQuestion } from "./QuestionComposer";
 import { APP_URL } from "@/lib/voting/aiPrompt";
-import { CREAM, FONT_BODY, FONT_DISPLAY, GREEN, INK, MUTED, REDTXT, SUBINK } from "./theme";
+import { CORAL, CREAM, FONT_BODY, FONT_DISPLAY, GREENTXT, INK, MUTED, REDTXT, SUBINK } from "./theme";
 
 const card = {
   background: "#fff",
@@ -337,6 +337,79 @@ export default function SpaceDashboard({ spaceId }: { spaceId: string }) {
       </h1>
       <p style={{ fontSize: 14.5, color: SUBINK, lineHeight: 1.5, marginTop: 8, maxWidth: "62ch" }}>{t("spaceDashSubtitle")}</p>
 
+      {/* ---- INTERROGER — l action de la semaine, donc en tete et accentuee ----
+          Elle etait enterree au milieu de reglages qu on touche une fois dans la
+          vie du cercle : lien d adhesion, pitch, conversation. L ordre suit
+          desormais la FREQUENCE d usage, pas le modele de donnees. */}
+      {space?.join_open && (
+        <div style={{ ...card, marginTop: 18, borderColor: CORAL, boxShadow: `5px 5px 0 ${CORAL}` }}>
+          <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 19 }}>{t("askTitle")}</div>
+          <div style={{ fontSize: 12.5, color: MUTED, marginTop: 4, lineHeight: 1.45 }}>{t("askSubtitle")}</div>
+          <div style={{ marginTop: 12 }}>
+            <div style={{ fontWeight: 800, fontSize: 14.5, fontFamily: FONT_DISPLAY }}>{t("askTitle")}</div>
+            <div style={{ fontSize: 12.5, color: MUTED, marginTop: 3, lineHeight: 1.45 }}>{t("askSubtitle")}</div>
+            {/* Le composeur est le MÊME que celui des événements : le cercle a
+                désormais accès aux douze méthodes et à des options libres, là où
+                il ne proposait que Pour/Contre/Abstention en uninominal. Ses
+                contrôles propres — public visé, régime — passent en `extras`,
+                car ils qualifient le PUBLIC et non la question. */}
+            <QuestionComposer
+              presetOptions={presetOpts}
+              submitLabel={asking ? t("asking") : t("askCta")}
+              busy={asking}
+              onSubmit={openConsultation}
+              extras={
+                <>
+                  {segments.length > 0 && (
+                    <div style={{ display: "flex", gap: 9, marginTop: 10, alignItems: "center", flexWrap: "wrap" }}>
+                      <span style={{ fontSize: 13, fontWeight: 700, color: SUBINK }}>{t("askAudience")}</span>
+                      <select
+                        value={target}
+                        onChange={(e) => setTarget(e.target.value)}
+                        aria-label={t("askAudience")}
+                        style={{ fontFamily: FONT_BODY, fontSize: 14, fontWeight: 600, padding: "8px 10px", border: `2px solid ${INK}`, borderRadius: 10, background: "#fff" }}
+                      >
+                        <option value="">{t("askAudienceAll")}</option>
+                        {segments.map((g) => (
+                          <option key={g.id} value={g.id}>{g.name}</option>
+                        ))}
+                      </select>
+                      {/* N'apparaît que si le segment visé appartient à une échelle. */}
+                      {target && segments.find((g) => g.id === target)?.rank != null && (
+                        <label style={{ display: "flex", alignItems: "center", gap: 7, fontSize: 12.5, color: SUBINK, cursor: "pointer" }}>
+                          <input type="checkbox" checked={andAbove} onChange={(e) => setAndAbove(e.target.checked)} style={{ width: 16, height: 16, accentColor: INK }} />
+                          {t("askAudienceAndAbove")}
+                        </label>
+                      )}
+                    </div>
+                  )}
+                  {/* ---- Le régime de réponse. Deux promesses opposées : il faut
+                       choisir, et le votant sera informé de celle qui s'applique. ---- */}
+                  <div style={{ display: "flex", gap: 8, marginTop: 10, flexWrap: "wrap" }}>
+                    {[true, false].map((mode) => (
+                      <button
+                        key={String(mode)}
+                        onClick={() => setSealed(mode)}
+                        aria-pressed={sealed === mode}
+                        style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 13, cursor: "pointer", border: `2px solid ${INK}`, background: sealed === mode ? INK : "#fff", color: sealed === mode ? "#fff" : INK, padding: "8px 13px", borderRadius: 9 }}
+                      >
+                        {mode ? t("modeSealed") : t("modeNamed")}
+                      </button>
+                    ))}
+                  </div>
+                  <div style={{ fontSize: 12.5, color: MUTED, marginTop: 6, lineHeight: 1.45 }}>
+                    {sealed ? t("modeSealedHint") : t("modeNamedHint")}
+                  </div>
+                </>
+              }
+            />
+            {askMsg && (
+              <div style={{ marginTop: 9, color: REDTXT, fontWeight: 700, fontSize: 13, lineHeight: 1.45 }}>{askMsg}</div>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* ---- Corps électoral (roster) ---- */}
       <div style={{ ...card, marginTop: 18 }}>
         <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 10 }}>
@@ -355,13 +428,13 @@ export default function SpaceDashboard({ spaceId }: { spaceId: string }) {
                   être visible pour celui qui écrit au cercle. */}
               {m.self_joined && (
                 <span title={m.consent_at ? t("consentOn", { date: new Date(m.consent_at).toLocaleDateString(locale) }) : undefined}
-                      style={{ fontSize: 11, fontWeight: 800, color: GREEN, border: `1.5px solid ${GREEN}`, borderRadius: 7, padding: "1px 6px", whiteSpace: "nowrap" }}>
+                      style={{ fontSize: 11.5, fontWeight: 800, color: GREENTXT, border: `1.5px solid ${GREENTXT}`, borderRadius: 7, padding: "3px 7px", whiteSpace: "nowrap" }}>
                   {t("tagSelfJoined")}
                 </span>
               )}
               {!m.self_joined && m.consent_source === "import" && (
                 <span title={m.consent_at ? t("consentAdded", { date: new Date(m.consent_at).toLocaleDateString(locale) }) : undefined}
-                      style={{ fontSize: 11, fontWeight: 800, color: MUTED, border: `1.5px solid ${MUTED}`, borderRadius: 7, padding: "1px 6px", whiteSpace: "nowrap" }}>
+                      style={{ fontSize: 11.5, fontWeight: 800, color: MUTED, border: `1.5px solid ${MUTED}`, borderRadius: 7, padding: "3px 7px", whiteSpace: "nowrap" }}>
                   {t("tagImported")}
                 </span>
               )}
@@ -378,8 +451,10 @@ export default function SpaceDashboard({ spaceId }: { spaceId: string }) {
                       <button
                         key={sid}
                         onClick={() => toggleMemberSegment(m.id, sid, false)}
+                        aria-label={t("segmentRemoveFromAria", { segment: seg.name, name: m.name })}
                         title={t("segmentRemoveFrom")}
-                        style={{ fontSize: 11, fontWeight: 800, color: INK, border: `1.5px solid ${INK}`, background: "#fff", borderRadius: 7, padding: "1px 6px", cursor: "pointer", whiteSpace: "nowrap" }}
+                        // minHeight 26 : cible tactile conforme (WCAG 2.5.8 : 24).
+                        style={{ fontSize: 11.5, fontWeight: 800, color: INK, border: `1.5px solid ${INK}`, background: "#fff", borderRadius: 7, padding: "4px 8px", minHeight: 26, cursor: "pointer", whiteSpace: "nowrap" }}
                       >
                         {seg.name} ×
                       </button>
@@ -388,7 +463,8 @@ export default function SpaceDashboard({ spaceId }: { spaceId: string }) {
                   <select
                     value=""
                     onChange={(e) => e.target.value && toggleMemberSegment(m.id, e.target.value, true)}
-                    style={{ fontSize: 11.5, fontFamily: FONT_BODY, border: `1.5px solid ${MUTED}`, borderRadius: 7, padding: "2px 4px", background: "#fff", color: SUBINK, cursor: "pointer" }}
+                    aria-label={t("segmentAddAria", { name: m.name })}
+                    style={{ fontSize: 11.5, fontFamily: FONT_BODY, border: `1.5px solid ${MUTED}`, borderRadius: 7, padding: "5px 6px", minHeight: 26, background: "#fff", color: SUBINK, cursor: "pointer" }}
                   >
                     <option value="">{t("segmentAdd")}</option>
                     {segments
@@ -399,7 +475,7 @@ export default function SpaceDashboard({ spaceId }: { spaceId: string }) {
                   </select>
                 </span>
               )}
-              <button onClick={() => onRemoveMember(m.id)} title={t("remove")} style={{ border: "none", background: "none", color: REDTXT, cursor: "pointer", fontSize: 17, lineHeight: 1 }}>×</button>
+              <button onClick={() => onRemoveMember(m.id)} aria-label={t("removeMemberAria", { name: m.name })} title={t("remove")} style={{ width: 28, height: 28, display: "grid", placeItems: "center", flex: "none", border: "none", background: "none", color: REDTXT, cursor: "pointer", fontSize: 18, lineHeight: 1, borderRadius: 8 }}>×</button>
             </div>
           ))}
         </div>
@@ -486,7 +562,15 @@ export default function SpaceDashboard({ spaceId }: { spaceId: string }) {
         )}
 
         {space?.join_open && (
-          <>
+          /* Réglages du cercle : repliés par défaut. On les touche une fois — à
+             l'ouverture — puis presque jamais. <details> natif : accessible au
+             clavier et au lecteur d'écran sans une ligne de JavaScript. */
+          <details style={{ marginTop: 14 }}>
+            <summary style={{ cursor: "pointer", fontWeight: 800, fontSize: 14, fontFamily: FONT_DISPLAY, color: SUBINK, listStyle: "revert" }}>
+              {t("circleSettings")}
+            </summary>
+            <>
+
             <div style={{ marginTop: 14, display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
               <code style={{ flex: "1 1 240px", minWidth: 0, overflowX: "auto", whiteSpace: "nowrap", fontSize: 12.5, background: "#f6f6f4", border: `2px solid ${INK}`, borderRadius: 10, padding: "9px 11px" }}>
                 {`${APP_URL}/cercle/${space.join_token}`}
@@ -497,7 +581,7 @@ export default function SpaceDashboard({ spaceId }: { spaceId: string }) {
                   setCopiedJoin(true);
                   setTimeout(() => setCopiedJoin(false), 1600);
                 }}
-                style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 13.5, cursor: "pointer", border: `2.5px solid ${INK}`, background: copiedJoin ? GREEN : "#fff", color: copiedJoin ? "#fff" : INK, padding: "9px 14px", borderRadius: 10 }}
+                style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 13.5, cursor: "pointer", border: `2.5px solid ${INK}`, background: copiedJoin ? GREENTXT : "#fff", color: copiedJoin ? "#fff" : INK, padding: "9px 14px", borderRadius: 10 }}
               >
                 {copiedJoin ? t("copied") : t("copyLink")}
               </button>
@@ -561,70 +645,6 @@ export default function SpaceDashboard({ spaceId }: { spaceId: string }) {
               )}
             </div>
 
-            {/* ---- Interroger le cercle : un seul bouton, aucun choix de destinataires ---- */}
-            <div style={{ marginTop: 14, borderTop: `2px dashed ${INK}22`, paddingTop: 14 }}>
-              <div style={{ fontWeight: 800, fontSize: 14.5, fontFamily: FONT_DISPLAY }}>{t("askTitle")}</div>
-              <div style={{ fontSize: 12.5, color: MUTED, marginTop: 3, lineHeight: 1.45 }}>{t("askSubtitle")}</div>
-              {/* Le composeur est le MÊME que celui des événements : le cercle a
-                  désormais accès aux douze méthodes et à des options libres, là où
-                  il ne proposait que Pour/Contre/Abstention en uninominal. Ses
-                  contrôles propres — public visé, régime — passent en `extras`,
-                  car ils qualifient le PUBLIC et non la question. */}
-              <QuestionComposer
-                presetOptions={presetOpts}
-                submitLabel={asking ? t("asking") : t("askCta")}
-                busy={asking}
-                onSubmit={openConsultation}
-                extras={
-                  <>
-                    {segments.length > 0 && (
-                      <div style={{ display: "flex", gap: 9, marginTop: 10, alignItems: "center", flexWrap: "wrap" }}>
-                        <span style={{ fontSize: 13, fontWeight: 700, color: SUBINK }}>{t("askAudience")}</span>
-                        <select
-                          value={target}
-                          onChange={(e) => setTarget(e.target.value)}
-                          aria-label={t("askAudience")}
-                          style={{ fontFamily: FONT_BODY, fontSize: 14, fontWeight: 600, padding: "8px 10px", border: `2px solid ${INK}`, borderRadius: 10, background: "#fff" }}
-                        >
-                          <option value="">{t("askAudienceAll")}</option>
-                          {segments.map((g) => (
-                            <option key={g.id} value={g.id}>{g.name}</option>
-                          ))}
-                        </select>
-                        {/* N'apparaît que si le segment visé appartient à une échelle. */}
-                        {target && segments.find((g) => g.id === target)?.rank != null && (
-                          <label style={{ display: "flex", alignItems: "center", gap: 7, fontSize: 12.5, color: SUBINK, cursor: "pointer" }}>
-                            <input type="checkbox" checked={andAbove} onChange={(e) => setAndAbove(e.target.checked)} style={{ width: 16, height: 16, accentColor: INK }} />
-                            {t("askAudienceAndAbove")}
-                          </label>
-                        )}
-                      </div>
-                    )}
-                    {/* ---- Le régime de réponse. Deux promesses opposées : il faut
-                         choisir, et le votant sera informé de celle qui s'applique. ---- */}
-                    <div style={{ display: "flex", gap: 8, marginTop: 10, flexWrap: "wrap" }}>
-                      {[true, false].map((mode) => (
-                        <button
-                          key={String(mode)}
-                          onClick={() => setSealed(mode)}
-                          aria-pressed={sealed === mode}
-                          style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 13, cursor: "pointer", border: `2px solid ${INK}`, background: sealed === mode ? INK : "#fff", color: sealed === mode ? "#fff" : INK, padding: "8px 13px", borderRadius: 9 }}
-                        >
-                          {mode ? t("modeSealed") : t("modeNamed")}
-                        </button>
-                      ))}
-                    </div>
-                    <div style={{ fontSize: 12.5, color: MUTED, marginTop: 6, lineHeight: 1.45 }}>
-                      {sealed ? t("modeSealedHint") : t("modeNamedHint")}
-                    </div>
-                  </>
-                }
-              />
-              {askMsg && (
-                <div style={{ marginTop: 9, color: REDTXT, fontWeight: 700, fontSize: 13, lineHeight: 1.45 }}>{askMsg}</div>
-              )}
-            </div>
-
             <div style={{ marginTop: 12, display: "flex", gap: 9, alignItems: "center", flexWrap: "wrap" }}>
               <span style={{ fontWeight: 700, fontSize: 13.5, color: SUBINK }}>{t("circlePaceLabel")}</span>
               <input
@@ -640,8 +660,10 @@ export default function SpaceDashboard({ spaceId }: { spaceId: string }) {
                 {paceInput.trim() === "" ? t("circlePaceHintNone") : t("circlePaceHint", { n: paceInput.trim() })}
               </span>
             </div>
-          </>
+            </>
+          </details>
         )}
+
       </div>
 
       {/* ---- Événements ---- */}

@@ -914,6 +914,10 @@
     "permissionsNote": "Placet dey request di minimal permissions (<code>commands</code>, <code>chat:write</code>) to post and update voting messages. Ballots dey stay for web; no voter need account. Type <code>/placet help</code> for Slack anytime."
   },
   "Org": {
+    "circleSettings": "Circle settings",
+    "segmentRemoveFromAria": "Remove {name} from di {segment} segment",
+    "segmentAddAria": "Add {name} to one segment",
+    "removeMemberAria": "Remove {name} from di group",
     "removeOptionAria": "Remove option {n}",
     "namedAnswersTitle": "Who answer wetin",
     "namedPending": "No answer yet: {names}",

@@ -914,6 +914,10 @@
     "permissionsNote": "Placet demande les permissions minimales (<code>commands</code>, <code>chat:write</code>) pour poster et mettre à jour les messages de vote. Les bulletins restent sur le web ; aucun votant n'a besoin de compte. Tapez <code>/placet aide</code> dans Slack à tout moment."
   },
   "Org": {
+    "circleSettings": "Réglages du cercle",
+    "segmentRemoveFromAria": "Retirer {name} du segment {segment}",
+    "segmentAddAria": "Ajouter {name} à un segment",
+    "removeMemberAria": "Retirer {name} du groupe",
     "removeOptionAria": "Retirer l'option {n}",
     "namedAnswersTitle": "Qui a répondu quoi",
     "namedPending": "Sans réponse pour l'instant : {names}",
