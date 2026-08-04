@@ -914,6 +914,10 @@
     "permissionsNote": "Placet solicita los permisos mínimos (<code>commands</code>, <code>chat:write</code>) para publicar y actualizar los mensajes de votación. Las papeletas se quedan en la web; ningún votante necesita una cuenta. Escribe <code>/placet ayuda</code> en Slack en cualquier momento."
   },
   "Org": {
+    "kindProposals": "Propuestas",
+    "kindDates": "Fechas",
+    "kindDatesTitle": "Franjas propuestas (al menos 2)",
+    "kindDatesNeedTwo": "Añade al menos una segunda franja: sin opciones no hay nada que decidir.",
     "circleSettings": "Ajustes del círculo",
     "segmentRemoveFromAria": "Quitar a {name} del segmento {segment}",
     "segmentAddAria": "Añadir a {name} a un segmento",

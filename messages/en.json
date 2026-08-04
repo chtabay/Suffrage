@@ -914,6 +914,10 @@
     "permissionsNote": "Placet requests the minimal permissions (<code>commands</code>, <code>chat:write</code>) to post and update voting messages. Ballots stay on the web; no voter needs an account. Type <code>/placet help</code> in Slack anytime."
   },
   "Org": {
+    "kindProposals": "Proposals",
+    "kindDates": "Dates",
+    "kindDatesTitle": "Proposed slots (at least 2)",
+    "kindDatesNeedTwo": "Add at least a second slot: with no choice, there's nothing to decide.",
     "circleSettings": "Circle settings",
     "segmentRemoveFromAria": "Remove {name} from segment {segment}",
     "segmentAddAria": "Add {name} to a segment",

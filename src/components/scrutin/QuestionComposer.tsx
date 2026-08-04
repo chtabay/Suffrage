@@ -18,6 +18,7 @@ import { recipeForSystem } from "@/lib/voting/engine";
 import { ASSIGN_METHODS } from "@/lib/assign/methods";
 import { splitLeadingEmoji } from "@/lib/voting/draft";
 import { SYSTEM_ORDER } from "@/lib/voting/systems";
+import SlotPicker from "./SlotPicker";
 import type { Option, Recipe } from "@/lib/voting/types";
 import { FONT_BODY, INK, MUTED, REDTXT, SUBINK } from "./theme";
 
@@ -27,16 +28,33 @@ export interface ComposedQuestion {
   recipe: Recipe;
 }
 
+/**
+ * Méthodes incompatibles avec un vote sur des dates : elles supposent des sièges
+ * ou des listes, pas des créneaux. Même exclusion que la création autonome.
+ */
+const SLOT_EXCLUDED = ["proportional", "list", "indirect"];
+
 /** Construit la sortie à partir de l'état brut. Exporté pour être testable seul. */
-export function compose(question: string, opts: string[], method: string, majority: number): ComposedQuestion {
-  const options = opts
-    .map((l) => l.trim())
-    .filter(Boolean)
-    .slice(0, 8)
-    .map((l) => {
-      const { icon, name } = splitLeadingEmoji(l, "•");
-      return { icon, name: name.slice(0, 80) };
-    });
+export function compose(
+  question: string,
+  opts: string[],
+  method: string,
+  majority: number,
+  slots?: Option[],
+): ComposedQuestion {
+  // Un créneau est déjà une Option complète : SlotPicker y cuit le libellé lisible
+  // (« lun. 12 mai ») dans `name`, en plus de `at`/`end`. C'est ce qui permet à
+  // TOUS les écrans de vote de l'afficher sans rien savoir des dates.
+  const options = slots
+    ? slots.slice(0, 12)
+    : opts
+        .map((l) => l.trim())
+        .filter(Boolean)
+        .slice(0, 8)
+        .map((l) => {
+          const { icon, name } = splitLeadingEmoji(l, "•");
+          return { icon, name: name.slice(0, 80) };
+        });
   // Résolution d'affectation : bulletin = classement (borda → mode « rank »), le
   // dépouillement passe par le moteur d'affectation.
   const recipe = method.startsWith("assign:")
@@ -66,19 +84,35 @@ export default function QuestionComposer({
 
   const [q, setQ] = useState("");
   const [opts, setOpts] = useState<string[]>(presetOptions);
+  const [slots, setSlots] = useState<Option[]>([]);
+  // Sur quoi porte la question : des propositions, ou des dates (façon Doodle).
+  const [kind, setKind] = useState<"text" | "slot">("text");
   const [method, setMethod] = useState("fptp");
   const [majority, setMajority] = useState(50);
+
+  const methods = kind === "slot" ? SYSTEM_ORDER.filter((k) => !SLOT_EXCLUDED.includes(k)) : SYSTEM_ORDER;
+
+  const switchKind = (next: "text" | "slot") => {
+    setKind(next);
+    // Un vote sur des dates se coche : on veut « toutes celles qui me vont »,
+    // pas « une seule ». On bascule donc sur l'approbation — sauf si l'animateur
+    // a déjà choisi autre chose de compatible, auquel cas on respecte son choix.
+    if (next === "slot" && (method === "fptp" || SLOT_EXCLUDED.includes(method))) setMethod("approval");
+  };
 
   const setOpt = (i: number, v: string) => setOpts((a) => a.map((o, j) => (j === i ? v : o)));
   const addOpt = () => setOpts((a) => (a.length < 8 ? [...a, ""] : a));
   const removeOpt = (i: number) => setOpts((a) => (a.length > 2 ? a.filter((_, j) => j !== i) : a));
-  const canSubmit = q.trim().length > 0 && opts.filter((o) => o.trim()).length >= 2;
+  const canSubmit =
+    q.trim().length > 0 &&
+    (kind === "slot" ? slots.length >= 2 : opts.filter((o) => o.trim()).length >= 2);
 
   const submit = async () => {
     if (!canSubmit || busy) return;
-    await onSubmit(compose(q, opts, method, majority));
+    await onSubmit(compose(q, opts, method, majority, kind === "slot" ? slots : undefined));
     setQ("");
     setOpts(presetOptions());
+    setSlots([]);
   };
 
   return (
@@ -89,8 +123,36 @@ export default function QuestionComposer({
         placeholder={t("resQuestionPlaceholder")}
         style={{ width: "100%", fontFamily: FONT_BODY, fontSize: 15, fontWeight: 600, padding: "10px 12px", border: `2px solid ${INK}`, borderRadius: 11, marginBottom: 8 }}
       />
+      {/* Sur quoi porte la question. Les dates ne sont pas une MÉTHODE mais une
+          FORME D'OPTIONS : un créneau est une Option dont `at`/`end` portent la
+          date et dont `name` porte déjà le libellé lisible. D'où ce simple
+          basculement d'éditeur, plutôt qu'un mode de vote à part. */}
+      <div style={{ display: "flex", gap: 8, marginBottom: 10, flexWrap: "wrap" }}>
+        {(["text", "slot"] as const).map((k) => (
+          <button
+            key={k}
+            onClick={() => switchKind(k)}
+            aria-pressed={kind === k}
+            style={{ fontFamily: FONT_BODY, fontWeight: 800, fontSize: 13, cursor: "pointer", border: `2px solid ${INK}`, background: kind === k ? INK : "#fff", color: kind === k ? "#fff" : INK, padding: "8px 13px", borderRadius: 9 }}
+          >
+            {k === "text" ? t("kindProposals") : t("kindDates")}
+          </button>
+        ))}
+      </div>
+
       <div style={{ marginBottom: 8 }}>
-        <div style={{ fontWeight: 700, fontSize: 13, color: SUBINK, marginBottom: 6 }}>{t("resOptionsTitle")}</div>
+        <div style={{ fontWeight: 700, fontSize: 13, color: SUBINK, marginBottom: 6 }}>
+          {kind === "slot" ? t("kindDatesTitle") : t("resOptionsTitle")}
+        </div>
+        {kind === "slot" ? (
+          <>
+            <SlotPicker slots={slots} onChange={setSlots} />
+            {slots.length > 0 && slots.length < 2 && (
+              <div style={{ fontSize: 12.5, color: MUTED, marginTop: 7 }}>{t("kindDatesNeedTwo")}</div>
+            )}
+          </>
+        ) : (
+          <>
         <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
           {opts.map((o, i) => (
             <div key={i} style={{ display: "flex", gap: 8, alignItems: "center" }}>
@@ -127,6 +189,8 @@ export default function QuestionComposer({
             {t("clearOptions")}
           </button>
         </div>
+        </>
+        )}
       </div>
       <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
         <span style={{ fontWeight: 700, fontSize: 13, color: SUBINK }}>{t("resMethod")}</span>
@@ -137,7 +201,7 @@ export default function QuestionComposer({
           style={{ fontFamily: FONT_BODY, fontSize: 14, fontWeight: 600, padding: "9px 11px", border: `2px solid ${INK}`, borderRadius: 10, background: "#fff" }}
         >
           <optgroup label={t("resKindVote")}>
-            {SYSTEM_ORDER.map((k) => (
+            {methods.map((k) => (
               <option key={k} value={k}>{tm(`${k}.name`)}</option>
             ))}
           </optgroup>
