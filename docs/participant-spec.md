@@ -66,9 +66,33 @@ marché.
 | Lot | Contenu | État |
 |---|---|---|
 | **P0 — Identité de participant** | `scrutin_member_links`, rattachement sur email vérifié, RPC de lecture | ✅ livré |
-| **P1 — L'audience comme concept unique** | audience portée par le scrutin, garanties attachées au type | à faire |
-| **P2 — La vue du connecté** | à répondre / mes cercles / créés / historique / public | à faire |
-| **P3 — Fusion des parcours + vocabulaire** | le sélecteur d'audience entre dans le parcours normal, le formulaire du cercle disparaît | à faire |
+| **P1 — L'audience comme concept unique** | colonne `audience` générée, `circle_audience_guard`, `set_poll_audience` | ✅ livré |
+| **P2 — La vue du connecté** | `get_my_feed`, page `/mes-votes` | ✅ livré |
+| **P3 — Fusion des parcours + vocabulaire** | le sélecteur d'audience entre dans le parcours de création, le formulaire du cercle disparaît | à faire |
+
+### Ce que P1 a effectivement changé
+
+`scrutin_polls.audience` est une colonne **générée** (`public` \| `link` \| `roster`)
+dérivée de `visibility` et `access_mode` : pas de troisième source de vérité, donc
+pas de dérive possible.
+
+Les quatre garanties vivent désormais dans **`circle_audience_guard`**, une seule
+implémentation attachée au TYPE d'audience. `open_circle_consultation` n'est plus
+qu'un raccourci qui l'appelle, et `set_poll_audience` permet d'affecter une
+audience « roster » à n'importe quel scrutin — y compris créé par le parcours
+normal. **Vérifié : par ce nouveau chemin, un segment de 3 en scellé est refusé et
+le scrutin reste intact.** C'est exactement ce qui rend P3 possible sans rouvrir
+l'attaque par cardinalité.
+
+Un scrutin isolé qui reçoit une audience « roster » se voit doter d'un événement
+enveloppant, créé de façon transparente : la convocation vit sur l'événement, et
+aucun refactor du chemin de vote n'a été nécessaire.
+
+### Ce que P2 a effectivement livré
+
+`get_my_feed()` et la page `/mes-votes` : *ce qui m'attend* (accentué, en tête),
+*j'ai répondu*, *ce que j'ai ouvert*, *historique*. Le feed public reste une page
+séparée — on y va pour découvrir, pas pour répondre à ce qui nous est adressé.
 
 **Ordre imposé** : P0 avant tout le reste (P2 ne peut afficher que deux colonnes
 sur cinq sans lui). P1 avant P3.

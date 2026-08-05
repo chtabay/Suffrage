@@ -5,7 +5,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Link } from "@/i18n/navigation";
 import { useAuth } from "@/lib/auth/useAuth";
 import { createSpace, listSpacesWithStats, type SpaceStats } from "@/lib/db/events";
-import { getMyParticipations, type MyParticipations } from "@/lib/db/participation";
+import { getMyFeed, type MyFeed } from "@/lib/db/participation";
 import PlacetMark from "./PlacetMark";
 import { CORAL, CREAM, FONT_BODY, FONT_DISPLAY, GREENTXT, INK, MUTED, REDTXT, SUBINK } from "./theme";
 
@@ -40,7 +40,7 @@ export default function SpacesHome() {
   // Les cercles où je suis MEMBRE — pas animateur. C'est le premier consommateur
   // de l'identité de participant : sans le rattachement compte ↔ appartenance,
   // cette liste ne pouvait tout simplement pas être calculée.
-  const [mine, setMine] = useState<MyParticipations | null>(null);
+  const [mine, setMine] = useState<MyFeed | null>(null);
   const [name, setName] = useState("");
   const [busy, setBusy] = useState(false);
   const [ready, setReady] = useState(false);
@@ -94,7 +94,7 @@ export default function SpacesHome() {
       // En parallèle : ce que j'anime, et ce à quoi je suis convié. Deux rôles
       // distincts sur la même page — le rattachement lui-même est fait par
       // useAuth à la connexion.
-      const [sp, part] = await Promise.all([listSpacesWithStats(), getMyParticipations().catch(() => null)]);
+      const [sp, part] = await Promise.all([listSpacesWithStats(), getMyFeed().catch(() => null)]);
       setSpaces(sp);
       setMine(part);
     } catch {
@@ -358,9 +358,7 @@ export default function SpacesHome() {
           <div style={{ fontSize: 12.5, color: MUTED, marginTop: 4, lineHeight: 1.45 }}>{t("myCirclesHint")}</div>
           <div style={{ display: "flex", flexDirection: "column", gap: 9, marginTop: 12 }}>
             {(mine?.circles ?? []).map((c) => {
-              const aRepondre = (mine?.consultations ?? []).filter(
-                (x) => x.circle === c.name && x.status === "open" && !x.voted,
-              ).length;
+              const aRepondre = (mine?.todo ?? []).filter((x) => x.circle === c.name).length;
               return (
                 <a
                   key={c.space_id}

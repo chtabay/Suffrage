@@ -1,12 +1,12 @@
 // Identité de PARTICIPANT — le pont entre un compte et ce à quoi il est convié.
 //
-// POURQUOI CE FICHIER EXISTE. Jusqu'ici un compte connecté n'était jamais qu'un
+// POURQUOI CE FICHIER EXISTE. Jusqu'à P0, un compte connecté n'était jamais qu'un
 // ORGANISATEUR : les seules colonnes reliées à `auth.users` étaient `owner_id`,
 // `created_by` et l'admin. L'appartenance à un cercle vivait dans
 // `scrutin_members`, identifiée par un email et un jeton reçu par courrier ; la
-// participation à un scrutin public vivait dans le `localStorage` du navigateur.
-// « Les consultations de mes cercles » et « mon historique » étaient donc
-// littéralement incalculables — pas difficiles à afficher : impossibles à obtenir.
+// participation à un scrutin public vivait dans le `localStorage`. « Ce qui
+// m'attend » était donc littéralement incalculable — pas difficile à afficher :
+// impossible à obtenir.
 //
 // Le lien vit dans une table SÉPARÉE (`scrutin_member_links`) et non dans une
 // colonne de `scrutin_members` : cette dernière est lisible par l'animateur, qui
@@ -14,7 +14,7 @@
 // affaire. Même principe que l'émargement du bulletin scellé.
 import { createClient } from "@/lib/supabase/client";
 
-/** Un cercle auquel le compte connecté appartient (comme MEMBRE, pas comme animateur). */
+/** Un cercle auquel le compte appartient comme MEMBRE (pas comme animateur). */
 export interface MyCircle {
   space_id: string;
   name: string;
@@ -25,22 +25,46 @@ export interface MyCircle {
   solicit_per_day: number | null;
 }
 
-/** Une consultation ADRESSÉE au compte connecté via l'un de ses cercles. */
-export interface MyConsultation {
+/** Une consultation qui m'est adressée, à répondre ou déjà répondue. */
+export interface FeedConsultation {
   title: string;
-  status: "draft" | "open" | "closed";
-  secret_ballot: boolean;
-  audience: string | null;
-  closes_at: string | null;
   circle: string;
   token: string;
-  voted: boolean;
+  secret_ballot: boolean;
+  audience?: string | null;
+  closes_at: string | null;
 }
 
-export interface MyParticipations {
+/** Un scrutin que j'ai ouvert. `audience` est le concept unifié de P1. */
+export interface FeedCreated {
+  id: string;
+  token: string;
+  question: string;
+  status: "open" | "closed" | "proposals";
+  audience: "public" | "link" | "roster";
+  closes_at: string | null;
+  event_id: string | null;
+  ballots: number;
+}
+
+/** Une ligne d'historique, les deux rôles confondus. */
+export interface FeedHistory {
+  kind: "participant" | "creator";
+  title: string;
+  circle?: string;
+  token: string;
+  audience?: string;
+  at: string;
+}
+
+export interface MyFeed {
   status: "ok" | "anonymous";
   circles?: MyCircle[];
-  consultations?: MyConsultation[];
+  /** Ce qui m'attend — la seule section réellement actionnable. */
+  todo?: FeedConsultation[];
+  answered?: FeedConsultation[];
+  created?: FeedCreated[];
+  history?: FeedHistory[];
 }
 
 /**
@@ -60,21 +84,64 @@ export async function linkMyMemberships(): Promise<number> {
   return (data as number | null) ?? 0;
 }
 
-/** Ce à quoi le compte connecté est convié. Ne lit jamais un bulletin. */
-export async function getMyParticipations(): Promise<MyParticipations> {
+/**
+ * Tout ce que le connecté doit voir, en un appel. Ne lit jamais un bulletin :
+ * l'état « répondu » vient de l'émargement en scellé, du rattachement du bulletin
+ * sinon.
+ */
+export async function getMyFeed(): Promise<MyFeed> {
   const supabase = createClient();
-  const { data, error } = await supabase.rpc("get_my_participations");
+  const { data, error } = await supabase.rpc("get_my_feed");
   if (error) throw error;
-  return (data as MyParticipations | null) ?? { status: "anonymous" };
+  return (data as MyFeed | null) ?? { status: "anonymous" };
 }
 
 /**
  * Défait un rattachement : le compte cesse de voir ce cercle dans ses listes.
  * NE le fait PAS sortir du cercle — pour cela il y a `leaveCircle`, qui efface
- * ses données. Deux gestes distincts, et il ne faut pas les confondre.
+ * ses données. Deux gestes distincts, à ne pas confondre.
  */
 export async function unlinkMembership(memberId: string): Promise<void> {
   const supabase = createClient();
   const { error } = await supabase.from("scrutin_member_links").delete().eq("member_id", memberId);
   if (error) throw error;
+}
+
+/**
+ * Donne une audience « roster » à un scrutin — depuis le parcours NORMAL, sans
+ * passer par le formulaire dédié du cercle.
+ *
+ * Les quatre garanties (convoquer tout le segment ou refuser, seuil de 5 en
+ * scellé, plafond du jour, scellé assumé) sont portées par le TYPE D'AUDIENCE en
+ * base, pas par ce chemin d'appel : viser un segment d'une personne est refusé
+ * ici comme ailleurs.
+ */
+export interface SetAudienceResult {
+  status: "ok" | "capped" | "too_small" | "not_a_circle" | "bad_segment" | "forbidden" | "invalid" | "already_voted";
+  event_id?: string;
+  poll_token?: string;
+  convened?: number;
+  audience?: string | null;
+  sealed?: boolean;
+  cap?: number;
+  today?: number;
+  roster?: number;
+  min?: number;
+}
+
+export async function setPollAudience(args: {
+  pollId: string;
+  spaceId: string;
+  segmentIds?: string[];
+  sealed?: boolean;
+}): Promise<SetAudienceResult> {
+  const supabase = createClient();
+  const { data, error } = await supabase.rpc("set_poll_audience", {
+    p_poll_id: args.pollId,
+    p_space_id: args.spaceId,
+    p_segment_ids: args.segmentIds?.length ? args.segmentIds : null,
+    p_sealed: args.sealed ?? true,
+  });
+  if (error) throw error;
+  return (data as SetAudienceResult | null) ?? { status: "invalid" };
 }

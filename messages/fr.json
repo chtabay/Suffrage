@@ -78,6 +78,7 @@
     "userActionFailed": "Action impossible — réessayez."
   },
   "Nav": {
+    "myVotes": "Mes votes",
     "menu": "Menu",
     "regie": "Régie",
     "explore": "Explorer",
@@ -1289,5 +1290,30 @@
     "cancel": "Annuler",
     "leftTitle": "Vous êtes parti·e",
     "leftDesc": "Vos données ont été effacées de ce cercle. Vous ne recevrez plus rien de sa part."
+  },
+  "Feed": {
+    "title": "Mes votes",
+    "subtitle": "Ce qui vous attend, ce que vous avez ouvert, et ce qui est déjà tranché.",
+    "loading": "Chargement…",
+    "signInPrompt": "Connectez-vous pour retrouver ce qui vous est adressé.",
+    "todoTitle": "{count, plural, one {# vote vous attend} other {# votes vous attendent}}",
+    "answeredTitle": "Vous avez répondu",
+    "answeredHint": "Le résultat s'affichera à la clôture.",
+    "createdTitle": "Ce que vous avez ouvert",
+    "historyTitle": "Historique",
+    "empty": "Rien pour l'instant. Créez un vote, ou rejoignez un cercle : ce qui vous sera adressé apparaîtra ici.",
+    "done": "répondu",
+    "sealed": "bulletin scellé",
+    "byMe": "ouvert par vous",
+    "ballots": "{count, plural, one {# bulletin} other {# bulletins}}",
+    "audience_public": "public",
+    "audience_link": "par lien",
+    "audience_roster": "sur convocation",
+    "closingMinutes": "{n} min restantes",
+    "closingHours": "{n} h restantes",
+    "closingDays": "{n} j restants",
+    "closingPast": "clôture dépassée",
+    "goExplore": "Découvrir les votes publics",
+    "goSpaces": "Mes groupes"
   }
 }

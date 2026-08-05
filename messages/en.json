@@ -78,6 +78,7 @@
     "userActionFailed": "Action failed — try again."
   },
   "Nav": {
+    "myVotes": "My votes",
     "menu": "Menu",
     "regie": "Control room",
     "explore": "Explore",
@@ -1289,5 +1290,30 @@
     "cancel": "Cancel",
     "leftTitle": "You've left",
     "leftDesc": "Your data has been erased from this circle. You won't hear from it again."
+  },
+  "Feed": {
+    "title": "My votes",
+    "subtitle": "What's waiting for you, what you've opened, and what's already decided.",
+    "loading": "Loading…",
+    "signInPrompt": "Sign in to find what's addressed to you.",
+    "todoTitle": "{count, plural, one {# vote is waiting for you} other {# votes are waiting for you}}",
+    "answeredTitle": "You've answered",
+    "answeredHint": "The result will appear when it closes.",
+    "createdTitle": "What you've opened",
+    "historyTitle": "History",
+    "empty": "Nothing yet. Create a vote, or join a circle: whatever is addressed to you will show up here.",
+    "done": "answered",
+    "sealed": "sealed ballot",
+    "byMe": "opened by you",
+    "ballots": "{count, plural, one {# ballot} other {# ballots}}",
+    "audience_public": "public",
+    "audience_link": "by link",
+    "audience_roster": "by invitation",
+    "closingMinutes": "{n} min left",
+    "closingHours": "{n} h left",
+    "closingDays": "{n} d left",
+    "closingPast": "past closing",
+    "goExplore": "Explore public votes",
+    "goSpaces": "My groups"
   }
 }

@@ -103,6 +103,16 @@ export default function Nav({ ctrl, auth }: { ctrl: ScrutinController; auth: Aut
           )}
           {!auth.loading && auth.user && (
             <Link
+              href="/mes-votes"
+              onClick={() => setOpen(false)}
+              className="dc-paper"
+              style={{ ...secondary, textDecoration: "none", display: "inline-flex", alignItems: "center", justifyContent: "center" }}
+            >
+              {t("myVotes")}
+            </Link>
+          )}
+          {!auth.loading && auth.user && (
+            <Link
               href="/espaces"
               onClick={() => setOpen(false)}
               className="dc-paper"

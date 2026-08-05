@@ -78,6 +78,7 @@
     "userActionFailed": "Action no work — try again."
   },
   "Nav": {
+    "myVotes": "My votes",
     "menu": "Menu",
     "regie": "Control room",
     "explore": "Explore",
@@ -1289,5 +1290,30 @@
     "cancel": "Cancel",
     "leftTitle": "You don comot",
     "leftDesc": "Dem don delete your data from dis circle. You no go hear from dem again."
+  },
+  "Feed": {
+    "title": "My votes",
+    "subtitle": "Wetin dey wait for you, wetin you don open, and wetin dem don decide.",
+    "loading": "E dey load…",
+    "signInPrompt": "Sign in make you see wetin dem send give you.",
+    "todoTitle": "{count, plural, one {# vote dey wait for you} other {# votes dey wait for you}}",
+    "answeredTitle": "You don answer",
+    "answeredHint": "Di result go show when e close.",
+    "createdTitle": "Wetin you don open",
+    "historyTitle": "History",
+    "empty": "Nothing yet. Create vote, or join circle: wetin dem send give you go show here.",
+    "done": "you don answer",
+    "sealed": "sealed ballot",
+    "byMe": "na you open am",
+    "ballots": "{count, plural, one {# ballot} other {# ballots}}",
+    "audience_public": "public",
+    "audience_link": "by link",
+    "audience_roster": "by invitation",
+    "closingMinutes": "{n} min remain",
+    "closingHours": "{n} h remain",
+    "closingDays": "{n} d remain",
+    "closingPast": "closing don pass",
+    "goExplore": "Explore public votes",
+    "goSpaces": "My groups"
   }
 }

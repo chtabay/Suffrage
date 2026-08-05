@@ -78,6 +78,7 @@
     "userActionFailed": "Acción imposible — inténtalo de nuevo."
   },
   "Nav": {
+    "myVotes": "Mis votos",
     "menu": "Menú",
     "regie": "Cabina",
     "explore": "Explorar",
@@ -1289,5 +1290,30 @@
     "cancel": "Cancelar",
     "leftTitle": "Has salido",
     "leftDesc": "Tus datos se han borrado de este círculo. No volverás a recibir nada suyo."
+  },
+  "Feed": {
+    "title": "Mis votos",
+    "subtitle": "Lo que te espera, lo que has abierto y lo que ya está decidido.",
+    "loading": "Cargando…",
+    "signInPrompt": "Inicia sesión para ver lo que se te dirige.",
+    "todoTitle": "{count, plural, one {# voto te espera} other {# votos te esperan}}",
+    "answeredTitle": "Ya respondiste",
+    "answeredHint": "El resultado aparecerá al cerrarse.",
+    "createdTitle": "Lo que has abierto",
+    "historyTitle": "Historial",
+    "empty": "Nada por ahora. Crea una votación o únete a un círculo: lo que se te dirija aparecerá aquí.",
+    "done": "respondido",
+    "sealed": "voto sellado",
+    "byMe": "abierto por ti",
+    "ballots": "{count, plural, one {# voto} other {# votos}}",
+    "audience_public": "público",
+    "audience_link": "por enlace",
+    "audience_roster": "por convocatoria",
+    "closingMinutes": "quedan {n} min",
+    "closingHours": "quedan {n} h",
+    "closingDays": "quedan {n} d",
+    "closingPast": "cierre pasado",
+    "goExplore": "Descubrir votaciones públicas",
+    "goSpaces": "Mis grupos"
   }
 }
