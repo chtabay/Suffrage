@@ -32,29 +32,8 @@ export interface FeedConsultation {
   token: string;
   secret_ballot: boolean;
   audience?: string | null;
+  status?: "open" | "closed";
   closes_at: string | null;
-}
-
-/** Un scrutin que j'ai ouvert. `audience` est le concept unifié de P1. */
-export interface FeedCreated {
-  id: string;
-  token: string;
-  question: string;
-  status: "open" | "closed" | "proposals";
-  audience: "public" | "link" | "roster";
-  closes_at: string | null;
-  event_id: string | null;
-  ballots: number;
-}
-
-/** Une ligne d'historique, les deux rôles confondus. */
-export interface FeedHistory {
-  kind: "participant" | "creator";
-  title: string;
-  circle?: string;
-  token: string;
-  audience?: string;
-  at: string;
 }
 
 export interface MyFeed {
@@ -62,9 +41,12 @@ export interface MyFeed {
   circles?: MyCircle[];
   /** Ce qui m'attend — la seule section réellement actionnable. */
   todo?: FeedConsultation[];
+  /**
+   * Ce à quoi j'ai déjà répondu. Ne contient QUE des participations : mes
+   * créations vivent dans « Mes consultations », qui le fait déjà et le fait
+   * bien. Deux listes des mêmes scrutins finiraient par diverger.
+   */
   answered?: FeedConsultation[];
-  created?: FeedCreated[];
-  history?: FeedHistory[];
 }
 
 /**

@@ -78,7 +78,7 @@
     "userActionFailed": "Action failed — try again."
   },
   "Nav": {
-    "myVotes": "My votes",
+    "myVotes": "My participations",
     "menu": "Menu",
     "regie": "Control room",
     "explore": "Explore",
@@ -915,6 +915,10 @@
     "permissionsNote": "Placet requests the minimal permissions (<code>commands</code>, <code>chat:write</code>) to post and update voting messages. Ballots stay on the web; no voter needs an account. Type <code>/placet help</code> in Slack anytime."
   },
   "Org": {
+    "actionsTitle": "Ask this group",
+    "actionsHint": "This page manages lists and groups. Creation happens with the usual tools — they just start with this group as the audience.",
+    "actionAsk": "Create a question",
+    "actionSequence": "Create a series of questions",
     "myCirclesTitle": "My circles",
     "myCirclesHint": "Circles you belong to as a member — you're invited to them, you don't run them.",
     "myCirclesToAnswer": "{count, plural, one {# to answer} other {# to answer}}",
@@ -1292,23 +1296,16 @@
     "leftDesc": "Your data has been erased from this circle. You won't hear from it again."
   },
   "Feed": {
-    "title": "My votes",
-    "subtitle": "What's waiting for you, what you've opened, and what's already decided.",
+    "title": "My participations",
+    "subtitle": "Consultations addressed to you. What you create yourself lives in “My polls”.",
     "loading": "Loading…",
     "signInPrompt": "Sign in to find what's addressed to you.",
     "todoTitle": "{count, plural, one {# vote is waiting for you} other {# votes are waiting for you}}",
     "answeredTitle": "You've answered",
     "answeredHint": "The result will appear when it closes.",
-    "createdTitle": "What you've opened",
-    "historyTitle": "History",
     "empty": "Nothing yet. Create a vote, or join a circle: whatever is addressed to you will show up here.",
     "done": "answered",
     "sealed": "sealed ballot",
-    "byMe": "opened by you",
-    "ballots": "{count, plural, one {# ballot} other {# ballots}}",
-    "audience_public": "public",
-    "audience_link": "by link",
-    "audience_roster": "by invitation",
     "closingMinutes": "{n} min left",
     "closingHours": "{n} h left",
     "closingDays": "{n} d left",

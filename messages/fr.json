@@ -78,7 +78,7 @@
     "userActionFailed": "Action impossible — réessayez."
   },
   "Nav": {
-    "myVotes": "Mes votes",
+    "myVotes": "Mes participations",
     "menu": "Menu",
     "regie": "Régie",
     "explore": "Explorer",
@@ -915,6 +915,10 @@
     "permissionsNote": "Placet demande les permissions minimales (<code>commands</code>, <code>chat:write</code>) pour poster et mettre à jour les messages de vote. Les bulletins restent sur le web ; aucun votant n'a besoin de compte. Tapez <code>/placet aide</code> dans Slack à tout moment."
   },
   "Org": {
+    "actionsTitle": "Interroger ce groupe",
+    "actionsHint": "Cette page gère les listes et les groupes. La création se fait avec les outils habituels — on leur passe simplement ce groupe comme audience de départ.",
+    "actionAsk": "Créer une interrogation",
+    "actionSequence": "Créer une suite de questions",
     "myCirclesTitle": "Mes cercles",
     "myCirclesHint": "Les cercles auxquels vous appartenez comme membre — vous y êtes convié·e, vous ne les animez pas.",
     "myCirclesToAnswer": "{count, plural, one {# à répondre} other {# à répondre}}",
@@ -1292,23 +1296,16 @@
     "leftDesc": "Vos données ont été effacées de ce cercle. Vous ne recevrez plus rien de sa part."
   },
   "Feed": {
-    "title": "Mes votes",
-    "subtitle": "Ce qui vous attend, ce que vous avez ouvert, et ce qui est déjà tranché.",
+    "title": "Mes participations",
+    "subtitle": "Les consultations qui vous sont adressées. Ce que vous créez, vous, se trouve dans « Mes consultations ».",
     "loading": "Chargement…",
     "signInPrompt": "Connectez-vous pour retrouver ce qui vous est adressé.",
     "todoTitle": "{count, plural, one {# vote vous attend} other {# votes vous attendent}}",
     "answeredTitle": "Vous avez répondu",
     "answeredHint": "Le résultat s'affichera à la clôture.",
-    "createdTitle": "Ce que vous avez ouvert",
-    "historyTitle": "Historique",
     "empty": "Rien pour l'instant. Créez un vote, ou rejoignez un cercle : ce qui vous sera adressé apparaîtra ici.",
     "done": "répondu",
     "sealed": "bulletin scellé",
-    "byMe": "ouvert par vous",
-    "ballots": "{count, plural, one {# bulletin} other {# bulletins}}",
-    "audience_public": "public",
-    "audience_link": "par lien",
-    "audience_roster": "sur convocation",
     "closingMinutes": "{n} min restantes",
     "closingHours": "{n} h restantes",
     "closingDays": "{n} j restants",

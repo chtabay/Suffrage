@@ -60,9 +60,7 @@ export default function MyFeedScreen() {
   const base = locale === "fr" ? "" : `/${locale}`;
   const todo = feed?.todo ?? [];
   const answered = feed?.answered ?? [];
-  const created = feed?.created ?? [];
-  const history = feed?.history ?? [];
-  const vide = !todo.length && !answered.length && !created.length && !history.length;
+  const vide = !todo.length && !answered.length;
 
   const ligne = (key: string, href: string, titre: string, sous: React.ReactNode, accent = false) => (
     <a
@@ -134,43 +132,10 @@ export default function MyFeedScreen() {
         </div>
       )}
 
-      {created.length > 0 && (
-        <div style={{ ...card, marginTop: 16 }}>
-          <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 17 }}>{t("createdTitle")}</div>
-          <div style={{ display: "grid", gap: 9, marginTop: 12 }}>
-            {created.map((p) =>
-              ligne(
-                p.id,
-                p.event_id ? `${base}/evenement/${p.event_id}` : `${base}/v/${p.token}`,
-                p.question,
-                <>
-                  {t(`audience_${p.audience}`)}
-                  {` · ${t("ballots", { count: p.ballots })}`}
-                </>,
-              ),
-            )}
-          </div>
-        </div>
-      )}
-
-      {history.length > 0 && (
-        <div style={{ ...card, marginTop: 16 }}>
-          <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 17 }}>{t("historyTitle")}</div>
-          <div style={{ display: "grid", gap: 9, marginTop: 12 }}>
-            {history.slice(0, 20).map((h, i) =>
-              ligne(
-                `${h.token}-${i}`,
-                h.kind === "participant" ? `${base}/e/${h.token}` : `${base}/v/${h.token}`,
-                h.title,
-                <>
-                  {h.kind === "participant" ? h.circle : t("byMe")}
-                  {` · ${new Date(h.at).toLocaleDateString(locale)}`}
-                </>,
-              ),
-            )}
-          </div>
-        </div>
-      )}
+      {/* Ni « ce que j'ai ouvert » ni « historique » ici : « Mes consultations »
+          le fait déjà, et le fait bien. Deux listes des mêmes scrutins sur deux
+          pages finiraient par diverger. Cette page ne montre que ce qui m'est
+          ADRESSÉ — créer et être consulté sont deux rôles distincts. */}
 
       {vide && feed && (
         <div style={{ ...card, marginTop: 18, color: SUBINK, lineHeight: 1.55 }}>{t("empty")}</div>

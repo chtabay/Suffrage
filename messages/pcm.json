@@ -78,7 +78,7 @@
     "userActionFailed": "Action no work — try again."
   },
   "Nav": {
-    "myVotes": "My votes",
+    "myVotes": "My participations",
     "menu": "Menu",
     "regie": "Control room",
     "explore": "Explore",
@@ -915,6 +915,10 @@
     "permissionsNote": "Placet dey request di minimal permissions (<code>commands</code>, <code>chat:write</code>) to post and update voting messages. Ballots dey stay for web; no voter need account. Type <code>/placet help</code> for Slack anytime."
   },
   "Org": {
+    "actionsTitle": "Ask dis group",
+    "actionsHint": "Dis page dey manage lists and groups. To create dey happen with di normal tools — dem just start with dis group as di audience.",
+    "actionAsk": "Create one question",
+    "actionSequence": "Create series of questions",
     "myCirclesTitle": "My circles",
     "myCirclesHint": "Circles wey you dey as member — dem invite you, no be you dey run am.",
     "myCirclesToAnswer": "{count, plural, one {# to answer} other {# to answer}}",
@@ -1292,23 +1296,16 @@
     "leftDesc": "Dem don delete your data from dis circle. You no go hear from dem again."
   },
   "Feed": {
-    "title": "My votes",
-    "subtitle": "Wetin dey wait for you, wetin you don open, and wetin dem don decide.",
+    "title": "My participations",
+    "subtitle": "Di consultations wey dem send give you. Wetin you yasef create dey for “My polls”.",
     "loading": "E dey load…",
     "signInPrompt": "Sign in make you see wetin dem send give you.",
     "todoTitle": "{count, plural, one {# vote dey wait for you} other {# votes dey wait for you}}",
     "answeredTitle": "You don answer",
     "answeredHint": "Di result go show when e close.",
-    "createdTitle": "Wetin you don open",
-    "historyTitle": "History",
     "empty": "Nothing yet. Create vote, or join circle: wetin dem send give you go show here.",
     "done": "you don answer",
     "sealed": "sealed ballot",
-    "byMe": "na you open am",
-    "ballots": "{count, plural, one {# ballot} other {# ballots}}",
-    "audience_public": "public",
-    "audience_link": "by link",
-    "audience_roster": "by invitation",
     "closingMinutes": "{n} min remain",
     "closingHours": "{n} h remain",
     "closingDays": "{n} d remain",

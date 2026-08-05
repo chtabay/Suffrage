@@ -29,7 +29,6 @@ import {
   unassignSegment,
   type Segment,
 } from "@/lib/db/circles";
-import QuestionComposer, { type ComposedQuestion } from "./QuestionComposer";
 import { APP_URL } from "@/lib/voting/aiPrompt";
 import { CORAL, CREAM, FONT_BODY, FONT_DISPLAY, GREENTXT, INK, MUTED, REDTXT, SUBINK } from "./theme";
 
@@ -97,10 +96,6 @@ function buildPreview(text: string, existing: Member[]): ParsedRow[] {
 export default function SpaceDashboard({ spaceId }: { spaceId: string }) {
   const t = useTranslations("Org");
   const locale = useLocale();
-  // Préréglage du cas le plus courant : Pour / Contre / Abstention (localisé).
-  // Le composeur part de là, mais on peut tout remplacer — c'est un défaut, pas
-  // une limite, contrairement à ce que faisait l'ancien bloc « Interroger ».
-  const presetOpts = () => [t("presetFor"), t("presetAgainst"), t("presetAbstain")];
   const router = useRouter();
   const { user, loading } = useAuth();
   const [space, setSpace] = useState<Space | null>(null);
@@ -114,12 +109,7 @@ export default function SpaceDashboard({ spaceId }: { spaceId: string }) {
   const [segName, setSegName] = useState("");
   const [segRanked, setSegRanked] = useState(false);
   // Cible de la prochaine consultation. "" = tout le cercle.
-  const [target, setTarget] = useState("");
-  const [andAbove, setAndAbove] = useState(true);
-  const [sealed, setSealed] = useState(true);
   const [copiedJoin, setCopiedJoin] = useState(false);
-  const [askMsg, setAskMsg] = useState("");
-  const [asking, setAsking] = useState(false);
   const [events, setEvents] = useState<EventRow[]>([]);
   const [memberText, setMemberText] = useState("");
   const [eventTitle, setEventTitle] = useState("");
@@ -216,64 +206,7 @@ export default function SpaceDashboard({ spaceId }: { spaceId: string }) {
     }
   };
 
-  /**
-   * Ouvrir une consultation. UN SEUL bouton, et surtout : aucun choix de
-   * destinataires. C'est la RPC qui convoque tout le roster — pouvoir désigner
-   * qui répond suffirait à lever le secret (on convoque une personne, on lit le
-   * bulletin qui arrive). Les refus viennent de la base et sont affichés tels quels.
-   */
-  const openConsultation = async (composed: ComposedQuestion) => {
-    if (!space || asking) return;
-    setAsking(true);
-    setAskMsg("");
-    try {
-      const r = await openCircleConsultation({
-        spaceId: space.id,
-        question: composed.question,
-        options: composed.options,
-        recipe: composed.recipe,
-        segmentIds: targetIds(),
-        sealed,
-      });
-      if (r.status === "ok") {
-        await load();
-        router.push(`/evenement/${r.event_id}`);
-      } else if (r.status === "capped") {
-        setAskMsg(t("askCapped", { cap: r.cap ?? 1 }));
-      } else if (r.status === "too_small") {
-        // Le motif nomme le PUBLIC visé : « Avancé compte 3 membres » est
-        // actionnable, « le cercle compte 3 membres » serait faux et déroutant.
-        setAskMsg(
-          r.audience
-            ? t("askTooSmallSegment", { audience: r.audience, n: r.roster ?? 0, min: r.min ?? 5 })
-            : t("askTooSmall", { n: r.roster ?? 0, min: r.min ?? 5 }),
-        );
-      } else {
-        setAskMsg(t("circleSaveError"));
-      }
-    } catch {
-      setAskMsg(t("circleSaveError"));
-    }
-    setAsking(false);
-  };
 
-  // Le lien de conversation. Vidé = retiré. La liste blanche d'hôtes est doublée
-  // en base par une contrainte CHECK : ce bouton portera le nom du cercle auprès
-  // des membres, il ne doit pas pouvoir mener ailleurs.
-  /**
-   * Cible effective : la liste d'identifiants de segments envoyée à la base.
-   * C'est ICI que l'échelle se traduit — la RPC ne connaît QUE des segments,
-   * jamais un rang. « Standard et au-dessus » devient [Standard, Avancé].
-   */
-  const targetIds = (): string[] => {
-    if (!target) return [];
-    const seg = segments.find((g) => g.id === target);
-    if (!seg) return [];
-    if (andAbove && seg.rank != null) {
-      return segments.filter((g) => g.rank != null && g.rank >= seg.rank!).map((g) => g.id);
-    }
-    return [seg.id];
-  };
 
   const addSegment = async () => {
     const name = segName.trim();
@@ -295,7 +228,6 @@ export default function SpaceDashboard({ spaceId }: { spaceId: string }) {
     await deleteSegment(id);
     setSegments((l) => l.filter((g) => g.id !== id));
     setMemberSegs((m) => Object.fromEntries(Object.entries(m).map(([k, v]) => [k, v.filter((x) => x !== id)])));
-    if (target === id) setTarget("");
   };
 
   const toggleMemberSegment = async (memberId: string, segmentId: string, on: boolean) => {
@@ -337,78 +269,33 @@ export default function SpaceDashboard({ spaceId }: { spaceId: string }) {
       </h1>
       <p style={{ fontSize: 14.5, color: SUBINK, lineHeight: 1.5, marginTop: 8, maxWidth: "62ch" }}>{t("spaceDashSubtitle")}</p>
 
-      {/* ---- INTERROGER — l action de la semaine, donc en tete et accentuee ----
-          Elle etait enterree au milieu de reglages qu on touche une fois dans la
-          vie du cercle : lien d adhesion, pitch, conversation. L ordre suit
-          desormais la FREQUENCE d usage, pas le modele de donnees. */}
-      {space?.join_open && (
-        <div style={{ ...card, marginTop: 18, borderColor: CORAL, boxShadow: `5px 5px 0 ${CORAL}` }}>
-          <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 19 }}>{t("askTitle")}</div>
-          <div style={{ fontSize: 12.5, color: MUTED, marginTop: 4, lineHeight: 1.45 }}>{t("askSubtitle")}</div>
-          <div style={{ marginTop: 12 }}>
-            <div style={{ fontWeight: 800, fontSize: 14.5, fontFamily: FONT_DISPLAY }}>{t("askTitle")}</div>
-            <div style={{ fontSize: 12.5, color: MUTED, marginTop: 3, lineHeight: 1.45 }}>{t("askSubtitle")}</div>
-            {/* Le composeur est le MÊME que celui des événements : le cercle a
-                désormais accès aux douze méthodes et à des options libres, là où
-                il ne proposait que Pour/Contre/Abstention en uninominal. Ses
-                contrôles propres — public visé, régime — passent en `extras`,
-                car ils qualifient le PUBLIC et non la question. */}
-            <QuestionComposer
-              presetOptions={presetOpts}
-              submitLabel={asking ? t("asking") : t("askCta")}
-              busy={asking}
-              onSubmit={openConsultation}
-              extras={
-                <>
-                  {segments.length > 0 && (
-                    <div style={{ display: "flex", gap: 9, marginTop: 10, alignItems: "center", flexWrap: "wrap" }}>
-                      <span style={{ fontSize: 13, fontWeight: 700, color: SUBINK }}>{t("askAudience")}</span>
-                      <select
-                        value={target}
-                        onChange={(e) => setTarget(e.target.value)}
-                        aria-label={t("askAudience")}
-                        style={{ fontFamily: FONT_BODY, fontSize: 14, fontWeight: 600, padding: "8px 10px", border: `2px solid ${INK}`, borderRadius: 10, background: "#fff" }}
-                      >
-                        <option value="">{t("askAudienceAll")}</option>
-                        {segments.map((g) => (
-                          <option key={g.id} value={g.id}>{g.name}</option>
-                        ))}
-                      </select>
-                      {/* N'apparaît que si le segment visé appartient à une échelle. */}
-                      {target && segments.find((g) => g.id === target)?.rank != null && (
-                        <label style={{ display: "flex", alignItems: "center", gap: 7, fontSize: 12.5, color: SUBINK, cursor: "pointer" }}>
-                          <input type="checkbox" checked={andAbove} onChange={(e) => setAndAbove(e.target.checked)} style={{ width: 16, height: 16, accentColor: INK }} />
-                          {t("askAudienceAndAbove")}
-                        </label>
-                      )}
-                    </div>
-                  )}
-                  {/* ---- Le régime de réponse. Deux promesses opposées : il faut
-                       choisir, et le votant sera informé de celle qui s'applique. ---- */}
-                  <div style={{ display: "flex", gap: 8, marginTop: 10, flexWrap: "wrap" }}>
-                    {[true, false].map((mode) => (
-                      <button
-                        key={String(mode)}
-                        onClick={() => setSealed(mode)}
-                        aria-pressed={sealed === mode}
-                        style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 13, cursor: "pointer", border: `2px solid ${INK}`, background: sealed === mode ? INK : "#fff", color: sealed === mode ? "#fff" : INK, padding: "8px 13px", borderRadius: 9 }}
-                      >
-                        {mode ? t("modeSealed") : t("modeNamed")}
-                      </button>
-                    ))}
-                  </div>
-                  <div style={{ fontSize: 12.5, color: MUTED, marginTop: 6, lineHeight: 1.45 }}>
-                    {sealed ? t("modeSealedHint") : t("modeNamedHint")}
-                  </div>
-                </>
-              }
-            />
-            {askMsg && (
-              <div style={{ marginTop: 9, color: REDTXT, fontWeight: 700, fontSize: 13, lineHeight: 1.45 }}>{askMsg}</div>
-            )}
-          </div>
+      {/* ---- CE QU'ON PEUT FAIRE DEPUIS ICI ----
+          Cette page GÈRE des listes et des groupes ; elle ne crée pas de vote.
+          Un formulaire de création intégré ici serait un SECOND parcours,
+          condamné à rester plus pauvre que le vrai — je l'ai vérifié trois fois
+          en le rattrapant (méthodes, options libres, dates). On pointe donc vers
+          les parcours existants, en leur passant le contexte du groupe pour que
+          l'audience proposée soit déjà la bonne. */}
+      <div style={{ ...card, marginTop: 18, borderColor: CORAL, boxShadow: `5px 5px 0 ${CORAL}` }}>
+        <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 19 }}>{t("actionsTitle")}</div>
+        <div style={{ fontSize: 12.5, color: MUTED, marginTop: 4, lineHeight: 1.45 }}>{t("actionsHint")}</div>
+        <div style={{ display: "flex", gap: 10, marginTop: 14, flexWrap: "wrap" }}>
+          <Link
+            href={`/new?espace=${space?.id ?? ""}`}
+            className="dc-bright"
+            style={{ textDecoration: "none", fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 14.5, border: `2.5px solid ${INK}`, background: INK, color: "#fff", padding: "11px 18px", borderRadius: 11 }}
+          >
+            {t("actionAsk")}
+          </Link>
+          <button
+            onClick={onCreateEvent}
+            disabled={busy}
+            style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 14.5, cursor: "pointer", border: `2.5px solid ${INK}`, background: "#fff", color: INK, padding: "11px 18px", borderRadius: 11 }}
+          >
+            {t("actionSequence")}
+          </button>
         </div>
-      )}
+      </div>
 
       {/* ---- Corps électoral (roster) ---- */}
       <div style={{ ...card, marginTop: 18 }}>
