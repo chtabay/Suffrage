@@ -46,6 +46,10 @@ export interface ScrutinState {
   spaceId: string | null;
   /** Résultat de cette affectation, pour le dire franchement sur l'écran de lancement. */
   audience: SetAudienceResult | null;
+  /** Segments visés (résolus en ids par l'UI). Vide = tout le groupe. */
+  audienceSegments: string[];
+  /** Scellé (défaut) ou nominatif — les garanties associées restent en base. */
+  audienceSealed: boolean;
   /** Ouvrir une phase de collecte : les votants ajoutent des options avant le vote (invitation seulement). */
   proposalsPhase: boolean;
   voterNames: string;
@@ -88,6 +92,8 @@ const INITIAL: ScrutinState = {
   publicListing: false,
   spaceId: null,
   audience: null,
+  audienceSegments: [],
+  audienceSealed: true,
   proposalsPhase: false,
   voterNames: "",
   districts: [
@@ -379,6 +385,13 @@ export function useScrutin(draft?: ScrutinDraft) {
     setState((s) => ({ ...s, publicListing, ...CLEAR_SHARE }));
   }, []);
 
+  const setAudienceSegments = useCallback((audienceSegments: string[]) => {
+    setState((s) => ({ ...s, audienceSegments }));
+  }, []);
+  const setAudienceSealed = useCallback((audienceSealed: boolean) => {
+    setState((s) => ({ ...s, audienceSealed }));
+  }, []);
+
   // Phase de propositions : collecte d'options par les votants avant le vote.
   const setProposalsPhase = useCallback((proposalsPhase: boolean) => {
     setState((s) => ({ ...s, proposalsPhase, ...CLEAR_SHARE }));
@@ -638,7 +651,12 @@ export function useScrutin(draft?: ScrutinDraft) {
       let audience: SetAudienceResult | null = null;
       if (s.spaceId) {
         try {
-          audience = await setPollAudienceByToken({ token, spaceId: s.spaceId });
+          audience = await setPollAudienceByToken({
+            token,
+            spaceId: s.spaceId,
+            segmentIds: s.audienceSegments,
+            sealed: s.audienceSealed,
+          });
         } catch {
           audience = { status: "invalid" };
         }
@@ -694,6 +712,8 @@ export function useScrutin(draft?: ScrutinDraft) {
     setAccess,
     toggleHideResults,
     setPublicListing,
+    setAudienceSegments,
+    setAudienceSealed,
     setProposalsPhase,
     setVoterNames,
     setAssignMethod,

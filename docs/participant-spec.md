@@ -97,6 +97,52 @@ séparée — on y va pour découvrir, pas pour répondre à ce qui nous est adr
 **Ordre imposé** : P0 avant tout le reste (P2 ne peut afficher que deux colonnes
 sur cinq sans lui). P1 avant P3.
 
+## 5 bis. La vue marché — spécification (validée avant réalisation)
+
+**Intention.** Découvrir : voir tous les sondages intéressants, en chercher, en
+suivre. Distincte de « Mes participations », qui est la file de ce qui m'est
+adressé — deux intentions, deux pages.
+
+**Invariant d'accès (posé par Guillaume).** On accède à un cercle en y étant
+invité par son responsable ; le public est ouvert à tous. **On n'épingle que ce à
+quoi on a accès** : consultations des cercles dont on est participant rattaché,
+éléments publics, plus ce qu'on a créé ou qu'on anime. Appliqué en base dans
+`toggle_pin` — quatre titres d'accès, et le refus rend le même `false` qu'un
+jeton inexistant (pas d'oracle de validité).
+
+**Structure.**
+1. **Une seule page : `/explorer`**, refondue — pas de route nouvelle. Elle est
+   déjà indexée et la landing pointe dessus.
+2. **Rendu hybride.** Le serveur rend la grille initiale (ISR 60 s — le SEO ne
+   bouge pas, les cartes restent dans le HTML) ; un composant client la reprend
+   avec la même donnée initiale, sans double-fetch au premier rendu.
+3. **Barre d'outils** : recherche (déclenchée 300 ms après la dernière frappe,
+   exécutée EN BASE sur question + description, jokers `%`/`_` échappés) ; pour
+   le connecté, bascule « Épinglés ».
+4. **La carte** — ce qui la rend vivante, conformément à la mise en garde
+   Polymarket (§4) : question, méthode, phase, **temps restant**,
+   **participation** (n bulletins), et l'épingle pour le connecté. Pas de prix,
+   pas de volume, pas de « tendance » inventée : le signal honnête d'un scrutin
+   est le temps qui reste et la participation.
+5. **Onglet « Épinglés »** (connecté) : les DEUX sortes — cartes publiques
+   (route `/v`) et consultations de cercle qui me sont adressées (route `/e`,
+   par MON jeton de convoqué, avec le nom du cercle). C'est l'invariant qui rend
+   cet onglet possible : tout ce qui est épinglable m'est visible.
+6. **Pagination** : « Voir plus » par curseur (`p_before` = `published_at` de la
+   dernière carte). Pas de défilement infini.
+7. **Anonyme** : ni épingle ni bascule — un contrôle inopérant est pire
+   qu'absent. La page publique reste une vitrine propre, identique à avant.
+8. **États vides** distincts : recherche sans résultat, aucun épinglé (avec
+   l'explication du geste), feed vide (existant, conservé).
+9. **A11y** : épingle = vrai bouton `aria-pressed` nommant le scrutin, cible
+   ≥ 24 px, contrastes conformes (`GREENTXT` pour le texte).
+
+**Historique (dette réglée au passage).** `scrutin_vote_marks` — registre
+`(compte, scrutin, date au jour)` sur le modèle de l'émargement : jamais le
+bulletin. Alimenté silencieusement aux deux chemins de vote (public et par
+lien) ; sans effet pour l'anonyme, dont le `localStorage` reste la seule trace.
+Affiché dans « Mes participations », section « Mes votes publics ».
+
 ## 6. Hors périmètre, explicitement
 
 Le **fonctionnement sans compte ne bouge pas** : lien partagé, vote anonyme,

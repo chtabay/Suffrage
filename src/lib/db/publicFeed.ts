@@ -120,3 +120,28 @@ export async function togglePin(token: string): Promise<boolean> {
   if (error) throw error;
   return Boolean(data);
 }
+
+/** Une épingle — carte publique (route /v) ou consultation de cercle (route /e). */
+export interface MyPin {
+  kind: "poll" | "circle";
+  title: string;
+  question: string;
+  url_token: string;
+  route: "v" | "e";
+  circle: string | null;
+  status: PollStatus;
+  closes_at: string | null;
+  pinned_at: string;
+}
+
+/**
+ * Mes épingles, les deux sortes. L'invariant d'accès garantit que tout ce qui a
+ * pu être épinglé m'est visible — c'est ce qui rend cet onglet affichable sans
+ * filtrage supplémentaire.
+ */
+export async function getMyPins(): Promise<MyPin[]> {
+  const supabase = createClient();
+  const { data, error } = await supabase.rpc("get_my_pins");
+  if (error) throw error;
+  return (data as MyPin[] | null) ?? [];
+}

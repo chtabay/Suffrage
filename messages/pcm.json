@@ -491,6 +491,19 @@
     "closureResume": "e go close {date}"
   },
   "Explore": {
+    "searchPlaceholder": "Search polls…",
+    "searchNoResults": "Nothing match “{q}”. Try anoda word, or create dat poll yasef.",
+    "tabAll": "All",
+    "tabPinned": "Pinned",
+    "pin": "Pin am",
+    "unpin": "Unpin am",
+    "pinAria": "Pin “{question}”",
+    "unpinAria": "Unpin “{question}”",
+    "pinnedEmpty": "Nothing pinned yet",
+    "pinnedEmptyHint": "Di 📌 pin for card go keep poll near you — public poll, or consultation from circle wey you dey inside.",
+    "circleTag": "circle {name}",
+    "loadMore": "See more",
+    "loading": "E dey load…",
     "title": "Explore public votes dem",
     "subtitle": "Na polls wey di people wey create dem choose make everybody see. Vote, check results, start your own.",
     "empty": "No public poll dey yet. Be di first person to publish your own!",
@@ -921,6 +934,8 @@
     "permissionsNote": "Placet dey request di minimal permissions (<code>commands</code>, <code>chat:write</code>) to post and update voting messages. Ballots dey stay for web; no voter need account. Type <code>/placet help</code> for Slack anytime."
   },
   "Org": {
+    "createForGroup": "For di group “{name}”",
+    "createForGroupHint": "When you launch am, di whole audience go dey convened at once — you no go pick who answer.",
     "actionsTitle": "Ask dis group",
     "actionsHint": "Dis page dey manage lists and groups. To create dey happen with di normal tools — dem just start with dis group as di audience.",
     "actionAsk": "Create one question",
@@ -1302,6 +1317,9 @@
     "leftDesc": "Dem don delete your data from dis circle. You no go hear from dem again."
   },
   "Feed": {
+    "publicVotesTitle": "My public votes",
+    "publicVotesHint": "Open or link votes wey you join, wey dey follow you for all your devices.",
+    "votedOn": "you vote am for {date}",
     "title": "My participations",
     "subtitle": "Di consultations wey dem send give you. Wetin you yasef create dey for “My polls”.",
     "loading": "E dey load…",

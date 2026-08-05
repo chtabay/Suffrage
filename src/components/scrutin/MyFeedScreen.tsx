@@ -60,7 +60,8 @@ export default function MyFeedScreen() {
   const base = locale === "fr" ? "" : `/${locale}`;
   const todo = feed?.todo ?? [];
   const answered = feed?.answered ?? [];
-  const vide = !todo.length && !answered.length;
+  const publicVotes = feed?.publicVotes ?? [];
+  const vide = !todo.length && !answered.length && !publicVotes.length;
 
   const ligne = (key: string, href: string, titre: string, sous: React.ReactNode, accent = false) => (
     <a
@@ -127,6 +128,26 @@ export default function MyFeedScreen() {
                   {c.circle} · {t("done")}
                 </span>
               )),
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Mes votes HORS cercle (publics ou par lien) — des participations, donc
+          leur place est ici. La mémoire vient du registre en base : elle survit
+          au changement d'appareil, contrairement au localStorage qu'elle relaie. */}
+      {publicVotes.length > 0 && (
+        <div style={{ ...card, marginTop: 16 }}>
+          <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 17 }}>{t("publicVotesTitle")}</div>
+          <div style={{ fontSize: 12.5, color: MUTED, marginTop: 3 }}>{t("publicVotesHint")}</div>
+          <div style={{ display: "grid", gap: 9, marginTop: 12 }}>
+            {publicVotes.slice(0, 20).map((v) =>
+              ligne(
+                v.token,
+                `${base}/v/${v.token}`,
+                v.question,
+                <>{t("votedOn", { date: new Date(v.marked_on).toLocaleDateString(locale) })}</>,
+              ),
             )}
           </div>
         </div>

@@ -15,6 +15,7 @@ import PrefillPanel from "./PrefillPanel";
 import OptionDetails from "./OptionDetails";
 import { ASSIGN_METHODS, ASSIGN_METHOD_KEYS, type AssignMethodKey } from "@/lib/assign/methods";
 import SlotPicker from "./SlotPicker";
+import CreateAudienceBlock from "./CreateAudienceBlock";
 import { CORAL, CREAM, FONT_BODY, FONT_DISPLAY, GREENTXT, INK, MUTED, REDTXT, YELLOW, lift } from "./theme";
 
 interface AxisOption {
@@ -225,7 +226,7 @@ export default function CreateScreen({ ctrl }: { ctrl: ScrutinController }) {
   const locale = useLocale();
   // Exemples évocateurs montrés en placeholder (pas des valeurs à supprimer).
   const optionPlaceholders = t.raw("optionPlaceholders") as string[];
-  const { state, selectSystemRecipe, setRecipe, setQuestion, setDescription, setOptionName, setOptionUrl, setOptionNote, setOptionPlace, setOptionGeo, setOptionIcon, removeOption, addOption, setOptionKind, setSlots, setSlotMinutes, setAssignMethod, setAssignSideB, setAssignSlots, setAssignPer, setSurvey, setProposalsPhase, setVoterNames, launch } = ctrl;
+  const { state, selectSystemRecipe, setRecipe, setQuestion, setDescription, setOptionName, setOptionUrl, setOptionNote, setOptionPlace, setOptionGeo, setOptionIcon, removeOption, addOption, setOptionKind, setSlots, setSlotMinutes, setAssignMethod, setAssignSideB, setAssignSlots, setAssignPer, setSurvey, setProposalsPhase, setVoterNames, launch, setAudienceSegments, setAudienceSealed } = ctrl;
   const tac = useTranslations("Access");
   const [urlRows, setUrlRows] = useState<Record<number, boolean | undefined>>({});
   const [emojiRow, setEmojiRow] = useState<number | null>(null);
@@ -1183,6 +1184,19 @@ export default function CreateScreen({ ctrl }: { ctrl: ScrutinController }) {
             <div className="create-detail-desktop">
               {isAssign ? <AssignDetail /> : <MethodDetail />}
             </div>
+            {/* Créé depuis la page d'un groupe : l'audience se règle ICI, à côté
+                du bouton qui l'engage — ciblage de segment et régime compris.
+                C'est ce que le formulaire supprimé de la page de groupe offrait,
+                rendu au parcours normal. */}
+            {state.spaceId && (
+              <CreateAudienceBlock
+                spaceId={state.spaceId}
+                segments={state.audienceSegments}
+                sealed={state.audienceSealed}
+                onSegments={setAudienceSegments}
+                onSealed={setAudienceSealed}
+              />
+            )}
             <button
               onClick={launch}
               disabled={state.launching || assignBlocked}

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import PlacetMark from "@/components/scrutin/PlacetMark";
+import MarketExplorer from "@/components/scrutin/MarketExplorer";
 import { cardIntent, cardIsOpen, fetchPublicPollsServer, type CardIntent } from "@/lib/db/publicFeed";
 import { intlLocale } from "@/i18n/locales";
 
@@ -132,60 +133,12 @@ export default async function ExplorerPage({ params }: { params: Promise<{ local
           </div>
         ) : (
           <>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(min(100%,300px),1fr))", gap: 14, marginTop: 28 }}>
-            {polls.map((p) => {
-              const open = cardIsOpen(p);
-              return (
-                <Link
-                  key={p.token}
-                  href={`/v/${p.token}`}
-                  style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: 10,
-                    textDecoration: "none",
-                    color: INK,
-                    background: "#fff",
-                    border: `2.5px solid ${INK}`,
-                    borderRadius: 15,
-                    padding: "15px 16px",
-                    boxShadow: `4px 4px 0 ${open ? GREEN : INK}`,
-                  }}
-                >
-                  <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-                    {intentBadge(cardIntent(p))}
-                    {badge(open)}
-                    <span style={{ fontSize: 12, color: MUTED, fontWeight: 600 }}>
-                      {open && p.closes_at
-                        ? t("closesOn", { date: fmt.format(new Date(p.closes_at)) })
-                        : t("publishedOn", { date: fmt.format(new Date(p.published_at)) })}
-                    </span>
-                  </div>
-                  <div style={{ fontFamily: display, fontWeight: 800, fontSize: 17, lineHeight: 1.2 }}>{p.question}</div>
-                  {p.description && (
-                    <div
-                      style={{
-                        fontSize: 13,
-                        color: MUTED,
-                        lineHeight: 1.4,
-                        display: "-webkit-box",
-                        WebkitLineClamp: 2,
-                        WebkitBoxOrient: "vertical",
-                        overflow: "hidden",
-                      }}
-                    >
-                      {p.description}
-                    </div>
-                  )}
-                  <div style={{ marginTop: "auto", fontSize: 12.5, color: MUTED, fontWeight: 600 }}>
-                    🗳 {t("ballots", { count: p.ballot_count })} · {t("options", { count: p.options.length })}
-                  </div>
-                </Link>
-              );
-            })}
-          </div>
-          {/* Conversion découvreur → créateur : point de sortie vers /new même quand
-              le feed est peuplé (avant, /new n'existait que dans l'état vide). */}
+          {/* La grille interactive — recherche, épingles, pagination. Rendue en
+              HTML par le serveur aussi (composant client SSR) : le SEO ne perd
+              rien, voir docs/participant-spec.md §5 bis. */}
+          <MarketExplorer initialCards={polls} />
+          {/* Conversion découvreur → créateur : point de sortie vers /new même
+              quand le feed est peuplé. */}
           <div style={{ marginTop: 30, textAlign: "center" }}>
             <Link
               href="/new"

@@ -11,6 +11,7 @@ import {
   addProposalOpen,
   castInvitedBallot,
   castPublicBallot,
+  markMyVote,
   closePoll,
   openVoting,
   editProposalNote,
@@ -2343,6 +2344,10 @@ export default function PublicVote({
         const r = await castPublicBallot(token, ballot);
         if (r === "ok") {
           markVotedLocally(token);
+          // Registre d'historique du CONNECTÉ : que le fait d'avoir voté, jamais
+          // le bulletin. Silencieux, et sans effet pour un anonyme — le
+          // localStorage ci-dessus reste sa seule trace, comme avant.
+          markMyVote(token);
           // Le « mot au groupe » part dans une table dédiée, détaché du bulletin.
           if (comment.trim()) await addComment(token, comment, pseudo).catch(() => {});
           pingPollEvent(token);
@@ -2368,6 +2373,7 @@ export default function PublicVote({
         }
       } else {
         await addBallot(poll.id, ballot);
+        markMyVote(token);
         // Le « mot au groupe » part dans une table dédiée, détaché du bulletin.
         if (comment.trim()) await addComment(token, comment, pseudo).catch(() => {});
         pingPollEvent(token);

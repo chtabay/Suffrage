@@ -304,6 +304,20 @@ export async function castPublicBallot(token: string, b: Ballot): Promise<string
   return data as string;
 }
 
+/**
+ * Marque, pour le COMPTE connecté, « j'ai voté ici » — jamais le bulletin, et une
+ * date au jour près (le modèle de l'émargement). Remplace le localStorage comme
+ * mémoire longue : l'historique survit désormais au changement d'appareil.
+ * Silencieuse et sans effet pour un anonyme ; ne doit jamais faire échouer un vote.
+ */
+export function markMyVote(token: string): void {
+  const supabase = createClient();
+  void supabase.rpc("mark_my_vote", { p_token: token }).then(
+    () => {},
+    () => {},
+  );
+}
+
 // ---------- gestion (admin via secret) ----------
 
 export async function closePoll(token: string, secret: string): Promise<boolean> {

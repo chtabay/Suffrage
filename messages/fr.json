@@ -491,6 +491,19 @@
     "closureResume": "clôture le {date}"
   },
   "Explore": {
+    "searchPlaceholder": "Chercher un sondage…",
+    "searchNoResults": "Rien ne correspond à « {q} ». Essayez un autre mot, ou créez ce sondage vous-même.",
+    "tabAll": "Tout",
+    "tabPinned": "Épinglés",
+    "pin": "Épingler",
+    "unpin": "Désépingler",
+    "pinAria": "Épingler « {question} »",
+    "unpinAria": "Désépingler « {question} »",
+    "pinnedEmpty": "Rien d'épinglé pour l'instant",
+    "pinnedEmptyHint": "L'épingle 📌 sur une carte garde un sondage sous la main — un sondage public, ou une consultation d'un cercle dont vous êtes membre.",
+    "circleTag": "cercle {name}",
+    "loadMore": "Voir plus",
+    "loading": "Chargement…",
     "title": "Explorer les votes publics",
     "subtitle": "Les scrutins que leurs créateurs ont choisi de publier. Votez, suivez les résultats, lancez le vôtre.",
     "empty": "Aucun scrutin public pour l'instant. Soyez le premier à publier le vôtre !",
@@ -921,6 +934,8 @@
     "permissionsNote": "Placet demande les permissions minimales (<code>commands</code>, <code>chat:write</code>) pour poster et mettre à jour les messages de vote. Les bulletins restent sur le web ; aucun votant n'a besoin de compte. Tapez <code>/placet aide</code> dans Slack à tout moment."
   },
   "Org": {
+    "createForGroup": "Pour le groupe « {name} »",
+    "createForGroupHint": "Au lancement, tout le public visé sera convoqué d'un coup — sans choisir qui répond.",
     "actionsTitle": "Interroger ce groupe",
     "actionsHint": "Cette page gère les listes et les groupes. La création se fait avec les outils habituels — on leur passe simplement ce groupe comme audience de départ.",
     "actionAsk": "Créer une interrogation",
@@ -1302,6 +1317,9 @@
     "leftDesc": "Vos données ont été effacées de ce cercle. Vous ne recevrez plus rien de sa part."
   },
   "Feed": {
+    "publicVotesTitle": "Mes votes publics",
+    "publicVotesHint": "Les votes ouverts ou par lien auxquels vous avez participé, retrouvés sur tous vos appareils.",
+    "votedOn": "voté le {date}",
     "title": "Mes participations",
     "subtitle": "Les consultations qui vous sont adressées. Ce que vous créez, vous, se trouve dans « Mes consultations ».",
     "loading": "Chargement…",

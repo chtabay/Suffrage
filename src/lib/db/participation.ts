@@ -47,6 +47,8 @@ export interface MyFeed {
    * bien. Deux listes des mêmes scrutins finiraient par diverger.
    */
   answered?: FeedConsultation[];
+  /** Mes votes hors cercle (publics ou par lien), depuis le registre en base. */
+  publicVotes?: { question: string; token: string; status: string; closes_at: string | null; marked_on: string }[];
 }
 
 /**

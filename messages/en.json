@@ -491,6 +491,19 @@
     "closureResume": "closes {date}"
   },
   "Explore": {
+    "searchPlaceholder": "Search polls…",
+    "searchNoResults": "Nothing matches “{q}”. Try another word, or create that poll yourself.",
+    "tabAll": "All",
+    "tabPinned": "Pinned",
+    "pin": "Pin",
+    "unpin": "Unpin",
+    "pinAria": "Pin “{question}”",
+    "unpinAria": "Unpin “{question}”",
+    "pinnedEmpty": "Nothing pinned yet",
+    "pinnedEmptyHint": "The 📌 pin on a card keeps a poll at hand — a public poll, or a consultation from a circle you belong to.",
+    "circleTag": "circle {name}",
+    "loadMore": "See more",
+    "loading": "Loading…",
     "title": "Explore public votes",
     "subtitle": "Polls their creators chose to make public. Vote, watch the results, launch your own.",
     "empty": "No public polls yet. Be the first to publish yours!",
@@ -921,6 +934,8 @@
     "permissionsNote": "Placet requests the minimal permissions (<code>commands</code>, <code>chat:write</code>) to post and update voting messages. Ballots stay on the web; no voter needs an account. Type <code>/placet help</code> in Slack anytime."
   },
   "Org": {
+    "createForGroup": "For the group “{name}”",
+    "createForGroupHint": "On launch, the whole target audience is convened at once — without picking who answers.",
     "actionsTitle": "Ask this group",
     "actionsHint": "This page manages lists and groups. Creation happens with the usual tools — they just start with this group as the audience.",
     "actionAsk": "Create a question",
@@ -1302,6 +1317,9 @@
     "leftDesc": "Your data has been erased from this circle. You won't hear from it again."
   },
   "Feed": {
+    "publicVotesTitle": "My public votes",
+    "publicVotesHint": "Open or link votes you took part in, available on all your devices.",
+    "votedOn": "voted on {date}",
     "title": "My participations",
     "subtitle": "Consultations addressed to you. What you create yourself lives in “My polls”.",
     "loading": "Loading…",
