@@ -350,7 +350,21 @@ export default function EventEditor({ eventId }: { eventId: string }) {
         </Link>
       )}
       <div style={{ display: "flex", alignItems: "center", gap: 12, margin: "10px 0 0", flexWrap: "wrap" }}>
-        <h1 style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: "clamp(24px,5vw,34px)", letterSpacing: "-0.03em", margin: 0 }}>{ev.title}</h1>
+        {ev.status === "draft" ? (
+          /* Renommable tant que c'est un brouillon — indispensable depuis que la
+             création en un clic pose un titre par défaut. Après l'ouverture, le
+             titre figure dans des emails déjà reçus : il se fige. */
+          <input
+            value={ev.title}
+            onChange={(e) => setEv({ ...ev, title: e.target.value })}
+            onBlur={() => updateEvent(ev.id, { title: ev.title }).catch(() => {})}
+            onKeyDown={(e) => e.key === "Enter" && (e.target as HTMLInputElement).blur()}
+            aria-label={t("renameSeriesAria")}
+            style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: "clamp(24px,5vw,34px)", letterSpacing: "-0.03em", margin: 0, border: "none", borderBottom: `2px dashed ${INK}`, background: "transparent", color: INK, minWidth: 0, flex: "1 1 260px", padding: 0 }}
+          />
+        ) : (
+          <h1 style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: "clamp(24px,5vw,34px)", letterSpacing: "-0.03em", margin: 0 }}>{ev.title}</h1>
+        )}
         <span style={{ fontSize: 12, fontWeight: 800, color: "#fff", background: ev.status === "open" ? GREENTXT : INK, padding: "5px 11px", borderRadius: 20, textTransform: "uppercase", letterSpacing: "0.04em" }}>{t(statusKey)}</span>
         <span style={{ fontSize: 12, fontWeight: 800, color: INK, background: "#FFE08A", padding: "5px 11px", borderRadius: 20, textTransform: "uppercase", letterSpacing: "0.04em" }}>{t(ev.mode === "live" ? "modeLive" : "modeAsync")}</span>
       </div>

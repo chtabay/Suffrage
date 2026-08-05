@@ -88,22 +88,10 @@ export async function leaveCircle(token: string): Promise<{ status: string; circ
   return (data as { status: string; circle?: string } | null) ?? { status: "invalid" };
 }
 
-/** Sortie de `open_circle_consultation`. Chaque refus porte de quoi l'expliquer. */
-export interface OpenConsultationResult {
-  status: "ok" | "capped" | "too_small" | "not_a_circle" | "forbidden" | "invalid";
-  event_id?: string;
-  poll_token?: string;
-  convened?: number;
-  /** `capped` : plafond du cercle, et nombre déjà ouvert aujourd'hui. */
-  cap?: number;
-  today?: number;
-  /** `too_small` : effectif VISÉ (pas le roster entier), et minimum requis. */
-  roster?: number;
-  min?: number;
-  /** Libellé du public visé. `null` = tout le cercle. */
-  audience?: string | null;
-  sealed?: boolean;
-}
+// `openCircleConsultation` a été retiré (P3) : le formulaire du cercle a
+// disparu, et le parcours normal passe par `setPollAudience` (participation.ts),
+// qui porte les mêmes garanties — attachées au TYPE d'audience, pas au chemin.
+// La RPC `open_circle_consultation` subsiste en base comme simple raccourci.
 
 /** Une réponse nominative : qui a répondu quoi. */
 export interface NamedAnswer {
@@ -133,43 +121,6 @@ export async function getNamedAnswers(eventId: string): Promise<NamedAnswers> {
   const { data, error } = await supabase.rpc("get_event_named_answers", { p_event_id: eventId });
   if (error) throw error;
   return (data as NamedAnswers | null) ?? { status: "invalid" };
-}
-
-/**
- * Ouvre une consultation de cercle. C'est la RPC qui ferme l'attaque par
- * cardinalité : elle convoque TOUT le roster, sans laisser choisir. Elle refuse
- * aussi en base si le plafond du jour est atteint ou si le roster est sous le
- * seuil de dépouillement — un plafond appliqué dans l'interface n'en est pas un.
- */
-export async function openCircleConsultation(args: {
-  spaceId: string;
-  question: string;
-  options: unknown;
-  recipe: unknown;
-  description?: string | null;
-  closesAt?: string | null;
-  /** Vide ou absent = tout le cercle. Le seuil de 5 porte sur le public VISÉ. */
-  segmentIds?: string[];
-  /**
-   * `true` (défaut) : bulletin scellé, aucun nom, seuil de 5, pas de commentaire.
-   * `false` : réponses nominatives, aucun seuil, commentaires — pour un « qui
-   * vient ? », où un décompte anonyme ne servirait à rien.
-   */
-  sealed?: boolean;
-}): Promise<OpenConsultationResult> {
-  const supabase = createClient();
-  const { data, error } = await supabase.rpc("open_circle_consultation", {
-    p_space_id: args.spaceId,
-    p_question: args.question,
-    p_options: args.options,
-    p_recipe: args.recipe,
-    p_description: args.description ?? null,
-    p_closes_at: args.closesAt ?? null,
-    p_segment_ids: args.segmentIds?.length ? args.segmentIds : null,
-    p_sealed: args.sealed ?? true,
-  });
-  if (error) throw error;
-  return (data as OpenConsultationResult | null) ?? { status: "invalid" };
 }
 
 // ------------------------------------------------------------------ segments

@@ -20,7 +20,6 @@ import {
 } from "@/lib/db/events";
 import { OrgShell } from "./SpacesHome";
 import {
-  openCircleConsultation,
   listSegments,
   createSegment,
   deleteSegment,
@@ -112,7 +111,6 @@ export default function SpaceDashboard({ spaceId }: { spaceId: string }) {
   const [copiedJoin, setCopiedJoin] = useState(false);
   const [events, setEvents] = useState<EventRow[]>([]);
   const [memberText, setMemberText] = useState("");
-  const [eventTitle, setEventTitle] = useState("");
   const [busy, setBusy] = useState(false);
   const [delConfirm, setDelConfirm] = useState(false);
   const [delText, setDelText] = useState("");
@@ -172,11 +170,16 @@ export default function SpaceDashboard({ spaceId }: { spaceId: string }) {
     setMembers((l) => l.filter((m) => m.id !== id));
   };
 
+  // Créer une suite de questions : un brouillon au titre par défaut, puis
+  // l'ÉDITEUR EXISTANT — où le titre se renomme désormais d'un clic. C'est le
+  // sens de la correction : cette page pointe vers les parcours, elle ne porte
+  // plus de formulaire. (L'ancien bouton exigeait un titre saisi dans un champ
+  // situé plus bas dans la page : il était mort.)
   const onCreateEvent = async () => {
-    if (!eventTitle.trim() || busy) return;
+    if (busy) return;
     setBusy(true);
     try {
-      const ev = await createEvent(spaceId, { title: eventTitle });
+      const ev = await createEvent(spaceId, { title: t("newSeriesDefault") });
       router.push(`/evenement/${ev.id}`);
     } catch {
       setBusy(false);
@@ -567,18 +570,6 @@ export default function SpaceDashboard({ spaceId }: { spaceId: string }) {
               </span>
             </Link>
           ))}
-        </div>
-        <div style={{ display: "flex", gap: 10, marginTop: 14, flexWrap: "wrap" }}>
-          <input
-            value={eventTitle}
-            onChange={(e) => setEventTitle(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && onCreateEvent()}
-            placeholder={t("newEventPlaceholder")}
-            style={{ flex: 1, minWidth: 220, fontFamily: FONT_BODY, fontSize: 15, fontWeight: 600, padding: "11px 13px", border: `2px solid ${INK}`, borderRadius: 11 }}
-          />
-          <button onClick={onCreateEvent} disabled={busy} className="dc-bright" style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 14.5, cursor: "pointer", border: `2.5px solid ${INK}`, background: INK, color: "#fff", padding: "11px 18px", borderRadius: 11 }}>
-            {t("createEvent")}
-          </button>
         </div>
       </div>
 
