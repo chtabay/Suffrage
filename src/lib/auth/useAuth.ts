@@ -1,9 +1,10 @@
 "use client";
 
 import type { User } from "@supabase/supabase-js";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useLocale } from "next-intl";
 import { createClient } from "@/lib/supabase/client";
+import { linkMyMemberships } from "@/lib/db/participation";
 
 export function useAuth() {
   const [user, setUser] = useState<User | null>(null);
@@ -23,6 +24,23 @@ export function useAuth() {
     });
     return () => data.subscription.unsubscribe();
   }, []);
+
+  // Rattache le compte à ses appartenances de cercle, à la connexion.
+  //
+  // Un compte n'était jusqu'ici qu'un organisateur : rien ne le reliait aux
+  // cercles où il figure comme MEMBRE (identifié par email + jeton). Ce
+  // rattachement est fait en base sur l'email VÉRIFIÉ uniquement, il est
+  // idempotent, et il reste invisible à l'animateur du cercle.
+  //
+  // Silencieux par choix : si le rattachement échoue, la session reste
+  // parfaitement utilisable — on ne bloque pas une connexion pour un confort
+  // d'affichage.
+  const linkedFor = useRef<string | null>(null);
+  useEffect(() => {
+    if (!user || linkedFor.current === user.id) return;
+    linkedFor.current = user.id;
+    linkMyMemberships().catch(() => {});
+  }, [user]);
 
   // Synchronise la langue du compte quand elle diffère de l'UI (couvre Google et
   // les comptes créés avant cette préférence). Un seul écrit au changement.

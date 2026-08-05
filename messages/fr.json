@@ -914,6 +914,10 @@
     "permissionsNote": "Placet demande les permissions minimales (<code>commands</code>, <code>chat:write</code>) pour poster et mettre à jour les messages de vote. Les bulletins restent sur le web ; aucun votant n'a besoin de compte. Tapez <code>/placet aide</code> dans Slack à tout moment."
   },
   "Org": {
+    "myCirclesTitle": "Mes cercles",
+    "myCirclesHint": "Les cercles auxquels vous appartenez comme membre — vous y êtes convié·e, vous ne les animez pas.",
+    "myCirclesToAnswer": "{count, plural, one {# à répondre} other {# à répondre}}",
+    "myCirclesNothing": "rien en attente",
     "kindProposals": "Des propositions",
     "kindDates": "Des dates",
     "kindDatesTitle": "Créneaux proposés (au moins 2)",

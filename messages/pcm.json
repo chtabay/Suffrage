@@ -914,6 +914,10 @@
     "permissionsNote": "Placet dey request di minimal permissions (<code>commands</code>, <code>chat:write</code>) to post and update voting messages. Ballots dey stay for web; no voter need account. Type <code>/placet help</code> for Slack anytime."
   },
   "Org": {
+    "myCirclesTitle": "My circles",
+    "myCirclesHint": "Circles wey you dey as member — dem invite you, no be you dey run am.",
+    "myCirclesToAnswer": "{count, plural, one {# to answer} other {# to answer}}",
+    "myCirclesNothing": "nothing dey wait",
     "kindProposals": "Proposals",
     "kindDates": "Dates",
     "kindDatesTitle": "Slots wey you propose (at least 2)",

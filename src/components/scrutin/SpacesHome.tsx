@@ -5,8 +5,9 @@ import { useCallback, useEffect, useState } from "react";
 import { Link } from "@/i18n/navigation";
 import { useAuth } from "@/lib/auth/useAuth";
 import { createSpace, listSpacesWithStats, type SpaceStats } from "@/lib/db/events";
+import { getMyParticipations, type MyParticipations } from "@/lib/db/participation";
 import PlacetMark from "./PlacetMark";
-import { CREAM, FONT_BODY, FONT_DISPLAY, GREENTXT, INK, MUTED, REDTXT, SUBINK } from "./theme";
+import { CORAL, CREAM, FONT_BODY, FONT_DISPLAY, GREENTXT, INK, MUTED, REDTXT, SUBINK } from "./theme";
 
 const card = {
   background: "#fff",
@@ -36,6 +37,10 @@ export default function SpacesHome() {
   const t = useTranslations("Org");
   const { user, loading, signIn, signInWithEmail, signInPassword, signUpPassword, resetPassword, updatePassword } = useAuth();
   const [spaces, setSpaces] = useState<SpaceStats[]>([]);
+  // Les cercles où je suis MEMBRE — pas animateur. C'est le premier consommateur
+  // de l'identité de participant : sans le rattachement compte ↔ appartenance,
+  // cette liste ne pouvait tout simplement pas être calculée.
+  const [mine, setMine] = useState<MyParticipations | null>(null);
   const [name, setName] = useState("");
   const [busy, setBusy] = useState(false);
   const [ready, setReady] = useState(false);
@@ -86,7 +91,12 @@ export default function SpacesHome() {
   const load = useCallback(async () => {
     if (!user) return;
     try {
-      setSpaces(await listSpacesWithStats());
+      // En parallèle : ce que j'anime, et ce à quoi je suis convié. Deux rôles
+      // distincts sur la même page — le rattachement lui-même est fait par
+      // useAuth à la connexion.
+      const [sp, part] = await Promise.all([listSpacesWithStats(), getMyParticipations().catch(() => null)]);
+      setSpaces(sp);
+      setMine(part);
     } catch {
       /* noop */
     }
@@ -337,6 +347,36 @@ export default function SpacesHome() {
           {t("create")}
         </button>
       </div>
+
+      {/* ---- Les cercles dont je suis MEMBRE ----
+          Distinct des groupes que j'anime : ici je suis convié, pas responsable.
+          Surface volontairement minimale — la vue unifiée du connecté (à répondre,
+          historique, public) viendra la remplacer. */}
+      {(mine?.circles ?? []).length > 0 && (
+        <div style={{ ...card, marginTop: 16 }}>
+          <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 18 }}>{t("myCirclesTitle")}</div>
+          <div style={{ fontSize: 12.5, color: MUTED, marginTop: 4, lineHeight: 1.45 }}>{t("myCirclesHint")}</div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 9, marginTop: 12 }}>
+            {(mine?.circles ?? []).map((c) => {
+              const aRepondre = (mine?.consultations ?? []).filter(
+                (x) => x.circle === c.name && x.status === "open" && !x.voted,
+              ).length;
+              return (
+                <a
+                  key={c.space_id}
+                  href={`/m/${c.member_token}`}
+                  style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, background: CREAM, border: `2px solid ${INK}`, borderRadius: 11, padding: "11px 13px", textDecoration: "none", color: INK }}
+                >
+                  <span style={{ fontWeight: 800, fontSize: 15 }}>{c.name}</span>
+                  <span style={{ fontSize: 13, fontWeight: 700, color: aRepondre ? CORAL : MUTED }}>
+                    {aRepondre ? t("myCirclesToAnswer", { count: aRepondre }) : t("myCirclesNothing")}
+                  </span>
+                </a>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       <div style={{ display: "flex", flexDirection: "column", gap: 12, marginTop: 16 }}>
         {ready && !spaces.length && <div style={{ ...card, color: MUTED }}>{t("noSpaces")}</div>}
