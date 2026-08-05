@@ -68,7 +68,7 @@ marché.
 | **P0 — Identité de participant** | `scrutin_member_links`, rattachement sur email vérifié, RPC de lecture | ✅ livré |
 | **P1 — L'audience comme concept unique** | colonne `audience` générée, `circle_audience_guard`, `set_poll_audience` | ✅ livré |
 | **P2 — La vue du connecté** | `get_my_feed`, page `/mes-votes` | ✅ livré |
-| **P3 — Fusion des parcours + vocabulaire** | le sélecteur d'audience entre dans le parcours de création, le formulaire du cercle disparaît | à faire |
+| **P3 — Fusion des parcours + vocabulaire** | audience dans le parcours de création, formulaire du cercle disparu, « événement » → « suite de questions » (organisateur) / « consultation » (votant) | ✅ livré |
 
 ### Ce que P1 a effectivement changé
 
@@ -96,6 +96,18 @@ séparée — on y va pour découvrir, pas pour répondre à ce qui nous est adr
 
 **Ordre imposé** : P0 avant tout le reste (P2 ne peut afficher que deux colonnes
 sur cinq sans lui). P1 avant P3.
+
+### Ce que P3 a effectivement livré (`1c970ae`)
+
+La page de groupe ne porte plus AUCUN formulaire de création : « Créer une
+interrogation » ouvre `/new?espace=` (audience pré-réglée, bloc segment/régime
+dans la carte de lancement), « Créer une suite de questions » crée un brouillon
+et ouvre l'éditeur existant — dont le titre devient renommable en brouillon.
+`openCircleConsultation` (client) est purgé ; la RPC subsiste en base comme
+raccourci. Vocabulaire : « événement » a disparu de l'écran — « suite de
+questions » côté organisateur, « consultation » côté votant ; la route
+`/evenement/` ne change pas (une URL n'est pas un libellé, et elle est dans des
+emails déjà envoyés).
 
 ## 5 bis. La vue marché — spécification (validée avant réalisation)
 
