@@ -5,6 +5,7 @@ import { useLocale } from "next-intl";
 import { pickLocale } from "@/i18n/locales";
 import { trackConversion } from "@/lib/db/track";
 import { addLocalPoll } from "@/lib/db/localPolls";
+import { setPollAudienceByToken, type SetAudienceResult } from "@/lib/db/participation";
 import { addVoters, createPoll, setPollVisibility, type AccessMode, type District, type VoterInput } from "@/lib/db/polls";
 import { ASSIGN_METHODS, type AssignMethodKey } from "@/lib/assign/methods";
 import { SLOT_ICON, slotLabel, type ScrutinDraft } from "./draft";
@@ -41,6 +42,10 @@ export interface ScrutinState {
   hideResults: boolean;
   /** Publier sur le feed public /explorer au lancement (accès ouvert uniquement). */
   publicListing: boolean;
+  /** Contexte de groupe (`?espace=`) : le scrutin lui sera adressé au lancement. */
+  spaceId: string | null;
+  /** Résultat de cette affectation, pour le dire franchement sur l'écran de lancement. */
+  audience: SetAudienceResult | null;
   /** Ouvrir une phase de collecte : les votants ajoutent des options avant le vote (invitation seulement). */
   proposalsPhase: boolean;
   voterNames: string;
@@ -81,6 +86,8 @@ const INITIAL: ScrutinState = {
   access: "open",
   hideResults: false,
   publicListing: false,
+  spaceId: null,
+  audience: null,
   proposalsPhase: false,
   voterNames: "",
   districts: [
@@ -114,14 +121,19 @@ function makeInitial(draft?: ScrutinDraft, locale = "fr"): ScrutinState {
     ],
   });
   if (!draft) return { ...INITIAL, districts };
+  // Le contexte de groupe suffit à lui seul à ouvrir l'écran de création : on
+  // arrive de la page d'un groupe pour l'interroger, sans forcément de brouillon.
   const prefilled = Boolean(
     draft.question || draft.options || draft.recipe || draft.closesAt || draft.description || draft.assignMethod,
   );
+  // Un contexte de groupe seul n'est PAS un pré-remplissage : le formulaire reste
+  // vierge, seule l'audience est décidée d'avance.
   const recipe = draft.recipe ?? INITIAL.recipe;
   return {
     ...INITIAL,
     districts,
     screen: "create",
+    spaceId: draft.spaceId ?? null,
     question: draft.question ?? INITIAL.question,
     description: draft.description ?? INITIAL.description,
     optionKind: draft.optionKind ?? INITIAL.optionKind,
@@ -618,6 +630,20 @@ export function useScrutin(draft?: ScrutinDraft) {
         }
       }
 
+      // Contexte de GROUPE : le scrutin lui est adressé, avec les quatre garanties
+      // portées par la base (tout le segment ou rien, seuil, plafond, scellé).
+      // Même patron que la publication ci-dessus : APRÈS le lancement et en
+      // silence — un refus (groupe trop petit, plafond atteint) ne doit pas faire
+      // échouer la création, il est simplement rapporté à l'écran suivant.
+      let audience: SetAudienceResult | null = null;
+      if (s.spaceId) {
+        try {
+          audience = await setPollAudienceByToken({ token, spaceId: s.spaceId });
+        } catch {
+          audience = { status: "invalid" };
+        }
+      }
+
       let voterLinks: { label: string; url: string }[] = [];
       if (access === "invite" && voters.length) {
         const created = await addVoters(token, secret, voters);
@@ -630,6 +656,7 @@ export function useScrutin(draft?: ScrutinDraft) {
         shareUrl: `${origin}/v/${token}`,
         adminUrl: `${origin}/v/${token}?k=${secret}`,
         voterLinks,
+        audience,
         launching: false,
         screen: "launched",
       }));

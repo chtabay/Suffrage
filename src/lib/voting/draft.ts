@@ -18,6 +18,12 @@ export function splitLeadingEmoji(label: string, fallbackIcon: string): { icon: 
 }
 
 export interface ScrutinDraft {
+  /**
+   * Contexte de GROUPE (`?espace=<id>`) : ce scrutin est créé depuis la page d'un
+   * groupe et lui sera adressé. La page de groupe ne crée plus elle-même — elle
+   * pointe vers ce parcours en lui passant simplement son identité.
+   */
+  spaceId?: string;
   question?: string;
   description?: string;
   optionKind?: "text" | "slot" | "assign";
@@ -93,6 +99,11 @@ export function decodeSlot(raw: string): { at: string; end?: string } | null {
 /** Convertit les paramètres d'URL /new en brouillon (toujours un objet, possiblement vide). */
 export function parseDraft(params: RawParams, locale = "fr"): ScrutinDraft {
   const draft: ScrutinDraft = {};
+
+  // Identifiant d'espace : format UUID exigé, sinon ignoré en silence — ce
+  // paramètre vient de l'URL, donc d'une frontière non fiable.
+  const espace = first(params.espace);
+  if (espace && /^[0-9a-f-]{36}$/i.test(espace.trim())) draft.spaceId = espace.trim();
 
   const title = first(params.title);
   if (title && title.trim()) draft.question = title.trim().slice(0, 200);

@@ -700,6 +700,12 @@
     "brandSaved": "✓ Brand don save"
   },
   "Launched": {
+    "audienceOkTitle": "E don go your group",
+    "audienceOk": "{count} member(s) don dey convened. Dem go get dia personal link — you no need pick who go answer.",
+    "audienceKoTitle": "Di vote don create, but e no go di group",
+    "audienceTooSmall": "Dis group get {n} member(s). Below {min}, sealed result go point finger for who answer. Di vote still dey work with di link below.",
+    "audienceCapped": "Dis group promise say no pass {cap} consultation(s) per day, and e don reach. Di vote still dey work with di link.",
+    "audienceKo": "To send am to di group no work. Di vote still dey work with di link below.",
     "publishedLine": "Published for Placet — your poll dey show for di Explore page.",
     "copy": "Copy",
     "copied": "✓ Don copy",

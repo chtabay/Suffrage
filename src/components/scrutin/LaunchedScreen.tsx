@@ -187,6 +187,37 @@ export default function LaunchedScreen({ ctrl, auth }: { ctrl: ScrutinController
 
   return (
     <div className="pad" style={{ maxWidth: 720, margin: "0 auto", padding: "48px 24px 100px" }}>
+      {/* ---- Adressé à un groupe ----
+          Créé depuis la page d'un groupe (`?espace=`), ce scrutin lui a été
+          adressé après le lancement. On dit le résultat FRANCHEMENT, y compris
+          le refus : les garanties du cercle (tout le segment ou rien, seuil de
+          réponses, plafond du jour) sont tenues en base, et un refus laisse le
+          scrutin parfaitement utilisable par son lien. */}
+      {state.audience && (
+        <div
+          style={{
+            border: `2.5px solid ${INK}`,
+            borderRadius: 16,
+            padding: "14px 18px",
+            marginBottom: 18,
+            background: state.audience.status === "ok" ? "#eef7ef" : "#fff4e0",
+          }}
+        >
+          <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 15 }}>
+            {state.audience.status === "ok" ? t("audienceOkTitle") : t("audienceKoTitle")}
+          </div>
+          <div style={{ fontSize: 13.5, color: MUTED, marginTop: 5, lineHeight: 1.5 }}>
+            {state.audience.status === "ok"
+              ? t("audienceOk", { count: state.audience.convened ?? 0 })
+              : state.audience.status === "too_small"
+                ? t("audienceTooSmall", { n: state.audience.roster ?? 0, min: state.audience.min ?? 5 })
+                : state.audience.status === "capped"
+                  ? t("audienceCapped", { cap: state.audience.cap ?? 1 })
+                  : t("audienceKo")}
+          </div>
+        </div>
+      )}
+
       <div
         style={{
           background: "#fff",

@@ -127,3 +127,33 @@ export async function setPollAudience(args: {
   if (error) throw error;
   return (data as SetAudienceResult | null) ?? { status: "invalid" };
 }
+
+/**
+ * Adresse à un groupe un scrutin qu'on vient de créer, à partir de son JETON.
+ *
+ * Le parcours de création ne connaît que le jeton (`createPoll` ne rend pas
+ * l'identifiant) ; la policy propriétaire permet de le résoudre. Les quatre
+ * garanties restent portées par la base — viser un segment d'une personne est
+ * refusé ici comme ailleurs.
+ */
+export async function setPollAudienceByToken(args: {
+  token: string;
+  spaceId: string;
+  segmentIds?: string[];
+  sealed?: boolean;
+}): Promise<SetAudienceResult> {
+  const supabase = createClient();
+  const { data: poll, error } = await supabase
+    .from("scrutin_polls")
+    .select("id")
+    .eq("token", args.token)
+    .maybeSingle();
+  if (error) throw error;
+  if (!poll) return { status: "forbidden" };
+  return setPollAudience({
+    pollId: (poll as { id: string }).id,
+    spaceId: args.spaceId,
+    segmentIds: args.segmentIds,
+    sealed: args.sealed,
+  });
+}

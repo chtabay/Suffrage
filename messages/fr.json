@@ -700,6 +700,12 @@
     "brandSaved": "✓ Marque enregistrée"
   },
   "Launched": {
+    "audienceOkTitle": "Adressé à votre groupe",
+    "audienceOk": "{count} membre(s) sont convoqués. Ils recevront leur lien personnel — vous n'avez pas eu à choisir qui répond.",
+    "audienceKoTitle": "Le vote est créé, mais pas adressé au groupe",
+    "audienceTooSmall": "Ce groupe compte {n} membre(s). En dessous de {min}, un résultat scellé désignerait ceux qui ont répondu. Le vote reste utilisable par son lien ci-dessous.",
+    "audienceCapped": "Ce groupe s'est engagé à ne pas ouvrir plus de {cap} consultation(s) par jour, et le quota est atteint. Le vote reste utilisable par son lien.",
+    "audienceKo": "L'envoi au groupe n'a pas abouti. Le vote reste utilisable par son lien ci-dessous.",
     "publishedLine": "Publié sur Placet — votre scrutin est visible sur la page Explorer.",
     "copy": "Copier",
     "copied": "✓ Copié",

@@ -700,6 +700,12 @@
     "brandSaved": "✓ Brand saved"
   },
   "Launched": {
+    "audienceOkTitle": "Sent to your group",
+    "audienceOk": "{count} member(s) are convened. They'll get their personal link — you didn't have to pick who answers.",
+    "audienceKoTitle": "The poll exists, but wasn't sent to the group",
+    "audienceTooSmall": "This group has {n} member(s). Below {min}, a sealed result would point to whoever answered. The poll still works via its link below.",
+    "audienceCapped": "This group committed to no more than {cap} consultation(s) per day, and the quota is used up. The poll still works via its link.",
+    "audienceKo": "Sending to the group didn't go through. The poll still works via its link below.",
     "publishedLine": "Published on Placet — your poll is visible on the Explore page.",
     "copy": "Copy",
     "copied": "✓ Copied",

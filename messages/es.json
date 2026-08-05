@@ -700,6 +700,12 @@
     "brandSaved": "✓ Marca guardada"
   },
   "Launched": {
+    "audienceOkTitle": "Dirigido a tu grupo",
+    "audienceOk": "{count} miembro(s) convocados. Recibirán su enlace personal: no has tenido que elegir quién responde.",
+    "audienceKoTitle": "La votación existe, pero no se envió al grupo",
+    "audienceTooSmall": "Este grupo tiene {n} miembro(s). Por debajo de {min}, un resultado sellado señalaría a quienes respondieron. La votación sigue disponible por su enlace.",
+    "audienceCapped": "Este grupo se comprometió a no más de {cap} consulta(s) por día y ya se alcanzó. La votación sigue disponible por su enlace.",
+    "audienceKo": "El envío al grupo no se completó. La votación sigue disponible por su enlace.",
     "publishedLine": "Publicado en Placet: tu votación es visible en la página Explorar.",
     "copy": "Copiar",
     "copied": "✓ Copiado",
