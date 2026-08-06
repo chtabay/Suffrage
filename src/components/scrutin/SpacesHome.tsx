@@ -7,6 +7,7 @@ import { useAuth } from "@/lib/auth/useAuth";
 import { createSpace, listSpacesWithStats, type SpaceStats } from "@/lib/db/events";
 import { getMyFeed, type MyFeed } from "@/lib/db/participation";
 import PlacetMark from "./PlacetMark";
+import Nav from "./Nav";
 import { CORAL, CREAM, FONT_BODY, FONT_DISPLAY, GREENTXT, INK, MUTED, REDTXT, SUBINK } from "./theme";
 
 const card = {
@@ -19,14 +20,19 @@ const card = {
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+/**
+ * Coquille des surfaces du COMPTE (mes votes, mes scrutins, groupes).
+ *
+ * Elle n'offrait qu'un logo ramenant à l'accueil : depuis n'importe laquelle de
+ * ces pages, rejoindre une autre imposait un aller-retour par la page d'accueil.
+ * La navigation y est désormais montée — elle est autonome depuis qu'elle ne
+ * dépend plus du contrôleur de création.
+ */
 export function OrgShell({ children }: { children: React.ReactNode }) {
   return (
     <div style={{ minHeight: "100vh", background: CREAM, fontFamily: FONT_BODY }}>
+      <Nav />
       <div style={{ maxWidth: 720, margin: "0 auto", padding: "20px 18px 90px" }}>
-        <Link href="/" style={{ display: "inline-flex", alignItems: "center", gap: 11, marginBottom: 20, textDecoration: "none", color: INK }}>
-          <PlacetMark size={36} />
-          <span style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 21, letterSpacing: "-0.02em" }}>Placet</span>
-        </Link>
         {children}
       </div>
     </div>

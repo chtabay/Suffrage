@@ -51,7 +51,7 @@ export default function ScrutinApp({ draft }: { draft?: ScrutinDraft }) {
 
   return (
     <div style={{ minHeight: "100vh" }}>
-      <Nav ctrl={ctrl} auth={auth} />
+      <Nav />
       {screen === "home" && <HomeScreen ctrl={ctrl} />}
       {screen === "gallery" && <GalleryScreen ctrl={ctrl} />}
       {screen === "create" && <CreateScreen ctrl={ctrl} />}

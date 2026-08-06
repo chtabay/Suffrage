@@ -1,9 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { useAuth } from "@/lib/auth/useAuth";
 import { useTranslations } from "next-intl";
-import type { AuthController } from "@/lib/auth/useAuth";
-import type { ScrutinController } from "@/lib/voting/useScrutin";
 import { useIsAdmin } from "@/lib/db/admin";
 import { Link } from "@/i18n/navigation";
 import LocaleSwitch from "@/components/LocaleSwitch";
@@ -11,8 +10,22 @@ import AboutPlacet from "./AboutPlacet";
 import PlacetMark from "./PlacetMark";
 import { CORAL, CREAM, FONT_BODY, FONT_DISPLAY, GREEN, INK, lift } from "./theme";
 
-export default function Nav({ ctrl, auth }: { ctrl: ScrutinController; auth: AuthController }) {
-  const { go } = ctrl;
+/**
+ * Barre de navigation — SANS contrôleur.
+ *
+ * Elle en dépendait pour deux entrées (« Mes scrutins », « Les méthodes ») qui
+ * étaient des changements d'ÉTAT React, pas des liens. Conséquence : la nav ne
+ * pouvait être montée que là où vivait le contrôleur — sur `/` et `/new` — donc
+ * elle disparaissait dès qu'on ouvrait l'un de ses propres onglets, et ces deux
+ * écrans n'avaient aucune URL (impartageables, perdus au rafraîchissement).
+ *
+ * Les deux boutons sont devenus des liens vers de vraies routes. La nav est
+ * désormais autonome et montée sur toutes les surfaces du compte.
+ */
+export default function Nav() {
+  // Elle lit la session elle-même : aucune prop, donc montable depuis n'importe
+  // quelle page — y compris une page SERVEUR comme /explorer.
+  const auth = useAuth();
   const t = useTranslations("Nav");
   const [open, setOpen] = useState(false);
   // Lien Régie : visible uniquement pour un admin de plateforme (allowlist en base).
@@ -60,12 +73,12 @@ export default function Nav({ ctrl, auth }: { ctrl: ScrutinController; auth: Aut
           rowGap: 10,
         }}
       >
-        <div onClick={act(() => go("home"))} style={{ display: "flex", alignItems: "center", gap: 11, cursor: "pointer" }}>
+        <Link href="/" onClick={() => setOpen(false)} style={{ display: "flex", alignItems: "center", gap: 11, cursor: "pointer", textDecoration: "none", color: "inherit" }}>
           <PlacetMark size={36} />
           <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 21, letterSpacing: "-0.02em" }}>
             Placet
           </div>
-        </div>
+        </Link>
 
         {/* Bouton menu (mobile uniquement, géré par CSS .nav-burger) */}
         <button
@@ -121,12 +134,24 @@ export default function Nav({ ctrl, auth }: { ctrl: ScrutinController; auth: Aut
               {t("spaces")}
             </Link>
           )}
-          <button onClick={act(() => go("mine"))} className="dc-paper" style={secondary}>
-            {t("myPolls")}
-          </button>
-          <button onClick={act(() => go("gallery"))} className="dc-paper" style={secondary}>
+          {!auth.loading && auth.user && (
+            <Link
+              href="/mes-scrutins"
+              onClick={() => setOpen(false)}
+              className="dc-paper"
+              style={{ ...secondary, textDecoration: "none", display: "inline-flex", alignItems: "center", justifyContent: "center" }}
+            >
+              {t("myPolls")}
+            </Link>
+          )}
+          <Link
+            href="/methodes"
+            onClick={() => setOpen(false)}
+            className="dc-paper"
+            style={{ ...secondary, textDecoration: "none", display: "inline-flex", alignItems: "center", justifyContent: "center" }}
+          >
             {t("methods")}
-          </button>
+          </Link>
           {/* Feed public : accessible à tous, sans compte. */}
           <Link
             href="/explorer"
@@ -138,14 +163,16 @@ export default function Nav({ ctrl, auth }: { ctrl: ScrutinController; auth: Aut
           </Link>
           {/* Aide « C'est quoi Placet ? » — dans le header, sans couper le flux de création. */}
           <AboutPlacet compact />
-          <button
-            onClick={act(() => go("create"))}
+          <Link
+            href="/new"
+            onClick={() => setOpen(false)}
             className="dc-lift"
             style={{
               fontFamily: FONT_BODY,
               fontWeight: 700,
               fontSize: 14,
               cursor: "pointer",
+              textDecoration: "none",
               border: `2.5px solid ${INK}`,
               background: CORAL,
               color: "#fff",
@@ -155,7 +182,7 @@ export default function Nav({ ctrl, auth }: { ctrl: ScrutinController; auth: Aut
             }}
           >
             {t("create")}
-          </button>
+          </Link>
           {!auth.loading &&
             (auth.user ? (
               <button

@@ -153,10 +153,11 @@ export default function MyFeedScreen() {
         </div>
       )}
 
-      {/* Ni « ce que j'ai ouvert » ni « historique » ici : « Mes consultations »
-          le fait déjà, et le fait bien. Deux listes des mêmes scrutins sur deux
-          pages finiraient par diverger. Cette page ne montre que ce qui m'est
-          ADRESSÉ — créer et être consulté sont deux rôles distincts. */}
+      {/* Ni « ce que j'ai ouvert » ni « historique de créations » ici : « Mes
+          scrutins » le fait déjà, et le fait bien. Deux listes des mêmes scrutins
+          sur deux pages finiraient par diverger. Cette page ne montre que ce qui
+          m'est ADRESSÉ — organiser et être consulté sont deux rôles distincts,
+          et ils ont désormais deux noms qui ne se confondent plus. */}
 
       {vide && feed && (
         <div style={{ ...card, marginTop: 18, color: SUBINK, lineHeight: 1.55 }}>{t("empty")}</div>

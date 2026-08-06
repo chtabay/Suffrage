@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
-import PlacetMark from "@/components/scrutin/PlacetMark";
 import MarketExplorer from "@/components/scrutin/MarketExplorer";
-import { cardIntent, cardIsOpen, fetchPublicPollsServer, type CardIntent } from "@/lib/db/publicFeed";
+import Nav from "@/components/scrutin/Nav";
+import { fetchPublicPollsServer } from "@/lib/db/publicFeed";
 import { intlLocale } from "@/i18n/locales";
 
 // Feed public : page ISR (60 s) listant les scrutins PUBLIÉS par leurs créateurs.
@@ -38,60 +38,17 @@ export default async function ExplorerPage({ params }: { params: Promise<{ local
   const t = await getTranslations({ locale, namespace: "Explore" });
   const th = await getTranslations({ locale, namespace: "Home" });
   const polls = await fetchPublicPollsServer(24);
-  const fmt = new Intl.DateTimeFormat(intlLocale(locale), { day: "numeric", month: "short", year: "numeric" });
-
-  // Badge d'intention : la taxonomie de l'accueil (Décider / Sonder / Trouver une
-  // date) suit le scrutin jusque dans le feed — on sait ce qu'on va y FAIRE.
-  const INTENTS: Record<CardIntent, { color: string; icon: string; labelKey: string }> = {
-    decide: { color: CORAL, icon: "🏆", labelKey: "doorVoteTitle" },
-    survey: { color: "#2A9D8F", icon: "📊", labelKey: "doorSurveyTitle" },
-    date: { color: "#5B5BD6", icon: "📅", labelKey: "doorDateTitle" },
-  };
-  const intentBadge = (it: CardIntent) => (
-    <span
-      style={{
-        display: "inline-flex",
-        alignItems: "center",
-        gap: 5,
-        background: INTENTS[it].color,
-        color: "#fff",
-        border: `2px solid ${INK}`,
-        borderRadius: 20,
-        padding: "3px 10px",
-        fontWeight: 700,
-        fontSize: 11.5,
-      }}
-    >
-      {INTENTS[it].icon} {th(INTENTS[it].labelKey)}
-    </span>
-  );
-
-  const badge = (open: boolean) => (
-    <span
-      style={{
-        display: "inline-flex",
-        alignItems: "center",
-        gap: 6,
-        background: open ? GREENTXT : INK,
-        color: "#fff",
-        border: `2px solid ${INK}`,
-        borderRadius: 20,
-        padding: "3px 10px",
-        fontWeight: 700,
-        fontSize: 11.5,
-      }}
-    >
-      {open ? `● ${t("openBadge")}` : `■ ${t("closedBadge")}`}
-    </span>
-  );
+  // Le gabarit de carte vivait ici ; il est passé dans MarketExplorer avec la
+  // refonte marché. Ce qui restait — fmt, INTENTS, intentBadge, badge — n'était
+  // plus rendu nulle part : deux définitions d'une même carte, dont une morte.
 
   return (
     <div style={{ minHeight: "100vh", background: CREAM, color: INK, fontFamily: "var(--font-body), sans-serif" }}>
+      {/* Navigation complète, y compris ici : /explorer n'offrait qu'un logo, ce
+          qui en faisait une impasse pour un connecté. Nav lit la session
+          elle-même, donc s'insère dans une page serveur sans rien lui passer. */}
+      <Nav />
       <div style={{ maxWidth: 860, margin: "0 auto", padding: "36px 22px 90px" }}>
-        <Link href="/" style={{ display: "inline-flex", alignItems: "center", gap: 10, textDecoration: "none", color: INK }}>
-          <PlacetMark size={34} />
-          <span style={{ fontFamily: display, fontWeight: 800, fontSize: 20 }}>Placet</span>
-        </Link>
         <h1 style={{ fontFamily: display, fontWeight: 800, fontSize: "clamp(30px,5vw,46px)", letterSpacing: "-0.03em", margin: "26px 0 0" }}>
           {t("title")}
         </h1>
