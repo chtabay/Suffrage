@@ -491,6 +491,19 @@
     "closureResume": "cierra el {date}"
   },
   "Explore": {
+    "seeAllCircles": "{count, plural, one {Ver # más} other {Ver # más}}",
+    "tabCircles": "Mis círculos",
+    "sectionCircles": "Tus círculos",
+    "sectionCirclesHint": "Las consultas de los círculos a los que perteneces. Solo tú las ves.",
+    "sectionPublic": "Votaciones públicas",
+    "circlesEmpty": "Ninguna consulta de círculo",
+    "circlesEmptyHint": "En cuanto un círculo al que perteneces te consulte, aparecerá aquí.",
+    "toAnswer": "Por responder",
+    "answeredAll": "Respondida",
+    "answeredSome": "{done} / {total} respondidas",
+    "questionCount": "{count, plural, one {# pregunta} other {# preguntas}}",
+    "sealed": "secreta",
+    "named": "nominal",
     "searchPlaceholder": "Buscar una votación…",
     "searchNoResults": "Nada coincide con «{q}». Prueba otra palabra o crea tú mismo esa votación.",
     "tabAll": "Todo",
@@ -1173,6 +1186,7 @@
     "verdictDetail": "{share}% · umbral: {threshold}"
   },
   "Livret": {
+    "backToFeed": "Mis votos",
     "loading": "Cargando la consulta…",
     "invalidTitle": "Enlace no válido",
     "invalidDesc": "Este enlace de voto no existe o ha caducado.",

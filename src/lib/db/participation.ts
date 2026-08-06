@@ -52,6 +52,65 @@ export interface MyFeed {
 }
 
 /**
+ * Une consultation de cercle telle qu'elle entre dans la GRILLE MARCHÉ.
+ *
+ * L'unité est la SUITE, pas la question : une AG à huit résolutions est une
+ * chose à faire, pas huit cartes. D'où `answered / questions` plutôt qu'un
+ * booléen — c'est le signal honnête d'une carte, avec le temps qui reste.
+ *
+ * `token` est MON jeton de convoqué : la carte mène à `/e/<token>`, la même
+ * page que le lien reçu par email. Il n'existe pas de « vue publique » d'une
+ * consultation de cercle, et c'est voulu.
+ */
+export interface CircleCard {
+  token: string;
+  title: string;
+  circle: string;
+  secret_ballot: boolean;
+  /** Le public convoqué, figé à l'ouverture (« Adhésion avancée »…). */
+  audience_label: string | null;
+  status: "open" | "closed";
+  closes_at: string | null;
+  sort_at: string;
+  questions: number;
+  answered: number;
+  pinned: boolean;
+}
+
+/**
+ * Les consultations des cercles dont je suis membre rattaché.
+ *
+ * FONCTION SÉPARÉE de `get_public_polls`, et ce n'est pas un détail : cette
+ * dernière est exécutable par `anon` et sa clause « public et approuvé » est sa
+ * propriété de sûreté. On n'y ajoute pas de lignes privées ; on met les deux
+ * sources côte à côte dans la grille, pas dans la même requête.
+ *
+ * Pas de pagination : le volume est déjà borné par `solicit_per_day`. Si le
+ * plafond était atteint, l'appelant le saurait — il connaît sa demande.
+ */
+export async function fetchMyCircleCards(limit = 100): Promise<CircleCard[]> {
+  const supabase = createClient();
+  const { data, error } = await supabase.rpc("get_my_circle_cards", { p_limit: limit });
+  if (error) throw error;
+  return (data as CircleCard[] | null) ?? [];
+}
+
+/**
+ * Épingle une SUITE (table `scrutin_event_pins`, distincte des épingles de
+ * scrutin : une suite n'est pas un scrutin). Renvoie le nouvel état.
+ *
+ * La base exige le rattachement du jeton à mon compte — détenir le jeton d'un
+ * tiers ne suffit pas —, et un refus rend le même `false` qu'un jeton
+ * inexistant : aucun oracle de validité.
+ */
+export async function toggleCirclePin(memberToken: string): Promise<boolean> {
+  const supabase = createClient();
+  const { data, error } = await supabase.rpc("toggle_circle_pin", { p_member_token: memberToken });
+  if (error) throw error;
+  return Boolean(data);
+}
+
+/**
  * Rattache le compte courant aux membres qui portent SON adresse.
  *
  * Le rattachement n'a lieu que sur un email **vérifié** : sans cette condition,

@@ -6,7 +6,6 @@ import { Link } from "@/i18n/navigation";
 import { useAuth } from "@/lib/auth/useAuth";
 import { createSpace, listSpacesWithStats, type SpaceStats } from "@/lib/db/events";
 import { getMyFeed, type MyFeed } from "@/lib/db/participation";
-import PlacetMark from "./PlacetMark";
 import Nav from "./Nav";
 import { CORAL, CREAM, FONT_BODY, FONT_DISPLAY, GREENTXT, INK, MUTED, REDTXT, SUBINK } from "./theme";
 

@@ -130,7 +130,10 @@ jeton inexistant (pas d'oracle de validité).
    avec la même donnée initiale, sans double-fetch au premier rendu.
 3. **Barre d'outils** : recherche (déclenchée 300 ms après la dernière frappe,
    exécutée EN BASE sur question + description, jokers `%`/`_` échappés) ; pour
-   le connecté, bascule « Épinglés ».
+   le connecté, les facettes *Tout / Mes cercles / Épinglés* (§5 ter — la
+   recherche du bloc personnel se fait en mémoire, la liste y étant déjà
+   complète, mais reste aussi naïve que le `ilike` du catalogue : deux blocs de
+   la même page ne doivent pas répondre autrement au même mot).
 4. **La carte** — ce qui la rend vivante, conformément à la mise en garde
    Polymarket (§4) : question, méthode, phase, **temps restant**,
    **participation** (n bulletins), et l'épingle pour le connecté. Pas de prix,
@@ -140,6 +143,8 @@ jeton inexistant (pas d'oracle de validité).
    (route `/v`) et consultations de cercle qui me sont adressées (route `/e`,
    par MON jeton de convoqué, avec le nom du cercle). C'est l'invariant qui rend
    cet onglet possible : tout ce qui est épinglable m'est visible.
+   *Révisé au §5 ter : ce n'est plus un onglet à part mais une facette de la
+   même grille, filtrée sur l'épingle.*
 6. **Pagination** : « Voir plus » par curseur (`p_before` = `published_at` de la
    dernière carte). Pas de défilement infini.
 7. **Anonyme** : ni épingle ni bascule — un contrôle inopérant est pire
@@ -153,7 +158,65 @@ jeton inexistant (pas d'oracle de validité).
 `(compte, scrutin, date au jour)` sur le modèle de l'émargement : jamais le
 bulletin. Alimenté silencieusement aux deux chemins de vote (public et par
 lien) ; sans effet pour l'anonyme, dont le `localStorage` reste la seule trace.
-Affiché dans « Mes participations », section « Mes votes publics ».
+Affiché dans « Mes votes » (l'écran s'appelait « Mes participations » jusqu'au
+renommage du 2026-08-06), section « Mes votes publics ».
+
+## 5 ter. La grille cesse d'être uniquement publique (livré le 2026-08-06)
+
+**Ce qui manquait, et pourquoi c'était la sous-livraison.** La demande d'origine
+était de voir au même endroit « les sondages publics, ceux auxquels on
+participe, ceux accessibles par les cercles auxquels on appartient ». La
+première version de la vue marché n'a rendu que la première colonne. Les
+consultations de cercle — précisément ce que le connecté peut voir et que
+personne d'autre ne voit — n'apparaissaient nulle part dans la grille.
+
+**La ligne qu'on ne franchit pas.** `get_public_polls` n'est PAS élargie. Sa
+clause « public et approuvé » est sa propriété de sûreté : c'est une fonction
+`SECURITY DEFINER` exécutable par `anon`. Une seconde fonction,
+`get_my_circle_cards`, sert l'autre source — réservée à `authenticated`, et ne
+rendant jamais que les convocations de l'appelant. Deux publics, deux
+fonctions, deux blocs sur une même page.
+
+**L'unité de la carte est la SUITE, pas la question.** Une AG à huit résolutions
+est une chose à faire, pas huit cartes. La carte porte le titre de la suite, le
+nom du cercle, le public convoqué s'il est nommé, et l'avancement `n / total` —
+le signal que la §4 désigne comme le seul qui vaille ici. Je ne peux pas savoir
+combien d'autres ont répondu à un scrutin scellé ; je sais toujours où j'en
+suis.
+
+**Trois facettes**, pour le connecté seulement (sans compte il n'y a ni cercle
+ni épingle, et trois boutons dont deux vides seraient un mensonge d'interface) :
+*Tout* (mes consultations en tête, puis le catalogue), *Mes cercles*,
+*Épinglés*. « Épinglés » n'est plus une liste à part : c'est la même grille
+filtrée sur `pinned`. `get_my_pins` est donc supprimée — sa branche « cercle »
+n'avait d'ailleurs jamais pu s'allumer, faute d'écran offrant d'épingler un
+scrutin de cercle.
+
+**Épingler une suite** passe par `scrutin_event_pins`, table distincte de
+`scrutin_pins`. Celle-ci est clée sur un SCRUTIN ; faire porter l'épingle d'une
+suite par l'une de ses questions serait une convention invisible, vraie nulle
+part dans le schéma. `toggle_circle_pin` exige le **rattachement** du jeton au
+compte appelant — détenir le jeton d'un tiers ne suffit pas — et un refus rend
+le même `false` qu'un jeton inexistant.
+
+**Deux écrêtages, tous deux dits.** Le bloc personnel est limité à six cartes
+sur la facette *Tout*, avec le compte exact des cartes masquées en lien vers
+leur facette ; et `get_my_circle_cards` plafonne à 200, garde-fou et non page —
+le volume est déjà borné par `solicit_per_day`.
+
+**Ce que cela ne duplique pas.** `/mes-votes` reste la file de ce qui attend une
+réponse ; `/explorer` est le catalogue de tout ce que je peux voir, avec la
+recherche et les épingles. Une consultation ouverte et sans réponse figure dans
+les deux, comme un courrier figure à la fois dans la boîte de réception et dans
+l'archive — c'est le même objet vu sous deux intentions, pas deux listes
+concurrentes.
+
+**Le livret n'est plus un cul-de-sac.** `/e/<token>` n'offrait aucune sortie. Il
+ne reçoit pas la nav complète — on y arrive par un lien reçu par email, souvent
+sans compte, et « Créer / Explorer / Mes scrutins » y concurrenceraient le seul
+geste attendu. Il reçoit ce qu'il faut : le logo devient un lien, et le connecté
+retrouve « Mes votes » en tête ainsi qu'au moment exact où la page n'a plus rien
+à offrir — quand tout est répondu.
 
 ## 6. Hors périmètre, explicitement
 

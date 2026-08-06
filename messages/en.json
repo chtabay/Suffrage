@@ -491,6 +491,19 @@
     "closureResume": "closes {date}"
   },
   "Explore": {
+    "seeAllCircles": "{count, plural, one {See # more} other {See # more}}",
+    "tabCircles": "My circles",
+    "sectionCircles": "Your circles",
+    "sectionCirclesHint": "Consultations from the circles you belong to. You alone see them.",
+    "sectionPublic": "Public polls",
+    "circlesEmpty": "No circle consultation",
+    "circlesEmptyHint": "As soon as a circle you belong to consults you, it will appear here.",
+    "toAnswer": "To answer",
+    "answeredAll": "Answered",
+    "answeredSome": "{done} / {total} answered",
+    "questionCount": "{count, plural, one {# question} other {# questions}}",
+    "sealed": "sealed",
+    "named": "named",
     "searchPlaceholder": "Search polls…",
     "searchNoResults": "Nothing matches “{q}”. Try another word, or create that poll yourself.",
     "tabAll": "All",
@@ -1173,6 +1186,7 @@
     "verdictDetail": "{share}% · threshold: {threshold}"
   },
   "Livret": {
+    "backToFeed": "My votes",
     "loading": "Loading the consultation…",
     "invalidTitle": "Invalid link",
     "invalidDesc": "This voting link doesn't exist or has expired.",

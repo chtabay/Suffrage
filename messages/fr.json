@@ -491,6 +491,19 @@
     "closureResume": "clôture le {date}"
   },
   "Explore": {
+    "seeAllCircles": "{count, plural, one {Voir la # autre} other {Voir les # autres}}",
+    "tabCircles": "Mes cercles",
+    "sectionCircles": "Vos cercles",
+    "sectionCirclesHint": "Les consultations des cercles dont vous êtes membre. Vous seul les voyez.",
+    "sectionPublic": "Sondages publics",
+    "circlesEmpty": "Aucune consultation de cercle",
+    "circlesEmptyHint": "Dès qu'un cercle dont vous êtes membre vous consultera, la consultation apparaîtra ici.",
+    "toAnswer": "À répondre",
+    "answeredAll": "Répondu",
+    "answeredSome": "{done} / {total} répondu",
+    "questionCount": "{count, plural, one {# question} other {# questions}}",
+    "sealed": "scellé",
+    "named": "nominatif",
     "searchPlaceholder": "Chercher un sondage…",
     "searchNoResults": "Rien ne correspond à « {q} ». Essayez un autre mot, ou créez ce sondage vous-même.",
     "tabAll": "Tout",
@@ -1173,6 +1186,7 @@
     "verdictDetail": "{share}% · seuil : {threshold}"
   },
   "Livret": {
+    "backToFeed": "Mes votes",
     "loading": "Chargement de la consultation…",
     "invalidTitle": "Lien invalide",
     "invalidDesc": "Ce lien de vote n'existe pas ou a expiré.",

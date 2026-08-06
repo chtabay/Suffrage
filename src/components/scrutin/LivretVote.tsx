@@ -112,12 +112,30 @@ export default function LivretVote({ token }: { token: string }) {
     return m;
   }, [results]);
 
+  // ---- L'EN-TÊTE, ET POURQUOI CE N'EST PAS LA NAV COMPLÈTE ----
+  // Cette page se rejoint par un lien reçu par email, souvent sans compte : lui
+  // greffer « Créer », « Explorer », « Mes scrutins » mettrait quatre sorties en
+  // concurrence avec le seul geste attendu ici, voter. C'est une surface de
+  // tâche, comme un tunnel de paiement.
+  // Mais une page sans AUCUNE sortie est un cul-de-sac : le logo devient donc un
+  // lien — l'échappatoire universelle — et le connecté récupère le chemin vers
+  // ce qu'on lui demande par ailleurs.
   const Shell = ({ children }: { children: React.ReactNode }) => (
     <div style={{ minHeight: "100vh", background: CREAM, fontFamily: FONT_BODY }}>
       <div style={{ maxWidth: 640, margin: "0 auto", padding: "20px 18px 90px" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 11, marginBottom: 18 }}>
-          <PlacetMark size={36} />
-          <span style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 21, letterSpacing: "-0.02em" }}>Placet</span>
+          <Link href="/" style={{ display: "flex", alignItems: "center", gap: 11, textDecoration: "none", color: INK }}>
+            <PlacetMark size={36} />
+            <span style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 21, letterSpacing: "-0.02em" }}>Placet</span>
+          </Link>
+          {user && (
+            <Link
+              href="/mes-votes"
+              style={{ marginLeft: "auto", fontSize: 13.5, fontWeight: 700, color: SUBINK, textDecoration: "none", border: `2px solid ${INK}`, borderRadius: 10, padding: "7px 12px", background: "#fff" }}
+            >
+              ← {t("backToFeed")}
+            </Link>
+          )}
         </div>
         {children}
       </div>
@@ -268,6 +286,13 @@ export default function LivretVote({ token }: { token: string }) {
         <div style={{ ...card, marginTop: 16, background: "#e7f7df", borderColor: INK }}>
           <b>{t("allDoneTitle")}</b>
           <div style={{ color: SUBINK, marginTop: 6 }}>{t("allDoneDesc")}</div>
+          {/* Tout est répondu : c'est le moment exact où cette page n'a plus rien
+              à offrir, donc celui où il faut une porte. */}
+          {user && (
+            <Link href="/mes-votes" style={{ display: "inline-block", marginTop: 12, fontWeight: 800, fontSize: 14.5, color: GREENTXT, textDecoration: "none" }}>
+              {t("backToFeed")} →
+            </Link>
+          )}
         </div>
       )}
 
