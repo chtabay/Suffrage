@@ -1,509 +1,579 @@
-# Tableau de bord de cercle — `/espaces/[id]` (`SpaceDashboard.tsx`)
+# Tableau de bord de cercle — spécification définitive
 
-> **Trois amendements postérieurs à la rédaction, à lire avant d'exécuter.**
+**Fichier cible** : `D:\Suffrage\src\components\scrutin\SpaceDashboard.tsx` (609 l., rendu 267→607)
+**Routes neuves** : `src/app/[locale]/espaces/[id]/membres/page.tsx`, `.../consultations/page.tsx`
+**Vocabulaire** : cercle / membres / consultation / questions / segments (commit 87962b6). Aucune exception.
+
+---
+
+## 1. La règle
+
+> **Le tableau de bord montre l'ÉTAT du cercle et les LEVIERS qui le changent ; il n'énumère jamais ses contenus. Tout chiffre y est une porte vers la vue de gestion qui, elle, énumère.**
+
+**La frontière chiffrée.** Un ensemble se rend en place si et seulement si les **trois** conditions tiennent :
+
+| | Condition | Contrôle |
+|---|---|---|
+| (a) | Le **code** impose un plafond ≤ 6 lignes rendues | pas « en général il y en a peu » : un `.slice(0, N)` littéral |
+| (b) | Chaque ligne rendue porte **au moins un chiffre d'état ou un levier** | jamais un simple nom |
+| (c) | Une **règle de tri explicite** décide qui tombe hors du plafond | et l'excédent est résumé par un compteur-lien |
+
+Échouer à l'une des trois = **énumération** = sort de la page vers une route.
+
+**Application, décidée :**
+
+| Ensemble | Volume | Verdict | Motif |
+|---|---|---|---|
+| Membres | 8 → 200, sans borne | **jamais en place** | (a) et (c) échouent |
+| Consultations **en cours** | plafond 3, tri `closes_at` asc | **en place** | 4 chiffres d'état par ligne, tri explicite |
+| Consultations **brouillons / closes** | jusqu'à 30, sans borne | **jamais en place** | (a) et (c) échouent ; aucune décision attachée |
+| Segments | 3 → 12, plafond 6 puces | **en place, EN LECTURE SEULE** | l'effectif est un chiffre d'état ; les gestes partent |
+| Réglages d'adhésion | ensemble de champs **fixe** | **en place, sous `<details>`** | borné par construction |
+
+**Corollaire de forme, non négociable.** Le `<details>` natif est réservé aux **RÉGLAGES** (ensemble de champs fixe — seule occurrence actuelle : `SpaceDashboard.tsx:458`). Il ne cache **jamais** une collection qui croît : il n'a ni recherche, ni pagination, ni URL, et il monte tout le DOM quand même. Une liste dépliée dans le tableau de bord **est** une liste dans le tableau de bord.
+
+---
+
+## 2. La page, section par section
+
+### Esquisse
+
+```
+┌────────────────────────────────────────────────────────────────┐
+│  ← Retour aux cercles                                          │  §1
+│  ┌──────────────────────────────────────────┐                  │
+│  │ Les Amis du Théâtre            [inline]  │  ← <input> nu    │
+│  └──────────────────────────────────────────┘                  │
+│  47 membres · 12 par le lien · 3 sans adresse · 5 sans segment │
+│  ▔▔▔▔▔▔▔▔▔▔   ▔▔▔▔▔▔▔▔▔▔▔▔▔   ▔▔▔▔▔▔▔▔▔▔▔▔▔▔   ▔▔▔▔▔▔▔▔▔▔▔▔▔▔  │
+│   → /membres    ?filtre=       ?filtre=          ?filtre=      │
+│                  adherents      sans-email        sans-segment │
+├════════════════════════════════════════════════════════════════┤
+│ ╔══════════════════════════════════════════════════════════╗   │  §2
+│ ║  Agir                                    1/2 aujourd'hui ║   │  CORAL
+│ ║  ┌──────────────────┐ ┌────────────────────────┐         ║   │
+│ ║  │ Poser une question│ │ Préparer une consultation│       ║   │
+│ ║  └──────────────────┘ └────────────────────────┘         ║   │
+│ ║  ⚠ ☐ Ouvrir les adhésions — sans quoi une question ne    ║   │
+│ ║     peut pas être adressée à ce cercle.                   ║   │
+│ ╚══════════════════════════════════════════════════════════╝   │
+├════════════════════════════════════════════════════════════════┤
+│ ┌ En cours ─────────────────────────────────────────────────┐  │  §3
+│ │ AG 2026                                       ( OUVERTE ) │  │  ≤3
+│ │ Avancé + Lyon · scellé · 4 questions                      │  │  lignes
+│ │ Ferme le 14 août · 18/24 ont émargé                       │  │  cliquables
+│ ├───────────────────────────────────────────────────────────┤  │
+│ │ Budget travaux                                ( OUVERTE ) │  │
+│ │ 12 convoqués · nominatif · 1 question                     │  │
+│ │ Pas d'échéance · 7/12 ont émargé                          │  │
+│ └───────────────────────────────────────────────────────────┘  │
+│   + 2 en cours →   ·   2 brouillons →   ·   17 closes →         │
+│   ▔▔▔▔▔▔▔▔▔▔▔ CORAL                                            │
+├════════════════════════════════════════════════════════════════┤
+│ ┌ Membres ──────────────────────────── 47 membres ──────────┐  │  §4
+│ │ 12 segments · 3 sous le seuil de 5                        │  │  LECTURE
+│ │ [Avancé · 3 ⚠] [Lyon · 4 ⚠] [Nord · 4 ⚠] [Roulage · 12]   │  │  SEULE
+│ │ [Standard · 7] [Bureau · 9]      + 6 autres segments →     │  │
+│ │                              ┌───────────────────────┐    │  │
+│ │                              │ Gérer les membres →   │    │  │
+│ │                              └───────────────────────┘    │  │
+│ └───────────────────────────────────────────────────────────┘  │
+├════════════════════════════════════════════════════════════════┤
+│ ┌ Ouvrir les adhésions ─────────────────────────────────────┐  │  §5
+│ │ Ouvertes · 3 demandes en attente, la plus ancienne 68 h ⚠ │  │
+│ │ ▸ Réglages du cercle                        (<details>)   │  │
+│ └───────────────────────────────────────────────────────────┘  │
+│                                                                │
+│  Supprimer ce cercle                                           │  §6
+└────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+### §0 — Les trois sorties, avant tout rendu
+
+**MONTRE.** Un de trois états, jamais un quatrième :
+1. `Org.loading` (existante) ;
+2. carte d'erreur + bouton « Réessayer » ;
+3. « Ce cercle n'existe pas, ou vous ne l'animez pas » (clé neuve `Org.spaceNotFound`), quand `getSpace` rend `null`.
+
+**J'accepte la correction 5 de Sceptique 1 : la garantie est par VAGUE, pas par page.** `load()` (`:118-134`) fait deux vagues dans **un seul `try`** — vague 1 `getSpace`/`listMembers`/`listEvents` (`:121`), vague 2 `listSegments`/`listMemberSegments` (`:128`). Un `finally { setReady(true) }` global ferait rendre « 0 segment » sur un cercle qui en a douze. Aujourd'hui ce mensonge est démenti par les puces sur chaque ligne de membre (`:335-350`) ; **une fois les listes parties, plus rien ne le dément**, et l'animateur convoquera « tout le cercle » faute de cible visible.
+
+Donc : **deux drapeaux, deux `catch`**.
+- `coreErr` → la page entière rend la carte d'erreur.
+- `segErr` → §1 et §3 se rendent normalement ; la barre du §4 rend **« segments indisponibles — Réessayer »**, jamais « 0 segment », jamais une barre vide. Le 4ᵉ chiffre du §1 (« sans segment ») est **omis**.
+
+**PERMET.** « Réessayer » rappelle `load()`. Sur l'absence : le lien retour `Org.back` (`:269`).
+**OUVRE VERS.** Rien (états terminaux).
+**SOURCE.** Dérivé. Deux états `coreErr`/`segErr` + `ready`. Zéro requête neuve.
+
+---
+
+### §1 — En-tête : le nom, et quatre chiffres qui sont quatre portes
+
+**MONTRE.** Lien retour ; nom du cercle ; **une** ligne d'état en points médians. Zéro ligne de membre — c'est la totalité de ce que la page dit du roster sans clic, contre 128 lignes de liste aujourd'hui (`:304-432`).
+
+| Chiffre | Condition d'affichage | Style |
+|---|---|---|
+| `47 membres` | toujours | corps |
+| `12 par le lien` | **si > 0** | corps |
+| `3 sans adresse` | si > 0 | **REDTXT** |
+| `5 sans segment` | si > 0 **ET** `segments.length > 0` | **REDTXT** |
+
+**J'accepte la correction 3 de Sceptique 1, avec une garde qu'il n'a pas posée.** « k sans segment » est le seul indicateur de faute d'administration d'un cercle à niveaux — un membre qui cotise et qu'aucune consultation ciblée ne convoquera jamais. Il coûte un `useMemo`. Et « k par le lien » devient conditionnel : sur un cercle 100 % importé (le cas de Grand Dynamo, `self_joined=false` partout) il afficherait un `0` permanent et décoratif.
+
+**Garde que j'ajoute :** « k sans segment » n'a de sens que si le cercle a **au moins un segment**. Sans segments, *tout le monde* est sans segment — le chiffre vaudrait `47` en rouge sur un cercle parfaitement sain. Condition : `segments.length > 0 && segErr === null`.
+
+**PERMET.** Renommer le cercle **en ligne** — patron exact `EventEditor.tsx:357-365` : `<input>` aux styles du `h1`, `onBlur → updateSpace({name})`, Entrée = `blur`, `aria-label` sur `Org.renameSpaceAria` (neuve). Aujourd'hui le `h1` est inerte (`:270-272`) alors que ce nom part dans les emails d'adhésion. `renameSpace` (`events.ts:234`) a **zéro appelant, vérifié** : il se supprime au profit d'`updateSpace`, qui gère déjà `patch.name` (`events.ts:195`).
+
+**OUVRE VERS.** `/espaces/<id>/membres` ; `?filtre=adherents` ; `?filtre=sans-email` ; `?filtre=sans-segment`.
+
+> **J'accepte la correction 5 de Sceptique 2 :** la spec écrivait `sans-email` au §1 et `sans-adresse` ailleurs. **Un seul survit : `?filtre=sans-email`**, cohérent avec la clé `Org.filterNoEmail`.
+
+Le chiffre « sans adresse » règle un vrai défaut : l'animateur découvre aujourd'hui ses orphelins quand la base refuse l'ouverture des adhésions (déclencheur `scrutin_space_open_needs_emails`), et le message rendu (`:207-208`) ne dit **ni combien ni lesquels**.
+
+**SOURCE.** Dérivé, zéro requête neuve. `members.length` ; `members.filter(m => m.self_joined)` (colonne dans `MEMBER_COLS`, `events.ts:135`, **vérifié**) ; `members.filter(m => !m.email?.trim())` ; `members.filter(m => !(memberSegs[m.id]?.length))`.
+
+---
+
+### §2 — Barre d'action : deux leviers, et la garde qui manquait
+
+**MONTRE.**
+- Compteur du jour, seulement si `space.solicit_per_day != null` : « 1 / 2 sollicitations aujourd'hui », REDTXT au plafond.
+- Si `!space.join_open` : une ligne d'avertissement **qui porte la case elle-même** (`Org.needsCircleForAudience`, neuve).
+
+Aujourd'hui le CTA le plus contrasté de la page échoue en base sur tout cercle `join_open=false` — **c'est-à-dire par défaut** — parce que `circle_audience_guard` renvoie `not_a_circle` (`20260805-audience-p1.sql:53`, **vérifié**), et le refus n'apparaît qu'**après** composition de la question, sous un libellé générique.
+
+**PERMET.** Les deux boutons, destinations inchangées : `Org.actionAsk` → `/new?espace=<id>` (`:286-292`) ; `Org.actionSequence` → `createEvent` + `push /evenement/<id>` (`:293-299`). Plus la case `join_open`, **reprise de `:439-444`** — elle quitte la carte des adhésions pour venir là où son absence fait échouer.
+
+> **J'accepte le défaut 2 de Sceptique 2, et il est plus grave qu'il ne le dit.** Vérifié : `createEvent` (`events.ts:300-318`) n'envoie **aucun `status`** → brouillon ; la garde compte `status <> 'draft'` (`audience-p1.sql:86-88`). Un brouillon **ne consomme pas le plafond**. Désactiver « Préparer une consultation » au plafond rendrait l'écran **plus strict que la base** et supprimerait le seul chemin pour préparer la consultation de demain — exactement la divergence que ce § interdit.
 >
-> 1. **Vocabulaire** — le §2 retient « groupe » pour `scrutin_spaces`. L'arbitrage
->    rendu ensuite retient **« cercle »** (commit `87962b6`) : « groupe » porte
->    trois autres sens vivants, dont le groupe WhatsApp, et le corpus SEO
->    `/methodes` l'emploie 32 fois comme mot ordinaire. Partout où ce document
->    écrit « groupe » au sens de `scrutin_spaces`, lire **cercle**. Le reste du
->    §2 (« Membres » au lieu de « Corps électoral », le titre de la carte
->    d'adhésion, « adhérents » réservé à `self_joined`) est **déjà livré**.
-> 2. **La faille de soustraction ENTRE consultations n'est pas traitée par ce
->    document**, et elle commande le lot P1. Voir §5.2 C4, qui ne borne que le
->    cas intra-consultation : deux consultations scellées sur des publics qui ne
->    diffèrent que d'une personne passent l'une et l'autre le seuil de 5, et la
->    différence des dépouillements rend le bulletin exact de cette personne. Le
->    compteur « n/N ont émargé » (E6) dit à l'animateur le moment exact où
->    frapper. **P1 ne se livre donc pas sans une garde inter-consultations** :
->    refuser d'ouvrir en scellé si la différence symétrique avec le public d'une
->    consultation scellée antérieure du même cercle est **strictement comprise
->    entre 0 et 5** (zéro exclu : deux consultations sur le MÊME public ne
->    révèlent personne, et c'est le cas le plus fréquent).
-> 3. **C1 est plus urgent que le tableau de bord.** `get_event_results_owner` ne
->    teste pas le statut et `event_results_payload` renvoie `'closed'` en dur :
->    l'animateur d'une consultation scellée **ouverte** lit le dépouillement en
->    direct, et le bouton « copier le lien » par convoqué lui permet de le faire
->    varier d'une personne à la fois. C'est indépendant de ce chantier.
+> **Décision : seul « Poser une question » se désactive au plafond. « Préparer une consultation » reste toujours actif.**
+>
+> **Et un fait neuf que ni l'audit ni les sceptiques n'ont relevé :** `EventEditor` ouvre par `updateEvent(eventId, { status: 'open' })` (`EventEditor.tsx:229-230`, **vérifié**) — un `update` nu qui **ne passe par `circle_audience_guard` ni par aucune autre garde**. Le plafond du jour, le seuil de 5 et le refus `not_a_circle` ne s'appliquent **qu'au parcours `/new`**. L'avertissement du §2 ne doit donc jamais laisser croire que le second chemin est protégé, et le libellé de `Org.needsCircleForAudience` doit viser « une question adressée à ce cercle », pas « une consultation ». **Fermer ce contournement est un lot de sécurité à part, hors périmètre ici — je le consigne.**
 
-*Spécification prête à réaliser. Rédigée après relecture du composant (609 lignes, rendu 267→607), de `src/lib/db/{events,circles,participation}.ts`, des migrations `20260731-cercles-lot{1,2}`, `20260801-cercles-segments`, `20260805-audience-p1`, et de la base (`get_spaces_with_stats`, `close_expired_polls`, `cron.job`, `information_schema.columns`).*
+**OUVRE VERS.** `/new?espace=<id>` et `/evenement/<id>` (parcours existants).
+
+**SOURCE.** Dérivé de `events` déjà chargé. Reprendre **littéralement** la définition de la garde :
+```ts
+const dayStartUTC = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
+const todayCount = events.filter(e => e.status !== 'draft' && new Date(e.created_at) >= dayStartUTC).length;
+```
+**Début de jour en UTC**, pour coller à `date_trunc('day', now())` : un calcul en heure locale produit jusqu'à une journée d'écart aux bords, donc un écran qui annonce « 1/2 » pendant que la base refuse.
 
 ---
 
-## 0. Dédoublonnage des constats
+### §3 — Consultations en cours : le poste de commande (≤ 3 lignes)
 
-Les six experts ont produit 50 constats. Après recoupement il reste **17 problèmes distincts**. Les fusions :
+> **J'accepte le BLOQUANT 1 de Sceptique 1.** La spec d'entrée contenait **trois versions incompatibles** du même bloc :
+> - §3 : jusqu'à 3 lignes enrichies ;
+> - « Les deux portes » : « 2 en cours · 1 brouillon · 7 closes, **rien de plus** » ;
+> - « Ce que la contrainte casse », E : « deux ou plus : **on n'affiche que le compte et l'échéance la plus proche** ».
+>
+> Les variantes 2 et 3 sont une **régression mesurable** : aujourd'hui `:565-572` rend **chaque** consultation en `<Link href={/evenement/${e.id}}>` avec son titre — ouvrir « AG 2026 » coûte **1 clic**. Après, 2 clics plus un balayage d'une page mêlant brouillons et closes. On aurait retiré un accès direct pour le remplacer par un nombre.
+>
+> **Les variantes 2 et 3 sont barrées. Seul le §3 ci-dessous fait foi.**
 
-| Problème retenu | Constats qui le disaient | Statut de vérification |
+**MONTRE.** Les consultations `status === 'open'`, **plafonnées à 3 par le code**, triées `closes_at` croissant (nulls en dernier), puis `created_at` croissant.
+
+- **Ligne 1** : titre + pastille d'état — gabarit `MesScrutinsScreen.tsx:104-124` (bordure 2px INK, `borderRadius` 20), qui remplace les capitales espacées de `:568-570`.
+- **Ligne 2** : public convoqué · régime (`Explore.sealed` / `Explore.named`, existantes) · nombre de questions.
+- **Ligne 3** : échéance (`Explore.closesOn`, existante) · participation.
+
+Sous ces lignes, les compteurs-liens : **« + 2 en cours » en CORAL** (jamais en gris), puis « 2 brouillons · 17 closes » en gris.
+
+**Pourquoi une consultation ouverte n'est pas une énumération** — les trois critères tiennent : (a) plafond littéral de 3 dans le code ; (b) quatre chiffres d'état par ligne (échéance, régime, public, émargement) ; (c) tri explicite par échéance, donc la ligne qui tombe est toujours la moins urgente. Et c'est le seul endroit de l'application où l'on voit qu'une urne se ferme demain.
+
+**Le risque du plafond, et son atténuation.** Si `solicit_per_day` est nul (aucune limite en base) et que l'animateur ouvre 5 consultations, deux disparaissent. Une consultation à `closes_at` null trie en dernier et peut être oubliée indéfiniment. D'où le compteur d'excédent **en CORAL**, lié à `?etat=ouvert`.
+
+#### Le public convoqué : le défaut fatal, et ce que je fais
+
+> **J'accepte intégralement le défaut fatal de Sceptique 2, vérifié ligne à ligne.** `audience_label` n'est écrit que par `set_poll_audience` (`audience-p1.sql:131,139`) et `open_circle_consultation` (`:189`). Le parcours « Préparer une consultation » appelle `createEvent` puis `EventEditor`, dont la convocation est un **insert nu** : `convene` (`events.ts:424-438`) insère dans `scrutin_event_members` **sans jamais toucher `scrutin_events.audience_label`** (vérifié : la fonction n'écrit que `event_id, member_id, name, email, district, weight`), et l'ouverture est un `updateEvent({status:'open'})` (`EventEditor.tsx:229-230`).
+>
+> **Conséquence :** pour **toute** consultation née de ce parcours — le seul qui porte plusieurs questions, donc la raison d'être même de l'objet consultation — `audience_label` vaut **NULL quel que soit le public réellement convoqué**. Rendre NULL comme « Tout le cercle » ferait annoncer « tout le cercle » sur une consultation convoquée à 6 personnes sur 47.
+
+**Décision — je retiens la voie (b) de Sceptique 2 pour P0/P1, et la voie (a) en P2 :**
+
+| `audience_label` | Rendu ligne 2 |
+|---|---|
+| non-null | le label figé, tel quel |
+| null | **« N convoqués »** (`convened_count`, RPC `get_space_event_stats`) — **jamais « Tout le cercle »** |
+| null, et RPC pas encore livrée (P0) | **la ligne 2 omet le public** et ne rend que le régime |
+
+En P2, voie (a) : au passage brouillon→ouvert dans `EventEditor`, écrire `audience_label` depuis la convocation réelle — NULL seulement si `scrutin_event_members` couvre tout le roster, sinon un libellé figé. C'est un `update`, pas une migration.
+
+**Ce que je ne « corrige » pas, et le commentaire à écrire dans le code.** `audience_label` est un **instantané textuel** délibéré (`20260801-cercles-segments.sql:84-92`) : un segment renommé ou supprimé ne doit pas réécrire l'histoire d'une consultation tenue. Ne jamais le remplacer par une jointure sur `scrutin_segments`. À inscrire en commentaire, sinon quelqu'un le « réparera ».
+
+#### Confidentialité, appliquée ici
+
+- Ratio d'émargement en scellé **seulement si convoqués ≥ 5** ; sinon la ligne dit « 3 convoqués », sans ratio.
+- Chiffre chargé **une fois au montage**, jamais de polling.
+- **Aucun dépouillement, jamais. Aucune liste de non-répondants, jamais.**
+
+> **J'accepte la réserve de Sceptique 2 sur l'ARGUMENT (pas sur la règle).** Dire que le chargement unique supprime « structurellement » le canal d'attribution est **faux** : un rafraîchissement remonte le composant, et `EventEditor.tsx:164-182` sonde déjà exactement le même chiffre **toutes les 12 s**, à une route de là. La contrainte **déplace** ce canal, elle ne le ferme pas. **Seul le correctif H le ferme.** Le « dividende de sécurité » invoqué pour justifier la contrainte est donc réécrit à la baisse, et l'ordre de livraison (H d'abord, ratio ensuite) reste **la seule protection réelle**.
+
+**PERMET.** Cliquer une ligne. **Rien d'autre** : ni renommage ni suppression en ligne — supprimer une consultation détruit des bulletins scellés irrécupérables par construction (ils n'ont jamais porté de nom).
+
+**OUVRE VERS.** `/evenement/<id>` ; `/espaces/<id>/consultations?etat=ouvert|brouillon|close`.
+
+**SOURCE.**
+- `closes_at`, `secret_ballot`, `status`, `created_at` : **déjà dans `EVENT_COLS`** (`events.ts:136-137`, vérifié) et **zéro occurrence** dans `SpaceDashboard.tsx`.
+- `audience_label` : **absent de `EVENT_COLS` et du type `EventRow`** (`events.ts:49-71`, vérifié) → **2 lignes à ajouter, zéro migration** — mais voir le défaut fatal ci-dessus : ces 2 lignes **sélectionnent une colonne que ce parcours n'écrit pas**.
+- `polls_count`, `convened_count`, `signed_count` : **RPC neuve `get_space_event_stats(p_space_id)`**, agrégats seuls.
+
+> **Raccourci tentant et faux, à interdire explicitement :** brancher le §3 sur `countEventVoters` (`events.ts:589-601`). Il filtre `.not("event_member_id","is",null)` alors que le bulletin scellé est écrit `null` (`lot1:114-115`) et masqué par la policy restrictive `scrutin_ballots_hide_secret`. Il vaut **structurellement 0** sur le régime pour lequel tout le chantier existe : le tableau afficherait « 0/12 ont émargé » à un animateur dont huit membres ont répondu, et il relancerait tout le monde ou refermerait.
+>
+> **J'accepte le défaut 3 de Sceptique 2 et j'annule la prescription de l'audit :** `countEventVoters` **a un appelant vivant** — `EventEditor.tsx:11` et `:170`, dans un `setInterval` de 12 s. **Ne pas le supprimer d'`events.ts` : cela casserait l'éditeur.** Seul `getVotedMemberIds` (`events.ts:540`) est mort côté navigateur (vérifié : zéro appelant dans `src/` hors sa définition ; le seul appel restant est serveur, via `supabase.rpc` direct) et peut partir avec son `revoke`.
+
+---
+
+### §4 — Membres : des chiffres, des segments en lecture, et pas une seule ligne
+
+**MONTRE.** Titre « Membres » + rappel du compteur (`aria-live="polite"`). Puis la barre des segments, **sortie de `join_open`** : aujourd'hui `{space?.join_open && (` (`:454`) enveloppe le bloc segments (`:458-554`), donc **un cercle à liste importée ne peut créer aucun segment**, alors que segmenter sert à **cibler** et n'a rien à voir avec recruter. Rien en base ne lie les deux.
+
+Deux chiffres en tête — « 12 segments · 3 sous le seuil de 5 » — puis **au plus 6 puces** « nom · effectif », triées **effectif < 5 d'abord** (elles exigent une décision : elles rendent une consultation scellée impossible, `v_min = 5`, `audience-p1.sql:47`), puis `rank`/`position`. Excédent : « + 6 autres segments → ».
+
+> **J'accepte le BLOQUANT 2 de Sceptique 1, contre le §4 de la spec d'entrée.** Celle-ci se contredisait : son §4 faisait « la puce *+ segment* révèle en place le champ », pendant que sa propre section B écrivait « **remède : interdire le contrôle de création sur le tableau de bord** […] à cette condition **seulement** B devient réglé ». Le §4 livrait donc précisément la version que B qualifie de « seule décision de ce lot qui peut faire empirer les choses ».
+>
+> **Décision : aucun levier de segment sur le tableau de bord. Le champ « + segment » descend en `/membres`, à côté de l'affectation.** Sinon on crée « Lyon » sur une page et on cherche les Lyonnais sur une autre — la distance passe de ~170 lignes de scroll à une **navigation avec perte de contexte**.
+
+**Où passe la ligne, exactement :**
+
+| Élément | Verdict | Motif |
 |---|---|---|
-| **A.** Les segments sont enfermés sous `join_open` : un groupe à liste importée ne peut en créer aucun | 4, 25, 38, 43 | ✅ `SpaceDashboard.tsx:454` enveloppe 458-554 ; `20260805-audience-p1.sql:53` renvoie `not_a_circle` |
-| **B.** Création et affectation d'un segment séparées de ~170 lignes | 4, 26, 38 | ✅ création 504-536, affectation 335-367 |
-| **C.** L'ordre vertical est celui de l'amorçage, pas de l'usage (252 lignes sur 342 aux deux cartes de setup, 15 aux objets vivants) | 2, 42 | ✅ mesuré : membres 304-432, cercle 435-557, suites 560-574 |
-| **D.** Un seul chiffre d'état sur toute la page (`memberCount`, 307) ; `previewAdd/Dup/Bad` (402-404) décrivent le presse-papier | 3, 14, 42 | ✅ |
-| **E.** La ligne d'une suite n'affiche que titre + statut, alors que `closes_at`, `quorum`, `secret_ballot`, `created_at` sont déjà en mémoire | 3, 13, 46 | ✅ `EVENT_COLS` (`events.ts:136-137`) les charge, zéro occurrence dans le composant |
-| **F.** Aucune participation : `load()` (118-134) ne touche ni `scrutin_event_members` ni `scrutin_event_signins` | 3, 9, 22 | ✅ imports exhaustifs 7-30 |
-| **G.** En scellé, `countEventVoters` vaut structurellement 0 | 9, 22 | ✅ `events.ts:589-601` filtre `.not("event_member_id","is",null)` ; le bulletin scellé est écrit `null` (`lot1:114-115`) et masqué par `scrutin_ballots_hide_secret` (`lot1:69-72`) |
-| **H.** En scellé, le dépouillement est lisible **pendant** que le vote est ouvert → attaque différentielle | 10, 17 | ✅ `get_event_results_owner` (`lot1:241-252`) ne teste pas le statut ; `event_results_payload` renvoie `'status','closed'` en dur (`lot1:214`) ; `EventEditor.tsx:643` monte les résultats dès `status !== "draft"` |
-| **I.** Le seuil de 5 compte des **bulletins**, pas des votants | 18 | ✅ `lot1:180-186` : `count(*)` sur tous les `scrutin_ballots` de l'événement |
-| **J.** Le seuil porte sur l'**union** des segments visés, jamais sur chacun | 19 | ✅ `audience-p1.sql:65-68` : un seul `count(distinct ms.member_id)` |
-| **K.** `get_event_voted_members` est exécutable depuis le navigateur et livre la liste nominative des émargés | 21 | ✅ `grant … to authenticated` (`lot1:289`) ; `getVotedMemberIds` (`events.ts:540`) n'a **aucun appelant** |
-| **L.** Le CTA en tête de page échoue en base sur tout groupe `join_open = false` (défaut), et le refus est générique | 1, 29 | ✅ `LaunchedScreen.tsx:213-216` ne traite que `too_small`/`capped` |
-| **M.** Le plafond du jour n'est répondu qu'après lancement | 11 | ✅ garde `audience-p1.sql:84-90` ; aucun compteur dans la page |
-| **N.** Aucun effectif de segment nulle part | 12, 26, 29 | ✅ `memberSegs` est chargé (107, 128-130) et jamais agrégé |
-| **O.** Six écritures échouent en silence ; `load()` en échec produit une page « groupe vide » ; pas de garde « ce groupe n'est pas le mien » | 8, 27, 34, 36, 37 | ✅ `catch { /* noop */ }` 131-133, 154-156 ; aucun try sur 169, 231, 237-238, 190-194 ; le rendu ne teste jamais `space === null` |
-| **P.** Le nom du groupe est inerte ; `renameSpace` existe sans appelant | 5 | ✅ `events.ts:234`, zéro appelant |
-| **Q.** Vocabulaire : « Corps électoral » / « Cercle » / « groupe » / « votes » sur un même parcours | 31, 45, 47, 49 | ✅ `Org.members` = « Corps électoral » face à `Org.membersSubtitle` = « Les membres du groupe » |
+| **Effectif** d'un segment | **reste** (lecture) | chiffre d'état — problème N : `memberSegs` est chargé `:128-130` et jamais agrégé |
+| **Créer** un segment | **part** (§8) | levier, mais indissociable de l'affectation (B) |
+| **Affecter** membre par membre | **part** (§8) | 200 membres × `<select>` de 12 = 200 sélecteurs et 2 400 `<option>` montés d'un coup (`:353-365`) |
+| **Supprimer** un segment | **part** (§8) | geste destructif à cascade (`ON DELETE CASCADE`), rendu par un `×` de ~15 px sans padding (`:513`), sous le minimum WCAG 2.5.8 |
 
-**Écarté / hors périmètre de cette page** (à ne pas mélanger au chantier) :
+**PERMET.** **Rien.** C'est une barre de lecture. Aucun geste destructeur sur ces puces — aujourd'hui cliquer une puce de segment sur une ligne de membre **désaffecte silencieusement** (`:341-350`) : le geste le plus naturel est le plus destructeur.
 
-- Constat 44 (`Launched.myPolls` = « Mes consultations » alors que l'écran s'appelle « Mes scrutins ») : vrai, mais c'est l'écran de lancement, pas le tableau de bord. → ticket séparé.
-- Constats 24, 47 (`Feed.named` manquant, `Org.statOpen` dit « vote ») : vrais, autres surfaces.
-- Constat 32 (`join_cap` / `join_closes_at` sans interface) : vrai (`events.ts:17-18` les type, `SpacePatch` les accepte, aucun composant ne les règle) → retenu, mais en **P2**, ce n'est pas ce que le fondateur demande.
-- Constat 50 (`#FFB627` en dur ligne 414 au lieu de `YELLOW`, `theme.ts:11`) : vrai, trivial, embarqué en P0.
-- Constat 40 (`REDTXT = "#d23b3b"` à 4,37:1) : vrai, embarqué en P0 — un seul token, 64 usages.
-- Constat 30 (segment non renommable, `deleteSegment` cascade via `20260801-cercles-segments.sql:48-51`) : vrai → P2.
-- **Corrigé par rapport aux experts** : `get_spaces_with_stats` n'est **pas** `security definer` — c'est une fonction `sql stable` qui s'appuie sur la RLS, et elle ne renvoie que `id, name, created_at, members, events_open, events_closed, events_draft`. Le type `SpaceStats extends Space` (`events.ts:212-217`) promet donc `join_open`, `join_token`, `pitch`… que la RPC ne renvoie pas. Ne pas la réutiliser telle quelle pour cette page.
-- **Corrigé aussi** : le constat 13 affirme qu'aucune tâche planifiée n'existe. En réalité `close_expired_polls(p_secret)` existe en base (elle ferme les **scrutins**, pas les **suites**) et un `cron.job` actif (`0 */2 * * *`) appelle l'edge function `resolve-tick`. L'infrastructure existe ; il manque l'équivalent au niveau `scrutin_events`. → P2.
+**OUVRE VERS.** Une puce → `/espaces/<id>/membres?segment=<id>` ; « + N autres » et le compteur → `/espaces/<id>/membres#segments` ; bouton secondaire « Gérer les membres → » → `/espaces/<id>/membres`.
+
+> **Les puces DOIVENT être des liens pré-filtrés.** Un animateur qui affecte des segments toutes les semaines paie le déplacement en §8. Si les puces ne portent pas `?segment=<id>`, le geste passe de 1 clic à 3 et la refonte sera vécue comme une régression.
+
+**SOURCE.** Dérivé — inversion de `memberSegs` (`Record<memberId, segmentId[]>` → `Record<segmentId, count>`) dans un `useMemo`. Zéro requête neuve. Si `segErr`, la barre rend « segments indisponibles — Réessayer ».
+
+*Note de confidentialité :* afficher « Avancé · 3 » n'est **pas** un ratio de participation — c'est le décompte de son propre roster par son animateur, il ne dit rien d'un bulletin. La règle des 5 ne s'y applique pas ; elle s'applique à l'émargement du §3.
 
 ---
 
-## 1. Le parti de la page
+### §5 — Adhésions : un état, un chiffre daté, des réglages repliés
 
-Sept décisions, à tenir sans négocier :
+**MONTRE.** Titre `Org.circle`, **à réécrire en « Ouvrir les adhésions »** (le titre doit dire ce qu'on y fait). L'état de `join_open` — la case vit désormais au §2. Si `join_open` : **un chiffre daté**, « 3 demandes en attente, la plus ancienne depuis 68 h », le ⚠ REDTXT au-delà de 48 h. **Sans liste, sans nom, sans adresse.**
 
-1. **La page répond d'abord à « où en est mon groupe ? »**, ensuite à « que puis-je saisir ? ». Tout bloc de saisie qu'on touche une fois à l'ouverture est replié.
-2. **Aucun chiffre inventé.** Chaque nombre affiché a une ligne dans le tableau §4 : soit il est dérivé de ce qui est déjà chargé, soit il vient d'une RPC nommée ici.
-3. **En scellé, on montre l'émargement, jamais le bulletin.** `scrutin_event_signins` a été créé pour ça (`lot1:25-36`). Le dépouillement n'est pas une donnée de tableau de bord.
-4. **On ne pose aucun compteur de participation avant d'avoir fermé le dépouillement scellé en cours de vote** (problème H). Sinon on ne fait pas un tableau de bord, on outille une attaque différentielle.
-5. **Segments et adhésion sont deux choses indépendantes.** Segmenter sert à cibler ; ouvrir les adhésions sert à recruter. Rien en base ne les lie : le contrôle de propriété (`audience-p1.sql:52`), le seuil de 5 (`:47`) et « tout le segment ou rien » tiennent seuls l'invariant.
-6. **Aucune route ne change.** `/espaces/[id]`, `?espace=`, `scrutin_spaces` restent. Précédent P3 : une URL n'est pas un libellé, et elle est déjà dans des emails.
-7. **Le rendu ne ment jamais sur son état.** Chargement, échec, et « ce groupe n'est pas le mien » sont trois écrans distincts, aucun n'est « groupe vide ».
+> **J'accepte la correction 4a de Sceptique 1.** La spec d'entrée justifiait ce chiffre par un besoin de diagnostic — « distinguer *personne n'a cliqué* de *dix personnes dont l'email de confirmation n'arrive pas* » — auquel **un entier ne répond pas**. « 3 en attente » signifie soit trois clics d'il y a deux minutes (rien à faire), soit trois confirmations perdues à 70 h de la péremption (**fenêtre de 72 h, vérifiée : `expires_at default now() + interval '72 hours'`, lot2:66**), irrattrapable. **L'information discriminante est l'ÂGE de la plus ancienne, pas le compte.**
+>
+> **Le contrat de la RPC devient `{count int, oldest_at timestamptz}`.** Jamais un nom, jamais une adresse : `scrutin_join_requests` a la RLS active et **zéro policy délibérément** (vérifié, `lot2:80-82` — « la file contient des emails NON confirmés »), et rendre une adresse rouvrirait l'oracle d'appartenance que ce zéro-policy protège. Un horodatage n'identifie personne.
+
+**PERMET.** Sous un `<details>` (usage légitime : ensemble de champs **fixe**), les quatre réglages existants, logique inchangée :
+1. lien `/cercle/<join_token>` + copie (`:465-478`), le `<code>` devenant **un lien ouvrable** — c'est la seule page où le pitch et l'engagement de rythme s'affichent, et l'animateur ne l'a jamais vue ;
+2. lien de conversation `chat_url` (`:481-489`) ;
+3. pitch (`:492-499`) ;
+4. rythme `solicit_per_day` (`:538-552`).
+
+**Le bloc des segments n'y est plus** (parti au §8).
+
+Chaque enregistrement reçoit une **coche verte transitoire**, patron de `copiedJoin` : l'animateur prend ici un engagement opposable à ses membres sans savoir aujourd'hui s'il a été enregistré.
+
+**Le bouton copier, dernier échec silencieux.** `:468-477` passe au vert « Copié » **inconditionnellement** : hors contexte sécurisé ou permission refusée, l'animateur colle autre chose dans WhatsApp et ne l'apprend qu'à l'autre bout. La page promettant désormais beaucoup moins, celui-ci devient le plus visible : **attendre la promesse de `writeText`, traiter l'absence d'API comme un échec.**
+
+**OUVRE VERS.** `/cercle/<join_token>`, nouvel onglet.
+
+**SOURCE.** Colonnes déjà chargées (`join_open`, `join_token`, `pitch`, `chat_url`, `solicit_per_day` dans `SPACE_COLS`, `events.ts:133-134`, **vérifié**). Le chiffre daté = **RPC neuve `get_space_join_pending(p_space_id)`**, `security definer`, retournant `{count, oldest_at}` **et rien d'autre**.
 
 ---
 
-## 2. Vocabulaire tranché pour cette page
+### §6 — Zone rouge : supprimer le cercle
 
-Le fondateur demande « adhérents cercle, segments ». Voici le compromis, et pourquoi.
+**MONTRE.** Rien tant qu'on n'a pas cliqué : un lien discret, puis la carte rouge à recopie du nom (`:576-606`), **conservée telle quelle**.
+**PERMET.** La suppression, à l'identique. **Un seul changement** : `onDeleteSpace` (`:190-194`) reçoit un `try/catch` et ne pousse vers `/espaces` **qu'en cas de succès** — aujourd'hui l'animateur retape le nom exact, le bouton ne fait rien, et il en conclut que Placet ne sait pas supprimer.
+**OUVRE VERS.** `/espaces` après succès.
+**SOURCE.** `space.name` déjà chargé. Zéro requête neuve.
 
-| Objet | Mot à l'écran | Ce qui disparaît | Raison |
+---
+
+### §7 — État premier jour : la page ne montre aucun zéro
+
+**MONTRE.** Condition **stricte** : `members.length === 0 && events.length === 0`, **et seulement après que §0 a garanti que la vague 1 a RÉUSSI**. Alors §1 à §5 ne sont pas rendus : ni « 0 membre », ni « 0 sollicitation », ni barre de segments vide, ni compteur de demandes à zéro — un tableau de bord de zéros n'apprend rien et fait croire à une panne.
+
+À la place, **une carte unique de mise en route** : trois étapes numérotées portant chacune son état (à faire / fait) — 1. ajouter des membres · 2. facultatif : créer un segment · 3. poser la première question.
+
+**PERMET.** C'est le **seul** endroit où le bloc de collage + aperçu + import (`:373-431`) est rendu en place, **et c'est ce qui justifie qu'il quitte la page partout ailleurs** : à cet instant précis ce n'est pas une énumération mais l'unique geste à faire, et l'aperçu (`previewAdd/Dup/Bad`, `:401-405`) décrit le presse-papier, pas le cercle.
+
+**Cas intermédiaire à ne pas confondre** : `members > 0 && events.length === 0` → **tableau de bord normal**, la carte du §3 rendant un état vide **avec son CTA dedans** (patron `MesScrutinsScreen.tsx:200-230`). Cela supprime au passage `Org.eventsSubtitle`, qui écrit aujourd'hui « Créez-en une depuis la carte du haut » — un itinéraire rédigé à l'intérieur d'une page de 342 lignes de rendu.
+
+**Le lien avec §0 est indissociable.** `members.length === 0 && events.length === 0` est **exactement** ce que produit un `load()` en échec aujourd'hui. Livrer §7 sans les trois sorties, c'est offrir un bloc de collage à l'animateur d'un cercle de 200 personnes dont la requête a échoué.
+
+**OUVRE VERS.** Étape 3 → `/new?espace=<id>`. La page bascule d'elle-même sur §1-§6 au premier membre.
+**SOURCE.** Dérivé (`members.length`, `events.length`, déjà chargés `:121`).
+
+---
+
+## 3. Les vues de gestion
+
+### Mécanisme retenu : **des routes dédiées**
+
+`src/app/[locale]/espaces/[id]/membres/page.tsx` et `.../consultations/page.tsx`, 9 lignes chacune sur le patron **exact** de `espaces/[id]/page.tsx` (vérifié, 9 lignes), montant un composant client enveloppé dans `OrgShell` (`SpacesHome.tsx:30`, **vérifié exporté**).
+
+**Cinq arguments, tous vérifiés dans ce dépôt :**
+
+1. **Le coût d'une route vient de s'effondrer.** `Nav` se monte sans prop (`Nav.tsx:26-29`) ; `OrgShell` est exporté et déjà réutilisé par `SpaceDashboard.tsx:264-268` et `EventEditor.tsx:32`. Une vue = 1 `page.tsx` de 9 lignes + 1 composant. **Aucune infrastructure à écrire.**
+2. **Le retour existe déjà, traduit.** `Org.backToSpace` = « ← Retour au cercle » est présent dans les 4 langues et n'a **qu'un** appelant (`EventEditor.tsx:349`) : **zéro clé i18n de retour à créer**. Le précédent est exact — `EventEditor` est déjà une vue de gestion atteinte par route depuis le tableau de bord.
+3. **L'URL est le seul mécanisme qui rend le vœu du fondateur ADRESSABLE.** « 3 sans adresse » ne devient un levier que si le chiffre est un lien. Ni un `<details>` ni un panneau ne peut porter un état de filtre pré-réglé depuis ailleurs.
+4. **Le bouton retour et le geste système mobile.** Avec `<details>`, l'état ouvert n'est nulle part : le retour quitte la page. Le seul précédent de superposition du dépôt (`AboutPlacet.tsx:87-104`) n'intercepte pas `popstate` — le geste retour d'Android tuerait la page entière. Avec une route : retour = tableau de bord, gratuitement.
+5. **Le poids embarqué.** `buildPreview` + `splitLine` + `looksLikeHeader` (`:53-93`) et tout le bloc collage/aperçu/import (`:373-431`) sont chargés par **tout** visiteur du tableau de bord. Déplacés, ils sortent du bundle (code-splitting App Router), et le `Link` les préfetche au survol.
+
+**Pourquoi pas `<details>`** : il déplie **en place**, donc le fichier de 609 lignes absorberait en plus recherche, filtres et pagination ; l'état n'est ni partageable ni restauré ; et sur mobile, déplier 200 lignes produit un document de plusieurs milliers de pixels mis en page d'un coup. **Surtout, il viole la consigne à la lettre.**
+
+**Pourquoi pas un panneau superposé** : il faudrait réécrire `createPortal`, `role="dialog"`, `aria-modal`, Échap, focus rendu à l'ouvrant — et `AboutPlacet` ne verrouille ni le défilement du corps ni la tabulation. Il faudrait un `zIndex` au-dessus de la nav collante (`Nav.tsx:56-58`, z-index 50), donc **masquer la navigation pendant une tâche qui dure**. Et aucune URL, donc rien des points 3 et 4.
+
+**Nommage.** `/espaces` **ne change pas** (il est dans des emails). Les segments neufs prennent le vocabulaire du 2026-08-07. Aucune localisation d'URL : `routing.ts` n'a pas de table `pathnames`.
+
+**Facettes et URL, la règle de partage.** Les **facettes** vont dans l'URL (`?segment=`, `?filtre=`, `?public=`, `?etat=`), posées par **`router.replace` et non `push`** : le bouton retour doit ramener au tableau de bord, pas parcourir douze états de filtre. La **recherche ne va JAMAIS dans l'URL** : une chaîne saisie dans « chercher un nom » est une donnée personnelle, et une URL se colle dans un chat. Elle reste en état React.
+
+**Frontière `<Suspense>` obligatoire.** Lire `useSearchParams` dans un composant client l'impose dans la page serveur, sinon le build Next 15 échoue au prerender. Le dépôt l'a déjà rencontré et documenté (`m/[token]/page.tsx:10-15`, **vérifié**). À poser **dès le premier fichier**, pas après le premier build rouge.
+
+**`robots` sur les deux routes neuves** : `robots: { index: false, follow: false }`, sur le modèle de `m/[token]/page.tsx:6`. `espaces/[id]/page.tsx` n'en a **pas** (vérifié) et `robots.ts` ne l'interdit pas — **incohérence réelle à corriger dans le même passage.**
+
+**Pas de troisième vue.** Une route `/segments` recréerait **au niveau du routage** le problème B, et devrait recharger `listMembers` + `listMemberSegments` pour n'afficher que des sommes. Un segment n'a pas d'existence hors de « quels membres » : **sa vue de gestion EST la vue des membres.**
+
+---
+
+### §8 — `/espaces/<id>/membres` — titre « Membres »
+
+**Composant** `MembersManager.tsx`, dans `OrgShell`.
+
+**MONTRE.** Lien retour `Org.backToSpace` ; nom du cercle en surtitre cliquable ; `<h1>` = `Org.members` ; sous-titre `Org.membersSubtitle` ; **les quatre mêmes chiffres qu'au §1** avec `aria-live="polite"`. Puis : la bande des segments, un champ de recherche, la rangée de facettes, et la liste **bornée à 50 lignes** avec « Voir les N suivants ».
+
+C'est **ici, et nulle part ailleurs**, que 200 lignes ont le droit d'exister : la page est faite pour ça, elle a une recherche, un filtre, une borne et une URL partageable.
+
+Chaque ligne garde son contenu actuel : nom, badge `tagSelfJoined`/`tagImported` avec la date de consentement en `title`, email, `×N` si `weight > 1`, puces de segments, croix de retrait 28×28.
+
+**La bande des segments** (`#segments`) : puces `[1 Roulage · 12] [2 Standard · 7] [3 Avancé · 3 ⚠]`, le champ `Org.segmentPlaceholder` + `Org.segmentAddCta`, la case « échelle » `Org.segmentRanked` (clés existantes). Le `⚠` REDTXT sous 5 personnes porte en `title` le motif exact : sous ce seuil un bulletin scellé est refusé par `circle_audience_guard`.
+
+**Les facettes** — gabarit `MarketExplorer.tsx:318-331` (bordure 2.5px INK, `borderRadius` 11, fond INK quand active, `aria-pressed`) : « Tous (47) » · une puce par segment **portant nom et effectif** · « Sans segment (5) » · « Sans adresse (3) ». Une seule active à la fois ; le compteur est **dans** la puce, donc le chiffre existe même quand la facette n'est pas choisie.
+
+> **Distinction capitale :** une puce de la **BANDE** filtre ; une puce sur une **LIGNE** de membre désigne son segment. Elles ne doivent **ni se ressembler ni se comporter pareil**. Aujourd'hui cliquer une puce de ligne **désaffecte silencieusement** (`:341-350`). **Correction : le texte de la puce de ligne devient inerte ; seul un `×` de 24×24 minimum retire**, avec l'`aria-label` existant `Org.segmentRemoveFromAria`.
+
+**PERMET.** Chercher (nom + email, insensible à la casse et aux diacritiques via `normalize("NFD")`, **filtrage client** — les 200 lignes sont déjà en mémoire, aucune requête). Filtrer. Et **les six leviers qui quittent le tableau de bord, intacts** :
+
+| Levier | Origine |
+|---|---|
+| Affecter un segment | `:353-365` |
+| Retirer un segment d'un membre | `:341-350` |
+| Retirer un membre (avec confirmation) | `:166-171` |
+| Ajouter par collage et par fichier | `:373-431` + `buildPreview:66-93` |
+| Créer un segment | `:518-535` |
+| Supprimer un segment | `:229-234, :513` |
+
+Plus, **en dette utile**, le **renommage de segment** — geste absent du produit : aujourd'hui renommer = détruire les rattachements (`ON DELETE CASCADE`). Aucune migration : la policy `segments_owner` est `for all`, donc un `updateSegment(id, {name, rank})` de cinq lignes dans `circles.ts`, jumeau de `deleteSegment` (`:152-156`), suffit.
+
+**Le bloc d'ajout** est repris **tel quel**, mais glissé dans un `<details>` dont le `<summary>` réutilise `Org.addMembersTitle`, **ouvert par défaut seulement si `members.length === 0`** : c'est un geste d'amorçage, pas un geste quotidien.
+
+**Le `<select>` par ligne et son remplacement.** Aujourd'hui chaque ligne monte un `<select>` de tous les segments non affectés, dans un `members.map` sans borne : **200 sélecteurs et jusqu'à 2 400 `<option>`** au premier rendu. Remplacement : la ligne n'affiche qu'un bouton `Org.segmentAdd` (existante) ; un état `segEditing: string | null` fait qu'**un seul `<select>` existe dans le document**, monté au clic, auto-focalisé, refermé au `onChange` ou `onBlur`. Prix assumé : deux clics au lieu d'un. Gain : 2 399 nœuds en moins, et combiné au bornage à 50, le pire cas passe de 200 sélecteurs à 1.
+
+**Discipline d'écriture, obligatoire.** Chaque écriture pose son erreur **au contact de son champ** et n'applique l'état local **qu'en cas de succès**. Aujourd'hui `toggleMemberSegment` (`:236-243`), `removeSegment` (`:229-234`) et `onRemoveMember` (`:166-171`) écrivent l'état **sans aucun `try/catch`** : l'écran affirme un rattachement que la base n'a pas, **et la consultation part à un segment amputé**. Reprendre ces fonctions telles quelles transporterait le défaut dans l'écran qui sert précisément à préparer un ciblage. Resynchroniser par `listMemberSegments`.
+
+Et `addSegment` **impute aujourd'hui tout échec à un doublon** (`:223-226`) : le nouveau code doit **lire le message** et ne rendre `Org.segmentDuplicate` que sur la violation de l'index unique `scrutin_segments_space_name_key` sur `(space_id, lower(name))` — sinon un échec réseau s'affiche comme « ce nom existe déjà ».
+
+**ÉTATS VIDES — deux, à ne pas confondre :**
+- **nº1, cercle sans membre** : `Org.noMembers` (existante) + le `<details>` d'ajout ouvert.
+- **nº2, recherche ou facette sans résultat** — *celui qui manque partout aujourd'hui* : `Org.membersNoMatch` + bouton `Org.clearFilters`. **JAMAIS `Org.noMembers`** : dire « Aucun membre » à quelqu'un qui en a 200 et a mal tapé trois lettres est un mensonge d'écran.
+
+**OUVRE VERS.** Rien — c'est une feuille. Retour par `Org.backToSpace` **et** par le bouton du navigateur (les facettes passent par `router.replace`).
+
+**SOURCE.** `listMembers` (`events.ts:248`), `listSegments`/`createSegment`/`deleteSegment`/`listMemberSegments`/`assignSegment`/`unassignSegment` (`circles.ts:130-189`, **vérifiés**), repris tels quels. `updateSegment` à écrire (5 lignes, zéro migration). **Aucune RPC neuve.** Doit refaire pour son compte **les trois sorties du §0**.
+
+---
+
+### §9 — `/espaces/<id>/consultations` — titre « Consultations »
+
+**MONTRE.** Lien retour `Org.backToSpace` ; `<h1>` = `Org.events` ; la rangée de facettes de public ; puis **trois blocs triés PAR ÉTAT et non par date** : « En cours » (`status='open'`) · « Brouillons » · « Closes » (repliées dans un `<details>` — ensemble fixe de trois blocs, pas une collection cachée).
+
+Aujourd'hui `listEvents` trie `created_at desc` (`events.ts:321-330`, **vérifié**), donc **une consultation ouverte se cache sous trois brouillons plus récents**.
+
+Chaque ligne reprend le gabarit enrichi du §3.
+
+**La facette « public convoqué »** : « Tous » + une puce par valeur distincte d'`audience_label` + **une puce distincte « Public non enregistré »** pour `null`.
+
+> **J'accepte la correction 1 de Sceptique 2 sur ce point précis.** Agréger les `null` sous « Tout le cercle » regrouperait sous une seule puce des consultations aux rosters **entièrement différents** — puisque tout le parcours `EventEditor` écrit `null`. La puce s'appelle donc **« Public non enregistré »** (`Org.audienceUnknown`, neuve), et **`Org.audienceAll` (« Tout le cercle ») n'est employée qu'après la voie (a) du P2**, quand le label est réellement écrit à l'ouverture.
+
+Le filtre porte sur le **texte figé à la convocation**, jamais sur le segment d'aujourd'hui. C'est la bonne sémantique : « les consultations qui ont convoqué X », pas « celles qu'un membre de X verrait aujourd'hui ». Ce filtre ne révèle rien : l'animateur sait déjà ce qu'il a convoqué, puisque c'est lui qui l'a choisi. **Aucun seuil ne s'y applique.**
+
+**PERMET.** Filtrer, chercher, ouvrir. **Aucune écriture** : la gestion d'une consultation appartient à `/evenement/<id>`, qui la porte déjà entièrement.
+
+**Ce que la vue ne fait JAMAIS** : ventiler la participation **par segment** (ce croisement se manipule tant que `scrutin_event_members` ne fige pas le segment à la convocation — la table ne porte aucune colonne de segment) ; afficher un ratio quand le public convoqué compte moins de 5 personnes ; afficher un dépouillement ; nommer les non-répondants ; rafraîchir un compteur en direct.
+
+**OUVRE VERS.** `/evenement/<id>` ; retour `/espaces/<id>`.
+
+**SOURCE.** `listEvents` + `audience_label` ajouté à `EVENT_COLS` et `EventRow` ; participation par la **même** `get_space_event_stats`, appelée une fois. Trois sorties du §0 refaites.
+
+---
+
+## 4. Ce qui disparaît de la page actuelle, et où ça va
+
+| Lignes | Élément actuel | Destination | Forme d'arrivée |
 |---|---|---|---|
-| `scrutin_spaces` | **groupe** | « Cercle » comme nom d'objet côté organisateur | Un mot par objet. « Groupe » est déjà le mot de `Nav.spaces`, du titre `Org.spacesTitle`, du champ de création. « Cercle » reste **exclusivement** le mot du membre (`Circle.*`, `/cercle/`, `/m/<token>`) — où il est déjà cohérent. |
-| `join_open = true` | **adhésions ouvertes** (un **état**, pas un objet) | La carte titrée « Cercle » (`Org.circle`, ligne 1052) | En base, « cercle » n'est pas un objet mais un prédicat (`lot2:34-35`). L'écran doit dire la même chose. |
-| `scrutin_members` | **Membres** | « Corps électoral » (`Org.members`) | Le mot est démenti dans sa propre carte : `Org.memberCount` dit « membres », `Org.membersSubtitle` dit « Les membres du groupe », `Org.noMembers` dit « Aucun membre ». En ES, « Cuerpo electoral » / « censo » est le vocabulaire d'une élection légale — faux pour une association. Garder « Corps électoral » **uniquement** dans `Org.convene` (contexte d'assemblée). |
-| `scrutin_members` avec `self_joined = true` | **adhérents** | — | C'est ici que le mot du fondateur est **exact** : un adhérent est quelqu'un qui a rejoint par le lien. La ligne de compteur devient « 47 membres · **12 adhérents par le lien** » quand `join_open`. Un import n'est pas une adhésion, et Placet ne prétend pas détenir l'adhésion (contrainte 3). |
-| `scrutin_segments` | **Segments** | — | Seul mot du produit sans homonyme. « Listes » entre en collision avec `Methods.list` (scrutin de liste), « sous-groupes » avec « groupe ». Le sens est porté par les noms que le groupe donne (« Adhésion avancée · 12 »), pas par le mot générique. |
-| `scrutin_events` | **suites de questions** (organisateur) / **consultation** (votant) | — | Tranché en P3, ne pas rouvrir. |
+| `53-93` | `splitLine`, `looksLikeHeader`, `buildPreview` | **§8** `/membres` | tel quel (sort du bundle du tableau de bord) |
+| `269` | Lien retour `Org.back` | **§1** | inchangé |
+| `270-272` | `<h1>` **inerte** | **§1** | `<input>` de renommage, `onBlur → updateSpace({name})` |
+| `273` | `Org.spaceDashSubtitle` | **supprimé** | remplacé par la ligne de 4 chiffres |
+| `282-301` | Carte d'action, 2 boutons | **§2** | + compteur du jour, + case `join_open`, + avertissement |
+| `304-309` | Titre « Membres » + compteur | **§4** | + « 12 segments · 3 sous le seuil » |
+| `312` | `Org.noMembers` | **§7 / §8** | §7 si cercle neuf, §8 en état vide nº1 |
+| `313-370` | **`members.map` NU, sans borne** | **§8** | liste bornée à 50 + recherche + facettes |
+| `335-352` | Puces de segment **cliquables = désaffectation** | **§8** | **texte inerte + `×` 24×24 séparé** |
+| `353-365` | **`<select>` par ligne** (2 400 `<option>`) | **§8** | **un seul `<select>`, monté au clic** (`segEditing`) |
+| `368` | Croix de retrait de membre | **§8** | inchangée (28×28) |
+| `373-431` | Bloc collage + aperçu + import | **§7 et §8** | §7 en place (seul geste) ; §8 dans un `<details>` |
+| `437` | Titre `Org.circle` | **§5** | réécrit « Ouvrir les adhésions » |
+| `438-446` | **Case `join_open`** | **§2** | là où son absence fait échouer le bouton |
+| `450-452` | `circleErr` **unique, au-dessus d'un repli** | **§5 / §8** | erreur **au contact du champ** concerné |
+| `454` | **`{space?.join_open && (`** | **supprimé** | c'est le problème A : il enfermait les segments |
+| `458-461` | `<details>` `Org.circleSettings` | **§5** | conservé (usage légitime : champs fixes) |
+| `464-478` | Lien d'adhésion + copie | **§5** | `<code>` → lien ouvrable ; copie **attend la promesse** |
+| `480-490` | `chat_url` | **§5** | + coche verte transitoire |
+| `492-499` | Pitch | **§5** | + coche verte transitoire |
+| `501-536` | **Bloc segments (création/suppression)** | **§8** | descend **avec** l'affectation (bloquant 2) |
+| `507-517` | Puces de segment sans effectif | **§4 (lecture) + §8 (gestion)** | **+ effectif, + ⚠ < 5**, triées |
+| `513` | `×` de ~15 px sans padding | **§8** | croix 24×24 conforme WCAG 2.5.8 |
+| `538-552` | Rythme `solicit_per_day` | **§5** | + coche verte ; **son chiffre remonte au §2** |
+| `560-562` | Titre + `Org.eventsSubtitle` | **§3** | sous-titre **supprimé** (itinéraire faux) |
+| `564` | `Org.noEvents` | **§3** | état vide **avec CTA dedans** |
+| `565-572` | Liste des consultations (titre + statut) | **§3 (≤3 en cours) + §9 (toutes)** | lignes enrichies, tri par état |
+| `568-570` | Capitales espacées | **§3 / §9** | pastille `MesScrutinsScreen.tsx:104-124` |
+| `576-606` | Zone rouge | **§6** | inchangée, sauf `try/catch` sur `:190-194` |
 
-**Trois libellés à réécrire, chacun a un seul appelant** — renommage sans effet de bord :
-
-- `Org.members` (rendu `SpaceDashboard.tsx:306`) : « Corps électoral » → **« Membres »**
-- `Org.circle` (rendu `:437`) : « Cercle » → **« Ouvrir les adhésions »** (le titre dit ce qu'on y fait, règle P0)
-- `Org.actionsHint` (rendu `:284`) : la phrase « Cette page gère les listes et les groupes » emploie « groupes » au sens de segments, deux lignes sous un « ce groupe » au sens de `scrutin_spaces` → **« Cette page gère les membres et leurs segments. »**
-
----
-
-## 3. La page, section par section, dans l'ordre d'affichage
-
-> Convention de lecture : **MONTRE** = ce qui est visible sans interaction. **PERMET** = les gestes. **SOURCE** renvoie au §4.
-
-### §3.0 — Les trois sorties avant le rendu
-
-Avant toute chose, trois écrans distincts (problème O). Aujourd'hui les seules gardes portent sur l'auth (`:264-265`) et le rendu ne teste jamais `space === null`.
-
-```
-if (!ready)   → carte « Chargement… » (Org.loading, existe)
-if (loadErr)  → carte d'erreur + bouton « Réessayer » qui rappelle load()
-if (!space)   → carte « Ce groupe n'existe pas, ou vous ne l'animez pas »
-                + lien Org.back ; clé neuve Org.spaceNotFound × 4 langues
-```
-
-Implémentation : `const [ready, setReady] = useState(false)` et `const [loadErr, setLoadErr] = useState(false)` ; dans `load()` (118-134) remplacer `catch { /* noop */ }` par `catch { setLoadErr(true) }` et poser `setReady(true)` dans un `finally`.
-
-### §3.1 — En-tête (remplace 269-273)
-
-**MONTRE** — le lien retour `Org.back` ; le nom du groupe ; une ligne d'état à trois chiffres, en corps de texte, séparés par des points médians :
-
-> **47 membres** · 12 adhérents par le lien · **3 sans adresse**
-
-Le troisième n'apparaît que s'il est > 0, en `REDTXT`, cliquable → filtre la liste des membres sur ces personnes (problème : aujourd'hui l'animateur découvre les orphelins au moment où la base refuse l'ouverture, avec un message qui ne dit ni combien ni lesquels — `SpaceDashboard.tsx:207-208` jette le nombre que l'exception porte pourtant, `lot2:343`).
-
-**PERMET** — renommer le groupe **en ligne**, sur le patron exact de `EventEditor.tsx:357-365` : un `<input>` aux styles typographiques du `h1`, `onBlur={() => saveCircle({ name })}`, Entrée → blur, `aria-label` sur une clé neuve `Org.renameSpaceAria`. `updateSpace` gère déjà `patch.name` (`events.ts:196`). Aujourd'hui la seule action portant sur le nom est la carte de suppression, et ce nom part dans `Org.createForGroup` et dans les emails d'adhésion.
-
-**SOURCE** — S1, S2, S3.
-
-### §3.2 — Barre d'action (remplace 282-301)
-
-**MONTRE** — dans l'ordre :
-
-1. Le **compteur de sollicitations du jour**, seulement si `space.solicit_per_day != null` : « 1 / 2 sollicitations aujourd'hui ». En `REDTXT` quand le plafond est atteint. **SOURCE S4.**
-2. Si `!space.join_open` **et** que le groupe a au moins un segment ou que l'animateur a déjà tenté : une ligne d'avertissement qui **porte la case elle-même** — `<label><input type="checkbox" onChange={e => saveCircle({ join_open: e.target.checked })}/> Ce groupe doit accepter les adhésions pour recevoir une consultation</label>`. Clé neuve `Org.needsCircleForAudience`.
-
-**PERMET** — les deux boutons existants (`actionAsk` → `/new?espace=<id>`, `actionSequence` → crée un brouillon et pousse vers `/evenement/<id>`), **désactivés** quand `todayCount >= solicit_per_day`, avec le compteur pour explication.
-
-**Pourquoi ici et pas ailleurs** : le CTA le plus contrasté de la page échoue en base pour tout groupe `join_open = false` — c'est-à-dire par défaut (`lot2:22`) — et le refus n'apparaît qu'à la fin du parcours de création sous le libellé `Launched.audienceKo` (« L'envoi au groupe n'a pas abouti »), qui décrit une panne là où c'est un réglage manquant. Deux corrections possibles : (a) la case remontée ici ; (b) supprimer la ligne 53 de `circle_audience_guard`. **Retenu : (a) en P0** (zéro migration, zéro risque), **(b) en P2** avec la note que la garde ne perd rien — la propriété (`:52`), le seuil de 5 (`:47`) et « tout le segment ou rien » ne dépendent pas de `join_open`.
-
-En complément, **P0 aussi** : ajouter dans `LaunchedScreen.tsx` après la ligne 216 une branche `status === "not_a_circle"` et une branche `"bad_segment"`, avec deux clés neuves. Aujourd'hui les deux tombent dans le `else` générique.
-
-### §3.3 — Consultations (remonte de 560-574 juste sous la barre d'action)
-
-**C'est le cœur du tableau de bord.** Elle passe de 15 lignes en bas de page à la première carte informative.
-
-**MONTRE** — un en-tête `Org.events` + le bouton `actionSequence` **dans la carte** (aujourd'hui le sous-titre `Org.eventsSubtitle` dit littéralement « Créez-en une depuis la carte du haut », soit un itinéraire écrit à l'intérieur d'une page de 342 lignes de rendu).
-
-Trois blocs **triés par état**, pas par `created_at` (aujourd'hui `listEvents` trie `created_at desc` — `events.ts:321-330` — donc une suite ouverte se cache sous trois brouillons plus récents) :
-
-```
-▸ En cours (n)      status = 'open' ET (closes_at null OU closes_at > now)
-▸ À échéance passée status = 'open' ET closes_at <= now     ← statut menteur, cf. P2
-▸ Brouillons (n)
-▸ Closes (n)                                    repliées dans un <details>
-```
-
-Chaque ligne, sur le gabarit de carte de `MesScrutinsScreen.tsx:104-124` (pastille bordure 2px `INK`, `borderRadius: 20`) et non plus des capitales espacées :
-
-```
-┌────────────────────────────────────────────────────────────┐
-│ AG 2026 — budget et cotisations              [ EN COURS ]  │
-│ Adhésion avancée · 🔒 scellé · 3 questions                 │
-│ Ferme le 14 août · 18/24 ont émargé                        │
-└────────────────────────────────────────────────────────────┘
-```
-
-- ligne 2 : `audience_label` (« Adhésion avancée », ou `Org.audienceAll` = « tout le groupe » si `null`) · régime (`Explore.sealed` / `Explore.named`, clés existantes) · nombre de questions
-- ligne 3 : échéance (`Explore.closesOn`, clé existante) · participation
-
-**PERMET** — cliquer → `/evenement/<id>`. Rien d'autre : pas de renommage ni de suppression en ligne (la suppression d'une suite détruit des bulletins scellés irrécupérables — voir §7).
-
-**Filtre (« observables par segments/cercle », la demande du fondateur)** — au-dessus de la liste, une rangée de puces : « Tous » + une puce par valeur distincte de `audience_label` présente dans les suites du groupe, + « Tout le groupe » pour `null`. Le filtre porte sur le **texte figé** de la convocation, pas sur le segment courant : `audience_label` est explicitement un instantané textuel pour qu'un segment renommé ou supprimé ne réécrive pas l'histoire d'une consultation tenue (`20260801-cercles-segments.sql:86-87`). C'est la bonne sémantique — « les consultations qui ont convoqué X », pas « les consultations qu'un membre de X verrait aujourd'hui ».
-
-**SOURCE** — E1 à E6.
-
-### §3.4 — Membres (reprend 304-432, réordonnée, segments intégrés)
-
-**MONTRE**, dans cet ordre :
-
-1. Titre `Org.members` (→ « Membres ») + compteur `Org.memberCount`, avec `aria-live="polite"`.
-2. **La barre des segments** — remontée ici depuis 504-536, hors de `join_open` et hors du `<details>` (problèmes A et B). Chaque segment est une puce affichant **son nom et son effectif** :
-
-   ```
-   [ 1 Roulage · 12 ]  [ 2 Standard · 7 ]  [ 3 Avancé · 3 ⚠ ]  [ + segment ]
-   ```
-
-   - Cliquer une puce **filtre la liste des membres** dessous. Aujourd'hui cliquer une puce de segment **désaffecte silencieusement** (`:341-350`, `onClick → toggleMemberSegment(…, false)`) : le geste le plus naturel est destructeur.
-   - Le `⚠` en `REDTXT` apparaît quand l'effectif < 5, avec le titre « moins de 5 : bulletin scellé impossible » — c'est le seuil `v_min constant int := 5` de `circle_audience_guard` (`audience-p1.sql:47`), qui refuse aujourd'hui après la composition de la question.
-   - La suppression passe par une croix **distincte**, 28×28 comme celle des membres (`:368`), avec `aria-label` paramétré par le nom du segment. Aujourd'hui c'est un `×` de ~15 px (`:513`, `padding: 0`, `fontSize: 15`), sous le minimum WCAG 2.5.8 (24×24), annoncé « × » au lecteur d'écran, dans une liste de puces serrées.
-3. Un champ de **recherche** filtrant sur nom + email, et une puce « sans segment ». Rendu borné à **50 lignes** avec « Voir les N suivants » (aujourd'hui `members.map` nu, sans borne, sans recherche, sans repli — plus un `<select>` de tous les segments **par ligne** : 200 membres × 12 segments = 200 sélecteurs et 2 400 options montés d'un coup).
-4. La liste des membres, inchangée dans son contenu (nom, badge `tagSelfJoined`/`tagImported`, email, `×N` si `weight > 1`, puces de segments, croix de retrait).
-
-**PERMET** — créer un segment (champ + bouton, sous la barre de puces) ; affecter/retirer un segment ; retirer un membre ; **ajouter des membres**, désormais dans un `<details>` dont le `<summary>` réutilise `Org.addMembersTitle`, **ouvert par défaut seulement si `members.length === 0`**. Le collage, l'aperçu et l'import de fichier sont conservés tels quels.
-
-**Erreurs** — trois états distincts remplacent l'unique `circleErr` rendu ligne 450, au-dessus d'un repli dont deux des quatre émetteurs sont à l'intérieur :
-
-| État | Rendu | Émetteurs actuels |
-|---|---|---|
-| `segErr` | sous le champ de nom de segment | `addSegment` (`:225`), `removeSegment`, `toggleMemberSegment` |
-| `memberErr` | sous le bouton « Ajouter N » | `onAddMembers` (`:154`), `onRemoveMember` (`:169`) |
-| `circleErr` | sous la case « Ouvrir aux adhésions » | `saveCircle` (`:208`), `saveChatUrl` (`:248`) |
-
-Et `addSegment` cesse d'imputer tout échec à un doublon : le `catch` (223-226) doit lire le message et ne rendre `Org.segmentDuplicate` que sur violation de l'index `scrutin_segments_space_name_key` (`20260801-cercles-segments.sql:41-42`). `removeSegment` (229-234) et `toggleMemberSegment` (236-243) reçoivent un `try/catch` qui **n'applique la mise à jour d'état qu'en cas de succès** et relance `listMemberSegments(spaceId)` pour resynchroniser — aujourd'hui l'état local est écrit même si l'appel a échoué, donc l'écran affirme un rattachement que la base n'a pas, et la consultation partira à un segment amputé.
-
-**SOURCE** — S1, S2, S3, G1.
-
-### §3.5 — Ouvrir les adhésions (reprend 435-557, allégée)
-
-**MONTRE** — titre `Org.circle` (→ « Ouvrir les adhésions »), sous-titre `Org.circleSubtitle`, la case `join_open`. Quand `join_open` : **« k demandes en attente de confirmation »** (SOURCE **R2**) — sans liste, sans email. Aujourd'hui, entre le partage du lien et l'apparition d'un membre confirmé, l'animateur ne peut pas distinguer « personne n'a cliqué » de « dix personnes ont demandé et l'email de confirmation n'arrive pas », et la fenêtre de 72 h (`lot2:60-69`) rend le second cas irrattrapable.
-
-**PERMET**, sous `join_open`, dans le `<details>` existant `Org.circleSettings` :
-
-- Le lien `/cercle/<join_token>`. Le `<code>` (466) devient un **lien ouvrable** dans un nouvel onglet — « Voir la page d'adhésion telle que la voit un futur membre » — le bouton Copier restant à côté. C'est la seule page où le pitch et l'engagement de rythme s'affichent, et l'animateur ne l'a jamais vue.
-- Le bouton Copier **attend la promesse** : `navigator.clipboard?.writeText(url).then(…).catch(() => setCircleErr(t("copyFailed")))`, et l'absence d'API est traitée comme un échec. Aujourd'hui (468-477) le passage au vert « Copié » est inconditionnel — hors contexte sécurisé ou permission refusée, l'animateur colle autre chose dans WhatsApp et l'échec ne se manifeste qu'à l'autre bout.
-- Lien de conversation, pitch, rythme de sollicitation : inchangés, mais chacun avec une **coche verte transitoire** au succès d'enregistrement, sur le patron de `copiedJoin`. Aujourd'hui l'animateur prend un engagement opposable à ses membres (`Circle.promisePace`) sans savoir s'il a été enregistré.
-- **Ne contient plus les segments.**
-
-### §3.6 — Zone rouge (inchangée, 576-606)
-
-Le lien « Supprimer le groupe » puis la carte rouge à recopie du nom. Un seul changement : `onDeleteSpace` (190-194) reçoit un `try/catch` et ne pousse vers `/espaces` qu'en cas de succès — aujourd'hui l'animateur retape le nom exact, le bouton ne fait rien, et il conclut que Placet ne sait pas supprimer.
+**Aucun des 15 leviers n'est perdu.** Tous sont réattribués nommément.
 
 ---
 
-## 4. Chaque chiffre et sa source
+## 5. Le sort des 17 problèmes
 
-**Légende du coût** : `dérivé` = calculé côté client sur des données déjà chargées, zéro requête. `colonne` = déjà chargée, il suffit de l'afficher. `RPC` = à écrire.
-
-### Chiffres du groupe
-
-| Réf | Chiffre | Source exacte | Coût |
+| | Problème | Sort | Où, et sous quelle condition |
 |---|---|---|---|
-| **S1** | N membres | `members.length` — `listMembers` (`events.ts:248`, `MEMBER_COLS`) | dérivé (déjà affiché, `:307`) |
-| **S2** | dont k **adhérents par le lien** | `members.filter(m => m.self_joined)` — colonne `scrutin_members.self_joined`, déjà dans `MEMBER_COLS` (`events.ts:135`) | dérivé |
-| **S3** | k **sans adresse** | `members.filter(m => !m.email?.trim())` — colonne `scrutin_members.email` | dérivé |
-| **S4** | j / cap **sollicitations aujourd'hui** | `events.filter(e => e.status !== "draft" && new Date(e.created_at) >= startOfToday).length` face à `space.solicit_per_day`. **Reprendre littéralement la définition de la garde** : `status <> 'draft' and created_at >= date_trunc('day', now())` (`audience-p1.sql:85-87`), sinon écran et base divergent | dérivé |
-| **G1** | effectif de chaque segment | `useMemo` sur `memberSegs` (`Record<memberId, segmentId[]>`, chargé `:128-130` via `listMemberSegments`, `circles.ts:159`) : inverser en `Record<segmentId, count>` | dérivé |
-| **S5** | « +k ce mois-ci » *(optionnel, P1)* | `members.filter(m => m.consent_at && new Date(m.consent_at) >= subMonths(now,1))`. `consent_at` est posé à l'import (`events.ts:273`) comme à l'adhésion (`lot2:211-212`). **Traiter `null` comme « avant le suivi »**, jamais comme récent | dérivé |
-| **R2** | k **demandes en attente** | **RPC à écrire** : `get_space_join_pending(p_space_id uuid) returns int`, `security definer`. `scrutin_join_requests` a la RLS active et **zéro policy** délibérément (`lot2:80-82`) : la file contient des emails non confirmés. La RPC ne renvoie **qu'un nombre** — jamais une adresse — pour ne pas rouvrir l'oracle d'appartenance que ce zéro-policy protège | RPC (P1) |
+| **A** | Segments enfermés sous `join_open` (`:454`) | **réglé (§4 + §8)** | La condition `{space?.join_open && (` **disparaît**. ⚠ **Ne se livre qu'avec L** : côté base, `circle_audience_guard` renvoie encore `not_a_circle` si `not s.join_open` (`:53`) — sans la case remontée au §2, on créerait des segments qu'on ne peut toujours pas viser. |
+| **B** | Création et affectation séparées de ~170 l. | **réglé (§8)** — *et non « aggravé »* | **Uniquement parce que j'applique le bloquant 2** : création **et** affectation descendent ensemble en `/membres`. Le tableau ne porte que l'état. Mieux qu'avant : la sous-vue porte la barre de puces filtrantes. |
+| **C** | Ordre d'amorçage, 252 l. sur 342 | **réglé (§1-§6)** | Par soustraction : les deux blocs expulsés (`:313-370`, `:373-431`) **sont** les 252 lignes. Hauteur désormais **constante**, indépendante de la taille du cercle. |
+| **D** | Un seul chiffre d'état sur toute la page | **réglé (§1, §2, §3, §4, §5)** | Rendu **obligatoire** par la contrainte : sans énumération, il ne reste que des chiffres. Tous dérivés, zéro requête neuve en P0. |
+| **E** | Ligne de consultation = titre + statut | **réglé (§3 + §9)** | `closes_at` et `secret_ballot` sont **déjà** dans `EVENT_COLS` et ont **zéro occurrence** dans le fichier. `audience_label` : voir la réserve du §3. |
+| **F** | Aucune participation affichée | **réglé (§3), P2** | Un chiffre unique, chargé **une fois**, sur la consultation en cours. **Bloqué derrière H.** |
+| **G** | `countEventVoters` vaut 0 en scellé | **réglé (§3)** | Le chiffre vient de `scrutin_event_signins` via RPC, **jamais** de `countEventVoters`. ⚠ **Correction de l'audit** : `countEventVoters` **a un appelant vivant** (`EventEditor.tsx:170`) — **ne pas le supprimer**. |
+| **H** | Dépouillement lisible pendant le vote | **sans objet ici — mais BLOQUANT pour F** | Autre lot. La contrainte **réduit** l'exposition (plus de colonne de compteurs) mais ne la ferme pas : `EventEditor.tsx:164-182` sonde la même donnée toutes les 12 s. |
+| **I** | Seuil comptant des bulletins, pas des personnes | **sans objet** | Défaut de base pur, lot sécurité, avant toute exposition de participation. |
+| **J** | Seuil de 5 sur l'union, jamais sur chacun | **réglé côté SIGNAL (§4 + §8)** | La faille se corrige **en base** (`audience-p1.sql:65-68`). Le ⚠ par segment est le signal visible. **Le vrai lieu du signal reste `CreateAudienceBlock.tsx:102-112`** — le `<select>` de ciblage n'affiche aucun effectif : l'animateur choisit à l'aveugle et se fait refuser au lancement. |
+| **K** | `get_event_voted_members` exposé, wrapper mort | **sans objet — dissous** | **Vérifié** : `getVotedMemberIds` (`events.ts:540`) a **zéro appelant** ; le seul appel restant est serveur (`api/events/[id]/remind/route.ts`, via `supabase.rpc` direct). Le seul écran qui l'aurait justifié — une liste nominative de non-répondants — est désormais interdit. Suppression du wrapper + `revoke`, **sans arbitrage**. |
+| **L** | Bouton principal échoue sur `join_open=false` | **réglé (§2)** | Avertissement portant la case. ⚠ **Nuance** : les deux boutons n'ont pas le même défaut — `actionAsk` est refusé **trop tard** ; `actionSequence` **n'est jamais refusé**, `EventEditor` ouvrant par un `updateEvent` nu qui ne passe par **aucune** garde. |
+| **M** | Plafond du jour répondu après lancement | **réglé (§2)** | Compteur dérivé, **début de jour en UTC**. ⚠ **Corrigé** : ne désactiver que « Poser une question » — un brouillon ne consomme rien. |
+| **N** | Aucun effectif de segment nulle part | **réglé (§4 + §8)** | `useMemo` d'inversion de `memberSegs`. Borné à 6 puces + excédent. Aucun geste destructeur sur ces puces. |
+| **O** | Six écritures muettes, `load()` avalant tout | **réglé (§0) — PRÉALABLE, plus une finition** | `try/catch` sur `:131-133, 154-156, 169, 190-194, 231, 237-238`. ⚠ **Deux drapeaux par vague**, pas un `finally` global. Sans O, la contrainte livrée seule est **strictement pire** que l'état actuel : « 0 membre · 0 consultation » est un tableau plausible et faux. |
+| **P** | Nom du cercle inerte | **réglé (§1)** | `<input>`, `onBlur → updateSpace({name})`. `renameSpace` (**zéro appelant, vérifié**) se supprime. |
+| **Q** | Vocabulaire | **sans objet** | Réglé par 87962b6. **Résidu** : `Org.eventsSubtitle` (« Créez-en une depuis la carte du haut ») devient faux → supprimé × 4 langues. |
 
+**Bilan : 0 problème perdu.** 10 réglés sur le tableau de bord, 4 dans une sous-vue, 3 sans objet. **B n'est plus « aggravé »** — à la seule condition que le bloquant 2 soit appliqué.
+
+**Problème NEUF créé par la contrainte, couvert par le §7** : l'état vide. Un cercle qui vient de naître n'a rien à gouverner ; une grille de zéros y serait plus décourageante que la page actuelle.
+
+---
+
+## 6. Les lots
+
+### P0 — livrable seul · **zéro migration, zéro RPC**
+
+**Apporte** : §0 (deux drapeaux) · §1 (4 chiffres + renommage) · §2 (compteur UTC + case + avertissement) · §3 **sans participation et sans nombre de questions** · §4 (segments en lecture, hors `join_open`) · §5 **sans le chiffre de demandes** · §6 · §7 · §8 `/membres` complet · §9 `/consultations` **sans participation, avec la facette limitée aux labels non-null + « Public non enregistré »**.
+
+Plus : `audience_label` ajouté à `EVENT_COLS` et `EventRow` (**2 lignes**) ; `updateSegment` dans `circles.ts` (**5 lignes**) ; suppression de `renameSpace` et `getVotedMemberIds` ; `try/catch` sur les six écritures muettes ; copie qui attend la promesse ; `robots` noindex sur les 2 routes neuves **et** sur les 2 existantes.
+
+**Coûte** : ~15 clés i18n neuves × 4 langues (`spaceNotFound`, `renameSpaceAria`, `needsCircleForAudience`, `audienceUnknown`, `searchMembers`, `filterAll`, `filterNoSegment`, `filterNoEmail`, `membersNoMatch`, `clearFilters`, `showMore`, libellés d'excédent et de mise en route), 2 réécritures (`Org.circle` → « Ouvrir les adhésions », `Org.members`), 1 suppression (`Org.eventsSubtitle`). **Insérer au même rang dans les 4 fichiers** — `scripts/i18n-parity.mjs` auto-découvre les locales et cassera le build sur un oubli. Le ciblage quotidien s'allonge d'un clic (atténué par les puces pré-filtrées).
+
+### P1 — deux RPC, aucune donnée de bulletin
+
+**Apporte** :
+- `get_space_join_pending(p_space_id)` → **`{count int, oldest_at timestamptz}`**, `security definer`. Rend le §5 actionnable.
+- `get_space_event_stats(p_space_id)` → par consultation : **`polls_count`, `convened_count`** (et **rien sur les bulletins**). Complète la ligne 2 du §3 et du §9 : nombre de questions, et « N convoqués » quand `audience_label` est null.
+
+**Coûte** : deux fonctions SQL. **Le piège déjà consigné, non négociable** :
 ```sql
--- P1
-create or replace function public.get_space_join_pending(p_space_id uuid)
-returns int language sql stable security definer set search_path to 'public' as $$
-  select count(*)::int
-    from scrutin_join_requests r
-    join scrutin_spaces s on s.id = r.space_id
-   where r.space_id = p_space_id and s.owner_id = auth.uid()
-     and r.confirmed_at is null and r.expires_at > now();
-$$;
-revoke all on function public.get_space_join_pending(uuid) from public, anon;
-grant execute on function public.get_space_join_pending(uuid) to authenticated;
-```
-
-> ⚠️ **Piège déjà consigné** : `grant … to authenticated` ne suffit pas, `PUBLIC` a l'`EXECUTE` par défaut. Le `revoke … from public, anon` est obligatoire, dans cet ordre.
-
-### Chiffres d'une consultation
-
-| Réf | Chiffre | Source exacte | Coût |
-|---|---|---|---|
-| **E1** | titre, statut | `EventRow.title`, `.status` — `EVENT_COLS` | colonne (déjà affiché) |
-| **E2** | échéance | `EventRow.closes_at` — dans `EVENT_COLS` (`events.ts:137`), **jamais rendu** (zéro occurrence de `closes_at` dans `SpaceDashboard.tsx`) | colonne |
-| **E3** | régime scellé/nominatif | `EventRow.secret_ballot` — dans `EVENT_COLS`, jamais rendu. Clés `Explore.sealed` / `Explore.named` existent | colonne |
-| **E4** | public convoqué | `scrutin_events.audience_label` — la colonne **existe en base** (vérifié) mais **manque à `EVENT_COLS`** (`events.ts:136-137`) et au type `EventRow` (`:49-71`). Ajouter les deux : 2 lignes, zéro migration | colonne (2 lignes) |
-| **E5** | nombre de questions | **pas disponible** dans `listEvents`. Deux options : (a) `listEvents` fait un second `select event_id from scrutin_polls in (ids)` et compte côté client ; (b) la RPC E6 le renvoie. **Retenu : (b)**, pour ne pas ajouter une requête en P0 — le nombre de questions n'apparaît donc qu'en P1 | RPC (P1) |
-| **E6** | **participation « n / N ont émargé »** | **RPC à écrire** : `get_space_event_stats(p_space_id uuid)`. Voir ci-dessous | RPC (P1) |
-
-**Pourquoi une RPC et pas une lecture directe** : `countEventVoters` (`events.ts:589-601`) lit `scrutin_ballots` et filtre `.not("event_member_id","is",null)`. Or en scellé le bulletin est écrit `event_member_id = null` (`lot1:114-115`) **et** la policy restrictive `scrutin_ballots_hide_secret` (`lot1:69-72`) retire ces lignes de toute lecture directe, y compris pour l'animateur. Le compteur vaut donc **structurellement 0** sur exactement le régime pour lequel tout le chantier des cercles a été construit — l'animateur lit « 0/12 ont voté » alors que huit personnes ont répondu, et relance ou referme.
-
-```sql
--- P1. Agrégats SEULEMENT : aucun event_member_id, aucun nom, aucune date.
--- signed_on est au jour près (lot1:34) et ne ressort JAMAIS : une horodate est
--- un canal de jointure avec le bulletin.
-create or replace function public.get_space_event_stats(p_space_id uuid)
-returns jsonb language sql stable security definer set search_path to 'public' as $$
-  select coalesce(jsonb_object_agg(e.id, jsonb_build_object(
-    'questions', (select count(*) from scrutin_polls p where p.event_id = e.id),
-    'convened',  (select count(*) from scrutin_event_members em where em.event_id = e.id),
-    'signed',    case when e.secret_ballot
-                   then (select count(distinct s.event_member_id)
-                           from scrutin_event_signins s
-                           join scrutin_polls p on p.id = s.poll_id
-                          where p.event_id = e.id)
-                   else (select count(distinct b.event_member_id)
-                           from scrutin_ballots b
-                           join scrutin_polls p on p.id = b.poll_id
-                          where p.event_id = e.id and b.event_member_id is not null)
-                 end
-  )), '{}'::jsonb)
-  from scrutin_events e
-  join scrutin_spaces s on s.id = e.space_id
-  where e.space_id = p_space_id and s.owner_id = auth.uid();
-$$;
 revoke all on function public.get_space_event_stats(uuid) from public, anon;
 grant execute on function public.get_space_event_stats(uuid) to authenticated;
 ```
+**`grant to authenticated` NE SUFFIT PAS : PUBLIC détient l'EXECUTE par défaut.** `revoke` **avant** le `grant`, dans cet ordre. Et `get_space_join_pending` ne renvoie **jamais** de nom ni d'adresse : `scrutin_join_requests` a la RLS active et **zéro policy délibérément** — rendre une adresse rouvrirait l'oracle d'appartenance que ce zéro-policy protège.
 
-**Deux règles d'affichage indissociables de cette RPC** :
+### P2 — après le correctif H, et pas avant
 
-- **(a)** `signed` n'est affiché en scellé que si `convened >= 5`. En dessous, la ligne n'affiche que `convened` (« 3 convoqués »). Un « 2/3 » sur trois personnes est déjà une désignation partielle.
-- **(b)** Le rafraîchissement est de **60 s en scellé** (contre 12 s aujourd'hui dans `EventEditor.tsx:170-182`). Un compteur qui bouge à la seconde, corrélé à l'envoi d'un lien individuel (`EventEditor.tsx:475` donne un bouton « copier le lien » **par convoqué**), redevient un canal d'attribution. Sur le tableau de bord, le chiffre est chargé **une fois** au montage : pas de polling du tout.
+**Apporte** : `signed_count` ajouté à `get_space_event_stats` → le **ratio d'émargement** « 18/24 ont émargé » au §3 et au §9, avec le plancher de 5 convoqués. Plus : voie (a) sur `audience_label` — écrire le label au passage brouillon→ouvert dans `EventEditor` (un `update`, pas une migration), ce qui rend `Org.audienceAll` enfin légitime. Plus : `assign_segment_bulk(p_member_ids uuid[], p_segment_id uuid)` + barre de sélection multiple en `/membres`. Plus : effectif et ⚠ portés dans `CreateAudienceBlock.tsx:102-112` (le vrai lieu du signal J).
 
-Une fois E6 en place : **supprimer** `countEventVoters` et `countResolutionVotes` de `events.ts` et rebrancher `EventEditor.tsx:148` et `:170` dessus, pour qu'un futur écran ne puisse pas les rebrancher.
+**Coûte** : **ORDRE NON NÉGOCIABLE.** `get_event_results_owner` ne teste pas le statut, `event_results_payload` renvoie `'closed'` en dur, et `EventEditor.tsx:643` monte les résultats dès `status !== 'draft'`. Un compteur de participation dit alors à l'animateur **le moment exact** où envoyer un lien individuel et relire le delta : **la variation d'une voix EST le bulletin de cette personne.**
 
----
-
-## 5. Consultations × segments — à quelles conditions
-
-C'est le point le plus délicat de la demande. Deux choses très différentes se cachent derrière « consultations observables par segments ».
-
-### 5.1 — Filtrer les consultations par le public convoqué → **autorisé sans condition**
-
-Une liste de consultations restreinte à celles qui ont convoqué « Adhésion avancée ». Le filtre porte sur `scrutin_events.audience_label`, un **texte figé à la convocation**. Il ne révèle rien : l'animateur sait déjà ce qu'il a convoqué, puisque c'est lui qui l'a choisi. Aucune condition, aucun seuil. **P0.**
-
-### 5.2 — Ventiler la participation d'une consultation par segment → **P2, sous cinq conditions cumulatives**
-
-Afficher « Avancé : 3/5 · Standard : 6/7 » sur une consultation scellée. C'est légitime **en principe** — `scrutin_event_signins` a été créé exactement pour dire « qui a participé, sans dire quoi » — et **dangereux en pratique**. Les cinq conditions :
-
-**C1 — Le dépouillement scellé doit d'abord être fermé pendant le vote.**
-C'est un **préalable bloquant**, pas une condition d'affichage. Aujourd'hui `get_event_results_owner` ne teste jamais le statut (`lot1:241-252`), contrairement à la porte votant qui l'exige (`:235`), et `event_results_payload` renvoie `'status','closed'` **en dur** (`:214`) — le client croit toujours lire un scrutin clos. L'animateur note le décompte, envoie le lien personnel d'Alice seule, recharge : **la variation d'une voix EST le bulletin d'Alice**. Le seuil de 5 ne protège que le premier affichage, jamais les deltas. Tant que ceci tient, **tout** compteur de participation ajouté multiplie l'attaque.
-
-```sql
--- Dans event_results_payload, juste après « select * into v_event » (lot1:175) :
-if v_event.secret_ballot and v_event.status <> 'closed' then
-  return jsonb_build_object('status','not_closed','title',v_event.title);
-end if;
--- et remplacer le littéral ligne 214 par v_event.status.
-```
-Côté écran : `EventEditor.tsx:643` passe de `ev.status !== "draft"` à `(!ev.secret_ballot || ev.status === "closed")`, avec un encart « résultats au dépouillement » entre-temps ; et `reopenEvent` (`:666`) n'est rendu que si `!ev.secret_ballot` — rouvrir une urne scellée close, c'est autoriser le différentiel une clôture plus tard.
-
-**C2 — Le seuil compte des personnes, pas des bulletins.**
-`lot1:180-186` compte `count(*)` sur **tous** les `scrutin_ballots` de l'événement. Une suite scellée de 5 résolutions à laquelle **une seule personne** répond produit 5 bulletins : le seuil passe, et chaque résolution s'affiche avec exactement un bulletin — la totalité des réponses d'un individu identifiable. À remplacer par `count(distinct s.event_member_id)` sur `scrutin_event_signins`, **plus** un seuil par résolution dans la sous-requête `ballots` (`:196-207`) : une résolution ajoutée en cours de route ne doit pas hériter du seuil franchi par ses voisines.
-
-**C3 — Seuil de cellule : 5 convoqués minimum dans le segment.**
-Une cellule sous 5 affiche `—`, jamais `0` (un zéro est déjà une information : « personne dans Avancé n'a répondu »).
-
-**C4 — Tout ou rien.**
-Si **une seule** cellule est masquée, elle se recalcule par soustraction du total. Donc : **dès qu'un segment du croisement est sous le seuil, la ventilation entière est refusée** et seul le total est affiché. C'est la même faille que celle du seuil sur l'union des segments (`audience-p1.sql:65-68`) : « Avancé » (2) + « Débutant » (4) = 6 ≥ 5, la garde accepte ; deux consultations légales et une soustraction rendent les 2 bulletins d'« Avancé ». Correctif jumeau à poser en même temps :
-
-```sql
--- Dans circle_audience_guard, avant le test de seuil (audience-p1.sql:78) :
-if v_targeted and coalesce(p_sealed, true) then
-  if exists (select 1 from scrutin_member_segments ms
-               join scrutin_members m on m.id = ms.member_id
-              where ms.segment_id = any(p_segment_ids) and m.space_id = s.id
-              group by ms.segment_id having count(distinct ms.member_id) < v_min) then
-    return jsonb_build_object('status','too_small','roster',v_min-1,'min',v_min,'audience',v_label);
-  end if;
-end if;
-```
-
-**C5 — Le segment doit être figé à la convocation.**
-C'est l'attaque **nouvelle** que la ventilation introduit, et aucun expert ne l'a vue. `scrutin_event_members` ne porte **aucune colonne de segment** (vérifié en base : `id, event_id, member_id, name, email, district, weight, token, invited_at, created_at, self_enrolled`). Une ventilation calculée en joignant la convocation d'hier au rattachement `scrutin_member_segments` **d'aujourd'hui** est donc manipulable : l'animateur crée un segment jetable, y déplace Marie seule, relit la ventilation, et lit son émargement à elle. Remède obligatoire avant toute ventilation :
-
-```sql
--- P2, préalable à la ventilation.
-alter table public.scrutin_event_members
-  add column if not exists segment_label text;
-comment on column public.scrutin_event_members.segment_label is
-  'Segment du membre FIGÉ à la convocation. Sans ce gel, ventiler la participation
-   par segment se manipule : déplacer un membre dans un segment jetable puis relire
-   la ventilation isole son émargement.';
--- alimenté dans set_poll_audience (audience-p1.sql:148-156) et
--- open_circle_consultation (:200-206), au moment du insert … select.
-```
-
-**Et en mode NOMINATIF ?** Aucune de ces conditions ne s'applique. L'animateur a déjà le droit de voir qui a répondu quoi (`get_event_named_answers`, `20260801-cercles-mode-nominatif.sql`), le votant en est averti avant de voter (`LivretVote.tsx:180-184`). La ventilation par segment est autorisée sans seuil — sous réserve de C5, qui reste nécessaire pour que le chiffre soit **juste**, pas pour qu'il soit sûr.
-
-### 5.3 — Ce qui n'est jamais affiché sur cette page
-
-- **Le dépouillement.** Un tableau de bord ne compte pas les voix. Les résultats vivent dans `/evenement/<id>`, derrière C1.
-- **La liste nominative des non-répondants.** Elle est licite en soi, mais sur un résultat unanime elle attribue nommément le même vote à chacun. Aujourd'hui `get_event_voted_members` est exécutable **depuis le navigateur** (`grant … to authenticated`, `lot1:289`), et son wrapper client `getVotedMemberIds` (`events.ts:540`) **n'a aucun appelant**. À faire en P1 :
-  - `revoke execute on function public.get_event_voted_members(uuid) from authenticated;`
-  - supprimer `getVotedMemberIds` de `events.ts`
-  - remplacer par `get_reminder_targets(p_event_id uuid)` `security definer`, réservée au propriétaire, appelée **par la route serveur seule** (`src/app/api/events/[id]/remind/route.ts:78`), qui applique la règle : **en scellé, si le nombre de non-émargés est < 3, elle renvoie TOUS les convoqués** au lieu des seuls retardataires. Relancer trois personnes de trop est un désagrément ; nommer les deux derniers non-votants est une divulgation. Et la route cesse de renvoyer `pending` au client (`:118`) : en scellé, `pending` est déjà une mesure du secret.
-- **Un compteur qui bouge en direct** sur une consultation scellée (voir E6 règle b).
+**Non tranché, à ne pas livrer sans décision** : la sélection multiple sans `assign_segment_bulk` est une boucle de N appels REST (`assignSegment` est unitaire, `circles.ts:173`). Douze membres passent, deux cents non. Soit on borne l'action à la page visible (50), soit on écrit la RPC.
 
 ---
 
-## 6. Le sceau posé à la main, qui contourne tout
+## 7. Critères de recette
 
-Hors périmètre strict de la page, mais **à embarquer dans le même lot que C1-C5**, sinon la page affichera des chiffres protégés sur des consultations qui ne le sont pas.
+**Chargement et mensonges d'écran**
+1. Couper le réseau, ouvrir `/espaces/<id>` → carte d'erreur + « Réessayer ». **Jamais** « 0 membre · 0 consultation », **jamais** la carte de mise en route.
+2. Laisser passer la vague 1 et faire échouer la vague 2 (bloquer `scrutin_segments`) → §1 et §3 se rendent ; le §4 affiche **« segments indisponibles — Réessayer »** ; le 4ᵉ chiffre « sans segment » **est absent**. Jamais « 0 segment ».
+3. Coller `/espaces/<id-d-un-autre>/membres` dans une session tierce → **« Ce cercle n'existe pas, ou vous ne l'animez pas »**. Jamais une vue « Membres » vide.
+4. Même test sur `/espaces/<id>/consultations`.
 
-La case « bulletin scellé » de `EventEditor.tsx:573-596` est un `updateEvent(ev.id, { secret_ballot: on })`, c'est-à-dire un `update` nu (`events.ts:353-360`). La convocation y est un `insert` nu (`events.ts:424-438`). L'ouverture ne teste que le nombre de résolutions (`EventEditor.tsx:659`). `circle_audience_guard` n'est appelée que par `set_poll_audience` et `open_circle_consultation` — et `setPollAudience` n'a qu'un appelant, `useScrutin.ts:654`, le parcours `/new?espace=`. Donc : **le bouton « Créer une suite de questions » de cette page mène au seul chemin qui contourne l'intégralité des garanties du cercle.** Convoquer 2 membres, cocher « scellé », poser 3 questions : le seuil de dépouillement est franchi (C2) et deux personnes sont dépouillées comme si l'anonymat tenait. Le commentaire de `audience-p1.sql:38` promet pourtant que « tout chemin menant à une audience roster y passe » : c'est vrai pour l'audience, faux pour le scellé posé à la main.
+**La contrainte**
+5. Cercle de 200 membres : ouvrir le tableau de bord, inspecter le DOM → **zéro `<option>`, zéro ligne de membre, zéro `<select>`**. Compter les nœuds : la hauteur de page est la même qu'avec 8 membres.
+6. Cercle à 12 segments → **au plus 6 puces**, les `< 5` en tête, puis « + 6 autres segments → ».
+7. Cercle à 5 consultations ouvertes, `solicit_per_day` nul → **3 lignes**, triées par `closes_at` croissant, **« + 2 en cours » en CORAL** (pas en gris), lié à `?etat=ouvert`.
+8. Une consultation à `closes_at` null → triée **en dernier**, jamais devant une échéance datée.
+9. Cliquer le titre « AG 2026 » sur le tableau de bord → `/evenement/<id>` **en un seul clic** (non-régression contre `:565-572`).
 
-Remède — **un trigger, pas une garde d'interface** :
+**Les portes**
+10. Cercle avec 3 membres sans email → « 3 sans adresse » en REDTXT ; cliquer → `/membres?filtre=sans-email`, liste déjà filtrée sur ces 3.
+11. Cercle **100 % importé** → le chiffre « par le lien » **n'apparaît pas** (pas de « 0 » décoratif).
+12. Cercle **sans aucun segment** → le chiffre « sans segment » **n'apparaît pas** (sinon il vaudrait 47 en rouge sur un cercle sain).
+13. Cliquer la puce « Avancé · 3 » → `/membres?segment=<uuid>`, filtrée. Bouton retour du navigateur → **tableau de bord**, pas un état de filtre intermédiaire.
+14. Changer 12 fois de facette dans `/membres`, puis bouton retour → **une seule pression** ramène au tableau de bord (preuve que c'est `router.replace`).
+15. Chercher « dupont » dans `/membres`, copier l'URL → **la chaîne cherchée n'y figure pas**.
 
-```sql
-create or replace function public.scrutin_events_sealed_guard()
-returns trigger language plpgsql set search_path to 'public' as $$
-begin
-  if new.secret_ballot and new.status = 'open' and coalesce(old.status,'') <> 'open'
-     and (select count(*) from scrutin_event_members where event_id = new.id) < 5 then
-    raise exception 'sealed_needs_5';
-  end if;
-  return new;
-end $$;
-```
-Plus, côté écran, le bouton `openEvent` (`EventEditor.tsx:657-663`) désactivé avec `Org.sealedTooFew` (clé existante) quand `ev.secret_ballot && convened.length < 5`, pour que le refus soit lisible avant le clic.
+**Les gardes et les refus**
+16. Cercle `join_open = false` (le défaut) → l'avertissement du §2 est visible **avant** tout clic, et porte la case. Cocher la case → l'avertissement disparaît sans rechargement.
+17. Cercle avec `solicit_per_day = 2` et 2 consultations non-brouillons créées aujourd'hui → « 2 / 2 » en REDTXT ; **« Poser une question » désactivé** ; **« Préparer une consultation » RESTE ACTIF** et aboutit à un brouillon.
+18. À 23 h 30 heure locale (UTC+2), vérifier que le compteur du jour correspond au refus réel de la base (calcul en UTC).
 
-Et dans `set_poll_audience`, avant la ligne 136 : refuser de basculer le régime d'un événement dont **une autre** résolution porte déjà des bulletins, et **retirer `status = 'open'`** de l'`update` (`:138-140`) — donner une audience à une question ne doit jamais rouvrir une consultation close. Aujourd'hui, adjoindre une question par le parcours normal à une suite scellée déjà votée la rend nominative : `poll_is_secret` répond alors NON pour les résolutions déjà votées, la policy restrictive les rouvre à la lecture, et les votants qui avaient lu « votre réponse ne sera rattachée à personne » (`Livret.sealedExplain`) reliront « Réponse nominative » sur la même page.
+**Le public convoqué**
+19. Créer une consultation par « Préparer une consultation », convoquer 6 membres sur 47, ouvrir → la ligne 2 du §3 affiche **« 6 convoqués »** (P1) ou **omet le public** (P0). **Jamais « Tout le cercle ».**
+20. Dans `/consultations`, cette consultation tombe sous la puce **« Public non enregistré »**, jamais sous « Tout le cercle ».
+21. Renommer un segment dans `/membres` → une consultation **déjà tenue** qui l'avait convoqué garde son ancien `audience_label`. **L'histoire n'est pas réécrite.**
 
----
+**Les écritures qui mentaient**
+22. `/membres`, bloquer le réseau, cliquer « + segment » sur un membre → l'écran **n'affiche pas** le rattachement, l'erreur apparaît **au contact de la ligne**. Recharger : la base et l'écran concordent.
+23. Créer un segment nommé « Lyon » alors qu'il existe → `Org.segmentDuplicate`. Créer un segment **réseau coupé** → un message d'erreur réseau, **pas** « ce nom existe déjà ».
+24. Cliquer le **texte** d'une puce de segment sur une ligne de membre → **rien ne se passe** (non-régression contre la désaffectation silencieuse `:341-350`). Seul le `×` retire, et il mesure ≥ 24×24.
+25. Zone rouge, réseau coupé, retaper le nom exact, valider → message d'erreur visible, **pas** de `push` vers `/espaces`.
+26. Renommer le cercle en ligne, quitter le champ, recharger → le nouveau nom persiste.
+27. Cliquer « Copier le lien » dans un contexte non sécurisé (http) → **un échec visible**, jamais la coche verte.
 
-## 7. Ce qui disparaît de la page actuelle, et où ça va
+**Les états vides**
+28. Cercle neuf (0 membre, 0 consultation) → **carte de mise en route seule**, avec le bloc de collage. Aucun « 0 » nulle part.
+29. Ajouter un membre → la page bascule **d'elle-même** sur §1-§6 ; le bloc de collage **disparaît** du tableau de bord.
+30. Cercle à 40 membres, 0 consultation → tableau de bord normal, la carte §3 rendant son état vide **avec le CTA dedans**.
+31. `/membres`, chercher « zzzz » sur 200 membres → **`Org.membersNoMatch` + « Effacer les filtres »**, jamais `Org.noMembers`.
 
-| Ce qui disparaît | Ligne(s) | Destination |
-|---|---|---|
-| Le bloc **Segments** hors de la carte « Cercle » | 501-536 | → carte **Membres**, §3.4, hors de `join_open` et hors du `<details>` |
-| La condition `{space?.join_open && (` autour des segments | 454 | → supprimée ; ne subsiste que pour lien / conversation / pitch / rythme |
-| Le sous-titre `Org.eventsSubtitle` « Créez-en une depuis la carte du haut » | 562 / `fr.json:1094` | → réécrit dans les 4 fichiers sans cette phrase ; le bouton `actionSequence` est **dans** la carte |
-| L'état vide `Org.noEvents` sans bouton | 564 | → état vide **avec** CTA, sur le patron de `MesScrutinsScreen.tsx:200-230` |
-| Le titre `Org.members` = « Corps électoral » | 306 / `fr.json:1030` | → « Membres ». Le mot ne survit que dans `Org.convene` (contexte d'assemblée) |
-| Le titre `Org.circle` = « Cercle » | 437 / `fr.json:1052` | → « Ouvrir les adhésions » |
-| Le `<h1>` inerte | 270-272 | → `<input>` de renommage, patron `EventEditor.tsx:357-365` |
-| Le statut en capitales espacées | 568-570 | → pastille du gabarit `MesScrutinsScreen.tsx:104-124` |
-| L'unique `circleErr` au-dessus du `<details>` | 450-452 | → **trois** états au contact de leur champ (§3.4) |
-| Les `catch { /* noop */ }` et les `await` nus | 131-133, 154-156, 169, 184-186, 190-194, 231, 237-238 | → `try/catch` posant l'état d'erreur de la carte concernée |
-| Le commentaire orphelin « Cible de la prochaine consultation » + le trou de 2 lignes | 110, 212-213 | → supprimés (vestiges du formulaire retiré en P3) |
-| Le commentaire `{/* ---- Événements ---- */}` | 559 | → `{/* ---- Consultations ---- */}` (le mot a disparu de l'écran en P3, pas des commentaires) |
-| `#FFB627` en dur | 414 | → `YELLOW` de `theme.ts:11`, ajouté à l'import ligne 32. Idem `SpacesHome.tsx:350` |
-| `REDTXT = "#d23b3b"` (4,37:1 sur blanc, 4,06 sur crème) | `theme.ts:21` | → `#C62828` (~5,1:1 / ~4,8:1). Le fichier a déjà fait ce raisonnement pour `CORAL` (`:7-10`) et `GREENTXT` (`:15-20`) ; le rouge est resté à quelques centièmes du seuil, ce qui est le pire endroit où s'arrêter. 64 usages, une seule constante |
-| Les 8 clés mortes `Org.ask*` (`askTitle`, `askSubtitle`, `askPlaceholder`, `askCta`, `asking`, `askCapped`, `askTooSmall`, `askTooSmallSegment`) | `fr.json:1077-1084` | → **supprimées des 4 fichiers** (32 valeurs). Zéro appelant dans `src/` ; ne pas confondre avec `Org.askAudience*`, utilisé par `CreateAudienceBlock.tsx:105-121` |
-| `Org.weight`, `Org.confirmDeleteSpace` | `fr.json:1050, 1101` | → supprimées, zéro appelant |
-| `countEventVoters`, `countResolutionVotes` | `events.ts:578-601` | → supprimées après rebranchement d'`EventEditor` sur E6 (P1) |
-| `getVotedMemberIds` | `events.ts:540-545` | → supprimée + `revoke` de la RPC (P1, §5.3) |
-| `renameSpace` | `events.ts:234` | → soit branchée sur le `h1`, soit supprimée au profit de `updateSpace({ name })`. **Retenu : supprimée**, `updateSpace` gère déjà `patch.name` (`:196`) |
-| La suppression d'une suite par un `confirm()` natif | `EventEditor.tsx:251-255` | → **P2** : carte rouge à recopie du titre, sur le patron de `SpaceDashboard.tsx:581-605`, affichant le nombre de résolutions et d'émargements, et **refus pur** quand `status === "closed"` (les bulletins scellés sont irrécupérables par construction — ils n'ont jamais porté de nom) |
-
-**Ce qui ne bouge pas** : la route `/espaces/[id]`, le paramètre `?espace=`, le nom de table `scrutin_spaces`, le type `Space`, la clé `Nav.spaces`, le `<details>` natif des réglages (accessible au clavier sans une ligne de JS), le bloc de collage de membres et son aperçu, la carte rouge de suppression du groupe.
-
----
-
-## 8. Découpage en lots
-
-### P0 — La page devient un tableau de bord · **zéro migration, zéro RPC**
-
-Livrable seul, et c'est l'essentiel : à lui seul il règle A, B, C, D, E, L, M, N, O, P, Q.
-
-**Apporte**
-- L'ordre d'usage : consultations en 2ᵉ position, amorçage replié (C).
-- Les segments dans la carte des membres, avec leurs effectifs et le `⚠ < 5` — donc utilisables par un groupe qui ne veut pas ouvrir d'adhésions (A, B, N).
-- Le compteur de sollicitations du jour et la case `join_open` remontée sous le CTA : plus d'échec après composition (L, M).
-- Les lignes de consultation enrichies : échéance, régime, public convoqué, tri par état, filtre par public (E, §5.1).
-- Recherche + filtre + bornage à 50 sur les membres.
-- Trois chiffres d'en-tête, dont « k sans adresse » cliquable (D).
-- Trois sorties de rendu distinctes, six écritures qui parlent, erreurs au contact du champ (O).
-- Nom renommable en ligne (P).
-- Trois libellés réécrits, 10 clés mortes supprimées, `YELLOW` et `REDTXT` normalisés (Q).
-- Deux branches de refus nommées dans `LaunchedScreen` (`not_a_circle`, `bad_segment`).
-
-**Coûte**
-- `SpaceDashboard.tsx` : réécriture de la structure de rendu (~342 lignes réorganisées, +80 nettes pour recherche/filtres/états). Toute la logique métier existe déjà.
-- `events.ts` : `audience_label` ajouté à `EVENT_COLS` et à `EventRow` (2 lignes) ; `renameSpace` supprimée.
-- `theme.ts` : 1 constante.
-- `LaunchedScreen.tsx` : 2 branches.
-- i18n : ~12 clés neuves × 4 langues, 3 réécrites × 4, 10 supprimées × 4. **La parité de lignes des 4 fichiers (1 354 lignes, 1 292 clés) impose d'insérer au même rang partout** — le garde-fou de parité auto-découvre les locales.
-- **Aucun risque de régression sur le secret** : rien de nouveau n'est affiché sur les bulletins.
-
-**Ne fait pas** : aucune participation affichée. La ligne d'une consultation dit « Ferme le 14 août · 🔒 scellé · Adhésion avancée », jamais « n/N ». C'est volontaire — voir P1.
-
-### P1 — La participation, et la sécurité qui la rend affichable · **1 migration**
-
-**L'ordre à l'intérieur du lot n'est pas négociable** : la sécurité d'abord, le chiffre ensuite.
-
-**Apporte**
-1. **Sécurité (préalable)** : C1 (dépouillement scellé fermé avant clôture, statut réel au lieu du littéral, `reopenEvent` interdit en scellé) ; C2 (seuil en émargeants distincts + seuil par résolution) ; le trigger `sealed_needs_5` (§6) ; `set_poll_audience` qui ne rouvre plus un événement clos et ne bascule plus le régime après vote ; `revoke get_event_voted_members from authenticated` + `get_reminder_targets` avec la règle des 3.
-2. **Le chiffre** : `get_space_event_stats` (E6) → « 18/24 ont émargé » sur chaque ligne, plus « 3 questions » (E5). `EventEditor` rebranché dessus ; `countEventVoters` / `countResolutionVotes` supprimées.
-3. `get_space_join_pending` (R2) → « k demandes en attente ».
-4. S5 (« +k ce mois-ci »), dérivé.
-
-**Coûte**
-- Une migration `20260807-tableau-de-bord-groupe.sql` : 2 RPC neuves, 3 fonctions modifiées (`event_results_payload`, `set_poll_audience`, `get_event_voted_members`), 1 trigger, 3 `revoke`.
-- **Point d'attention** : `revoke` sur `get_event_voted_members` casse le chemin **client** — vérifier que le seul appel restant est celui de la route serveur (`remind/route.ts:78`), qui agit avec la session de l'organisateur. C'est exactement le piège de la règle 5 du `README` des migrations, et l'incident qui a fait naître ce dossier.
-- Fermer le dépouillement en cours de vote est un **changement de comportement visible** pour tout animateur d'une consultation scellée ouverte. Il faut l'encart de remplacement (« résultats au dépouillement, le … »), sinon c'est une régression perçue.
-
-### P2 — Le croisement fin, et les paramètres qui manquent · **1 migration**
-
-**Apporte**
-- La **ventilation participation × segment**, sous C3/C4/C5 : colonne `scrutin_event_members.segment_label` figée à la convocation, seuil de cellule à 5, all-or-nothing, alimentation dans `set_poll_audience` et `open_circle_consultation`.
-- Le **seuil par segment** dans `circle_audience_guard` (C4, correctif de la faille par soustraction).
-- `join_cap` et `join_closes_at` réglables (`Space` les type `:17-18`, `SpacePatch` les accepte `:169-170`, aucune migration nécessaire) — sans quoi `Circle.fullTitle` / `Circle.fullDesc` (« Ce cercle a atteint le nombre de membres qu'il s'était fixé ») sont une promesse écrite en 4 langues qui ne correspond à aucun réglage.
-- Le **statut honnête** : `close_expired_events()` sur le modèle de `close_expired_polls(p_secret)` qui existe déjà en base, branchée sur le `cron.job` actif (`0 */2 * * *` → `resolve-tick`). Sans elle, « OUVERT » s'affiche sur une consultation qui n'accepte plus un bulletin (`cast_event_ballot` refuse — `lot1:96-99` — mais laisse la colonne à `'open'`), et le convoqué la garde indéfiniment dans « ce qui vous attend » (`20260805-mon-feed-p2.sql:48` filtre sur `status = 'open'` sans regarder `closes_at`).
-- `updateSegment(id, { name?, rank? })` : renommer un segment sans détruire ses rattachements (`deleteSegment` cascade — `20260801-cercles-segments.sql:48-51`) ; case « échelle » sortie de la condition `segments.length === 0` (`:530`).
-- Suppression d'une suite : carte rouge à recopie, refus si `status === 'closed'`.
-- Retirer `if not s.join_open then return 'not_a_circle'` de `circle_audience_guard` (`audience-p1.sql:53`) : l'invariant tient sans lui.
-- `aria-label` sur les six champs sans étiquette ; `<ul>/<li>` sur les trois listes.
-
-**Coûte**
-- La ventilation est la seule fonctionnalité du chantier qui **ajoute une surface d'attaque**. Elle ne se livre pas sans C5, et C5 ne rétroagit pas : les consultations déjà tenues n'auront pas de `segment_label` et devront afficher « ventilation indisponible » plutôt qu'un chiffre calculé sur les segments d'aujourd'hui.
-- `close_expired_events` change ce que voient **tous** les membres (`get_my_feed`, `/m/<token>`), pas seulement l'animateur.
+**Build et parité**
+32. `npm run build` (preview arrêté) passe — `tsc` ne lint pas, et eslint casse le déploiement Vercel silencieusement.
+33. `scripts/i18n-parity.mjs` passe sur les 4 locales.
+34. Aucune page ne rend `useSearchParams` hors d'une frontière `<Suspense>` (sinon le prerender Next 15 échoue).
 
 ---
 
-## 9. Critères de recette
+## Corrections des sceptiques que j'ÉCARTE
 
-**P0** — Sur un groupe neuf, `join_open = false`, 8 membres importés : je crée un segment sans rien cocher ; la puce affiche « 8 » ; j'affecte 3 personnes, la puce passe à « 3 » avec `⚠` ; le CTA « Créer une interrogation » porte l'avertissement et sa case ; je coche, je lance, la consultation apparaît en tête avec échéance, régime et public. Je coupe le réseau et recharge : j'obtiens une carte d'erreur avec « Réessayer », **jamais** « Aucun membre ». J'ouvre l'URL d'un groupe qui n'est pas le mien : « Ce groupe n'existe pas, ou vous ne l'animez pas ».
+**Sceptique 1, complément « 2 closes récentes + compteur » — ÉCARTÉ.** L'argument est recevable sur la forme : deux lignes respectent le plafond ≤ 6. Mais elles échouent au critère (b) **au sens utile** : une consultation close ne porte **aucune décision** — rien à relancer, rien à clore, rien à surveiller. Elles occuperaient du vertical au-dessus de la ligne de flottaison mobile pour une information dont le compteur-lien donne déjà l'accès, et rouvriraient le tri par récence que le §9 remplace précisément par un tri par état.
 
-**P1** — Consultation scellée, 12 convoqués, 8 émargements : la page affiche « 8/12 ont émargé » (aujourd'hui : 0/12), et `/evenement/<id>` refuse le dépouillement tant que la suite est ouverte. Consultation scellée à 3 convoqués : la ligne dit « 3 convoqués », sans ratio. Suite scellée de 5 questions, une seule répondante : le dépouillement reste refusé après clôture (`too_few` sur 1 émargeante, pas 5 bulletins). Convoquer 2 membres et tenter d'ouvrir en scellé : refusé en base.
+*Concession, à coût nul :* le compteur-lien porte une **date**, pas seulement un nombre — « 17 closes · la dernière le 3 août ». L'archive devient située sans consommer une seule ligne. `closes_at` est déjà chargé.
 
-**P2** — Consultation ayant convoqué « Avancé » (2) + « Standard » (6) en scellé : **refusée à la création** (C4). Consultation sur 3 segments ≥ 5 chacun : ventilation affichée ; je déplace un membre entre segments, la ventilation **ne bouge pas** (C5). Consultation tenue avant P2 : « ventilation indisponible ».
+**Sceptique 1, grief implicite du « mur de compteurs » — ÉCARTÉ contre le §3 retenu.** Il ne tient pas contre 3 lignes × 4 chiffres d'état, qui répondent bien à « lesquelles ». Il tenait contre les variantes 2 et 3 — **que je barre** (bloquant 1). Le grief est donc traité par suppression de sa cause, non par assouplissement de la règle.
+
+**Sceptique 1, § « 5 requêtes en 2 vagues, ×3 » — ÉCARTÉ comme argument contre les routes.** Le fait est exact (le retour navigateur remonte `SpaceDashboard` et rappelle `load()`), mais il vise le **découpage**, pas la contrainte : il existe déjà aujourd'hui entre le tableau de bord et `/evenement/<id>`. La réponse, si le volume devient un sujet, est **une RPC d'agrégats côté cercle** — pas un retour au dépliage en place. Consigné comme dette, pas comme objection.
 
 ---
 
-**Fichiers touchés, chemins absolus** : `D:\Suffrage\src\components\scrutin\SpaceDashboard.tsx` (le gros du travail), `D:\Suffrage\src\components\scrutin\EventEditor.tsx`, `D:\Suffrage\src\components\scrutin\LaunchedScreen.tsx`, `D:\Suffrage\src\components\scrutin\theme.ts`, `D:\Suffrage\src\lib\db\events.ts`, `D:\Suffrage\src\lib\db\circles.ts`, `D:\Suffrage\src\app\api\events\[id]\remind\route.ts`, `D:\Suffrage\messages\{fr,en,es,pcm}.json`, et une migration neuve par lot dans `D:\Suffrage\supabase\migrations\`.
+**Point de sécurité découvert pendant la vérification, hors périmètre de ce lot, à ouvrir séparément :** `EventEditor.tsx:229-230` ouvre une consultation par `updateEvent(eventId, { status: 'open' })` — un `update` direct qui contourne **entièrement** `circle_audience_guard`. Le seuil de 5 en scellé, le plafond `solicit_per_day` et le refus `not_a_circle` ne s'appliquent donc **qu'au parcours `/new`**. Tant que ce chemin reste ouvert, aucun avertissement d'écran ne doit être présenté comme une garantie.
