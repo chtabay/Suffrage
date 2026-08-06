@@ -179,7 +179,7 @@ export default function MesScrutinsScreen({ ctrl, auth }: { ctrl: ScrutinControl
             {t("signInHint")}
           </span>
           <button
-            onClick={auth.signIn}
+            onClick={() => auth.signIn()}
             style={{
               fontFamily: FONT_DISPLAY,
               fontWeight: 700,

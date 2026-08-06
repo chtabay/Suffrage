@@ -382,7 +382,7 @@ export default function LaunchedScreen({ ctrl, auth }: { ctrl: ScrutinController
               <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 15 }}>👤 {t("accountCtaTitle")}</div>
               <p style={{ fontSize: 13, color: INK, lineHeight: 1.5, margin: "5px 0 11px" }}>{t("accountCtaSub")}</p>
               <button
-                onClick={auth.signIn}
+                onClick={() => auth.signIn()}
                 className="dc-lift"
                 style={{
                   fontFamily: FONT_DISPLAY,

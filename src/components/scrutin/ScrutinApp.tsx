@@ -2,8 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { useAuth } from "@/lib/auth/useAuth";
-import { getLocalPolls } from "@/lib/db/localPolls";
-import { claimPolls } from "@/lib/db/polls";
 import { markWelcomeShown, shouldShowWelcome, touchLastOpen } from "@/lib/pwa/onboarding";
 import { useInstall } from "@/lib/pwa/install";
 import WelcomeSheet from "@/components/pwa/WelcomeSheet";
@@ -20,7 +18,6 @@ export default function ScrutinApp({ draft }: { draft?: ScrutinDraft }) {
   const ctrl = useScrutin(draft);
   const auth = useAuth();
   const { screen } = ctrl.state;
-  const userId = auth.user?.id;
   const { standalone } = useInstall();
   const [welcome, setWelcome] = useState(false);
 
@@ -40,14 +37,10 @@ export default function ScrutinApp({ draft }: { draft?: ScrutinDraft }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [standalone]);
 
-  // À la connexion, rattache les scrutins anonymes de cet appareil au compte.
-  useEffect(() => {
-    if (!userId) return;
-    const locals = getLocalPolls();
-    if (locals.length) {
-      claimPolls(locals.map((p) => ({ token: p.token, secret: p.secret }))).catch(() => {});
-    }
-  }, [userId]);
+  // Le rattachement des scrutins de cet appareil au compte a déménagé dans
+  // `useAuth` : ici, il ne s'exécutait que sur `/` et `/new`, donc jamais pour
+  // qui se connectait par lien magique — alors que « Mes scrutins » promet que
+  // « vos scrutins vous suivent partout ».
 
   return (
     <div style={{ minHeight: "100vh" }}>

@@ -59,16 +59,29 @@ export default function SpacesHome() {
   const [newPw, setNewPw] = useState("");
   const [recState, setRecState] = useState<"idle" | "busy" | "done" | "error">("idle");
 
+  // D'où l'on vient (posé par la nav), et si l'échange de code a échoué.
+  //
+  // `next` traverse les TROIS méthodes d'authentification : la destination
+  // cessait d'être fonction de la personne pour devenir fonction de la méthode
+  // — Google retombait sur l'accueil, le lien magique ici, le mot de passe ne
+  // bougeait pas. `auth_error` était écrit par la route de callback et lu nulle
+  // part : l'utilisateur dont la connexion échouait se retrouvait déconnecté,
+  // sans un mot.
+  const [next, setNext] = useState<string | undefined>();
+  const [authErr, setAuthErr] = useState(false);
   useEffect(() => {
-    if (typeof window !== "undefined" && new URLSearchParams(window.location.search).get("recovery") === "1") {
-      setRecovery(true);
-    }
+    if (typeof window === "undefined") return;
+    const q = new URLSearchParams(window.location.search);
+    if (q.get("recovery") === "1") setRecovery(true);
+    if (q.get("auth_error") === "1") setAuthErr(true);
+    const n = q.get("next");
+    if (n && n.startsWith("/") && !n.startsWith("//")) setNext(n);
   }, []);
 
   const sendMagic = async () => {
     if (!EMAIL_RE.test(email.trim()) || magic === "sending") return;
     setMagic("sending");
-    setMagic((await signInWithEmail(email)) ? "sent" : "error");
+    setMagic((await signInWithEmail(email, next)) ? "sent" : "error");
   };
 
   const okPw = EMAIL_RE.test(email.trim()) && password.length >= 6;
@@ -76,10 +89,19 @@ export default function SpacesHome() {
     if (!okPw || pwState === "busy") return;
     setPwState("busy");
     if (pwMode === "signin") {
-      setPwState((await signInPassword(email, password)) === "ok" ? "idle" : "error");
+      // Le mot de passe ouvre la session sans passer par la route de callback :
+      // c'est ici, et seulement ici, qu'il faut reconduire soi-même.
+      const r = await signInPassword(email, password);
+      if (r === "ok") {
+        setPwState("idle");
+        if (next) window.location.assign(next);
+      } else {
+        setPwState("error");
+      }
     } else {
-      const r = await signUpPassword(email, password);
+      const r = await signUpPassword(email, password, next);
       setPwState(r === "ok" ? "idle" : r === "confirm" ? "confirm" : "error");
+      if (r === "ok" && next) window.location.assign(next);
     }
   };
   const doForgot = async () => {
@@ -177,8 +199,14 @@ export default function SpacesHome() {
         <div style={card}>
           <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 24 }}>{t("spacesTitle")}</div>
           <div style={{ color: SUBINK, marginTop: 10, lineHeight: 1.55 }}>{t("signInPrompt")}</div>
+          {/* L'échec de connexion était écrit dans l'URL et lu nulle part. */}
+          {authErr && (
+            <div role="alert" style={{ marginTop: 14, color: REDTXT, fontWeight: 700, fontSize: 13.5, lineHeight: 1.5 }}>
+              {t("authError")}
+            </div>
+          )}
           <button
-            onClick={signIn}
+            onClick={() => signIn(next)}
             className="dc-bright"
             style={{ marginTop: 18, fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 15.5, cursor: "pointer", border: `2.5px solid ${INK}`, background: INK, color: "#fff", padding: "12px 18px", borderRadius: 12 }}
           >

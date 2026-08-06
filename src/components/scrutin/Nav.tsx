@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { usePathname } from "next/navigation";
 import { useAuth } from "@/lib/auth/useAuth";
 import { useTranslations } from "next-intl";
 import { useIsAdmin } from "@/lib/db/admin";
@@ -27,6 +28,7 @@ export default function Nav() {
   // quelle page — y compris une page SERVEUR comme /explorer.
   const auth = useAuth();
   const t = useTranslations("Nav");
+  const pathname = usePathname();
   const [open, setOpen] = useState(false);
   // Lien Régie : visible uniquement pour un admin de plateforme (allowlist en base).
   const isAdmin = useIsAdmin(auth.user?.id);
@@ -195,8 +197,14 @@ export default function Nav() {
                 {t("signOut")}
               </button>
             ) : (
+              // « Se connecter » emporte la page d'où l'on part : sans elle, on
+              // s'authentifie et on atterrit chez l'organisateur, en ayant perdu
+              // la carte qu'on voulait épingler ou le vote qu'on lisait.
+              // `usePathname` de next/navigation rend le chemin AVEC le préfixe
+              // de langue — celui de next-intl le retire, et la route de
+              // callback vit hors du segment [locale].
               <Link
-                href="/espaces"
+                href={`/espaces?next=${encodeURIComponent(pathname || "/")}`}
                 onClick={() => setOpen(false)}
                 className="dc-paper"
                 style={{ ...secondary, textDecoration: "none", display: "inline-flex", alignItems: "center", justifyContent: "center" }}

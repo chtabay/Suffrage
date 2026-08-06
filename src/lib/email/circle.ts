@@ -87,30 +87,30 @@ export function circleConfirmEmail(locale: string, a: CircleArgs) {
 // qui le lui apprend.
 const HOME: Record<string, (a: CircleArgs) => Parts> = {
   fr: (a) => ({
-    subject: `Votre espace - ${a.circleName}`,
+    subject: `Votre page - ${a.circleName}`,
     intro: `Bonjour ${a.memberName},<br><br>Voici votre page personnelle pour le cercle « <b>${a.circleName}</b> » : vous y retrouvez les consultations en cours, leurs résultats, et vous pouvez en partir à tout moment. Ce lien est <b>personnel</b> — ne le partagez pas.${pledge("fr", a.perDay)}`,
-    cta: "Ouvrir mon espace",
+    cta: "Ouvrir ma page",
     outro: "Si le bouton ne fonctionne pas, copiez ce lien dans votre navigateur :",
     leave: "Vous ne souhaitez plus faire partie de ce cercle ? Partez en un clic :",
   }),
   en: (a) => ({
-    subject: `Your space - ${a.circleName}`,
+    subject: `Your page - ${a.circleName}`,
     intro: `Hello ${a.memberName},<br><br>Here is your personal page for the circle "<b>${a.circleName}</b>": open consultations, their results, and you can leave whenever you want. This link is <b>personal</b> — please don't share it.${pledge("en", a.perDay)}`,
-    cta: "Open my space",
+    cta: "Open my page",
     outro: "If the button doesn't work, copy this link into your browser:",
     leave: "No longer want to be part of this circle? Leave in one click:",
   }),
   es: (a) => ({
-    subject: `Tu espacio - ${a.circleName}`,
+    subject: `Tu página - ${a.circleName}`,
     intro: `Hola ${a.memberName}:<br><br>Esta es tu página personal del círculo «<b>${a.circleName}</b>»: consultas abiertas, sus resultados, y puedes salir cuando quieras. Este enlace es <b>personal</b>: no lo compartas.${pledge("es", a.perDay)}`,
-    cta: "Abrir mi espacio",
+    cta: "Abrir mi página",
     outro: "Si el botón no funciona, copia este enlace en tu navegador:",
     leave: "¿Ya no quieres formar parte de este círculo? Sal con un clic:",
   }),
   pcm: (a) => ({
-    subject: `Your space - ${a.circleName}`,
+    subject: `Your page - ${a.circleName}`,
     intro: `Hello ${a.memberName},<br><br>Na your personal page for di circle "<b>${a.circleName}</b>": consultations wey dey open, dia results, and you fit comot anytime. Dis link na <b>personal</b> — no share am.${pledge("pcm", a.perDay)}`,
-    cta: "Open my space",
+    cta: "Open my page",
     outro: "If di button no work, copy dis link go your browser:",
     leave: "You no wan dey dis circle again? Comot with one click:",
   }),
