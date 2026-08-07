@@ -946,6 +946,10 @@
     "permissionsNote": "Placet demande les permissions minimales (<code>commands</code>, <code>chat:write</code>) pour poster et mettre à jour les messages de vote. Les bulletins restent sur le web ; aucun votant n'a besoin de compte. Tapez <code>/placet aide</code> dans Slack à tout moment."
   },
   "Org": {
+    "convenedN": "{count, plural, one {# convoqué} other {# convoqués}}",
+    "pendingRequests": "{count, plural, one {# demande en attente} other {# demandes en attente}}",
+    "pendingOldest": "la plus ancienne depuis {hours} h",
+    "pendingExpiring": "Ces demandes expirent 72 h après le clic. Au-delà, la personne doit recommencer.",
     "closesOnShort": "ferme le {date}",
     "spaceNotFound": "Ce cercle n'existe pas, ou vous ne l'animez pas.",
     "loadError": "Impossible de charger ce cercle.",

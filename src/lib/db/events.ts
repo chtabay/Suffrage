@@ -323,6 +323,54 @@ export async function createEvent(
   return data as EventRow;
 }
 
+/**
+ * Agrégats d'une consultation, pour le tableau de bord et la vue de gestion.
+ *
+ * `convened` est la TAILLE D'UN PUBLIC que l'animateur a lui-même choisi, pas un
+ * taux de réponse : il ne dit rien d'un bulletin, et aucun seuil ne s'y applique.
+ * Il répond à la seule question qu'on ne pouvait pas poser jusqu'ici — « à
+ * combien de personnes cette consultation s'adresse-t-elle ? » — quand
+ * `audience_label` est nul, ce qui est le cas de toute consultation née de
+ * l'éditeur.
+ *
+ * ⚠️ Ce qui N'EST PAS ici, et c'est délibéré : le nombre d'émargements. Tant que
+ * le dépouillement d'une consultation scellée reste lisible PENDANT le vote, un
+ * compteur de participation indiquerait à l'animateur le moment exact où
+ * envoyer un lien individuel et relire l'écart. La garde d'abord.
+ */
+export interface EventStats {
+  questions: number;
+  convened: number;
+}
+
+export async function getSpaceEventStats(spaceId: string): Promise<Record<string, EventStats>> {
+  const supabase = createClient();
+  const { data, error } = await supabase.rpc("get_space_event_stats", { p_space_id: spaceId });
+  if (error) throw error;
+  return (data as Record<string, EventStats> | null) ?? {};
+}
+
+/**
+ * Les demandes d'adhésion non confirmées et non périmées.
+ *
+ * L'ÂGE DE LA PLUS ANCIENNE, et pas seulement le compte : « 3 en attente » ne
+ * discrimine rien — trois clics d'il y a deux minutes ne demandent rien, trois
+ * confirmations perdues à 70 h de la péremption sont irrattrapables (la fenêtre
+ * est de 72 h). Jamais de nom ni d'adresse : la file contient des adresses NON
+ * confirmées, et en rendre une rouvrirait l'oracle d'appartenance.
+ */
+export interface JoinPending {
+  count: number;
+  oldest_at: string | null;
+}
+
+export async function getSpaceJoinPending(spaceId: string): Promise<JoinPending> {
+  const supabase = createClient();
+  const { data, error } = await supabase.rpc("get_space_join_pending", { p_space_id: spaceId });
+  if (error) throw error;
+  return (data as JoinPending | null) ?? { count: 0, oldest_at: null };
+}
+
 export async function listEvents(spaceId: string): Promise<EventRow[]> {
   const supabase = createClient();
   const { data, error } = await supabase

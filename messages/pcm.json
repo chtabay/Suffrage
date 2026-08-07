@@ -946,6 +946,10 @@
     "permissionsNote": "Placet dey request di minimal permissions (<code>commands</code>, <code>chat:write</code>) to post and update voting messages. Ballots dey stay for web; no voter need account. Type <code>/placet help</code> for Slack anytime."
   },
   "Org": {
+    "convenedN": "{count, plural, one {# wey dem convene} other {# wey dem convene}}",
+    "pendingRequests": "{count, plural, one {# request dey wait} other {# requests dey wait}}",
+    "pendingOldest": "di oldest one don tey {hours} h",
+    "pendingExpiring": "Dis requests dey expire 72 h afta di click. Afta dat, di person go start again.",
     "closesOnShort": "e go close {date}",
     "spaceNotFound": "Dis circle no dey, or na no be you dey run am.",
     "loadError": "We no fit load dis circle.",

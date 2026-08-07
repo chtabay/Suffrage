@@ -16,7 +16,15 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { Link, useRouter } from "@/i18n/navigation";
 import { useAuth } from "@/lib/auth/useAuth";
-import { createEvent, getSpace, listEvents, type EventRow, type Space } from "@/lib/db/events";
+import {
+  createEvent,
+  getSpace,
+  getSpaceEventStats,
+  listEvents,
+  type EventRow,
+  type EventStats,
+  type Space,
+} from "@/lib/db/events";
 import { intlLocale } from "@/i18n/locales";
 import { OrgShell } from "./SpacesHome";
 import { CREAM, FONT_DISPLAY, GREEN, INK, MUTED, PAPER, REDTXT, SUBINK, YELLOW } from "./theme";
@@ -76,6 +84,10 @@ export default function ConsultationsManager({ spaceId }: { spaceId: string }) {
   const [publicFacet, setPublicFacet] = useState("");
   const [ouverts, setOuverts] = useState<Record<Bloc, boolean>>({ open: true, draft: true, closed: false });
 
+  // `null` tant qu'on ne sait pas : ces agrégats sont un CONFORT. Leur absence
+  // retire un chiffre d'une ligne, elle ne doit jamais faire lire « 0 question ».
+  const [stats, setStats] = useState<Record<string, EventStats> | null>(null);
+
   const load = useCallback(async () => {
     if (!user) return;
     setFailed(false);
@@ -90,6 +102,13 @@ export default function ConsultationsManager({ spaceId }: { spaceId: string }) {
       setFailed(true);
     }
     setReady(true);
+    // Après `setReady` : la liste est lisible sans ces chiffres, et l'attente
+    // d'un appel de plus se paierait au temps d'ouverture.
+    try {
+      setStats(await getSpaceEventStats(spaceId));
+    } catch {
+      /* les lignes omettent leurs agrégats, la liste reste entière */
+    }
   }, [user, spaceId]);
 
   useEffect(() => {
@@ -236,8 +255,12 @@ export default function ConsultationsManager({ spaceId }: { spaceId: string }) {
             consultation née de l'éditeur le laisse à nul QUEL QUE SOIT le public
             convoqué. Écrire « tout le cercle » sur ce nul annoncerait 47 membres
             à une consultation qui n'en a convoqué 6 — on dit qu'on ne sait pas. */}
-        <span>{e.audience_label ?? t("audienceUnknown")}</span>
+        <span>
+          {e.audience_label ??
+            (stats?.[e.id] ? t("convenedN", { count: stats[e.id].convened }) : t("audienceUnknown"))}
+        </span>
         <span>{e.secret_ballot ? `🔒 ${tx("sealed")}` : `👁 ${tx("named")}`}</span>
+        {stats?.[e.id] && <span>{t("questionCount", { count: stats[e.id].questions })}</span>}
       </div>
       {e.closes_at && (
         <div style={{ marginTop: 5, fontSize: 12.5, color: MUTED }}>{fmt.format(new Date(e.closes_at))}</div>

@@ -34,9 +34,13 @@ import {
   createEvent,
   deleteSpace,
   getSpace,
+  getSpaceEventStats,
+  getSpaceJoinPending,
   listEvents,
   listMembers,
   type EventRow,
+  type EventStats,
+  type JoinPending,
   type Member,
   type Space,
 } from "@/lib/db/events";
@@ -82,6 +86,13 @@ export default function SpaceDashboard({ spaceId }: { spaceId: string }) {
   const [coreErr, setCoreErr] = useState(false);
   const [segErr, setSegErr] = useState(false);
 
+  // TROISIÈME VAGUE, et troisième drapeau. Les agrégats sont un CONFORT : leur
+  // absence retire un chiffre d'une ligne, elle ne doit ni vider la page ni
+  // faire croire à « 0 question ». D'où `null` tant qu'on ne sait pas, et un
+  // rendu qui omet plutôt qu'il n'invente.
+  const [evStats, setEvStats] = useState<Record<string, EventStats> | null>(null);
+  const [pending, setPending] = useState<JoinPending | null>(null);
+
   const [name, setName] = useState("");
   const [pitch, setPitch] = useState("");
   const [paceInput, setPaceInput] = useState("");
@@ -119,6 +130,16 @@ export default function SpaceDashboard({ spaceId }: { spaceId: string }) {
       setSegErr(true);
     }
     setReady(true);
+    // Après `setReady` : la page est utilisable sans ces deux chiffres, et
+    // attendre deux appels de plus pour l'afficher serait payer un confort au
+    // prix du temps d'ouverture.
+    try {
+      const [st, pd] = await Promise.all([getSpaceEventStats(spaceId), getSpaceJoinPending(spaceId)]);
+      setEvStats(st);
+      setPending(pd);
+    } catch {
+      /* la page reste entière, les lignes omettent simplement leurs agrégats */
+    }
   }, [user, spaceId]);
   useEffect(() => {
     void load();
@@ -185,6 +206,10 @@ export default function SpaceDashboard({ spaceId }: { spaceId: string }) {
   const capped = cap != null && todayCount >= cap;
 
   const fmt = new Intl.DateTimeFormat(intlLocale(locale), { day: "numeric", month: "short" });
+
+  /** Âge de la plus ancienne demande, en heures pleines. La fenêtre est de 72 h. */
+  const pendingHours =
+    pending?.oldest_at != null ? Math.floor((Date.now() - Date.parse(pending.oldest_at)) / 3_600_000) : null;
 
   // ------------------------------------------------------------- les écritures
 
@@ -430,10 +455,14 @@ export default function SpaceDashboard({ spaceId }: { spaceId: string }) {
               <div style={{ fontSize: 12.5, color: MUTED, fontWeight: 600, marginTop: 5 }}>
                 {/* `audience_label` n'est écrit que par le parcours /new : pour une
                     consultation née de l'éditeur il vaut NULL quel que soit le
-                    public réel. Dire « tout le cercle » serait alors un mensonge. */}
-                {e.audience_label ?? t("audienceUnknown")}
+                    public réel. Dire « tout le cercle » serait alors un mensonge —
+                    on dit donc À COMBIEN DE PERSONNES elle s'adresse, ce qui est
+                    la question qu'on se posait vraiment. */}
+                {e.audience_label ??
+                  (evStats?.[e.id] ? t("convenedN", { count: evStats[e.id].convened }) : t("audienceUnknown"))}
                 {" · "}
                 {e.secret_ballot ? "🔒" : "👁"}
+                {evStats?.[e.id] ? ` · ${t("questionCount", { count: evStats[e.id].questions })}` : ""}
                 {e.closes_at ? ` · ${t("closesOnShort", { date: fmt.format(new Date(e.closes_at)) })}` : ""}
               </div>
             </Link>
@@ -530,6 +559,20 @@ export default function SpaceDashboard({ spaceId }: { spaceId: string }) {
           </label>
         </div>
         <div style={{ fontSize: 12.5, color: MUTED, marginTop: 4, lineHeight: 1.5 }}>{t("circleSubtitle")}</div>
+
+        {/* Les demandes en attente : un compte ET UN ÂGE. Le compte seul ne
+            discrimine pas trois clics d'il y a deux minutes — rien à faire — de
+            trois confirmations perdues à 70 h d'une péremption qui tombe à 72.
+            Ni nom ni adresse : la file contient des adresses NON confirmées, et
+            en montrer une rouvrirait l'oracle d'appartenance. */}
+        {space.join_open && pending && pending.count > 0 && (
+          <div style={{ marginTop: 12, fontSize: 13.5, fontWeight: 700, color: pendingHours != null && pendingHours >= 48 ? REDTXT : SUBINK }}>
+            {pendingHours != null && pendingHours >= 48 ? "⚠ " : ""}
+            {t("pendingRequests", { count: pending.count })}
+            {pendingHours != null ? ` · ${t("pendingOldest", { hours: pendingHours })}` : ""}
+            <div style={{ fontSize: 12, color: MUTED, fontWeight: 600, marginTop: 3, lineHeight: 1.45 }}>{t("pendingExpiring")}</div>
+          </div>
+        )}
 
         {circleErr && <div style={{ marginTop: 10, color: REDTXT, fontWeight: 700, fontSize: 13, lineHeight: 1.45 }}>{circleErr}</div>}
 
