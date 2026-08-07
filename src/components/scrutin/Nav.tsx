@@ -128,22 +128,22 @@ export default function Nav() {
           )}
           {!auth.loading && auth.user && (
             <Link
-              href="/espaces"
-              onClick={() => setOpen(false)}
-              className="dc-paper"
-              style={{ ...secondary, textDecoration: "none", display: "inline-flex", alignItems: "center", justifyContent: "center" }}
-            >
-              {t("spaces")}
-            </Link>
-          )}
-          {!auth.loading && auth.user && (
-            <Link
               href="/mes-scrutins"
               onClick={() => setOpen(false)}
               className="dc-paper"
               style={{ ...secondary, textDecoration: "none", display: "inline-flex", alignItems: "center", justifyContent: "center" }}
             >
               {t("myPolls")}
+            </Link>
+          )}
+          {!auth.loading && auth.user && (
+            <Link
+              href="/espaces"
+              onClick={() => setOpen(false)}
+              className="dc-paper"
+              style={{ ...secondary, textDecoration: "none", display: "inline-flex", alignItems: "center", justifyContent: "center" }}
+            >
+              {t("spaces")}
             </Link>
           )}
           <Link
