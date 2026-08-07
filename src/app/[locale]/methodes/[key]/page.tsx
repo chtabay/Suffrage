@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
-import PlacetMark from "@/components/scrutin/PlacetMark";
+import Nav from "@/components/scrutin/Nav";
 import { PUBLIC_METHODS, publicMethodToSystem } from "@/lib/voting/methods";
 import { SYSTEMS } from "@/lib/voting/systems";
 import { ASSIGN_METHODS, ASSIGN_METHOD_KEYS, isAssignMethod } from "@/lib/assign/methods";
@@ -194,11 +194,8 @@ export default async function MethodPage({ params }: { params: Promise<{ locale:
   return (
     <div style={{ minHeight: "100vh", background: CREAM, color: INK, fontFamily: "var(--font-body), sans-serif" }}>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
-      <div style={{ maxWidth: 760, margin: "0 auto", padding: "36px 22px 90px" }}>
-        <Link href="/" style={{ display: "inline-flex", alignItems: "center", gap: 10, textDecoration: "none", color: INK }}>
-          <PlacetMark size={34} />
-          <span style={{ fontFamily: display, fontWeight: 800, fontSize: 20 }}>Placet</span>
-        </Link>
+      <Nav />
+      <div style={{ maxWidth: 760, margin: "0 auto", padding: "22px 22px 90px" }}>
 
         <div
           style={{

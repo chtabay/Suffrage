@@ -19,7 +19,7 @@ import {
   type AdminUser,
 } from "@/lib/db/admin";
 import { intlLocale } from "@/i18n/locales";
-import PlacetMark from "@/components/scrutin/PlacetMark";
+import Nav from "@/components/scrutin/Nav";
 import {
   CORAL,
   CREAM,
@@ -211,11 +211,9 @@ export default function AdminScreen() {
 
   const shell = (content: React.ReactNode) => (
     <div style={{ minHeight: "100vh", background: CREAM, fontFamily: FONT_BODY, color: INK }}>
+      <Nav />
       <div style={{ maxWidth: 1060, margin: "0 auto", padding: "26px 18px 60px" }}>
         <header style={{ display: "flex", alignItems: "center", gap: 14, flexWrap: "wrap", marginBottom: 20 }}>
-          <Link href="/" style={{ textDecoration: "none", color: INK, lineHeight: 0 }} aria-label="Placet">
-            <PlacetMark size={34} />
-          </Link>
           <div style={{ flex: 1, minWidth: 200 }}>
             <h1 style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 24, margin: 0 }}>🎛️ {t("title")}</h1>
             <div style={{ fontWeight: 600, fontSize: 13, color: MUTED }}>{t("subtitle")}</div>

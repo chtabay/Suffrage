@@ -78,11 +78,15 @@
     "userActionFailed": "Action impossible — réessayez."
   },
   "Nav": {
+    "mainNav": "Navigation principale",
+    "myVotesHint": "ce qu'on me demande",
+    "myPollsHint": "ce que j'organise",
+    "spacesHint": "mes groupes de personnes",
     "myVotes": "Mes votes",
     "menu": "Menu",
     "regie": "Régie",
     "explore": "Explorer",
-    "spaces": "Cercles",
+    "spaces": "Mes cercles",
     "myPolls": "Mes scrutins",
     "methods": "Les méthodes",
     "create": "Créer",

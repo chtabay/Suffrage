@@ -78,11 +78,15 @@
     "userActionFailed": "Action failed — try again."
   },
   "Nav": {
+    "mainNav": "Main navigation",
+    "myVotesHint": "what I'm being asked",
+    "myPollsHint": "what I run",
+    "spacesHint": "my groups of people",
     "myVotes": "My votes",
     "menu": "Menu",
     "regie": "Control room",
     "explore": "Explore",
-    "spaces": "Circles",
+    "spaces": "My circles",
     "myPolls": "My polls",
     "methods": "Methods",
     "create": "Create",

@@ -202,18 +202,67 @@ select:focus-visible,
   }
 }
 
-/* Nav : rangée complète sur desktop, hamburger sur mobile (≤720px). */
+/* ─── Nav ────────────────────────────────────────────────────────────────────
+   La règle est dans Nav.tsx : un mot nu mène à une page, un cadre ne quitte
+   pas la page, le corail est l'action. Ici on ne fait que la mise en page.
+
+   SEUIL À 860 px et non 720 : entre les deux, la barre n'avait ni menu replié
+   ni rangée tenable — elle passait à deux ou trois lignes, et une barre
+   COLLANTE qui grossit mange la hauteur utile de toutes les pages. Zone
+   concernée : tablette en paysage, fenêtre à demi-écran, zoom à 125 %. */
 .nav-burger {
   display: none;
+  margin-left: auto;
 }
 .nav-links {
   display: flex;
+  flex: 1 1 auto;
+  min-width: 0;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+/* Seule la BANDE peut passer à la ligne : les réglages et la session restent
+   sur la première ligne quelle que soit la langue. */
+.nav-band {
+  display: flex;
+  flex: 1 1 auto;
+  min-width: 0;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 2px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.nav-acts {
+  display: flex;
+  flex: 0 0 auto;
   align-items: center;
   gap: 8px;
-  flex-wrap: wrap;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+/* La sous-ligne n'existe que dans le tiroir, là où la largeur ne coûte rien.
+   Sur desktop, elle est portée par l'attribut title. */
+.nav-hint {
+  display: none;
+}
+/* Nom accessible d'un lien réduit à un glyphe. */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
-@media (max-width: 720px) {
+@media (max-width: 860px) {
   .nav-burger {
     display: inline-flex;
   }
@@ -225,7 +274,35 @@ select:focus-visible,
     flex-basis: 100%;
     flex-direction: column;
     align-items: stretch;
-    gap: 8px;
-    margin-top: 2px;
+    gap: 16px;
+    margin-top: 6px;
+  }
+  .nav-band {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+  }
+  .nav-band > li + li {
+    border-top: 1px solid rgba(22, 33, 58, 0.12);
+  }
+  .nav-band a {
+    width: 100%;
+    height: auto;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1px;
+    padding: 11px 10px;
+  }
+  /* Deux libellés proches en français ordinaire — « mes votes » et « mes
+     scrutins » — se départagent ici par ce qu'on y FAIT. Un bonus rendu
+     possible par la place, jamais une béquille du libellé. */
+  .nav-hint {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    opacity: 0.62;
+  }
+  .nav-acts {
+    flex-wrap: wrap;
   }
 }
