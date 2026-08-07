@@ -149,6 +149,22 @@ export async function createSegment(spaceId: string, name: string, rank: number 
   return data as Segment;
 }
 
+/**
+ * Renommer un segment, ou lui donner un rang — geste absent du produit jusqu'ici.
+ * Sans lui, corriger une faute de frappe passait par la SUPPRESSION, qui casse
+ * en cascade tous les rattachements (`on delete cascade`). Aucune migration :
+ * la policy `segments_owner` est `for all`.
+ */
+export async function updateSegment(id: string, patch: { name?: string; rank?: number | null }): Promise<void> {
+  const supabase = createClient();
+  const body: Record<string, unknown> = {};
+  if (patch.name !== undefined) body.name = patch.name.trim().slice(0, 60);
+  if (patch.rank !== undefined) body.rank = patch.rank;
+  if (!Object.keys(body).length) return;
+  const { error } = await supabase.from("scrutin_segments").update(body).eq("id", id);
+  if (error) throw error;
+}
+
 export async function deleteSegment(id: string): Promise<void> {
   const supabase = createClient();
   const { error } = await supabase.from("scrutin_segments").delete().eq("id", id);

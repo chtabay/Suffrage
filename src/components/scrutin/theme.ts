@@ -18,7 +18,12 @@ export const MUTED = "#5b6379";
 // ci-dessus. GREEN reste réservé aux APLATS et aux bordures, jamais au texte :
 // #5DBB2E sur blanc ne fait que 2,44:1.
 export const GREENTXT = "#1c7f45";
-export const REDTXT = "#d23b3b";
+// Rouge de TEXTE. #d23b3b passait sur blanc (4,74:1) mais échouait sur CRÈME
+// (4,40:1, sous la barre AA de 4,5) — or c'est justement le fond des lignes de
+// membre, où il porte la croix de retrait. #C62828 passe les deux (5,62 et
+// 5,22) dans la même famille. Même démarche que CORAL et GREENTXT ci-dessus :
+// s'arrêter à quelques centièmes du seuil est le pire endroit où s'arrêter.
+export const REDTXT = "#C62828";
 
 export const FONT_DISPLAY = "var(--font-display), 'Bricolage Grotesque', sans-serif";
 export const FONT_BODY = "var(--font-body), 'Plus Jakarta Sans', system-ui, sans-serif";

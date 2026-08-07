@@ -68,6 +68,17 @@ export interface EventRow {
    * CONSULTATION, pas du cercle — n'importe quel groupe peut en profiter.
    */
   secret_ballot: boolean;
+  /**
+   * Le public convoqué, FIGÉ EN TEXTE à la convocation — pour qu'un segment
+   * renommé ou supprimé ne réécrive pas l'histoire d'une consultation tenue.
+   * Ne jamais le remplacer par une jointure sur `scrutin_segments`.
+   *
+   * ⚠️ Il n'est écrit que par `set_poll_audience` et `open_circle_consultation`,
+   * donc par le seul parcours `/new?espace=`. Une consultation née de l'éditeur
+   * (le seul parcours à plusieurs questions) le laisse à `null` QUEL QUE SOIT le
+   * public réellement convoqué : `null` ne veut donc PAS dire « tout le cercle ».
+   */
+  audience_label: string | null;
 }
 
 export interface EventMember {
@@ -134,7 +145,7 @@ const SPACE_COLS =
   "id, name, created_at, join_open, join_token, join_cap, join_closes_at, pitch, solicit_per_day, chat_url";
 const MEMBER_COLS = "id, space_id, name, email, district, weight, token, self_joined, consent_at, consent_source";
 const EVENT_COLS =
-  "id, space_id, title, description, mode, status, current_poll_id, opens_at, closes_at, created_at, enroll_open, enroll_cap, enroll_closes_at, enroll_token, quorum, secret_ballot";
+  "id, space_id, title, description, mode, status, current_poll_id, opens_at, closes_at, created_at, enroll_open, enroll_cap, enroll_closes_at, enroll_token, quorum, secret_ballot, audience_label";
 const EVENT_MEMBER_COLS =
   "id, event_id, member_id, name, email, district, weight, token, invited_at, self_enrolled";
 const RESOLUTION_COLS = "id, token, question, description, options, recipe, status, order_index, closes_at";
@@ -229,12 +240,6 @@ export async function getSpace(id: string): Promise<Space | null> {
   const { data, error } = await supabase.from("scrutin_spaces").select(SPACE_COLS).eq("id", id).maybeSingle();
   if (error) throw error;
   return (data as Space | null) ?? null;
-}
-
-export async function renameSpace(id: string, name: string): Promise<void> {
-  const supabase = createClient();
-  const { error } = await supabase.from("scrutin_spaces").update({ name: name.trim().slice(0, 120) }).eq("id", id);
-  if (error) throw error;
 }
 
 export async function deleteSpace(id: string): Promise<void> {
@@ -532,17 +537,11 @@ export async function getEventResultsOwner(eventId: string): Promise<EventResult
   return (data as EventResultsData | null) ?? { status: "invalid" };
 }
 
-/**
- * Identifiants des convoqués ayant déjà voté — pour ne relancer que les autres.
- * En scellé, le bulletin ne porte plus l'identité : sans cette RPC, la relance
- * croirait que personne n'a voté et écrirait à tout le monde.
- */
-export async function getVotedMemberIds(eventId: string): Promise<string[]> {
-  const supabase = createClient();
-  const { data, error } = await supabase.rpc("get_event_voted_members", { p_event_id: eventId });
-  if (error) throw error;
-  return (data as string[] | null) ?? [];
-}
+// `getVotedMemberIds` a été retirée : elle n'avait aucun appelant côté
+// navigateur, et le seul écran qui l'aurait justifiée — une liste nominative
+// des non-répondants — est désormais interdit (sur un résultat unanime, elle
+// attribue nommément le même vote à chacun). La relance passe par la route
+// serveur, qui appelle `get_event_voted_members` directement.
 
 export async function getEventContext(token: string): Promise<EventContext | null> {
   const supabase = createClient();
