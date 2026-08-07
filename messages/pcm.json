@@ -946,6 +946,11 @@
     "permissionsNote": "Placet dey request di minimal permissions (<code>commands</code>, <code>chat:write</code>) to post and update voting messages. Ballots dey stay for web; no voter need account. Type <code>/placet help</code> for Slack anytime."
   },
   "Org": {
+    "sealedResultsLater": "Results go show for di count",
+    "sealedResultsWhy": "For consultation wey get anonymous answers, results dey show only when e close. If you read dem while di vote dey go, you fit follow di answers one by one, and know who answer wetin.",
+    "sealedNeeds5": "Consultation wey get anonymous answers need at least 5 people. If e less, di result go point di people wey answer.",
+    "sealedTooClose": "Dis audience too near di one of one anonymous consultation wey don happen: if you compare di two results, e go point di people wey dey between. Make di audience bigger or smaller.",
+    "statusError": "Di status change no work.",
     "convenedN": "{count, plural, one {# wey dem convene} other {# wey dem convene}}",
     "pendingRequests": "{count, plural, one {# request dey wait} other {# requests dey wait}}",
     "pendingOldest": "di oldest one don tey {hours} h",

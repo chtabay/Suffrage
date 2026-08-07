@@ -226,9 +226,24 @@ export default function EventEditor({ eventId }: { eventId: string }) {
     setConvened((c) => c.filter((m) => m.id !== id));
   };
 
+  // La base REFUSE desormais deux ouvertures scellees : moins de cinq convoques,
+  // et un public trop proche de celui d une consultation scellee anterieure (la
+  // difference des depouillements designerait les personnes de l ecart). Sans ce
+  // try/catch, l ecran affirmait un etat que la base n avait pas pris.
+  const [statusErr, setStatusErr] = useState("");
   const setStatus = async (status: "draft" | "open" | "closed") => {
-    await updateEvent(eventId, { status });
-    setEv((e) => (e ? { ...e, status } : e));
+    setStatusErr("");
+    try {
+      await updateEvent(eventId, { status });
+      setEv((e) => (e ? { ...e, status } : e));
+    } catch (err) {
+      const msg = String((err as { message?: string })?.message ?? "");
+      setStatusErr(
+        msg.includes("sealed_needs_5") ? t("sealedNeeds5")
+        : msg.includes("sealed_too_close") ? t("sealedTooClose")
+        : t("statusError"),
+      );
+    }
   };
 
   const setMode = async (mode: "async" | "live") => {
@@ -639,8 +654,21 @@ export default function EventEditor({ eventId }: { eventId: string }) {
           </div>
         ))}
 
-      {/* ---- Résultats ---- */}
-      {ev.status !== "draft" && (
+      {/* ---- Résultats ----
+          EN SCELLÉ, RIEN AVANT LA CLÔTURE. Le dépouillement était monté dès
+          l'ouverture : l'animateur envoyait le lien personnel à UNE personne
+          (le bouton « copier le lien » est par convoqué, plus haut), rechargeait,
+          et la variation d'une voix ÉTAIT le bulletin de cette personne. Le
+          seuil de 5 ne protégeait que le premier affichage, jamais les écarts.
+          La base refuse aussi, désormais ; cette garde-ci évite d'afficher un
+          cadre vide et de laisser croire à une panne. */}
+      {ev.secret_ballot && ev.status === "open" && (
+        <div style={{ ...card, marginTop: 18, background: "#eef7ef" }}>
+          <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 15 }}>🔒 {t("sealedResultsLater")}</div>
+          <div style={{ fontSize: 13.5, color: SUBINK, marginTop: 5, lineHeight: 1.5 }}>{t("sealedResultsWhy")}</div>
+        </div>
+      )}
+      {ev.status !== "draft" && (!ev.secret_ballot || ev.status === "closed") && (
         <EventResults
           resolutions={resolutions}
           convenedCount={convened.length}
@@ -663,13 +691,21 @@ export default function EventEditor({ eventId }: { eventId: string }) {
           </button>
         )}
         {ev.status === "open" && <button onClick={() => setStatus("closed")} style={btn(INK, "#fff")}>{t("closeEvent")}</button>}
-        {ev.status === "closed" && <button onClick={() => setStatus("open")} style={btn("#fff", INK)}>{t("reopenEvent")}</button>}
+        {/* Rouvrir une urne SCELLÉE close rendrait le différentiel possible une
+            clôture plus tard : le dépouillement déjà lu sert de point de départ,
+            et chaque voix supplémentaire s'en déduit. Le bouton disparaît. */}
+        {ev.status === "closed" && !ev.secret_ballot && <button onClick={() => setStatus("open")} style={btn("#fff", INK)}>{t("reopenEvent")}</button>}
         {ev.status !== "open" && (
           <button onClick={onDelete} style={{ marginLeft: "auto", border: "none", background: "none", color: REDTXT, cursor: "pointer", fontSize: 13.5, fontWeight: 700 }}>
             {t("deleteEvent")}
           </button>
         )}
       </div>
+      {statusErr && (
+        <div role="alert" style={{ marginTop: 12, color: REDTXT, fontWeight: 700, fontSize: 13.5, lineHeight: 1.5 }}>
+          {statusErr}
+        </div>
+      )}
     </OrgShell>
   );
 }
