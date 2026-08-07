@@ -333,14 +333,21 @@ export async function createEvent(
  * `audience_label` est nul, ce qui est le cas de toute consultation née de
  * l'éditeur.
  *
- * ⚠️ Ce qui N'EST PAS ici, et c'est délibéré : le nombre d'émargements. Tant que
- * le dépouillement d'une consultation scellée reste lisible PENDANT le vote, un
- * compteur de participation indiquerait à l'animateur le moment exact où
- * envoyer un lien individuel et relire l'écart. La garde d'abord.
+ * `signed` compte des PERSONNES ayant participé, jamais ce qu'elles ont répondu :
+ * l'émargement en scellé, le bulletin rattaché sinon, et `distinct` des deux
+ * côtés pour qu'une consultation à plusieurs questions ne compte pas la même
+ * personne une fois par question.
+ *
+ * ⚠️ CE CHIFFRE A ÉTÉ RETENU UN LOT ENTIER, et il faut savoir pourquoi avant de
+ * le déplacer ailleurs : tant que le dépouillement d'une consultation scellée
+ * restait lisible PENDANT le vote, un compteur de participation indiquait à
+ * l'animateur le moment exact où envoyer un lien individuel et relire l'écart.
+ * Il n'est affichable que depuis le correctif du 2026-08-07.
  */
 export interface EventStats {
   questions: number;
   convened: number;
+  signed: number;
 }
 
 export async function getSpaceEventStats(spaceId: string): Promise<Record<string, EventStats>> {

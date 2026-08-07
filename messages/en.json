@@ -946,6 +946,7 @@
     "permissionsNote": "Placet requests the minimal permissions (<code>commands</code>, <code>chat:write</code>) to post and update voting messages. Ballots stay on the web; no voter needs an account. Type <code>/placet help</code> in Slack anytime."
   },
   "Org": {
+    "signedRatio": "{signed}/{convened} answered",
     "sealedResultsLater": "Results at the count",
     "sealedResultsWhy": "On an anonymous-answer consultation, results only appear at closing. Reading them during the vote would let you follow answers one by one, and so learn who answered what.",
     "sealedNeeds5": "An anonymous-answer consultation needs at least 5 people convened. Below that, the result would point at those who answered.",

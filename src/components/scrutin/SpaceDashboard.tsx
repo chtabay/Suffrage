@@ -65,6 +65,23 @@ const SEG_SHOWN = 6;
 /** Sous ce seuil, la base refuse une consultation scellée (circle_audience_guard). */
 const SEALED_MIN = 5;
 
+/**
+ * Le ratio d'émargement est-il montrable ?
+ *
+ * En SCELLÉ, seulement à partir de 5 convoqués : « 2/3 » sur trois personnes est
+ * déjà une désignation partielle, et le seuil de 5 qui gouverne le reste du
+ * régime scellé n'aurait aucun sens s'il était contourné par un compteur.
+ * En NOMINATIF, sans condition : l'animateur a le droit de voir qui a répondu
+ * quoi, et le votant en est averti avant de voter.
+ *
+ * La règle vit ICI, à côté du rendu, et non dans la RPC : celle-ci sert la
+ * donnée brute au seul propriétaire du cercle. Toute autre surface qui
+ * l'afficherait devra reprendre cette règle — d'où ce commentaire.
+ */
+function ratioVisible(sealed: boolean, convened: number): boolean {
+  return !sealed || convened >= SEALED_MIN;
+}
+
 export default function SpaceDashboard({ spaceId }: { spaceId: string }) {
   const t = useTranslations("Org");
   const locale = useLocale();
@@ -465,6 +482,15 @@ export default function SpaceDashboard({ spaceId }: { spaceId: string }) {
                 {evStats?.[e.id] ? ` · ${t("questionCount", { count: evStats[e.id].questions })}` : ""}
                 {e.closes_at ? ` · ${t("closesOnShort", { date: fmt.format(new Date(e.closes_at)) })}` : ""}
               </div>
+              {/* L'émargement : le fait d'avoir participé, jamais ce qui a été
+                  répondu. Chargé UNE FOIS au montage — un compteur qui bouge en
+                  direct, corrélé à l'envoi d'un lien individuel, redeviendrait
+                  un canal d'attribution. */}
+              {evStats?.[e.id] && ratioVisible(e.secret_ballot, evStats[e.id].convened) && (
+                <div style={{ fontSize: 12.5, fontWeight: 700, color: evStats[e.id].signed > 0 ? GREENTXT : MUTED, marginTop: 4 }}>
+                  {t("signedRatio", { signed: evStats[e.id].signed, convened: evStats[e.id].convened })}
+                </div>
+              )}
             </Link>
           ))}
         </div>

@@ -946,6 +946,7 @@
     "permissionsNote": "Placet demande les permissions minimales (<code>commands</code>, <code>chat:write</code>) pour poster et mettre à jour les messages de vote. Les bulletins restent sur le web ; aucun votant n'a besoin de compte. Tapez <code>/placet aide</code> dans Slack à tout moment."
   },
   "Org": {
+    "signedRatio": "{signed}/{convened} ont répondu",
     "sealedResultsLater": "Résultats au dépouillement",
     "sealedResultsWhy": "Sur une consultation à réponses anonymes, les résultats n'apparaissent qu'à la clôture. Les lire pendant le vote permettrait de suivre les réponses une par une, et donc de savoir qui a répondu quoi.",
     "sealedNeeds5": "Une consultation à réponses anonymes exige au moins 5 convoqués. En dessous, le résultat désignerait ceux qui ont répondu.",

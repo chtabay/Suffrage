@@ -27,7 +27,7 @@ import {
 } from "@/lib/db/events";
 import { intlLocale } from "@/i18n/locales";
 import { OrgShell } from "./SpacesHome";
-import { CREAM, FONT_DISPLAY, GREEN, INK, MUTED, PAPER, REDTXT, SUBINK, YELLOW } from "./theme";
+import { CREAM, FONT_DISPLAY, GREEN, GREENTXT, INK, MUTED, PAPER, REDTXT, SUBINK, YELLOW } from "./theme";
 
 const card = {
   background: PAPER,
@@ -261,6 +261,15 @@ export default function ConsultationsManager({ spaceId }: { spaceId: string }) {
         </span>
         <span>{e.secret_ballot ? `🔒 ${tx("sealed")}` : `👁 ${tx("named")}`}</span>
         {stats?.[e.id] && <span>{t("questionCount", { count: stats[e.id].questions })}</span>}
+        {/* En SCELLÉ, le ratio n'apparaît qu'à partir de 5 convoqués : « 2/3 »
+            sur trois personnes est déjà une désignation partielle. En NOMINATIF,
+            sans condition — l'animateur a le droit de voir, et le votant en est
+            averti avant de voter. Même règle que sur le tableau de bord. */}
+        {stats?.[e.id] && (!e.secret_ballot || stats[e.id].convened >= 5) && (
+          <span style={{ color: stats[e.id].signed > 0 ? GREENTXT : MUTED }}>
+            {t("signedRatio", { signed: stats[e.id].signed, convened: stats[e.id].convened })}
+          </span>
+        )}
       </div>
       {e.closes_at && (
         <div style={{ marginTop: 5, fontSize: 12.5, color: MUTED }}>{fmt.format(new Date(e.closes_at))}</div>
