@@ -1191,7 +1191,6 @@ export default function CreateScreen({ ctrl }: { ctrl: ScrutinController }) {
             {state.spaceId && (
               <CreateAudienceBlock
                 spaceId={state.spaceId}
-                segments={state.audienceSegments}
                 sealed={state.audienceSealed}
                 onSegments={setAudienceSegments}
                 onSealed={setAudienceSealed}

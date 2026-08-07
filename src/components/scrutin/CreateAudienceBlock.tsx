@@ -17,15 +17,16 @@ import { getSpace } from "@/lib/db/events";
 import { listSegments, type Segment } from "@/lib/db/circles";
 import { FONT_BODY, FONT_DISPLAY, INK, MUTED, SUBINK } from "./theme";
 
+// Le bloc n'est PAS contrôlé : il tient sa propre cible et pousse la liste
+// d'identifiants au parent par `onSegments`. Pas de prop `segments` en entrée,
+// donc — elle promettrait un pilotage depuis le parent qui n'existe pas.
 export default function CreateAudienceBlock({
   spaceId,
-  segments: selected,
   sealed,
   onSegments,
   onSealed,
 }: {
   spaceId: string;
-  segments: string[];
   sealed: boolean;
   onSegments: (ids: string[]) => void;
   onSealed: (sealed: boolean) => void;
