@@ -194,6 +194,30 @@ export async function assignSegment(memberId: string, segmentId: string): Promis
   if (error) throw error;
 }
 
+/**
+ * Affecte un segment à PLUSIEURS membres en un seul appel.
+ *
+ * Le geste coûtait douze écritures réseau pour douze personnes — trois clics
+ * chacune, trente-six pour une saison. Or la gestion d'un groupe doit rester
+ * faisable SEUL, et ce sera le cas majoritaire : quand une personne fait tout,
+ * le coût dominant n'est pas la coordination, c'est la répétition.
+ *
+ * La base vérifie la propriété du segment ET n'affecte que des membres du même
+ * groupe — un identifiant glissé dans le tableau ne fait entrer personne d'un
+ * autre groupe dans le public d'une consultation. Idempotente : le nombre rendu
+ * est celui des rattachements réellement créés.
+ */
+export async function assignSegmentBulk(segmentId: string, memberIds: string[]): Promise<number> {
+  if (!memberIds.length) return 0;
+  const supabase = createClient();
+  const { data, error } = await supabase.rpc("assign_segment_bulk", {
+    p_segment_id: segmentId,
+    p_member_ids: memberIds,
+  });
+  if (error) throw error;
+  return (data as number | null) ?? 0;
+}
+
 export async function unassignSegment(memberId: string, segmentId: string): Promise<void> {
   const supabase = createClient();
   const { error } = await supabase
