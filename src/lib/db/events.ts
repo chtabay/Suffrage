@@ -30,8 +30,12 @@ export interface Member {
   email: string | null;
   district: number | null;
   weight: number;
-  /** Jeton stable du membre — son adresse à lui, `/m/<token>`, indépendante de tout événement. */
-  token: string;
+  // Le jeton personnel du membre N'EST PLUS de ce type : il ne descend plus au
+  // navigateur (voir MEMBER_COLS). Le déclarer ici mentirait au compilateur —
+  // il vaudrait `undefined` à l'exécution — et la première personne à s'y fier
+  // rouvrirait la brèche. Le retirer du type, c'est faire garder la règle par
+  // `tsc` plutôt que par la mémoire. Les chemins SERVEUR qui en ont besoin
+  // (l'envoi des convocations, le lien de retrait) le relisent eux-mêmes.
   self_joined: boolean;
   consent_at: string | null;
   consent_source: string | null;
@@ -143,7 +147,21 @@ export interface EventContext {
 
 const SPACE_COLS =
   "id, name, created_at, join_open, join_token, join_cap, join_closes_at, pitch, solicit_per_day, chat_url";
-const MEMBER_COLS = "id, space_id, name, email, district, weight, token, self_joined, consent_at, consent_source";
+// ⚠️ `token` EST VOLONTAIREMENT ABSENT, et il ne doit jamais y revenir.
+//
+// C'est le jeton personnel du membre : celui de sa page `/m/<token>`, donc un
+// TITRE D'ACCÈS à son identité. Tant qu'il descendait ici, la réponse réseau de
+// `listMembers` en livrait un par membre au navigateur de l'animateur — et
+// `get_member_home(p_token)` est exécutable par `anon` et rend, pour chaque
+// consultation, un booléen `voted` calculé sur l'ÉMARGEMENT quand elle est
+// scellée. Jeton par jeton, l'animateur reconstituait donc nominativement la
+// liste des émargeants d'une consultation à bulletin scellé : la promesse faite
+// au votant tombait par un chemin que le correctif du 2026-08-07 n'avait pas vu.
+//
+// Vérifié avant retrait : aucun composant client ne lit `Member.token`. Le seul
+// `copy(c.token)` de l'éditeur porte sur un `EventMember` — le jeton de
+// CONVOCATION, que l'animateur a le droit de distribuer puisqu'il l'envoie.
+const MEMBER_COLS = "id, space_id, name, email, district, weight, self_joined, consent_at, consent_source";
 const EVENT_COLS =
   "id, space_id, title, description, mode, status, current_poll_id, opens_at, closes_at, created_at, enroll_open, enroll_cap, enroll_closes_at, enroll_token, quorum, secret_ballot, audience_label";
 const EVENT_MEMBER_COLS =
