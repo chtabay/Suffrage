@@ -33,7 +33,7 @@ import { OrgShell } from "./SpacesHome";
 import EventResults from "./EventResults";
 import QuestionComposer, { type ComposedQuestion } from "./QuestionComposer";
 import { getNamedAnswers, type NamedAnswers } from "@/lib/db/circles";
-import { CREAM, FONT_BODY, FONT_DISPLAY, GREEN, GREENTXT, INK, MUTED, REDTXT, SUBINK } from "./theme";
+import { CREAM, FONT_BODY, FONT_DISPLAY, GREEN, GREENTXT, INK, MUTED, REDTXT, SUBINK, YELLOW } from "./theme";
 
 const card = {
   background: "#fff",
@@ -72,6 +72,12 @@ export default function EventEditor({ eventId }: { eventId: string }) {
   const [busy, setBusy] = useState(false);
   const [copied, setCopied] = useState<string | null>(null);
   const [sendMsg, setSendMsg] = useState("");
+  // Un envoi qui échoue ne se peint pas en vert. Le message était rendu en
+  // GREENTXT quoi qu'il arrive : « l'envoi d'email n'est pas configuré »
+  // s'affichait comme une réussite.
+  const [sendKo, setSendKo] = useState(false);
+  /** Avancement de l'envoi par lots : ce qui est parti, sur combien. */
+  const [sendProg, setSendProg] = useState<{ done: number; total: number } | null>(null);
   const [sending, setSending] = useState(false);
   const [reminding, setReminding] = useState(false);
   const [capInput, setCapInput] = useState("");
@@ -305,26 +311,59 @@ export default function EventEditor({ eventId }: { eventId: string }) {
     setQuorumInput(n ? String(n) : "");
   };
 
-  const sendConvocations = async () => {
+  /**
+   * Envoie les convocations PAR LOTS, en rappelant la route tant qu'il en reste.
+   *
+   * La route ne traite qu'une vingtaine de personnes par appel et marque
+   * `invited_at` à chaque lot : c'est ce qui rend l'opération reprenable. Avant,
+   * une seule requête tentait les 200 d'un coup, expirait vers la 40e, et
+   * laissait le pire état — les emails partis, aucune ligne marquée.
+   *
+   * `resend` n'est vrai que sur un renvoi explicite : par défaut la route ne
+   * vise que ceux qui n'ont encore rien reçu.
+   */
+  // Qui reste à prévenir, et qui l'a déjà été. `invited_at` est enfin fiable :
+  // la route le marque lot par lot au lieu d'un seul UPDATE final jamais atteint.
+  const aConvoquer = convened.filter((c) => c.email && !c.invited_at).length;
+  const dejaConvoques = convened.filter((c) => c.email && c.invited_at).length;
+
+  const sendConvocations = async (resend = false) => {
     if (sending) return;
     setSending(true);
     setSendMsg("");
+    setSendKo(false);
+    let envoyes = 0;
+    let echecs = 0;
     try {
-      const res = await fetch(`/api/events/${eventId}/convoke`, {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ locale }),
-      });
-      if (res.ok) {
-        const d = (await res.json()) as { sent: number; total: number };
-        setSendMsg(t("sentResult", { sent: d.sent, total: d.total }));
-        load();
-      } else {
-        setSendMsg(t("emailError"));
+      // Borne de sécurité : jamais de boucle sans fin si la route cessait de
+      // décrémenter le reste.
+      for (let tour = 0; tour < 200; tour++) {
+        const res = await fetch(`/api/events/${eventId}/convoke`, {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ locale, resend: resend && tour === 0 }),
+        });
+        if (!res.ok) {
+          setSendKo(true);
+          setSendMsg(res.status === 503 ? t("emailError") : t("sentPartial", { sent: envoyes, failed: echecs + 1 }));
+          break;
+        }
+        const d = (await res.json()) as { sent: number; failed: number; remaining: number };
+        envoyes += d.sent;
+        echecs += d.failed;
+        setSendProg({ done: envoyes + echecs, total: envoyes + echecs + d.remaining });
+        if (d.remaining === 0) {
+          setSendKo(echecs > 0);
+          setSendMsg(echecs > 0 ? t("sentPartial", { sent: envoyes, failed: echecs }) : t("sentResult", { sent: envoyes, total: envoyes }));
+          break;
+        }
       }
+      load();
     } catch {
+      setSendKo(true);
       setSendMsg(t("emailError"));
     }
+    setSendProg(null);
     setSending(false);
   };
 
@@ -496,14 +535,36 @@ export default function EventEditor({ eventId }: { eventId: string }) {
                 </div>
               ))}
             </div>
-            {convened.some((c) => c.email) && (
+            {/* LE BOUTON DIT SA CIBLE, ET NE VISE QUE CEUX QUI N'ONT RIEN REÇU.
+                Il envoyait à TOUT LE MONDE à chaque clic — y compris à ceux qui
+                avaient déjà voté, et même sur une consultation close. Le renvoi
+                intégral existe toujours, mais il est devenu un second geste,
+                nommé, qui dit combien de personnes seront réécrites. */}
+            {/* Rien ne fermait ce bouton sur une consultation CLOSE : il
+                convoquait alors vers un vote qui refuse le bulletin. */}
+            {ev.status !== "closed" && aConvoquer > 0 && (
               <button
-                onClick={sendConvocations}
+                onClick={() => sendConvocations()}
                 disabled={sending}
-                style={{ ...btn("#FFB627", INK), marginTop: 12, opacity: sending ? 0.6 : 1, cursor: sending ? "wait" : "pointer" }}
+                style={{ ...btn(YELLOW, INK), marginTop: 12, opacity: sending ? 0.6 : 1, cursor: sending ? "wait" : "pointer" }}
               >
-                {sending ? t("sendingConvocations") : convened.some((c) => c.invited_at) ? t("resendConvocations") : t("sendConvocations")}
+                {sending ? t("sendingConvocations") : t("sendConvocationsN", { count: aConvoquer })}
               </button>
+            )}
+            {ev.status !== "closed" && aConvoquer === 0 && dejaConvoques > 0 && (
+              <div style={{ marginTop: 12, display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
+                <span style={{ fontSize: 13, fontWeight: 700, color: SUBINK }}>{t("allConvoked", { count: dejaConvoques })}</span>
+                <button
+                  onClick={() => {
+                    if (typeof window !== "undefined" && !window.confirm(t("resendConfirm", { count: dejaConvoques }))) return;
+                    void sendConvocations(true);
+                  }}
+                  disabled={sending}
+                  style={{ ...btn("#fff", INK), opacity: sending ? 0.6 : 1, cursor: sending ? "wait" : "pointer" }}
+                >
+                  {sending ? t("sendingConvocations") : t("resendConvocations")}
+                </button>
+              </div>
             )}
             {ev.status === "open" && convened.some((c) => c.email && c.invited_at) && (
               <button
@@ -514,7 +575,16 @@ export default function EventEditor({ eventId }: { eventId: string }) {
                 {reminding ? t("remindingNonVoters") : t("remindNonVoters")}
               </button>
             )}
-            {sendMsg && <div style={{ marginTop: 10, fontWeight: 700, fontSize: 13.5, color: GREENTXT }}>{sendMsg}</div>}
+            {sendProg && (
+              <div style={{ marginTop: 10, fontWeight: 700, fontSize: 13.5, color: SUBINK }} aria-live="polite">
+                {t("sentProgress", { done: sendProg.done, total: sendProg.total })}
+              </div>
+            )}
+            {sendMsg && (
+              <div role={sendKo ? "alert" : undefined} style={{ marginTop: 10, fontWeight: 700, fontSize: 13.5, color: sendKo ? REDTXT : GREENTXT }}>
+                {sendMsg}
+              </div>
+            )}
           </>
         )}
       </div>

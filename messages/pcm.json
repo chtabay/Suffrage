@@ -950,6 +950,11 @@
     "permissionsNote": "Placet dey request di minimal permissions (<code>commands</code>, <code>chat:write</code>) to post and update voting messages. Ballots dey stay for web; no voter need account. Type <code>/placet help</code> for Slack anytime."
   },
   "Org": {
+    "sendConvocationsN": "{count, plural, one {Convene # person} other {Convene di # people wey never hear}}",
+    "allConvoked": "{count, plural, one {# person don receive im invitation.} other {All di # people don receive dia invitation.}}",
+    "resendConfirm": "You wan resend di invitation give all {count} people, including dose wey don answer?",
+    "sentProgress": "Dey send… {done} / {total}",
+    "sentPartial": "{sent} invitation(s) don go, {failed} fail. Try again: na only di people wey never hear go receive am.",
     "abstainOption": "Abstention option",
     "abstainNone": "none",
     "abstainHint": "E dey count for quorum, but e comot from di majority calculation — na di expressed-votes rule.",

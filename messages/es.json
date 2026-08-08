@@ -950,6 +950,11 @@
     "permissionsNote": "Placet solicita los permisos mínimos (<code>commands</code>, <code>chat:write</code>) para publicar y actualizar los mensajes de votación. Las papeletas se quedan en la web; ningún votante necesita una cuenta. Escribe <code>/placet ayuda</code> en Slack en cualquier momento."
   },
   "Org": {
+    "sendConvocationsN": "{count, plural, one {Convocar a # persona} other {Convocar a las # personas aún no avisadas}}",
+    "allConvoked": "{count, plural, one {# persona ha recibido su convocatoria.} other {Las # personas han recibido su convocatoria.}}",
+    "resendConfirm": "¿Reenviar la convocatoria a las {count} personas, incluidas las que ya respondieron?",
+    "sentProgress": "Enviando… {done} / {total}",
+    "sentPartial": "{sent} convocatoria(s) enviada(s), {failed} con error. Inténtalo de nuevo: solo se enviará a quienes aún no fueron avisados.",
     "abstainOption": "Opción de abstención",
     "abstainNone": "ninguna",
     "abstainHint": "Cuenta para el quórum, pero sale del cálculo de la mayoría: es la regla de los votos emitidos válidos.",
