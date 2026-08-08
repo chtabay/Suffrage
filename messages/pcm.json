@@ -950,6 +950,10 @@
     "permissionsNote": "Placet dey request di minimal permissions (<code>commands</code>, <code>chat:write</code>) to post and update voting messages. Ballots dey stay for web; no voter need account. Type <code>/placet help</code> for Slack anytime."
   },
   "Org": {
+    "abstainOption": "Abstention option",
+    "abstainNone": "none",
+    "abstainHint": "E dey count for quorum, but e comot from di majority calculation — na di expressed-votes rule.",
+    "verdictDetailExpressed": "{share}% of di votes wey express · threshold: {threshold} · {abstained} abstention(s)",
     "signedRatio": "{signed}/{convened} don answer",
     "sealedResultsLater": "Results go show for di count",
     "sealedResultsWhy": "For consultation wey get anonymous answers, results dey show only when e close. If you read dem while di vote dey go, you fit follow di answers one by one, and know who answer wetin.",

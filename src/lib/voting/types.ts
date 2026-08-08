@@ -70,6 +70,20 @@ export interface Option {
   /** Justification courte de l'option (saisie à la création ou par un votant). */
   note?: string;
   /**
+   * Cette option est une ABSTENTION : elle est comptée comme un bulletin déposé,
+   * mais RETIRÉE du dénominateur du verdict — c'est la règle statutaire ordinaire
+   * (« majorité des suffrages exprimés »).
+   *
+   * Sans ce drapeau, une résolution recueillant 48 pour, 30 contre et 22
+   * abstentions était déclarée REJETÉE (48×2 = 96, sous 100), là où la règle
+   * usuelle la déclare ADOPTÉE (48/78 = 61,5 %). Le préréglage d'assemblée
+   * générale proposait pourtant « Abstention » de lui-même.
+   *
+   * Facultatif à dessein : sur un scrutin qui n'en pose pas, rien ne change —
+   * et les scrutins déjà tenus gardent le verdict sous lequel ils ont été lus.
+   */
+  abstain?: boolean;
+  /**
    * LOCALISATION : lien de carte (Google/Apple Maps, OSM…), distinct de `url`.
    * Un lieu se situe ; une illustration se regarde. Quand des options sont
    * localisées, le scrutin affiche une carte pour les situer les unes / autres.

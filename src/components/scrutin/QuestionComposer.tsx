@@ -41,6 +41,7 @@ export function compose(
   method: string,
   majority: number,
   slots?: Option[],
+  abstainIdx?: number | null,
 ): ComposedQuestion {
   // Un créneau est déjà une Option complète : SlotPicker y cuit le libellé lisible
   // (« lun. 12 mai ») dans `name`, en plus de `at`/`end`. C'est ce qui permet à
@@ -51,9 +52,12 @@ export function compose(
         .map((l) => l.trim())
         .filter(Boolean)
         .slice(0, 8)
-        .map((l) => {
+        .map((l, i) => {
           const { icon, name } = splitLeadingEmoji(l, "•");
-          return { icon, name: name.slice(0, 80) };
+          // L'abstention est portée par l'OPTION, pas par sa position ni par son
+          // texte : l'animateur peut la renommer, le drapeau suit. Elle sera
+          // comptée comme un bulletin déposé et retirée du dénominateur.
+          return { icon, name: name.slice(0, 80), ...(i === abstainIdx ? { abstain: true } : {}) };
         });
   // Résolution d'affectation : bulletin = classement (borda → mode « rank »), le
   // dépouillement passe par le moteur d'affectation.
@@ -89,8 +93,15 @@ export default function QuestionComposer({
   const [kind, setKind] = useState<"text" | "slot">("text");
   const [method, setMethod] = useState("fptp");
   const [majority, setMajority] = useState(50);
+  // Quelle option vaut ABSTENTION. Rien par défaut : sur un vote ordinaire la
+  // question ne se pose pas, et ne rien poser laisse le comportement d'avant.
+  const [abstainIdx, setAbstainIdx] = useState<number | null>(null);
 
   const methods = kind === "slot" ? SYSTEM_ORDER.filter((k) => !SLOT_EXCLUDED.includes(k)) : SYSTEM_ORDER;
+  // Un verdict « adoptée / rejetée » n'a de sens qu'en décompte majoritaire :
+  // ailleurs (Condorcet, jugement majoritaire, approbation…) il n'y a pas de
+  // seuil de majorité à franchir, donc pas de dénominateur à discuter.
+  const isMajority = kind === "text" && !method.startsWith("assign:") && recipeForSystem(method).counting === "majority";
 
   const switchKind = (next: "text" | "slot") => {
     setKind(next);
@@ -102,16 +113,23 @@ export default function QuestionComposer({
 
   const setOpt = (i: number, v: string) => setOpts((a) => a.map((o, j) => (j === i ? v : o)));
   const addOpt = () => setOpts((a) => (a.length < 8 ? [...a, ""] : a));
-  const removeOpt = (i: number) => setOpts((a) => (a.length > 2 ? a.filter((_, j) => j !== i) : a));
+  const removeOpt = (i: number) => {
+    setOpts((a) => (a.length > 2 ? a.filter((_, j) => j !== i) : a));
+    // Retirer une ligne décale toutes les suivantes : sans ce recalage, le
+    // drapeau désignerait silencieusement une AUTRE option — donc un autre
+    // dénominateur, sur un verdict.
+    setAbstainIdx((x) => (x === null ? null : x === i ? null : x > i ? x - 1 : x));
+  };
   const canSubmit =
     q.trim().length > 0 &&
     (kind === "slot" ? slots.length >= 2 : opts.filter((o) => o.trim()).length >= 2);
 
   const submit = async () => {
     if (!canSubmit || busy) return;
-    await onSubmit(compose(q, opts, method, majority, kind === "slot" ? slots : undefined));
+    await onSubmit(compose(q, opts, method, majority, kind === "slot" ? slots : undefined, abstainIdx));
     setQ("");
     setOpts(presetOptions());
+    setAbstainIdx(null);
     setSlots([]);
   };
 
@@ -176,16 +194,54 @@ export default function QuestionComposer({
             </div>
           ))}
         </div>
+        {/* QUELLE OPTION VAUT ABSTENTION — visible seulement là où un verdict
+            existe (décompte majoritaire). Une abstention est un bulletin
+            DÉPOSÉ mais RETIRÉ du dénominateur : c'est la règle statutaire
+            ordinaire, et c'est ce qui manquait. Le dire ici plutôt que de le
+            deviner évite les deux erreurs : compter une abstention comme un
+            « contre », ou l'oublier dans le quorum. */}
+        {isMajority && opts.filter((o) => o.trim()).length >= 2 && (
+          <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap", marginTop: 9 }}>
+            <span style={{ fontWeight: 700, fontSize: 13, color: SUBINK }}>{t("abstainOption")}</span>
+            <select
+              value={abstainIdx ?? ""}
+              onChange={(e) => setAbstainIdx(e.target.value === "" ? null : Number(e.target.value))}
+              aria-label={t("abstainOption")}
+              style={{ fontFamily: FONT_BODY, fontSize: 13.5, padding: "7px 10px", border: `2px solid ${INK}`, borderRadius: 10, background: "#fff", color: INK }}
+            >
+              <option value="">{t("abstainNone")}</option>
+              {opts.map((o, i) =>
+                o.trim() ? (
+                  <option key={i} value={i}>
+                    {o.trim().slice(0, 40)}
+                  </option>
+                ) : null,
+              )}
+            </select>
+            <span style={{ fontSize: 12, color: MUTED, lineHeight: 1.45, flex: "1 1 220px" }}>{t("abstainHint")}</span>
+          </div>
+        )}
+
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 7 }}>
           {opts.length < 8 && (
             <button onClick={addOpt} style={{ border: `2px dashed ${INK}`, background: "none", color: SUBINK, cursor: "pointer", fontSize: 13, fontWeight: 700, padding: "7px 12px", borderRadius: 10 }}>
               {t("addOption")}
             </button>
           )}
-          <button onClick={() => setOpts(presetOptions())} style={{ border: `2px dashed ${INK}`, background: "none", color: SUBINK, cursor: "pointer", fontSize: 13, fontWeight: 700, padding: "7px 12px", borderRadius: 10 }}>
+          <button
+            onClick={() => {
+              // Le préréglage POSE l'abstention en même temps que la troisième
+              // ligne : proposer « Abstention » sans la déclarer était exactement
+              // ce qui inversait le verdict.
+              const p = presetOptions();
+              setOpts(p);
+              setAbstainIdx(p.length - 1);
+            }}
+            style={{ border: `2px dashed ${INK}`, background: "none", color: SUBINK, cursor: "pointer", fontSize: 13, fontWeight: 700, padding: "7px 12px", borderRadius: 10 }}
+          >
             {t("presetButton")}
           </button>
-          <button onClick={() => setOpts(["", ""])} style={{ border: `2px dashed ${INK}`, background: "none", color: MUTED, cursor: "pointer", fontSize: 13, fontWeight: 700, padding: "7px 12px", borderRadius: 10 }}>
+          <button onClick={() => { setOpts(["", ""]); setAbstainIdx(null); }} style={{ border: `2px dashed ${INK}`, background: "none", color: MUTED, cursor: "pointer", fontSize: 13, fontWeight: 700, padding: "7px 12px", borderRadius: 10 }}>
             {t("clearOptions")}
           </button>
         </div>

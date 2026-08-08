@@ -29,7 +29,10 @@ function meetsThreshold(support: number, total: number, threshold: number): bool
 
 interface Verdict {
   adopted: boolean;
+  /** Part du vainqueur dans les SUFFRAGES EXPRIMÉS (abstentions retirées). */
   sharePct: number;
+  /** Bulletins d'abstention, comptés pour le quorum et retirés du dénominateur. */
+  abstained: number;
   threshold: number;
 }
 
@@ -87,14 +90,35 @@ export default function EventResults({
           const result = compute({ recipe: r.recipe, options: r.options, ballots: expanded }, locale);
           // Verdict (majorité qualifiée) — seulement pour le décompte majoritaire,
           // seul cadre où « Pour/Contre + seuil » a un sens standard.
+          //
+          // LE DÉNOMINATEUR EST LES SUFFRAGES EXPRIMÉS, pas les bulletins déposés.
+          // Une abstention est un bulletin qu'on a bien reçu — il compte pour le
+          // quorum — mais qui ne se prononce pas : l'inclure au dénominateur
+          // revenait à la compter comme un « contre ». Sur 48 pour / 30 contre /
+          // 22 abstentions, cela donnait 48×2 = 96 < 100 → REJETÉE, quand la
+          // règle statutaire ordinaire donne 48/78 = 61,5 % → ADOPTÉE. Le
+          // préréglage d'assemblée générale proposait pourtant « Abstention ».
+          //
+          // Sans option déclarée abstention, `abstains` est vide et le calcul est
+          // celui d'avant : les scrutins déjà tenus gardent le verdict sous lequel
+          // ils ont été lus. On ne réécrit pas une décision passée.
           let verdict: Verdict | null = null;
           if (result && r.recipe.counting === "majority" && expanded.length) {
-            const winnerIdx = result.bars[0]?.idx ?? 0;
-            const support = expanded.filter((b) => b.ranking[0] === winnerIdx).length;
+            const abstains = new Set(
+              r.options.map((o, i) => (o.abstain ? i : -1)).filter((i) => i >= 0),
+            );
+            const expressed = abstains.size
+              ? expanded.filter((b) => !abstains.has(b.ranking[0]))
+              : expanded;
+            // Le vainqueur se cherche parmi les options qui se PRONONCENT : si
+            // l'abstention arrive en tête, elle ne « gagne » pas la résolution.
+            const winnerIdx = (result.bars.find((b) => !abstains.has(b.idx)) ?? result.bars[0])?.idx ?? 0;
+            const support = expressed.filter((b) => b.ranking[0] === winnerIdx).length;
             verdict = {
-              adopted: meetsThreshold(support, expanded.length, r.recipe.threshold),
-              sharePct: Math.round((100 * support) / expanded.length),
+              adopted: expressed.length > 0 && meetsThreshold(support, expressed.length, r.recipe.threshold),
+              sharePct: expressed.length ? Math.round((100 * support) / expressed.length) : 0,
               threshold: r.recipe.threshold,
+              abstained: expanded.length - expressed.length,
             };
           }
           const required = quorum > 0 ? Math.ceil((quorum / 100) * convenedCount) : 0;
@@ -210,7 +234,13 @@ export default function EventResults({
                     : badge("#fdecec", REDTXT, t("rejected")))}
                 {d.verdict && d.quorumMet && (
                   <span style={{ fontSize: 12, color: MUTED, fontWeight: 600 }}>
-                    {t("verdictDetail", { share: d.verdict.sharePct, threshold: thresholdLabel(d.verdict.threshold) })}
+                    {d.verdict.abstained > 0
+                      ? t("verdictDetailExpressed", {
+                          share: d.verdict.sharePct,
+                          threshold: thresholdLabel(d.verdict.threshold),
+                          abstained: d.verdict.abstained,
+                        })
+                      : t("verdictDetail", { share: d.verdict.sharePct, threshold: thresholdLabel(d.verdict.threshold) })}
                   </span>
                 )}
               </div>
