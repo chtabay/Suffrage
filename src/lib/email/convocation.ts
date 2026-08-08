@@ -19,10 +19,10 @@ type Parts = { subject: string; intro: string; cta: string; outro: string };
 // Le pied de retrait est localisé ici et non dans chaque gabarit : il doit être
 // impossible d'ajouter un email en oubliant de le mettre.
 const LEAVE_LINE: Record<string, string> = {
-  fr: "Vous ne souhaitez plus faire partie de ce cercle ? Partez en un clic :",
-  en: "No longer want to be part of this circle? Leave in one click:",
-  es: "¿Ya no quieres formar parte de este círculo? Sal con un clic:",
-  pcm: "You no wan dey dis circle again? Comot with one click:",
+  fr: "Vous ne souhaitez plus faire partie de ce groupe ? Partez en un clic :",
+  en: "No longer want to be part of this group? Leave in one click:",
+  es: "¿Ya no quieres formar parte de este grupo? Sal con un clic:",
+  pcm: "You no wan dey dis group again? Comot with one click:",
 };
 
 // Gabarit HTML commun. Logotype texte (pas d'emoji), cohérent avec la marque.
