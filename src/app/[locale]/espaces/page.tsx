@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import SpacesHome from "@/components/scrutin/SpacesHome";
 
 export const metadata: Metadata = {
-  title: "Placet — Mes cercles",
+  title: "Placet — Mes groupes",
   robots: { index: false, follow: false },
 };
 
