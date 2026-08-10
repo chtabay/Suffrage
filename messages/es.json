@@ -91,7 +91,8 @@
     "methods": "Los métodos",
     "create": "Crear",
     "signIn": "Iniciar sesión",
-    "signOut": "Cerrar sesión"
+    "signOut": "Cerrar sesión",
+    "games": "Jugar"
   },
   "Home": {
     "badge": "Decidir en grupo, fácilmente",
@@ -154,7 +155,10 @@
       "s3Label": "PASO 3",
       "s3Title": "Vota y recuenta",
       "s3Text": "Cada uno vota, el ganador se calcula con el método real — y te explicamos por qué."
-    }
+    },
+    "gamesTitle": "Jugar juntos",
+    "gamesText": "El mismo motor también sirve para divertirse: juegos en grupo, un enlace que compartir, sin cuenta.",
+    "gamesCta": "Ver los juegos"
   },
   "Create": {
     "pageTitle": "¿Qué decisión vas a tomar?",
@@ -175,7 +179,12 @@
     "proposalsHeading": "LAS PROPUESTAS",
     "changeEmoji": "Cambiar el emoji",
     "optionFallbackPlaceholder": "Otra opción…",
-    "optionPlaceholders": ["La montaña", "La costa", "Una gran ciudad", "El campo"],
+    "optionPlaceholders": [
+      "La montaña",
+      "La costa",
+      "Una gran ciudad",
+      "El campo"
+    ],
     "newOptionDefault": "Nueva opción",
     "attachIllustrationTitle": "Detalles de la opción: enlace, lugar, comentario",
     "attachIllustrationAria": "Detalles de la opción",
@@ -654,40 +663,80 @@
         "tagline": "Cada uno elige por turno, en un orden sorteado.",
         "strength": "Simple e indiscutible",
         "how": "Se sortea un orden de paso — a partir del token de la votación, así que cualquiera puede verificarlo. Cada persona, en su turno, recibe su favorito entre lo que queda.",
-        "pros": ["Imposible de manipular: clasificar con sinceridad siempre es lo mejor", "Muy fácil de explicar y aceptar", "Sorteo verificable, sin favoritismos posibles"],
-        "cons": ["Los últimos del orden heredan las sobras", "La suerte pesa mucho en el resultado", "Ignora la intensidad de las preferencias"]
+        "pros": [
+          "Imposible de manipular: clasificar con sinceridad siempre es lo mejor",
+          "Muy fácil de explicar y aceptar",
+          "Sorteo verificable, sin favoritismos posibles"
+        ],
+        "cons": [
+          "Los últimos del orden heredan las sobras",
+          "La suerte pesa mucho en el resultado",
+          "Ignora la intensidad de las preferencias"
+        ]
       },
       "optimal_sum": {
         "name": "Satisfacción máxima",
         "tagline": "El reparto que contenta a más gente, calculado con exactitud.",
         "strength": "Óptimo colectivo",
         "how": "Cada asignación «cuesta» el puesto que ocupa en la clasificación de la persona (1.ª opción = 0, 2.ª = 1…). El algoritmo húngaro encuentra el reparto con el coste total mínimo: la mejor satisfacción de conjunto, exactamente.",
-        "pros": ["La mejor satisfacción total posible", "Sin ningún sorteo", "Resultado exacto, no aproximado"],
-        "cons": ["Puede sacrificar a una persona por el bien común", "Clasificaciones tácticas posibles", "Menos intuitivo de contar"]
+        "pros": [
+          "La mejor satisfacción total posible",
+          "Sin ningún sorteo",
+          "Resultado exacto, no aproximado"
+        ],
+        "cons": [
+          "Puede sacrificar a una persona por el bien común",
+          "Clasificaciones tácticas posibles",
+          "Menos intuitivo de contar"
+        ]
       },
       "top_trading_cycles": {
         "name": "Círculo de intercambios",
         "tagline": "Cada uno ya posee algo; intercambios en ciclos donde todos ganan.",
         "strength": "Nadie pierde",
         "how": "Cada uno ya posee una cosa (la N-ésima persona de la lista posee la N-ésima cosa) y clasifica todas las cosas. El algoritmo organiza ciclos de intercambio sobre los favoritos restantes hasta terminar. Nadie acaba peor que con su posesión inicial.",
-        "pros": ["Nadie acaba peor que al principio", "Clasificar con sinceridad siempre es lo mejor", "Se realizan todos los intercambios donde todos ganan"],
-        "cons": ["Cada uno necesita una posesión inicial", "Exactamente tantas cosas como personas", "El resultado depende mucho de las dotaciones"]
+        "pros": [
+          "Nadie acaba peor que al principio",
+          "Clasificar con sinceridad siempre es lo mejor",
+          "Se realizan todos los intercambios donde todos ganan"
+        ],
+        "cons": [
+          "Cada uno necesita una posesión inicial",
+          "Exactamente tantas cosas como personas",
+          "El resultado depende mucho de las dotaciones"
+        ]
       },
       "stable_roommates": {
         "name": "Parejas estables",
         "tagline": "Parejas que nadie tiene interés en abandonar.",
         "strength": "Parejas sólidas",
         "how": "Cada uno clasifica a los demás participantes. El algoritmo de Irving busca parejas estables: ningún par de personas se preferiría mutuamente antes que a sus parejas asignadas. Puede demostrar que no existe ningún emparejamiento estable — entonces se anuncia la alternativa: turnos de elección en un orden sorteado.",
-        "pros": ["Ninguna pareja quiere «fugarse» junta", "Basado en las preferencias de ambos lados", "Detecta honestamente los casos imposibles"],
-        "cons": ["No siempre existe un emparejamiento estable", "Exige un número par", "Clasificar a todos puede llevar tiempo"]
+        "pros": [
+          "Ninguna pareja quiere «fugarse» junta",
+          "Basado en las preferencias de ambos lados",
+          "Detecta honestamente los casos imposibles"
+        ],
+        "cons": [
+          "No siempre existe un emparejamiento estable",
+          "Exige un número par",
+          "Clasificar a todos puede llevar tiempo"
+        ]
       },
       "gale_shapley": {
         "name": "Dos grupos (Parcoursup)",
         "tagline": "Dos lados se clasifican mutuamente; emparejamiento estable.",
         "strength": "Estable, estilo Parcoursup",
         "how": "Dos grupos se clasifican mutuamente (candidatos y formaciones, mentorizados y mentores…). La aceptación diferida (Gale-Shapley) produce un emparejamiento estable: ningún dúo se preferiría mutuamente antes que su asignación. El lado 1 propone — el método lo favorece; cada entrada del lado 2 puede acoger a varias personas (capacidades).",
-        "pros": ["Siempre un emparejamiento estable", "Gestiona capacidades (varias plazas por entrada del lado 2)", "Clasificar con sinceridad es óptimo para el lado 1"],
-        "cons": ["Favorece estructuralmente al lado que propone", "El lado 2 puede clasificar de forma táctica", "Quedan sin asignar si faltan plazas"]
+        "pros": [
+          "Siempre un emparejamiento estable",
+          "Gestiona capacidades (varias plazas por entrada del lado 2)",
+          "Clasificar con sinceridad es óptimo para el lado 1"
+        ],
+        "cons": [
+          "Favorece estructuralmente al lado que propone",
+          "El lado 2 puede clasificar de forma táctica",
+          "Quedan sin asignar si faltan plazas"
+        ]
       }
     }
   },
@@ -885,18 +934,190 @@
   },
   "Methods": {
     "twoRounds": "a dos vueltas",
-    "family": { "fptp": "Sufragio directo · 1 vuelta", "runoff": "Sufragio directo · 2 vueltas", "condorcet": "Clasificación · duelos", "condorcet_random": "Clasificación · duelos + sorteo", "mj": "Mención · mediana", "approval": "Casillas de verificación", "borda": "Clasificación · puntos", "proportional": "Escaños · d'Hondt", "indirect": "Sufragio indirecto", "list": "Listas · prima de mayoría" },
-    "whenToUse": { "fptp": "Decidir rápido: una vuelta, gana quien más votos tiene.", "runoff": "Garantizar una mayoría absoluta, con una segunda vuelta si hace falta.", "approval": "Varias opciones aceptables: cada uno marca todo lo que le convenga.", "borda": "Favorecer el consenso amplio a partir de una clasificación.", "condorcet": "Designar al ganador de todos los duelos (verdadero consenso).", "condorcet_random": "Condorcet, deshaciendo los bloqueos por sorteo.", "mj": "Juzgar por menciones; limita el voto táctico.", "proportional": "Repartir escaños en proporción a los votos (asamblea).", "list": "Votar por listas con prima de mayoría (municipales).", "indirect": "Votar por distritos / grandes electores." },
-    "fptp": { "name": "Mayoritario a una vuelta", "tagline": "Gana quien más votos tiene.", "strength": "Simple y rápido", "how": "Cada uno vota por un solo candidato. Quien reúne más votos gana, incluso sin mayoría absoluta.", "pros": ["Muy fácil de entender", "Resultado inmediato", "Una sola visita a las urnas"], "cons": ["Un ganador rechazado por el 60 % de los votantes", "Empuja al « voto útil »", "Aplasta las opciones pequeñas"] },
-    "runoff": { "name": "Mayoritario a dos vueltas", "tagline": "Mayoría absoluta o segunda vuelta.", "strength": "Mayoría absoluta", "how": "Si nadie alcanza el 50 %, los dos mejores se enfrentan en una segunda vuelta. El vencedor final tiene necesariamente la mayoría absoluta.", "pros": ["El ganador supera el 50 %", "Puedes votar « con el corazón » en la 1.ª vuelta", "Un sistema familiar"], "cons": ["Dos votaciones que organizar", "El 3.º podría ser un mejor consenso", "Trasvases de votos imprevisibles"] },
-    "condorcet": { "name": "Condorcet simple", "tagline": "El campeón de todos los duelos.", "strength": "Verdadero consenso", "how": "Cada uno clasifica las opciones. Se simulan todos los duelos uno contra uno: el vencedor es quien gana a todos los demás.", "pros": ["Designa el verdadero consenso", "Insensible al « voto útil »", "Muy difícil de manipular"], "cons": ["A veces no hay ningún vencedor (paradoja)", "Una papeleta más larga de rellenar", "Recuento complejo"] },
-    "condorcet_random": { "name": "Condorcet aleatorizado", "tagline": "Condorcet, y el azar deshace los bloqueos.", "strength": "Siempre un resultado", "how": "Como Condorcet, pero cuando los duelos forman un ciclo (A>B>C>A), se sortea el ganador entre el círculo bloqueado.", "pros": ["Siempre un resultado", "Mantiene la lógica de consenso", "Desalienta los bloqueos tácticos"], "cons": ["Una dosis de azar asumida", "Difícil de explicar", "Puede sorprender en caso de paradoja"] },
-    "mj": { "name": "Juicio mayoritario", "tagline": "Tú puntúas, gana la mención mayoritaria.", "strength": "Mide la adhesión", "how": "Cada uno atribuye una mención a cada opción (de « A rechazar » a « Excelente »). Gana la opción cuya mención mediana es la más alta.", "pros": ["Expresa el matiz, no solo una elección", "Limita el voto táctico", "Mide la adhesión real"], "cons": ["La noción de mediana es poco intuitiva", "Una papeleta más larga", "Muchos empates posibles"] },
-    "approval": { "name": "Voto por aprobación", "tagline": "Marca a todos los que te convengan.", "strength": "Simple y consensuado", "how": "Cada uno marca tantas opciones como apruebe. Gana la que más gente aprueba.", "pros": ["Muy simple", "Favorece las opciones consensuadas", "Sin voto útil"], "cons": ["No jerarquiza las preferencias", "Sensible al umbral que cada uno se fija", "Poco usado, poco conocido"] },
-    "borda": { "name": "Recuento de Borda", "tagline": "Puntos según el orden.", "strength": "Consenso amplio", "how": "Cada uno clasifica las opciones. El 1.º da n-1 puntos, el 2.º n-2, etc. Se suman: gana quien más puntos tiene.", "pros": ["Premia el consenso amplio", "Tiene en cuenta toda la clasificación", "Simple de calcular"], "cons": ["Muy sensible a las candidaturas « clon »", "Manipulable mediante clasificación táctica", "Puede dejar de lado a un favorito que divide"] },
-    "proportional": { "name": "Representación proporcional", "tagline": "Escaños en proporción a los votos.", "strength": "Refleja cada voto", "how": "En lugar de un único ganador, se reparten escaños en proporción a los votos (método d'Hondt). Ideal para una asamblea.", "pros": ["Refleja fielmente las opiniones", "Da un sitio a las minorías", "Pocos votos « perdidos »"], "cons": ["Sin un ganador único claro", "Puede imponer coaliciones", "El umbral excluye a los más pequeños"] },
-    "indirect": { "name": "Grandes electores", "tagline": "Se vota por distrito.", "strength": "Equilibrio territorial", "how": "Los votantes se reparten en distritos. Cada uno designa un campeón local — según el recuento que elijas — que se lleva todos sus grandes electores. El mayor total de electores gana.", "pros": ["Equilibra los territorios", "Un resultado claro y estructurado", "Limita el fraude a gran escala"], "cons": ["El perdedor del voto popular puede ganar", "Votos « desperdiciados » en los bastiones", "Depende de la delimitación"] },
-    "list": { "name": "Escrutinio de listas", "tagline": "La lista en cabeza se lleva la mitad de los escaños, el resto a la proporcional.", "strength": "Mayoría estable", "how": "Se vota por una lista entera (como en las municipales francesas). La lista que queda en cabeza recibe de oficio la mitad de los escaños — la prima de mayoría — y luego la otra mitad se reparte a la proporcional entre todas las listas por encima del 5 %, prima incluida.", "pros": ["Da una mayoría estable para gobernar", "Aun así representa a las minorías", "Una sola papeleta, muy simple"], "cons": ["Sobrerrepresenta con fuerza a la lista ganadora", "El cabeza de lista concentra el poder", "El umbral del 5 % elimina las listas pequeñas"] }
+    "family": {
+      "fptp": "Sufragio directo · 1 vuelta",
+      "runoff": "Sufragio directo · 2 vueltas",
+      "condorcet": "Clasificación · duelos",
+      "condorcet_random": "Clasificación · duelos + sorteo",
+      "mj": "Mención · mediana",
+      "approval": "Casillas de verificación",
+      "borda": "Clasificación · puntos",
+      "proportional": "Escaños · d'Hondt",
+      "indirect": "Sufragio indirecto",
+      "list": "Listas · prima de mayoría"
+    },
+    "whenToUse": {
+      "fptp": "Decidir rápido: una vuelta, gana quien más votos tiene.",
+      "runoff": "Garantizar una mayoría absoluta, con una segunda vuelta si hace falta.",
+      "approval": "Varias opciones aceptables: cada uno marca todo lo que le convenga.",
+      "borda": "Favorecer el consenso amplio a partir de una clasificación.",
+      "condorcet": "Designar al ganador de todos los duelos (verdadero consenso).",
+      "condorcet_random": "Condorcet, deshaciendo los bloqueos por sorteo.",
+      "mj": "Juzgar por menciones; limita el voto táctico.",
+      "proportional": "Repartir escaños en proporción a los votos (asamblea).",
+      "list": "Votar por listas con prima de mayoría (municipales).",
+      "indirect": "Votar por distritos / grandes electores."
+    },
+    "fptp": {
+      "name": "Mayoritario a una vuelta",
+      "tagline": "Gana quien más votos tiene.",
+      "strength": "Simple y rápido",
+      "how": "Cada uno vota por un solo candidato. Quien reúne más votos gana, incluso sin mayoría absoluta.",
+      "pros": [
+        "Muy fácil de entender",
+        "Resultado inmediato",
+        "Una sola visita a las urnas"
+      ],
+      "cons": [
+        "Un ganador rechazado por el 60 % de los votantes",
+        "Empuja al « voto útil »",
+        "Aplasta las opciones pequeñas"
+      ]
+    },
+    "runoff": {
+      "name": "Mayoritario a dos vueltas",
+      "tagline": "Mayoría absoluta o segunda vuelta.",
+      "strength": "Mayoría absoluta",
+      "how": "Si nadie alcanza el 50 %, los dos mejores se enfrentan en una segunda vuelta. El vencedor final tiene necesariamente la mayoría absoluta.",
+      "pros": [
+        "El ganador supera el 50 %",
+        "Puedes votar « con el corazón » en la 1.ª vuelta",
+        "Un sistema familiar"
+      ],
+      "cons": [
+        "Dos votaciones que organizar",
+        "El 3.º podría ser un mejor consenso",
+        "Trasvases de votos imprevisibles"
+      ]
+    },
+    "condorcet": {
+      "name": "Condorcet simple",
+      "tagline": "El campeón de todos los duelos.",
+      "strength": "Verdadero consenso",
+      "how": "Cada uno clasifica las opciones. Se simulan todos los duelos uno contra uno: el vencedor es quien gana a todos los demás.",
+      "pros": [
+        "Designa el verdadero consenso",
+        "Insensible al « voto útil »",
+        "Muy difícil de manipular"
+      ],
+      "cons": [
+        "A veces no hay ningún vencedor (paradoja)",
+        "Una papeleta más larga de rellenar",
+        "Recuento complejo"
+      ]
+    },
+    "condorcet_random": {
+      "name": "Condorcet aleatorizado",
+      "tagline": "Condorcet, y el azar deshace los bloqueos.",
+      "strength": "Siempre un resultado",
+      "how": "Como Condorcet, pero cuando los duelos forman un ciclo (A>B>C>A), se sortea el ganador entre el círculo bloqueado.",
+      "pros": [
+        "Siempre un resultado",
+        "Mantiene la lógica de consenso",
+        "Desalienta los bloqueos tácticos"
+      ],
+      "cons": [
+        "Una dosis de azar asumida",
+        "Difícil de explicar",
+        "Puede sorprender en caso de paradoja"
+      ]
+    },
+    "mj": {
+      "name": "Juicio mayoritario",
+      "tagline": "Tú puntúas, gana la mención mayoritaria.",
+      "strength": "Mide la adhesión",
+      "how": "Cada uno atribuye una mención a cada opción (de « A rechazar » a « Excelente »). Gana la opción cuya mención mediana es la más alta.",
+      "pros": [
+        "Expresa el matiz, no solo una elección",
+        "Limita el voto táctico",
+        "Mide la adhesión real"
+      ],
+      "cons": [
+        "La noción de mediana es poco intuitiva",
+        "Una papeleta más larga",
+        "Muchos empates posibles"
+      ]
+    },
+    "approval": {
+      "name": "Voto por aprobación",
+      "tagline": "Marca a todos los que te convengan.",
+      "strength": "Simple y consensuado",
+      "how": "Cada uno marca tantas opciones como apruebe. Gana la que más gente aprueba.",
+      "pros": [
+        "Muy simple",
+        "Favorece las opciones consensuadas",
+        "Sin voto útil"
+      ],
+      "cons": [
+        "No jerarquiza las preferencias",
+        "Sensible al umbral que cada uno se fija",
+        "Poco usado, poco conocido"
+      ]
+    },
+    "borda": {
+      "name": "Recuento de Borda",
+      "tagline": "Puntos según el orden.",
+      "strength": "Consenso amplio",
+      "how": "Cada uno clasifica las opciones. El 1.º da n-1 puntos, el 2.º n-2, etc. Se suman: gana quien más puntos tiene.",
+      "pros": [
+        "Premia el consenso amplio",
+        "Tiene en cuenta toda la clasificación",
+        "Simple de calcular"
+      ],
+      "cons": [
+        "Muy sensible a las candidaturas « clon »",
+        "Manipulable mediante clasificación táctica",
+        "Puede dejar de lado a un favorito que divide"
+      ]
+    },
+    "proportional": {
+      "name": "Representación proporcional",
+      "tagline": "Escaños en proporción a los votos.",
+      "strength": "Refleja cada voto",
+      "how": "En lugar de un único ganador, se reparten escaños en proporción a los votos (método d'Hondt). Ideal para una asamblea.",
+      "pros": [
+        "Refleja fielmente las opiniones",
+        "Da un sitio a las minorías",
+        "Pocos votos « perdidos »"
+      ],
+      "cons": [
+        "Sin un ganador único claro",
+        "Puede imponer coaliciones",
+        "El umbral excluye a los más pequeños"
+      ]
+    },
+    "indirect": {
+      "name": "Grandes electores",
+      "tagline": "Se vota por distrito.",
+      "strength": "Equilibrio territorial",
+      "how": "Los votantes se reparten en distritos. Cada uno designa un campeón local — según el recuento que elijas — que se lleva todos sus grandes electores. El mayor total de electores gana.",
+      "pros": [
+        "Equilibra los territorios",
+        "Un resultado claro y estructurado",
+        "Limita el fraude a gran escala"
+      ],
+      "cons": [
+        "El perdedor del voto popular puede ganar",
+        "Votos « desperdiciados » en los bastiones",
+        "Depende de la delimitación"
+      ]
+    },
+    "list": {
+      "name": "Escrutinio de listas",
+      "tagline": "La lista en cabeza se lleva la mitad de los escaños, el resto a la proporcional.",
+      "strength": "Mayoría estable",
+      "how": "Se vota por una lista entera (como en las municipales francesas). La lista que queda en cabeza recibe de oficio la mitad de los escaños — la prima de mayoría — y luego la otra mitad se reparte a la proporcional entre todas las listas por encima del 5 %, prima incluida.",
+      "pros": [
+        "Da una mayoría estable para gobernar",
+        "Aun así representa a las minorías",
+        "Una sola papeleta, muy simple"
+      ],
+      "cons": [
+        "Sobrerrepresenta con fuerza a la lista ganadora",
+        "El cabeza de lista concentra el poder",
+        "El umbral del 5 % elimina las listas pequeñas"
+      ]
+    }
   },
   "AiDoc": {
     "metaTitle": "Placet para las IA — generar un enlace de votación",
@@ -1135,7 +1356,7 @@
     "circle": "Adhesiones",
     "circleOpen": "Abrir a inscripciones",
     "circleSubtitle": "Abre un enlace de adhesión y cada persona se une por sí misma. Los miembros reciben una página personal donde pueden salir con un clic.",
-    "copyLink": "Copiar",
+    "copyLink": "Copiar el enlace",
     "circlePitchPlaceholder": "En una frase: a quién se dirige este grupo y sobre qué lo consultarás.",
     "tagSelfJoined": "se unió",
     "tagImported": "añadido",
@@ -1200,7 +1421,6 @@
     "convene": "Convocar a los miembros",
     "convenedCount": "{count, plural, one {# convocado} other {# convocados}}",
     "voteLinkLabel": "Enlace de voto nominal",
-    "copyLink": "Copiar el enlace",
     "copied": "Copiado ✓",
     "openEvent": "Abrir la votación",
     "closeEvent": "Cerrar la consulta",
@@ -1423,5 +1643,168 @@
     "closingPast": "cierre pasado",
     "goExplore": "Descubrir votaciones públicas",
     "goSpaces": "Mis grupos"
+  },
+  "Games": {
+    "metaTitle": "Jugar juntos — juegos de grupo que se comparten con un enlace",
+    "metaDescription": "Juegos para varias personas desde el móvil, sin instalar nada ni crear cuenta. Unanimo: escribe las palabras que todos tienen en la cabeza.",
+    "title": "Jugar juntos",
+    "subtitle": "Juegos donde el grupo piensa, se sorprende y decide junto. Un enlace, un apodo, y ya se juega.",
+    "joinTitle": "¿Te han dado un código?",
+    "joinPlaceholder": "ABC123",
+    "joinCta": "Entrar",
+    "joinError": "No hay ninguna partida con ese código.",
+    "play": "Jugar",
+    "soon": "Pronto",
+    "players": "{n} jugadores",
+    "minutes": "{n} min",
+    "unanimo": {
+      "name": "Unanimo",
+      "tagline": "Piensa como los demás",
+      "desc": "Un tema, unas palabras. Puntúas por cada palabra que otro jugador también escribió. Lo divertido es coincidir sin hablar."
+    },
+    "loup-garou": {
+      "name": "Hombre lobo",
+      "tagline": "El pueblo se despierta",
+      "desc": "Votos secretos, roles ocultos, noches con víctimas. En preparación — reutilizará la misma sala que Unanimo."
+    },
+    "engineTitle": "Debajo de estos juegos está Placet.",
+    "engineText": "El mismo motor sirve para decidir de verdad: elegir una fecha, zanjar entre varias opciones, repartir plazas.",
+    "engineCta": "Descubrir Placet"
+  },
+  "Unanimo": {
+    "metaTitle": "Unanimo — escribe las palabras que todos tienen en la cabeza",
+    "metaDescription": "Un tema, unas palabras, y puntos por cada palabra que otro también escribió. Para varias personas, desde el móvil, sin cuenta.",
+    "name": "Unanimo",
+    "back": "Todos los juegos",
+    "poweredBy": "Con la tecnología de Placet",
+    "offline": "Conexión perdida — reintentando",
+    "loading": "Un momento…",
+    "missing": {
+      "title": "Esta partida ya no existe",
+      "hint": "Puede que el código esté mal, o que la partida se haya archivado. ¿Empezamos otra?",
+      "cta": "Crear una partida"
+    },
+    "join": {
+      "title": "Unirse a la partida",
+      "hint": "Elige un apodo. Nada más.",
+      "hintPlayers": "{count, plural, one {Ya hay # jugador.} other {Ya hay # jugadores.}} Elige un apodo.",
+      "placeholder": "Tu apodo",
+      "cta": "Unirse",
+      "busy": "Entrando…",
+      "errNameTaken": "Ese apodo ya está tomado en esta partida.",
+      "errFull": "Esta partida está completa.",
+      "errNotFound": "Esta partida ya no existe.",
+      "errGeneric": "No ha funcionado. Inténtalo de nuevo."
+    },
+    "rules": {
+      "title": "La regla, en tres líneas",
+      "body": "Aparece un tema. Cada persona escribe en secreto las palabras que le evoca. Al revelar, una palabra vale tantos puntos como jugadores la hayan escrito — y nada si has sido el único."
+    },
+    "players": {
+      "joinedAt": "llegó en la ronda {n}",
+      "host": "anfitrión",
+      "waiting": "entra en la próxima ronda",
+      "idle": "sin señales desde hace un rato",
+      "done": "ha respondido"
+    },
+    "share": {
+      "code": "Código de la partida",
+      "copy": "Copiar el enlace",
+      "copied": "Copiado",
+      "share": "Compartir",
+      "whatsapp": "WhatsApp",
+      "text": "¿Jugamos a Unanimo? Únete:"
+    },
+    "rank": {
+      "title": "Clasificación"
+    },
+    "round": {
+      "of": "Ronda {n} / {total}",
+      "theme": "El tema",
+      "instructions": "Escribe hasta {max} palabras que te evoque. Una palabra puntúa si a otra persona también se le ocurrió."
+    },
+    "lobby": {
+      "invite": "Que entre todo el mundo",
+      "rounds": "Número de rondas",
+      "roundsHint": "se puede cambiar durante la partida",
+      "fewer": "Una ronda menos",
+      "more": "Una ronda más",
+      "start": "Empezar la primera ronda",
+      "waitHost": "Esperando a que el anfitrión empiece la primera ronda."
+    },
+    "wait": {
+      "progress": "{n} / {total} han respondido",
+      "done": "Enviado",
+      "hint": "Aún puedes cambiar tus palabras hasta la revelación.",
+      "edit": "Cambiar mis palabras"
+    },
+    "late": {
+      "title": "Entras en la ronda {n}",
+      "hint": "Hay una ronda en curso: la ves pasar y juegas la siguiente. Empiezas con 0 puntos — llegar tarde es parte del juego."
+    },
+    "host": {
+      "reveal": "Revelar las respuestas",
+      "revealHint": "puedes revelar sin esperar a quien falta",
+      "next": "Ronda siguiente",
+      "finish": "Ver la clasificación final",
+      "more": "{count, plural, one {Una ronda más} other {# rondas más}}",
+      "waitNext": "El anfitrión empieza la ronda siguiente."
+    },
+    "reveal": {
+      "common": "Las palabras en común",
+      "alone": "Nadie más la tenía",
+      "nobodyElse": "Ninguna palabra en común esta vez — pasa, y también tiene su gracia.",
+      "myRound": "Tu ronda",
+      "roundTable": "Esta ronda",
+      "noAnswer": "sin respuesta",
+      "andMore": "+{n}",
+      "empty": "Nadie ha respondido en esta ronda."
+    },
+    "input": {
+      "placeholder": "Una palabra…",
+      "add": "Añadir esta palabra",
+      "count": "{n} / {max} palabras",
+      "send": "Enviar mis palabras",
+      "update": "Actualizar mis palabras",
+      "sending": "Enviando…",
+      "duplicate": "«{word}» ya te cuenta",
+      "isTheme": "El tema en sí no puntúa",
+      "full": "{max} palabras es el máximo",
+      "remove": "Quitar {word}"
+    },
+    "final": {
+      "title": "Partida terminada",
+      "winner": "{name} gana",
+      "tie": "¡Empate perfecto!",
+      "rounds": "{count, plural, one {# ronda jugada} other {# rondas jugadas}}",
+      "ranking": "Clasificación final",
+      "replay": "Volver a jugar",
+      "joinNew": "Unirse a la nueva partida",
+      "waitHost": "El anfitrión puede empezar otra partida."
+    },
+    "create": {
+      "hero": "Escribe las palabras que todos tienen en la cabeza",
+      "pitch": "Un tema. Cada persona escribe sus palabras en secreto. Puntúas por cada palabra que otro también tuvo.",
+      "name": "Tu apodo",
+      "rounds": "Rondas",
+      "roundsN": "{n}",
+      "roundsHint": "Podrás añadir más durante la partida.",
+      "words": "Palabras por ronda",
+      "wordsN": "{n} palabras",
+      "cta": "Crear la partida",
+      "creating": "Preparando la mesa…",
+      "noAccount": "Sin cuenta, sin instalar nada.",
+      "error": "No se ha podido crear la partida. Inténtalo de nuevo.",
+      "joinCode": "Unirse con un código",
+      "codePlaceholder": "ABC123",
+      "join": "Entrar",
+      "badCode": "No hay ninguna partida con ese código."
+    },
+    "how": {
+      "title": "Cómo va",
+      "s1": "Creas la partida y compartes el enlace o el código — todo el mundo entra en diez segundos.",
+      "s2": "Aparece un tema. Cada persona escribe sus palabras en su móvil, sin ver las de los demás.",
+      "s3": "Revelas cuando quieras. Las palabras en común puntúan, se suman los puntos, y se sigue."
+    }
   }
 }

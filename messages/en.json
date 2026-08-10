@@ -91,7 +91,8 @@
     "methods": "Methods",
     "create": "Create",
     "signIn": "Sign in",
-    "signOut": "Sign out"
+    "signOut": "Sign out",
+    "games": "Play"
   },
   "Home": {
     "badge": "Group decisions, made simple",
@@ -154,7 +155,10 @@
       "s3Label": "STEP 3",
       "s3Title": "Vote & count",
       "s3Text": "Everyone votes, the winner is computed by the real method — and we explain why."
-    }
+    },
+    "gamesTitle": "Play together",
+    "gamesText": "The same engine is also good for fun: games for a group, a link to share, no account.",
+    "gamesCta": "See the games"
   },
   "Create": {
     "pageTitle": "What are you deciding?",
@@ -175,7 +179,12 @@
     "proposalsHeading": "THE PROPOSALS",
     "changeEmoji": "Change emoji",
     "optionFallbackPlaceholder": "Another option…",
-    "optionPlaceholders": ["The mountains", "The seaside", "A big city", "The countryside"],
+    "optionPlaceholders": [
+      "The mountains",
+      "The seaside",
+      "A big city",
+      "The countryside"
+    ],
     "newOptionDefault": "New option",
     "attachIllustrationTitle": "Option details: link, place, comment",
     "attachIllustrationAria": "Option details",
@@ -654,40 +663,80 @@
         "tagline": "Everyone picks in turn, in a drawn order.",
         "strength": "Simple and beyond dispute",
         "how": "A turn order is drawn — from the poll token, so anyone can verify it. Each person, in turn, receives their favourite among what's left.",
-        "pros": ["Impossible to game: ranking sincerely is always best", "Very easy to explain and accept", "Verifiable draw, no favouritism possible"],
-        "cons": ["The last in line inherit the leftovers", "Luck weighs heavily on the outcome", "Ignores preference intensity"]
+        "pros": [
+          "Impossible to game: ranking sincerely is always best",
+          "Very easy to explain and accept",
+          "Verifiable draw, no favouritism possible"
+        ],
+        "cons": [
+          "The last in line inherit the leftovers",
+          "Luck weighs heavily on the outcome",
+          "Ignores preference intensity"
+        ]
       },
       "optimal_sum": {
         "name": "Maximum satisfaction",
         "tagline": "The allocation that pleases the most people, computed exactly.",
         "strength": "Collective optimum",
         "how": "Each allocation \"costs\" the rank it holds in the person's list (1st choice = 0, 2nd = 1…). The Hungarian algorithm finds the allocation with the minimal total cost: the best overall satisfaction, exactly.",
-        "pros": ["The best possible total satisfaction", "No draw involved", "Exact result, not approximate"],
-        "cons": ["Can sacrifice one person for the common good", "Tactical rankings are possible", "Less intuitive to explain"]
+        "pros": [
+          "The best possible total satisfaction",
+          "No draw involved",
+          "Exact result, not approximate"
+        ],
+        "cons": [
+          "Can sacrifice one person for the common good",
+          "Tactical rankings are possible",
+          "Less intuitive to explain"
+        ]
       },
       "top_trading_cycles": {
         "name": "Trading circle",
         "tagline": "Everyone already owns something; win-win swap cycles.",
         "strength": "Nobody loses",
         "how": "Everyone already owns one thing (the Nth person on the list owns the Nth thing) and ranks all the things. The algorithm runs swap cycles on the remaining favourites until done. Nobody ends up worse than what they started with.",
-        "pros": ["Nobody ends up worse than at the start", "Ranking sincerely is always best", "Every win-win trade gets made"],
-        "cons": ["Everyone needs a starting possession", "Exactly as many things as people", "The outcome depends heavily on endowments"]
+        "pros": [
+          "Nobody ends up worse than at the start",
+          "Ranking sincerely is always best",
+          "Every win-win trade gets made"
+        ],
+        "cons": [
+          "Everyone needs a starting possession",
+          "Exactly as many things as people",
+          "The outcome depends heavily on endowments"
+        ]
       },
       "stable_roommates": {
         "name": "Stable pairs",
         "tagline": "Pairs nobody has an interest in leaving.",
         "strength": "Solid pairs",
         "how": "Everyone ranks the other participants. Irving's algorithm looks for stable pairs: no two people would mutually prefer each other over their assigned partners. It can prove that no stable pairing exists — the fallback is then announced: picking rounds in a drawn order.",
-        "pros": ["No pair wants to \"run off\" together", "Based on both sides' preferences", "Honestly detects impossible cases"],
-        "cons": ["A stable pairing doesn't always exist", "Requires an even count", "Ranking everyone can take a while"]
+        "pros": [
+          "No pair wants to \"run off\" together",
+          "Based on both sides' preferences",
+          "Honestly detects impossible cases"
+        ],
+        "cons": [
+          "A stable pairing doesn't always exist",
+          "Requires an even count",
+          "Ranking everyone can take a while"
+        ]
       },
       "gale_shapley": {
         "name": "Two groups (Parcoursup)",
         "tagline": "Two sides rank each other; a stable matching.",
         "strength": "Stable, Parcoursup-style",
         "how": "Two groups rank each other (candidates and programmes, mentees and mentors…). Deferred acceptance (Gale-Shapley) produces a stable matching: no duo would mutually prefer each other over their assignment. Side 1 proposes — the method favours it; each side-2 entry can host several people (capacities).",
-        "pros": ["Always a stable matching", "Handles capacities (several spots per side-2 entry)", "Ranking sincerely is optimal for side 1"],
-        "cons": ["Structurally favours the proposing side", "Side 2 may be tempted to rank tactically", "Some stay unmatched if spots run out"]
+        "pros": [
+          "Always a stable matching",
+          "Handles capacities (several spots per side-2 entry)",
+          "Ranking sincerely is optimal for side 1"
+        ],
+        "cons": [
+          "Structurally favours the proposing side",
+          "Side 2 may be tempted to rank tactically",
+          "Some stay unmatched if spots run out"
+        ]
       }
     }
   },
@@ -885,18 +934,190 @@
   },
   "Methods": {
     "twoRounds": "two-round",
-    "family": { "fptp": "Direct vote · 1 round", "runoff": "Direct vote · 2 rounds", "condorcet": "Ranking · duels", "condorcet_random": "Ranking · duels + draw", "mj": "Grades · median", "approval": "Checkboxes", "borda": "Ranking · points", "proportional": "Seats · d'Hondt", "indirect": "Indirect vote", "list": "Lists · majority bonus" },
-    "whenToUse": { "fptp": "Decide fast: one round, most votes wins.", "runoff": "Guarantee an absolute majority, with a second round if needed.", "approval": "Several acceptable choices: everyone ticks all that suit them.", "borda": "Favour broad consensus from a ranking.", "condorcet": "Pick the winner of every duel (true consensus).", "condorcet_random": "Condorcet, breaking deadlocks by lot.", "mj": "Judge by grades; limits tactical voting.", "proportional": "Share seats in proportion to votes (assembly).", "list": "Vote for lists with a majority bonus (local elections).", "indirect": "Vote by district / electoral college." },
-    "fptp": { "name": "First-past-the-post", "tagline": "Most votes wins.", "strength": "Simple and fast", "how": "Everyone votes for a single candidate. Whoever gets the most votes wins, even without an outright majority.", "pros": ["Very easy to grasp", "Instant result", "Just one trip to the ballot box"], "cons": ["A winner rejected by 60% of voters", "Pushes people to vote tactically", "Crushes smaller options"] },
-    "runoff": { "name": "Two-round runoff", "tagline": "Absolute majority or second round.", "strength": "Absolute majority", "how": "If no one reaches 50%, the top two face off in a second round. The final winner is bound to have an absolute majority.", "pros": ["The winner clears 50%", "You can vote with your heart in round one", "A familiar system"], "cons": ["Two ballots to run", "The third-placed could be a better consensus", "Unpredictable vote transfers"] },
-    "condorcet": { "name": "Simple Condorcet", "tagline": "The champion of every duel.", "strength": "True consensus", "how": "Everyone ranks the options. We simulate every head-to-head duel: the winner is the one who beats all the others.", "pros": ["Picks the true consensus", "Immune to tactical voting", "Very hard to manipulate"], "cons": ["Sometimes no winner at all (paradox)", "A longer ballot to fill in", "Complex to count"] },
-    "condorcet_random": { "name": "Randomised Condorcet", "tagline": "Condorcet, with chance breaking the deadlocks.", "strength": "Always a result", "how": "Like Condorcet, but when the duels go round in circles (A>B>C>A), the winner is drawn at random from the deadlocked loop.", "pros": ["Always a result", "Keeps the consensus logic", "Discourages tactical deadlocks"], "cons": ["An accepted element of chance", "Hard to explain", "Can surprise in a paradox"] },
-    "mj": { "name": "Majority judgment", "tagline": "You grade, the majority grade wins.", "strength": "Measures support", "how": "Everyone gives each option a grade (from \"Reject\" to \"Excellent\"). The option with the highest median grade wins.", "pros": ["Expresses nuance, not just a choice", "Limits tactical voting", "Measures real support"], "cons": ["The median is not intuitive", "A longer ballot", "Lots of possible ties"] },
-    "approval": { "name": "Approval voting", "tagline": "Tick everyone you're happy with.", "strength": "Simple and consensual", "how": "Everyone ticks as many options as they approve of. The one approved by the most people wins.", "pros": ["Very simple", "Favours consensus options", "No tactical voting"], "cons": ["Doesn't rank preferences", "Sensitive to each voter's threshold", "Little used, little known"] },
-    "borda": { "name": "Borda count", "tagline": "Points awarded by rank.", "strength": "Broad consensus", "how": "Everyone ranks the options. First place earns n-1 points, second n-2, and so on. Add them up: most points wins.", "pros": ["Rewards broad consensus", "Takes the whole ranking into account", "Simple to calculate"], "cons": ["Very sensitive to \"clone\" candidates", "Open to tactical ranking", "Can sideline a divisive favourite"] },
-    "proportional": { "name": "Proportional representation", "tagline": "Seats in proportion to votes.", "strength": "Reflects every vote", "how": "Instead of a single winner, seats are shared out in proportion to the votes (d'Hondt method). Ideal for an assembly.", "pros": ["Faithfully reflects opinions", "Gives minorities a place", "Few wasted votes"], "cons": ["No clear single winner", "Can force coalitions", "The threshold excludes the smallest"] },
-    "indirect": { "name": "Electoral college", "tagline": "Voting by constituency.", "strength": "Territorial balance", "how": "Voters are split into constituencies. Each picks a local champion — by whichever count you choose — who sweeps up its electors. The highest elector tally wins.", "pros": ["Balances the territories", "A clear, structured result", "Limits large-scale fraud"], "cons": ["The popular-vote loser can win", "Wasted votes in strongholds", "Depends on the boundaries"] },
-    "list": { "name": "Party-list vote", "tagline": "The leading list takes half the seats, the rest go proportionally.", "strength": "Stable majority", "how": "You vote for a whole list (as in French local elections). The list that comes first automatically receives half the seats — the majority bonus — then the other half is shared proportionally among every list above 5%, bonus included.", "pros": ["Delivers a stable majority to govern", "Still represents minorities", "One ballot, very simple"], "cons": ["Heavily over-represents the winning list", "The list leader concentrates power", "The 5% threshold eliminates small lists"] }
+    "family": {
+      "fptp": "Direct vote · 1 round",
+      "runoff": "Direct vote · 2 rounds",
+      "condorcet": "Ranking · duels",
+      "condorcet_random": "Ranking · duels + draw",
+      "mj": "Grades · median",
+      "approval": "Checkboxes",
+      "borda": "Ranking · points",
+      "proportional": "Seats · d'Hondt",
+      "indirect": "Indirect vote",
+      "list": "Lists · majority bonus"
+    },
+    "whenToUse": {
+      "fptp": "Decide fast: one round, most votes wins.",
+      "runoff": "Guarantee an absolute majority, with a second round if needed.",
+      "approval": "Several acceptable choices: everyone ticks all that suit them.",
+      "borda": "Favour broad consensus from a ranking.",
+      "condorcet": "Pick the winner of every duel (true consensus).",
+      "condorcet_random": "Condorcet, breaking deadlocks by lot.",
+      "mj": "Judge by grades; limits tactical voting.",
+      "proportional": "Share seats in proportion to votes (assembly).",
+      "list": "Vote for lists with a majority bonus (local elections).",
+      "indirect": "Vote by district / electoral college."
+    },
+    "fptp": {
+      "name": "First-past-the-post",
+      "tagline": "Most votes wins.",
+      "strength": "Simple and fast",
+      "how": "Everyone votes for a single candidate. Whoever gets the most votes wins, even without an outright majority.",
+      "pros": [
+        "Very easy to grasp",
+        "Instant result",
+        "Just one trip to the ballot box"
+      ],
+      "cons": [
+        "A winner rejected by 60% of voters",
+        "Pushes people to vote tactically",
+        "Crushes smaller options"
+      ]
+    },
+    "runoff": {
+      "name": "Two-round runoff",
+      "tagline": "Absolute majority or second round.",
+      "strength": "Absolute majority",
+      "how": "If no one reaches 50%, the top two face off in a second round. The final winner is bound to have an absolute majority.",
+      "pros": [
+        "The winner clears 50%",
+        "You can vote with your heart in round one",
+        "A familiar system"
+      ],
+      "cons": [
+        "Two ballots to run",
+        "The third-placed could be a better consensus",
+        "Unpredictable vote transfers"
+      ]
+    },
+    "condorcet": {
+      "name": "Simple Condorcet",
+      "tagline": "The champion of every duel.",
+      "strength": "True consensus",
+      "how": "Everyone ranks the options. We simulate every head-to-head duel: the winner is the one who beats all the others.",
+      "pros": [
+        "Picks the true consensus",
+        "Immune to tactical voting",
+        "Very hard to manipulate"
+      ],
+      "cons": [
+        "Sometimes no winner at all (paradox)",
+        "A longer ballot to fill in",
+        "Complex to count"
+      ]
+    },
+    "condorcet_random": {
+      "name": "Randomised Condorcet",
+      "tagline": "Condorcet, with chance breaking the deadlocks.",
+      "strength": "Always a result",
+      "how": "Like Condorcet, but when the duels go round in circles (A>B>C>A), the winner is drawn at random from the deadlocked loop.",
+      "pros": [
+        "Always a result",
+        "Keeps the consensus logic",
+        "Discourages tactical deadlocks"
+      ],
+      "cons": [
+        "An accepted element of chance",
+        "Hard to explain",
+        "Can surprise in a paradox"
+      ]
+    },
+    "mj": {
+      "name": "Majority judgment",
+      "tagline": "You grade, the majority grade wins.",
+      "strength": "Measures support",
+      "how": "Everyone gives each option a grade (from \"Reject\" to \"Excellent\"). The option with the highest median grade wins.",
+      "pros": [
+        "Expresses nuance, not just a choice",
+        "Limits tactical voting",
+        "Measures real support"
+      ],
+      "cons": [
+        "The median is not intuitive",
+        "A longer ballot",
+        "Lots of possible ties"
+      ]
+    },
+    "approval": {
+      "name": "Approval voting",
+      "tagline": "Tick everyone you're happy with.",
+      "strength": "Simple and consensual",
+      "how": "Everyone ticks as many options as they approve of. The one approved by the most people wins.",
+      "pros": [
+        "Very simple",
+        "Favours consensus options",
+        "No tactical voting"
+      ],
+      "cons": [
+        "Doesn't rank preferences",
+        "Sensitive to each voter's threshold",
+        "Little used, little known"
+      ]
+    },
+    "borda": {
+      "name": "Borda count",
+      "tagline": "Points awarded by rank.",
+      "strength": "Broad consensus",
+      "how": "Everyone ranks the options. First place earns n-1 points, second n-2, and so on. Add them up: most points wins.",
+      "pros": [
+        "Rewards broad consensus",
+        "Takes the whole ranking into account",
+        "Simple to calculate"
+      ],
+      "cons": [
+        "Very sensitive to \"clone\" candidates",
+        "Open to tactical ranking",
+        "Can sideline a divisive favourite"
+      ]
+    },
+    "proportional": {
+      "name": "Proportional representation",
+      "tagline": "Seats in proportion to votes.",
+      "strength": "Reflects every vote",
+      "how": "Instead of a single winner, seats are shared out in proportion to the votes (d'Hondt method). Ideal for an assembly.",
+      "pros": [
+        "Faithfully reflects opinions",
+        "Gives minorities a place",
+        "Few wasted votes"
+      ],
+      "cons": [
+        "No clear single winner",
+        "Can force coalitions",
+        "The threshold excludes the smallest"
+      ]
+    },
+    "indirect": {
+      "name": "Electoral college",
+      "tagline": "Voting by constituency.",
+      "strength": "Territorial balance",
+      "how": "Voters are split into constituencies. Each picks a local champion — by whichever count you choose — who sweeps up its electors. The highest elector tally wins.",
+      "pros": [
+        "Balances the territories",
+        "A clear, structured result",
+        "Limits large-scale fraud"
+      ],
+      "cons": [
+        "The popular-vote loser can win",
+        "Wasted votes in strongholds",
+        "Depends on the boundaries"
+      ]
+    },
+    "list": {
+      "name": "Party-list vote",
+      "tagline": "The leading list takes half the seats, the rest go proportionally.",
+      "strength": "Stable majority",
+      "how": "You vote for a whole list (as in French local elections). The list that comes first automatically receives half the seats — the majority bonus — then the other half is shared proportionally among every list above 5%, bonus included.",
+      "pros": [
+        "Delivers a stable majority to govern",
+        "Still represents minorities",
+        "One ballot, very simple"
+      ],
+      "cons": [
+        "Heavily over-represents the winning list",
+        "The list leader concentrates power",
+        "The 5% threshold eliminates small lists"
+      ]
+    }
   },
   "AiDoc": {
     "metaTitle": "Placet for AI — generate a voting link",
@@ -1135,7 +1356,7 @@
     "circle": "Sign-ups",
     "circleOpen": "Open to sign-ups",
     "circleSubtitle": "Open a sign-up link and people join this group themselves. Members get a personal page where they can leave in one click.",
-    "copyLink": "Copy",
+    "copyLink": "Copy the link",
     "circlePitchPlaceholder": "In one sentence: who this group is for, and what you'll consult it about.",
     "tagSelfJoined": "joined",
     "tagImported": "added",
@@ -1200,7 +1421,6 @@
     "convene": "Convene the members",
     "convenedCount": "{count, plural, one {# convened} other {# convened}}",
     "voteLinkLabel": "Personal voting link",
-    "copyLink": "Copy the link",
     "copied": "Copied ✓",
     "openEvent": "Open voting",
     "closeEvent": "Close the consultation",
@@ -1423,5 +1643,168 @@
     "closingPast": "past closing",
     "goExplore": "Explore public votes",
     "goSpaces": "My groups"
+  },
+  "Games": {
+    "metaTitle": "Play together — group games you share with a link",
+    "metaDescription": "Games to play together on your phones, no install and no account. Unanimo: write the words everyone else is thinking of.",
+    "title": "Play together",
+    "subtitle": "Games where the group thinks, surprises itself and decides together. One link, one nickname, and you're playing.",
+    "joinTitle": "Got a code?",
+    "joinPlaceholder": "ABC123",
+    "joinCta": "Enter",
+    "joinError": "No game with that code.",
+    "play": "Play",
+    "soon": "Soon",
+    "players": "{n} players",
+    "minutes": "{n} min",
+    "unanimo": {
+      "name": "Unanimo",
+      "tagline": "Think like the others",
+      "desc": "One theme, a few words. You score for every word another player wrote too. The fun is agreeing without saying a thing."
+    },
+    "loup-garou": {
+      "name": "Werewolf",
+      "tagline": "The village wakes up",
+      "desc": "Secret votes, hidden roles, nights that claim victims. In the works — it will reuse the very same room as Unanimo."
+    },
+    "engineTitle": "Underneath these games, there's Placet.",
+    "engineText": "The same engine is used to decide for real: pick a date, settle between options, share out places.",
+    "engineCta": "Discover Placet"
+  },
+  "Unanimo": {
+    "metaTitle": "Unanimo — write the words everyone is thinking of",
+    "metaDescription": "One theme, a few words, and points for every word someone else wrote too. Play together on your phones, no account.",
+    "name": "Unanimo",
+    "back": "All games",
+    "poweredBy": "Powered by Placet",
+    "offline": "Connection lost — retrying",
+    "loading": "One moment…",
+    "missing": {
+      "title": "This game is gone",
+      "hint": "The code may be wrong, or the game has been cleared away. Shall we start another?",
+      "cta": "Create a game"
+    },
+    "join": {
+      "title": "Join the game",
+      "hint": "Pick a nickname. That's all.",
+      "hintPlayers": "{count, plural, one {# player is already in.} other {# players are already in.}} Pick a nickname.",
+      "placeholder": "Your nickname",
+      "cta": "Join",
+      "busy": "Going in…",
+      "errNameTaken": "That nickname is already taken in this game.",
+      "errFull": "This game is full.",
+      "errNotFound": "This game is gone.",
+      "errGeneric": "That didn't work. Try again."
+    },
+    "rules": {
+      "title": "The rule, in three lines",
+      "body": "A theme appears. Everyone secretly writes the words it brings to mind. At the reveal, a word scores as many points as there are players who wrote it — and nothing at all if you were the only one."
+    },
+    "players": {
+      "joinedAt": "joined in round {n}",
+      "host": "host",
+      "waiting": "joins next round",
+      "idle": "quiet for a while",
+      "done": "has answered"
+    },
+    "share": {
+      "code": "Game code",
+      "copy": "Copy link",
+      "copied": "Copied",
+      "share": "Share",
+      "whatsapp": "WhatsApp",
+      "text": "Fancy a game of Unanimo? Join us:"
+    },
+    "rank": {
+      "title": "Standings"
+    },
+    "round": {
+      "of": "Round {n} / {total}",
+      "theme": "The theme",
+      "instructions": "Write up to {max} words it brings to mind. A word scores if someone else thought of it too."
+    },
+    "lobby": {
+      "invite": "Get everyone in",
+      "rounds": "Number of rounds",
+      "roundsHint": "can be changed mid-game",
+      "fewer": "One round fewer",
+      "more": "One round more",
+      "start": "Start the first round",
+      "waitHost": "Waiting for the host to start the first round."
+    },
+    "wait": {
+      "progress": "{n} / {total} have answered",
+      "done": "Sent",
+      "hint": "You can still change your words until the reveal.",
+      "edit": "Change my words"
+    },
+    "late": {
+      "title": "You join in round {n}",
+      "hint": "A round is under way: you'll watch this one go by, then play the next. You start on 0 points — being late is part of the game."
+    },
+    "host": {
+      "reveal": "Reveal the answers",
+      "revealHint": "you can reveal without waiting for the missing ones",
+      "next": "Next round",
+      "finish": "See the final standings",
+      "more": "{count, plural, one {One more round} other {# more rounds}}",
+      "waitNext": "The host starts the next round."
+    },
+    "reveal": {
+      "common": "Words in common",
+      "alone": "Nobody else had it",
+      "nobodyElse": "No words in common this time — it happens, and it's funny too.",
+      "myRound": "Your round",
+      "roundTable": "This round",
+      "noAnswer": "no answer",
+      "andMore": "+{n}",
+      "empty": "Nobody answered this round."
+    },
+    "input": {
+      "placeholder": "A word…",
+      "add": "Add this word",
+      "count": "{n} / {max} words",
+      "send": "Send my words",
+      "update": "Update my words",
+      "sending": "Sending…",
+      "duplicate": "“{word}” already counts for you",
+      "isTheme": "The theme itself scores nothing",
+      "full": "{max} words is the most",
+      "remove": "Remove {word}"
+    },
+    "final": {
+      "title": "Game over",
+      "winner": "{name} wins",
+      "tie": "A perfect tie!",
+      "rounds": "{count, plural, one {# round played} other {# rounds played}}",
+      "ranking": "Final standings",
+      "replay": "Play again",
+      "joinNew": "Join the new game",
+      "waitHost": "The host can start another game."
+    },
+    "create": {
+      "hero": "Write the words everyone is thinking of",
+      "pitch": "One theme. Everyone writes their words in secret. You score for every word someone else had too.",
+      "name": "Your nickname",
+      "rounds": "Rounds",
+      "roundsN": "{n}",
+      "roundsHint": "You can add more mid-game.",
+      "words": "Words per round",
+      "wordsN": "{n} words",
+      "cta": "Create the game",
+      "creating": "Setting the table…",
+      "noAccount": "No account, no install.",
+      "error": "The game could not be created. Try again.",
+      "joinCode": "Join with a code",
+      "codePlaceholder": "ABC123",
+      "join": "Enter",
+      "badCode": "No game with that code."
+    },
+    "how": {
+      "title": "How it goes",
+      "s1": "You create the game and share the link or the code — everyone is in within ten seconds.",
+      "s2": "A theme appears. Everyone writes their words on their own phone, without seeing the others.",
+      "s3": "You reveal whenever you like. Shared words score, points add up, and on you go."
+    }
   }
 }

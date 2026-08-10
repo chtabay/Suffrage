@@ -79,16 +79,83 @@ const walk = (dir) => {
 };
 walk(fileURLToPath(new URL("../src", import.meta.url)));
 
+// `t("wait.progress")` doit se résoudre à travers les SOUS-OBJETS, comme le fait
+// next-intl. Le contrôle se contentait d'un `key in table`, qui ne voit que le
+// premier niveau : une clé imbriquée pourtant correcte était donc signalée
+// manquante, et l'unique échappatoire était d'aplatir tout un namespace. On
+// descend le chemin, et on exige une CHAÎNE à l'arrivée — viser un sous-objet
+// (`t("wait")`) lève à l'exécution, c'est donc une faute, pas un raccourci.
+const resolve = (table, path) =>
+  path.split(".").reduce((node, part) => (node && typeof node === "object" ? node[part] : undefined), table);
+
+// ------------------------------------------------------------ 3. arguments
+// Les NOMS passés à l'appel doivent couvrir les variables du message.
+//
+// Ajouté après un troisième bug arrivé à l'écran, d'une famille que ni la parité
+// ni la résolution ne voyaient : le message disait `{count, plural, …}` et
+// l'appel passait `{ n }`. La clé existait, les quatre langues étaient
+// d'accord — et l'écran affichait « Unanimo.host.more » en clair, parce qu'un
+// argument manquant fait échouer le formatage ICU, pas seulement l'interpolation.
+//
+// On ne signale QUE le manque. Un argument passé en trop est sans effet, et
+// l'exiger interdirait de partager un même objet de paramètres entre appels.
+//
+// Renvoie la liste des noms passés, ou `null` quand on ne sait pas lire l'appel
+// (objet étalé, variable, appel sur plusieurs niveaux d'imbrication) : dans le
+// doute, on se taît plutôt que de crier à tort.
+const callArgs = (src, from) => {
+  let i = from;
+  while (i < src.length && /\s/.test(src[i])) i++;
+  if (src[i] !== ",") return []; // aucun argument passé
+  i++;
+  while (i < src.length && /\s/.test(src[i])) i++;
+  if (src[i] !== "{") return null; // `t("k", params)` : illisible d'ici
+  let depth = 0;
+  const start = i;
+  for (; i < src.length; i++) {
+    if (src[i] === "{") depth++;
+    else if (src[i] === "}" && --depth === 0) break;
+  }
+  const body = src.slice(start + 1, i);
+  if (body.includes("...")) return null; // étalement : on ne peut pas conclure
+  const names = new Set();
+  // `{ n: 3 }`, `{ n }`, `{ count: x, total: y }` — uniquement le premier niveau.
+  let level = 0;
+  for (const m of body.matchAll(/[{}[\]()]|([A-Za-z_$][\w$]*)\s*(:|,|$)/g)) {
+    const tok = m[0];
+    if (/[{[(]/.test(tok)) level++;
+    else if (/[}\])]/.test(tok)) level--;
+    else if (level === 0 && m[1]) names.add(m[1]);
+  }
+  return [...names];
+};
+
 let used = 0;
 for (const file of sources) {
   const src = readFileSync(file, "utf8");
+  const short = file.split(/[\\/]/).pop();
   // `const t = useTranslations("Org")` → toute occurrence de `t("clé")` vise Org.
   for (const [, alias, ns] of src.matchAll(/const\s+(\w+)\s*=\s*useTranslations\(\s*"([^"]+)"\s*\)/g)) {
     const table = REF[ns] ?? {};
-    for (const [, key] of src.matchAll(new RegExp(`\\b${alias}\\(\\s*"([^"]+)"`, "g"))) {
+    for (const m of src.matchAll(new RegExp(`\\b${alias}\\(\\s*"([^"]+)"`, "g"))) {
+      const key = m[1];
       used++;
-      if (!(key in table)) {
-        errors.push(`${file.split(/[\\/]/).pop()} utilise ${ns}.${key} — introuvable (mauvais namespace ?)`);
+      const found = resolve(table, key);
+      if (typeof found !== "string") {
+        const why = found === undefined ? "introuvable (mauvais namespace ?)" : "pointe un groupe, pas un libellé";
+        errors.push(`${short} utilise ${ns}.${key} — ${why}`);
+        continue;
+      }
+      const needed = vars(found).split(",").filter(Boolean);
+      if (!needed.length) continue;
+      const passed = callArgs(src, m.index + m[0].length);
+      if (passed === null) continue;
+      const missing = needed.filter((v) => !passed.includes(v));
+      if (missing.length) {
+        errors.push(
+          `${short} appelle ${ns}.${key} sans ${missing.map((v) => `{${v}}`).join(", ")}` +
+            `${passed.length ? ` (passe ${passed.map((v) => `{${v}}`).join(", ")})` : " (aucun argument)"}`,
+        );
       }
     }
   }

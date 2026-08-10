@@ -91,7 +91,8 @@
     "methods": "Methods",
     "create": "Create",
     "signIn": "Sign in",
-    "signOut": "Sign out"
+    "signOut": "Sign out",
+    "games": "Play"
   },
   "Home": {
     "badge": "Group decision, easy way",
@@ -154,7 +155,10 @@
       "s3Label": "STEP 3",
       "s3Title": "Vote & count",
       "s3Text": "Everybody go vote, we go calculate di winner with di real method — and we go tell you why."
-    }
+    },
+    "gamesTitle": "Play together",
+    "gamesText": "Di same engine sweet for play too: games for group, one link to share, no account.",
+    "gamesCta": "See di games"
   },
   "Create": {
     "pageTitle": "Wetin you wan decide?",
@@ -175,7 +179,12 @@
     "proposalsHeading": "DI PROPOSALS",
     "changeEmoji": "Change emoji",
     "optionFallbackPlaceholder": "Anoda option…",
-    "optionPlaceholders": ["Di mountains", "Di beach", "Big city", "Di village"],
+    "optionPlaceholders": [
+      "Di mountains",
+      "Di beach",
+      "Big city",
+      "Di village"
+    ],
     "newOptionDefault": "New option",
     "attachIllustrationTitle": "Option details: link, place, comment",
     "attachIllustrationAria": "Option details",
@@ -654,40 +663,80 @@
         "tagline": "Everybody pick for im turn, for drawn order.",
         "strength": "Simple and nobody fit argue",
         "how": "We draw turn order — from di poll token, so anybody fit verify am. Each person, for im turn, go collect im favourite among wetin remain.",
-        "pros": ["Impossible to cheat: sincere ranking na always di best", "Very easy to explain and accept", "Verifiable draw, no favouritism possible"],
-        "cons": ["Di last people for di order go collect leftovers", "Luck dey weigh heavy for di result", "E no look how strong di preferences be"]
+        "pros": [
+          "Impossible to cheat: sincere ranking na always di best",
+          "Very easy to explain and accept",
+          "Verifiable draw, no favouritism possible"
+        ],
+        "cons": [
+          "Di last people for di order go collect leftovers",
+          "Luck dey weigh heavy for di result",
+          "E no look how strong di preferences be"
+        ]
       },
       "optimal_sum": {
         "name": "Maximum satisfaction",
         "tagline": "Di sharing wey go please di most people, calculated exact.",
         "strength": "Collective optimum",
         "how": "Each sharing \"cost\" di position wey e hold for di person ranking (1st choice = 0, 2nd = 1…). Di Hungarian algorithm go find di sharing with di smallest total cost: di best overall satisfaction, exact.",
-        "pros": ["Di best total satisfaction wey possible", "No draw involved", "Exact result, no be approximate"],
-        "cons": ["E fit sacrifice one person for common good", "Tactical rankings dey possible", "E no too easy to explain"]
+        "pros": [
+          "Di best total satisfaction wey possible",
+          "No draw involved",
+          "Exact result, no be approximate"
+        ],
+        "cons": [
+          "E fit sacrifice one person for common good",
+          "Tactical rankings dey possible",
+          "E no too easy to explain"
+        ]
       },
       "top_trading_cycles": {
         "name": "Trading circle",
         "tagline": "Everybody don already own something; win-win swap cycles.",
         "strength": "Nobody dey lose",
         "how": "Everybody don already own one thing (di Nth person for di list own di Nth thing) and rank all di things. Di algorithm go run swap cycles on di remaining favourites until e finish. Nobody go end up worse pass wetin dem start with.",
-        "pros": ["Nobody go end up worse pass di start", "Sincere ranking na always di best", "Every win-win trade go happen"],
-        "cons": ["Everybody need starting property", "Exactly as many things as people", "Di result depend well well on di starting property"]
+        "pros": [
+          "Nobody go end up worse pass di start",
+          "Sincere ranking na always di best",
+          "Every win-win trade go happen"
+        ],
+        "cons": [
+          "Everybody need starting property",
+          "Exactly as many things as people",
+          "Di result depend well well on di starting property"
+        ]
       },
       "stable_roommates": {
         "name": "Stable pairs",
         "tagline": "Pairs wey nobody get interest to leave.",
         "strength": "Solid pairs",
         "how": "Everybody rank di oda participants. Irving algorithm go find stable pairs: no two people go prefer each oda pass dia assigned partners. E fit prove say no stable pairing dey exist — den we go announce di fallback: picking rounds for drawn order.",
-        "pros": ["No pair wan \"run away\" togeda", "E dey based on both sides preferences", "E dey honestly detect impossible cases"],
-        "cons": ["Stable pairing no dey always exist", "E need even number", "To rank everybody fit take time"]
+        "pros": [
+          "No pair wan \"run away\" togeda",
+          "E dey based on both sides preferences",
+          "E dey honestly detect impossible cases"
+        ],
+        "cons": [
+          "Stable pairing no dey always exist",
+          "E need even number",
+          "To rank everybody fit take time"
+        ]
       },
       "gale_shapley": {
         "name": "Two groups (Parcoursup)",
         "tagline": "Two sides rank each oda; stable matching.",
         "strength": "Stable, Parcoursup-style",
         "how": "Two groups rank each oda (candidates and programmes, mentees and mentors…). Deferred acceptance (Gale-Shapley) go produce stable matching: no duo go prefer each oda pass dia assignment. Side 1 dey propose — di method favour am; each side-2 entry fit host plenty people (capacities).",
-        "pros": ["Always stable matching", "E handle capacities (plenty spots per side-2 entry)", "Sincere ranking na optimal for side 1"],
-        "cons": ["E dey favour di side wey propose", "Side 2 fit rank tactical", "Some people go remain unmatched if spots finish"]
+        "pros": [
+          "Always stable matching",
+          "E handle capacities (plenty spots per side-2 entry)",
+          "Sincere ranking na optimal for side 1"
+        ],
+        "cons": [
+          "E dey favour di side wey propose",
+          "Side 2 fit rank tactical",
+          "Some people go remain unmatched if spots finish"
+        ]
       }
     }
   },
@@ -885,18 +934,190 @@
   },
   "Methods": {
     "twoRounds": "two-round",
-    "family": { "fptp": "Direct vote · 1 round", "runoff": "Direct vote · 2 rounds", "condorcet": "Ranking · duels", "condorcet_random": "Ranking · duels + draw", "mj": "Grades · median", "approval": "Checkboxes", "borda": "Ranking · points", "proportional": "Seats · d'Hondt", "indirect": "Indirect vote", "list": "Lists · majority bonus" },
-    "whenToUse": { "fptp": "Decide fast: one round, di one wey get most votes win.", "runoff": "Make sure say person get absolute majority, with second round if e necessary.", "approval": "Plenty acceptable choice: everybody tick all wey dey okay for dem.", "borda": "Favour broad agreement from ranking.", "condorcet": "Pick di one wey win every duel (true agreement).", "condorcet_random": "Condorcet, but you break di lock by luck.", "mj": "Judge by grades; e reduce tactical voting.", "proportional": "Share seats according to votes (assembly).", "list": "Vote for lists with majority bonus (local elections).", "indirect": "Vote by district / electoral college." },
-    "fptp": { "name": "First-past-the-post", "tagline": "Most votes win.", "strength": "Simple and fast", "how": "Everybody vote for one candidate. Di one wey get most votes win, even if e no reach clear majority.", "pros": ["Very easy to understand", "Result sharp sharp", "Na one trip to di ballot"], "cons": ["Winner wey 60% of voters reject", "E dey push people to vote tactical", "E dey crush small options"] },
-    "runoff": { "name": "Two-round runoff", "tagline": "Absolute majority or second round.", "strength": "Absolute majority", "how": "If nobody reach 50%, di top two go face off for second round. Di final winner sure to get absolute majority.", "pros": ["Di winner pass 50%", "You fit vote your heart for round one", "System wey people sabi"], "cons": ["Two ballots to run", "Di third person fit be betta agreement", "Vote transfer no dey predictable"] },
-    "condorcet": { "name": "Simple Condorcet", "tagline": "Di champion of every duel.", "strength": "True agreement", "how": "Everybody rank di options. We go simulate every one-on-one duel: di winner na di one wey beat all di oders.", "pros": ["E pick di true agreement", "E no dey fall for tactical voting", "E hard to manipulate well well"], "cons": ["Sometimes no winner at all (paradox)", "Longer ballot to fill", "E complex to count"] },
-    "condorcet_random": { "name": "Randomised Condorcet", "tagline": "Condorcet, with luck to break di lock.", "strength": "Always get result", "how": "Like Condorcet, but when di duels dey go round in circle (A>B>C>A), we go draw di winner by luck from di loop wey lock.", "pros": ["E always get result", "E keep di agreement logic", "E discourage tactical lock"], "cons": ["You gatz accept small luck", "E hard to explain", "E fit surprise you for paradox"] },
-    "mj": { "name": "Majority judgment", "tagline": "You grade, di majority grade win.", "strength": "E measure support", "how": "Everybody give each option grade (from \"Reject\" to \"Excellent\"). Di option wey get di highest median grade win.", "pros": ["E show plenty feeling, no be just one choice", "E reduce tactical voting", "E measure real support"], "cons": ["Di median no too clear", "Longer ballot", "Plenty tie fit happen"] },
-    "approval": { "name": "Approval voting", "tagline": "Tick everybody wey you dey okay with.", "strength": "Simple and agree", "how": "Everybody tick as many options as dem approve. Di one wey most people approve win.", "pros": ["Very simple", "E favour agreement options", "No tactical voting"], "cons": ["E no rank preference", "E dey depend on each voter threshold", "People no dey use am, dem no sabi am"] },
-    "borda": { "name": "Borda count", "tagline": "Points according to rank.", "strength": "Broad agreement", "how": "Everybody rank di options. First place get n-1 points, second n-2, and so on. Add dem: most points win.", "pros": ["E reward broad agreement", "E take di whole ranking into account", "E simple to calculate"], "cons": ["E dey sensitive to \"clone\" candidates", "E open to tactical ranking", "E fit push aside favourite wey divide people"] },
-    "proportional": { "name": "Proportional representation", "tagline": "Seats according to votes.", "strength": "E reflect every vote", "how": "Instead of one winner, we go share di seats according to di votes (d'Hondt method). E perfect for assembly.", "pros": ["E reflect opinion well well", "E give minority space", "Small vote dey waste"], "cons": ["No clear single winner", "E fit force coalition", "Di threshold go comot di smallest"] },
-    "indirect": { "name": "Electoral college", "tagline": "Voting by constituency.", "strength": "Territorial balance", "how": "We go split voters into constituency. Each one go pick local champion — by whichever count you choose — wey go collect im electors. Di highest elector count win.", "pros": ["E balance di territories", "Result wey clear and organized", "E reduce big fraud"], "cons": ["Di one wey win popular vote fit still lose", "Vote dey waste for stronghold", "E dey depend on di boundaries"] },
-    "list": { "name": "Party-list vote", "tagline": "Di leading list take half di seats, di rest go proportional.", "strength": "Stable majority", "how": "You vote for whole list (like French local elections). Di list wey come first automatic get half di seats — di majority bonus — den we go share di oda half proportional among every list wey pass 5%, bonus join.", "pros": ["E give stable majority to govern", "E still represent minority", "One ballot, very simple"], "cons": ["E over-represent di winning list well well", "Di list leader hold plenty power", "Di 5% threshold comot small lists"] }
+    "family": {
+      "fptp": "Direct vote · 1 round",
+      "runoff": "Direct vote · 2 rounds",
+      "condorcet": "Ranking · duels",
+      "condorcet_random": "Ranking · duels + draw",
+      "mj": "Grades · median",
+      "approval": "Checkboxes",
+      "borda": "Ranking · points",
+      "proportional": "Seats · d'Hondt",
+      "indirect": "Indirect vote",
+      "list": "Lists · majority bonus"
+    },
+    "whenToUse": {
+      "fptp": "Decide fast: one round, di one wey get most votes win.",
+      "runoff": "Make sure say person get absolute majority, with second round if e necessary.",
+      "approval": "Plenty acceptable choice: everybody tick all wey dey okay for dem.",
+      "borda": "Favour broad agreement from ranking.",
+      "condorcet": "Pick di one wey win every duel (true agreement).",
+      "condorcet_random": "Condorcet, but you break di lock by luck.",
+      "mj": "Judge by grades; e reduce tactical voting.",
+      "proportional": "Share seats according to votes (assembly).",
+      "list": "Vote for lists with majority bonus (local elections).",
+      "indirect": "Vote by district / electoral college."
+    },
+    "fptp": {
+      "name": "First-past-the-post",
+      "tagline": "Most votes win.",
+      "strength": "Simple and fast",
+      "how": "Everybody vote for one candidate. Di one wey get most votes win, even if e no reach clear majority.",
+      "pros": [
+        "Very easy to understand",
+        "Result sharp sharp",
+        "Na one trip to di ballot"
+      ],
+      "cons": [
+        "Winner wey 60% of voters reject",
+        "E dey push people to vote tactical",
+        "E dey crush small options"
+      ]
+    },
+    "runoff": {
+      "name": "Two-round runoff",
+      "tagline": "Absolute majority or second round.",
+      "strength": "Absolute majority",
+      "how": "If nobody reach 50%, di top two go face off for second round. Di final winner sure to get absolute majority.",
+      "pros": [
+        "Di winner pass 50%",
+        "You fit vote your heart for round one",
+        "System wey people sabi"
+      ],
+      "cons": [
+        "Two ballots to run",
+        "Di third person fit be betta agreement",
+        "Vote transfer no dey predictable"
+      ]
+    },
+    "condorcet": {
+      "name": "Simple Condorcet",
+      "tagline": "Di champion of every duel.",
+      "strength": "True agreement",
+      "how": "Everybody rank di options. We go simulate every one-on-one duel: di winner na di one wey beat all di oders.",
+      "pros": [
+        "E pick di true agreement",
+        "E no dey fall for tactical voting",
+        "E hard to manipulate well well"
+      ],
+      "cons": [
+        "Sometimes no winner at all (paradox)",
+        "Longer ballot to fill",
+        "E complex to count"
+      ]
+    },
+    "condorcet_random": {
+      "name": "Randomised Condorcet",
+      "tagline": "Condorcet, with luck to break di lock.",
+      "strength": "Always get result",
+      "how": "Like Condorcet, but when di duels dey go round in circle (A>B>C>A), we go draw di winner by luck from di loop wey lock.",
+      "pros": [
+        "E always get result",
+        "E keep di agreement logic",
+        "E discourage tactical lock"
+      ],
+      "cons": [
+        "You gatz accept small luck",
+        "E hard to explain",
+        "E fit surprise you for paradox"
+      ]
+    },
+    "mj": {
+      "name": "Majority judgment",
+      "tagline": "You grade, di majority grade win.",
+      "strength": "E measure support",
+      "how": "Everybody give each option grade (from \"Reject\" to \"Excellent\"). Di option wey get di highest median grade win.",
+      "pros": [
+        "E show plenty feeling, no be just one choice",
+        "E reduce tactical voting",
+        "E measure real support"
+      ],
+      "cons": [
+        "Di median no too clear",
+        "Longer ballot",
+        "Plenty tie fit happen"
+      ]
+    },
+    "approval": {
+      "name": "Approval voting",
+      "tagline": "Tick everybody wey you dey okay with.",
+      "strength": "Simple and agree",
+      "how": "Everybody tick as many options as dem approve. Di one wey most people approve win.",
+      "pros": [
+        "Very simple",
+        "E favour agreement options",
+        "No tactical voting"
+      ],
+      "cons": [
+        "E no rank preference",
+        "E dey depend on each voter threshold",
+        "People no dey use am, dem no sabi am"
+      ]
+    },
+    "borda": {
+      "name": "Borda count",
+      "tagline": "Points according to rank.",
+      "strength": "Broad agreement",
+      "how": "Everybody rank di options. First place get n-1 points, second n-2, and so on. Add dem: most points win.",
+      "pros": [
+        "E reward broad agreement",
+        "E take di whole ranking into account",
+        "E simple to calculate"
+      ],
+      "cons": [
+        "E dey sensitive to \"clone\" candidates",
+        "E open to tactical ranking",
+        "E fit push aside favourite wey divide people"
+      ]
+    },
+    "proportional": {
+      "name": "Proportional representation",
+      "tagline": "Seats according to votes.",
+      "strength": "E reflect every vote",
+      "how": "Instead of one winner, we go share di seats according to di votes (d'Hondt method). E perfect for assembly.",
+      "pros": [
+        "E reflect opinion well well",
+        "E give minority space",
+        "Small vote dey waste"
+      ],
+      "cons": [
+        "No clear single winner",
+        "E fit force coalition",
+        "Di threshold go comot di smallest"
+      ]
+    },
+    "indirect": {
+      "name": "Electoral college",
+      "tagline": "Voting by constituency.",
+      "strength": "Territorial balance",
+      "how": "We go split voters into constituency. Each one go pick local champion — by whichever count you choose — wey go collect im electors. Di highest elector count win.",
+      "pros": [
+        "E balance di territories",
+        "Result wey clear and organized",
+        "E reduce big fraud"
+      ],
+      "cons": [
+        "Di one wey win popular vote fit still lose",
+        "Vote dey waste for stronghold",
+        "E dey depend on di boundaries"
+      ]
+    },
+    "list": {
+      "name": "Party-list vote",
+      "tagline": "Di leading list take half di seats, di rest go proportional.",
+      "strength": "Stable majority",
+      "how": "You vote for whole list (like French local elections). Di list wey come first automatic get half di seats — di majority bonus — den we go share di oda half proportional among every list wey pass 5%, bonus join.",
+      "pros": [
+        "E give stable majority to govern",
+        "E still represent minority",
+        "One ballot, very simple"
+      ],
+      "cons": [
+        "E over-represent di winning list well well",
+        "Di list leader hold plenty power",
+        "Di 5% threshold comot small lists"
+      ]
+    }
   },
   "AiDoc": {
     "metaTitle": "Placet for AI — generate voting link",
@@ -1135,7 +1356,7 @@
     "circle": "Sign-ups",
     "circleOpen": "Open am for sign-up",
     "circleSubtitle": "Open one join link and people go join dis group demsef. Members go get personal page wia dem fit comot with one click.",
-    "copyLink": "Copy",
+    "copyLink": "Copy di link",
     "circlePitchPlaceholder": "For one sentence: who dis group be for, and wetin you go ask dem.",
     "tagSelfJoined": "don join",
     "tagImported": "dem add am",
@@ -1200,7 +1421,6 @@
     "convene": "Convene di members",
     "convenedCount": "{count, plural, one {# convened} other {# convened}}",
     "voteLinkLabel": "Personal voting link",
-    "copyLink": "Copy di link",
     "copied": "Copied ✓",
     "openEvent": "Open voting",
     "closeEvent": "Close di series",
@@ -1423,5 +1643,168 @@
     "closingPast": "closing don pass",
     "goExplore": "Explore public votes",
     "goSpaces": "My groups"
+  },
+  "Games": {
+    "metaTitle": "Play together — group games wey you share with one link",
+    "metaDescription": "Games wey plenty people go play on dem phone, no install, no account. Unanimo: write di words wey everybody dey think.",
+    "title": "Play together",
+    "subtitle": "Games where di group dey think, dey surprise demself, and dey decide together. One link, one nickname, and una don start.",
+    "joinTitle": "Dem give you code?",
+    "joinPlaceholder": "ABC123",
+    "joinCta": "Enter",
+    "joinError": "No game with dat code.",
+    "play": "Play",
+    "soon": "Soon",
+    "players": "{n} players",
+    "minutes": "{n} min",
+    "unanimo": {
+      "name": "Unanimo",
+      "tagline": "Think like di others",
+      "desc": "One theme, small words. You get point for every word wey another player write too. Di sweet part na to agree without talking."
+    },
+    "loup-garou": {
+      "name": "Werewolf",
+      "tagline": "Di village dey wake up",
+      "desc": "Secret vote, hidden role, night wey dey carry person go. We dey work on am — e go use di same room like Unanimo."
+    },
+    "engineTitle": "Under dis games, Placet dey.",
+    "engineText": "Di same engine dey help people decide for real: pick date, choose between options, share places.",
+    "engineCta": "See Placet"
+  },
+  "Unanimo": {
+    "metaTitle": "Unanimo — write di words wey everybody dey think",
+    "metaDescription": "One theme, small words, and point for every word wey another person write too. Plenty people, on dem phone, no account.",
+    "name": "Unanimo",
+    "back": "All di games",
+    "poweredBy": "Placet dey power am",
+    "offline": "Network cut — we dey try again",
+    "loading": "Small time…",
+    "missing": {
+      "title": "Dis game no dey again",
+      "hint": "Maybe di code no correct, or dem clear di game. You wan start another one?",
+      "cta": "Create game"
+    },
+    "join": {
+      "title": "Join di game",
+      "hint": "Pick nickname. Na all.",
+      "hintPlayers": "{count, plural, one {# player dey inside already.} other {# players dey inside already.}} Pick nickname.",
+      "placeholder": "Your nickname",
+      "cta": "Join",
+      "busy": "We dey enter…",
+      "errNameTaken": "Somebody don take dat nickname for dis game.",
+      "errFull": "Dis game full.",
+      "errNotFound": "Dis game no dey again.",
+      "errGeneric": "E no work. Try again."
+    },
+    "rules": {
+      "title": "Di rule, for three line",
+      "body": "One theme go show. Everybody go write di words wey e bring to dem mind, quietly. When dem reveal, one word go carry as many point as di number of players wey write am — and notin at all if na only you get am."
+    },
+    "players": {
+      "joinedAt": "join for round {n}",
+      "host": "host",
+      "waiting": "e go enter next round",
+      "idle": "quiet since",
+      "done": "don answer"
+    },
+    "share": {
+      "code": "Game code",
+      "copy": "Copy di link",
+      "copied": "Copied",
+      "share": "Share",
+      "whatsapp": "WhatsApp",
+      "text": "You wan play Unanimo? Come join us:"
+    },
+    "rank": {
+      "title": "Table"
+    },
+    "round": {
+      "of": "Round {n} / {total}",
+      "theme": "Di theme",
+      "instructions": "Write up to {max} words wey e bring to your mind. Word go score if another person also think am."
+    },
+    "lobby": {
+      "invite": "Make everybody enter",
+      "rounds": "How many round",
+      "roundsHint": "you can change am while game dey go",
+      "fewer": "One round less",
+      "more": "One round more",
+      "start": "Start di first round",
+      "waitHost": "We dey wait host make e start di first round."
+    },
+    "wait": {
+      "progress": "{n} / {total} don answer",
+      "done": "Don send",
+      "hint": "You still fit change your words before dem reveal.",
+      "edit": "Change my words"
+    },
+    "late": {
+      "title": "You dey enter for round {n}",
+      "hint": "Round dey happen now: you go watch dis one finish, den you play di next one. You start with 0 point — to come late na part of di game."
+    },
+    "host": {
+      "reveal": "Reveal di answers",
+      "revealHint": "you fit reveal without waiting di ones wey no answer",
+      "next": "Next round",
+      "finish": "See di final table",
+      "more": "{count, plural, one {One more round} other {# more rounds}}",
+      "waitNext": "Host go start di next round."
+    },
+    "reveal": {
+      "common": "Di words wey una share",
+      "alone": "Nobody else get am",
+      "nobodyElse": "Nobody share word dis time — e dey happen, and e still funny.",
+      "myRound": "Your round",
+      "roundTable": "Dis round",
+      "noAnswer": "no answer",
+      "andMore": "+{n}",
+      "empty": "Nobody answer dis round."
+    },
+    "input": {
+      "placeholder": "One word…",
+      "add": "Add dis word",
+      "count": "{n} / {max} words",
+      "send": "Send my words",
+      "update": "Update my words",
+      "sending": "Dey send…",
+      "duplicate": "“{word}” don count for you already",
+      "isTheme": "Di theme itself no carry point",
+      "full": "{max} words na di maximum",
+      "remove": "Remove {word}"
+    },
+    "final": {
+      "title": "Game done",
+      "winner": "{name} win",
+      "tie": "Correct draw!",
+      "rounds": "{count, plural, one {# round wey una play} other {# rounds wey una play}}",
+      "ranking": "Final table",
+      "replay": "Play again",
+      "joinNew": "Join di new game",
+      "waitHost": "Host fit start another game."
+    },
+    "create": {
+      "hero": "Write di words wey everybody dey think",
+      "pitch": "One theme. Everybody write dem words quietly. You get point for every word wey another person also get.",
+      "name": "Your nickname",
+      "rounds": "Rounds",
+      "roundsN": "{n}",
+      "roundsHint": "You go fit add more while game dey go.",
+      "words": "Words per round",
+      "wordsN": "{n} words",
+      "cta": "Create di game",
+      "creating": "We dey set di table…",
+      "noAccount": "No account, no install.",
+      "error": "We no be able create di game. Try again.",
+      "joinCode": "Join with code",
+      "codePlaceholder": "ABC123",
+      "join": "Enter",
+      "badCode": "No game with dat code."
+    },
+    "how": {
+      "title": "How e go go",
+      "s1": "You create di game and share di link or di code — everybody go enter inside ten seconds.",
+      "s2": "One theme go show. Everybody write dem words on dem own phone, dem no dey see di others.",
+      "s3": "You reveal any time you like. Di words wey una share dey carry point, points add up, and una continue."
+    }
   }
 }

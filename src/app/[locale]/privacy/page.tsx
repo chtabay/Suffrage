@@ -38,7 +38,7 @@ export default async function PrivacyPage({ params }: { params: Promise<{ locale
   const c = pickLocale<Content>(locale, {
     fr: {
       title: "Politique de confidentialité",
-      updated: "Dernière mise à jour : 28 juin 2026",
+      updated: "Dernière mise à jour : 10 août 2026",
       intro:
         "Placet (placet.app) permet à un groupe d'organiser de vrais votes. Cette page explique ce que nous collectons et pourquoi. Nous gardons le strict minimum.",
       sections: [
@@ -51,8 +51,12 @@ export default async function PrivacyPage({ params }: { params: Promise<{ locale
           p: "Quand vous utilisez la commande /placet, nous stockons l'identifiant de votre espace de travail, l'identifiant du canal et les identifiants Slack nécessaires pour construire le vote et publier le résultat. Nous demandons des permissions minimales (commands, chat:write) plus users:read pour afficher le bot dans votre langue. Nous ne lisons jamais vos messages.",
         },
         {
+          h: "Ce que nous collectons — dans les jeux",
+          p: "Une partie n'exige aucun compte. Chaque joueur choisit un prénom ou un pseudo, puis saisit ses mots à chaque manche. Ce prénom est montré aux autres joueurs de la salle, à côté des mots et des points de chaque manche : n'y mettez que ce que vous acceptez de montrer au groupe. Rien de tout cela n'est rattaché à un compte ni réutilisé ailleurs dans Placet.",
+        },
+        {
           h: "Pourquoi",
-          p: "Uniquement pour fournir le service de vote : créer les scrutins, enregistrer les bulletins, calculer et afficher les résultats.",
+          p: "Uniquement pour fournir le service de vote : créer les scrutins, enregistrer les bulletins, calculer et afficher les résultats. Pour les jeux : faire tourner la partie et afficher les scores.",
         },
         {
           h: "Où sont stockées les données",
@@ -64,7 +68,7 @@ export default async function PrivacyPage({ params }: { params: Promise<{ locale
         },
         {
           h: "Conservation",
-          p: "Les votes et les bulletins sont conservés jusqu'à ce que vous les supprimiez ou nous le demandiez.",
+          p: "Les votes et les bulletins sont conservés jusqu'à ce que vous les supprimiez ou nous le demandiez. Les salles de jeu font exception : elles sont effacées automatiquement 7 jours après la dernière activité de la partie, avec les prénoms, les mots et les scores qu'elles contiennent.",
         },
         {
           h: "Vos droits",
@@ -83,7 +87,7 @@ export default async function PrivacyPage({ params }: { params: Promise<{ locale
     },
     en: {
       title: "Privacy policy",
-      updated: "Last updated: 28 June 2026",
+      updated: "Last updated: 10 August 2026",
       intro:
         "Placet (placet.app) lets a group run proper votes. This page explains what we collect and why. We keep it to a minimum.",
       sections: [
@@ -96,8 +100,12 @@ export default async function PrivacyPage({ params }: { params: Promise<{ locale
           p: "When you use the /placet command, we store your workspace ID, the channel ID, and the Slack IDs needed to build the vote and post the result. We request minimal permissions (commands, chat:write) plus users:read to show the bot in your language. We never read your messages.",
         },
         {
+          h: "What we collect — in games",
+          p: "A game needs no account. Each player picks a first name or nickname, then enters their words each round. That name is shown to the other players in the room, next to the words and points of each round: only put in what you're happy to show the group. None of it is attached to an account or reused elsewhere in Placet.",
+        },
+        {
           h: "Why",
-          p: "Solely to provide the voting service: create polls, record ballots, compute and display results.",
+          p: "Solely to provide the voting service: create polls, record ballots, compute and display results. For games: run the game and show the scores.",
         },
         {
           h: "Where data is stored",
@@ -109,7 +117,7 @@ export default async function PrivacyPage({ params }: { params: Promise<{ locale
         },
         {
           h: "Retention",
-          p: "Polls and ballots are kept until you delete them or ask us to.",
+          p: "Polls and ballots are kept until you delete them or ask us to. Game rooms are the exception: they are deleted automatically 7 days after the game's last activity, along with the names, words and scores they hold.",
         },
         {
           h: "Your rights",
@@ -128,7 +136,7 @@ export default async function PrivacyPage({ params }: { params: Promise<{ locale
     },
     es: {
       title: "Política de privacidad",
-      updated: "Última actualización: 28 de junio de 2026",
+      updated: "Última actualización: 10 de agosto de 2026",
       intro:
         "Placet (placet.app) permite a un grupo organizar votaciones de verdad. Esta página explica qué recopilamos y por qué. Lo mantenemos al mínimo.",
       sections: [
@@ -141,8 +149,12 @@ export default async function PrivacyPage({ params }: { params: Promise<{ locale
           p: "Cuando usas el comando /placet, almacenamos el identificador de tu espacio de trabajo, el del canal y los identificadores de Slack necesarios para construir la votación y publicar el resultado. Solicitamos permisos mínimos (commands, chat:write) más users:read para mostrar el bot en tu idioma. Nunca leemos tus mensajes.",
         },
         {
+          h: "Qué recopilamos — en los juegos",
+          p: "Una partida no requiere cuenta. Cada jugador elige un nombre o apodo y luego escribe sus palabras en cada ronda. Ese nombre se muestra a los demás jugadores de la sala, junto a las palabras y los puntos de cada ronda: pon solo lo que aceptes mostrar al grupo. Nada de esto se vincula a una cuenta ni se reutiliza en otro lugar de Placet.",
+        },
+        {
           h: "Por qué",
-          p: "Únicamente para prestar el servicio de votación: crear las votaciones, registrar las papeletas, calcular y mostrar los resultados.",
+          p: "Únicamente para prestar el servicio de votación: crear las votaciones, registrar las papeletas, calcular y mostrar los resultados. Para los juegos: hacer funcionar la partida y mostrar las puntuaciones.",
         },
         {
           h: "Dónde se almacenan los datos",
@@ -154,7 +166,7 @@ export default async function PrivacyPage({ params }: { params: Promise<{ locale
         },
         {
           h: "Conservación",
-          p: "Las votaciones y las papeletas se conservan hasta que las elimines o nos lo pidas.",
+          p: "Las votaciones y las papeletas se conservan hasta que las elimines o nos lo pidas. Las salas de juego son la excepción: se borran automáticamente 7 días después de la última actividad de la partida, junto con los nombres, las palabras y las puntuaciones que contienen.",
         },
         {
           h: "Tus derechos",

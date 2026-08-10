@@ -515,6 +515,48 @@ export default function HomeScreen({ ctrl }: { ctrl: ScrutinController }) {
       {/* Feed public — bande des derniers scrutins publiés (rien si <3 entrées) */}
       <PublicFeedStrip />
 
+      {/* Les jeux — l'autre usage du moteur. Bande discrète, au même rang que
+          l'intégration Slack : on ne détourne pas quelqu'un venu décider, mais
+          c'est bien ici qu'on découvre qu'il y a des jeux. */}
+      <div
+        style={{
+          marginTop: 40,
+          paddingTop: 22,
+          borderTop: `2px dashed ${INK}`,
+          display: "flex",
+          flexWrap: "wrap",
+          alignItems: "center",
+          justifyContent: "space-between",
+          gap: 14,
+        }}
+      >
+        <div style={{ fontSize: 14, color: SUBINK, lineHeight: 1.5, maxWidth: "46ch" }}>
+          <strong style={{ color: INK }}>{t("gamesTitle")}</strong> {t("gamesText")}
+        </div>
+        <Link
+          href="/games"
+          className="dc-lift"
+          style={{
+            flex: "none",
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 9,
+            fontFamily: FONT_DISPLAY,
+            fontWeight: 700,
+            fontSize: 14.5,
+            textDecoration: "none",
+            border: `2.5px solid ${INK}`,
+            background: "#fff",
+            color: INK,
+            padding: "11px 18px",
+            borderRadius: 12,
+            ...lift(`4px 4px 0 ${INK}`, `6px 6px 0 ${INK}`),
+          }}
+        >
+          <span aria-hidden>🧠</span> {t("gamesCta")}
+        </Link>
+      </div>
+
       {/* Intégration Slack — point d'entrée discret vers l'install */}
       <div
         style={{

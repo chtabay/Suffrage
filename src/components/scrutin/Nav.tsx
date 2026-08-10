@@ -247,6 +247,11 @@ export default function Nav() {
             <Mot href="/methodes">{t("methods")}</Mot>
             {/* Feed public : accessible à tous, sans compte. */}
             <Mot href="/explorer">{t("explore")}</Mot>
+            {/* Les jeux. Une PAGE, donc un mot — et il reste dans la bande alors
+                qu'il mène ailleurs (les jeux ont leur propre habillage) : c'est
+                Placet qui les fait découvrir, la réciproque se fait en pied de
+                chaque partie. */}
+            <Mot href="/games">{t("games")}</Mot>
             {/* Régie : une page, donc un mot. Un glyphe suffit pour un lien dont
                 l'audience est UNE personne — et il cesse de peser sur la rangée
                 dans les langues où « Control room » fait douze caractères. */}
