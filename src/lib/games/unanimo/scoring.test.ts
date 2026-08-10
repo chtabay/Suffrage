@@ -9,7 +9,7 @@
 // été confrontées à la base avant d'être figées ici.
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { SCORING_RULES, normalizeWord, scoreRound, wordPoints } from "./scoring";
+import { SCORING_RULES, normalizeWord, scoreRound, themeTokens, wordPoints } from "./scoring";
 import { THEMES, pickTheme, themeLabel } from "./themes";
 
 /* ------------------------------------------------------------- le barème */
@@ -190,6 +190,31 @@ test("le total d'une manche est la somme des points de ses mots", () => {
   const parMots = r.words.reduce((s, w) => s + w.points * w.count, 0);
   const parJoueurs = Object.values(r.points).reduce((s, p) => s + p, 0);
   assert.equal(parMots, parJoueurs);
+});
+
+
+test("les jetons du thème sont ceux que la SAISIE doit refuser", () => {
+  // ⚠️ TROUVÉ EN PROD, en jouant, sur le thème « Le supermarché ». La saisie
+  // acceptait « supermarché » — elle comparait le thème ENTIER quand le
+  // dépouillement, lui, compare déjà chaque jeton. Le serveur l'écartait donc à
+  // la révélation, et le mot disparaissait entre « c'est envoyé » et les
+  // résultats. Le score restait juste : c'est un des huit emplacements du joueur
+  // qui était mangé en silence. Le correctif du thème avait couvert deux des
+  // TROIS endroits où la règle vit ; celui-ci est le troisième.
+  const t = themeTokens("Le supermarché");
+  assert.ok(t.has("le supermarche"), "le thème entier");
+  assert.ok(t.has("supermarche"), "le mot plein du thème");
+  assert.ok(!t.has("le"), "deux lettres : jamais une réponse plausible, on n'exclut pas");
+
+  // Miroir de `v_theme_words` en base : thème entier + chaque jeton de ≥ 3
+  // lettres. Ni plus (on refuserait un mot légitime), ni moins.
+  assert.deepEqual([...themeTokens("La mer")].sort(), ["la mer", "mer"]);
+  assert.deepEqual([...themeTokens("Un bébé")].sort(), ["bebe", "un bebe"]);
+  assert.equal(themeTokens("").size, 0);
+
+  // Et le dépouillement s'accorde avec la saisie sur la même donnée.
+  const r = scoreRound([{ player: "A", words: ["supermarché", "caddie"] }], "Le supermarché");
+  assert.deepEqual(r.words.map((w) => w.norm), ["caddie"]);
 });
 
 /* ------------------------------------------------------------ les thèmes */

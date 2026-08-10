@@ -20,7 +20,7 @@
 //   qu'une fois (le serveur dédoublonne). Le taire donnerait un joueur persuadé
 //   d'avoir huit mots avec sept qui comptent. On le prévient, avec la raison.
 import { useMemo, useRef, useState } from "react";
-import { normalizeWord } from "@/lib/games/unanimo/scoring";
+import { normalizeWord, themeTokens } from "@/lib/games/unanimo/scoring";
 import type { GameSkin } from "@/lib/games/skin";
 import { GBtn } from "@/components/games/ui";
 
@@ -57,7 +57,10 @@ export default function WordsInput({
   const [note, setNote] = useState<string | null>(null);
   const field = useRef<HTMLInputElement>(null);
 
-  const themeNorm = useMemo(() => normalizeWord(theme), [theme]);
+  // Les MÊMES jetons que le dépouillement (thème entier + chaque mot de ≥ 3
+  // lettres), et non le thème entier seul : sinon la saisie accepte un mot que le
+  // serveur écartera, et l'emplacement est perdu sans un mot d'explication.
+  const themeWords = useMemo(() => themeTokens(theme), [theme]);
   const taken = useMemo(() => new Set(words.map(normalizeWord)), [words]);
 
   const flash = (m: string) => {
@@ -79,7 +82,7 @@ export default function WordsInput({
       }
       const n = normalizeWord(p);
       if (!n) continue;
-      if (n === themeNorm) {
+      if (themeWords.has(n)) {
         flash(labels.isTheme);
         continue;
       }

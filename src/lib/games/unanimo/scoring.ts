@@ -142,8 +142,16 @@ export interface ScoredRound {
  *
  * Miroir exact de `v_theme_words` dans `scrutin_game_unanimo_reveal` — les deux
  * doivent bouger ensemble.
+ *
+ * EXPORTÉE, et il y a une raison : la SAISIE doit refuser exactement ce que le
+ * dépouillement écarte. Tant qu'elle comparait le thème entier de son côté, un
+ * joueur pouvait déposer « supermarché » sur le thème « Le supermarché » sans
+ * un mot d'avertissement — le serveur l'écartait ensuite, et le mot disparaissait
+ * entre « c'est envoyé » et la révélation. Le score était juste ; c'est un des
+ * huit emplacements du joueur qui était mangé en silence. Un seul jeu de jetons
+ * pour les deux écrans est la seule façon de ne pas refaire ce trou.
  */
-function themeTokens(theme: string): Set<string> {
+export function themeTokens(theme: string): Set<string> {
   const norm = normalizeWord(theme);
   const out = new Set<string>(norm ? [norm] : []);
   for (const w of norm.split(" ")) if (w.length >= 3) out.add(w);

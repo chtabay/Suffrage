@@ -201,7 +201,20 @@ Trois défauts trouvés et corrigés en route, listés au §6.
 
 ---
 
-## 6. Trois défauts trouvés pendant la vérification
+## 6. Les défauts trouvés pendant la vérification
+
+> **La règle du thème vit à TROIS endroits, et il a fallu trois passes pour les
+> trouver tous** : le dépouillement en base, son miroir TypeScript, et la GARDE
+> DE SAISIE. Les deux premiers ont été corrigés à la relecture ; le troisième
+> n'est apparu qu'**en jouant en production** — la saisie acceptait
+> « supermarché » sur le thème « Le supermarché », le serveur l'écartait ensuite,
+> et le mot disparaissait entre « c'est envoyé » et la révélation. Le score
+> restait juste : c'est un des huit emplacements du joueur qui était mangé en
+> silence. Les trois lisent désormais la même construction de jetons (thème
+> entier + chaque mot de ≥ 3 lettres), et `themeTokens` est exportée pour cette
+> seule raison. Leçon : quand une règle se dédouble, compter les copies avant de
+> se déclarer quitte.
+
 
 1. **Le libellé affiché dépendait de la collation.** Trancher entre `Plage`,
    `plage` et `PLAGES` par l'ordre alphabétique donnait `Plage` en base et
@@ -233,10 +246,19 @@ Trois défauts trouvés et corrigés en route, listés au §6.
 - **Pas de minuterie de manche.** Le jeu de plateau joue au sablier ; ici c'est
   l'hôte qui décide. Volontaire en V1 (une horloge ajoute une pression et un
   chemin d'échec), mais c'est la demande la plus probable après un premier soir.
-- **Pas de plafond de création de salle** pour un anonyme.
-  `scrutin_game_purge(jours)` existe et supprime les salles inactives, mais n'est
-  branchée sur aucun ordonnanceur : la planification est une décision
-  d'exploitation, elle se prend à part.
+- **Conservation : 7 jours après la dernière activité de la partie**, prénoms,
+  mots et scores compris. Appliquée par `scrutin_game_purge(7)`, que `pg_cron`
+  appelle chaque heure (index sur `last_active_at`). La politique de
+  confidentialité l'annonce dans les quatre langues : **les deux doivent bouger
+  ensemble** — une durée promise que rien n'applique est pire que pas de durée.
+  Il n'y a en revanche **aucun plafond de création de salle** pour un anonyme.
+- **Les réglages et l'énoncé sont BORNÉS, pas filtrés.** Un déclencheur refuse un
+  `jsonb` non-objet, imbriqué, ou de plus de 2 ko : c'est ce qui ferme le volume
+  arbitraire, et c'était le vrai risque. Il ne restreint pas aux clés connues —
+  une clé inconnue est conservée telle quelle, et un hôte peut encore pousser un
+  thème de 300 caractères sur l'écran de ses invités. Ce n'est pas une faille
+  (React échappe le texte, et les seules victimes sont les invités de cet hôte),
+  mais l'écrire évite de croire la garde plus large qu'elle n'est.
 - **60 joueurs par salle**, plafond purement technique (lisibilité d'une
   révélation, poids d'une réponse réseau) et non une règle du jeu.
 - **Le QR garde les couleurs de Placet** (encre navy sur crème) dans une salle
