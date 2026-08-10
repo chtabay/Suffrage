@@ -163,21 +163,49 @@ revoke all on function public.scrutin_game_unanimo_reveal(uuid) from public, ano
 -- garde dans une fonction ne protege que cette fonction, un declencheur protege
 -- la TABLE. Le jour ou un autre chemin ecrit une salle, il sera borne aussi.
 --
--- On REMODELE sur les seules cles connues plutot que de valider : une liste
--- blanche ne laisse rien passer qu on n ait prevu.
+-- ON BORNE LA FORME, PAS LE VOCABULAIRE. Premiere version ECARTEE, et le
+-- pourquoi vaut d etre garde : elle remodelait `settings` et `prompt` sur une
+-- LISTE BLANCHE DE CLES, ecrite sur les noms suggeres par la revue et non sur le
+-- contrat reel du client. Deux fautes, vues a l ecran en jouant une partie :
+--
+--   1. `pickTheme` renvoie {kind, text, emoji} ; la liste gardait {text, icon,
+--      key}. L emoji du theme etait JETE a chaque manche, alors que
+--      `UnanimoRoom.tsx` le lit a deux endroits — la carte du theme affichait
+--      le repli « 💡 ».
+--   2. `scrutin_game_rooms` porte une colonne `game` : c est une table
+--      GENERIQUE. Une liste blanche de cles y effacerait, en silence, les
+--      reglages du PROCHAIN jeu.
+--
+-- La borne ci-dessous ne presume rien du jeu — un objet, plat, de taille
+-- bornee — et elle REFUSE au lieu de rogner. C est le silence du remodelage qui
+-- avait cache la premiere faute : une erreur se voit, une cle disparue non.
+--
+-- Le calibrage numerique disparait avec : `game_submit` clampe deja
+-- `settings->>'words'` a [1,20] la ou il s en sert.
 
-create or replace function public.scrutin_game_settings_clean(p jsonb)
-returns jsonb language sql immutable set search_path to 'public' as $function$
-  select jsonb_build_object(
-    'words', least(20, greatest(1, coalesce((p->>'words')::int, 8))),
-    'rounds', least(20, greatest(1, coalesce((p->>'rounds')::int, 5)))
-  );
-$function$;
+create or replace function public.scrutin_game_json_bound(p jsonb, p_what text)
+returns jsonb language plpgsql immutable set search_path to 'public' as $function$
+begin
+  if p is null then return '{}'::jsonb; end if;
+  if jsonb_typeof(p) <> 'object' then
+    raise exception 'game_% must be an object', p_what;
+  end if;
+  -- 2 ko : cent fois ce qu un reglage de jeu ou un enonce demande.
+  if length(p::text) > 2000 then
+    raise exception 'game_% too large', p_what;
+  end if;
+  -- Pas d imbrication : c est par la qu on ferait entrer un volume arbitraire
+  -- sous une cle d apparence anodine.
+  if exists (select 1 from jsonb_each(p) where jsonb_typeof(value) in ('object', 'array')) then
+    raise exception 'game_% must be flat', p_what;
+  end if;
+  return p;
+end $function$;
 
 create or replace function public.scrutin_game_rooms_clean()
 returns trigger language plpgsql set search_path to 'public' as $function$
 begin
-  new.settings := scrutin_game_settings_clean(coalesce(new.settings, '{}'::jsonb));
+  new.settings := scrutin_game_json_bound(new.settings, 'settings');
   return new;
 end $function$;
 
@@ -186,20 +214,10 @@ create trigger scrutin_game_rooms_clean_t
   before insert or update of settings on public.scrutin_game_rooms
   for each row execute function public.scrutin_game_rooms_clean();
 
--- Le theme est un triplet ferme cote client : un libelle, une icone, une cle.
-create or replace function public.scrutin_game_prompt_clean(p jsonb)
-returns jsonb language sql immutable set search_path to 'public' as $function$
-  select jsonb_build_object(
-    'text', left(btrim(coalesce(p->>'text', '')), 80),
-    'icon', left(btrim(coalesce(p->>'icon', '')), 8),
-    'key',  left(btrim(coalesce(p->>'key', '')), 40)
-  );
-$function$;
-
 create or replace function public.scrutin_game_rounds_clean()
 returns trigger language plpgsql set search_path to 'public' as $function$
 begin
-  new.prompt := scrutin_game_prompt_clean(coalesce(new.prompt, '{}'::jsonb));
+  new.prompt := scrutin_game_json_bound(new.prompt, 'prompt');
   return new;
 end $function$;
 

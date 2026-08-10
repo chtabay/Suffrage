@@ -9,7 +9,7 @@
 //
 // La création EMMÈNE dans la salle, elle ne montre pas un écran « c'est prêt » :
 // l'hôte doit se retrouver tout de suite devant le code à lire à voix haute.
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useLocale } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
@@ -26,12 +26,29 @@ export default function UnanimoCreate() {
   const t = useTranslations("Unanimo");
   const locale = useLocale();
   const router = useRouter();
-  const [name, setName] = useState(lastNick());
+  const [name, setName] = useState("");
   const [rounds, setRounds] = useState(5);
   const [words, setWords] = useState(8);
   const [code, setCode] = useState("");
   const [busy, setBusy] = useState<"create" | "join" | null>(null);
   const [err, setErr] = useState<string | null>(null);
+
+  // Le pseudo de la dernière partie vit dans le localStorage : on ne peut le
+  // lire qu'APRÈS le montage — la règle est déjà écrite dans UnanimoRoom, et
+  // c'est ici qu'elle manquait.
+  //
+  // ⚠️ CE QUE COÛTAIT UN `useState(lastNick())`. Le serveur rend « » (pas de
+  // localStorage), le client rend « Chloé » : désaccord d'hydratation. React ne
+  // rattrape PAS les attributs — l'attribut `disabled` du bouton reste celui du
+  // serveur, donc VRAI, pendant que React croit l'avoir mis à faux. Il ne le
+  // réécrira jamais, puisque de son point de vue rien ne change. Résultat : le
+  // champ s'affiche vide, on tape son nom, et le bouton « Créer la partie » ne
+  // répond plus. Jamais au premier passage, toujours au second — la panne
+  // qu'une démonstration rapide ne voit pas.
+  //
+  // Forme fonctionnelle : si quelqu'un a déjà tapé avant que l'effet ne tourne,
+  // on ne lui reprend pas sa saisie.
+  useEffect(() => setName((n) => n || lastNick()), []);
 
   const create = async () => {
     if (!name.trim() || busy) return;
