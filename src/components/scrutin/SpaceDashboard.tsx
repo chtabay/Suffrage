@@ -24,6 +24,12 @@
 // champs fixe. Il ne cache jamais une collection qui croît : il n'a ni
 // recherche, ni borne, ni URL, et il monte tout le DOM quand même. Une liste
 // dépliée dans le tableau de bord EST une liste dans le tableau de bord.
+//
+// ET LE COROLLAIRE QUI MANQUAIT : ne pas énumérer à l'écran ne sert à rien si
+// l'on énumère quand même au RÉSEAU. La page tirait tout le roster et toute la
+// table de rattachement pour en sortir huit entiers. Elle appelle désormais
+// `getSpaceOverview`, qui les compte en base — voir
+// supabase/migrations/20260810-tableau-de-bord-agregats.sql.
 import { useLocale, useTranslations } from "next-intl";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useRouter } from "@/i18n/navigation";
@@ -36,16 +42,16 @@ import {
   getSpace,
   getSpaceEventStats,
   getSpaceJoinPending,
+  getSpaceOverview,
   listEvents,
-  listMembers,
   type EventRow,
   type EventStats,
   type JoinPending,
-  type Member,
   type Space,
+  type SpaceOverview,
 } from "@/lib/db/events";
 import { OrgShell } from "./SpacesHome";
-import { listSegments, listMemberSegments, type Segment } from "@/lib/db/circles";
+import ConsultationRow, { SEALED_MIN } from "./ConsultationRow";
 import { APP_URL } from "@/lib/voting/aiPrompt";
 import { intlLocale } from "@/i18n/locales";
 import { CORAL, CREAM, FONT_BODY, FONT_DISPLAY, GREENTXT, INK, MUTED, REDTXT, SUBINK, YELLOW } from "./theme";
@@ -62,25 +68,18 @@ const card = {
 const OPEN_SHOWN = 3;
 /** Puces de segment rendues en place. Idem. */
 const SEG_SHOWN = 6;
-/** Sous ce seuil, la base refuse une consultation scellée (circle_audience_guard). */
-const SEALED_MIN = 5;
 
 /**
- * Le ratio d'émargement est-il montrable ?
+ * Où s'affiche un refus d'écriture.
  *
- * En SCELLÉ, seulement à partir de 5 convoqués : « 2/3 » sur trois personnes est
- * déjà une désignation partielle, et le seuil de 5 qui gouverne le reste du
- * régime scellé n'aurait aucun sens s'il était contourné par un compteur.
- * En NOMINATIF, sans condition : l'animateur a le droit de voir qui a répondu
- * quoi, et le votant en est averti avant de voter.
- *
- * La règle vit ICI, à côté du rendu, et non dans la RPC : celle-ci sert la
- * donnée brute au seul propriétaire du cercle. Toute autre surface qui
- * l'afficherait devra reprendre cette règle — d'où ce commentaire.
+ * IL Y AVAIT UN SEUL `circleErr`, RENDU DANS LA CARTE « ADHÉSIONS ». Or il est
+ * écrit par le renommage du titre (tout en haut), par l'ouverture aux adhésions
+ * depuis la carte d'action, par la création de consultation et par la
+ * suppression du groupe. Renommer le groupe, échouer, et voir le message
+ * apparaître trois cartes plus bas — souvent hors écran — c'est croire que
+ * c'est enregistré. Un refus doit se lire au contact du geste qui l'a produit.
  */
-function ratioVisible(sealed: boolean, convened: number): boolean {
-  return !sealed || convened >= SEALED_MIN;
-}
+type Zone = "name" | "actions" | "circle" | "danger";
 
 export default function SpaceDashboard({ spaceId }: { spaceId: string }) {
   const t = useTranslations("Org");
@@ -89,10 +88,10 @@ export default function SpaceDashboard({ spaceId }: { spaceId: string }) {
   const { user, loading } = useAuth();
 
   const [space, setSpace] = useState<Space | null>(null);
-  const [members, setMembers] = useState<Member[]>([]);
   const [events, setEvents] = useState<EventRow[]>([]);
-  const [segments, setSegments] = useState<Segment[]>([]);
-  const [memberSegs, setMemberSegs] = useState<Record<string, string[]>>({});
+  // Les huit entiers de la page (membres + effectifs de segment), servis par la
+  // base. `null` = on ne sait pas encore, ou on n'a pas pu savoir.
+  const [ov, setOv] = useState<SpaceOverview | null>(null);
 
   // DEUX DRAPEAUX, PAS UN. `load()` fait deux vagues ; un seul indicateur ferait
   // rendre « 0 segment » sur un cercle qui en a douze. Tant que la page portait
@@ -101,12 +100,12 @@ export default function SpaceDashboard({ spaceId }: { spaceId: string }) {
   // convoquerait « tout le cercle » faute de cible visible.
   const [ready, setReady] = useState(false);
   const [coreErr, setCoreErr] = useState(false);
-  const [segErr, setSegErr] = useState(false);
+  const [ovErr, setOvErr] = useState(false);
 
-  // TROISIÈME VAGUE, et troisième drapeau. Les agrégats sont un CONFORT : leur
-  // absence retire un chiffre d'une ligne, elle ne doit ni vider la page ni
-  // faire croire à « 0 question ». D'où `null` tant qu'on ne sait pas, et un
-  // rendu qui omet plutôt qu'il n'invente.
+  // TROISIÈME VAGUE, et troisième drapeau. Les agrégats de consultation sont un
+  // CONFORT : leur absence retire un chiffre d'une ligne, elle ne doit ni vider
+  // la page ni faire croire à « 0 question ». D'où `null` tant qu'on ne sait
+  // pas, et un rendu qui omet plutôt qu'il n'invente.
   const [evStats, setEvStats] = useState<Record<string, EventStats> | null>(null);
   const [pending, setPending] = useState<JoinPending | null>(null);
 
@@ -114,7 +113,7 @@ export default function SpaceDashboard({ spaceId }: { spaceId: string }) {
   const [pitch, setPitch] = useState("");
   const [paceInput, setPaceInput] = useState("");
   const [chatUrl, setChatUrl] = useState("");
-  const [circleErr, setCircleErr] = useState("");
+  const [err, setErr] = useState<{ at: Zone; msg: string } | null>(null);
   const [copied, setCopied] = useState(false);
   const [saved, setSaved] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -124,11 +123,10 @@ export default function SpaceDashboard({ spaceId }: { spaceId: string }) {
   const load = useCallback(async () => {
     if (!user) return;
     setCoreErr(false);
-    setSegErr(false);
+    setOvErr(false);
     try {
-      const [s, m, e] = await Promise.all([getSpace(spaceId), listMembers(spaceId), listEvents(spaceId)]);
+      const [s, e] = await Promise.all([getSpace(spaceId), listEvents(spaceId)]);
       setSpace(s);
-      setMembers(m);
       setEvents(e);
       setName(s?.name ?? "");
       setPitch(s?.pitch ?? "");
@@ -140,11 +138,17 @@ export default function SpaceDashboard({ spaceId }: { spaceId: string }) {
       return;
     }
     try {
-      const [sg, ms] = await Promise.all([listSegments(spaceId), listMemberSegments(spaceId)]);
-      setSegments(sg);
-      setMemberSegs(ms);
+      const o = await getSpaceOverview(spaceId);
+      // UN NULL N'EST PAS « ZÉRO MEMBRE », C'EST UN REFUS. La RPC est gardée par
+      // `owner_id = auth.uid()` et ne lève pas d'erreur quand la ligne ne sort
+      // pas : elle rend NULL. Le prendre pour une donnée ferait afficher « 0
+      // membre » sur un groupe qui en compte 200 — et le §7 ci-dessous, qui
+      // refuse justement de montrer l'écran de premier jour tant que les
+      // agrégats ne sont pas reçus, s'ouvrirait sur un groupe plein.
+      if (!o) throw new Error("overview_refused");
+      setOv(o);
     } catch {
-      setSegErr(true);
+      setOvErr(true);
     }
     setReady(true);
     // Après `setReady` : la page est utilisable sans ces deux chiffres, et
@@ -164,32 +168,21 @@ export default function SpaceDashboard({ spaceId }: { spaceId: string }) {
 
   // ------------------------------------------------------------- les chiffres
 
-  const stats = useMemo(() => {
-    const selfJoined = members.filter((m) => m.self_joined).length;
-    const noEmail = members.filter((m) => !m.email?.trim()).length;
-    const noSegment = members.filter((m) => !(memberSegs[m.id] ?? []).length).length;
-    return { total: members.length, selfJoined, noEmail, noSegment };
-  }, [members, memberSegs]);
-
-  /** memberSegs (membre → segments) inversé en segment → effectif. */
-  const segCount = useMemo(() => {
-    const out: Record<string, number> = {};
-    for (const ids of Object.values(memberSegs)) for (const id of ids) out[id] = (out[id] ?? 0) + 1;
-    return out;
-  }, [memberSegs]);
+  const membersOf = ov?.members ?? null;
+  const segments = useMemo(() => ov?.segments ?? [], [ov]);
 
   const segSorted = useMemo(() => {
     // Les segments trop petits d'abord : ce sont les seuls qui exigent une
     // décision — sous 5, une consultation scellée sera refusée.
     return [...segments].sort((a, b) => {
-      const ua = (segCount[a.id] ?? 0) < SEALED_MIN ? 0 : 1;
-      const ub = (segCount[b.id] ?? 0) < SEALED_MIN ? 0 : 1;
+      const ua = a.count < SEALED_MIN ? 0 : 1;
+      const ub = b.count < SEALED_MIN ? 0 : 1;
       if (ua !== ub) return ua - ub;
       if (a.rank != null && b.rank != null && a.rank !== b.rank) return a.rank - b.rank;
       return a.position - b.position;
     });
-  }, [segments, segCount]);
-  const segBelow = segSorted.filter((g) => (segCount[g.id] ?? 0) < SEALED_MIN).length;
+  }, [segments]);
+  const segBelow = segSorted.filter((g) => g.count < SEALED_MIN).length;
 
   const byState = useMemo(() => {
     const open = events.filter((e) => e.status === "open");
@@ -202,8 +195,17 @@ export default function SpaceDashboard({ spaceId }: { spaceId: string }) {
       return Date.parse(a.created_at) - Date.parse(b.created_at);
     });
     const closed = events.filter((e) => e.status === "closed");
+    // ⚠️ NI UNE CRÉATION, NI UNE DATE FUTURE. Aucun chemin n'écrit `closes_at`
+    // à la clôture : l'éditeur ne change que `status`. Le repli sur `created_at`
+    // datait donc l'archive du jour de NAISSANCE (« la dernière le 3 août »
+    // alors que la décision est d'aujourd'hui), et une consultation close en
+    // avance gardait son échéance prévue — le tableau de bord imprimait une date
+    // FUTURE présentée comme une archive. On ne date que sur une échéance
+    // révolue, et sinon on OMET : la règle de cette page est d'omettre plutôt
+    // que d'inventer.
     const lastClosed = closed
-      .map((e) => e.closes_at ?? e.created_at)
+      .map((e) => e.closes_at)
+      .filter((d): d is string => !!d && Date.parse(d) <= Date.now())
       .sort()
       .pop();
     return { open, drafts: events.filter((e) => e.status === "draft").length, closed: closed.length, lastClosed };
@@ -221,6 +223,17 @@ export default function SpaceDashboard({ spaceId }: { spaceId: string }) {
   }, [events]);
   const cap = space?.solicit_per_day ?? null;
   const capped = cap != null && todayCount >= cap;
+  /**
+   * « Poser une question » ne peut pas aboutir. DEUX causes, un seul état visuel.
+   *
+   * Le plafond du jour est temporaire — il se lève à minuit. L'absence
+   * d'adhésions ouvertes est l'obstacle DUR : `circle_audience_guard` refuse
+   * alors `not_a_circle`, et comme l'adressage est tenté APRÈS la création du
+   * scrutin, on obtient un scrutin orphelin, jamais rattaché au groupe, qu'aucun
+   * écran ne permet de rattraper. C'est donc l'obstacle le plus lourd qui, seul,
+   * laissait le bouton vivant.
+   */
+  const bloque = capped || !(space?.join_open ?? false);
 
   const fmt = new Intl.DateTimeFormat(intlLocale(locale), { day: "numeric", month: "short" });
 
@@ -235,9 +248,15 @@ export default function SpaceDashboard({ spaceId }: { spaceId: string }) {
     setTimeout(() => setSaved((k) => (k === key ? null : k)), 1600);
   };
 
-  const saveCircle = async (patch: Parameters<typeof updateSpace>[1], key?: string) => {
+  const saveCircle = async (patch: Parameters<typeof updateSpace>[1], at: Zone, key?: string) => {
     if (!space) return;
-    setCircleErr("");
+    // ⚠️ ON N'EFFACE QUE L'ERREUR DE SA PROPRE ZONE. Un `setErr(null)` global
+    // défaisait la règle que ce fichier pose plus haut : le renommage échoue, la
+    // ligne rouge s'affiche sous le titre, puis l'animateur corrige le pitch —
+    // et ce second geste, réussi, EFFAÇAIT le refus du premier. L'écran montrait
+    // alors le nouveau nom sans aucune erreur, état indiscernable d'un succès,
+    // pendant que les convocations continuaient de partir sous l'ancien nom.
+    setErr((e) => (e?.at === at ? null : e));
     try {
       await updateSpace(space.id, patch);
       setSpace({ ...space, ...patch } as typeof space);
@@ -245,9 +264,14 @@ export default function SpaceDashboard({ spaceId }: { spaceId: string }) {
     } catch (e) {
       // Le refus vient de la BASE : un cercle dont un membre est sans email
       // aurait un membre injoignable, jamais convoqué et sans moyen de partir.
-      // On présente ce refus tel quel, on ne l'avale pas.
+      // On présente ce refus tel quel, on ne l'avale pas — et on le pose dans la
+      // zone d'où le geste est parti.
       const msg = String((e as { message?: string })?.message ?? "");
-      setCircleErr(msg.includes("circle_members_without_email") ? t("circleNeedEmails") : t("circleSaveError"));
+      // L'ÉCRAN NE DOIT JAMAIS AFFICHER UNE VALEUR QUE LA BASE A REFUSÉE. Le
+      // champ de titre garde ce qu'on a tapé (`saveName` ne le restaure qu'à
+      // vide ou à l'identique) : sur un refus, il faut le ramener au nom réel.
+      if (patch.name !== undefined) setName(space.name);
+      setErr({ at, msg: msg.includes("circle_members_without_email") ? t("circleNeedEmails") : t("circleSaveError") });
     }
   };
 
@@ -257,16 +281,16 @@ export default function SpaceDashboard({ spaceId }: { spaceId: string }) {
       setName(space?.name ?? "");
       return;
     }
-    void saveCircle({ name: v }, "name");
+    void saveCircle({ name: v }, "name", "name");
   };
 
   const saveChatUrl = () => {
     const raw = chatUrl.trim();
     if (raw && !isChatUrl(raw)) {
-      setCircleErr(t("chatUrlInvalid"));
+      setErr({ at: "circle", msg: t("chatUrlInvalid") });
       return;
     }
-    void saveCircle({ chat_url: raw || null }, "chat");
+    void saveCircle({ chat_url: raw || null }, "circle", "chat");
   };
 
   const savePace = () => {
@@ -275,7 +299,7 @@ export default function SpaceDashboard({ spaceId }: { spaceId: string }) {
     // alors aucun chiffre, plutôt qu'une promesse que ce cercle n'a pas faite.
     const n = raw === "" ? null : Math.min(50, Math.max(1, parseInt(raw, 10) || 1));
     setPaceInput(n == null ? "" : String(n));
-    void saveCircle({ solicit_per_day: n }, "pace");
+    void saveCircle({ solicit_per_day: n }, "circle", "pace");
   };
 
   const copyJoin = async () => {
@@ -289,18 +313,19 @@ export default function SpaceDashboard({ spaceId }: { spaceId: string }) {
       setCopied(true);
       setTimeout(() => setCopied(false), 1600);
     } catch {
-      setCircleErr(t("copyFailed"));
+      setErr({ at: "circle", msg: t("copyFailed") });
     }
   };
 
   const onCreateEvent = async () => {
     if (busy) return;
     setBusy(true);
+    setErr(null);
     try {
       const ev = await createEvent(spaceId, { title: t("newSeriesDefault") });
       router.push(`/evenement/${ev.id}`);
     } catch {
-      setCircleErr(t("writeError"));
+      setErr({ at: "actions", msg: t("writeError") });
       setBusy(false);
     }
   };
@@ -314,13 +339,21 @@ export default function SpaceDashboard({ spaceId }: { spaceId: string }) {
     } catch {
       // Sans ce catch, l'animateur retape le nom exact, le bouton ne fait rien,
       // et il en conclut que Placet ne sait pas supprimer.
-      setCircleErr(t("writeError"));
+      setErr({ at: "danger", msg: t("writeError") });
     }
   };
 
   // --------------------------------------------------------------- le rendu
 
   const shell = (children: React.ReactNode) => <OrgShell>{children}</OrgShell>;
+
+  /** Le refus, là où le geste a eu lieu — et nulle part ailleurs. */
+  const errLine = (at: Zone) =>
+    err?.at === at ? (
+      <div role="alert" style={{ marginTop: 10, color: REDTXT, fontWeight: 700, fontSize: 13, lineHeight: 1.45 }}>
+        {err.msg}
+      </div>
+    ) : null;
 
   if (loading || !ready) return shell(<div style={{ ...card, color: MUTED }}>{t("loading")}</div>);
   if (!user) return shell(<div style={card}>{t("signInPrompt")}</div>);
@@ -351,9 +384,9 @@ export default function SpaceDashboard({ spaceId }: { spaceId: string }) {
 
   // ---- §7 — PREMIER JOUR. Rien à gouverner : une grille de zéros n'apprend
   // rien et fait croire à une panne. Condition stricte, et seulement une fois
-  // la première vague RÉUSSIE — « 0 membre · 0 consultation » est exactement ce
-  // que produit un chargement en échec.
-  if (!members.length && !events.length) {
+  // les agrégats REÇUS — « 0 membre · 0 consultation » est exactement ce que
+  // produit un chargement en échec.
+  if (membersOf && membersOf.total === 0 && !events.length) {
     const step = (n: number, text: string, href?: string, cta?: string) => (
       <div style={{ display: "flex", gap: 12, alignItems: "flex-start", marginTop: 14 }}>
         <span style={{ flex: "none", width: 26, height: 26, borderRadius: "50%", background: INK, color: "#fff", display: "grid", placeItems: "center", fontWeight: 800, fontSize: 13.5 }}>{n}</span>
@@ -395,29 +428,44 @@ export default function SpaceDashboard({ spaceId }: { spaceId: string }) {
     <>
       {/* ---- §1 — le nom, et quatre chiffres qui sont quatre portes ---- */}
       {back}
-      <input
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-        onBlur={saveName}
-        onKeyDown={(e) => e.key === "Enter" && (e.target as HTMLInputElement).blur()}
-        aria-label={t("renameSpaceAria")}
-        style={{ display: "block", width: "100%", margin: "10px 0 0", padding: 0, border: "none", background: "none", fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: "clamp(26px,5vw,36px)", letterSpacing: "-0.03em", color: INK, outline: "none" }}
-      />
+      {/* UN <h1>, ET UNE AFFORDANCE. Le tableau de bord PEUPLÉ n'avait aucun
+          titre — l'état premier jour, si — et ses cinq en-têtes de section
+          étaient des <div> : qui parcourt la page par titres (touche H, rotor)
+          n'y trouvait rien, sur le seul des quatre écrans dans ce cas. Un
+          <input> est du contenu phrasé, il tient donc dans un <h1>.
+          Et le champ ne ressemblait à rien : ni bordure, ni fond, ni contour au
+          focus. L'affordance existe déjà dans le dépôt, sur le champ jumeau de
+          l'éditeur de consultation — on la reprend telle quelle. */}
+      <h1 style={{ margin: "10px 0 0" }}>
+        <input
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          onBlur={saveName}
+          onKeyDown={(e) => e.key === "Enter" && (e.target as HTMLInputElement).blur()}
+          aria-label={t("renameSpaceAria")}
+          style={{ display: "block", width: "100%", margin: 0, padding: "0 0 3px", border: "none", borderBottom: `2px dashed ${INK}`, background: "none", fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: "clamp(26px,5vw,36px)", letterSpacing: "-0.03em", color: INK }}
+        />
+      </h1>
       <div style={{ fontSize: 14.5, color: SUBINK, marginTop: 6, lineHeight: 1.6 }} aria-live="polite">
-        {statLink(`/espaces/${spaceId}/membres`, t("memberCount", { count: stats.total }))}
-        {stats.selfJoined > 0 && (<>{dot}{t("statSelfJoined", { count: stats.selfJoined })}</>)}
-        {stats.noEmail > 0 && (<>{dot}{statLink(`/espaces/${spaceId}/membres?filtre=sans-adresse`, t("statNoEmail", { count: stats.noEmail }), true)}</>)}
-        {!segErr && segments.length > 0 && stats.noSegment > 0 && (
-          <>{dot}{statLink(`/espaces/${spaceId}/membres?filtre=sans-segment`, t("statNoSegment", { count: stats.noSegment }), true)}</>
+        {/* Le lien vers /membres existe même sans les chiffres : c'est la porte,
+            elle ne doit pas disparaître avec le compteur qui l'orne. */}
+        {statLink(`/espaces/${spaceId}/membres`, membersOf ? t("memberCount", { count: membersOf.total }) : t("members"))}
+        {membersOf && membersOf.self_joined > 0 && (<>{dot}{t("statSelfJoined", { count: membersOf.self_joined })}</>)}
+        {membersOf && membersOf.no_email > 0 && (<>{dot}{statLink(`/espaces/${spaceId}/membres?filtre=sans-adresse`, t("statNoEmail", { count: membersOf.no_email }), true)}</>)}
+        {membersOf && segments.length > 0 && membersOf.no_segment > 0 && (
+          <>{dot}{statLink(`/espaces/${spaceId}/membres?filtre=sans-segment`, t("statNoSegment", { count: membersOf.no_segment }), true)}</>
         )}
         {saved === "name" && <span style={{ color: GREENTXT, fontWeight: 800, marginLeft: 8 }}>✓ {t("savedTick")}</span>}
       </div>
+      {/* Le refus de renommage se lit SOUS le titre qu'on vient de taper. */}
+      {errLine("name")}
 
-      {/* ---- §2 — agir. Le compteur du jour et la case d'adhésion sont ICI,
-           là où leur absence fait échouer l'action, et non trois cartes plus bas. */}
+      {/* ---- §2 — agir. Le compteur du jour et l'ouverture aux adhésions sont
+           ICI, là où leur absence fait échouer l'action, et non trois cartes
+           plus bas. */}
       <div style={{ ...card, marginTop: 18, borderColor: CORAL, boxShadow: `5px 5px 0 ${CORAL}` }}>
         <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 10, flexWrap: "wrap" }}>
-          <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 19 }}>{t("actionsTitle")}</div>
+          <h2 style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 19, margin: 0 }}>{t("actionsTitle")}</h2>
           {cap != null && (
             <div style={{ fontSize: 13, fontWeight: 700, color: capped ? REDTXT : MUTED }}>
               {t("solicitToday", { used: todayCount, cap })}
@@ -429,12 +477,20 @@ export default function SpaceDashboard({ spaceId }: { spaceId: string }) {
           {/* Seul « poser une question » est bridé par le plafond : un brouillon
               ne le consomme pas (la garde compte les événements non-brouillons),
               et le désactiver supprimerait le seul moyen de préparer demain. */}
+          {/* DEUX OBSTACLES, UN SEUL TRAITEMENT. Le plafond du jour éteignait ce
+              lien ; l'absence d'adhésions ouvertes, non — alors que c'est
+              l'obstacle DUR et permanent, et l'état PAR DÉFAUT d'un groupe. Le
+              bouton le plus contrasté de la page menait donc à un scrutin créé
+              puis REFUSÉ à l'adressage (`not_a_circle`) : il existe, mais
+              détaché, il ne figurera jamais au §3, et rien ne permet de le
+              rattraper. Le plafond, lui, se lève tout seul à minuit. */}
           <Link
-            href={capped ? `/espaces/${spaceId}` : `/new?espace=${spaceId}`}
-            aria-disabled={capped}
-            className={capped ? undefined : "dc-bright"}
-            onClick={(e) => capped && e.preventDefault()}
-            style={{ textDecoration: "none", fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 14.5, border: `2.5px solid ${INK}`, background: capped ? "#EFE8D6" : INK, color: capped ? MUTED : "#fff", padding: "11px 18px", borderRadius: 11, cursor: capped ? "not-allowed" : "pointer", opacity: capped ? 0.7 : 1 }}
+            href={bloque ? `/espaces/${spaceId}` : `/new?espace=${spaceId}`}
+            aria-disabled={bloque}
+            aria-describedby={!space.join_open ? "obstacle-adhesions" : undefined}
+            className={bloque ? undefined : "dc-bright"}
+            onClick={(e) => bloque && e.preventDefault()}
+            style={{ textDecoration: "none", fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 14.5, border: `2.5px solid ${INK}`, background: bloque ? "#EFE8D6" : INK, color: bloque ? MUTED : "#fff", padding: "11px 18px", borderRadius: 11, cursor: bloque ? "not-allowed" : "pointer", opacity: bloque ? 0.7 : 1 }}
           >
             {t("actionAsk")}
           </Link>
@@ -442,61 +498,51 @@ export default function SpaceDashboard({ spaceId }: { spaceId: string }) {
             {t("actionSequence")}
           </button>
         </div>
-        {/* La case remontée à côté de l'action qu'elle débloque. Sans elle, le
+
+        {/* L'OBSTACLE, remonté à côté de l'action qu'il bloque. Sans lui, le
             bouton le plus contrasté de la page échoue EN BASE sur tout cercle
             fermé aux adhésions — c'est-à-dire par défaut — et le refus n'arrive
-            qu'après composition de la question, sous un libellé de panne. */}
+            qu'après composition de la question, sous un libellé de panne.
+            C'ÉTAIT UNE CASE À COCHER `checked={false}` EN DUR, dont le libellé
+            énonçait un FAIT (« ce groupe doit accepter les adhésions ») et non
+            une action : rien ne disait que la cocher ouvrait quoi que ce soit.
+            C'est désormais un bouton, qui porte le NOM du réglage qu'il change
+            — le même mot que la case de la carte « Adhésions » plus bas, pour
+            qu'on lise un raccourci et non un second réglage. */}
         {!space.join_open && (
-          <label style={{ display: "flex", gap: 9, alignItems: "flex-start", marginTop: 14, cursor: "pointer", fontSize: 13.5, lineHeight: 1.5, color: SUBINK }}>
-            <input type="checkbox" checked={false} onChange={(e) => saveCircle({ join_open: e.target.checked })} style={{ marginTop: 2, width: 17, height: 17, accentColor: INK, flex: "none" }} />
-            <span>⚠ {t("needsCircleForAudience")}</span>
-          </label>
+          <div id="obstacle-adhesions" style={{ marginTop: 14, border: `2px solid ${REDTXT}`, borderRadius: 12, background: CREAM, padding: "11px 13px" }}>
+            <div style={{ fontSize: 13.5, lineHeight: 1.5, color: SUBINK }}>⚠ {t("needsCircleForAudience")}</div>
+            <button
+              onClick={() => void saveCircle({ join_open: true }, "actions")}
+              style={{ marginTop: 10, fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 13.5, cursor: "pointer", border: `2.5px solid ${INK}`, background: "#fff", color: INK, padding: "9px 15px", borderRadius: 10 }}
+            >
+              {t("circleOpen")}
+            </button>
+          </div>
         )}
+
+        {errLine("actions")}
       </div>
 
       {/* ---- §3 — les consultations EN COURS. Trois lignes au plus, quatre
            chiffres chacune : c'est le seul endroit de l'application où l'on voit
-           qu'une urne se ferme demain. Le reste est derrière un compteur-lien. */}
+           qu'une urne se ferme demain. Le reste est derrière un compteur-lien.
+           La LIGNE elle-même vit dans ConsultationRow, partagée avec la vue de
+           gestion : c'était le même objet rendu de deux façons. */}
       <div style={{ ...card, marginTop: 16 }}>
-        <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 19 }}>{t("openTitle")}</div>
+        <h2 style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 19, margin: 0 }}>{t("openTitle")}</h2>
         <div style={{ display: "flex", flexDirection: "column", gap: 8, marginTop: 12 }}>
           {!byState.open.length && <div style={{ color: MUTED, fontSize: 14 }}>{t("noOpenConsultation")}</div>}
           {byState.open.slice(0, OPEN_SHOWN).map((e) => (
-            <Link key={e.id} href={`/evenement/${e.id}`} style={{ display: "block", background: CREAM, border: `2px solid ${INK}`, borderRadius: 13, padding: "12px 14px", textDecoration: "none", color: INK }}>
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, flexWrap: "wrap" }}>
-                <span style={{ fontWeight: 800, fontSize: 15.5 }}>{e.title}</span>
-                <span style={{ fontSize: 11.5, fontWeight: 800, color: "#fff", background: GREENTXT, border: `1.5px solid ${INK}`, borderRadius: 20, padding: "2px 9px" }}>
-                  {t("statusOpen")}
-                </span>
-              </div>
-              <div style={{ fontSize: 12.5, color: MUTED, fontWeight: 600, marginTop: 5 }}>
-                {/* `audience_label` n'est écrit que par le parcours /new : pour une
-                    consultation née de l'éditeur il vaut NULL quel que soit le
-                    public réel. Dire « tout le cercle » serait alors un mensonge —
-                    on dit donc À COMBIEN DE PERSONNES elle s'adresse, ce qui est
-                    la question qu'on se posait vraiment. */}
-                {e.audience_label ??
-                  (evStats?.[e.id] ? t("convenedN", { count: evStats[e.id].convened }) : t("audienceUnknown"))}
-                {" · "}
-                {e.secret_ballot ? "🔒" : "👁"}
-                {evStats?.[e.id] ? ` · ${t("questionCount", { count: evStats[e.id].questions })}` : ""}
-                {e.closes_at ? ` · ${t("closesOnShort", { date: fmt.format(new Date(e.closes_at)) })}` : ""}
-              </div>
-              {/* L'émargement : le fait d'avoir participé, jamais ce qui a été
-                  répondu. Chargé UNE FOIS au montage — un compteur qui bouge en
-                  direct, corrélé à l'envoi d'un lien individuel, redeviendrait
-                  un canal d'attribution. */}
-              {evStats?.[e.id] && ratioVisible(e.secret_ballot, evStats[e.id].convened) && (
-                <div style={{ fontSize: 12.5, fontWeight: 700, color: evStats[e.id].signed > 0 ? GREENTXT : MUTED, marginTop: 4 }}>
-                  {t("signedRatio", { signed: evStats[e.id].signed, convened: evStats[e.id].convened })}
-                </div>
-              )}
-            </Link>
+            <ConsultationRow key={e.id} event={e} stats={evStats?.[e.id]} />
           ))}
         </div>
         <div style={{ display: "flex", gap: 14, flexWrap: "wrap", marginTop: 12, fontSize: 13, fontWeight: 700 }}>
           {byState.open.length > OPEN_SHOWN && (
-            <Link href={`/espaces/${spaceId}/consultations?etat=ouvert`} style={{ color: CORAL, textDecoration: "none" }}>
+            // CORAL sur blanc = 4,21:1, sous la barre AA pour 13 px gras — et
+            // `theme.ts` ne valide CORAL qu'en APLAT. Or c'est le seul chemin
+            // vers les consultations qui tombent hors du plafond de 3.
+            <Link href={`/espaces/${spaceId}/consultations?etat=ouvert`} style={{ color: REDTXT, textDecoration: "underline", textUnderlineOffset: 3 }}>
               {t("moreOpen", { count: byState.open.length - OPEN_SHOWN })} →
             </Link>
           )}
@@ -520,11 +566,11 @@ export default function SpaceDashboard({ spaceId }: { spaceId: string }) {
            en base ne les lie. ---- */}
       <div style={{ ...card, marginTop: 16 }}>
         <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 10, flexWrap: "wrap" }}>
-          <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 19 }}>{t("members")}</div>
-          <div style={{ color: SUBINK, fontWeight: 700, fontSize: 14 }}>{t("memberCount", { count: stats.total })}</div>
+          <h2 style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 19, margin: 0 }}>{t("members")}</h2>
+          {membersOf && <div style={{ color: SUBINK, fontWeight: 700, fontSize: 14 }}>{t("memberCount", { count: membersOf.total })}</div>}
         </div>
 
-        {segErr ? (
+        {ovErr ? (
           <div style={{ marginTop: 10, fontSize: 13.5, color: REDTXT, fontWeight: 700 }}>
             {t("segmentsUnavailable")} —{" "}
             <button onClick={() => void load()} style={{ border: "none", background: "none", color: REDTXT, textDecoration: "underline", cursor: "pointer", font: "inherit" }}>
@@ -540,8 +586,7 @@ export default function SpaceDashboard({ spaceId }: { spaceId: string }) {
             {segments.length > 0 && (
               <div style={{ display: "flex", gap: 7, flexWrap: "wrap", marginTop: 10 }}>
                 {segSorted.slice(0, SEG_SHOWN).map((g) => {
-                  const n = segCount[g.id] ?? 0;
-                  const low = n < SEALED_MIN;
+                  const low = g.count < SEALED_MIN;
                   return (
                     // Une puce est un LIEN pré-filtré, jamais un geste : sans ce
                     // filtre, affecter un segment passerait de un clic à trois.
@@ -553,7 +598,7 @@ export default function SpaceDashboard({ spaceId }: { spaceId: string }) {
                     >
                       {g.rank != null && <span style={{ color: MUTED, fontSize: 11.5 }}>{g.rank}</span>}
                       {g.name}
-                      <span style={{ color: low ? REDTXT : SUBINK, fontWeight: 800 }}>· {n}{low ? " ⚠" : ""}</span>
+                      <span style={{ color: low ? REDTXT : SUBINK, fontWeight: 800 }}>· {g.count}{low ? " ⚠" : ""}</span>
                     </Link>
                   );
                 })}
@@ -578,9 +623,9 @@ export default function SpaceDashboard({ spaceId }: { spaceId: string }) {
            liste. Le <details> est ici à sa place : un ensemble de champs fixe. */}
       <div style={{ ...card, marginTop: 16 }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 12, flexWrap: "wrap" }}>
-          <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 19 }}>{t("circle")}</div>
+          <h2 style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 19, margin: 0 }}>{t("circle")}</h2>
           <label style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer", fontSize: 13.5, fontWeight: 700, color: SUBINK }}>
-            <input type="checkbox" checked={space.join_open} onChange={(e) => saveCircle({ join_open: e.target.checked })} style={{ width: 17, height: 17, accentColor: INK }} />
+            <input type="checkbox" checked={space.join_open} onChange={(e) => saveCircle({ join_open: e.target.checked }, "circle")} style={{ width: 17, height: 17, accentColor: INK }} />
             {t("circleOpen")}
           </label>
         </div>
@@ -600,30 +645,52 @@ export default function SpaceDashboard({ spaceId }: { spaceId: string }) {
           </div>
         )}
 
-        {circleErr && <div style={{ marginTop: 10, color: REDTXT, fontWeight: 700, fontSize: 13, lineHeight: 1.45 }}>{circleErr}</div>}
+        {errLine("circle")}
 
-        {space.join_open && (
-          <details style={{ marginTop: 14 }}>
+        {/* LES RÉGLAGES SORTENT DE LA CONDITION, le lien d'adhésion y reste.
+            Le plafond de sollicitations, le pitch et le lien de conversation
+            n'avaient qu'un seul champ chacun, tous les trois enfermés ici. Sur
+            un groupe FERMÉ aux adhésions — l'état par défaut — ils n'existaient
+            pas dans le DOM : un animateur dont le plafond du jour éteint « Poser
+            une question » n'avait qu'une issue pour le desserrer, cocher
+            « Ouvrir aux adhésions », c'est-à-dire exposer une page publique
+            d'adhésion pour un motif qui n'a rien à voir. Seule la rangée
+            lien + copier dépend réellement de l'ouverture. */}
+        <details style={{ marginTop: 14 }}>
             <summary style={{ cursor: "pointer", fontWeight: 800, fontSize: 14, fontFamily: FONT_DISPLAY, color: SUBINK, listStyle: "revert" }}>
               {t("circleSettings")}
             </summary>
 
-            <div style={{ marginTop: 14, display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
-              {/* Le lien devient ouvrable : c'est la seule page où le pitch et
-                  l'engagement de rythme s'affichent, et l'animateur ne l'a jamais vue. */}
-              <a
-                href={`${APP_URL}/cercle/${space.join_token}`}
-                target="_blank"
-                rel="noreferrer"
-                title={t("joinPageOpen")}
-                style={{ flex: "1 1 240px", minWidth: 0, overflowX: "auto", whiteSpace: "nowrap", fontSize: 12.5, fontFamily: "monospace", background: "#f6f6f4", border: `2px solid ${INK}`, borderRadius: 10, padding: "9px 11px", color: INK }}
-              >
-                {`${APP_URL}/cercle/${space.join_token}`}
-              </a>
-              <button onClick={() => void copyJoin()} style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 13.5, cursor: "pointer", border: `2.5px solid ${INK}`, background: copied ? GREENTXT : "#fff", color: copied ? "#fff" : INK, padding: "9px 14px", borderRadius: 10 }}>
-                {copied ? t("copied") : t("copyLink")}
-              </button>
-            </div>
+            {/* DEUX OBJETS, PAS UN. C'était un <a> maquillé en champ readonly
+                — monospace, fond gris, bordure, défilement horizontal. Quand la
+                copie échoue (hors contexte sécurisé), le message de secours dit
+                « sélectionnez le lien et copiez-le à la main » : glisser la
+                souris dessus lançait un glisser-déposer de lien, un clic ouvrait
+                un onglet. Le seul chemin de secours indiqué par le produit était
+                rendu inutilisable par son propre balisage. Un champ qu'on
+                sélectionne, et un lien qui dit où il mène. */}
+            {space.join_open && (
+              <div style={{ marginTop: 14, display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
+                <input
+                  readOnly
+                  value={`${APP_URL}/cercle/${space.join_token}`}
+                  onFocus={(e) => e.currentTarget.select()}
+                  aria-label={t("joinLinkAria")}
+                  style={{ flex: "1 1 240px", minWidth: 0, fontSize: 12.5, fontFamily: "monospace", background: "#f6f6f4", border: `2px solid ${INK}`, borderRadius: 10, padding: "9px 11px", color: INK }}
+                />
+                <button onClick={() => void copyJoin()} style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 13.5, cursor: "pointer", border: `2.5px solid ${INK}`, background: copied ? GREENTXT : "#fff", color: copied ? "#fff" : INK, padding: "9px 14px", borderRadius: 10 }}>
+                  {copied ? t("copied") : t("copyLink")}
+                </button>
+                <a
+                  href={`${APP_URL}/cercle/${space.join_token}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  style={{ fontSize: 13, fontWeight: 700, color: SUBINK, textDecoration: "underline", textUnderlineOffset: 3, padding: "6px 2px" }}
+                >
+                  {t("joinPageOpen")} →
+                </a>
+              </div>
+            )}
 
             <div style={{ marginTop: 10 }}>
               <input
@@ -632,6 +699,7 @@ export default function SpaceDashboard({ spaceId }: { spaceId: string }) {
                 onBlur={saveChatUrl}
                 onKeyDown={(e) => e.key === "Enter" && (e.target as HTMLInputElement).blur()}
                 placeholder={t("chatUrlPlaceholder")}
+                aria-label={t("chatUrlAria")}
                 style={{ width: "100%", fontFamily: FONT_BODY, fontSize: 14, padding: "10px 12px", border: `2px solid ${INK}`, borderRadius: 11 }}
               />
               <div style={{ fontSize: 12, color: MUTED, marginTop: 4, lineHeight: 1.45 }}>
@@ -643,16 +711,20 @@ export default function SpaceDashboard({ spaceId }: { spaceId: string }) {
             <textarea
               value={pitch}
               onChange={(e) => setPitch(e.target.value)}
-              onBlur={() => saveCircle({ pitch }, "pitch")}
+              onBlur={() => saveCircle({ pitch }, "circle", "pitch")}
               placeholder={t("circlePitchPlaceholder")}
+              aria-label={t("circlePitchAria")}
               rows={2}
               style={{ width: "100%", marginTop: 10, fontFamily: FONT_BODY, fontSize: 14, padding: "10px 12px", border: `2px solid ${INK}`, borderRadius: 11, resize: "vertical" }}
             />
             {saved === "pitch" && <div style={{ color: GREENTXT, fontWeight: 800, fontSize: 12.5 }}>✓ {t("savedTick")}</div>}
 
             <div style={{ marginTop: 12, display: "flex", gap: 9, alignItems: "center", flexWrap: "wrap" }}>
-              <span style={{ fontWeight: 700, fontSize: 13.5, color: SUBINK }}>{t("circlePaceLabel")}</span>
+              {/* Le libellé existait, VISUELLEMENT, dans un <span> : aucun lien
+                  programmatique, et le placeholder « aucun » n'est pas un nom. */}
+              <label htmlFor="pace-input" style={{ fontWeight: 700, fontSize: 13.5, color: SUBINK }}>{t("circlePaceLabel")}</label>
               <input
+                id="pace-input"
                 value={paceInput}
                 onChange={(e) => setPaceInput(e.target.value.replace(/[^0-9]/g, ""))}
                 onBlur={savePace}
@@ -666,23 +738,28 @@ export default function SpaceDashboard({ spaceId }: { spaceId: string }) {
                 {saved === "pace" && <span style={{ color: GREENTXT, fontWeight: 800 }}> ✓ {t("savedTick")}</span>}
               </span>
             </div>
-          </details>
-        )}
+        </details>
       </div>
 
-      {/* ---- §6 — zone rouge, inchangée sauf le try/catch ---- */}
+      {/* ---- §6 — zone rouge ---- */}
       {!delConfirm ? (
-        <button onClick={() => setDelConfirm(true)} style={{ marginTop: 22, border: "none", background: "none", color: REDTXT, cursor: "pointer", fontSize: 13.5, fontWeight: 700 }}>
+        // Seule cible de la page sous 24 px (WCAG 2.5.8) : contrôle autonome,
+        // seul sur sa ligne, l'exception « en ligne » ne s'y applique pas.
+        <button onClick={() => setDelConfirm(true)} style={{ marginTop: 22, border: "none", background: "none", color: REDTXT, cursor: "pointer", fontSize: 13.5, fontWeight: 700, padding: "8px 4px", minHeight: 24 }}>
           {t("deleteSpace")}
         </button>
       ) : (
         <div style={{ ...card, marginTop: 22, borderColor: REDTXT, boxShadow: `5px 5px 0 ${REDTXT}` }}>
           <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 16, color: REDTXT }}>{t("deleteSpace")}</div>
           <div style={{ fontSize: 13.5, color: SUBINK, margin: "8px 0 10px", lineHeight: 1.5 }}>{t("deleteSpaceConfirm", { name: space.name })}</div>
+          {/* LE DERNIER REMPART AVANT LA DESTRUCTION EN CASCADE D'UN ROSTER
+              s'annonçait comme un champ anonyme, et son placeholder donnait la
+              réponse attendue. */}
           <input
             value={delText}
             onChange={(e) => setDelText(e.target.value)}
-            placeholder={space.name}
+            aria-label={t("deleteConfirmAria")}
+            placeholder={t("deleteConfirmPlaceholder")}
             style={{ width: "100%", fontFamily: FONT_BODY, fontSize: 15, fontWeight: 600, padding: "10px 12px", border: `2px solid ${INK}`, borderRadius: 11 }}
           />
           <div style={{ display: "flex", gap: 10, marginTop: 12, flexWrap: "wrap" }}>
@@ -693,6 +770,7 @@ export default function SpaceDashboard({ spaceId }: { spaceId: string }) {
               {t("deleteSpaceFinal")}
             </button>
           </div>
+          {errLine("danger")}
         </div>
       )}
     </>,

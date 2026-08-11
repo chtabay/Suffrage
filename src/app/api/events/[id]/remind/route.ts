@@ -54,10 +54,27 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
   // RLS : l'événement n'est visible que par son propriétaire.
   const { data: ev } = await supabase
     .from("scrutin_events")
-    .select("title, reminded_at, scrutin_spaces(name, join_open)")
+    .select("title, reminded_at, status, closes_at, scrutin_spaces(name, join_open)")
     .eq("id", id)
     .maybeSingle();
   if (!ev) return NextResponse.json({ error: "not_found" }, { status: 404 });
+
+  // ÉCHÉANCE PASSÉE = RELANCE REFUSÉE, et la garde est ICI parce que c'est ici
+  // que partent les emails.
+  //
+  // Rien ne clôt une consultation à son échéance : ni cron, ni déclencheur. Le
+  // `status` reste 'open' pour toujours, et `cast_event_ballot` est le seul à
+  // consulter `closes_at` — pour REFUSER le bulletin. L'écran affichait donc
+  // « Ouvert » et offrait « Relancer les non-votants » sur une urne morte : les
+  // 35 courriels partaient, personne ne pouvait voter, et `reminded_at` était
+  // posé — donc l'UNIQUE relance autorisée dans un groupe était brûlée pour
+  // rien, sans rattrapage possible. Même motif que le refus de bulletin, au même
+  // endroit dans le temps.
+  const clos =
+    ev.status === "closed" || (!!ev.closes_at && Date.now() >= Date.parse(ev.closes_at as string));
+  if (clos) {
+    return NextResponse.json({ error: "closed", sent: 0, pending: 0 }, { status: 409 });
+  }
   const space = (ev as { scrutin_spaces?: { name?: string; join_open?: boolean } | null }).scrutin_spaces;
   const spaceName = space?.name;
   const senderName = spaceName ? `${spaceName} · Placet` : "Placet";

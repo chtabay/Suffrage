@@ -10,6 +10,7 @@ import {
   countResolutionVotes,
   countEventVoters,
   deleteEvent,
+  getConvocationLink,
   getEvent,
   listConvened,
   listMembers,
@@ -71,6 +72,7 @@ export default function EventEditor({ eventId }: { eventId: string }) {
   const [convened, setConvened] = useState<EventMember[]>([]);
   const [busy, setBusy] = useState(false);
   const [copied, setCopied] = useState<string | null>(null);
+  const [linkErr, setLinkErr] = useState<string | null>(null);
   const [sendMsg, setSendMsg] = useState("");
   // Un envoi qui échoue ne se peint pas en vert. Le message était rendu en
   // GREENTXT quoi qu'il arrive : « l'envoi d'email n'est pas configuré »
@@ -169,6 +171,19 @@ export default function EventEditor({ eventId }: { eventId: string }) {
   const resIdsKey = resolutions.map((r) => r.id).join(",");
   useEffect(() => {
     if ((ev?.mode ?? "async") === "live" || ev?.status !== "open" || !resIdsKey) return;
+    // ⚠️ JAMAIS EN SCELLÉ, pour deux raisons qui vont dans le même sens.
+    // (1) Le chiffre serait FAUX : en scellé le bulletin est écrit sans
+    //     `event_member_id` et la policy restrictive `scrutin_ballots_hide_secret`
+    //     retire ces bulletins de toute lecture directe — `countEventVoters`
+    //     mesure donc structurellement zéro, et l'écran annonçait « 0 / 24 » à
+    //     un animateur dont 18 personnes avaient voté. Il en concluait que sa
+    //     convocation n'était pas partie et relançait 24 personnes.
+    // (2) Le réparer en le branchant sur les émargements serait PIRE : un
+    //     compteur qui bouge toutes les 12 s, corrélé à l'envoi d'un lien
+    //     individuel, est exactement l'oracle que le bulletin scellé interdit.
+    //     Le tableau de bord sert déjà ce ratio, une fois au montage et sous le
+    //     plancher des 5 convoqués (`ratioVisible`).
+    if (ev?.secret_ballot) return;
     const ids = resIdsKey.split(",");
     let cancel = false;
     const tick = async () => {
@@ -185,7 +200,7 @@ export default function EventEditor({ eventId }: { eventId: string }) {
       cancel = true;
       clearInterval(id);
     };
-  }, [ev?.mode, ev?.status, resIdsKey]);
+  }, [ev?.mode, ev?.status, ev?.secret_ballot, resIdsKey]);
 
   // La composition de la question (libellé, options, méthode, seuil) vit désormais
   // dans QuestionComposer, partagé avec le cercle. Ici on ne fait plus qu'écrire.
@@ -275,10 +290,35 @@ export default function EventEditor({ eventId }: { eventId: string }) {
     router.push(ev?.space_id ? `/espaces/${ev.space_id}` : "/espaces");
   };
 
-  const copy = (token: string) => {
-    navigator.clipboard?.writeText(`${APP_URL}/e/${token}`);
-    setCopied(token);
-    setTimeout(() => setCopied((c) => (c === token ? null : c)), 1600);
+  /**
+   * Le lien personnel d'un convoqué, DEMANDÉ À L'UNITÉ.
+   *
+   * ⚠️ IL ARRIVAIT AVEC LA LISTE, ET C'ÉTAIT UN ORACLE. Tant que `listConvened`
+   * rendait `token`, ce navigateur détenait les N jetons du roster — et
+   * `get_event_context(p_token)` rend, pour le porteur d'un jeton, un `voted`
+   * calculé sur les ÉMARGEMENTS dès que la consultation est scellée. Un appel
+   * par jeton reconstituait la liste nominative des émargeants d'un bulletin
+   * scellé. On ne ferme pas cette lecture côté votant — c'est SA page — on coupe
+   * l'accumulation : un jeton se demande, un par un, et la demande est refusée
+   * en scellé (`get_convocation_link`).
+   */
+  const askLink = async (eventMemberId: string) => {
+    setLinkErr(null);
+    try {
+      const r = await getConvocationLink(eventMemberId);
+      if (r.status !== "ok" || !r.token) {
+        // Littéral des deux côtés : une clé passée en variable échappe au
+        // contrôle de parité i18n.
+        setLinkErr(r.status === "sealed" ? t("linkSealedOnly") : t("writeError"));
+        return;
+      }
+      if (!navigator.clipboard) throw new Error("no clipboard");
+      await navigator.clipboard.writeText(`${APP_URL}/e/${r.token}`);
+      setCopied(eventMemberId);
+      setTimeout(() => setCopied((c) => (c === eventMemberId ? null : c)), 1600);
+    } catch {
+      setLinkErr(t("copyFailed"));
+    }
   };
 
   const enrollUrl = ev?.enroll_token ? `${APP_URL}/rejoindre/${ev.enroll_token}` : "";
@@ -509,7 +549,7 @@ export default function EventEditor({ eventId }: { eventId: string }) {
         <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 10 }}>
           <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 19 }}>{t("convocation")}</div>
           <span style={{ color: SUBINK, fontWeight: 700, fontSize: 14 }}>
-            {ev.status === "open" && (ev.mode ?? "async") !== "live" && convened.length > 0
+            {ev.status === "open" && !ev.secret_ballot && (ev.mode ?? "async") !== "live" && convened.length > 0
               ? t("participation", { voted: votedCount, total: convened.length })
               : t("convenedCount", { count: convened.length })}
           </span>
@@ -519,16 +559,26 @@ export default function EventEditor({ eventId }: { eventId: string }) {
         )}
         {convened.length > 0 && (
           <>
-            <div style={{ fontSize: 12.5, color: MUTED, margin: "13px 0 8px" }}>{t("shareHint")}</div>
+            <div style={{ fontSize: 12.5, color: MUTED, margin: "13px 0 8px" }}>
+              {ev.secret_ballot ? t("shareHintSealed") : t("shareHint")}
+            </div>
+            {linkErr && (
+              <div role="alert" style={{ fontSize: 13, color: REDTXT, fontWeight: 700, marginBottom: 8 }}>{linkErr}</div>
+            )}
             <div style={{ display: "flex", flexDirection: "column", gap: 7 }}>
               {convened.map((c) => (
                 <div key={c.id} style={{ display: "flex", alignItems: "center", gap: 10, background: CREAM, border: `2px solid ${INK}`, borderRadius: 11, padding: "9px 12px" }}>
                   <span style={{ fontWeight: 700, fontSize: 14, flex: 1 }}>{c.name}</span>
                   {c.self_enrolled && <span style={{ fontSize: 11, fontWeight: 800, color: SUBINK }}>{t("selfEnrolledBadge")}</span>}
                   {c.invited_at && <span style={{ fontSize: 11, fontWeight: 800, color: GREENTXT }}>{t("invitedBadge")}</span>}
-                  <button onClick={() => copy(c.token)} style={{ border: `2px solid ${INK}`, background: copied === c.token ? GREENTXT : "#fff", color: copied === c.token ? "#fff" : INK, cursor: "pointer", fontSize: 12.5, fontWeight: 700, padding: "6px 11px", borderRadius: 9 }}>
-                    {copied === c.token ? t("copied") : t("copyLink")}
-                  </button>
+                  {/* En SCELLÉ, pas de bouton du tout : le refus vaut mieux que
+                      le clic qui refuse. Les liens partent par courriel, écrits
+                      par la route d'envoi, qui ne les rend jamais ici. */}
+                  {!ev.secret_ballot && (
+                    <button onClick={() => void askLink(c.id)} style={{ border: `2px solid ${INK}`, background: copied === c.id ? GREENTXT : "#fff", color: copied === c.id ? "#fff" : INK, cursor: "pointer", fontSize: 12.5, fontWeight: 700, padding: "6px 11px", borderRadius: 9 }}>
+                      {copied === c.id ? t("copied") : t("copyLink")}
+                    </button>
+                  )}
                   {ev.status === "draft" && (
                     <button onClick={() => removeConvenedMember(c.id)} title={t("remove")} style={{ border: "none", background: "none", color: REDTXT, cursor: "pointer", fontSize: 18, lineHeight: 1 }}>×</button>
                   )}

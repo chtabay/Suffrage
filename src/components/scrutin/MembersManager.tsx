@@ -27,6 +27,15 @@ import {
 import { intlLocale } from "@/i18n/locales";
 import { OrgShell } from "./SpacesHome";
 import { CREAM, FONT_BODY, FONT_DISPLAY, GREENTXT, INK, MUTED, PAPER, REDTXT, SUBINK, YELLOW } from "./theme";
+// ⚠️ LE SEUIL EST IMPORTÉ, PLUS RECOPIÉ. Il vivait ici une seconde fois, en
+// `const SEALED_MIN = 5`, alors que le lot précédent l'avait justement mis à UN
+// endroit (ConsultationRow), avec un commentaire disant « toute surface qui
+// l'afficherait ailleurs devra importer cette fonction — pas la réécrire ».
+// Deux copies d'une règle de secret, c'est une copie de trop : le jour où le
+// seuil bouge — il est écrit `v_min constant int := 5` dans deux fonctions SQL
+// et un déclencheur — cet écran continuerait de peindre en rouge les segments
+// sous l'ANCIEN seuil et de laisser en noir ceux que la base refuse désormais.
+import { SEALED_MIN } from "./ConsultationRow";
 
 const card = {
   background: PAPER,
@@ -55,8 +64,6 @@ const TINT = {
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-/** Seuil appliqué EN BASE au bulletin scellé. On l'affiche ici, où il se corrige. */
-const SEALED_MIN = 5;
 
 /** Une page de liste. 200 lignes montées d'un coup, c'est la page qui rame. */
 const PAGE = 50;
@@ -609,8 +616,23 @@ export default function MembersManager({ spaceId }: { spaceId: string }) {
     try {
       // Un groupe qui numérote ses segments déclare une échelle ; sinon ce sont
       // des étiquettes sans ordre. Le choix est fait au premier segment créé.
-      const rank = segRanked ? segments.length + 1 : null;
-      const seg = await createSegment(space.id, name, rank, segments.length);
+      //
+      // ⚠️ L'ÉCHELLE SE DÉDUIT DE LA BASE, PAS D'UN ÉTAT DE SESSION. `segRanked`
+      // est un état local dont la case n'est offerte qu'au tout premier segment
+      // (`segments.length === 0`). Une semaine plus tard, page rechargée, il
+      // vaut `false` et la case a disparu : le segment créé recevait alors
+      // `rank = null` sur un groupe qui EN A UNE. Rien ne le disait, et
+      // `CreateAudienceBlock` filtre `g.rank != null && g.rank >= seg.rank` —
+      // « Argent et au-dessus » ne convoquait donc JAMAIS les membres du nouveau
+      // segment. Une cible silencieusement vide, sur la surface qui décide qui
+      // vote.
+      const echelle = segments.some((g) => g.rank != null) || segRanked;
+      const rank = echelle ? Math.max(0, ...segments.map((g) => g.rank ?? 0)) + 1 : null;
+      // ⚠️ `segments.length` ENTRE EN COLLISION APRÈS TOUTE SUPPRESSION : sur
+      // 0,1,2, retirer le 1 laisse 0,2 et le suivant reprend 2. `order(position)`
+      // rend alors un ordre arbitraire, qui change d'un chargement à l'autre.
+      const position = Math.max(-1, ...segments.map((g) => g.position)) + 1;
+      const seg = await createSegment(space.id, name, rank, position);
       setSegments((l) => [...l, seg]);
       setSegName("");
       tick();

@@ -49,6 +49,19 @@ export default function SpacesHome() {
   const [name, setName] = useState("");
   const [busy, setBusy] = useState(false);
   const [ready, setReady] = useState(false);
+  // DEUX ÉCHECS QUI ÉTAIENT MUETS, et c'est la porte d'entrée de la surface.
+  //
+  //   • Le CHARGEMENT : `catch { /* noop */ }` puis `ready = true` faisait
+  //     afficher « Aucun groupe pour l'instant. Créez-en un pour démarrer. » à
+  //     quelqu'un qui en anime six. Un écran vide sur panne réseau ne se lit pas
+  //     comme une panne : il se lit comme une perte de données.
+  //   • La CRÉATION : le bouton se rallumait, et rien n'apparaissait.
+  //
+  // Les trois autres écrans de la surface (tableau de bord, membres,
+  // consultations) ont tous `loadError` + « Réessayer » ; celui-ci était le seul
+  // sans.
+  const [failed, setFailed] = useState(false);
+  const [createErr, setCreateErr] = useState("");
   const [email, setEmail] = useState("");
   const [magic, setMagic] = useState<"idle" | "sending" | "sent" | "error">("idle");
   const [pwTab, setPwTab] = useState<"magic" | "password">("magic");
@@ -117,15 +130,20 @@ export default function SpacesHome() {
 
   const load = useCallback(async () => {
     if (!user) return;
+    setFailed(false);
     try {
       // En parallèle : ce que j'anime, et ce à quoi je suis convié. Deux rôles
       // distincts sur la même page — le rattachement lui-même est fait par
       // useAuth à la connexion.
+      //
+      // Seul `listSpacesWithStats` peut faire échouer la page : le feed porte
+      // déjà son propre `.catch`, parce qu'une surface secondaire absente ne
+      // doit pas masquer la liste des groupes qu'on anime.
       const [sp, part] = await Promise.all([listSpacesWithStats(), getMyFeed().catch(() => null)]);
       setSpaces(sp);
       setMine(part);
     } catch {
-      /* noop */
+      setFailed(true);
     }
     setReady(true);
   }, [user]);
@@ -136,12 +154,13 @@ export default function SpacesHome() {
   const create = async () => {
     if (!name.trim() || busy) return;
     setBusy(true);
+    setCreateErr("");
     try {
       const s = await createSpace(name);
       setSpaces((l) => [{ ...s, members: 0, events_open: 0, events_closed: 0, events_draft: 0 }, ...l]);
       setName("");
     } catch {
-      /* noop */
+      setCreateErr(t("writeError"));
     }
     setBusy(false);
   };
@@ -363,22 +382,32 @@ export default function SpacesHome() {
         ))}
       </div>
 
-      <div style={{ ...card, marginTop: 20, display: "flex", gap: 10, flexWrap: "wrap" }}>
-        <input
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && create()}
-          placeholder={t("newSpacePlaceholder")}
-          style={{ flex: 1, minWidth: 220, fontFamily: FONT_BODY, fontSize: 15, fontWeight: 600, padding: "11px 13px", border: `2px solid ${INK}`, borderRadius: 11 }}
-        />
-        <button
-          onClick={create}
-          disabled={busy}
-          className="dc-bright"
-          style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 15, cursor: "pointer", border: `2.5px solid ${INK}`, background: "#FFB627", color: INK, padding: "11px 20px", borderRadius: 11 }}
-        >
-          {t("create")}
-        </button>
+      <div style={{ ...card, marginTop: 20 }}>
+        <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+          <input
+            value={name}
+            onChange={(e) => {
+              setName(e.target.value);
+              if (createErr) setCreateErr("");
+            }}
+            onKeyDown={(e) => e.key === "Enter" && create()}
+            placeholder={t("newSpacePlaceholder")}
+            style={{ flex: 1, minWidth: 220, fontFamily: FONT_BODY, fontSize: 15, fontWeight: 600, padding: "11px 13px", border: `2px solid ${createErr ? REDTXT : INK}`, borderRadius: 11 }}
+          />
+          <button
+            onClick={create}
+            disabled={busy}
+            className="dc-bright"
+            style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 15, cursor: "pointer", border: `2.5px solid ${INK}`, background: "#FFB627", color: INK, padding: "11px 20px", borderRadius: 11 }}
+          >
+            {t("create")}
+          </button>
+        </div>
+        {createErr && (
+          <div role="alert" style={{ marginTop: 10, color: REDTXT, fontWeight: 700, fontSize: 13, lineHeight: 1.45 }}>
+            {createErr}
+          </div>
+        )}
       </div>
 
       {/* ---- Les cercles dont je suis MEMBRE ----
@@ -410,7 +439,21 @@ export default function SpacesHome() {
       )}
 
       <div style={{ display: "flex", flexDirection: "column", gap: 12, marginTop: 16 }}>
-        {ready && !spaces.length && <div style={{ ...card, color: MUTED }}>{t("noSpaces")}</div>}
+        {/* La panne AVANT le vide : « aucun groupe » n'est vrai que si l'on a
+            réussi à regarder. La création reste au-dessus, disponible — une
+            requête de lecture en échec n'empêche pas d'écrire. */}
+        {failed && (
+          <div style={card}>
+            <div style={{ color: REDTXT, fontWeight: 700, fontSize: 15, lineHeight: 1.5 }}>{t("spacesLoadError")}</div>
+            <button
+              onClick={() => void load()}
+              style={{ marginTop: 14, fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 14.5, cursor: "pointer", border: `2.5px solid ${INK}`, background: "#fff", color: INK, padding: "10px 16px", borderRadius: 11 }}
+            >
+              {t("retry")}
+            </button>
+          </div>
+        )}
+        {!failed && ready && !spaces.length && <div style={{ ...card, color: MUTED }}>{t("noSpaces")}</div>}
         {spaces.map((s) => (
           <Link
             key={s.id}

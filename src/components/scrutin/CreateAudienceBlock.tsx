@@ -13,9 +13,10 @@
 // votant) y restent attachées au type d'audience. Rien ici n'est une garde.
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
-import { getSpace } from "@/lib/db/events";
+import { getSpace, getSpaceOverview } from "@/lib/db/events";
 import { listSegments, type Segment } from "@/lib/db/circles";
-import { FONT_BODY, FONT_DISPLAY, INK, MUTED, SUBINK } from "./theme";
+import { SEALED_MIN } from "./ConsultationRow";
+import { FONT_BODY, FONT_DISPLAY, INK, MUTED, REDTXT, SUBINK } from "./theme";
 
 export default function CreateAudienceBlock({
   spaceId,
@@ -35,6 +36,8 @@ export default function CreateAudienceBlock({
   const [all, setAll] = useState<Segment[]>([]);
   const [target, setTarget] = useState("");
   const [andAbove, setAndAbove] = useState(true);
+  /** Effectif par segment. `null` = on ne sait pas ; on n'invente alors aucun chiffre. */
+  const [effectifs, setEffectifs] = useState<Record<string, number> | null>(null);
 
   useEffect(() => {
     let cancel = false;
@@ -43,10 +46,16 @@ export default function CreateAudienceBlock({
         // RLS propriétaire : un visiteur qui n'anime pas ce groupe obtient null,
         // et le bloc ne s'affiche pas — l'affectation échouerait de toute façon
         // en base (`forbidden`), on ne promet donc rien qu'on ne tiendra pas.
-        const [sp, segs] = await Promise.all([getSpace(spaceId), listSegments(spaceId)]);
+        const [sp, segs, ov] = await Promise.all([
+          getSpace(spaceId),
+          listSegments(spaceId),
+          // Même requête que le tableau de bord — elle rend déjà `segments[].count`.
+          getSpaceOverview(spaceId).catch(() => null),
+        ]);
         if (cancel) return;
         setSpaceName(sp?.name ?? null);
         setAll(segs);
+        setEffectifs(ov ? Object.fromEntries(ov.segments.map((g) => [g.id, g.count])) : null);
       } catch {
         if (!cancel) setSpaceName(null);
       }
@@ -76,6 +85,25 @@ export default function CreateAudienceBlock({
   }, [target, andAbove, all]);
 
   if (!spaceName) return null;
+
+  // ⚠️ LE SEUIL DE 5 NE VOYAGEAIT PAS JUSQU'ICI, ET C'EST LA CONSULTATION ENTIÈRE
+  // QUI SE PERDAIT. `circle_audience_guard` calcule l'effectif du public VISÉ et
+  // refuse `too_small` dès qu'il est sous 5 en scellé. Or l'adressage est tenté
+  // APRÈS la création du scrutin : le scrutin existe, aucun membre n'est
+  // convoqué, aucun courriel ne part — et il n'existe AUCUN bouton, nulle part,
+  // pour rattacher après coup un scrutin à son groupe. L'animateur recompose
+  // tout depuis zéro, sans avoir jamais su pourquoi.
+  //
+  // On compte donc ce que la base comptera : la SOMME des segments retenus (« et
+  // au-dessus » en vise plusieurs), pas celui qu'on vient de cliquer.
+  const vises = (() => {
+    const seg = all.find((g) => g.id === target);
+    if (!seg) return [];
+    if (andAbove && seg.rank != null) return all.filter((g) => g.rank != null && g.rank >= (seg.rank as number));
+    return [seg];
+  })();
+  const effectifVise = effectifs ? vises.reduce((n, g) => n + (effectifs[g.id] ?? 0), 0) : null;
+  const tropPetit = sealed && !!target && effectifVise != null && effectifVise < SEALED_MIN;
 
   const chip = (on: boolean) =>
     ({
@@ -107,7 +135,9 @@ export default function CreateAudienceBlock({
           >
             <option value="">{t("askAudienceAll")}</option>
             {all.map((g) => (
-              <option key={g.id} value={g.id}>{g.name}</option>
+              <option key={g.id} value={g.id}>
+                {effectifs ? `${g.name} · ${effectifs[g.id] ?? 0}` : g.name}
+              </option>
             ))}
           </select>
           {target && all.find((g) => g.id === target)?.rank != null && (
@@ -121,6 +151,12 @@ export default function CreateAudienceBlock({
               {t("askAudienceAndAbove")}
             </label>
           )}
+        </div>
+      )}
+
+      {tropPetit && (
+        <div role="alert" style={{ marginTop: 8, fontSize: 12.5, fontWeight: 700, color: REDTXT, lineHeight: 1.45 }}>
+          {t("audienceTooSmallInline", { count: effectifVise ?? 0, min: SEALED_MIN })}
         </div>
       )}
 

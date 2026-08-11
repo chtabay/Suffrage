@@ -93,7 +93,6 @@ export interface EventMember {
   email: string | null;
   district: number | null;
   weight: number;
-  token: string;
   invited_at: string | null;
   self_enrolled: boolean;
 }
@@ -158,14 +157,25 @@ const SPACE_COLS =
 // liste des émargeants d'une consultation à bulletin scellé : la promesse faite
 // au votant tombait par un chemin que le correctif du 2026-08-07 n'avait pas vu.
 //
-// Vérifié avant retrait : aucun composant client ne lit `Member.token`. Le seul
-// `copy(c.token)` de l'éditeur porte sur un `EventMember` — le jeton de
-// CONVOCATION, que l'animateur a le droit de distribuer puisqu'il l'envoie.
+// Vérifié avant retrait : aucun composant client ne lit `Member.token`.
+//
+// ⚠️ ET LA COLONNE SŒUR EST PARTIE AVEC, POUR LA MÊME RAISON. Le commentaire qui
+// vivait ici écartait `scrutin_event_members.token` au motif que « l'animateur a
+// le droit de le distribuer puisqu'il l'envoie ». C'est un argument sur le droit
+// de DIFFUSER ; il ne dit rien de l'ORACLE que la DÉTENTION ouvre. Détenir les N
+// jetons d'un coup n'est pas le même pouvoir que remettre un lien à quelqu'un :
+// `get_event_context(p_token)` est exécutable par PUBLIC et rend `voted` calculé
+// sur les ÉMARGEMENTS dès que la consultation est scellée, si bien qu'un appel
+// par jeton reconstituait nominativement la liste des émargeants d'un bulletin
+// scellé. La brèche du 2026-08-07, rouverte par la colonne voisine.
+//
+// Le jeton se demande désormais À L'UNITÉ (`getConvocationLink`), et la demande
+// est refusée en scellé. Laisser tsc garder la règle : le type ne le porte plus.
 const MEMBER_COLS = "id, space_id, name, email, district, weight, self_joined, consent_at, consent_source";
 const EVENT_COLS =
   "id, space_id, title, description, mode, status, current_poll_id, opens_at, closes_at, created_at, enroll_open, enroll_cap, enroll_closes_at, enroll_token, quorum, secret_ballot, audience_label";
 const EVENT_MEMBER_COLS =
-  "id, event_id, member_id, name, email, district, weight, token, invited_at, self_enrolled";
+  "id, event_id, member_id, name, email, district, weight, invited_at, self_enrolled";
 const RESOLUTION_COLS = "id, token, question, description, options, recipe, status, order_index, closes_at";
 
 async function uid(): Promise<string> {
@@ -312,10 +322,43 @@ export async function updateMember(id: string, patch: Partial<MemberInput>): Pro
   if (error) throw error;
 }
 
+/**
+ * Retirer quelqu'un du groupe.
+ *
+ * ⚠️ CE N'EST PAS UN `delete` SUR `scrutin_members`, et c'est tout le sujet.
+ * `scrutin_event_members.member_id` est `ON DELETE SET NULL` : la convocation
+ * SURVIVAIT au retrait, avec son nom, son adresse et surtout son JETON
+ * inchangés — et `cast_event_ballot` identifie le votant par le seul jeton,
+ * sans jamais tester l'appartenance au roster. La personne retirée continuait
+ * donc de voter dans toutes les consultations ouvertes du groupe, avec le lien
+ * qu'elle avait déjà ; son nom et son adresse restaient en base indéfiniment ;
+ * et `leave_circle` ne pouvait plus les atteindre, puisqu'elle apparie sur
+ * `member_id`, désormais nul.
+ *
+ * `remove_member` rejoue littéralement `leave_circle` : les deux sorties d'un
+ * groupe doivent laisser la base dans le même état.
+ */
 export async function removeMember(id: string): Promise<void> {
   const supabase = createClient();
-  const { error } = await supabase.from("scrutin_members").delete().eq("id", id);
+  const { data, error } = await supabase.rpc("remove_member", { p_member_id: id });
   if (error) throw error;
+  const status = (data as { status?: string } | null)?.status;
+  if (status !== "ok") throw new Error(status ?? "remove_failed");
+}
+
+/**
+ * Le lien personnel d'UN convoqué, à la demande.
+ *
+ * Il ne descend plus avec la liste (voir EVENT_MEMBER_COLS) : détenir les N
+ * jetons ouvrait, en scellé, un oracle nominatif sur les émargements. La RPC
+ * refuse en `sealed` — le refus est la fonctionnalité, pas une limitation à
+ * contourner.
+ */
+export async function getConvocationLink(eventMemberId: string): Promise<{ status: string; token?: string }> {
+  const supabase = createClient();
+  const { data, error } = await supabase.rpc("get_convocation_link", { p_event_member_id: eventMemberId });
+  if (error) throw error;
+  return (data as { status: string; token?: string } | null) ?? { status: "invalid" };
 }
 
 // ---------------------------------------------------------------- événements
@@ -389,11 +432,75 @@ export interface JoinPending {
   oldest_at: string | null;
 }
 
-export async function getSpaceJoinPending(spaceId: string): Promise<JoinPending> {
+/**
+ * Les demandes d'adhésion en attente, ou `null` — même règle que
+ * `getSpaceOverview` : un NULL de RPC gardée par `auth.uid()` est un REFUS, pas
+ * une donnée.
+ *
+ * ⚠️ IL Y AVAIT UN `?? { count: 0 }` ICI. La fonction agrégeait (count, min) sur
+ * une jointure gardée, et un agrégat sur zéro ligne rend UNE ligne : hors
+ * périmètre, elle répondait `{count: 0, oldest_at: null}` sans erreur —
+ * indiscernable de « personne n'attend ». Le tableau de bord masque alors tout
+ * le bloc, y compris l'alerte « la plus ancienne a 70 h » qui est la seule
+ * raison d'être du chiffre : la fenêtre de péremption est de 72 h, et on laisse
+ * expirer des confirmations qu'on ne peut pas rattraper.
+ */
+export async function getSpaceJoinPending(spaceId: string): Promise<JoinPending | null> {
   const supabase = createClient();
   const { data, error } = await supabase.rpc("get_space_join_pending", { p_space_id: spaceId });
   if (error) throw error;
-  return (data as JoinPending | null) ?? { count: 0, oldest_at: null };
+  return data as JoinPending | null;
+}
+
+/**
+ * Les quatre chiffres de membres et les effectifs par segment, EN UNE REQUÊTE.
+ *
+ * POURQUOI. Le tableau de bord d'un groupe a cessé d'énumérer À L'ÉCRAN, mais
+ * pas AU RÉSEAU : il appelait `listMembers` (toutes les lignes du roster) et
+ * `listMemberSegments` (toute la table de rattachement) pour ne rendre AUCUNE
+ * ligne — juste « 47 membres · 3 sans adresse » et « Bénévoles · 12 ». Sur un
+ * groupe de 500 personnes, c'est ~1 000 lignes transportées et parcourues dans
+ * le navigateur avant le premier pixel utile, pour produire huit entiers.
+ *
+ * Le motif existait déjà à côté (`get_spaces_with_stats`) ; il manquait ici.
+ *
+ * AUCUNE DONNÉE NOMINATIVE NE SORT. La fonction ne rend que des comptes et les
+ * segments eux-mêmes — jamais un nom, jamais une adresse. C'est une page de
+ * gouvernance : la liste vit dans /membres, qui elle assume de la charger.
+ */
+export interface SpaceOverview {
+  members: { total: number; self_joined: number; no_email: number; no_segment: number };
+  segments: { id: string; name: string; rank: number | null; position: number; count: number }[];
+}
+
+/**
+ * Les huit entiers du tableau de bord, ou `null` — et `null` VEUT DIRE QUELQUE
+ * CHOSE.
+ *
+ * ⚠️ IL Y AVAIT UN `?? EMPTY_OVERVIEW` ICI, ET IL DÉSARMAIT LE GARDE-FOU DE LA
+ * PAGE. `get_space_overview` est gardée par `owner_id = auth.uid()` : quand la
+ * ligne ne sort pas, elle ne renvoie pas une erreur, elle renvoie un NULL SQL.
+ * Le `??` en faisait `{total: 0, …}` — indiscernable d'un groupe vide. Or le
+ * tableau de bord est bâti sur trois valeurs (« je sais », « je ne sais pas
+ * encore », « je n'ai pas pu savoir ») et son écran de premier jour refuse
+ * justement de s'afficher tant que les agrégats ne sont pas REÇUS, avec ce
+ * commentaire : « 0 membre · 0 consultation est exactement ce que produit un
+ * chargement en échec ». Le repli fabriquait la valeur que la précaution
+ * cherchait à écarter.
+ *
+ * Chemin réel : `load()` fait deux vagues ; le groupe est supprimé entre les
+ * deux, ou la session expire. `getSpace` a réussi, la RPC rend NULL, et
+ * l'animateur lit « 0 membre » sur un groupe qui en compte 200, sans le moindre
+ * message.
+ *
+ * LA RÈGLE, à retenir pour toute RPC gardée par `auth.uid()` : un NULL n'est pas
+ * une donnée, c'est un refus.
+ */
+export async function getSpaceOverview(spaceId: string): Promise<SpaceOverview | null> {
+  const supabase = createClient();
+  const { data, error } = await supabase.rpc("get_space_overview", { p_space_id: spaceId });
+  if (error) throw error;
+  return data as SpaceOverview | null;
 }
 
 export async function listEvents(spaceId: string): Promise<EventRow[]> {
@@ -657,7 +764,20 @@ export async function countResolutionVotes(pollId: string): Promise<number> {
   return count ?? 0;
 }
 
-/** Nombre de membres distincts ayant voté sur au moins une résolution de l'événement (participation async). */
+/**
+ * ⚠️ NE VAUT QUE HORS BULLETIN SCELLÉ, et ce n'est pas un détail d'usage.
+ *
+ * En scellé le bulletin est écrit SANS `event_member_id` — c'est le principe du
+ * sceau — et la policy restrictive `scrutin_ballots_hide_secret` retire ces
+ * bulletins de toute lecture directe. Cette fonction rend donc structurellement
+ * 0, quel que soit le nombre de votants. L'appeler sur une consultation scellée
+ * n'est pas une approximation : c'est un chiffre faux, et l'écran qui l'affiche
+ * fait relancer des gens qui ont déjà voté.
+ *
+ * Le suivi d'une consultation scellée passe par les ÉMARGEMENTS, une seule fois
+ * au montage et sous le plancher des 5 convoqués (`ratioVisible`) — jamais en
+ * sondage répété, qui rouvrirait l'oracle que le sceau ferme.
+ */
 export async function countEventVoters(pollIds: string[]): Promise<number> {
   if (!pollIds.length) return 0;
   const supabase = createClient();

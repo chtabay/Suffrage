@@ -13,7 +13,7 @@
 // ne permettrait de les reconstituer, ni de prévenir ceux qui les ont déposés.
 // Le renommage, lui, appartient à l'éditeur de la consultation.
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useLocale, useTranslations } from "next-intl";
+import { useTranslations } from "next-intl";
 import { Link, useRouter } from "@/i18n/navigation";
 import { useAuth } from "@/lib/auth/useAuth";
 import {
@@ -25,9 +25,9 @@ import {
   type EventStats,
   type Space,
 } from "@/lib/db/events";
-import { intlLocale } from "@/i18n/locales";
 import { OrgShell } from "./SpacesHome";
-import { CREAM, FONT_DISPLAY, GREEN, GREENTXT, INK, MUTED, PAPER, REDTXT, SUBINK, YELLOW } from "./theme";
+import ConsultationRow, { estEchue } from "./ConsultationRow";
+import { FONT_DISPLAY, INK, MUTED, PAPER, REDTXT, SUBINK } from "./theme";
 
 const card = {
   background: PAPER,
@@ -67,10 +67,6 @@ function parEcheance(a: EventRow, b: EventRow): number {
 
 export default function ConsultationsManager({ spaceId }: { spaceId: string }) {
   const t = useTranslations("Org");
-  // Le régime du bulletin porte les mêmes mots ici que sur la place publique :
-  // un votant ne doit pas avoir à traduire d'un écran à l'autre.
-  const tx = useTranslations("Explore");
-  const locale = useLocale();
   const router = useRouter();
   const { user, loading } = useAuth();
 
@@ -141,11 +137,6 @@ export default function ConsultationsManager({ spaceId }: { spaceId: string }) {
     window.history.replaceState(null, "", `${url.pathname}${url.search}${url.hash}`);
   };
 
-  const fmt = useMemo(
-    () => new Intl.DateTimeFormat(intlLocale(locale), { day: "numeric", month: "short", year: "numeric" }),
-    [locale],
-  );
-
   // Les publics proposés en facette sont ceux RÉELLEMENT écrits sur les
   // consultations de ce cercle : on ne propose pas un filtre qui ne trouverait
   // rien.
@@ -162,14 +153,22 @@ export default function ConsultationsManager({ spaceId }: { spaceId: string }) {
     return events.filter((e) => e.audience_label === publicFacet);
   }, [events, publicFacet]);
 
-  const parBloc = useMemo(
-    () => ({
-      open: filtres.filter((e) => e.status === "open").sort(parEcheance),
+  // QUATRE BLOCS, PAS TROIS. « Ouvert » en base ne veut pas dire « ouvert » : rien
+  // ne clôt une consultation à son échéance (ni cron, ni déclencheur), donc une
+  // urne dont la date est passée reste `status = 'open'` pour toujours. Rangée
+  // avec les vivantes, et remontée EN TÊTE par le tri par échéance croissante,
+  // elle se lisait comme la plus urgente des consultations en cours — alors
+  // qu'elle n'accepte plus un seul bulletin. Elle a son bloc, et il appelle un
+  // geste : clore, pour que le résultat existe.
+  const parBloc = useMemo(() => {
+    const ouvertes = filtres.filter((e) => e.status === "open");
+    return {
+      open: ouvertes.filter((e) => !estEchue(e)).sort(parEcheance),
+      expired: ouvertes.filter((e) => estEchue(e)).sort(parEcheance),
       draft: filtres.filter((e) => e.status === "draft").sort(parEcheance),
       closed: filtres.filter((e) => e.status === "closed").sort(parEcheance),
-    }),
-    [filtres],
-  );
+    };
+  }, [filtres]);
 
   const onCreate = async () => {
     if (busy) return;
@@ -226,56 +225,12 @@ export default function ConsultationsManager({ spaceId }: { spaceId: string }) {
       </OrgShell>
     );
 
-  const pastille = (statut: EventRow["status"]) => {
-    const s =
-      statut === "open"
-        ? { bg: GREEN, fg: PAPER, key: "statusOpen" }
-        : statut === "closed"
-          ? { bg: INK, fg: PAPER, key: "statusClosed" }
-          : { bg: YELLOW, fg: INK, key: "statusDraft" };
-    return (
-      <span style={{ flex: "none", display: "inline-flex", alignItems: "center", background: s.bg, color: s.fg, border: `2px solid ${INK}`, borderRadius: 20, padding: "2px 10px", fontWeight: 700, fontSize: 11.5, whiteSpace: "nowrap" }}>
-        {t(s.key)}
-      </span>
-    );
-  };
-
-  const ligne = (e: EventRow) => (
-    <Link
-      key={e.id}
-      href={`/evenement/${e.id}`}
-      style={{ display: "block", background: PAPER, border: `2px solid ${INK}`, borderRadius: 20, padding: "13px 15px", textDecoration: "none", color: INK }}
-    >
-      <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 10 }}>
-        <span style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 16, lineHeight: 1.2 }}>{e.title}</span>
-        {pastille(e.status)}
-      </div>
-      <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginTop: 7, fontSize: 12.5, color: SUBINK, fontWeight: 600 }}>
-        {/* `audience_label` n'est écrit que par le parcours `/new?espace=` : une
-            consultation née de l'éditeur le laisse à nul QUEL QUE SOIT le public
-            convoqué. Écrire « tout le cercle » sur ce nul annoncerait 47 membres
-            à une consultation qui n'en a convoqué 6 — on dit qu'on ne sait pas. */}
-        <span>
-          {e.audience_label ??
-            (stats?.[e.id] ? t("convenedN", { count: stats[e.id].convened }) : t("audienceUnknown"))}
-        </span>
-        <span>{e.secret_ballot ? `🔒 ${tx("sealed")}` : `👁 ${tx("named")}`}</span>
-        {stats?.[e.id] && <span>{t("questionCount", { count: stats[e.id].questions })}</span>}
-        {/* En SCELLÉ, le ratio n'apparaît qu'à partir de 5 convoqués : « 2/3 »
-            sur trois personnes est déjà une désignation partielle. En NOMINATIF,
-            sans condition — l'animateur a le droit de voir, et le votant en est
-            averti avant de voter. Même règle que sur le tableau de bord. */}
-        {stats?.[e.id] && (!e.secret_ballot || stats[e.id].convened >= 5) && (
-          <span style={{ color: stats[e.id].signed > 0 ? GREENTXT : MUTED }}>
-            {t("signedRatio", { signed: stats[e.id].signed, convened: stats[e.id].convened })}
-          </span>
-        )}
-      </div>
-      {e.closes_at && (
-        <div style={{ marginTop: 5, fontSize: 12.5, color: MUTED }}>{fmt.format(new Date(e.closes_at))}</div>
-      )}
-    </Link>
-  );
+  // La LIGNE et sa PASTILLE vivent dans ConsultationRow, partagées avec le
+  // tableau de bord. Elles étaient écrites deux fois, et les deux copies avaient
+  // divergé : fonds, rayons et polices différents pour le même objet, la règle
+  // des 5 convoqués recopiée en `>= 5` en dur, et surtout une pastille « Ouvert »
+  // peinte ici en blanc sur GREEN — ~2,46:1, sous la barre AA.
+  const ligne = (e: EventRow) => <ConsultationRow key={e.id} event={e} stats={stats?.[e.id]} />;
 
   // `details` est ici CONTRÔLÉ : on empêche la bascule native pour que
   // l'attribut `open` ne raconte jamais autre chose que l'état React.
@@ -337,8 +292,34 @@ export default function ConsultationsManager({ spaceId }: { spaceId: string }) {
         </div>
       ) : (
         <>
+          {/* ---- LE LEVIER DE CE SUJET, SUR L'ÉCRAN DE CE SUJET ----
+               Il n'était rendu que dans la branche « zéro consultation ». Dès la
+               première, l'écran dédié aux consultations n'offrait plus AUCUN
+               moyen d'en créer une : l'animateur qui vient constater que la
+               question de la semaine est close doit remonter au tableau de bord
+               pour en poser une autre. L'en-tête de ce fichier justifie
+               l'absence des gestes DESTRUCTEURS, jamais celle de la création.
+               Même couple, même ordre et même hiérarchie qu'au §2 du tableau de
+               bord : on doit lire le même geste d'un écran à l'autre. */}
+          <div style={{ display: "flex", gap: 10, marginTop: 18, flexWrap: "wrap" }}>
+            <Link
+              href={`/new?espace=${spaceId}`}
+              className="dc-bright"
+              style={{ textDecoration: "none", fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 14.5, border: `2.5px solid ${INK}`, background: INK, color: PAPER, padding: "11px 18px", borderRadius: 11 }}
+            >
+              {t("actionAsk")}
+            </Link>
+            <button
+              onClick={onCreate}
+              disabled={busy}
+              style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 14.5, cursor: busy ? "not-allowed" : "pointer", border: `2.5px solid ${INK}`, background: PAPER, color: INK, padding: "11px 18px", borderRadius: 11, opacity: busy ? 0.65 : 1 }}
+            >
+              {t("actionSequence")}
+            </button>
+          </div>
+
           {/* ---- facettes de public convoqué ---- */}
-          <div role="group" aria-label={t("filterAudience")} style={{ display: "flex", gap: 7, flexWrap: "wrap", marginTop: 18 }}>
+          <div role="group" aria-label={t("filterAudience")} style={{ display: "flex", gap: 7, flexWrap: "wrap", marginTop: 14 }}>
             {facette("", t("filterAll"))}
             {publics.map((p) => facette(p, p))}
             {aSansPublic && facette(SANS_PUBLIC, t("audienceUnknown"))}
@@ -369,12 +350,32 @@ export default function ConsultationsManager({ spaceId }: { spaceId: string }) {
               {/* ---- en cours ---- toujours rendu, même vide : « rien n'attend
                    personne » est une réponse, et c'est la première qu'on vient
                    chercher ici. */}
-              <details open={ouverts.open} style={{ ...card, marginTop: 18, background: CREAM }}>
+              {/* Les trois blocs ont désormais le MÊME fond, blanc : les lignes
+                  qu'ils portent sont crème, et un bloc crème rendait la ligne
+                  crème invisible dans son propre cadre — c'était la raison pour
+                  laquelle la ligne de cette vue avait dû devenir blanche, donc
+                  diverger de celle du tableau de bord. L'accent d'« En cours »
+                  tient à sa place (premier) et à son état (déplié par défaut). */}
+              <details open={ouverts.open} style={{ ...card, marginTop: 18 }}>
                 {titreBloc(t("openTitle"), parBloc.open.length, "open")}
                 <div style={{ display: "flex", flexDirection: "column", gap: 9, marginTop: 13 }}>
                   {parBloc.open.length ? parBloc.open.map(ligne) : <div style={{ color: MUTED, fontSize: 14 }}>{t("noOpenConsultation")}</div>}
                 </div>
               </details>
+
+              {/* ---- ÉCHUES ---- juste sous « En cours », et jamais masquable :
+                   ce sont les seules lignes de l'écran qui réclament un geste
+                   dont personne d'autre ne se chargera. Rien ne clôt une
+                   consultation à son échéance, donc sans ce bloc elles restaient
+                   « ouvertes » indéfiniment, et leur résultat scellé — invisible
+                   tant qu'on n'a pas cliqué « Clore » — n'existait jamais. */}
+              {parBloc.expired.length > 0 && (
+                <details open style={{ ...card, marginTop: 16, borderColor: REDTXT, boxShadow: `5px 5px 0 ${REDTXT}` }}>
+                  {titreBloc(t("expiredCount", { count: parBloc.expired.length }), null, "open")}
+                  <div style={{ fontSize: 12.5, color: SUBINK, marginTop: 6, lineHeight: 1.45 }}>{t("expiredHint")}</div>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 9, marginTop: 13 }}>{parBloc.expired.map(ligne)}</div>
+                </details>
+              )}
 
               {/* ---- brouillons et closes : rendus seulement s'ils existent. Un
                    bloc « 0 brouillon » n'apprend rien et repousse le reste. ---- */}
