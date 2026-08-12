@@ -1,0 +1,111 @@
+# Placet — règles du dépôt
+
+Ce fichier est lu au démarrage par **tout** agent qui travaille ici. Il ne décrit
+pas le produit (les specs sont dans `docs/`) : il porte les règles qui coûtent
+cher quand on les ignore, et le partage du terrain entre agents.
+
+## Qui tient quoi, en ce moment
+
+Plusieurs agents travaillent sur ce dépôt **en même temps et dans le même
+répertoire de travail** — pas dans des clones séparés. Deux d'entre nous ont déjà
+commité l'un par-dessus l'autre. Avant de toucher un fichier, regarde cette
+liste ; si le sujet appartient à quelqu'un d'autre, signale-le plutôt que de le
+corriger.
+
+| Chantier | État | Qui |
+|---|---|---|
+| **Jeu 3** | en cours | l'agent des jeux |
+| **Unanimo** (`games/unanimo`) | en prod, relu | fermé |
+| **Alibi** (`games/alibi`) | en prod, **relu et corrigé le 2026-08-13** | fermé — **ne pas y revenir** |
+| **Gestion de groupes** (`/espaces`) | en prod, 24 constats moyens/faibles en réserve | la session tableau de bord |
+
+**Alibi est clos.** Sa relecture indépendante a produit 53 constats ; les deux
+bloquants, les trois forts et le reliquat d'écran sont corrigés et poussés. Ce
+qui reste est consigné dans la mémoire du projet (`jeu-alibi.md`), pas dans le
+code. Si tu tombes dessus en cherchant autre chose : laisse.
+
+## Les règles qui coûtent cher
+
+**`npm run build` AVANT de pousser.** `tsc --noEmit` ne lint pas. Un
+avertissement eslint que `tsc` laisse passer casse le déploiement Vercel **en
+silence** — on ne l'apprend qu'en regardant le tableau de bord Vercel. Le build
+lance aussi le contrôle de parité i18n.
+⚠️ Vérifie que **le port 3000 est libre** avant : un serveur de développement en
+cours fait échouer le build.
+
+**Jamais `git add -A`.** Le répertoire de travail contient presque toujours le
+chantier de quelqu'un d'autre. On ajoute les fichiers **un par un**, après avoir
+attribué chaque modification à son chantier. Un `git status` qui montre des
+fichiers que tu n'as pas touchés n'est pas une anomalie : c'est la normale.
+
+**Jamais `--amend` sur un commit qu'on n'a pas écrit soi-même** — et vérifier
+`git log` avant : un `--amend` peut effacer le commit d'un autre agent. En cas de
+perte, `git reflog` puis `git commit -C <sha>`.
+
+**Avant `git push`, regarde `git log origin/main..HEAD`.** Il peut contenir des
+commits locaux d'un autre agent, prêts mais non poussés. Les emporter n'est pas
+grave, mais il faut le savoir et le dire.
+
+**Les migrations s'appliquent À LA MAIN sur la base, puis se commitent.** Le
+fichier sous `supabase/migrations/` doit décrire *exactement* ce qui a été
+appliqué, et rester **rejouable à blanc** sur une base vierge (un `revoke` visant
+une fonction supprimée entre-temps casse le rejeu).
+
+**`grant ... to authenticated` NE SUFFIT PAS.** Postgres donne à `PUBLIC` un
+droit d'exécution par défaut sur toute fonction. Le `revoke ... from public, anon`
+vient donc **avant** le `grant`. Piège payé deux fois.
+
+**Une policy RLS est évaluée avec les droits de l'APPELANT** : une sous-requête
+sur une table protégée répond « non » en silence. Et `with check` est aveugle au
+changement — il faut les deux, `using` et `with check`.
+
+**Un NULL rendu par une RPC gardée par `auth.uid()` est un REFUS, pas une
+donnée.** Ne jamais le replier sur un objet vide : « 0 membre » sur un groupe qui
+en compte 200 est indiscernable d'un groupe vide.
+
+## i18n
+
+Quatre langues, **parité obligatoire** : `fr` (défaut, sans préfixe), `en`, `es`,
+`pcm` (Nigerian Pidgin — pas de l'anglais recopié). Ajouter une clé = l'ajouter
+dans les quatre.
+
+⚠️ **Le contrôle de parité ne voit que les clés écrites EN CLAIR.** Une clé passée
+en variable (`t(cle)`, `t(x ? "a" : "b")`) lui échappe : elle peut manquer, ou
+vivre dans le mauvais namespace, sans que rien ne le dise avant que l'écran
+n'affiche `Org.maCle` en toutes lettres. Écris les appels en clair.
+
+⚠️ **Il lit aussi les COMMENTAIRES.** Écrire un appel `t("…")` en exemple dans un
+commentaire le fait signaler comme clé manquante.
+
+⚠️ **N'insère jamais une clé par ancre textuelle sans vérifier le namespace** : le
+même nom de clé existe souvent dans plusieurs namespaces, et la première
+occurrence n'est pas la bonne. Et **ne re-sérialise jamais `messages/*.json`** :
+un `json.dumps(indent=2)` déplie les tableaux en ligne et noie le diff.
+
+## Ce qu'on ne peut pas vérifier ici
+
+**Il n'y a pas de clé de service dans `.env.local`** : impossible d'ouvrir une
+session. Tout le rendu **connecté** (`/espaces`, `/evenement`, la Régie) n'est
+donc couvert que par tsc, eslint, le build et la parité — **jamais par un passage
+à l'écran**. Dis-le explicitement plutôt que de laisser croire le contraire.
+
+**Les jeux sont la seule surface sans compte**, donc la seule réellement
+vérifiable au navigateur (`preview_start`, puis on joue). Sers-t'en : sur
+Unanimo, deux défauts sur cinq n'étaient visibles qu'en jouant — un bouton mort
+au deuxième passage et un emoji jeté en silence — et ni `tsc`, ni eslint, ni les
+tests, ni la parité ne les voyaient.
+
+Pour la base, la vérification qui marche est un bloc `do $$ … raise exception $$` :
+on monte le cas, on l'éprouve, on lève une exception pour tout annuler. Une
+session peut être simulée avec
+`set_config('request.jwt.claims', json_build_object('sub', <uid>, 'role','authenticated')::text, true)`.
+
+## Style
+
+Le code de ce dépôt **explique ses décisions** en commentaire, surtout celles qui
+paraissent bizarres. Un commentaire dit *pourquoi*, et souvent *ce qui est arrivé
+quand on faisait autrement*. Avant de « corriger » quelque chose d'étrange, lis
+le commentaire au-dessus : c'est peut-être une cicatrice, pas un oubli.
+
+Les messages de commit décrivent l'**effet visible** du changement, en une phrase,
+sans préfixe de type (`Le verdict comptait les abstentions comme des « contre »`).

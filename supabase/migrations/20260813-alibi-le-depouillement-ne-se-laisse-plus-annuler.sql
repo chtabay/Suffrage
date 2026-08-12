@@ -176,7 +176,17 @@ begin
            'rule', 'alibi-v1',
            'rooms', v_rooms,
            'suspects', to_jsonb(v_suspects),
-           'cleared', to_jsonb(v_cleared))
+           'cleared', to_jsonb(v_cleared),
+           -- ⚠️ LE VIVIER D'AVANT. Sans lui, l'écran ne peut PAS dire de combien
+           -- on a resserré — et le client ne peut pas le calculer, puisque
+           -- `get_game_room` ne sert que la manche courante. La phrase « vous
+           -- étiez 6, vous êtes 3 » existait, traduite en quatre langues,
+           -- alimentée par une valeur câblée à `null`. C'est pourtant le cœur du
+           -- jeu : la spec chiffre ce croisement à 32 points de taux de
+           -- résolution. La donnée est publique de toute façon — le vivier de la
+           -- manche précédente a été affiché à toute la table.
+           'previous', case when coalesce(array_length(v_prev, 1), 0) > 0
+                            then to_jsonb(array_length(v_prev, 1)) else 'null'::jsonb end)
    where id = p_round_id;
 end $function$;
 

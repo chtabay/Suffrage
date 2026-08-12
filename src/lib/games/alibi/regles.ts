@@ -92,12 +92,26 @@ export interface AlibiResult {
   suspects?: string[];
   /** Blanchis par CETTE manche. */
   cleared?: string[];
-  hunches?: Record<string, string>;
+  /**
+   * Taille du vivier à la manche PRÉCÉDENTE — servie par le serveur, parce que
+   * `get_game_room` ne rend que la manche courante et que l'écran ne pouvait
+   * donc pas dire de combien on a resserré. C'est pourtant tout ce que la table
+   * vient chercher, et la spec chiffre ce croisement à 32 points de taux de
+   * résolution.
+   */
+  previous?: number | null;
   /** Manche finale seulement. */
   final?: boolean;
   culprit?: string;
   votes?: Record<string, number>;
   accused?: string[];
+  /**
+   * Les carnets de toute la table, manche par manche. ⚠️ UNIQUEMENT dans le
+   * résultat FINAL : ils vivaient dans le résultat de CHAQUE manche, que
+   * `get_game_room` sert à quiconque connaît le code — alors que l'écran promet
+   * en quatre langues « personne ne le verra avant la fin ».
+   */
+  carnets?: Record<string, string[]>;
   hit?: boolean;
   size?: number;
   scores?: Record<string, number>;

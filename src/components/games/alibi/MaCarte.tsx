@@ -56,6 +56,8 @@ export default function MaCarte({
   );
   const [hunch, setHunch] = useState<string>(mine?.hunch ?? "");
   const done = mine != null && typeof mine.room === "number";
+  // Repliée dès qu'elle est déposée, et rouverte à la demande.
+  const [ouverte, setOuverte] = useState(false);
 
   const line = (place: string, count: number) => (
     <>
@@ -66,9 +68,36 @@ export default function MaCarte({
     </>
   );
 
+  // ⚠️ LA CARTE SE REPLIE UNE FOIS DÉPOSÉE, et c'est la vraie protection du
+  // secret à table. On joue à onze dans la même pièce ; la carte restait
+  // affichée TOUTE la manche, et celle du coupable porte une carte de choix que
+  // l'innocent n'a pas — six boutons contre aucun. Une silhouette se reconnaît
+  // d'un banc à l'autre sans qu'on ait rien à lire. Repliée, les deux rôles
+  // montrent exactement le même bloc. Le libellé existait déjà dans les quatre
+  // langues, et n'était appelé nulle part.
+  if (done && !ouverte) {
+    return (
+      <GCard skin={skin} accent={skin.accent} padding={16}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
+          <div style={{ fontFamily: skin.fontDisplay, fontWeight: 800, fontSize: 16, color: skin.ink }}>
+            ✓ {t("submit.confirmed")}
+          </div>
+          <GBtn skin={skin} variant="ghost" onClick={() => setOuverte(true)}>
+            {t("card.reopen")}
+          </GBtn>
+        </div>
+      </GCard>
+    );
+  }
+
   return (
     <div style={{ display: "grid", gap: 14 }}>
-      <GCard skin={skin} accent={isCulprit ? skin.accent2 : skin.accent} padding={16}>
+      {/* ⚠️ MÊME ACCENT POUR LES DEUX RÔLES. L'en-tête de ce fichier promet que
+          « la carte de l'innocent et celle du coupable ont la MÊME forme, la
+          même hauteur, les mêmes couleurs » — et trente lignes plus bas, le
+          coupable recevait `accent2` là où l'innocent recevait `accent`. Une
+          couleur différente se lit d'un bout de table, sans même lire. */}
+      <GCard skin={skin} accent={skin.accent} padding={16}>
         <div style={{ display: "grid", gap: 9 }}>
           <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 10 }}>
             <GLabel skin={skin}>{t("card.title")}</GLabel>
@@ -150,7 +179,10 @@ export default function MaCarte({
         size="lg"
         full
         disabled={sending}
-        onClick={() => onSubmit({ room: pick.room, count: pick.count, hunch })}
+        onClick={() => {
+          setOuverte(false);
+          onSubmit({ room: pick.room, count: pick.count, hunch });
+        }}
       >
         {sending ? t("submit.sending") : done ? t("submit.change") : t("submit.confirm")}
       </GBtn>

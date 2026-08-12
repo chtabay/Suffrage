@@ -38,7 +38,7 @@ export default async function PrivacyPage({ params }: { params: Promise<{ locale
   const c = pickLocale<Content>(locale, {
     fr: {
       title: "Politique de confidentialité",
-      updated: "Dernière mise à jour : 10 août 2026",
+      updated: "Dernière mise à jour : 13 août 2026",
       intro:
         "Placet (placet.app) permet à un groupe d'organiser de vrais votes. Cette page explique ce que nous collectons et pourquoi. Nous gardons le strict minimum.",
       sections: [
@@ -52,7 +52,7 @@ export default async function PrivacyPage({ params }: { params: Promise<{ locale
         },
         {
           h: "Ce que nous collectons — dans les jeux",
-          p: "Une partie n'exige aucun compte. Chaque joueur choisit un prénom ou un pseudo, puis saisit ses mots à chaque manche. Ce prénom est montré aux autres joueurs de la salle, à côté des mots et des points de chaque manche : n'y mettez que ce que vous acceptez de montrer au groupe. Rien de tout cela n'est rattaché à un compte ni réutilisé ailleurs dans Placet.",
+          p: "Une partie n'exige aucun compte. Chaque joueur choisit un prénom ou un pseudo, puis saisit ce que le jeu lui demande : des mots, ou — dans un jeu d'enquête — la pièce où il se trouvait, un soupçon et une accusation, qui DÉSIGNENT NOMMÉMENT un autre joueur de la même partie. Ces éléments sont montrés aux autres joueurs de la salle : le prénom et les réponses à chaque manche, les soupçons et les accusations à la fin de la partie. N'y mettez que ce que vous acceptez de montrer au groupe. Rien de tout cela n'est rattaché à un compte ni réutilisé ailleurs dans Placet.",
         },
         {
           h: "Pourquoi",
@@ -87,7 +87,7 @@ export default async function PrivacyPage({ params }: { params: Promise<{ locale
     },
     en: {
       title: "Privacy policy",
-      updated: "Last updated: 10 August 2026",
+      updated: "Last updated: 13 August 2026",
       intro:
         "Placet (placet.app) lets a group run proper votes. This page explains what we collect and why. We keep it to a minimum.",
       sections: [
@@ -101,7 +101,7 @@ export default async function PrivacyPage({ params }: { params: Promise<{ locale
         },
         {
           h: "What we collect — in games",
-          p: "A game needs no account. Each player picks a first name or nickname, then enters their words each round. That name is shown to the other players in the room, next to the words and points of each round: only put in what you're happy to show the group. None of it is attached to an account or reused elsewhere in Placet.",
+          p: "A game needs no account. Each player picks a first name or nickname, then enters whatever the game asks for: words, or — in a detective game — the room they were in, a suspicion and an accusation, which NAME another player in the same game. These are shown to the other players in the room: the name and each round's answers as you go, the suspicions and accusations at the end. Only put in what you're happy to show the group. None of it is attached to an account or reused elsewhere in Placet.",
         },
         {
           h: "Why",
@@ -136,7 +136,7 @@ export default async function PrivacyPage({ params }: { params: Promise<{ locale
     },
     es: {
       title: "Política de privacidad",
-      updated: "Última actualización: 10 de agosto de 2026",
+      updated: "Última actualización: 13 de agosto de 2026",
       intro:
         "Placet (placet.app) permite a un grupo organizar votaciones de verdad. Esta página explica qué recopilamos y por qué. Lo mantenemos al mínimo.",
       sections: [
@@ -150,7 +150,7 @@ export default async function PrivacyPage({ params }: { params: Promise<{ locale
         },
         {
           h: "Qué recopilamos — en los juegos",
-          p: "Una partida no requiere cuenta. Cada jugador elige un nombre o apodo y luego escribe sus palabras en cada ronda. Ese nombre se muestra a los demás jugadores de la sala, junto a las palabras y los puntos de cada ronda: pon solo lo que aceptes mostrar al grupo. Nada de esto se vincula a una cuenta ni se reutiliza en otro lugar de Placet.",
+          p: "Una partida no requiere cuenta. Cada jugador elige un nombre o apodo y luego escribe lo que el juego le pide: palabras o —en un juego de detectives— la habitación donde estaba, una sospecha y una acusación, que SEÑALAN POR SU NOMBRE a otro jugador de la misma partida. Todo ello se muestra a los demás jugadores de la sala: el nombre y las respuestas de cada ronda sobre la marcha, las sospechas y acusaciones al final. Pon solo lo que aceptes mostrar al grupo. Nada de esto se vincula a una cuenta ni se reutiliza en otro lugar de Placet.",
         },
         {
           h: "Por qué",

@@ -16,7 +16,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { getSeat, host as hostVerbs, joinRoom, lastNick, saveSeat, submitEntry, type Seat } from "@/lib/games/room";
 import { useGameRoom } from "@/lib/games/useGameRoom";
-import { ALIBI_SKIN } from "@/lib/games/skin";
+import { ALIBI_ALERT, ALIBI_SKIN } from "@/lib/games/skin";
 import { cardFor, isVerdictRound, type AlibiMine, type AlibiResult, type AlibiSecret } from "@/lib/games/alibi/regles";
 import GameShell from "@/components/games/GameShell";
 import JoinGate from "@/components/games/JoinGate";
@@ -37,6 +37,8 @@ export default function AlibiRoom({ code }: { code: string }) {
   const [joinErr, setJoinErr] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [accuse, setAccuse] = useState<string>("");
+  /** Un dépôt qui n'a pas abouti. Sans lui, on croit avoir voté. */
+  const [envoiKo, setEnvoiKo] = useState(false);
 
   // Le jeton vit dans le localStorage : on ne peut le lire qu'APRÈS le montage,
   // sinon le rendu serveur et le rendu client ne diraient pas la même chose.
@@ -154,16 +156,30 @@ export default function AlibiRoom({ code }: { code: string }) {
     done: t("players.done"),
   };
 
+  // ⚠️ UN DÉPÔT REFUSÉ DOIT SE DIRE. Il n'y avait ni `catch` ni lecture du
+  // statut rendu : une coupure réseau, ou un refus du serveur (`closed`,
+  // `waiting`, `invalid`), passait en silence — on croyait avoir voté. Sur la
+  // manche d'accusation, c'est la voix qui disparaît.
   const send = async (payload: Record<string, unknown>) => {
     if (!token || busy) return;
     setBusy(true);
+    setEnvoiKo(false);
     try {
-      await submitEntry(token, payload);
+      const a = await submitEntry(token, payload);
+      if (a?.status !== "ok") throw new Error(a?.status ?? "ko");
       await refresh();
+    } catch {
+      setEnvoiKo(true);
     } finally {
       setBusy(false);
     }
   };
+
+  const echecLigne = envoiKo ? (
+    <div role="alert" style={{ fontSize: 14, fontWeight: 800, color: ALIBI_ALERT, lineHeight: 1.45 }}>
+      {t("join.errGeneric")}
+    </div>
+  ) : null;
 
   const hostBar = (children: React.ReactNode) =>
     isHost ? <div style={{ marginTop: 14, display: "grid", gap: 8 }}>{children}</div> : null;
@@ -238,8 +254,12 @@ export default function AlibiRoom({ code }: { code: string }) {
     </span>
   );
 
-  // Le vivier de la manche précédente, pour dire de combien on a resserré.
-  const previousSize: number | null = null;
+  // LE RESSERREMENT DU VIVIER, qui est le cœur du jeu, n'était JAMAIS affiché :
+  // cette valeur était câblée à `null`, donc la phrase « vous étiez 6, vous êtes
+  // 3 » — traduite dans les quatre langues — ne sortait jamais. Le client ne
+  // pouvait pas la calculer : `get_game_room` ne sert que la manche COURANTE.
+  // C'est donc le dépouillement qui la donne désormais.
+  const previousSize: number | null = round?.result?.previous ?? null;
 
   // ───────────────────────────────────────────────── LA RÉSOLUTION
   if (verdictRound && round.phase === "reveal" && round.result?.final) {
@@ -257,6 +277,50 @@ export default function AlibiRoom({ code }: { code: string }) {
             </div>
           </div>
         </GCard>
+
+        {/* LES VOIX ET LES CARNETS. Les deux libellés existaient, traduits dans
+            les quatre langues, et n'étaient appelés nulle part : la partie se
+            terminait sans qu'on sache qui avait accusé qui, ni ce que chacun
+            avait noté — alors que l'écran de saisie promet « personne ne le
+            verra AVANT LA FIN ». La promesse tenait à moitié : le carnet
+            fuitait pendant, et ne se montrait pas après. */}
+        {r.votes && Object.keys(r.votes).length > 0 ? (
+          <GCard skin={skin} accent={skin.accent2} padding={16}>
+            <div style={{ display: "grid", gap: 8 }}>
+              <GLabel skin={skin}>{t("verdict.title")}</GLabel>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 7 }}>
+                {Object.entries(r.votes)
+                  .sort((a, b) => b[1] - a[1])
+                  .map(([nom, n]) => (
+                    <span
+                      key={nom}
+                      style={{
+                        border: `${skin.border}px solid ${skin.ink}`,
+                        borderRadius: 999,
+                        padding: "7px 12px",
+                        background: nom === r.culprit ? skin.good : skin.paper,
+                        color: nom === r.culprit ? "#fff" : skin.ink,
+                        fontFamily: skin.fontDisplay,
+                        fontWeight: 800,
+                        fontSize: 14,
+                      }}
+                    >
+                      {nom} · {t("final.votes", { n })}
+                    </span>
+                  ))}
+              </div>
+              {r.carnets && Object.keys(r.carnets).length > 0 ? (
+                <div style={{ fontSize: 13, color: skin.muted, lineHeight: 1.7, marginTop: 2 }}>
+                  {Object.entries(r.carnets).map(([nom, suites]) => (
+                    <div key={nom}>
+                      <strong style={{ color: skin.ink }}>{nom}</strong> · {t("final.carnet")} : {suites.join(" → ")}
+                    </div>
+                  ))}
+                </div>
+              ) : null}
+            </div>
+          </GCard>
+        ) : null}
 
         <div>
           <GLabel skin={skin}>{t("final.ranking")}</GLabel>
@@ -328,6 +392,7 @@ export default function AlibiRoom({ code }: { code: string }) {
                 </button>
               ))}
             </div>
+            {echecLigne}
             <GBtn skin={skin} size="lg" full disabled={!(accuse || done) || busy} onClick={() => send({ accuse: accuse || done })}>
               {/* Sans nom choisi, « J'accuse  » se terminerait par un blanc. */}
               {busy
@@ -412,6 +477,7 @@ export default function AlibiRoom({ code }: { code: string }) {
 
   return shell(
     <div style={{ display: "grid", gap: 14 }}>
+      {echecLigne}
       {card ? (
         <MaCarte
           skin={skin}
