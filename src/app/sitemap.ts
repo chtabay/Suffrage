@@ -21,6 +21,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // jamais — elles sont éphémères et portent `noindex`.
     "/games",
     "/games/unanimo",
+    "/games/alibi",
     "/ai",
     "/slack",
     "/privacy",

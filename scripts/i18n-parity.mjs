@@ -39,9 +39,20 @@ const flatten = (obj, prefix = "", acc = {}) => {
 // sous-messages de pluriel/select (`one {votant}`, `other {# adoptées}`…) qui sont
 // du texte traduisible — sinon on les confondrait avec des variables — puis on
 // extrait les noms d'arguments restants ({name}, {count, plural…}).
+//
+// ⚠️ LE PIÈGE, RENCONTRÉ DEUX FOIS. La première version écrivait `\b(zero|one|
+// …|=\d+)` : or `\b` est une limite de MOT, et `=` n'en est pas un. La limite ne
+// pouvait donc jamais se produire devant `=0`, et le cas zéro n'était JAMAIS
+// retiré — si bien que `{n, plural, =0 {Personne n'est arrivé} …}` faisait lire
+// une variable nommée « Personne ». La première fois, on avait contourné en
+// scindant la clé ; la seconde, on répare l'analyseur. Il ne reste rien à
+// contourner ensuite.
+//
+// On accepte donc le mot-clé en début de chaîne ou après un séparateur, plutôt
+// qu'après une limite de mot.
 const vars = (s) => {
-  const cleaned = String(s).replace(/\b(zero|one|two|few|many|other|=\d+)\s*\{[^{}]*\}/g, " ");
-  return [...new Set([...cleaned.matchAll(/\{(\w+)/g)].map((m) => m[1]))].sort().join(",");
+  const cleaned = String(s).replace(/(^|[\s,{])(zero|one|two|few|many|other|=\d+)\s*\{[^{}]*\}/g, "$1 ");
+  return [...new Set([...cleaned.matchAll(/\{\s*(\w+)/g)].map((m) => m[1]))].sort().join(",");
 };
 
 const raw = Object.fromEntries(

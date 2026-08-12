@@ -1675,14 +1675,14 @@
       "tagline": "Think like the others",
       "desc": "One theme, a few words. You score for every word another player wrote too. The fun is agreeing without saying a thing."
     },
-    "loup-garou": {
-      "name": "Werewolf",
-      "tagline": "The village wakes up",
-      "desc": "Secret votes, hidden roles, nights that claim victims. In the works — it will reuse the very same room as Unanimo."
-    },
     "engineTitle": "Underneath these games, there's Placet.",
     "engineText": "The same engine is used to decide for real: pick a date, settle between options, share out places.",
-    "engineCta": "Discover Placet"
+    "engineCta": "Discover Placet",
+    "alibi": {
+      "name": "Alibi",
+      "tagline": "Find the room with one person too many",
+      "desc": "Each round, the house puts everyone in one of three rooms — except one person, who was prowling. Nobody is eliminated, nobody closes their eyes, and the app is the only host."
+    }
   },
   "Unanimo": {
     "metaTitle": "Unanimo — write the words everyone is thinking of",
@@ -1818,6 +1818,168 @@
       "s1": "You create the game and share the link or the code — everyone is in within ten seconds.",
       "s2": "A theme appears. Everyone writes their words on their own phone, without seeing the others.",
       "s3": "You reveal whenever you like. Shared words score, points add up, and on you go."
+    }
+  },
+  "Alibi": {
+    "metaTitle": "Alibi — the room with one too many",
+    "metaDescription": "A 35-minute murder mystery on your phones. Nobody is eliminated, nobody closes their eyes, and the app is the only game master. 6 to 16 players, no account.",
+    "name": "Alibi",
+    "tagline": "Find the room with one person too many",
+    "back": "All games",
+    "poweredBy": "Powered by Placet",
+    "offline": "Connection lost — trying again",
+    "loading": "One moment…",
+    "missing": {
+      "title": "This game no longer exists",
+      "hint": "The code may have been mistyped, or the game has been deleted.",
+      "cta": "Back to the games"
+    },
+    "join": {
+      "title": "Step into the house",
+      "hint": "Pick the name the others will see.",
+      "hintPlayers": "{n, plural, =0 {Nobody has arrived yet.} one {One person is already here.} other {# people are already here.}}",
+      "placeholder": "Your first name",
+      "cta": "Come in",
+      "busy": "Coming in…",
+      "errNameTaken": "That name is already taken in this house.",
+      "errFull": "This house is full.",
+      "errNotFound": "No game with that code.",
+      "errStarted": "The game has started — nobody else can come in. The cards are dealt, and letting someone join midway would hand the culprit a free clue.",
+      "errGeneric": "That didn't work. Try again."
+    },
+    "rules": {
+      "title": "The rule, in one sentence",
+      "body": "Each round, the house puts everyone in one of three rooms — except one person, who was prowling. Everyone says where they were and how many they were. The room that gets one ballot too many is hiding the culprit."
+    },
+    "players": {
+      "host": "host",
+      "waiting": "hasn't answered yet",
+      "idle": "phone down",
+      "done": "has answered",
+      "cleared": "in the clear",
+      "suspect": "still a suspect"
+    },
+    "share": {
+      "code": "Game code",
+      "copy": "Copy the link",
+      "copied": "Link copied",
+      "share": "Share",
+      "whatsapp": "WhatsApp",
+      "text": "Fancy a game of Alibi? Join us:",
+      "screens": "You need one screen per player. A tablet, an old phone on wifi or a laptop will do — two people on one screen and there's no game."
+    },
+    "round": {
+      "of": "Round {no} of {total}",
+      "verdict": "The accusation",
+      "instructions": "Confirm your card, then note down your hunch."
+    },
+    "lobby": {
+      "invite": "Let everyone come in",
+      "noElimination": "Nobody is eliminated. Everyone plays to the end.",
+      "start": "Deal the cards",
+      "waitHost": "Waiting for the host to start the game.",
+      "needPlayers": "You need at least {n} to start."
+    },
+    "card": {
+      "title": "Your card",
+      "keep": "Keep it to yourself.",
+      "youWere": "You were in {place}",
+      "withYou": "{n, plural, one {You were there alone.} other {There were # of you.}}",
+      "innocent": "You did nothing.",
+      "innocentHint": "Your card is already filled in: all you have to do is confirm it. You can't get it wrong.",
+      "culprit": "It's you.",
+      "culpritHint": "You were prowling: you were in no room at all. You still have to name one, and nobody can put you out of the game. Your only job: don't be the most accused name at the end.",
+      "reopen": "My card"
+    },
+    "choose": {
+      "title": "Where will you say you were?",
+      "hint": "You were prowling, you saw people about. Name someone's room and they'll be stuck under suspicion with you — but give the right number, or you'll give yourself away.",
+      "myMemory": "What you remember",
+      "follow": "Follow {name}",
+      "withN": "{n, plural, one {there were # of them} other {there were # of them}}",
+      "chosen": "Chosen"
+    },
+    "submit": {
+      "confirm": "I confirm",
+      "confirmed": "It's in",
+      "change": "Change",
+      "sending": "Sending…",
+      "hunch": "Your notebook",
+      "hunchHint": "Who do you suspect? Nobody sees it before the end. Every hunch you get right earns you points.",
+      "hunchNone": "I don't know yet",
+      "hunchDone": "Hunch noted"
+    },
+    "wait": {
+      "progress": "{done} of {total} have answered",
+      "done": "Everyone has answered.",
+      "hint": "You can still change your answer until the host counts the ballots.",
+      "auto": "Anyone who hasn't answered will have their card played for them: nobody can skew the count by leaving their phone in their pocket."
+    },
+    "reveal": {
+      "title": "The count",
+      "ballotsFor": "{n, plural, one {# ballot} other {# ballots}}",
+      "said": "for {n} declared",
+      "clean": "The numbers add up",
+      "cleanHint": "{n, plural, one {This person is in the clear.} other {These # people are in the clear.}}",
+      "extra": "There's one too many",
+      "extraHint": "The culprit is in this room.",
+      "liar": "Someone got the count wrong",
+      "liarHint": "This person isn't giving the same number as the others in the room.",
+      "suspects": "{n, plural, one {# suspect left} other {# suspects left}}",
+      "narrowed": "You were {before}, now you're {after}.",
+      "duel": "Two names left. Over to you.",
+      "onlyOne": "Only one name is still standing.",
+      "hint": "The server revealed nothing: it's your own ballots that contradict each other."
+    },
+    "verdict": {
+      "title": "Who did it?",
+      "hint": "One name, in secret. The most accused is the one the inspector goes for.",
+      "pick": "Pick a name",
+      "accuse": "I accuse {name}",
+      "accused": "You accused {name}",
+      "sending": "Sending…"
+    },
+    "final": {
+      "title": "The solution",
+      "culpritWas": "It was {name}.",
+      "caught": "The case is closed.",
+      "escaped": "The culprit gets away.",
+      "votes": "{n, plural, one {# vote} other {# votes}}",
+      "ranking": "Ranking",
+      "carnet": "notebook",
+      "replay": "Play again",
+      "joinNew": "The new game is open",
+      "waitHost": "Waiting for the host."
+    },
+    "host": {
+      "reveal": "Count the ballots",
+      "revealHint": "{done} of {total} have answered — you can count without waiting for the rest.",
+      "next": "Next round",
+      "toVerdict": "Go to the accusation",
+      "finish": "Finish",
+      "waitNext": "Waiting for the host."
+    },
+    "create": {
+      "hero": "Find the room with one person too many",
+      "pitch": "A 35-minute murder mystery. Nobody is eliminated, nobody closes their eyes, and none of you has to be the game master.",
+      "screens": "You need one screen per player.",
+      "screensHint": "A tablet, an old phone on wifi or a laptop will do. Two people on one screen and there's no game.",
+      "best": "6 to 16 players · 8+ and able to read · 35 minutes",
+      "name": "Your first name",
+      "cta": "Open the house",
+      "creating": "Opening…",
+      "noAccount": "No account, nothing to install.",
+      "error": "That didn't work. Try again.",
+      "joinCode": "Join with a code",
+      "codePlaceholder": "ABC123",
+      "join": "Come in",
+      "badCode": "No game with that code."
+    },
+    "how": {
+      "title": "How it goes",
+      "s1": "The house puts everyone in one of three rooms — except one person, who was prowling and was nowhere at all.",
+      "s2": "Everyone says where they were and how many they were. An innocent just confirms their card: they can't get it wrong.",
+      "s3": "The room that gets one ballot too many is hiding the culprit. The others are cleared. At the end, one name only."
     }
   }
 }

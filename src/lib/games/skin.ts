@@ -56,6 +56,34 @@ export const UNANIMO_SKIN: GameSkin = {
 };
 
 /**
+ * ALIBI — une soirée d'enquête : bleu de nuit, laiton, sur un papier ivoire.
+ *
+ * On cherche la lampe de bureau et le carnet, pas le manoir hanté : le jeu se
+ * joue dans un gîte avec des enfants de huit ans, et une ambiance macabre les
+ * mettrait dehors. Le rouge est réservé à UNE chose — la pièce qui compte un
+ * occupant de trop — pour qu'elle saute aux yeux d'un bout de la table.
+ *
+ * Contrastes vérifiés sur `paper` (#FFFDF7) : blanc sur `accent` 8,3:1 ;
+ * `ink` sur `accent2` 9,8:1 ; `muted` 5,4:1 sur `paper` et 5,2:1 sur `bg`.
+ */
+export const ALIBI_SKIN: GameSkin = {
+  ink: "#161B2E",
+  bg: "#F2EEE3",
+  paper: "#FFFDF7",
+  accent: "#2A3D66",
+  accent2: "#D9A441",
+  good: "#1C6E4A",
+  muted: "#5A5B66",
+  border: 2.5,
+  radius: 14,
+  fontDisplay: FONT_DISPLAY,
+  fontBody: FONT_BODY,
+};
+
+/** La pièce qui en compte un de trop. La SEULE chose rouge du jeu. */
+export const ALIBI_ALERT = "#B3261E";
+
+/**
  * Skin de la porte « Jouer » : celle-ci appartient encore à Placet (c'est une
  * page de Placet qui présente les jeux), d'où les tokens maison.
  */

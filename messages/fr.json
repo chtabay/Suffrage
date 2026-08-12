@@ -1675,14 +1675,14 @@
       "tagline": "Pensez comme les autres",
       "desc": "Un thème, quelques mots. Vous marquez pour chaque mot qu'un autre joueur a écrit aussi. Le plaisir, c'est de tomber d'accord sans se parler."
     },
-    "loup-garou": {
-      "name": "Loup-Garou",
-      "tagline": "Le village se réveille",
-      "desc": "Votes secrets, rôles cachés, nuits qui font des victimes. En préparation — il réutilisera la même salle qu'Unanimo."
-    },
     "engineTitle": "Sous ces jeux, il y a Placet.",
     "engineText": "Le même moteur sert à décider pour de vrai : choisir une date, trancher entre plusieurs options, répartir des places.",
-    "engineCta": "Découvrir Placet"
+    "engineCta": "Découvrir Placet",
+    "alibi": {
+      "name": "Alibi",
+      "tagline": "Cherchez la pièce qui compte un occupant de trop",
+      "desc": "Chaque manche, la maison range tout le monde dans trois pièces — sauf une personne, qui rôdait. Personne n'est éliminé, personne ne ferme les yeux, et l'application est le seul meneur."
+    }
   },
   "Unanimo": {
     "metaTitle": "Unanimo — écrivez les mots que tout le monde a en tête",
@@ -1818,6 +1818,168 @@
       "s1": "Tu crées la partie et tu partages le lien ou le code — tout le monde entre en dix secondes.",
       "s2": "Un thème s'affiche. Chacun écrit ses mots sur son téléphone, sans voir ceux des autres.",
       "s3": "Tu révèles quand tu veux. Les mots communs rapportent, les points s'ajoutent, et on enchaîne."
+    }
+  },
+  "Alibi": {
+    "metaTitle": "Alibi — la pièce en trop",
+    "metaDescription": "Une murder party de 35 minutes sur vos téléphones. Personne n'est éliminé, personne ne ferme les yeux, et l'application est le seul meneur. De 6 à 16 joueurs, sans compte.",
+    "name": "Alibi",
+    "tagline": "Cherchez la pièce qui compte un occupant de trop",
+    "back": "Tous les jeux",
+    "poweredBy": "Propulsé par Placet",
+    "offline": "Connexion perdue — on réessaie",
+    "loading": "Un instant…",
+    "missing": {
+      "title": "Cette partie n'existe plus",
+      "hint": "Le code est peut-être mal recopié, ou la partie a été effacée.",
+      "cta": "Revenir aux jeux"
+    },
+    "join": {
+      "title": "Entrer dans la maison",
+      "hint": "Choisis le prénom que les autres verront.",
+      "hintPlayers": "{n, plural, =0 {Personne n'est encore arrivé.} one {Une personne est déjà là.} other {# personnes sont déjà là.}}",
+      "placeholder": "Ton prénom",
+      "cta": "Entrer",
+      "busy": "On entre…",
+      "errNameTaken": "Ce prénom est déjà pris dans cette maison.",
+      "errFull": "Cette maison est pleine.",
+      "errNotFound": "Aucune partie avec ce code.",
+      "errStarted": "La partie a commencé — on ne peut plus entrer. Les rôles sont distribués, et laisser arriver quelqu'un en cours de route donnerait au coupable un renseignement gratuit.",
+      "errGeneric": "Ça n'a pas marché. Réessaie."
+    },
+    "rules": {
+      "title": "La règle, en une phrase",
+      "body": "Chaque manche, la maison range tout le monde dans trois pièces — sauf une personne, qui rôdait. Chacun dit où il était et combien ils étaient. La pièce qui reçoit un bulletin de trop cache le coupable."
+    },
+    "players": {
+      "host": "hôte",
+      "waiting": "n'a pas encore répondu",
+      "idle": "téléphone posé",
+      "done": "a répondu",
+      "cleared": "hors de cause",
+      "suspect": "encore suspect"
+    },
+    "share": {
+      "code": "Code de la partie",
+      "copy": "Copier le lien",
+      "copied": "Lien copié",
+      "share": "Partager",
+      "whatsapp": "WhatsApp",
+      "text": "On joue à Alibi ? Rejoins-nous :",
+      "screens": "Il faut un écran par joueur. Une tablette, un vieux téléphone en wifi, un ordinateur portable font l'affaire — à deux sur un écran, le jeu n'existe pas."
+    },
+    "round": {
+      "of": "Manche {no} sur {total}",
+      "verdict": "L'accusation",
+      "instructions": "Confirme ta carte, puis dépose ton soupçon."
+    },
+    "lobby": {
+      "invite": "Que tout le monde entre",
+      "noElimination": "Personne n'est éliminé. Tout le monde joue jusqu'au bout.",
+      "start": "Distribuer les cartes",
+      "waitHost": "On attend que l'hôte lance la partie.",
+      "needPlayers": "Il faut être au moins {n} pour commencer."
+    },
+    "card": {
+      "title": "Ta carte",
+      "keep": "Garde-la pour toi.",
+      "youWere": "Tu étais dans {place}",
+      "withYou": "{n, plural, one {Tu y étais seul.} other {Vous y étiez #.}}",
+      "innocent": "Tu n'as rien fait.",
+      "innocentHint": "Ta carte est déjà remplie : tu n'as qu'à la confirmer. Tu ne peux pas te tromper.",
+      "culprit": "C'est toi.",
+      "culpritHint": "Tu rôdais : tu n'étais dans aucune pièce. Il faut pourtant en déclarer une, et personne ne peut te sortir du jeu. Ton seul travail : ne pas être le nom le plus accusé à la fin.",
+      "reopen": "Ma carte"
+    },
+    "choose": {
+      "title": "Où diras-tu que tu étais ?",
+      "hint": "Tu as rôdé, tu as vu passer du monde. Déclare la pièce de quelqu'un et il sera coincé avec toi dans les soupçons — mais annonce le bon nombre, sinon tu te désignes tout seul.",
+      "myMemory": "Ce dont tu te souviens",
+      "follow": "Suivre {name}",
+      "withN": "{n, plural, one {ils étaient #} other {ils étaient #}}",
+      "chosen": "Choisi"
+    },
+    "submit": {
+      "confirm": "Je confirme",
+      "confirmed": "C'est déposé",
+      "change": "Changer",
+      "sending": "On dépose…",
+      "hunch": "Ton carnet",
+      "hunchHint": "Qui soupçonnes-tu ? Personne ne le verra avant la fin. Chaque soupçon juste te rapporte des points.",
+      "hunchNone": "Je ne sais pas encore",
+      "hunchDone": "Soupçon noté"
+    },
+    "wait": {
+      "progress": "{done} sur {total} ont répondu",
+      "done": "Tout le monde a répondu.",
+      "hint": "Tu peux encore changer ta réponse tant que l'hôte n'a pas dépouillé.",
+      "auto": "Qui n'aura rien déposé verra sa carte posée d'office : personne ne peut fausser les comptes en gardant son téléphone dans sa poche."
+    },
+    "reveal": {
+      "title": "Les comptes",
+      "ballotsFor": "{n, plural, one {# bulletin} other {# bulletins}}",
+      "said": "pour {n} annoncés",
+      "clean": "Les comptes sont justes",
+      "cleanHint": "{n, plural, one {Cette personne est hors de cause.} other {Ces # personnes sont hors de cause.}}",
+      "extra": "Il y en a un de trop",
+      "extraHint": "Le coupable est dans cette pièce.",
+      "liar": "Quelqu'un s'est trompé de compte",
+      "liarHint": "Cette personne n'annonce pas le même nombre que ses colocataires.",
+      "suspects": "{n, plural, one {Il reste # suspect} other {Il reste # suspects}}",
+      "narrowed": "Vous étiez {before}, vous êtes {after}.",
+      "duel": "Plus que deux noms. À vous de parler.",
+      "onlyOne": "Un seul nom reste debout.",
+      "hint": "Le serveur n'a rien révélé : ce sont vos bulletins qui se contredisent."
+    },
+    "verdict": {
+      "title": "Qui a fait le coup ?",
+      "hint": "Un seul nom, en secret. Le plus accusé sera celui que l'inspecteur retient.",
+      "pick": "Choisis un nom",
+      "accuse": "J'accuse {name}",
+      "accused": "Tu as accusé {name}",
+      "sending": "On dépose…"
+    },
+    "final": {
+      "title": "La résolution",
+      "culpritWas": "C'était {name}.",
+      "caught": "L'enquête a abouti.",
+      "escaped": "Le coupable s'en tire.",
+      "votes": "{n, plural, one {# voix} other {# voix}}",
+      "ranking": "Classement",
+      "carnet": "carnet",
+      "replay": "Rejouer",
+      "joinNew": "La nouvelle partie est ouverte",
+      "waitHost": "On attend l'hôte."
+    },
+    "host": {
+      "reveal": "Dépouiller",
+      "revealHint": "{done} sur {total} ont répondu — tu peux dépouiller sans attendre les autres.",
+      "next": "Manche suivante",
+      "toVerdict": "Passer à l'accusation",
+      "finish": "Terminer",
+      "waitNext": "On attend l'hôte."
+    },
+    "create": {
+      "hero": "Cherchez la pièce qui compte un occupant de trop",
+      "pitch": "Une murder party de 35 minutes. Personne n'est éliminé, personne ne ferme les yeux, et aucun d'entre vous ne fait le meneur.",
+      "screens": "Il faut un écran par joueur.",
+      "screensHint": "Une tablette, un vieux téléphone en wifi, un ordinateur portable font l'affaire. À deux sur un écran, le jeu n'existe pas.",
+      "best": "6 à 16 joueurs · dès 8 ans et lecteur · 35 minutes",
+      "name": "Ton prénom",
+      "cta": "Ouvrir la maison",
+      "creating": "On ouvre…",
+      "noAccount": "Sans compte, sans rien installer.",
+      "error": "Ça n'a pas marché. Réessaie.",
+      "joinCode": "Rejoindre avec un code",
+      "codePlaceholder": "ABC123",
+      "join": "Entrer",
+      "badCode": "Aucune partie avec ce code."
+    },
+    "how": {
+      "title": "Comment ça se passe",
+      "s1": "La maison range tout le monde dans trois pièces — sauf une personne, qui rôdait et n'était nulle part.",
+      "s2": "Chacun déclare où il était et combien ils étaient. L'innocent n'a qu'à confirmer sa carte : il ne peut pas se tromper.",
+      "s3": "La pièce qui reçoit un bulletin de trop cache le coupable. Les autres sont blanchies. À la fin, un seul nom."
     }
   }
 }

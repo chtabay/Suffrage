@@ -1675,14 +1675,14 @@
       "tagline": "Piensa como los demás",
       "desc": "Un tema, unas palabras. Puntúas por cada palabra que otro jugador también escribió. Lo divertido es coincidir sin hablar."
     },
-    "loup-garou": {
-      "name": "Hombre lobo",
-      "tagline": "El pueblo se despierta",
-      "desc": "Votos secretos, roles ocultos, noches con víctimas. En preparación — reutilizará la misma sala que Unanimo."
-    },
     "engineTitle": "Debajo de estos juegos está Placet.",
     "engineText": "El mismo motor sirve para decidir de verdad: elegir una fecha, zanjar entre varias opciones, repartir plazas.",
-    "engineCta": "Descubrir Placet"
+    "engineCta": "Descubrir Placet",
+    "alibi": {
+      "name": "Alibi",
+      "tagline": "Encuentra la habitación con una persona de más",
+      "desc": "Cada ronda, la casa reparte a todos en tres habitaciones — salvo a una persona, que merodeaba. Nadie es eliminado, nadie cierra los ojos, y la aplicación es el único árbitro."
+    }
   },
   "Unanimo": {
     "metaTitle": "Unanimo — escribe las palabras que todos tienen en la cabeza",
@@ -1818,6 +1818,168 @@
       "s1": "Creas la partida y compartes el enlace o el código — todo el mundo entra en diez segundos.",
       "s2": "Aparece un tema. Cada persona escribe sus palabras en su móvil, sin ver las de los demás.",
       "s3": "Revelas cuando quieras. Las palabras en común puntúan, se suman los puntos, y se sigue."
+    }
+  },
+  "Alibi": {
+    "metaTitle": "Alibi — la habitación de más",
+    "metaDescription": "Un juego de misterio de 35 minutos en vuestros móviles. Nadie queda eliminado, nadie cierra los ojos y la app es el único director de juego. De 6 a 16 jugadores, sin cuenta.",
+    "name": "Alibi",
+    "tagline": "Busca la habitación con un ocupante de más",
+    "back": "Todos los juegos",
+    "poweredBy": "Funciona con Placet",
+    "offline": "Conexión perdida — reintentando",
+    "loading": "Un momento…",
+    "missing": {
+      "title": "Esta partida ya no existe",
+      "hint": "Quizá el código esté mal copiado, o la partida se ha borrado.",
+      "cta": "Volver a los juegos"
+    },
+    "join": {
+      "title": "Entrar en la casa",
+      "hint": "Elige el nombre que verán los demás.",
+      "hintPlayers": "{n, plural, =0 {Aún no ha llegado nadie.} one {Ya hay una persona.} other {Ya hay # personas.}}",
+      "placeholder": "Tu nombre",
+      "cta": "Entrar",
+      "busy": "Entrando…",
+      "errNameTaken": "Ese nombre ya está en uso en esta casa.",
+      "errFull": "Esta casa está llena.",
+      "errNotFound": "No hay ninguna partida con ese código.",
+      "errStarted": "La partida ya ha empezado — ya no se puede entrar. Los papeles están repartidos, y dejar llegar a alguien sobre la marcha le daría al culpable una pista gratis.",
+      "errGeneric": "No ha funcionado. Inténtalo otra vez."
+    },
+    "rules": {
+      "title": "La regla, en una frase",
+      "body": "Cada ronda, la casa reparte a todo el mundo en tres habitaciones — menos a una persona, que merodeaba. Cada cual dice dónde estaba y cuántos eran. La habitación que recibe una papeleta de más esconde al culpable."
+    },
+    "players": {
+      "host": "anfitrión",
+      "waiting": "aún no ha respondido",
+      "idle": "móvil en la mesa",
+      "done": "ha respondido",
+      "cleared": "fuera de sospecha",
+      "suspect": "aún sospechoso"
+    },
+    "share": {
+      "code": "Código de la partida",
+      "copy": "Copiar el enlace",
+      "copied": "Enlace copiado",
+      "share": "Compartir",
+      "whatsapp": "WhatsApp",
+      "text": "¿Jugamos a Alibi? Únete:",
+      "screens": "Hace falta una pantalla por jugador. Una tableta, un móvil viejo con wifi o un portátil sirven — a dos por pantalla, el juego no existe."
+    },
+    "round": {
+      "of": "Ronda {no} de {total}",
+      "verdict": "La acusación",
+      "instructions": "Confirma tu carta y luego deja tu sospecha."
+    },
+    "lobby": {
+      "invite": "Que entre todo el mundo",
+      "noElimination": "Nadie queda eliminado. Todos jugáis hasta el final.",
+      "start": "Repartir las cartas",
+      "waitHost": "Esperamos a que el anfitrión empiece la partida.",
+      "needPlayers": "Hay que ser al menos {n} para empezar."
+    },
+    "card": {
+      "title": "Tu carta",
+      "keep": "Guárdatela.",
+      "youWere": "Estabas en {place}",
+      "withYou": "{n, plural, one {Estabas solo.} other {Estabais #.}}",
+      "innocent": "No has hecho nada.",
+      "innocentHint": "Tu carta ya está rellena: solo tienes que confirmarla. No puedes equivocarte.",
+      "culprit": "Eres tú.",
+      "culpritHint": "Merodeabas: no estabas en ninguna habitación. Aun así tienes que declarar una, y nadie puede echarte del juego. Tu único trabajo: no ser el nombre más acusado al final.",
+      "reopen": "Mi carta"
+    },
+    "choose": {
+      "title": "¿Dónde dirás que estabas?",
+      "hint": "Has merodeado, has visto pasar gente. Declara la habitación de alguien y quedará atrapado contigo en las sospechas — pero di el número correcto, o te delatarás tú solo.",
+      "myMemory": "Lo que recuerdas",
+      "follow": "Seguir a {name}",
+      "withN": "{n, plural, one {eran #} other {eran #}}",
+      "chosen": "Elegido"
+    },
+    "submit": {
+      "confirm": "Lo confirmo",
+      "confirmed": "Ya está depositado",
+      "change": "Cambiar",
+      "sending": "Depositando…",
+      "hunch": "Tu cuaderno",
+      "hunchHint": "¿De quién sospechas? Nadie lo verá hasta el final. Cada sospecha acertada te da puntos.",
+      "hunchNone": "Aún no lo sé",
+      "hunchDone": "Sospecha anotada"
+    },
+    "wait": {
+      "progress": "{done} de {total} han respondido",
+      "done": "Todo el mundo ha respondido.",
+      "hint": "Puedes cambiar tu respuesta mientras el anfitrión no haya hecho el recuento.",
+      "auto": "A quien no haya depositado nada se le pondrá la carta de oficio: nadie puede falsear las cuentas dejando el móvil en el bolsillo."
+    },
+    "reveal": {
+      "title": "Las cuentas",
+      "ballotsFor": "{n, plural, one {# papeleta} other {# papeletas}}",
+      "said": "para {n} anunciados",
+      "clean": "Las cuentas cuadran",
+      "cleanHint": "{n, plural, one {Esta persona queda fuera de sospecha.} other {Estas # personas quedan fuera de sospecha.}}",
+      "extra": "Hay uno de más",
+      "extraHint": "El culpable está en esta habitación.",
+      "liar": "Alguien se ha equivocado de cuenta",
+      "liarHint": "Esta persona no anuncia el mismo número que sus compañeros de habitación.",
+      "suspects": "{n, plural, one {Queda # sospechoso} other {Quedan # sospechosos}}",
+      "narrowed": "Erais {before}, ahora sois {after}.",
+      "duel": "Solo quedan dos nombres. Os toca hablar.",
+      "onlyOne": "Solo queda un nombre en pie.",
+      "hint": "El servidor no ha revelado nada: son vuestras papeletas las que se contradicen."
+    },
+    "verdict": {
+      "title": "¿Quién lo ha hecho?",
+      "hint": "Un solo nombre, en secreto. El más acusado será el que retenga el inspector.",
+      "pick": "Elige un nombre",
+      "accuse": "Acuso a {name}",
+      "accused": "Has acusado a {name}",
+      "sending": "Depositando…"
+    },
+    "final": {
+      "title": "La resolución",
+      "culpritWas": "Era {name}.",
+      "caught": "La investigación ha dado resultado.",
+      "escaped": "El culpable se libra.",
+      "votes": "{n, plural, one {# voto} other {# votos}}",
+      "ranking": "Clasificación",
+      "carnet": "cuaderno",
+      "replay": "Volver a jugar",
+      "joinNew": "La nueva partida está abierta",
+      "waitHost": "Esperamos al anfitrión."
+    },
+    "host": {
+      "reveal": "Hacer el recuento",
+      "revealHint": "{done} de {total} han respondido — puedes hacer el recuento sin esperar a los demás.",
+      "next": "Ronda siguiente",
+      "toVerdict": "Pasar a la acusación",
+      "finish": "Terminar",
+      "waitNext": "Esperamos al anfitrión."
+    },
+    "create": {
+      "hero": "Busca la habitación con un ocupante de más",
+      "pitch": "Un juego de misterio de 35 minutos. Nadie queda eliminado, nadie cierra los ojos y ninguno de vosotros hace de director.",
+      "screens": "Hace falta una pantalla por jugador.",
+      "screensHint": "Una tableta, un móvil viejo con wifi o un portátil sirven. A dos por pantalla, el juego no existe.",
+      "best": "6 a 16 jugadores · desde 8 años y sabiendo leer · 35 minutos",
+      "name": "Tu nombre",
+      "cta": "Abrir la casa",
+      "creating": "Abriendo…",
+      "noAccount": "Sin cuenta y sin instalar nada.",
+      "error": "No ha funcionado. Inténtalo otra vez.",
+      "joinCode": "Unirse con un código",
+      "codePlaceholder": "ABC123",
+      "join": "Entrar",
+      "badCode": "No hay ninguna partida con ese código."
+    },
+    "how": {
+      "title": "Cómo funciona",
+      "s1": "La casa reparte a todo el mundo en tres habitaciones — menos a una persona, que merodeaba y no estaba en ninguna parte.",
+      "s2": "Cada cual declara dónde estaba y cuántos eran. El inocente solo tiene que confirmar su carta: no puede equivocarse.",
+      "s3": "La habitación que recibe una papeleta de más esconde al culpable. Las demás quedan libres de sospecha. Al final, un solo nombre."
     }
   }
 }

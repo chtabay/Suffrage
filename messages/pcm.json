@@ -1675,14 +1675,14 @@
       "tagline": "Think like di others",
       "desc": "One theme, small words. You get point for every word wey another player write too. Di sweet part na to agree without talking."
     },
-    "loup-garou": {
-      "name": "Werewolf",
-      "tagline": "Di village dey wake up",
-      "desc": "Secret vote, hidden role, night wey dey carry person go. We dey work on am — e go use di same room like Unanimo."
-    },
     "engineTitle": "Under dis games, Placet dey.",
     "engineText": "Di same engine dey help people decide for real: pick date, choose between options, share places.",
-    "engineCta": "See Placet"
+    "engineCta": "See Placet",
+    "alibi": {
+      "name": "Alibi",
+      "tagline": "Find di room wey get one extra pesin",
+      "desc": "Every round, di house go put everybody for three rooms — except one pesin wey bin dey waka around. Nobody dey comot for di game, nobody dey close eye, and na di app be di only host."
+    }
   },
   "Unanimo": {
     "metaTitle": "Unanimo — write di words wey everybody dey think",
@@ -1818,6 +1818,168 @@
       "s1": "You create di game and share di link or di code — everybody go enter inside ten seconds.",
       "s2": "One theme go show. Everybody write dem words on dem own phone, dem no dey see di others.",
       "s3": "You reveal any time you like. Di words wey una share dey carry point, points add up, and una continue."
+    }
+  },
+  "Alibi": {
+    "metaTitle": "Alibi — di room wey get one extra",
+    "metaDescription": "Murder party wey dey take 35 minutes for una phone. Nobody dey comot, nobody dey close eye, and na di app alone dey run di game. From 6 to 16 players, no account.",
+    "name": "Alibi",
+    "tagline": "Find di room wey get one pesin too many",
+    "back": "All di games",
+    "poweredBy": "Placet dey power am",
+    "offline": "Network cut — we dey try again",
+    "loading": "Small time…",
+    "missing": {
+      "title": "Dis game no dey again",
+      "hint": "Maybe dem copy di code wrong, or dem don clear di game.",
+      "cta": "Go back to di games"
+    },
+    "join": {
+      "title": "Enta di house",
+      "hint": "Pick di name wey di odas go see.",
+      "hintPlayers": "{n, plural, =0 {Nobody never land.} one {One pesin don dey here already.} other {# people don dey here already.}}",
+      "placeholder": "Your name",
+      "cta": "Enta",
+      "busy": "We dey enta…",
+      "errNameTaken": "Dis name don dey used for dis house.",
+      "errFull": "Dis house don full.",
+      "errNotFound": "No game dey with dis code.",
+      "errStarted": "Di game don start — nobody fit enta again. Dem don share di cards, and if pesin enta for middle, di guilty one go collect free info.",
+      "errGeneric": "E no work. Try am again."
+    },
+    "rules": {
+      "title": "Di rule, for one sentence",
+      "body": "Every round, di house go put everybody for three rooms — except one pesin, wey bin dey waka around. Everybody go talk where e bin dey and how many dem bin be. Di room wey collect one paper too many na where di guilty one dey hide."
+    },
+    "players": {
+      "host": "host",
+      "waiting": "never answer",
+      "idle": "phone dey table",
+      "done": "don answer",
+      "cleared": "dey clean",
+      "suspect": "still suspect"
+    },
+    "share": {
+      "code": "Game code",
+      "copy": "Copy di link",
+      "copied": "Link copied",
+      "share": "Share",
+      "whatsapp": "WhatsApp",
+      "text": "Make we play Alibi? Join us:",
+      "screens": "Every player need im own screen. Tablet, old phone for wifi, laptop — any one go do. If two pesin dey share one screen, di game no dey work."
+    },
+    "round": {
+      "of": "Round {no} out of {total}",
+      "verdict": "Di accusation",
+      "instructions": "Confirm your card, den drop your suspicion."
+    },
+    "lobby": {
+      "invite": "Make everybody enta",
+      "noElimination": "Nobody dey comot. Everybody dey play reach di end.",
+      "start": "Share di cards",
+      "waitHost": "We dey wait make di host start di game.",
+      "needPlayers": "Una must reach {n} before we fit start."
+    },
+    "card": {
+      "title": "Your card",
+      "keep": "Keep am for yourself.",
+      "youWere": "You bin dey inside {place}",
+      "withYou": "{n, plural, one {Na you one dey there.} other {Una be # for there.}}",
+      "innocent": "You no do anything.",
+      "innocentHint": "Dem don fill your card already: na to confirm am. You no fit make mistake.",
+      "culprit": "Na you.",
+      "culpritHint": "You dey waka around: you no dey any room. But you still must declare one, and nobody fit comot you from di game. Your only work: make your name no be di one wey dem accuse pass for di end.",
+      "reopen": "My card"
+    },
+    "choose": {
+      "title": "Which room you go talk say you bin dey?",
+      "hint": "You waka around, you see people dey pass. Declare pesin room and una two go dey inside di suspicion together — but announce di correct number, if not na yourself you go point.",
+      "myMemory": "Wetin you remember",
+      "follow": "Follow {name}",
+      "withN": "{n, plural, other {dem be #}}",
+      "chosen": "Chosen"
+    },
+    "submit": {
+      "confirm": "I confirm",
+      "confirmed": "E don drop",
+      "change": "Change am",
+      "sending": "We dey drop am…",
+      "hunch": "Your notebook",
+      "hunchHint": "Who you suspect? Nobody go see am before di end. Every suspicion wey correct dey give you points.",
+      "hunchNone": "I never know",
+      "hunchDone": "Suspicion noted"
+    },
+    "wait": {
+      "progress": "{done} out of {total} don answer",
+      "done": "Everybody don answer.",
+      "hint": "You fit still change your answer until di host count di papers.",
+      "auto": "Anybody wey no drop anything, dem go put im card down for am: nobody fit spoil di count by leaving im phone for pocket."
+    },
+    "reveal": {
+      "title": "Di count",
+      "ballotsFor": "{n, plural, one {# paper} other {# papers}}",
+      "said": "for {n} wey dem announce",
+      "clean": "Di count correct",
+      "cleanHint": "{n, plural, one {Dis pesin dey clean.} other {Dis # people dey clean.}}",
+      "extra": "One extra dey",
+      "extraHint": "Di guilty one dey inside dis room.",
+      "liar": "Somebody count wrong",
+      "liarHint": "Dis pesin no announce di same number as di people wey dey with am.",
+      "suspects": "{n, plural, one {# suspect still dey} other {# suspects still dey}}",
+      "narrowed": "Una be {before}, now una be {after}.",
+      "duel": "Na two names remain. Make una talk.",
+      "onlyOne": "Na one name only still dey stand.",
+      "hint": "Di server no reveal anything: na una own papers dey contradict each other."
+    },
+    "verdict": {
+      "title": "Who do am?",
+      "hint": "One name, for secret. Di one wey dem accuse pass na im di inspector go hold.",
+      "pick": "Choose one name",
+      "accuse": "I accuse {name}",
+      "accused": "You don accuse {name}",
+      "sending": "We dey drop am…"
+    },
+    "final": {
+      "title": "Di answer",
+      "culpritWas": "Na {name}.",
+      "caught": "Di investigation don work.",
+      "escaped": "Di guilty one escape.",
+      "votes": "{n, plural, one {# vote} other {# votes}}",
+      "ranking": "Ranking",
+      "carnet": "notebook",
+      "replay": "Play again",
+      "joinNew": "Di new game don open",
+      "waitHost": "We dey wait di host."
+    },
+    "host": {
+      "reveal": "Count di papers",
+      "revealHint": "{done} out of {total} don answer — you fit count now, no need wait di odas.",
+      "next": "Next round",
+      "toVerdict": "Go to di accusation",
+      "finish": "Finish",
+      "waitNext": "We dey wait di host."
+    },
+    "create": {
+      "hero": "Find di room wey get one pesin too many",
+      "pitch": "Murder party wey dey take 35 minutes. Nobody dey comot, nobody dey close eye, and none of una go carry di work of running am.",
+      "screens": "Every player need im own screen.",
+      "screensHint": "Tablet, old phone for wifi, laptop — any one go do. If two pesin dey share one screen, di game no dey work.",
+      "best": "6 to 16 players · from 8 years wey sabi read · 35 minutes",
+      "name": "Your name",
+      "cta": "Open di house",
+      "creating": "We dey open…",
+      "noAccount": "No account, nothing to install.",
+      "error": "E no work. Try am again.",
+      "joinCode": "Join with code",
+      "codePlaceholder": "ABC123",
+      "join": "Enta",
+      "badCode": "No game dey with dis code."
+    },
+    "how": {
+      "title": "How e dey go",
+      "s1": "Di house go put everybody for three rooms — except one pesin, wey dey waka around and no dey anywhere.",
+      "s2": "Everybody go declare where e bin dey and how many dem bin be. Innocent pesin just confirm im card: e no fit make mistake.",
+      "s3": "Di room wey collect one paper too many na where di guilty one dey. Di odas dey clean. For di end, na one name."
     }
   }
 }

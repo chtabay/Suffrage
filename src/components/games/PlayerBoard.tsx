@@ -25,6 +25,15 @@ export default function PlayerBoard({
   labels,
   /** Classement final : on numérote et on met le premier en avant. */
   podium = false,
+  /**
+   * Afficher le score. VRAI par défaut — Unanimo marque à chaque manche.
+   *
+   * Alibi, lui, ne calcule RIEN avant la résolution (un score qui bouge en
+   * cours de partie trahirait un rôle) : onze zéros alignés pendant toute la
+   * soirée n'y sont que du bruit, et laissent croire que quelque chose est
+   * cassé.
+   */
+  showScore = true,
 }: {
   skin: GameSkin;
   players: RoomPlayer[];
@@ -32,6 +41,7 @@ export default function PlayerBoard({
   showDone: boolean;
   labels: { joinedAt: (n: number) => string; host: string; waiting: string; idle: string; done: string };
   podium?: boolean;
+  showScore?: boolean;
 }) {
   const MEDALS = ["🥇", "🥈", "🥉"];
   return (
@@ -105,18 +115,20 @@ export default function PlayerBoard({
                 <span className="sr-only">{labels.idle}</span>
               </span>
             )}
-            <span
-              style={{
-                fontFamily: skin.fontDisplay,
-                fontWeight: 800,
-                fontSize: first ? 26 : 18,
-                minWidth: 34,
-                textAlign: "right",
-                flex: "none",
-              }}
-            >
-              {p.score}
-            </span>
+            {showScore ? (
+              <span
+                style={{
+                  fontFamily: skin.fontDisplay,
+                  fontWeight: 800,
+                  fontSize: first ? 26 : 18,
+                  minWidth: 34,
+                  textAlign: "right",
+                  flex: "none",
+                }}
+              >
+                {p.score}
+              </span>
+            ) : null}
           </li>
         );
       })}

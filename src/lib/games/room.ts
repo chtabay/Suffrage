@@ -71,7 +71,12 @@ export interface RoomState<TMine = unknown, TResult = unknown> {
   players: RoomPlayer[];
   /** Joueurs attendus sur la manche en cours (les retardataires n'y sont pas). */
   expected: number;
-  me: { name: string; isHost: boolean; score: number; joinedRound: number } | null;
+  /**
+   * `secret` : ce que le serveur ne dit QU'À MOI (Alibi : ma pièce et son
+   * nombre d'occupants ; Unanimo : rien). Il ne sort que par cet objet, déjà
+   * sous le jeton — jamais par `players`, `round` ni `result`.
+   */
+  me: { name: string; isHost: boolean; score: number; joinedRound: number; secret?: unknown } | null;
   round: RoomRound<TMine, TResult> | null;
 }
 
@@ -104,7 +109,11 @@ export interface Seat {
 export type CreateAnswer = { status: "ok"; code: string; token: string; name: string } | { status: string };
 export type JoinAnswer =
   | { status: "ok"; token: string; name: string; joinedRound: number }
-  | { status: "not_found" | "name_taken" | "no_name" | "full" };
+  // `started` : le roster de ce jeu se ferme au lancement. C'est une RÈGLE
+  // (Alibi : laisser entrer quelqu'un en cours de partie lui donnerait une
+  // carte pré-remplie, donc un renseignement gratuit au coupable), pas un
+  // plafond — l'écran doit le dire autrement que « salle pleine ».
+  | { status: "not_found" | "name_taken" | "no_name" | "full" | "started" };
 
 /** Ouvre une salle. Le créateur devient le premier joueur ET l'hôte. */
 export function createRoom(

@@ -5,7 +5,7 @@
 // registre dynamique, pas de manifeste. Ajouter un jeu = une entrée ici + un
 // dossier de composants. Le jour où il y en aura cinq, on saura ce qu'il faut
 // vraiment généraliser ; l'inventer maintenant serait deviner.
-import { PLACET_GAMES_SKIN, UNANIMO_SKIN, type GameSkin } from "./skin";
+import { ALIBI_SKIN, UNANIMO_SKIN, type GameSkin } from "./skin";
 
 export interface GameEntry {
   /** Slug technique, aussi la valeur de `scrutin_game_rooms.game`. */
@@ -32,16 +32,16 @@ export const GAMES: GameEntry[] = [
     minutes: "15",
   },
   {
-    // Annoncé parce qu'il l'est vraiment (il réutilisera la même salle), et pour
-    // qu'on comprenne que « Jouer » est un lieu et non une page. Aucune autre
-    // case fantôme : un catalogue inventé se remarque.
-    slug: "loup-garou",
-    status: "soon",
-    emoji: "🐺",
-    skin: PLACET_GAMES_SKIN,
-    route: "/games",
-    bestWith: "6–18",
-    minutes: "30",
+    // La case « loup-garou » qui tenait ici était une promesse : elle est tenue
+    // par ALIBI, qui n'est pas un loup-garou et c'est le point. Personne n'est
+    // éliminé, personne ne ferme les yeux, et l'application est le seul meneur.
+    slug: "alibi",
+    status: "live",
+    emoji: "🕯️",
+    skin: ALIBI_SKIN,
+    route: "/games/alibi",
+    bestWith: "6–16",
+    minutes: "35",
   },
 ];
 
