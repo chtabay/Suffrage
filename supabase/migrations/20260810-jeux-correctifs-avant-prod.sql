@@ -245,5 +245,12 @@ create trigger scrutin_game_entries_bound_t
   before insert or update on public.scrutin_game_entries
   for each row execute function public.scrutin_game_entries_bound();
 
-revoke all on function public.scrutin_game_settings_clean(jsonb) from public, anon, authenticated;
-revoke all on function public.scrutin_game_prompt_clean(jsonb) from public, anon, authenticated;
+-- ⚠️ CE BLOC A ÉTÉ FAUX PENDANT DEUX JOURS, et personne ne l'a vu.
+-- Il révoquait les deux fonctions de la PREMIÈRE version de ce correctif, celle
+-- qui remodelait sur une liste blanche de clés. Elles ont été remplacées par
+-- `scrutin_game_json_bound` dans ce fichier même, mais ces deux lignes ne l'ont
+-- pas suivi : un remplacement de texte qui n'a pas trouvé sa cible et n'a rien
+-- dit. Or `revoke on function` sur une fonction inexistante LÈVE — le fichier ne
+-- pouvait donc plus être rejoué à blanc, et la production n'a survécu que parce
+-- qu'il avait été appliqué à la main, par morceaux.
+revoke all on function public.scrutin_game_json_bound(jsonb, text) from public, anon, authenticated;
