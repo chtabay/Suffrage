@@ -42,6 +42,9 @@ export interface RoomPlayer {
   done: boolean;
   /** Plus de signe de vie depuis 90 s — un téléphone posé, pas une faute. */
   idle: boolean;
+  /** Rôdeurs : bande d'âge déclarée (publique par conception) et départ au lit. */
+  band?: string | null;
+  left?: boolean;
 }
 
 export interface RoomRound<TMine, TResult> {
@@ -76,7 +79,18 @@ export interface RoomState<TMine = unknown, TResult = unknown> {
    * nombre d'occupants ; Unanimo : rien). Il ne sort que par cet objet, déjà
    * sous le jeton — jamais par `players`, `round` ni `result`.
    */
-  me: { name: string; isHost: boolean; score: number; joinedRound: number; secret?: unknown } | null;
+  me: {
+    name: string;
+    isHost: boolean;
+    score: number;
+    joinedRound: number;
+    secret?: unknown;
+    band?: string | null;
+    left?: boolean;
+    /** Rôdeurs : MES rencontres de la manche, et « on t'a approché » au reveal. */
+    meets?: unknown;
+    approached?: unknown;
+  } | null;
   round: RoomRound<TMine, TResult> | null;
 }
 

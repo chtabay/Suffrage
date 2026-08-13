@@ -84,6 +84,32 @@ export const ALIBI_SKIN: GameSkin = {
 export const ALIBI_ALERT = "#B3261E";
 
 /**
+ * RÔDEURS — la veillée : brun de braise et ambre sur un papier chaud.
+ *
+ * Un jeu qui dure la soirée et se joue pendant qu'elle a lieu : l'écran doit
+ * ressembler à une lampe posée dans un coin, pas à un néon. Le rouge n'existe
+ * pas ici — rien dans ce jeu n'est une alerte, même la mise en lumière est une
+ * fête.
+ *
+ * Contrastes CALCULÉS (pas affirmés) : blanc sur `accent` 7,62:1 ; `ink` sur
+ * `accent2` 8,14:1 ; `muted` 6,22:1 sur `paper` et 5,38:1 sur `bg` ; `good`
+ * 6,91:1 sur `paper`.
+ */
+export const RODEURS_SKIN: GameSkin = {
+  ink: "#26190E",
+  bg: "#F4E9D4",
+  paper: "#FFFAEE",
+  accent: "#8C3B1B",
+  accent2: "#E5A83C",
+  good: "#22633B",
+  muted: "#6E5B44",
+  border: 2.5,
+  radius: 15,
+  fontDisplay: FONT_DISPLAY,
+  fontBody: FONT_BODY,
+};
+
+/**
  * Skin de la porte « Jouer » : celle-ci appartient encore à Placet (c'est une
  * page de Placet qui présente les jeux), d'où les tokens maison.
  */

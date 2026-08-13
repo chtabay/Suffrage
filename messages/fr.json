@@ -1682,6 +1682,11 @@
       "name": "Alibi",
       "tagline": "Cherchez la pièce qui compte un occupant de trop",
       "desc": "Chaque manche, la maison range tout le monde dans trois pièces — sauf une personne, qui rôdait. Personne n'est éliminé, personne ne ferme les yeux, et l'application est le seul meneur."
+    },
+    "rodeurs": {
+      "name": "Rôdeurs",
+      "tagline": "Croisez du monde : c'est votre alibi",
+      "desc": "Le jeu qui dure la soirée et la laisse vivre : on mange, on circule, et chaque rencontre validée est un alibi. Trois joueurs rôdent — la maison doit les mettre en lumière, sans jamais éliminer personne."
     }
   },
   "Unanimo": {
@@ -1980,6 +1985,217 @@
       "s1": "La maison range tout le monde dans trois pièces — sauf une personne, qui rôdait et n'était nulle part.",
       "s2": "Chacun déclare où il était et combien ils étaient. L'innocent n'a qu'à confirmer sa carte : il ne peut pas se tromper.",
       "s3": "La pièce qui reçoit un bulletin de trop cache le coupable. Les autres sont blanchies. À la fin, un seul nom."
+    }
+  },
+  "Rodeurs": {
+    "metaTitle": "Rôdeurs — vivez la soirée, le registre fait l'enquête",
+    "metaDescription": "Un jeu de soirée d'une à deux heures sur vos téléphones. Chaque fois que quelqu'un tape ton code, vous avez la preuve que vous étiez ensemble — et trois d'entre vous rôdent. Personne n'est éliminé, sans compte.",
+    "name": "Rôdeurs",
+    "tagline": "Croisez du monde : c'est votre alibi",
+    "back": "Tous les jeux",
+    "poweredBy": "Propulsé par Placet",
+    "offline": "Connexion perdue — on réessaie",
+    "loading": "Un instant…",
+    "missing": {
+      "title": "Cette partie n'existe plus",
+      "hint": "Le code est peut-être mal recopié, ou la partie a été effacée.",
+      "cta": "Revenir aux jeux"
+    },
+    "join": {
+      "title": "Entrer dans la maison",
+      "hint": "Choisis le prénom que les autres verront.",
+      "hintPlayers": "{n, plural, =0 {Personne n'est encore arrivé.} one {Une personne est déjà là.} other {# personnes sont déjà là.}}",
+      "placeholder": "Ton prénom",
+      "cta": "Entrer",
+      "busy": "On entre…",
+      "errNameTaken": "Ce prénom est déjà pris dans cette maison.",
+      "errFull": "Cette maison est pleine.",
+      "errNotFound": "Aucune partie avec ce code.",
+      "errStarted": "La partie a commencé — on ne peut plus entrer. Les rôles sont distribués, et un téléphone de plus donnerait un alibi de plus à fabriquer.",
+      "errGeneric": "Ça n'a pas marché. Réessaie."
+    },
+    "rules": {
+      "title": "La règle, en une phrase",
+      "body": "Chaque fois que quelqu'un tape ton code, vous avez la preuve que vous étiez ensemble. Trois d'entre vous sont des rôdeurs : chaque manche, ils approchent quelqu'un qu'ils ont vraiment croisé — cette personne apprend dans quelle pièce, et doit deviner qui rôdait parmi les gens qu'elle y a validés."
+    },
+    "players": {
+      "host": "hôte",
+      "waiting": "n'a pas encore voté",
+      "idle": "téléphone posé",
+      "done": "a voté",
+      "asleep": "parti se coucher"
+    },
+    "share": {
+      "code": "Code de la partie",
+      "copy": "Copier le lien",
+      "copied": "Lien copié",
+      "share": "Partager",
+      "whatsapp": "WhatsApp",
+      "text": "On joue à Rôdeurs ? Rejoins-nous :",
+      "screens": "Il faut un écran par joueur. Une tablette, un vieux téléphone en wifi, un ordinateur portable font l'affaire — à deux sur un écran, le jeu n'existe pas."
+    },
+    "round": {
+      "of": "Manche {no} sur {total}",
+      "instructions": "Vis ta soirée, remplis ta mission, fais-toi valider."
+    },
+    "lobby": {
+      "invite": "Que tout le monde entre",
+      "band": "Ton âge",
+      "bandHint": "Ça règle la taille de ta mission, jamais tes chances de gagner.",
+      "petit": "6–9 ans",
+      "moyen": "10–13 ans",
+      "grand": "14 ans et +",
+      "noElimination": "Personne n'est éliminé. Tout le monde joue jusqu'au bout.",
+      "start": "Distribuer les rôles",
+      "needPlayers": "Il faut être au moins {n} pour commencer.",
+      "waitAll": "Vérifie que chacun a choisi son âge avant de lancer."
+    },
+    "carte": {
+      "title": "Ton rôle",
+      "keep": "Garde-le pour toi.",
+      "habitant": "Tu habites la maison.",
+      "habitantHint": "Vis ta soirée, remplis tes missions, fais-toi valider — chaque rencontre est un alibi. Si on t'approche, tu le sauras à la fin de la manche.",
+      "rodeur": "Tu rôdes.",
+      "rodeurHint": "Chaque manche, approche quelqu'un que tu as vraiment croisé : il saura dans quelle pièce, et tu seras dans sa liste. Ton salut, c'est la foule — croise du monde, noie-toi dedans.",
+      "complices": "Avec toi :",
+      "reopen": "Mon rôle"
+    },
+    "seal": {
+      "title": "Mon code",
+      "hint": "Montre-le : celui qui le tape valide votre rencontre. Il change à chaque manche."
+    },
+    "mission": {
+      "title": "Ta mission",
+      "secretTitle": "Mission secrète",
+      "secretHint": "Si on t'approche et que tu publies ta liste cette manche, cette mission ne rapporte rien. Personne ne saura pourquoi tu te tais.",
+      "p": {
+        "VALIDE_PAR": "Fais-toi valider par {cible}.",
+        "VALIDE_PAR_N": "Fais-toi valider par {n} personnes différentes.",
+        "DANS_LIEU": "Fais-toi valider dans {lieu}.",
+        "DEUX_LIEUX": "Fais-toi valider dans 2 pièces différentes.",
+        "VALIDE_N": "Valide {n} personnes différentes.",
+        "ALLER_RETOUR": "Valide {cible}, et fais-toi valider en retour.",
+        "LIEUX_N": "Obtiens des validations dans {n} pièces différentes.",
+        "PAIRE_LIEU": "Fais-toi valider 2 fois dans la même pièce.",
+        "EVITE": "Ne te fais jamais valider par {cible}.",
+        "TABLEE": "Réunis une tablée : {n} validations dans une pièce où tu étais.",
+        "CHAINE": "Valide quelqu'un qui a croisé {cible} cette manche.",
+        "PREMIER": "Sois la toute première validation de la manche.",
+        "DISCRET": "Ne croise qu'une seule personne de toute la manche."
+      }
+    },
+    "tap": {
+      "title": "Taper un code",
+      "hint": "Quelqu'un te montre son code ? Tape-le, choisis la pièce, et la rencontre est scellée.",
+      "place": "Où êtes-vous ?",
+      "cta": "Valider la rencontre",
+      "ok": "Rencontre scellée avec {name}.",
+      "already": "Déjà validés cette manche, toi et {name}.",
+      "complice": "{name} est avec toi. Rien ne s'écrit entre vous.",
+      "noSeal": "Aucun joueur avec ce code.",
+      "self": "C'est ton propre code.",
+      "tooMany": "Trop d'essais ratés cette manche — attends la prochaine.",
+      "closed": "La manche est close.",
+      "left": "Tu es parti te coucher."
+    },
+    "meets": {
+      "title": "Mes rencontres",
+      "empty": "Personne pour l'instant. Va voir du monde — c'est ton alibi."
+    },
+    "mark": {
+      "title": "Ta marque",
+      "hint": "Approche quelqu'un que tu as croisé : il saura la pièce, et tu seras dans sa liste. Une fois par manche — sinon le serveur marquera au hasard pour toi.",
+      "pick": "Qui approches-tu ?",
+      "fakeTitle": "Fausse piste",
+      "fakeHint": "Annonce la pièce d'une AUTRE de tes rencontres — il en reste {n}.",
+      "none": "Croise d'abord quelqu'un : on ne marque que les gens qu'on a vraiment validés.",
+      "cta": "Poser la marque",
+      "done": "Marque posée sur {name}.",
+      "faked": "Marque posée sur {name} — pièce maquillée.",
+      "closed": "La manche est close."
+    },
+    "close": {
+      "cta": "Clore la manche",
+      "confirm": "Tout le monde a fini ? Clore pour tous.",
+      "hint": "N'importe qui peut clore. On révèle, on s'accuse, on repart."
+    },
+    "leave": {
+      "cta": "Je vais me coucher",
+      "confirm": "Tu quittes la partie pour de bon. Et si tu rôdais… quitter, c'est se rendre.",
+      "warn": "Un rôdeur qui se couche est révélé et compté comme démasqué."
+    },
+    "reveal": {
+      "title": "La clôture",
+      "lots": "Les listes",
+      "lotSomewhere": "Quelqu'un a été approché — quelque part",
+      "lotAt": "Quelqu'un a été approché dans {place}",
+      "published": "{name} a parlé",
+      "silent": "la personne se tait",
+      "hasMet": "Ont validé une rencontre là-bas :",
+      "noMeet": "Sans aucune rencontre",
+      "asleep": "Ils dorment",
+      "none": "Personne n'a été approché cette manche."
+    },
+    "approached": {
+      "title": "On t'a approché.",
+      "at": "Dans {place}.",
+      "anywhere": "Cette manche, quelqu'un que tu as croisé rôdait.",
+      "names": "Là-bas, tu as validé :",
+      "all": "Ton carnet de la manche :",
+      "one": "L'une de ces personnes rôdait.",
+      "publish": "Dis-le à tout le monde",
+      "publishPlus": "+1 point",
+      "keep": "je garde ça pour moi",
+      "kept": "Tu gardes ça pour toi.",
+      "publishedOk": "C'est dit : tout le monde sait.",
+      "burnWarn": "Publier brûle ta mission secrète."
+    },
+    "vote": {
+      "title": "Qui rôdait ?",
+      "hint": "Un nom, en secret. Le plus accusé est mis en lumière — personne n'est éliminé.",
+      "progress": "{done} sur {total} ont voté",
+      "pick": "Choisis un nom",
+      "cta": "J'accuse {name}",
+      "voted": "Tu as accusé {name}"
+    },
+    "light": {
+      "was": "{name} rôdait !",
+      "wasNot": "{name} n'y était pour rien.",
+      "nobody": "Personne n'a été mis en lumière.",
+      "next": "Manche suivante",
+      "seeFinal": "Voir la résolution"
+    },
+    "final": {
+      "title": "La résolution",
+      "nette": "La maison est nette.",
+      "unReste": "Il en restait un.",
+      "perdu": "La maison a perdu.",
+      "rodeursWere": "Les rôdeurs étaient",
+      "ranking": "Classement",
+      "replay": "Rejouer",
+      "joinNew": "La nouvelle partie est ouverte"
+    },
+    "create": {
+      "hero": "Croisez du monde : c'est votre alibi",
+      "pitch": "Un jeu qui dure la soirée et la laisse vivre : on mange, on discute, on circule — et le simple fait de se croiser fabrique l'enquête. Personne n'est éliminé, personne ne ferme les yeux, aucun meneur.",
+      "screens": "Il faut un écran par joueur.",
+      "screensHint": "Une tablette, un vieux téléphone en wifi, un ordinateur portable font l'affaire. À deux sur un écran, le jeu n'existe pas.",
+      "best": "7 à 16 joueurs · dès 6 ans accompagné · la soirée",
+      "name": "Ton prénom",
+      "cta": "Ouvrir la maison",
+      "creating": "On ouvre…",
+      "noAccount": "Sans compte, sans rien installer.",
+      "error": "Ça n'a pas marché. Réessaie.",
+      "joinCode": "Rejoindre avec un code",
+      "codePlaceholder": "ABC123",
+      "join": "Entrer",
+      "badCode": "Aucune partie avec ce code."
+    },
+    "how": {
+      "title": "Comment ça se passe",
+      "s1": "Chacun reçoit une petite mission et un code à 4 chiffres. On vit sa soirée : chaque fois que quelqu'un tape ton code, votre rencontre est scellée — c'est un alibi pour vous deux.",
+      "s2": "Trois joueurs rôdent. Chaque manche, chacun d'eux approche quelqu'un qu'il a vraiment croisé : la personne apprend la pièce, et le rôdeur est forcément dans sa liste.",
+      "s3": "À la clôture, on parle, on s'accuse, un nom est mis en lumière — sans jamais éliminer personne. La maison gagne si tous les rôdeurs tombent avant la fin."
     }
   }
 }

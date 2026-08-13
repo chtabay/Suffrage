@@ -1682,6 +1682,11 @@
       "name": "Alibi",
       "tagline": "Find the room with one person too many",
       "desc": "Each round, the house puts everyone in one of three rooms — except one person, who was prowling. Nobody is eliminated, nobody closes their eyes, and the app is the only host."
+    },
+    "rodeurs": {
+      "name": "Prowlers",
+      "tagline": "Cross paths — that's your alibi",
+      "desc": "The game that lasts the whole evening and lets it happen: you eat, you wander, and every validated meeting is an alibi. Three players prowl — the house must put them in the spotlight, without ever knocking anyone out."
     }
   },
   "Unanimo": {
@@ -1980,6 +1985,217 @@
       "s1": "The house puts everyone in one of three rooms — except one person, who was prowling and was nowhere at all.",
       "s2": "Everyone says where they were and how many they were. An innocent just confirms their card: they can't get it wrong.",
       "s3": "The room that gets one ballot too many is hiding the culprit. The others are cleared. At the end, one name only."
+    }
+  },
+  "Rodeurs": {
+    "metaTitle": "Prowlers — live your evening, the log runs the investigation",
+    "metaDescription": "A party game on your phones, one to two hours. Every time someone taps in your code, you have proof you were together — and three of you are prowling. Nobody is ever knocked out, no account needed.",
+    "name": "Prowlers",
+    "tagline": "Cross paths — that's your alibi",
+    "back": "All games",
+    "poweredBy": "Powered by Placet",
+    "offline": "Connection lost — retrying",
+    "loading": "One moment…",
+    "missing": {
+      "title": "This game no longer exists",
+      "hint": "The code may be mistyped, or the game was deleted.",
+      "cta": "Back to games"
+    },
+    "join": {
+      "title": "Enter the house",
+      "hint": "Pick the first name the others will see.",
+      "hintPlayers": "{n, plural, =0 {Nobody has arrived yet.} one {One person is already here.} other {# people are already here.}}",
+      "placeholder": "Your first name",
+      "cta": "Enter",
+      "busy": "Going in…",
+      "errNameTaken": "That name is already taken in this house.",
+      "errFull": "This house is full.",
+      "errNotFound": "No game with that code.",
+      "errStarted": "The game has started — no one else can come in. The roles are dealt, and one more phone would mean one more alibi to fake.",
+      "errGeneric": "That didn't work. Try again."
+    },
+    "rules": {
+      "title": "The rule, in one sentence",
+      "body": "Every time someone taps in your code, you have proof you were together. Three of you are prowlers: each round they approach someone they've really crossed paths with — that person learns which room, and must guess who was prowling among the people they validated there."
+    },
+    "players": {
+      "host": "host",
+      "waiting": "hasn't voted yet",
+      "idle": "phone put down",
+      "done": "has voted",
+      "asleep": "gone to bed"
+    },
+    "share": {
+      "code": "Game code",
+      "copy": "Copy the link",
+      "copied": "Link copied",
+      "share": "Share",
+      "whatsapp": "WhatsApp",
+      "text": "Fancy a game of Prowlers? Join us:",
+      "screens": "You need one screen per player. A tablet, an old phone on wifi or a laptop will do — two people sharing a screen and the game falls apart."
+    },
+    "round": {
+      "of": "Round {no} of {total}",
+      "instructions": "Live your evening, do your mission, get validated."
+    },
+    "lobby": {
+      "invite": "Get everyone in",
+      "band": "Your age",
+      "bandHint": "It sets the size of your mission, never your chances of winning.",
+      "petit": "Ages 6–9",
+      "moyen": "Ages 10–13",
+      "grand": "14 and up",
+      "noElimination": "Nobody is knocked out. Everyone plays to the end.",
+      "start": "Deal the roles",
+      "needPlayers": "You need at least {n} players to start.",
+      "waitAll": "Check everyone has picked their age before you launch."
+    },
+    "carte": {
+      "title": "Your role",
+      "keep": "Keep it to yourself.",
+      "habitant": "You live in the house.",
+      "habitantHint": "Live your evening, do your missions, get validated — every meeting is an alibi. If you're approached, you'll know at the end of the round.",
+      "rodeur": "You prowl.",
+      "rodeurHint": "Each round, approach someone you've really crossed paths with: they'll learn which room, and you'll be on their list. The crowd is your cover — meet everyone, melt into it.",
+      "complices": "With you:",
+      "reopen": "My role"
+    },
+    "seal": {
+      "title": "My code",
+      "hint": "Show it: whoever taps it in validates your meeting. It changes every round."
+    },
+    "mission": {
+      "title": "Your mission",
+      "secretTitle": "Secret mission",
+      "secretHint": "If you're approached and you publish your list this round, this mission earns nothing. Nobody will know why you kept quiet.",
+      "p": {
+        "VALIDE_PAR": "Get validated by {cible}.",
+        "VALIDE_PAR_N": "Get validated by {n} different people.",
+        "DANS_LIEU": "Get validated in {lieu}.",
+        "DEUX_LIEUX": "Get validated in 2 different rooms.",
+        "VALIDE_N": "Validate {n} different people.",
+        "ALLER_RETOUR": "Validate {cible}, and get validated back.",
+        "LIEUX_N": "Collect validations in {n} different rooms.",
+        "PAIRE_LIEU": "Get validated twice in the same room.",
+        "EVITE": "Never get validated by {cible}.",
+        "TABLEE": "Fill a table: {n} validations in one room you were in.",
+        "CHAINE": "Validate someone who crossed paths with {cible} this round.",
+        "PREMIER": "Be the very first validation of the round.",
+        "DISCRET": "Cross paths with only one person all round."
+      }
+    },
+    "tap": {
+      "title": "Tap in a code",
+      "hint": "Someone shows you their code? Tap it in, pick the room, and the meeting is sealed.",
+      "place": "Where are you?",
+      "cta": "Validate the meeting",
+      "ok": "Meeting sealed with {name}.",
+      "already": "You and {name} are already validated this round.",
+      "complice": "{name} is with you. Nothing gets written between you.",
+      "noSeal": "No player with that code.",
+      "self": "That's your own code.",
+      "tooMany": "Too many failed tries this round — wait for the next one.",
+      "closed": "The round is closed.",
+      "left": "You've gone to bed."
+    },
+    "meets": {
+      "title": "My meetings",
+      "empty": "Nobody yet. Go and see people — it's your alibi."
+    },
+    "mark": {
+      "title": "Your mark",
+      "hint": "Approach someone you've crossed paths with: they'll learn the room, and you'll be on their list. Once per round — or the server will mark at random for you.",
+      "pick": "Who are you approaching?",
+      "fakeTitle": "False trail",
+      "fakeHint": "Announce the room of ANOTHER of your meetings — {n} left.",
+      "none": "Cross paths with someone first: you can only mark people you've really validated.",
+      "cta": "Place the mark",
+      "done": "Mark placed on {name}.",
+      "faked": "Mark placed on {name} — room disguised.",
+      "closed": "The round is closed."
+    },
+    "close": {
+      "cta": "Close the round",
+      "confirm": "Everyone done? Close it for all.",
+      "hint": "Anyone can close. We reveal, we accuse, we go again."
+    },
+    "leave": {
+      "cta": "I'm off to bed",
+      "confirm": "You're leaving the game for good. And if you were prowling… leaving is surrendering.",
+      "warn": "A prowler who goes to bed is revealed and counted as caught."
+    },
+    "reveal": {
+      "title": "Closing time",
+      "lots": "The lists",
+      "lotSomewhere": "Someone was approached — somewhere",
+      "lotAt": "Someone was approached in {place}",
+      "published": "{name} spoke up",
+      "silent": "they're keeping quiet",
+      "hasMet": "Validated a meeting there:",
+      "noMeet": "With no meetings at all",
+      "asleep": "They're asleep",
+      "none": "Nobody was approached this round."
+    },
+    "approached": {
+      "title": "You were approached.",
+      "at": "In {place}.",
+      "anywhere": "This round, someone you crossed paths with was prowling.",
+      "names": "There, you validated:",
+      "all": "Your notebook for the round:",
+      "one": "One of these people was prowling.",
+      "publish": "Tell everyone",
+      "publishPlus": "+1 point",
+      "keep": "I'll keep it to myself",
+      "kept": "You're keeping it to yourself.",
+      "publishedOk": "It's out: everyone knows.",
+      "burnWarn": "Publishing burns your secret mission."
+    },
+    "vote": {
+      "title": "Who was prowling?",
+      "hint": "One name, in secret. The most accused is put in the spotlight — nobody is knocked out.",
+      "progress": "{done} of {total} have voted",
+      "pick": "Pick a name",
+      "cta": "I accuse {name}",
+      "voted": "You accused {name}"
+    },
+    "light": {
+      "was": "{name} was prowling!",
+      "wasNot": "{name} had nothing to do with it.",
+      "nobody": "Nobody was put in the spotlight.",
+      "next": "Next round",
+      "seeFinal": "See the resolution"
+    },
+    "final": {
+      "title": "The resolution",
+      "nette": "The house is clean.",
+      "unReste": "One was still out there.",
+      "perdu": "The house has lost.",
+      "rodeursWere": "The prowlers were",
+      "ranking": "Leaderboard",
+      "replay": "Play again",
+      "joinNew": "The new game is open"
+    },
+    "create": {
+      "hero": "Cross paths — that's your alibi",
+      "pitch": "A game that lasts the whole evening and lets it happen: you eat, you chat, you wander — and simply crossing paths builds the investigation. Nobody is knocked out, nobody closes their eyes, no game master.",
+      "screens": "You need one screen per player.",
+      "screensHint": "A tablet, an old phone on wifi or a laptop will do. Two people sharing a screen and the game falls apart.",
+      "best": "7 to 16 players · from age 6 with help · the whole evening",
+      "name": "Your first name",
+      "cta": "Open the house",
+      "creating": "Opening…",
+      "noAccount": "No account, nothing to install.",
+      "error": "That didn't work. Try again.",
+      "joinCode": "Join with a code",
+      "codePlaceholder": "ABC123",
+      "join": "Enter",
+      "badCode": "No game with that code."
+    },
+    "how": {
+      "title": "How it goes",
+      "s1": "Everyone gets a small mission and a 4-digit code. You live your evening: every time someone taps in your code, your meeting is sealed — an alibi for you both.",
+      "s2": "Three players are prowling. Each round, each of them approaches someone they've really crossed paths with: that person learns the room, and the prowler is bound to be on their list.",
+      "s3": "At the close, you talk, you accuse, one name is put in the spotlight — nobody is ever knocked out. The house wins if all the prowlers fall before the end."
     }
   }
 }

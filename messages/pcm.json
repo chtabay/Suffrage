@@ -1682,6 +1682,11 @@
       "name": "Alibi",
       "tagline": "Find di room wey get one extra pesin",
       "desc": "Every round, di house go put everybody for three rooms — except one pesin wey bin dey waka around. Nobody dey comot for di game, nobody dey close eye, and na di app be di only host."
+    },
+    "rodeurs": {
+      "name": "Prowlers",
+      "tagline": "Jam people — na your alibi be dat",
+      "desc": "Di game wey dey last di whole evening and let am flow: una dey chop, una dey waka, and every stamp meeting na alibi. Three players dey prowl — di house must shine light on dem, nobody dey commot."
     }
   },
   "Unanimo": {
@@ -1980,6 +1985,217 @@
       "s1": "Di house go put everybody for three rooms — except one pesin, wey dey waka around and no dey anywhere.",
       "s2": "Everybody go declare where e bin dey and how many dem bin be. Innocent pesin just confirm im card: e no fit make mistake.",
       "s3": "Di room wey collect one paper too many na where di guilty one dey. Di odas dey clean. For di end, na one name."
+    }
+  },
+  "Rodeurs": {
+    "metaTitle": "Prowlers — enjoy di evening, di register go do di investigation",
+    "metaDescription": "Party game of one to two hours on top una phones. Any time pesin type your code, e don prove say una bin dey together — and three of una dey prowl. Nobody dey commot for di game, no account.",
+    "name": "Prowlers",
+    "tagline": "Jam plenty people: na your alibi",
+    "back": "All di games",
+    "poweredBy": "Placet dey power am",
+    "offline": "Network don cut — we dey try again",
+    "loading": "Small time…",
+    "missing": {
+      "title": "Dis game no dey again",
+      "hint": "Maybe di code no copy well, or dem don wipe di game.",
+      "cta": "Go back to di games"
+    },
+    "join": {
+      "title": "Enter di house",
+      "hint": "Choose di name wey others go see.",
+      "hintPlayers": "{n, plural, =0 {Nobody don reach here yet.} one {One pesin don dey here.} other {# people don dey here.}}",
+      "placeholder": "Your name",
+      "cta": "Enter",
+      "busy": "We dey enter…",
+      "errNameTaken": "Anoda pesin don take dis name for dis house.",
+      "errFull": "Dis house don full.",
+      "errNotFound": "No game dey with dis code.",
+      "errStarted": "Di game don start — nobody fit enter again. Dem don share di roles, and one more phone go mean one more alibi to arrange.",
+      "errGeneric": "E no work. Try again."
+    },
+    "rules": {
+      "title": "Di rule, for one sentence",
+      "body": "Any time pesin type your code, e don prove say una bin dey together. Three of una na prowlers: every round, dem go approach pesin wey dem really jam — dat pesin go know which room, and e go guess who bin dey prowl among di people wey e stamp for there."
+    },
+    "players": {
+      "host": "host",
+      "waiting": "never vote yet",
+      "idle": "phone dey rest",
+      "done": "don vote",
+      "asleep": "don go sleep"
+    },
+    "share": {
+      "code": "Game code",
+      "copy": "Copy di link",
+      "copied": "Link don copy",
+      "share": "Share",
+      "whatsapp": "WhatsApp",
+      "text": "Make we play Prowlers? Come join us:",
+      "screens": "Every player need im own screen. Tablet, old phone wey dey on wifi, laptop — all of dem dey okay. Two people for one screen, di game no go work at all."
+    },
+    "round": {
+      "of": "Round {no} of {total}",
+      "instructions": "Enjoy your evening, do your mission, make people stamp you."
+    },
+    "lobby": {
+      "invite": "Make everybody enter",
+      "band": "Your age",
+      "bandHint": "E only change how big your mission be, e no touch your chance to win.",
+      "petit": "6–9 years",
+      "moyen": "10–13 years",
+      "grand": "14 years and above",
+      "noElimination": "Nobody dey commot. Everybody go play reach di end.",
+      "start": "Share di roles",
+      "needPlayers": "Una need at least {n} people before e fit start.",
+      "waitAll": "Check say everybody don choose dia age before you start."
+    },
+    "carte": {
+      "title": "Your role",
+      "keep": "Keep am to yourself.",
+      "habitant": "You dey live for di house.",
+      "habitantHint": "Enjoy your evening, do your missions, make people stamp you — every meet na alibi. If prowler approach you, you go know when di round close.",
+      "rodeur": "You dey prowl.",
+      "rodeurHint": "Every round, approach pesin wey you really jam: e go know which room, and your name go dey inside im list. Na crowd go save you — jam plenty people, hide inside dem.",
+      "complices": "Wit you:",
+      "reopen": "My role"
+    },
+    "seal": {
+      "title": "My code",
+      "hint": "Show am: di pesin wey type am don stamp una meet. E dey change every round."
+    },
+    "mission": {
+      "title": "Your mission",
+      "secretTitle": "Secret mission",
+      "secretHint": "If prowler approach you and you publish your list dis round, dis mission no go pay you anything. Nobody go know why you keep quiet.",
+      "p": {
+        "VALIDE_PAR": "Make {cible} stamp you.",
+        "VALIDE_PAR_N": "Make {n} different people stamp you.",
+        "DANS_LIEU": "Make dem stamp you for {lieu}.",
+        "DEUX_LIEUX": "Make dem stamp you for 2 different rooms.",
+        "VALIDE_N": "Stamp {n} different people.",
+        "ALLER_RETOUR": "Stamp {cible}, and make e stamp you back.",
+        "LIEUX_N": "Collect stamps for {n} different rooms.",
+        "PAIRE_LIEU": "Make dem stamp you 2 times for di same room.",
+        "EVITE": "No let {cible} stamp you at all.",
+        "TABLEE": "Gather people: {n} stamps for one room wey you dey.",
+        "CHAINE": "Stamp pesin wey don jam {cible} dis round.",
+        "PREMIER": "Be di first stamp of di round.",
+        "DISCRET": "Jam only one pesin for di whole round."
+      }
+    },
+    "tap": {
+      "title": "Type one code",
+      "hint": "Pesin show you im code? Type am, choose di room, and di meet don lock.",
+      "place": "Where una dey?",
+      "cta": "Stamp di meet",
+      "ok": "Meet don lock with {name}.",
+      "already": "You and {name} don already stamp dis round.",
+      "complice": "{name} dey with you. Nothing dey write between una.",
+      "noSeal": "No player get dis code.",
+      "self": "Na your own code be dis.",
+      "tooMany": "Too many wrong try dis round — wait for di next one.",
+      "closed": "Di round don close.",
+      "left": "You don go sleep."
+    },
+    "meets": {
+      "title": "My meets",
+      "empty": "Nobody yet. Go jam people — na your alibi."
+    },
+    "mark": {
+      "title": "Your mark",
+      "hint": "Approach pesin wey you don jam: e go know di room, and your name go dey inside im list. Once every round — if not, di server go mark anyhow for you.",
+      "pick": "Who you wan approach?",
+      "fakeTitle": "Fake trail",
+      "fakeHint": "Call di room of ANOTHER of your meets — {n} still remain.",
+      "none": "First jam somebody: you fit only mark people wey you really stamp.",
+      "cta": "Drop di mark",
+      "done": "Mark don land on {name}.",
+      "faked": "Mark don land on {name} — di room na cover-up.",
+      "closed": "Di round don close."
+    },
+    "close": {
+      "cta": "Close di round",
+      "confirm": "Everybody don finish? Close am for everybody.",
+      "hint": "Anybody fit close am. We go reveal, we go accuse, we go continue."
+    },
+    "leave": {
+      "cta": "I dey go sleep",
+      "confirm": "You dey leave di game for good. And if na you dey prowl… to leave na to surrender.",
+      "warn": "Prowler wey go sleep go show face and dem go count am as caught."
+    },
+    "reveal": {
+      "title": "Di closing",
+      "lots": "Di lists",
+      "lotSomewhere": "Dem approach somebody — somewhere",
+      "lotAt": "Dem approach somebody for {place}",
+      "published": "{name} don talk",
+      "silent": "di pesin keep quiet",
+      "hasMet": "Dis people stamp meet for there:",
+      "noMeet": "No meet at all",
+      "asleep": "Dem dey sleep",
+      "none": "Dem no approach anybody dis round."
+    },
+    "approached": {
+      "title": "Dem approach you.",
+      "at": "For {place}.",
+      "anywhere": "Dis round, one pesin wey you jam bin dey prowl.",
+      "names": "For there, you stamp:",
+      "all": "Your notebook for di round:",
+      "one": "One of dis people bin dey prowl.",
+      "publish": "Tell everybody",
+      "publishPlus": "+1 point",
+      "keep": "make I keep am to myself",
+      "kept": "You keep am to yourself.",
+      "publishedOk": "E don land: everybody sabi now.",
+      "burnWarn": "If you publish, your secret mission don burn."
+    },
+    "vote": {
+      "title": "Who bin dey prowl?",
+      "hint": "One name, for secret. Di pesin wey collect accuse pass, dem go shine light on am — nobody dey commot.",
+      "progress": "{done} of {total} don vote",
+      "pick": "Choose one name",
+      "cta": "I accuse {name}",
+      "voted": "You don accuse {name}"
+    },
+    "light": {
+      "was": "{name} bin dey prowl!",
+      "wasNot": "{name} no get hand for am.",
+      "nobody": "Dem no shine light on anybody.",
+      "next": "Next round",
+      "seeFinal": "See how e end"
+    },
+    "final": {
+      "title": "How e end",
+      "nette": "Di house don clean.",
+      "unReste": "One still remain.",
+      "perdu": "Di house don lose.",
+      "rodeursWere": "Di prowlers na",
+      "ranking": "Ranking",
+      "replay": "Play again",
+      "joinNew": "New game don open"
+    },
+    "create": {
+      "hero": "Jam plenty people: na your alibi",
+      "pitch": "One game wey last di whole evening and still let di evening flow: una dey chop, dey gist, dey waka about — and na di jamming of body dey build di investigation. Nobody dey commot, nobody dey close eye, no game master.",
+      "screens": "Every player need im own screen.",
+      "screensHint": "Tablet, old phone wey dey on wifi, laptop — all of dem dey okay. Two people for one screen, di game no go work at all.",
+      "best": "7 to 16 players · from 6 years with adult · di whole evening",
+      "name": "Your name",
+      "cta": "Open di house",
+      "creating": "We dey open…",
+      "noAccount": "No account, nothing to install.",
+      "error": "E no work. Try again.",
+      "joinCode": "Join with code",
+      "codePlaceholder": "ABC123",
+      "join": "Enter",
+      "badCode": "No game dey with dis code."
+    },
+    "how": {
+      "title": "How e dey go",
+      "s1": "Everybody go collect one small mission and one 4-digit code. You go enjoy your evening: any time pesin type your code, una meet don lock — na alibi for both of una.",
+      "s2": "Three players dey prowl. Every round, each of dem go approach pesin wey e really jam: di pesin go know di room, and di prowler must dey inside im list.",
+      "s3": "When di round close, una go talk, una go accuse, dem go shine light on one name — nobody dey commot at all. Di house go win if all di prowlers fall before di end."
     }
   }
 }

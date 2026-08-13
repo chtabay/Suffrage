@@ -52,7 +52,7 @@ export default async function PrivacyPage({ params }: { params: Promise<{ locale
         },
         {
           h: "Ce que nous collectons — dans les jeux",
-          p: "Une partie n'exige aucun compte. Chaque joueur choisit un prénom ou un pseudo, puis saisit ce que le jeu lui demande : des mots, ou — dans un jeu d'enquête — la pièce où il se trouvait, un soupçon et une accusation, qui DÉSIGNENT NOMMÉMENT un autre joueur de la même partie. Ces éléments sont montrés aux autres joueurs de la salle : le prénom et les réponses à chaque manche, les soupçons et les accusations à la fin de la partie. N'y mettez que ce que vous acceptez de montrer au groupe. Rien de tout cela n'est rattaché à un compte ni réutilisé ailleurs dans Placet.",
+          p: "Une partie n'exige aucun compte. Chaque joueur choisit un prénom ou un pseudo, puis saisit ce que le jeu lui demande : des mots, ou — dans un jeu d'enquête — la pièce où il se trouvait, un soupçon et une accusation, qui DÉSIGNENT NOMMÉMENT un autre joueur de la même partie. Ces éléments sont montrés aux autres joueurs de la salle : le prénom et les réponses à chaque manche, les soupçons et les accusations à la fin de la partie. N'y mettez que ce que vous acceptez de montrer au groupe. Certains jeux demandent aussi une tranche d'âge (enfant, ado, adulte), déclarée librement et sans vérification — elle sert à calibrer les consignes, jamais à autre chose. Rien de tout cela n'est rattaché à un compte ni réutilisé ailleurs dans Placet.",
         },
         {
           h: "Pourquoi",
@@ -101,7 +101,7 @@ export default async function PrivacyPage({ params }: { params: Promise<{ locale
         },
         {
           h: "What we collect — in games",
-          p: "A game needs no account. Each player picks a first name or nickname, then enters whatever the game asks for: words, or — in a detective game — the room they were in, a suspicion and an accusation, which NAME another player in the same game. These are shown to the other players in the room: the name and each round's answers as you go, the suspicions and accusations at the end. Only put in what you're happy to show the group. None of it is attached to an account or reused elsewhere in Placet.",
+          p: "A game needs no account. Each player picks a first name or nickname, then enters whatever the game asks for: words, or — in a detective game — the room they were in, a suspicion and an accusation, which NAME another player in the same game. These are shown to the other players in the room: the name and each round's answers as you go, the suspicions and accusations at the end. Only put in what you're happy to show the group. Some games also ask for an age band (child, teen, adult), freely declared and unverified — it only calibrates the instructions, nothing else. None of it is attached to an account or reused elsewhere in Placet.",
         },
         {
           h: "Why",
@@ -150,7 +150,7 @@ export default async function PrivacyPage({ params }: { params: Promise<{ locale
         },
         {
           h: "Qué recopilamos — en los juegos",
-          p: "Una partida no requiere cuenta. Cada jugador elige un nombre o apodo y luego escribe lo que el juego le pide: palabras o —en un juego de detectives— la habitación donde estaba, una sospecha y una acusación, que SEÑALAN POR SU NOMBRE a otro jugador de la misma partida. Todo ello se muestra a los demás jugadores de la sala: el nombre y las respuestas de cada ronda sobre la marcha, las sospechas y acusaciones al final. Pon solo lo que aceptes mostrar al grupo. Nada de esto se vincula a una cuenta ni se reutiliza en otro lugar de Placet.",
+          p: "Una partida no requiere cuenta. Cada jugador elige un nombre o apodo y luego escribe lo que el juego le pide: palabras o —en un juego de detectives— la habitación donde estaba, una sospecha y una acusación, que SEÑALAN POR SU NOMBRE a otro jugador de la misma partida. Todo ello se muestra a los demás jugadores de la sala: el nombre y las respuestas de cada ronda sobre la marcha, las sospechas y acusaciones al final. Pon solo lo que aceptes mostrar al grupo. Algunos juegos piden también una franja de edad (peque, adolescente, adulto), declarada libremente y sin verificación — solo calibra las consignas, nada más. Nada de esto se vincula a una cuenta ni se reutiliza en otro lugar de Placet.",
         },
         {
           h: "Por qué",

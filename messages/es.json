@@ -1682,6 +1682,11 @@
       "name": "Alibi",
       "tagline": "Encuentra la habitación con una persona de más",
       "desc": "Cada ronda, la casa reparte a todos en tres habitaciones — salvo a una persona, que merodeaba. Nadie es eliminado, nadie cierra los ojos, y la aplicación es el único árbitro."
+    },
+    "rodeurs": {
+      "name": "Merodeadores",
+      "tagline": "Cruzaos — esa es vuestra coartada",
+      "desc": "El juego que dura toda la velada y la deja vivir: se cena, se circula, y cada encuentro validado es una coartada. Tres jugadores merodean — la casa debe señalarlos, sin eliminar nunca a nadie."
     }
   },
   "Unanimo": {
@@ -1980,6 +1985,217 @@
       "s1": "La casa reparte a todo el mundo en tres habitaciones — menos a una persona, que merodeaba y no estaba en ninguna parte.",
       "s2": "Cada cual declara dónde estaba y cuántos eran. El inocente solo tiene que confirmar su carta: no puede equivocarse.",
       "s3": "La habitación que recibe una papeleta de más esconde al culpable. Las demás quedan libres de sospecha. Al final, un solo nombre."
+    }
+  },
+  "Rodeurs": {
+    "metaTitle": "Merodeadores — vive la velada, el registro investiga",
+    "metaDescription": "Un juego de velada de una a dos horas en vuestros móviles. Cada vez que alguien teclea tu código, tenéis la prueba de que estabais juntos — y tres de vosotros merodean. Nadie queda eliminado, sin cuenta.",
+    "name": "Merodeadores",
+    "tagline": "Cruzaos con la gente: es vuestra coartada",
+    "back": "Todos los juegos",
+    "poweredBy": "Impulsado por Placet",
+    "offline": "Sin conexión — reintentando",
+    "loading": "Un momento…",
+    "missing": {
+      "title": "Esta partida ya no existe",
+      "hint": "Puede que el código esté mal copiado, o que la partida se haya borrado.",
+      "cta": "Volver a los juegos"
+    },
+    "join": {
+      "title": "Entrar en la casa",
+      "hint": "Elige el nombre que verán los demás.",
+      "hintPlayers": "{n, plural, =0 {Todavía no ha llegado nadie.} one {Ya hay una persona.} other {Ya hay # personas.}}",
+      "placeholder": "Tu nombre",
+      "cta": "Entrar",
+      "busy": "Entrando…",
+      "errNameTaken": "Ese nombre ya está cogido en esta casa.",
+      "errFull": "Esta casa está llena.",
+      "errNotFound": "No hay ninguna partida con ese código.",
+      "errStarted": "La partida ya ha empezado — ya no se puede entrar. Los roles están repartidos, y un móvil más sería una coartada más que fabricar.",
+      "errGeneric": "No ha funcionado. Inténtalo otra vez."
+    },
+    "rules": {
+      "title": "La regla, en una frase",
+      "body": "Cada vez que alguien teclea tu código, tenéis la prueba de que estabais juntos. Tres de vosotros son merodeadores: cada ronda se acercan a alguien con quien se han cruzado de verdad — esa persona sabrá en qué habitación, y tendrá que adivinar quién merodeaba entre la gente que validó allí."
+    },
+    "players": {
+      "host": "anfitrión",
+      "waiting": "aún no ha votado",
+      "idle": "móvil apartado",
+      "done": "ha votado",
+      "asleep": "se ha ido a dormir"
+    },
+    "share": {
+      "code": "Código de la partida",
+      "copy": "Copiar el enlace",
+      "copied": "Enlace copiado",
+      "share": "Compartir",
+      "whatsapp": "WhatsApp",
+      "text": "¿Jugamos a Merodeadores? Únete:",
+      "screens": "Hace falta una pantalla por jugador. Una tablet, un móvil viejo con wifi o un portátil sirven — dos en una pantalla, y el juego no existe."
+    },
+    "round": {
+      "of": "Ronda {no} de {total}",
+      "instructions": "Vive tu velada, cumple tu misión, haz que te validen."
+    },
+    "lobby": {
+      "invite": "Que entre todo el mundo",
+      "band": "Tu edad",
+      "bandHint": "Ajusta el tamaño de tu misión, nunca tus opciones de ganar.",
+      "petit": "6–9 años",
+      "moyen": "10–13 años",
+      "grand": "14 años o más",
+      "noElimination": "Nadie queda eliminado. Todo el mundo juega hasta el final.",
+      "start": "Repartir los roles",
+      "needPlayers": "Hacen falta al menos {n} para empezar.",
+      "waitAll": "Comprueba que cada uno ha elegido su edad antes de lanzar."
+    },
+    "carte": {
+      "title": "Tu rol",
+      "keep": "Guárdatelo para ti.",
+      "habitant": "Vives en la casa.",
+      "habitantHint": "Vive tu velada, cumple tus misiones, haz que te validen — cada encuentro es una coartada. Si se te acercan, lo sabrás al final de la ronda.",
+      "rodeur": "Tú merodeas.",
+      "rodeurHint": "Cada ronda, acércate a alguien con quien te hayas cruzado de verdad: sabrá en qué habitación, y estarás en su lista. Tu salvación es la multitud — crúzate con gente, piérdete entre ella.",
+      "complices": "Contigo:",
+      "reopen": "Mi rol"
+    },
+    "seal": {
+      "title": "Mi código",
+      "hint": "Enséñalo: quien lo teclea valida vuestro encuentro. Cambia en cada ronda."
+    },
+    "mission": {
+      "title": "Tu misión",
+      "secretTitle": "Misión secreta",
+      "secretHint": "Si se te acercan y publicas tu lista esta ronda, esta misión no vale nada. Nadie sabrá por qué callas.",
+      "p": {
+        "VALIDE_PAR": "Haz que te valide {cible}.",
+        "VALIDE_PAR_N": "Haz que te validen {n} personas distintas.",
+        "DANS_LIEU": "Haz que te validen en {lieu}.",
+        "DEUX_LIEUX": "Haz que te validen en 2 habitaciones distintas.",
+        "VALIDE_N": "Valida a {n} personas distintas.",
+        "ALLER_RETOUR": "Valida a {cible}, y haz que te valide a ti también.",
+        "LIEUX_N": "Consigue validaciones en {n} habitaciones distintas.",
+        "PAIRE_LIEU": "Haz que te validen 2 veces en la misma habitación.",
+        "EVITE": "Que nunca te valide {cible}.",
+        "TABLEE": "Reúne una mesa: {n} validaciones en una habitación donde estuviste.",
+        "CHAINE": "Valida a alguien que se haya cruzado con {cible} esta ronda.",
+        "PREMIER": "Sé la primera validación de la ronda.",
+        "DISCRET": "Crúzate con una sola persona en toda la ronda."
+      }
+    },
+    "tap": {
+      "title": "Teclear un código",
+      "hint": "¿Alguien te enseña su código? Tecléalo, elige la habitación, y el encuentro queda sellado.",
+      "place": "¿Dónde estáis?",
+      "cta": "Validar el encuentro",
+      "ok": "Encuentro sellado con {name}.",
+      "already": "Ya os habéis validado esta ronda, tú y {name}.",
+      "complice": "{name} está contigo. Entre vosotros no se escribe nada.",
+      "noSeal": "No hay ningún jugador con ese código.",
+      "self": "Ese es tu propio código.",
+      "tooMany": "Demasiados intentos fallidos esta ronda — espera a la siguiente.",
+      "closed": "La ronda está cerrada.",
+      "left": "Te has ido a dormir."
+    },
+    "meets": {
+      "title": "Mis encuentros",
+      "empty": "Nadie por ahora. Ve a ver gente — es tu coartada."
+    },
+    "mark": {
+      "title": "Tu marca",
+      "hint": "Acércate a alguien con quien te hayas cruzado: sabrá la habitación, y estarás en su lista. Una vez por ronda — si no, el servidor marcará al azar por ti.",
+      "pick": "¿A quién te acercas?",
+      "fakeTitle": "Pista falsa",
+      "fakeHint": "Anuncia la habitación de OTRO de tus encuentros — te quedan {n}.",
+      "none": "Crúzate primero con alguien: solo se marca a la gente que has validado de verdad.",
+      "cta": "Dejar la marca",
+      "done": "Marca dejada en {name}.",
+      "faked": "Marca dejada en {name} — habitación disfrazada.",
+      "closed": "La ronda está cerrada."
+    },
+    "close": {
+      "cta": "Cerrar la ronda",
+      "confirm": "¿Todo el mundo ha terminado? Se cierra para todos.",
+      "hint": "Cualquiera puede cerrar. Se revela, nos acusamos, y seguimos."
+    },
+    "leave": {
+      "cta": "Me voy a dormir",
+      "confirm": "Dejas la partida para siempre. Y si merodeabas… irse es rendirse.",
+      "warn": "Un merodeador que se va a dormir queda revelado y cuenta como desenmascarado."
+    },
+    "reveal": {
+      "title": "El cierre",
+      "lots": "Las listas",
+      "lotSomewhere": "Alguien ha sido abordado — en algún sitio",
+      "lotAt": "Alguien ha sido abordado en {place}",
+      "published": "{name} ha hablado",
+      "silent": "la persona calla",
+      "hasMet": "Validaron un encuentro allí:",
+      "noMeet": "Sin ningún encuentro",
+      "asleep": "Están durmiendo",
+      "none": "Nadie ha sido abordado esta ronda."
+    },
+    "approached": {
+      "title": "Se te han acercado.",
+      "at": "En {place}.",
+      "anywhere": "Esta ronda, alguien con quien te cruzaste merodeaba.",
+      "names": "Allí validaste a:",
+      "all": "Tu cuaderno de la ronda:",
+      "one": "Una de estas personas merodeaba.",
+      "publish": "Cuéntaselo a todos",
+      "publishPlus": "+1 punto",
+      "keep": "me lo guardo para mí",
+      "kept": "Te lo guardas para ti.",
+      "publishedOk": "Dicho queda: todo el mundo lo sabe.",
+      "burnWarn": "Publicar quema tu misión secreta."
+    },
+    "vote": {
+      "title": "¿Quién merodeaba?",
+      "hint": "Un nombre, en secreto. El más acusado queda señalado — nadie queda eliminado.",
+      "progress": "{done} de {total} han votado",
+      "pick": "Elige un nombre",
+      "cta": "Acuso a {name}",
+      "voted": "Has acusado a {name}"
+    },
+    "light": {
+      "was": "¡{name} merodeaba!",
+      "wasNot": "{name} no tenía nada que ver.",
+      "nobody": "Nadie ha sido señalado.",
+      "next": "Siguiente ronda",
+      "seeFinal": "Ver la resolución"
+    },
+    "final": {
+      "title": "La resolución",
+      "nette": "La casa está limpia.",
+      "unReste": "Quedaba uno.",
+      "perdu": "La casa ha perdido.",
+      "rodeursWere": "Los merodeadores eran",
+      "ranking": "Clasificación",
+      "replay": "Volver a jugar",
+      "joinNew": "La nueva partida está abierta"
+    },
+    "create": {
+      "hero": "Cruzaos con la gente: es vuestra coartada",
+      "pitch": "Un juego que dura la velada y la deja vivir: se come, se charla, se circula — y el simple hecho de cruzarse fabrica la investigación. Nadie queda eliminado, nadie cierra los ojos, sin narrador.",
+      "screens": "Hace falta una pantalla por jugador.",
+      "screensHint": "Una tablet, un móvil viejo con wifi o un portátil sirven. Dos en una pantalla, y el juego no existe.",
+      "best": "De 7 a 16 jugadores · desde 6 años acompañado · toda la velada",
+      "name": "Tu nombre",
+      "cta": "Abrir la casa",
+      "creating": "Abriendo…",
+      "noAccount": "Sin cuenta, sin instalar nada.",
+      "error": "No ha funcionado. Inténtalo otra vez.",
+      "joinCode": "Unirse con un código",
+      "codePlaceholder": "ABC123",
+      "join": "Entrar",
+      "badCode": "No hay ninguna partida con ese código."
+    },
+    "how": {
+      "title": "Cómo funciona",
+      "s1": "Cada uno recibe una pequeña misión y un código de 4 cifras. Vives tu velada: cada vez que alguien teclea tu código, vuestro encuentro queda sellado — es una coartada para los dos.",
+      "s2": "Tres jugadores merodean. Cada ronda, cada uno de ellos se acerca a alguien con quien se ha cruzado de verdad: la persona sabrá la habitación, y el merodeador está por fuerza en su lista.",
+      "s3": "Al cierre se habla, nos acusamos, un nombre queda señalado — sin eliminar nunca a nadie. La casa gana si todos los merodeadores caen antes del final."
     }
   }
 }

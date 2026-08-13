@@ -5,7 +5,7 @@
 // registre dynamique, pas de manifeste. Ajouter un jeu = une entrée ici + un
 // dossier de composants. Le jour où il y en aura cinq, on saura ce qu'il faut
 // vraiment généraliser ; l'inventer maintenant serait deviner.
-import { ALIBI_SKIN, UNANIMO_SKIN, type GameSkin } from "./skin";
+import { ALIBI_SKIN, RODEURS_SKIN, UNANIMO_SKIN, type GameSkin } from "./skin";
 
 export interface GameEntry {
   /** Slug technique, aussi la valeur de `scrutin_game_rooms.game`. */
@@ -42,6 +42,17 @@ export const GAMES: GameEntry[] = [
     route: "/games/alibi",
     bestWith: "6–16",
     minutes: "35",
+  },
+  {
+    // Le jeu de soirée : il PONCTUE le dîner au lieu de le remplacer, et c'est
+    // sa raison d'être — « permettre à la vie de continuer dans la maison ».
+    slug: "rodeurs",
+    status: "live",
+    emoji: "🔦",
+    skin: RODEURS_SKIN,
+    route: "/games/rodeurs",
+    bestWith: "7–16",
+    minutes: "90",
   },
 ];
 
