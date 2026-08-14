@@ -45,11 +45,27 @@ export interface FantomeStint {
   since: number;
 }
 
+/** Une consigne photo de l'album : QUI l'a prise, jamais l'image. */
+export interface AlbumEntry {
+  card: string;
+  takers: string[];
+  /** Ceux qui sont partis avec leur téléphone : leur photo ne reviendra pas. */
+  gone: string[];
+}
+
 export interface FantomeState {
   status: "ok" | "not_found";
+  /** Le paquet de scénario de la salle (« manoir » par défaut). */
+  pack?: string;
+  /** La halte du moment, si le paquet en a une ici. */
+  beat?: { round: number; when: string; kind: string; key: string } | null;
   bornes?: { place: string; alive: boolean }[];
   gauge?: number;
   target?: number;
+  /** Rempli seulement quand la partie est finie. */
+  album?: AlbumEntry[] | null;
+  /** Ceux qui sont passés derrière l'objectif — l'album le rappelle. */
+  behind?: string[];
   me?: {
     seal: string;
     photoOk: boolean | null;

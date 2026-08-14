@@ -219,11 +219,13 @@ l'app n'est plus rouverte), et **le nettoyage automatique du navigateur exempte
 les applications installées**. Le TTL court reste un filet pour un seul cas : la
 partie abandonnée avant l'album.
 
-**Le vote de l'album porte sur des RANGS, pas sur des noms.** Un bulletin
-« la meilleure ? [Malo] [Inès] » *est* la liste de ceux qui ont montré : il
-publie celui qui a passé. Les écrans se lèvent dans l'ordre, l'app dit « la 1re,
-la 2e ». Le vote ne s'ouvre qu'à partir de **deux** écrans levés — à un seul
-porteur, on applaudit et on passe.
+**AUCUN VOTE À L'ALBUM — la simplification qui règle le problème à la racine.**
+Le cadrage prévoyait un vote sur des *rangs* plutôt que sur des noms, pour éviter
+qu'un bulletin « la meilleure ? [Malo] [Inès] » ne publie celui qui a passé son
+tour. À l'écriture, la meilleure réponse s'est révélée plus simple : **enlever le
+bulletin**. La pièce dit tout haut laquelle elle préfère — ce qu'aucun logiciel
+ne fait mieux — et le problème disparaît au lieu d'être maquillé. Moins de code,
+moins de surface, et rien à expliquer.
 
 **Le respect, sans meneur ni compte.** Un choix personnel au salon — « je préfère
 être derrière l'objectif » — qui ne coûte **aucun point**, réversible en silence
@@ -269,6 +271,32 @@ de partage, nulle part. Trois replis à coder : **zéro photo pour une mission**
 on saute en silence, jamais d'appel déserté ; **porteur parti avec son
 téléphone** → « Cette photo est repartie avec Malo », on enchaîne ; **zéro photo
 du tout** → l'album se replie sur l'appel des binômes de la nuit.
+
+## 5 bis. Le moteur de paquets
+
+**Un paquet ne touche à aucune règle et ne sait jamais qui est le Fantôme.** Il
+déclare le vivier de cartes photo et des **haltes** — de courtes annonces qui
+tombent en plein écran au début d'une manche ou à la réunion. Le moteur reste
+génératif (rôles, instants, tirages) ; le paquet ne scripte que le décor. C'est
+ce qui rend le jeu rejouable, et ce qui doit faire coûter le paquet 2 (« Le Casse
+du Musée ») une semaine plutôt qu'un mois.
+
+**Vocabulaire d'effets FERMÉ**, et c'est la règle qui empêche un paquet de
+devenir un langage : `ANNOUNCE`, `SNAPSHOT`, `PHOTO_CALL`, `LAST_CALL` — tous à
+zéro mécanique. `RUSH` et `CONVERGE` attendent d'être simulés ; `BLACKOUT` et
+`DIAL` sont **écartés** (le premier peut recréer le trou d'alibi qui a coûté 44 %
+d'accusations à tort, le second touche au curseur du tiers de menteurs).
+**Un verbe d'effet nouveau est du travail moteur, pas du travail de paquet.**
+
+Déclaration : une ligne dans `scrutin_game_fantome_packs` (jsonb) + quatre
+fichiers dans `src/content/packs/<pack>/`, **hors i18n** — leurs clés sont lues
+par une variable, donc invisibles au contrôle de parité, et `packs.test.ts`
+tient ce rôle à leur place.
+
+⚠️ **Fenêtre de charge resserrée à T+2,5 → T+7 min**, trouvé en éprouvant le
+paquet : `game_reveal` refuse de clore tant que la charge n'a pas parlé, donc une
+maison qui avait fini ses rondes en cinq minutes attendait cinq minutes de plus
+devant un bouton qui répond « pas encore ».
 
 ## 6. Le socle
 

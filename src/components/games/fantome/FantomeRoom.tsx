@@ -28,6 +28,10 @@ import {
   type FantomeState,
 } from "@/lib/games/fantome/regles";
 import * as verbes from "@/lib/games/fantome/verbes";
+import * as albumStore from "@/lib/games/fantome/album";
+import { packBeat } from "@/content/packs";
+import FantomeAlbum from "@/components/games/fantome/FantomeAlbum";
+import FantomeCamera from "@/components/games/fantome/FantomeCamera";
 import GameShell from "@/components/games/GameShell";
 import JoinGate from "@/components/games/JoinGate";
 import PlayerBoard from "@/components/games/PlayerBoard";
@@ -75,6 +79,9 @@ export default function FantomeRoom({ code }: { code: string }) {
   const [roleOpen, setRoleOpen] = useState(true);
   /** L'état propre au Fantôme, sondé en parallèle de la salle. */
   const [fs, setFs] = useState<FantomeState | null>(null);
+  /** La halte déjà lue : une annonce ne se montre qu'UNE fois. */
+  const [beatSeen, setBeatSeen] = useState<string | null>(null);
+  const [camera, setCamera] = useState(false);
 
   useEffect(() => {
     setSeat(getSeat(code));
@@ -103,6 +110,13 @@ export default function FantomeRoom({ code }: { code: string }) {
     const id = window.setInterval(pollState, 2000);
     return () => window.clearInterval(id);
   }, [seatRead, pollState]);
+
+  // ⚠️ APRÈS avoir le code de la salle, jamais avant : `sweep` appelée sans
+  // code effacerait l'album entier.
+  useEffect(() => {
+    if (!code || !albumStore.available()) return;
+    void albumStore.sweep(code.toUpperCase()).catch(() => {});
+  }, [code]);
 
   const url = typeof window === "undefined" ? "" : `${window.location.origin}/games/fantome/${code.toUpperCase()}`;
   const borneUrl = `${url}/borne`;
@@ -197,6 +211,11 @@ export default function FantomeRoom({ code }: { code: string }) {
     </span>
   );
 
+  // LA HALTE du paquet : une annonce plein écran, montrée UNE fois, que
+  // n'importe qui referme. Le paquet ne change aucune règle — il pose le décor.
+  const beatKey = fs?.beat ? `${fs.beat.round}:${fs.beat.when}` : null;
+  const beat = fs?.beat && beatKey !== beatSeen ? packBeat(fs.pack ?? "manoir", locale, fs.beat.key) : null;
+
   const act = async (fn: () => Promise<{ status: string } & Record<string, unknown>>, msgs: Record<string, string>) => {
     if (busy) return;
     setBusy(true);
@@ -217,6 +236,27 @@ export default function FantomeRoom({ code }: { code: string }) {
       {notice}
     </div>
   ) : null;
+
+  // ───────────────────────────────────────────────── LA HALTE DU PAQUET
+  if (beat && beatKey) {
+    return shell(
+      <GCard skin={skin} accent={skin.accent2} padding={20}>
+        <div style={{ display: "grid", gap: 12, textAlign: "center", minHeight: "42vh", alignContent: "center" }}>
+          <div style={{ fontSize: 34 }} aria-hidden>🕯️</div>
+          <div style={{ fontFamily: skin.fontDisplay, fontWeight: 800, fontSize: 21, color: skin.ink, lineHeight: 1.2 }}>
+            {beat.title}
+          </div>
+          <p style={{ fontSize: 15.5, color: skin.muted, lineHeight: 1.6, margin: 0, maxWidth: "40ch", marginInline: "auto" }}>
+            {beat.body}
+          </p>
+          <GBtn skin={skin} size="lg" full onClick={() => setBeatSeen(beatKey)}>
+            {t("light.next")}
+          </GBtn>
+        </div>
+      </GCard>,
+      aside,
+    );
+  }
 
   // ───────────────────────────────────────────────── LE SALON
   if (room.roomStatus === "lobby" || !round) {
@@ -374,6 +414,16 @@ export default function FantomeRoom({ code }: { code: string }) {
               </div>
             </div>
           </GCard>
+        ) : null}
+
+        {(fs?.album ?? []).length > 0 || (fs?.album && fs.album.length === 0) ? (
+          <FantomeAlbum
+            room={room.code}
+            pack={fs?.pack ?? "manoir"}
+            entries={fs?.album ?? []}
+            behind={fs?.behind ?? []}
+            cardLabel={(c) => carteLabel(t, c)}
+          />
         ) : null}
 
         <div>
@@ -800,10 +850,36 @@ export default function FantomeRoom({ code }: { code: string }) {
             {mine?.photoDone ? (
               <div style={{ fontSize: 13.5, fontWeight: 700, color: skin.good }}>{t("photo.done")}</div>
             ) : (
-              <div style={{ fontSize: 12.5, color: skin.muted, lineHeight: 1.45 }}>{t("photo.where")}</div>
+              <>
+                <GBtn skin={skin} variant="accent" full disabled={busy} onClick={() => setCamera(true)}>
+                  📷 {t("photo.cta")}
+                </GBtn>
+                <div style={{ fontSize: 12.5, color: skin.muted, lineHeight: 1.45 }}>{t("photo.where")}</div>
+              </>
             )}
           </div>
         </GCard>
+      ) : null}
+
+      {camera && secret?.card ? (
+        <FantomeCamera
+          label={carteLabel(t, secret.card)}
+          onClose={() => setCamera(false)}
+          onShot={async (blob) => {
+            // ⚠️ L'IMAGE NE PART PAS. Elle est rangée dans le navigateur de son
+            // auteur ; le serveur n'apprend QUE qu'une photo a été prise pour
+            // cette consigne, et l'album l'effacera dès qu'elle aura été montrée.
+            try {
+              if (albumStore.available() && round) {
+                await albumStore.put(room.code, round.no, secret.card!, blob);
+              }
+            } catch {
+              /* Magasin plein ou refusé : la consigne compte quand même. */
+            }
+            setCamera(false);
+            await act(() => verbes.photo(token), { ok: t("photo.done"), already: "" });
+          }}
+        />
       ) : null}
 
       {/* LA JAUGE DU TESTAMENT. */}

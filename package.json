@@ -6,7 +6,7 @@
     "dev": "next dev",
     "build": "node scripts/i18n-parity.mjs && next build",
     "i18n:check": "node scripts/i18n-parity.mjs",
-    "test": "tsx --test src/lib/assign/engine.test.ts src/lib/games/unanimo/scoring.test.ts src/lib/games/alibi/lieux.test.ts",
+    "test": "tsx --test src/lib/assign/engine.test.ts src/lib/games/unanimo/scoring.test.ts src/lib/games/alibi/lieux.test.ts src/content/packs/packs.test.ts",
     "start": "next start",
     "lint": "eslint"
   },
