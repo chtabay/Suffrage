@@ -1687,6 +1687,11 @@
       "name": "Prowlers",
       "tagline": "Cross paths — that's your alibi",
       "desc": "The game that lasts the whole evening and lets it happen: you eat, you wander, and every validated meeting is an alibi. Three players prowl — the house must put them in the spotlight, without ever knocking anyone out."
+    },
+    "fantome": {
+      "name": "The Night of the Ghost",
+      "tagline": "One of you haunts this manor",
+      "desc": "The event game: you set the house up, put old devices down in the rooms — they become portraits. Stand your watches, and unmask the Ghost before midnight. Nobody is eliminated."
     }
   },
   "Unanimo": {
@@ -2196,6 +2201,254 @@
       "s1": "Everyone gets a small mission and a 4-digit code. You live your evening: every time someone taps in your code, your meeting is sealed — an alibi for you both.",
       "s2": "Three players are prowling. Each round, each of them approaches someone they've really crossed paths with: that person learns the room, and the prowler is bound to be on their list.",
       "s3": "At the close, you talk, you accuse, one name is put in the spotlight — nobody is ever knocked out. The house wins if all the prowlers fall before the end."
+    }
+  },
+  "Fantome": {
+    "metaTitle": "The Night of the Ghost — the manor is watching you",
+    "metaDescription": "A night of mystery in your own house: set old phones down in the rooms, they become portraits. Stand your watches, and unmask the Ghost before midnight. Nobody is eliminated, no account needed.",
+    "name": "The Night of the Ghost",
+    "tagline": "One of you haunts this manor",
+    "back": "All games",
+    "poweredBy": "Powered by Placet",
+    "offline": "Connection lost — trying again",
+    "loading": "One moment…",
+    "missing": {
+      "title": "This game no longer exists",
+      "hint": "The code may have been mistyped, or the game has been deleted.",
+      "cta": "Back to the games"
+    },
+    "create": {
+      "hero": "One of you haunts this manor",
+      "pitch": "Tonight the house becomes the manor of Uncle Barnaby, lost in a hot-air balloon, and his will brings you all together. But a Ghost prowls the corridors to drive the heirs away — and it is one of you.",
+      "best": "7 to 12 players · ages 8 and up · one evening",
+      "prepTitle": "🕯️ It takes some setting up, and that's the best part",
+      "prepHint": "Allow twenty minutes before you start: sheets over a couple of pieces of furniture, the big lights off, and above all old devices set down in the rooms — they become the portraits of the manor.",
+      "screens": "One screen per player, plus 3 to 5 devices set down",
+      "screensHint": "Portraits can be very old phones, a tablet, a laptop: they show a picture and a code, nothing more. You need three at the very least, and they must stay plugged in.",
+      "name": "Your first name",
+      "cta": "Open the manor",
+      "creating": "Opening…",
+      "noAccount": "No account, nothing to install.",
+      "error": "That didn't work. Try again.",
+      "joinCode": "Join with a code",
+      "codePlaceholder": "ABC123",
+      "join": "Enter",
+      "badCode": "No game with that code."
+    },
+    "how": {
+      "title": "How the night goes",
+      "s1": "You set three to five devices down in the rooms: these are the portraits. Each one shows a code that keeps changing.",
+      "s2": "Through the evening you stand your watches: type a portrait's code into your phone, and stay in front of it for a minute and a half. That writes down where you were, and when.",
+      "s3": "The Ghost, meanwhile, is given a moment to haunt a room. The bell tolls a little later, the house gathers, you look at who was where — and you vote. Nobody is ever eliminated."
+    },
+    "rules": {
+      "title": "The rule, in one sentence",
+      "body": "Keeping a watch in front of a portrait proves where you were. One of you is the Ghost: when the bell tolls, the house knows where the Ghost struck, and looks for the one the register cannot place anywhere else."
+    },
+    "join": {
+      "title": "Enter the manor",
+      "hint": "Choose the name the others will see.",
+      "hintPlayers": "{n, plural, =0 {Nobody has arrived yet.} one {One person is already here.} other {# people are already here.}}",
+      "placeholder": "Your first name",
+      "cta": "Enter",
+      "busy": "Entering…",
+      "errNameTaken": "That name is already taken in this manor.",
+      "errFull": "This manor is full.",
+      "errNotFound": "No game with that code.",
+      "errStarted": "The game has started — nobody can come in now. The roles are dealt, and one more phone would be one more alibi to invent.",
+      "errGeneric": "That didn't work. Try again."
+    },
+    "share": {
+      "code": "Game code",
+      "copy": "Copy the link",
+      "copied": "Link copied",
+      "share": "Share",
+      "whatsapp": "WhatsApp",
+      "text": "Fancy a game of The Night of the Ghost? Come and join us:"
+    },
+    "players": {
+      "host": "opened the manor",
+      "waiting": "hasn't voted yet",
+      "idle": "phone put down",
+      "done": "has voted",
+      "asleep": "gone to bed"
+    },
+    "lobby": {
+      "invite": "Let everyone in",
+      "portraits": "The portraits",
+      "portraitsHint": "On each old device, open this link and choose the room. You need at least {n} portraits — and remember to plug them in.",
+      "portraitsOpen": "Open a portrait here",
+      "portraitsNone": "No portraits hung yet.",
+      "portraitsCount": "{n, plural, =0 {No portraits} one {One portrait} other {# portraits}} · {min} needed",
+      "twoReaders": "Hang them where two people can read the screen at once: a portrait in a narrow corridor keeps the whole house waiting.",
+      "band": "Your age",
+      "bandHint": "It sets how tricky your dares are, never your chances of winning.",
+      "petit": "8–9 years",
+      "moyen": "10–13 years",
+      "grand": "14 and over",
+      "photoTitle": "The photos",
+      "photoHint": "Some dares ask for a photo, taken inside the game page. Everyone chooses — and it costs no points.",
+      "photoIn": "I'm happy to be in the photos",
+      "photoOut": "I'd rather be behind the camera",
+      "photoWarn": "You can change your mind whenever you like. Photos already taken do already exist: at the album, you can ask for them not to be brought out.",
+      "noElimination": "Nobody is eliminated. Everyone plays to the very end.",
+      "start": "Deal the roles",
+      "needPlayers": "You need at least {n} players to start.",
+      "needBornes": "You need at least {n} portraits hung."
+    },
+    "borne": {
+      "title": "A portrait of the manor",
+      "pick": "Which room is this device in?",
+      "pickHint": "Choose, then set the device down here and leave it lit all evening.",
+      "cta": "Hang the portrait",
+      "hung": "The portrait is hung.",
+      "codeLabel": "Portrait code",
+      "waiting": "The manor is waiting…",
+      "keepAwake": "Keep this screen lit",
+      "keepAwakeHint": "Plug the device in and set its sleep to “never”. A portrait that goes dark is treated as a haunted room.",
+      "toll": "THE BELL",
+      "tollHint": "Something has just happened in the manor.",
+      "lost": "This portrait is no longer recognised. Reopen the link from the lobby.",
+      "back": "Not a portrait?"
+    },
+    "carte": {
+      "title": "Your role",
+      "keep": "Keep it to yourself.",
+      "heritier": "You are an heir.",
+      "heritierHint": "Stand your watches in front of the portraits: each one proves where you were, and fills the will. When the bell tolls, help the house find the one who cannot have been elsewhere.",
+      "clause": "You are an heir, and you have a clause.",
+      "clauseHint": "The will sets something aside for you, on condition that nobody finds out. So, like the Ghost, you have a reason not to say everything.",
+      "complice": "You know who haunts.",
+      "compliceHint": "You never haunt yourself, and you play your evening like everyone else — but if the Ghost holds out to the end, you win together.",
+      "fantome": "You haunt this manor.",
+      "fantomeHint": "At a moment you don't choose, you'll have 45 seconds to haunt a room. The rest of the time, stand your watches like everyone else: the crowd is your cover.",
+      "avecToi": "With you:",
+      "reopen": "My role"
+    },
+    "seal": {
+      "title": "My seal",
+      "hint": "Show it to your partner during a paired watch. It changes every 90 seconds."
+    },
+    "ronde": {
+      "title": "Your watch",
+      "hint": "Go to a portrait, type its code, and stay there. You'll have to type it again now and then.",
+      "code": "Portrait code",
+      "cta": "Start the watch",
+      "again": "Type the code again",
+      "progress": "{s} s out of 90",
+      "at": "At {place}",
+      "solo": "Watch alone",
+      "duo": "Watch in pairs",
+      "duoHint": "This one takes two: find someone at the same portrait, and swap your seals.",
+      "signCta": "Type your partner's seal",
+      "signed": "✓ {name} and you have signed",
+      "hurry": "Type the code again — or the watch breaks",
+      "doneRound": "{n, plural, =0 {No watches finished} one {One watch finished} other {# watches finished}} this round",
+      "okStarted": "Watch started at {place}.",
+      "okBeat": "Still at {place}.",
+      "okDone": "Watch finished at {place}. 🕯️",
+      "needSign": "Your partner's signature is missing.",
+      "noCode": "No portrait with that code.",
+      "tooFast": "You were signing in at another portrait three seconds ago. Give yourself time to get there.",
+      "closed": "The round is over.",
+      "left": "You have gone to bed."
+    },
+    "sign": {
+      "title": "Your partner's seal",
+      "cta": "Sign",
+      "ok": "Signed with {name}.",
+      "noSeal": "No player with that seal.",
+      "notHere": "{name} is not at this portrait.",
+      "tooOften": "You've already stood two watches together tonight. Go and find someone else.",
+      "noStint": "Start your watch first."
+    },
+    "charge": {
+      "title": "NOW",
+      "hint": "Type a portrait's code. {n} s.",
+      "cta": "Haunt",
+      "ok": "The manor shuddered in {place}.",
+      "tooFast": "You were signing in elsewhere a second ago. You can't be there already.",
+      "noCode": "No portrait with that code.",
+      "missed": "The moment has passed."
+    },
+    "photo": {
+      "title": "Your dare",
+      "cta": "Take the photo",
+      "retake": "Take another",
+      "keep": "I'll keep this one",
+      "done": "✓ Taken. It stays on your phone.",
+      "skip": "Skip this dare",
+      "where": "The photo never leaves your phone. The game deletes it as soon as it has been shown at the album.",
+      "denied": "The camera isn't allowed. You can skip this dare, it costs nothing.",
+      "c": {
+        "ombre_portee": "A shadow that doesn't look like it belongs to the thing casting it.",
+        "trace_de_doigt": "A fingerprint on something clean.",
+        "objet_hors_place": "An object somewhere it has no business being.",
+        "reflet": "A reflection in a window, without you in it.",
+        "nature_morte": "Three objects picked at random, arranged like a painting.",
+        "poussiere": "The dustiest corner of the manor.",
+        "clef_oubliee": "A key, a lock, or both.",
+        "fenetre_noire": "A window, with the night outside.",
+        "portrait_ancetre": "An ancestor's portrait: somebody posing, very dignified, very stiff.",
+        "six_pieds": "Six shoes in one photo. Up to you to find the right angle.",
+        "tablee_figee": "A whole table frozen still, as if stopped mid-meal."
+      }
+    },
+    "gauge": {
+      "title": "The will",
+      "hint": "{done} out of {total} — it fills with every watch finished."
+    },
+    "close": {
+      "cta": "Call the gathering",
+      "confirm": "Everyone finished? Gather the house.",
+      "hint": "Anyone can call it. We read the register, we accuse each other, and off we go again.",
+      "tooEarly": "The manor hasn't finished speaking. Wait a little."
+    },
+    "leave": {
+      "cta": "I'm off to bed",
+      "confirm": "You are leaving the game for good.",
+      "warn": "You won't be able to come back to this game."
+    },
+    "reunion": {
+      "title": "The gathering",
+      "events": "This round",
+      "haunted": "The manor shuddered in {place}",
+      "hauntedAt": "at {time}",
+      "lost": "Nothing happened this round.",
+      "panne": "The portrait in {place} went dark",
+      "cleared": "Proven to be elsewhere at that moment:",
+      "silent": "No trace at that moment:",
+      "silentHint": "Signing in nowhere accuses nobody: it happens to everyone. This is not a list of suspects.",
+      "asleep": "They're asleep",
+      "none": "Nobody."
+    },
+    "vote": {
+      "title": "Who haunts this manor?",
+      "hint": "One name, in secret. The most accused steps into the light — nobody is eliminated.",
+      "progress": "{done} out of {total} have voted",
+      "pick": "Choose a name",
+      "cta": "I accuse {name}",
+      "voted": "You accused {name}"
+    },
+    "light": {
+      "was": "{name} was haunting this manor!",
+      "wasNot": "{name} had nothing to do with it.",
+      "nobody": "The votes scattered. Nobody steps into the light.",
+      "next": "Next round",
+      "seeFinal": "See the reckoning"
+    },
+    "final": {
+      "title": "The reckoning",
+      "demasque": "The Ghost is unmasked.",
+      "testament": "The will is filled. The heirs carry the night.",
+      "manoir": "The manor wins. The Ghost was never found.",
+      "ghostWas": "The Ghost was",
+      "tirade": "The line is yours",
+      "tiradeLost": "“And I would have got away with it, if it weren't for you meddling heirs!”",
+      "tiradeWon": "“This manor is MINE. It always has been.”",
+      "ranking": "Standings",
+      "replay": "Play again",
+      "joinNew": "The new game is open"
     }
   }
 }

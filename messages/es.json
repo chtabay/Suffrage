@@ -1687,6 +1687,11 @@
       "name": "Merodeadores",
       "tagline": "Cruzaos — esa es vuestra coartada",
       "desc": "El juego que dura toda la velada y la deja vivir: se cena, se circula, y cada encuentro validado es una coartada. Tres jugadores merodean — la casa debe señalarlos, sin eliminar nunca a nadie."
+    },
+    "fantome": {
+      "name": "La Noche del Fantasma",
+      "tagline": "Uno de vosotros ronda esta mansión",
+      "desc": "El juego-acontecimiento: se prepara la casa, se dejan aparatos viejos en las habitaciones — se convierten en retratos. Haced vuestras rondas y desenmascarad al Fantasma antes de medianoche. Nadie queda eliminado."
     }
   },
   "Unanimo": {
@@ -2196,6 +2201,254 @@
       "s1": "Cada uno recibe una pequeña misión y un código de 4 cifras. Vives tu velada: cada vez que alguien teclea tu código, vuestro encuentro queda sellado — es una coartada para los dos.",
       "s2": "Tres jugadores merodean. Cada ronda, cada uno de ellos se acerca a alguien con quien se ha cruzado de verdad: la persona sabrá la habitación, y el merodeador está por fuerza en su lista.",
       "s3": "Al cierre se habla, nos acusamos, un nombre queda señalado — sin eliminar nunca a nadie. La casa gana si todos los merodeadores caen antes del final."
+    }
+  },
+  "Fantome": {
+    "metaTitle": "La Noche del Fantasma — la mansión te observa",
+    "metaDescription": "Una noche de investigación en tu casa: reparte móviles viejos por las habitaciones y se convierten en retratos. Haz tus rondas y desenmascara al Fantasma antes de medianoche. Nadie queda eliminado, sin cuenta.",
+    "name": "La Noche del Fantasma",
+    "tagline": "Uno de vosotros embruja esta mansión",
+    "back": "Todos los juegos",
+    "poweredBy": "Impulsado por Placet",
+    "offline": "Conexión perdida — reintentando",
+    "loading": "Un momento…",
+    "missing": {
+      "title": "Esta partida ya no existe",
+      "hint": "Quizá el código esté mal copiado, o la partida se haya borrado.",
+      "cta": "Volver a los juegos"
+    },
+    "create": {
+      "hero": "Uno de vosotros embruja esta mansión",
+      "pitch": "Esta noche la casa se convierte en la mansión del tío Barnabé, desaparecido en globo, y su testamento os reúne a todos. Pero un Fantasma merodea por los pasillos para ahuyentar a los herederos — y es uno de vosotros.",
+      "best": "7 a 12 jugadores · desde 8 años · una velada",
+      "prepTitle": "🕯️ Hay que prepararla, y es lo mejor de todo",
+      "prepHint": "Cuenta veinte minutos antes de empezar: sábanas sobre dos muebles, las luces grandes apagadas y, sobre todo, aparatos viejos repartidos por las habitaciones — se convierten en los retratos de la mansión.",
+      "screens": "Una pantalla por jugador, más 3 a 5 aparatos repartidos",
+      "screensHint": "Los retratos pueden ser móviles muy viejos, una tableta, un portátil: muestran una imagen y un código, nada más. Hacen falta tres como mínimo, y deben quedarse enchufados.",
+      "name": "Tu nombre",
+      "cta": "Abrir la mansión",
+      "creating": "Abriendo…",
+      "noAccount": "Sin cuenta, sin instalar nada.",
+      "error": "No ha funcionado. Inténtalo otra vez.",
+      "joinCode": "Entrar con un código",
+      "codePlaceholder": "ABC123",
+      "join": "Entrar",
+      "badCode": "No hay ninguna partida con ese código."
+    },
+    "how": {
+      "title": "Cómo funciona",
+      "s1": "Repartís de tres a cinco aparatos por las habitaciones: son los retratos. Cada uno muestra un código que cambia todo el rato.",
+      "s2": "Durante la velada hacéis vuestras rondas: tecleáis el código de un retrato en vuestro móvil y os quedáis delante minuto y medio. Eso deja escrito dónde estabais, y cuándo.",
+      "s3": "El Fantasma recibe un momento para embrujar una habitación. La campana suena un poco después, os reunís, miráis quién estaba dónde — y votáis. Nadie queda eliminado nunca."
+    },
+    "rules": {
+      "title": "La regla, en una frase",
+      "body": "Hacer tu ronda ante un retrato prueba dónde estabas. Uno de vosotros es el Fantasma: cuando suena la campana, la mansión sabe dónde ha golpeado y busca a quien el registro no puede situar en otra parte."
+    },
+    "join": {
+      "title": "Entrar en la mansión",
+      "hint": "Elige el nombre que verán los demás.",
+      "hintPlayers": "{n, plural, =0 {Todavía no ha llegado nadie.} one {Ya hay una persona.} other {Ya hay # personas.}}",
+      "placeholder": "Tu nombre",
+      "cta": "Entrar",
+      "busy": "Entrando…",
+      "errNameTaken": "Ese nombre ya está cogido en esta mansión.",
+      "errFull": "Esta mansión está llena.",
+      "errNotFound": "No hay ninguna partida con ese código.",
+      "errStarted": "La partida ya ha empezado — ya no se puede entrar. Los papeles están repartidos, y un móvil más sería una coartada más que fabricar.",
+      "errGeneric": "No ha funcionado. Inténtalo otra vez."
+    },
+    "share": {
+      "code": "Código de la partida",
+      "copy": "Copiar el enlace",
+      "copied": "Enlace copiado",
+      "share": "Compartir",
+      "whatsapp": "WhatsApp",
+      "text": "¿Jugamos a La Noche del Fantasma? Únete:"
+    },
+    "players": {
+      "host": "anfitrión",
+      "waiting": "aún no ha votado",
+      "idle": "móvil en reposo",
+      "done": "ha votado",
+      "asleep": "se ha ido a dormir"
+    },
+    "lobby": {
+      "invite": "Que entre todo el mundo",
+      "portraits": "Los retratos",
+      "portraitsHint": "En cada aparato viejo, abre este enlace y elige la habitación. Hacen falta al menos {n} retratos — y acuérdate de enchufarlos.",
+      "portraitsOpen": "Abrir un retrato aquí",
+      "portraitsNone": "Ningún retrato instalado por ahora.",
+      "portraitsCount": "{n, plural, =0 {Ningún retrato} one {Un retrato} other {# retratos}} · hacen falta {min}",
+      "twoReaders": "Colócalos donde dos personas puedan leer la pantalla a la vez: un retrato en un pasillo estrecho hace esperar a toda la casa.",
+      "band": "Tu edad",
+      "bandHint": "Ajusta el tamaño de tus retos, nunca tus opciones de ganar.",
+      "petit": "8–9 años",
+      "moyen": "10–13 años",
+      "grand": "14 años y +",
+      "photoTitle": "Las fotos",
+      "photoHint": "Algunos retos piden una foto, hecha dentro de la página del juego. Cada uno elige — y no cuesta ningún punto.",
+      "photoIn": "No me importa salir en las fotos",
+      "photoOut": "Prefiero estar detrás del objetivo",
+      "photoWarn": "Puedes cambiar de idea cuando quieras. Las fotos ya hechas, en cambio, ya existen: en el álbum podrás pedir que no se enseñen.",
+      "noElimination": "Nadie queda eliminado. Todo el mundo juega hasta el final.",
+      "start": "Repartir los papeles",
+      "needPlayers": "Hay que ser al menos {n} para empezar.",
+      "needBornes": "Hacen falta al menos {n} retratos instalados."
+    },
+    "borne": {
+      "title": "Un retrato de la mansión",
+      "pick": "¿En qué habitación está este aparato?",
+      "pickHint": "Elige, luego deja el aparato aquí y déjalo encendido toda la noche.",
+      "cta": "Colgar el retrato",
+      "hung": "El retrato ya está colgado.",
+      "codeLabel": "Código del retrato",
+      "waiting": "La mansión espera…",
+      "keepAwake": "Mantén esta pantalla encendida",
+      "keepAwakeHint": "Enchufa el aparato y pon el apagado de pantalla en «nunca». Un retrato apagado se trata como una habitación embrujada.",
+      "toll": "LA CAMPANA",
+      "tollHint": "Algo acaba de pasar en la mansión.",
+      "lost": "Este retrato ya no se reconoce. Vuelve a abrir el enlace desde la sala de espera.",
+      "back": "¿Esto no es un retrato?"
+    },
+    "carte": {
+      "title": "Tu papel",
+      "keep": "Guárdatelo para ti.",
+      "heritier": "Eres un heredero.",
+      "heritierHint": "Haz tus rondas ante los retratos: cada una prueba dónde estabas y llena el testamento. Cuando suene la campana, ayuda a la mansión a encontrar a quien no puede estar en otra parte.",
+      "clause": "Eres un heredero, y tienes una cláusula.",
+      "clauseHint": "El testamento te reserva algo, a condición de que nadie se entere. Tienes, pues, como el Fantasma, una razón para no contarlo todo.",
+      "complice": "Sabes quién embruja.",
+      "compliceHint": "Tú nunca embrujas, y juegas tu noche como los demás — pero si el Fantasma aguanta hasta el final, ganáis juntos.",
+      "fantome": "Tú embrujas esta mansión.",
+      "fantomeHint": "En un momento que no eliges tú, tendrás 45 segundos para embrujar una habitación. El resto del tiempo, haz tus rondas como todo el mundo: la multitud es tu tapadera.",
+      "avecToi": "Contigo:",
+      "reopen": "Mi papel"
+    },
+    "seal": {
+      "title": "Mi sello",
+      "hint": "Enséñaselo a tu pareja durante una ronda en pareja. Cambia cada 90 segundos."
+    },
+    "ronde": {
+      "title": "Tu ronda",
+      "hint": "Ve ante un retrato, teclea su código y quédate ahí. Habrá que teclearlo otra vez de vez en cuando.",
+      "code": "Código del retrato",
+      "cta": "Empezar la ronda",
+      "again": "Teclear el código otra vez",
+      "progress": "{s} s de 90",
+      "at": "Ante {place}",
+      "solo": "Ronda en solitario",
+      "duo": "Ronda en pareja",
+      "duoHint": "Esta se hace en pareja: encuentra a alguien ante el mismo retrato e intercambiad los sellos.",
+      "signCta": "Teclear el sello del otro",
+      "signed": "✓ {name} y tú os habéis firmado",
+      "hurry": "Teclea el código otra vez — si no, la ronda se rompe",
+      "doneRound": "{n, plural, =0 {Ninguna ronda terminada} one {Una ronda terminada} other {# rondas terminadas}} esta manga",
+      "okStarted": "Ronda empezada ante {place}.",
+      "okBeat": "Sigues ante {place}.",
+      "okDone": "Ronda terminada ante {place}. 🕯️",
+      "needSign": "Falta la firma de tu pareja.",
+      "noCode": "Ningún retrato con ese código.",
+      "tooFast": "Hace tres segundos estabas en otro retrato. Date tiempo de llegar.",
+      "closed": "La manga está cerrada.",
+      "left": "Te has ido a dormir."
+    },
+    "sign": {
+      "title": "El sello de tu pareja",
+      "cta": "Firmar",
+      "ok": "Firmado con {name}.",
+      "noSeal": "Ningún jugador con ese sello.",
+      "notHere": "{name} no está ante este retrato.",
+      "tooOften": "Ya habéis hecho dos rondas juntos esta noche. Ve a ver a otros.",
+      "noStint": "Empieza primero tu ronda."
+    },
+    "charge": {
+      "title": "AHORA",
+      "hint": "Teclea el código de un retrato. {n} s.",
+      "cta": "Embrujar",
+      "ok": "La mansión ha temblado en {place}.",
+      "tooFast": "Acabas de fichar en otro sitio. Imposible estar ya ahí.",
+      "noCode": "Ningún retrato con ese código.",
+      "missed": "El momento ha pasado."
+    },
+    "photo": {
+      "title": "Tu reto",
+      "cta": "Hacer la foto",
+      "retake": "Hacer otra",
+      "keep": "Me quedo con esta",
+      "done": "✓ Hecha. Se queda en tu móvil.",
+      "skip": "Saltar este reto",
+      "where": "La foto no sale de tu móvil. El juego la borra en cuanto se ha enseñado en el álbum.",
+      "denied": "La cámara no está autorizada. Puedes saltarte este reto, no cuesta nada.",
+      "c": {
+        "ombre_portee": "Una sombra que no parece la de su objeto.",
+        "trace_de_doigt": "Una huella de dedo en algo limpio.",
+        "objet_hors_place": "Un objeto donde no pinta nada.",
+        "reflet": "Un reflejo en un cristal, sin que se te vea.",
+        "nature_morte": "Tres objetos al azar, colocados como un cuadro.",
+        "poussiere": "El rincón más polvoriento de la mansión.",
+        "clef_oubliee": "Una llave, una cerradura, o las dos.",
+        "fenetre_noire": "Una ventana, con la noche fuera.",
+        "portrait_ancetre": "Un retrato de antepasado: alguien posa, muy digno, muy tieso.",
+        "six_pieds": "Seis pies dentro del encuadre. Encuentra tú la altura justa.",
+        "tablee_figee": "Una mesa entera congelada, como parada en plena comida."
+      }
+    },
+    "gauge": {
+      "title": "El testamento",
+      "hint": "{done} de {total} — se llena con cada ronda terminada."
+    },
+    "close": {
+      "cta": "Convocar la reunión",
+      "confirm": "¿Todo el mundo ha terminado? Reunir la casa.",
+      "hint": "Cualquiera puede convocarla. Miramos el registro, nos acusamos y seguimos.",
+      "tooEarly": "La mansión no ha terminado de hablar. Espera un poco."
+    },
+    "leave": {
+      "cta": "Me voy a dormir",
+      "confirm": "Dejas la partida definitivamente.",
+      "warn": "Ya no podrás volver a esta partida."
+    },
+    "reunion": {
+      "title": "La reunión",
+      "events": "Esta manga",
+      "haunted": "La mansión ha temblado en {place}",
+      "hauntedAt": "a las {time}",
+      "lost": "No ha pasado nada esta manga.",
+      "panne": "El retrato de {place} se ha apagado",
+      "cleared": "Estaban en otra parte en ese instante:",
+      "silent": "Sin rastro en ese instante:",
+      "silentHint": "No fichar no acusa a nadie: le pasa a todo el mundo. No es una lista de sospechosos.",
+      "asleep": "Están durmiendo",
+      "none": "Nadie."
+    },
+    "vote": {
+      "title": "¿Quién embruja esta mansión?",
+      "hint": "Un nombre, en secreto. El más acusado pasa a la luz — nadie queda eliminado.",
+      "progress": "{done} de {total} han votado",
+      "pick": "Elige un nombre",
+      "cta": "Acuso a {name}",
+      "voted": "Has acusado a {name}"
+    },
+    "light": {
+      "was": "¡{name} embrujaba esta mansión!",
+      "wasNot": "{name} no tenía nada que ver.",
+      "nobody": "Los votos se han repartido. Nadie pasa a la luz.",
+      "next": "Manga siguiente",
+      "seeFinal": "Ver la resolución"
+    },
+    "final": {
+      "title": "La resolución",
+      "demasque": "El Fantasma queda desenmascarado.",
+      "testament": "El testamento está lleno. Los herederos se lo llevan.",
+      "manoir": "La mansión gana. Al Fantasma no lo encontró nadie.",
+      "ghostWas": "El Fantasma era",
+      "tirade": "Tuya es la réplica",
+      "tiradeLost": "«¡Y lo habría conseguido, de no ser por vosotros, malditos herederos!»",
+      "tiradeWon": "«Esta mansión es MÍA. Siempre lo ha sido.»",
+      "ranking": "Clasificación",
+      "replay": "Volver a jugar",
+      "joinNew": "La nueva partida está abierta"
     }
   }
 }

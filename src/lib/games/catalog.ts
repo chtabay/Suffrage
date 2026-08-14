@@ -5,7 +5,7 @@
 // registre dynamique, pas de manifeste. Ajouter un jeu = une entrée ici + un
 // dossier de composants. Le jour où il y en aura cinq, on saura ce qu'il faut
 // vraiment généraliser ; l'inventer maintenant serait deviner.
-import { ALIBI_SKIN, RODEURS_SKIN, UNANIMO_SKIN, type GameSkin } from "./skin";
+import { ALIBI_SKIN, FANTOME_SKIN, RODEURS_SKIN, UNANIMO_SKIN, type GameSkin } from "./skin";
 
 export interface GameEntry {
   /** Slug technique, aussi la valeur de `scrutin_game_rooms.game`. */
@@ -53,6 +53,19 @@ export const GAMES: GameEntry[] = [
     route: "/games/rodeurs",
     bestWith: "7–16",
     minutes: "90",
+  },
+  {
+    // LE JEU-ÉVÉNEMENT : le seul du catalogue qui se PRÉPARE (quinze à vingt
+    // minutes, des appareils posés dans les pièces). C'est assumé — la
+    // préparation est la bande-annonce de la soirée, comme pour une murder
+    // party — et c'est pour ça qu'il annonce son matériel dès la vignette.
+    slug: "fantome",
+    status: "live",
+    emoji: "👻",
+    skin: FANTOME_SKIN,
+    route: "/games/fantome",
+    bestWith: "7–12",
+    minutes: "120",
   },
 ];
 

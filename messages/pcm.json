@@ -1687,6 +1687,11 @@
       "name": "Prowlers",
       "tagline": "Jam people — na your alibi be dat",
       "desc": "Di game wey dey last di whole evening and let am flow: una dey chop, una dey waka, and every stamp meeting na alibi. Three players dey prowl — di house must shine light on dem, nobody dey commot."
+    },
+    "fantome": {
+      "name": "Di Night of di Ghost",
+      "tagline": "One of una dey haunt dis manor",
+      "desc": "Di event game: una go set di house, drop old phones for di rooms — dem go turn portraits. Do una rondes, and pull di Ghost mask before midnight. Nobody dey commot."
     }
   },
   "Unanimo": {
@@ -2196,6 +2201,254 @@
       "s1": "Everybody go collect one small mission and one 4-digit code. You go enjoy your evening: any time pesin type your code, una meet don lock — na alibi for both of una.",
       "s2": "Three players dey prowl. Every round, each of dem go approach pesin wey e really jam: di pesin go know di room, and di prowler must dey inside im list.",
       "s3": "When di round close, una go talk, una go accuse, dem go shine light on one name — nobody dey commot at all. Di house go win if all di prowlers fall before di end."
+    }
+  },
+  "Fantome": {
+    "metaTitle": "Di Night of di Ghost — di manor dey look una",
+    "metaDescription": "Mystery night for una house: drop old phones for di rooms, dem go turn portraits. Do una patrols, and unmask di Ghost before midnight. Nobody dey eliminated, no account.",
+    "name": "Di Night of di Ghost",
+    "tagline": "One of una dey haunt dis manor",
+    "back": "All di games",
+    "poweredBy": "Placet dey power am",
+    "offline": "Network don cut — we dey try again",
+    "loading": "Small time…",
+    "missing": {
+      "title": "Dis game no dey again",
+      "hint": "Maybe dem copy di code wrong, or dem don delete di game.",
+      "cta": "Go back to di games"
+    },
+    "create": {
+      "hero": "One of una dey haunt dis manor",
+      "pitch": "Tonight, dis house turn di manor of Uncle Barnabé, wey disappear inside balloon, and im will gather una all. But one Ghost dey waka di corridors to scatter di heirs — and na one of una.",
+      "best": "7 to 12 players · from 8 years · di whole night",
+      "prepTitle": "🕯️ You go prepare am, and na di sweetest part",
+      "prepHint": "Count twenty minutes before una start: white cloth on top two furniture, big lights off, and pass all, old devices wey una drop for di rooms — dem go turn di portraits of di manor.",
+      "screens": "One screen per player, plus 3 to 5 devices wey una drop",
+      "screensHint": "Di portraits fit be very old phones, one tablet, one laptop: dem just dey show one picture and one code, na all. You need three at least, and dem must stay for plug.",
+      "name": "Your name",
+      "cta": "Open di manor",
+      "creating": "We dey open…",
+      "noAccount": "No account, nothing to install.",
+      "error": "E no work. Try again.",
+      "joinCode": "Join with code",
+      "codePlaceholder": "ABC123",
+      "join": "Enter",
+      "badCode": "No game dey with dis code."
+    },
+    "how": {
+      "title": "How e dey go",
+      "s1": "Una go drop three to five devices for di rooms: na dem be di portraits. Each one dey show one code wey dey change all di time.",
+      "s2": "For di evening, una dey do una rondes: type di portrait code for your phone, and stay for front of am one minute and half. E dey write where you bin dey, and di time.",
+      "s3": "Di Ghost go get one moment to haunt one room. Di bell go ring small time after, una go gather, una go look who bin dey where — and una go vote. Nobody dey eliminated at all."
+    },
+    "rules": {
+      "title": "Di rule, for one sentence",
+      "body": "To do your patrol for front of one portrait dey prove where you bin dey. One of una na di Ghost: when di bell ring, di house sabi where e strike, and e dey find di pesin wey di register no fit put for anoda place."
+    },
+    "join": {
+      "title": "Enter di manor",
+      "hint": "Choose di name wey di odas go see.",
+      "hintPlayers": "{n, plural, =0 {Nobody never come.} one {One pesin don dey already.} other {# people don dey already.}}",
+      "placeholder": "Your name",
+      "cta": "Enter",
+      "busy": "We dey enter…",
+      "errNameTaken": "Person don take dis name for dis manor.",
+      "errFull": "Dis manor don full.",
+      "errNotFound": "No game dey with dis code.",
+      "errStarted": "Di game don start — nobody fit enter again. Dem don share di roles, and one extra phone go be one extra alibi to cook.",
+      "errGeneric": "E no work. Try again."
+    },
+    "share": {
+      "code": "Game code",
+      "copy": "Copy di link",
+      "copied": "Link copied",
+      "share": "Share",
+      "whatsapp": "WhatsApp",
+      "text": "Make we play Di Night of di Ghost? Join us:"
+    },
+    "players": {
+      "host": "na im open di manor",
+      "waiting": "never vote yet",
+      "idle": "im phone dey rest",
+      "done": "don vote",
+      "asleep": "don go sleep"
+    },
+    "lobby": {
+      "invite": "Make everybody enter",
+      "portraits": "Di portraits",
+      "portraitsHint": "For each old device, open dis link and choose di room. You need at least {n} portraits — and no forget to plug dem.",
+      "portraitsOpen": "Open one portrait here",
+      "portraitsNone": "No portrait dey hang for now.",
+      "portraitsCount": "{n, plural, =0 {No portrait} one {One portrait} other {# portraits}} · you need {min}",
+      "twoReaders": "Put dem where two people fit read di screen same time: one portrait for narrow corridor go make di whole house dey wait.",
+      "band": "Your age",
+      "bandHint": "E dey set how big your task be, never your chance to win.",
+      "petit": "8–9 years",
+      "moyen": "10–13 years",
+      "grand": "14 years and up",
+      "photoTitle": "Di photos",
+      "photoHint": "Some task dey ask for photo, wey you go snap inside di game page. Everybody dey choose — and e no dey cost any point.",
+      "photoIn": "I gree make dem snap me",
+      "photoOut": "I prefer to dey behind di camera",
+      "photoWarn": "You fit change your mind any time. But di photos wey dem don snap, dem dey already: for di album, you fit ask make dem no show dem.",
+      "noElimination": "Nobody dey eliminated. Everybody dey play till di end.",
+      "start": "Share di roles",
+      "needPlayers": "Una must reach {n} before una fit start.",
+      "needBornes": "You need at least {n} portraits wey dey hang."
+    },
+    "borne": {
+      "title": "One portrait of di manor",
+      "pick": "Which room dis device dey?",
+      "pickHint": "Choose, den drop di device here and leave am on for di whole night.",
+      "cta": "Hang di portrait",
+      "hung": "Di portrait don hang.",
+      "codeLabel": "Portrait code",
+      "waiting": "Di manor dey wait…",
+      "keepAwake": "Keep dis screen on",
+      "keepAwakeHint": "Plug di device and set im sleep to “never”. Portrait wey off dey count like room wey dem haunt.",
+      "toll": "DI BELL",
+      "tollHint": "Something just happen inside di manor.",
+      "lost": "Dem no know dis portrait again. Open di link again from di waiting room.",
+      "back": "Dis one no be portrait?"
+    },
+    "carte": {
+      "title": "Your role",
+      "keep": "Keep am for yourself.",
+      "heritier": "You be heir.",
+      "heritierHint": "Do your patrols for front of di portraits: each one dey prove where you bin dey, and dey fill di will. When di bell ring, help di house find di pesin wey no fit dey anoda place.",
+      "clause": "You be heir, and you get one clause.",
+      "clauseHint": "Di will keep something for you, so far as nobody hear am. So you get, like di Ghost, reason to no talk everything.",
+      "complice": "You sabi who dey haunt.",
+      "compliceHint": "You no dey haunt yourself, and you dey play your night like di odas — but if di Ghost hold till di end, una win together.",
+      "fantome": "Na you dey haunt dis manor.",
+      "fantomeHint": "For one moment wey you no dey choose, you go get 45 seconds to haunt one room. Di rest of di time, do your patrols like everybody: di crowd na your cover.",
+      "avecToi": "With you:",
+      "reopen": "My role"
+    },
+    "seal": {
+      "title": "My seal",
+      "hint": "Show am to your partner for one patrol of two. E dey change every 90 seconds."
+    },
+    "ronde": {
+      "title": "Your patrol",
+      "hint": "Go stand for front of one portrait, tap im code, and stay dia. You go tap am again from time to time.",
+      "code": "Portrait code",
+      "cta": "Start di patrol",
+      "again": "Tap di code again",
+      "progress": "{s} s out of 90",
+      "at": "For front of {place}",
+      "solo": "Patrol alone",
+      "duo": "Patrol of two",
+      "duoHint": "Dis one na for two: find pesin for di same portrait, and una go swap una seals.",
+      "signCta": "Tap di oda pesin seal",
+      "signed": "✓ {name} and you don sign each oda",
+      "hurry": "Tap di code again — if not di patrol go break",
+      "doneRound": "{n, plural, =0 {No patrol finish} one {One patrol finish} other {# patrols finish}} dis round",
+      "okStarted": "Patrol don start for front of {place}.",
+      "okBeat": "You still dey for front of {place}.",
+      "okDone": "Patrol don finish for front of {place}. 🕯️",
+      "needSign": "Your partner signature never dey.",
+      "noCode": "No portrait get dis code.",
+      "tooFast": "You bin dey tap for anoda portrait three seconds ago. Take time waka go.",
+      "closed": "Di round don close.",
+      "left": "You don go sleep."
+    },
+    "sign": {
+      "title": "Your partner seal",
+      "cta": "Sign",
+      "ok": "You don sign with {name}.",
+      "noSeal": "No player get dis seal.",
+      "notHere": "{name} no dey for front of dis portrait.",
+      "tooOften": "Una don do two patrols together dis night. Go find anoda pesin.",
+      "noStint": "Start your patrol first."
+    },
+    "charge": {
+      "title": "NA NOW",
+      "hint": "Tap di code of one portrait. {n} s.",
+      "cta": "Haunt",
+      "ok": "Di manor shake inside {place}.",
+      "tooFast": "You just tap for anoda place. You no fit don reach here.",
+      "noCode": "No portrait get dis code.",
+      "missed": "Di moment don pass."
+    },
+    "photo": {
+      "title": "Your task",
+      "cta": "Snap di photo",
+      "retake": "Snap anoda one",
+      "keep": "I go keep dis one",
+      "done": "✓ You don snap am. E dey stay for your phone.",
+      "skip": "Skip dis task",
+      "where": "Di photo no dey leave your phone. Di game dey delete am once dem don show am for di album.",
+      "denied": "Camera no get permission. You fit skip dis task, e no dey cost anything.",
+      "c": {
+        "ombre_portee": "One shadow wey no look like say na im object own.",
+        "trace_de_doigt": "Finger mark on top something wey clean.",
+        "objet_hors_place": "One thing for where e no suppose dey.",
+        "reflet": "Reflection inside glass, but nobody go see you.",
+        "nature_morte": "Three things wey you pick anyhow, arrange like painting.",
+        "poussiere": "Di corner wey dusty pass for di manor.",
+        "clef_oubliee": "One key, one lock, or di two.",
+        "fenetre_noire": "One window, wit night outside.",
+        "portrait_ancetre": "Ancestor portrait: somebody dey pose, very correct, very stiff.",
+        "six_pieds": "Six leg inside di frame. Na you go find di correct height.",
+        "tablee_figee": "Full table wey freeze, like say dem stop for middle of chop."
+      }
+    },
+    "gauge": {
+      "title": "Di will",
+      "hint": "{done} out of {total} — e dey fill each time one patrol finish."
+    },
+    "close": {
+      "cta": "Ring di meeting",
+      "confirm": "Everybody don finish? Gather di house.",
+      "hint": "Anybody fit ring am. We go check di register, we go accuse, we go continue.",
+      "tooEarly": "Di manor never finish to talk. Wait small."
+    },
+    "leave": {
+      "cta": "I dey go sleep",
+      "confirm": "You dey commot from di game for good.",
+      "warn": "You no go fit come back inside dis game."
+    },
+    "reunion": {
+      "title": "Di meeting",
+      "events": "Dis round",
+      "haunted": "Di manor shake inside {place}",
+      "hauntedAt": "for {time}",
+      "lost": "Nothing happen dis round.",
+      "panne": "Di portrait for {place} don off",
+      "cleared": "Dem prove say dem dey anoda place dat moment:",
+      "silent": "Wit no trace dat moment:",
+      "silentHint": "To no tap no dey accuse anybody: e dey happen to everybody. Dis no be suspect list.",
+      "asleep": "Dem dey sleep",
+      "none": "Nobody."
+    },
+    "vote": {
+      "title": "Who dey haunt dis manor?",
+      "hint": "One name, for secret. Di pesin wey dem accuse pass go enter di light — nobody dey eliminated.",
+      "progress": "{done} out of {total} don vote",
+      "pick": "Choose one name",
+      "cta": "I accuse {name}",
+      "voted": "You don accuse {name}"
+    },
+    "light": {
+      "was": "{name} bin dey haunt dis manor!",
+      "wasNot": "{name} no do anything.",
+      "nobody": "Di votes scatter. Nobody dey enter di light.",
+      "next": "Next round",
+      "seeFinal": "See di ending"
+    },
+    "final": {
+      "title": "Di ending",
+      "demasque": "Dem don unmask di Ghost.",
+      "testament": "Di will don full. Di heirs carry di win.",
+      "manoir": "Di manor carry di win. Dem never find di Ghost.",
+      "ghostWas": "Di Ghost na",
+      "tirade": "Di line na your own",
+      "tiradeLost": "“And I for succeed, if no be for una — una wicked heirs!”",
+      "tiradeWon": "“Dis manor na MY own. E don always be my own.”",
+      "ranking": "Ranking",
+      "replay": "Play again",
+      "joinNew": "Di new game don open"
     }
   }
 }

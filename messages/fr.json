@@ -1687,6 +1687,11 @@
       "name": "Rôdeurs",
       "tagline": "Croisez du monde : c'est votre alibi",
       "desc": "Le jeu qui dure la soirée et la laisse vivre : on mange, on circule, et chaque rencontre validée est un alibi. Trois joueurs rôdent — la maison doit les mettre en lumière, sans jamais éliminer personne."
+    },
+    "fantome": {
+      "name": "La Nuit du Fantôme",
+      "tagline": "L'un de vous hante ce manoir",
+      "desc": "Le jeu-événement : on prépare la maison, on pose de vieux appareils dans les pièces — ils deviennent des portraits. Faites vos rondes, et démasquez le Fantôme avant minuit. Personne n'est éliminé."
     }
   },
   "Unanimo": {
@@ -2196,6 +2201,254 @@
       "s1": "Chacun reçoit une petite mission et un code à 4 chiffres. On vit sa soirée : chaque fois que quelqu'un tape ton code, votre rencontre est scellée — c'est un alibi pour vous deux.",
       "s2": "Trois joueurs rôdent. Chaque manche, chacun d'eux approche quelqu'un qu'il a vraiment croisé : la personne apprend la pièce, et le rôdeur est forcément dans sa liste.",
       "s3": "À la clôture, on parle, on s'accuse, un nom est mis en lumière — sans jamais éliminer personne. La maison gagne si tous les rôdeurs tombent avant la fin."
+    }
+  },
+  "Fantome": {
+    "metaTitle": "La Nuit du Fantôme — le manoir vous regarde",
+    "metaDescription": "Une soirée d'enquête chez vous : posez de vieux téléphones dans les pièces, ils deviennent des portraits. Faites vos rondes, et démasquez le Fantôme avant minuit. Personne n'est éliminé, sans compte.",
+    "name": "La Nuit du Fantôme",
+    "tagline": "L'un de vous hante ce manoir",
+    "back": "Tous les jeux",
+    "poweredBy": "Propulsé par Placet",
+    "offline": "Connexion perdue — on réessaie",
+    "loading": "Un instant…",
+    "missing": {
+      "title": "Cette partie n'existe plus",
+      "hint": "Le code est peut-être mal recopié, ou la partie a été effacée.",
+      "cta": "Revenir aux jeux"
+    },
+    "create": {
+      "hero": "L'un de vous hante ce manoir",
+      "pitch": "Ce soir, le gîte devient le manoir de l'oncle Barnabé, disparu en ballon, et son testament vous réunit tous. Mais un Fantôme rôde dans les couloirs pour faire fuir les héritiers — et c'est l'un d'entre vous.",
+      "best": "7 à 12 joueurs · dès 8 ans · la soirée",
+      "prepTitle": "🕯️ Ça se prépare, et c'est le meilleur moment",
+      "prepHint": "Comptez vingt minutes avant de commencer : des draps sur deux meubles, les grandes lumières éteintes, et surtout de vieux appareils posés dans les pièces — ils deviennent les portraits du manoir.",
+      "screens": "Un écran par joueur, plus 3 à 5 appareils posés",
+      "screensHint": "Les portraits peuvent être de très vieux téléphones, une tablette, un ordinateur portable : ils affichent une image et un code, rien de plus. Il en faut trois au minimum, et ils doivent rester branchés.",
+      "name": "Ton prénom",
+      "cta": "Ouvrir le manoir",
+      "creating": "On ouvre…",
+      "noAccount": "Sans compte, sans rien installer.",
+      "error": "Ça n'a pas marché. Réessaie.",
+      "joinCode": "Rejoindre avec un code",
+      "codePlaceholder": "ABC123",
+      "join": "Entrer",
+      "badCode": "Aucune partie avec ce code."
+    },
+    "how": {
+      "title": "Comment ça se passe",
+      "s1": "Vous posez trois à cinq appareils dans les pièces : ce sont les portraits. Chacun affiche un code qui change tout le temps.",
+      "s2": "Pendant la soirée, vous faites vos rondes : on tape le code du portrait sur son téléphone, et on reste devant une minute et demie. Ça écrit où vous étiez, et quand.",
+      "s3": "Le Fantôme, lui, reçoit un moment pour hanter une pièce. Le glas sonne un peu plus tard, on se réunit, on regarde qui était où — et on vote. Personne n'est jamais éliminé."
+    },
+    "rules": {
+      "title": "La règle, en une phrase",
+      "body": "Faire sa ronde devant un portrait prouve où vous étiez. L'un de vous est le Fantôme : quand le glas sonne, la maison sait où il a frappé, et cherche celui que le registre ne peut pas placer ailleurs."
+    },
+    "join": {
+      "title": "Entrer dans le manoir",
+      "hint": "Choisis le prénom que les autres verront.",
+      "hintPlayers": "{n, plural, =0 {Personne n'est encore arrivé.} one {Une personne est déjà là.} other {# personnes sont déjà là.}}",
+      "placeholder": "Ton prénom",
+      "cta": "Entrer",
+      "busy": "On entre…",
+      "errNameTaken": "Ce prénom est déjà pris dans ce manoir.",
+      "errFull": "Ce manoir est plein.",
+      "errNotFound": "Aucune partie avec ce code.",
+      "errStarted": "La partie a commencé — on ne peut plus entrer. Les rôles sont distribués, et un téléphone de plus donnerait un alibi de plus à fabriquer.",
+      "errGeneric": "Ça n'a pas marché. Réessaie."
+    },
+    "share": {
+      "code": "Code de la partie",
+      "copy": "Copier le lien",
+      "copied": "Lien copié",
+      "share": "Partager",
+      "whatsapp": "WhatsApp",
+      "text": "On joue à La Nuit du Fantôme ? Rejoins-nous :"
+    },
+    "players": {
+      "host": "hôte",
+      "waiting": "n'a pas encore voté",
+      "idle": "téléphone posé",
+      "done": "a voté",
+      "asleep": "parti se coucher"
+    },
+    "lobby": {
+      "invite": "Que tout le monde entre",
+      "portraits": "Les portraits",
+      "portraitsHint": "Sur chaque vieil appareil, ouvre ce lien et choisis la pièce. Il faut au moins {n} portraits — et pense à les brancher.",
+      "portraitsOpen": "Ouvrir un portrait ici",
+      "portraitsNone": "Aucun portrait installé pour l'instant.",
+      "portraitsCount": "{n, plural, =0 {Aucun portrait} one {Un portrait} other {# portraits}} · il en faut {min}",
+      "twoReaders": "Pose-les là où deux personnes peuvent lire l'écran en même temps : un portrait dans un couloir étroit fait attendre toute la maison.",
+      "band": "Ton âge",
+      "bandHint": "Ça règle la taille de tes consignes, jamais tes chances de gagner.",
+      "petit": "8–9 ans",
+      "moyen": "10–13 ans",
+      "grand": "14 ans et +",
+      "photoTitle": "Les photos",
+      "photoHint": "Certaines consignes demandent une photo, prise dans la page du jeu. Chacun choisit — et ça ne coûte aucun point.",
+      "photoIn": "Je veux bien être pris en photo",
+      "photoOut": "Je préfère être derrière l'objectif",
+      "photoWarn": "Tu peux changer d'avis quand tu veux. Les photos déjà prises, elles, existent déjà : à l'album, tu pourras demander qu'on ne les lève pas.",
+      "noElimination": "Personne n'est éliminé. Tout le monde joue jusqu'au bout.",
+      "start": "Distribuer les rôles",
+      "needPlayers": "Il faut être au moins {n} pour commencer.",
+      "needBornes": "Il faut au moins {n} portraits installés."
+    },
+    "borne": {
+      "title": "Un portrait du manoir",
+      "pick": "Dans quelle pièce est cet appareil ?",
+      "pickHint": "Choisis, puis pose l'appareil ici et laisse-le allumé toute la soirée.",
+      "cta": "Accrocher le portrait",
+      "hung": "Le portrait est accroché.",
+      "codeLabel": "Code du portrait",
+      "waiting": "Le manoir attend…",
+      "keepAwake": "Garde cet écran allumé",
+      "keepAwakeHint": "Branche l'appareil et règle sa veille sur « jamais ». Un portrait éteint est traité comme une pièce hantée.",
+      "toll": "LE GLAS",
+      "tollHint": "Quelque chose vient de se passer dans le manoir.",
+      "lost": "Ce portrait n'est plus reconnu. Rouvre le lien depuis le salon.",
+      "back": "Ce n'est pas un portrait ?"
+    },
+    "carte": {
+      "title": "Ton rôle",
+      "keep": "Garde-le pour toi.",
+      "heritier": "Tu es un héritier.",
+      "heritierHint": "Fais tes rondes devant les portraits : chacune prouve où tu étais, et remplit le testament. Quand le glas sonne, aide la maison à trouver qui ne peut pas être ailleurs.",
+      "clause": "Tu es un héritier, et tu as une clause.",
+      "clauseHint": "Le testament te réserve quelque chose, à condition que personne ne l'apprenne. Tu as donc, comme le Fantôme, une raison de ne pas tout dire.",
+      "complice": "Tu sais qui hante.",
+      "compliceHint": "Tu ne hantes jamais toi-même, et tu joues ta soirée comme les autres — mais si le Fantôme tient jusqu'au bout, vous gagnez ensemble.",
+      "fantome": "Tu hantes ce manoir.",
+      "fantomeHint": "À un moment que tu ne choisis pas, tu auras 45 secondes pour hanter une pièce. Le reste du temps, fais tes rondes comme tout le monde : la foule est ta couverture.",
+      "avecToi": "Avec toi :",
+      "reopen": "Mon rôle"
+    },
+    "seal": {
+      "title": "Mon sceau",
+      "hint": "Montre-le à ton binôme pendant une ronde à deux. Il change toutes les 90 secondes."
+    },
+    "ronde": {
+      "title": "Ta ronde",
+      "hint": "Va devant un portrait, tape son code, et reste-là. Il faudra le retaper de temps en temps.",
+      "code": "Code du portrait",
+      "cta": "Commencer la ronde",
+      "again": "Retaper le code",
+      "progress": "{s} s sur 90",
+      "at": "Devant {place}",
+      "solo": "Ronde seul",
+      "duo": "Ronde à deux",
+      "duoHint": "Celle-ci se fait à deux : trouve quelqu'un devant le même portrait, et échangez vos sceaux.",
+      "signCta": "Taper le sceau de l'autre",
+      "signed": "✓ {name} et toi vous êtes signés",
+      "hurry": "Retape le code — sinon la ronde se rompt",
+      "doneRound": "{n, plural, =0 {Aucune ronde achevée} one {Une ronde achevée} other {# rondes achevées}} cette manche",
+      "okStarted": "Ronde commencée devant {place}.",
+      "okBeat": "Toujours devant {place}.",
+      "okDone": "Ronde achevée devant {place}. 🕯️",
+      "needSign": "Il manque la signature de ton binôme.",
+      "noCode": "Aucun portrait avec ce code.",
+      "tooFast": "Tu battais à un autre portrait il y a trois secondes. Le temps d'y aller.",
+      "closed": "La manche est close.",
+      "left": "Tu es parti te coucher."
+    },
+    "sign": {
+      "title": "Le sceau de ton binôme",
+      "cta": "Signer",
+      "ok": "Signé avec {name}.",
+      "noSeal": "Aucun joueur avec ce sceau.",
+      "notHere": "{name} n'est pas devant ce portrait.",
+      "tooOften": "Vous avez déjà fait deux rondes ensemble cette nuit. Va voir ailleurs.",
+      "noStint": "Commence d'abord ta ronde."
+    },
+    "charge": {
+      "title": "MAINTENANT",
+      "hint": "Tape le code d'un portrait. {n} s.",
+      "cta": "Hanter",
+      "ok": "Le manoir a frémi dans {place}.",
+      "tooFast": "Tu viens de battre ailleurs. Impossible d'y être déjà.",
+      "noCode": "Aucun portrait avec ce code.",
+      "missed": "L'instant est passé."
+    },
+    "photo": {
+      "title": "Ta consigne",
+      "cta": "Prendre la photo",
+      "retake": "En refaire une",
+      "keep": "Je garde celle-ci",
+      "done": "✓ Prise. Elle reste sur ton téléphone.",
+      "skip": "Passer cette consigne",
+      "where": "La photo ne quitte pas ton téléphone. Le jeu l'efface dès qu'elle a été montrée à l'album.",
+      "denied": "L'appareil photo n'est pas autorisé. Tu peux passer cette consigne, ça ne coûte rien.",
+      "c": {
+        "ombre_portee": "Une ombre qui n'a pas l'air d'appartenir à son objet.",
+        "trace_de_doigt": "Une trace de doigt sur quelque chose de propre.",
+        "objet_hors_place": "Un objet là où il n'a rien à faire.",
+        "reflet": "Un reflet dans une vitre, sans qu'on te voie.",
+        "nature_morte": "Trois objets pris au hasard, arrangés comme un tableau.",
+        "poussiere": "Le coin le plus poussiéreux du manoir.",
+        "clef_oubliee": "Une clef, une serrure, ou les deux.",
+        "fenetre_noire": "Une fenêtre, la nuit dehors.",
+        "portrait_ancetre": "Un portrait d'ancêtre : quelqu'un pose, très digne, très raide.",
+        "six_pieds": "Six pieds dans le cadre. À toi de trouver la bonne hauteur.",
+        "tablee_figee": "Une tablée entièrement figée, comme arrêtée en plein repas."
+      }
+    },
+    "gauge": {
+      "title": "Le testament",
+      "hint": "{done} sur {total} — il se remplit à chaque ronde achevée."
+    },
+    "close": {
+      "cta": "Sonner la réunion",
+      "confirm": "Tout le monde a fini ? Réunir la maison.",
+      "hint": "N'importe qui peut sonner. On regarde le registre, on s'accuse, on repart.",
+      "tooEarly": "Le manoir n'a pas fini de parler. Attends un peu."
+    },
+    "leave": {
+      "cta": "Je vais me coucher",
+      "confirm": "Tu quittes la partie pour de bon.",
+      "warn": "Tu ne pourras plus revenir dans cette partie."
+    },
+    "reunion": {
+      "title": "La réunion",
+      "events": "Cette manche",
+      "haunted": "Le manoir a frémi dans {place}",
+      "hauntedAt": "à {time}",
+      "lost": "Rien ne s'est passé cette manche.",
+      "panne": "Le portrait de {place} s'est éteint",
+      "cleared": "Prouvés ailleurs à cet instant :",
+      "silent": "Sans trace à cet instant :",
+      "silentHint": "Ne pas pointer n'accuse personne : ça arrive à tout le monde. Ce n'est pas une liste de suspects.",
+      "asleep": "Ils dorment",
+      "none": "Personne."
+    },
+    "vote": {
+      "title": "Qui hante ce manoir ?",
+      "hint": "Un nom, en secret. Le plus accusé passe en lumière — personne n'est éliminé.",
+      "progress": "{done} sur {total} ont voté",
+      "pick": "Choisis un nom",
+      "cta": "J'accuse {name}",
+      "voted": "Tu as accusé {name}"
+    },
+    "light": {
+      "was": "{name} hantait ce manoir !",
+      "wasNot": "{name} n'y était pour rien.",
+      "nobody": "Les voix se sont éparpillées. Personne ne passe en lumière.",
+      "next": "Manche suivante",
+      "seeFinal": "Voir la résolution"
+    },
+    "final": {
+      "title": "La résolution",
+      "demasque": "Le Fantôme est démasqué.",
+      "testament": "Le testament est rempli. Les héritiers l'emportent.",
+      "manoir": "Le manoir l'emporte. Le Fantôme n'a jamais été trouvé.",
+      "ghostWas": "Le Fantôme était",
+      "tirade": "À toi la réplique",
+      "tiradeLost": "« Et j'aurais réussi, sans vous, maudits héritiers ! »",
+      "tiradeWon": "« Ce manoir est à MOI. Il l'a toujours été. »",
+      "ranking": "Classement",
+      "replay": "Rejouer",
+      "joinNew": "La nouvelle partie est ouverte"
     }
   }
 }

@@ -110,6 +110,32 @@ export const RODEURS_SKIN: GameSkin = {
 };
 
 /**
+ * LA NUIT DU FANTÔME — le manoir : prune de crépuscule et or de chandelier sur
+ * un papier gris-lilas.
+ *
+ * Un jeu-événement qui se joue LUMIÈRES ÉTEINTES, sur des téléphones tenus dans
+ * des pièces sombres : l'écran doit être une bougie, pas un projecteur. L'or est
+ * réservé aux deux moments de théâtre — le glas et la mise en lumière — pour
+ * qu'ils se voient d'un bout à l'autre du salon.
+ *
+ * Contrastes CALCULÉS : blanc sur `accent` 9,05:1 ; `ink` sur `accent2`
+ * 7,26:1 ; `muted` 7,03:1 sur `paper` et 6,10:1 sur `bg` ; `good` 5,97:1.
+ */
+export const FANTOME_SKIN: GameSkin = {
+  ink: "#1B1725",
+  bg: "#EDE7F0",
+  paper: "#FBF8FC",
+  accent: "#5B3A78",
+  accent2: "#C9A227",
+  good: "#2F6B4F",
+  muted: "#5C5169",
+  border: 2.5,
+  radius: 14,
+  fontDisplay: FONT_DISPLAY,
+  fontBody: FONT_BODY,
+};
+
+/**
  * Skin de la porte « Jouer » : celle-ci appartient encore à Placet (c'est une
  * page de Placet qui présente les jeux), d'où les tokens maison.
  */
