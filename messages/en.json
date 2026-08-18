@@ -2458,9 +2458,8 @@
     }
   },
   "Pays": {
-    "communsAide": "Each guess shows what it shares with {pays}. Tap another one to compare from there.",
-    "reference": "BENCHMARK",
-    "communs": "{n, plural, =0 {nothing shared} one {1 shared} other {# shared}}",
+    "casesAide": "The five boxes are the day's characteristics, from the most common to the rarest. Two guesses filling the same box share it.",
+    "casesLues": "{n, plural, =0 {no characteristic shared} one {1 characteristic shared} other {# characteristics shared}}",
     "serieTitre": "{n} days in a row",
     "compte": {
       "serie": "{n} days in a row",

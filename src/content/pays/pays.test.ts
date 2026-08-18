@@ -17,7 +17,16 @@ import { JOURNEES } from "./journees";
 import { PAYS, PAYS_PAR_ID } from "./referentiel";
 import { POINTS, TRACES } from "./carte";
 import { serieEnCours } from "@/lib/games/pays/local";
-import { ORIGINE, communsEntre, dateCivile, evalueJournee, matriceCommuns, numeroDeJournee, scoreDe } from "@/lib/games/pays/moteur";
+import {
+  ORIGINE,
+  casesDe,
+  casesDeTous,
+  dateCivile,
+  evalueJournee,
+  numeroDeJournee,
+  ordreCanonique,
+  scoreDe,
+} from "@/lib/games/pays/moteur";
 
 const LOCALES = ["fr", "en", "es", "pcm"] as const;
 
@@ -195,50 +204,73 @@ test("la purge quotidienne ne vise que les parties, jamais la liste des victoire
   assert.ok(!journaliere.test("placet.pays."));
 });
 
-// ------------------------------------------------------------ les recouvrements
+// ------------------------------------------------------------------ les cases
 
-test("le recouvrement compte les critères satisfaits par les DEUX pays", () => {
-  // La journée n° 1 : Brésil (Amérique du Sud, G20, pétrole, tropiques, 5 voisins).
-  const j = JOURNEES[0];
-  const criteres = j.criteres.map((id) => CRITERES.find((c) => c.id === id)!);
-  const de = (id: string) => PAYS_PAR_ID[id];
-
-  // Un pays avec lui-même : c'est son propre score.
-  for (const id of ["FRA", "USA", j.cible]) {
-    assert.equal(communsEntre(de(id), de(id), criteres), scoreDe(de(id), criteres));
-  }
-  // Symétrique, toujours.
-  assert.equal(communsEntre(de("FRA"), de("USA"), criteres), communsEntre(de("USA"), de("FRA"), criteres));
-  // Encadré par les deux scores : on ne partage pas plus qu'on ne satisfait.
-  for (const [a, b] of [["FRA", "USA"], ["IND", "COL"], ["TUV", "RUS"]] as const) {
-    const n = communsEntre(de(a), de(b), criteres);
-    assert.ok(n >= 0 && n <= Math.min(scoreDe(de(a), criteres), scoreDe(de(b), criteres)), `${a}/${b} : ${n}`);
+test("l'ordre des cases va du critère le plus courant au plus rare", () => {
+  const RANG = { large: 0, intermediaire: 1, discriminant: 2, specifique: 3, signature: 4 } as const;
+  for (const j of JOURNEES) {
+    const criteres = j.criteres.map((id) => CRITERES.find((c) => c.id === id)!);
+    const ordonnes = ordreCanonique(criteres);
+    assert.equal(ordonnes.length, 5);
+    // Croissant, donc la dernière case est bien la plus rare de la journée.
+    for (let k = 1; k < ordonnes.length; k++) {
+      assert.ok(
+        RANG[ordonnes[k].palier] >= RANG[ordonnes[k - 1].palier],
+        `${j.cible} : ${ordonnes.map((c) => c.palier).join(" → ")}`,
+      );
+    }
   }
 });
 
-test("la matrice des recouvrements est carrée, symétrique, et diagonale aux scores", () => {
-  const j = JOURNEES[0];
-  const criteres = j.criteres.map((id) => CRITERES.find((c) => c.id === id)!);
-  const suite = ["FRA", "USA", "BRA", "TUV"].map((id) => PAYS_PAR_ID[id]);
-  const m = matriceCommuns(suite, criteres);
-
-  assert.equal(m.length, suite.length);
-  for (const ligne of m) assert.equal(ligne.length, suite.length);
-  for (let i = 0; i < suite.length; i++) {
-    assert.equal(m[i][i], scoreDe(suite[i], criteres), `diagonale ${suite[i].id}`);
-    for (let k = 0; k < suite.length; k++) assert.equal(m[i][k], m[k][i], `symétrie ${i}/${k}`);
+test("l'ordre des cases ne dépend que de la journée, jamais de l'ordre d'entrée", () => {
+  // ⚠️ C'EST L'INVARIANT DONT TOUT DÉPEND. Les cases sont positionnelles : si le
+  // rang changeait d'un essai à l'autre, deux essais remplissant « la même
+  // case » ne partageraient rien du tout, et le joueur déduirait faux en
+  // croyant lire juste.
+  for (const j of JOURNEES.slice(0, 12)) {
+    const criteres = j.criteres.map((id) => CRITERES.find((c) => c.id === id)!);
+    const attendu = ordreCanonique(criteres).map((c) => c.id);
+    assert.deepEqual(ordreCanonique([...criteres].reverse()).map((c) => c.id), attendu);
+    assert.deepEqual(ordreCanonique([...criteres].sort()).map((c) => c.id), attendu);
   }
 });
 
-test("le recouvrement ne dit jamais QUELS critères sont partagés", () => {
-  // ⚠️ C'EST L'INVARIANT QUI AUTORISE CETTE FONCTIONNALITÉ. Le §3.3 interdit de
-  // préciser quels critères sont satisfaits ; un ENTIER ne le précise pas. Le
-  // test le tient littéralement : la valeur rendue est un nombre, jamais un
-  // identifiant — un jour où quelqu'un voudrait « juste ajouter le nom », il
-  // faudra casser cette ligne pour le faire, donc le voir.
+test("les cases pleines d'un pays somment à son score", () => {
+  // Cinq cases, jamais six, et autant de pleines que le score annonce.
+  for (const j of JOURNEES.slice(0, 10)) {
+    const ordonnes = ordreCanonique(j.criteres.map((id) => CRITERES.find((c) => c.id === id)!));
+    for (const p of PAYS) {
+      const c = casesDe(p, ordonnes);
+      assert.equal(c.length, 5);
+      assert.equal(
+        c.reduce((a, b) => a + b, 0),
+        scoreDe(p, ordonnes),
+        `${p.id} : ${c.join("")}`,
+      );
+    }
+    // La réponse du jour remplit tout, et elle seule.
+    assert.deepEqual(casesDe(PAYS_PAR_ID[j.cible], ordonnes), [1, 1, 1, 1, 1]);
+  }
+});
+
+test("deux pays partagent une case si et seulement s'ils partagent ce critère", () => {
+  // La promesse faite au joueur, tenue à la lettre.
   const j = JOURNEES[0];
-  const criteres = j.criteres.map((id) => CRITERES.find((c) => c.id === id)!);
-  const m = matriceCommuns([PAYS_PAR_ID.FRA, PAYS_PAR_ID.USA], criteres);
-  for (const ligne of m) for (const v of ligne) assert.equal(typeof v, "number");
-  assert.ok(!JSON.stringify(m).includes("-"), "aucun identifiant de critère dans la matrice");
+  const ordonnes = ordreCanonique(j.criteres.map((id) => CRITERES.find((c) => c.id === id)!));
+  const t = casesDeTous([PAYS_PAR_ID.FRA, PAYS_PAR_ID.USA, PAYS_PAR_ID[j.cible]], ordonnes);
+  for (let k = 0; k < 5; k++) {
+    const partagee = t[0][k] === 1 && t[1][k] === 1;
+    const vraiment = ordonnes[k].verifie(PAYS_PAR_ID.FRA) && ordonnes[k].verifie(PAYS_PAR_ID.USA);
+    assert.equal(partagee, vraiment, `case ${k + 1}`);
+  }
+});
+
+test("les cases ne disent jamais de QUOI parle le critère", () => {
+  // Des 0 et des 1, aucun identifiant, aucun nom de famille : ajouter le sujet
+  // demanderait de casser cette ligne, donc de le voir.
+  const j = JOURNEES[0];
+  const ordonnes = ordreCanonique(j.criteres.map((id) => CRITERES.find((c) => c.id === id)!));
+  const texte = JSON.stringify(casesDeTous([PAYS_PAR_ID.FRA, PAYS_PAR_ID.USA], ordonnes));
+  assert.match(texte, /^[[\],01]+$/);
+  for (const c of ordonnes) assert.ok(!texte.includes(c.id) && !texte.includes(c.famille));
 });

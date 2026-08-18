@@ -23,44 +23,61 @@ export function scoresDeTous(criteres: Critere[]): Record<string, number> {
   return Object.fromEntries(PAYS.map((p) => [p.id, scoreDe(p, criteres)]));
 }
 
-/**
- * Combien de critères du jour DEUX pays satisfont tous les deux.
- *
- * ⚠️ CE NOMBRE NE DIT JAMAIS *LESQUELS*, et c'est toute la différence. Le §3.3
- * interdit de préciser quels critères sont satisfaits ; il n'interdit pas de
- * dire que deux essais se recouvrent. La distinction n'est pas juridique, elle
- * est de jeu : « la France et les États-Unis ont un critère en commun » se
- * raisonne (le compte des critères propres à chacun devient calculable) sans
- * qu'aucun critère ne soit nommé, et sans que la révélation finale perde sa
- * surprise.
- *
- * C'est aussi la réponse au seul défaut mesuré de la boucle : avec le score
- * seul, deux essais consécutifs peuvent n'apprendre RIEN l'un sur l'autre —
- * 2/5 puis 3/5 est compatible avec « aucun critère partagé » comme avec « les
- * deux mêmes plus un ». Le joueur sent qu'il n'avance pas, et il a raison.
- */
-export function communsEntre(a: Pays, b: Pays, criteres: Critere[]): number {
-  return criteres.reduce((n, c) => n + (c.verifie(a) && c.verifie(b) ? 1 : 0), 0);
-}
-
-/**
- * La matrice complète des recouvrements d'une suite d'essais.
- *
- * Symétrique, diagonale au score du pays lui-même. On la recalcule ENTIÈREMENT
- * à chaque essai plutôt que d'ajouter une ligne : une partie reprise après un
- * rechargement, ou commencée avant que cette fonction n'existe, retrouve ainsi
- * une matrice complète sans trou — et l'écran n'a aucun cas particulier à
- * afficher.
- */
-export function matriceCommuns(pays: Pays[], criteres: Critere[]): number[][] {
-  return pays.map((a) => pays.map((b) => communsEntre(a, b, criteres)));
-}
-
 /** `[combien de 0/5, de 1/5, … de 5/5]`. */
 export function distributionDe(scores: Record<string, number>): number[] {
   const d = [0, 0, 0, 0, 0, 0];
   for (const s of Object.values(scores)) d[s]++;
   return d;
+}
+
+/**
+ * L'ORDRE CANONIQUE des cinq critères d'une journée : du plus courant au plus
+ * rare, le plus rare en dernier.
+ *
+ * ⚠️ C'EST LUI QUI REND LES CASES LISIBLES. L'écran montre cinq cases par essai,
+ * remplies quand le pays satisfait le critère de ce rang. Elles ne servent à
+ * quelque chose QUE si le rang veut dire la même chose d'un essai à l'autre :
+ * c'est ce qui permet de voir, sans un mot, que la France et les États-Unis
+ * partagent la deuxième et pas la quatrième.
+ *
+ * L'ordre est stable pour une journée donnée et ne dépend d'aucun aléa : palier
+ * croissant, puis identifiant. L'identifiant n'est jamais montré — il ne sert
+ * qu'à départager deux critères de même rareté toujours de la même façon.
+ */
+const RANG_PALIER: Record<string, number> = {
+  large: 0,
+  intermediaire: 1,
+  discriminant: 2,
+  specifique: 3,
+  signature: 4,
+};
+
+export function ordreCanonique(criteres: Critere[]): Critere[] {
+  return [...criteres].sort(
+    (a, b) => (RANG_PALIER[a.palier] ?? 0) - (RANG_PALIER[b.palier] ?? 0) || a.id.localeCompare(b.id),
+  );
+}
+
+/**
+ * Les cinq cases d'un pays : 1 quand il satisfait le critère de ce rang.
+ *
+ * ⚠️ CECI DIT AU JOUEUR *LESQUELS* DES CRITÈRES SONT SATISFAITS, et c'est une
+ * entorse assumée au §3.3 — décidée après avoir joué. Ce que le §3.3 protège
+ * vraiment, c'est la SURPRISE DE LA RÉVÉLATION : elle est intacte, puisqu'une
+ * case pleine ne dit pas de quoi le critère parle. Ce qu'il coûtait, en
+ * revanche, était réel : deux essais à 3/5 étaient indiscernables alors qu'ils
+ * ne se ressemblaient pas, et le joueur ne pouvait rien déduire de deux essais
+ * successifs — mesuré, 5,5 essais pour un solveur parfait contre 3,9 en
+ * montrant le détail. La case remplace d'un coup l'affichage du recouvrement et
+ * celui de la rareté, qui disaient tous deux moins, chacun de son côté.
+ */
+export function casesDe(p: Pays, ordonnes: Critere[]): number[] {
+  return ordonnes.map((c) => (c.verifie(p) ? 1 : 0));
+}
+
+/** Les cases de chaque essai d'une suite, recalculées en entier à chaque fois. */
+export function casesDeTous(pays: Pays[], ordonnes: Critere[]): number[][] {
+  return pays.map((p) => casesDe(p, ordonnes));
 }
 
 // ---------------------------------------------------------------------------

@@ -26,15 +26,15 @@ export interface ReponseEssai {
   /** 0 à 5. */
   score: number;
   /**
-   * Recouvrements de TOUTE la partie : `communs[i][j]` = combien de critères du
-   * jour les essais `i` et `j` satisfont tous les deux, le nouvel essai compris
-   * et placé en dernier.
+   * Pour chaque essai de la partie, cinq 0/1 : la case du rang `k` est pleine
+   * quand le pays satisfait le k-ième critère du jour, du plus courant au plus
+   * rare. Le rang veut dire la même chose d'un essai à l'autre — c'est ce qui
+   * rend deux essais comparables à l'œil.
    *
-   * Elle repart de zéro à chaque essai plutôt que de s'allonger d'une ligne :
-   * une partie reprise après rechargement n'a alors aucun trou à afficher.
-   * Un nombre, jamais un nom de critère — voir `communsEntre`.
+   * Une position, jamais un sujet : une case pleine ne dit pas de quoi le
+   * critère parle. La révélation reste entière.
    */
-  communs?: number[][];
+  cases?: number[][];
   /** Présente uniquement quand `score === 5`. */
   revelation?: Revelation;
 }

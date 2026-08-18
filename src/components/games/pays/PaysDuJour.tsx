@@ -31,8 +31,8 @@ import Revelation from "./Revelation";
 
 interface Sauvegarde {
   essais: Essai[];
-  /** `communs[i][j]` : critères satisfaits à la fois par l'essai i et l'essai j. */
-  communs?: number[][];
+  /** `cases[i]` : les cinq 0/1 de l'essai i, du critère le plus courant au plus rare. */
+  cases?: number[][];
   revelation?: DonneesRevelation;
   /** Horodatage de l'arrivée sur la carte : sert au délai avant premier essai. */
   debut?: number;
@@ -49,11 +49,7 @@ export default function PaysDuJour({ jour }: { jour: number }) {
   const locale = useLocale();
 
   const [essais, setEssais] = useState<Essai[]>([]);
-  const [communs, setCommuns] = useState<number[][]>([]);
-  // L'essai auquel on compare les autres. `null` = celui qui a le meilleur
-  // score, choisi tout seul : c'est celui auquel on veut se comparer neuf fois
-  // sur dix, et le laisser choisir à la main coûterait un geste avant de servir.
-  const [reference, setReference] = useState<string | null>(null);
+  const [cases, setCases] = useState<number[][]>([]);
   const [revelation, setRevelation] = useState<DonneesRevelation | null>(null);
   const [carteComplete, setCarteComplete] = useState(false);
   const [surbrillance, setSurbrillance] = useState<string | null>(null);
@@ -79,7 +75,7 @@ export default function PaysDuJour({ jour }: { jour: number }) {
     partie.current = sauve?.partie ?? tirePartie();
     debut.current = sauve?.debut ?? Date.now();
     setEssais(sauve?.essais ?? []);
-    setCommuns(sauve?.communs ?? []);
+    setCases(sauve?.cases ?? []);
     setRevelation(sauve?.revelation ?? null);
     setSerie(serieEnCours(jour));
     setPret(true);
@@ -100,10 +96,10 @@ export default function PaysDuJour({ jour }: { jour: number }) {
   }, [jour]);
 
   const enregistre = useCallback(
-    (prochains: Essai[], reveal: DonneesRevelation | null, croisements: number[][]) => {
+    (prochains: Essai[], reveal: DonneesRevelation | null, remplies: number[][]) => {
       const corps: Sauvegarde = {
         essais: prochains,
-        communs: croisements,
+        cases: remplies,
         revelation: reveal ?? undefined,
         debut: debut.current,
         partie: partie.current,
@@ -140,13 +136,6 @@ export default function PaysDuJour({ jour }: { jour: number }) {
 
   const scores = useMemo(() => Object.fromEntries(essais.map((e) => [e.pays, e.score])), [essais]);
 
-  // L'essai de référence : celui qu'on a touché, sinon le meilleur de la partie
-  // (le premier en cas d'égalité — celui qu'on a trouvé en premier).
-  const refPays = useMemo(() => {
-    if (reference && essais.some((e) => e.pays === reference)) return reference;
-    return essais.reduce((best, e) => (e.score > (best?.score ?? -1) ? e : best), essais[0])?.pays ?? "";
-  }, [reference, essais]);
-  const indexRef = essais.findIndex((e) => e.pays === refPays);
   const gagne = revelation !== null;
 
   const joue = async (id: string) => {
@@ -181,8 +170,8 @@ export default function PaysDuJour({ jour }: { jour: number }) {
       if (!r.ok) throw new Error("refus");
       const rep = (await r.json()) as ReponseEssai;
       const prochains = [...essais, { pays: id, score: rep.score }];
-      const croisements = rep.communs ?? [];
-      setCommuns(croisements);
+      const remplies = rep.cases ?? [];
+      setCases(remplies);
       if (essais.length === 0) mesure("premier", { secondes: Math.round((Date.now() - debut.current) / 1000) });
       setEssais(prochains);
       setDernier({ pays: id, score: rep.score });
@@ -196,7 +185,7 @@ export default function PaysDuJour({ jour }: { jour: number }) {
         // propose de garder un chiffre que le joueur doit déjà voir.
         setSerie(serieEnCours(jour, ajouteResultat({ jour, essais: prochains.length, secondes })));
       }
-      enregistre(prochains, reveal, croisements);
+      enregistre(prochains, reveal, remplies);
     } catch {
       setErreur(true);
     }
@@ -340,84 +329,100 @@ export default function PaysDuJour({ jour }: { jour: number }) {
           <Compte skin={skin} jour={jour} serieLocale={serie} />
         )}
 
-        {/* L'HISTORIQUE. Sous la carte, dans l'ordre des essais, et volontairement
-            sec : c'est une trace, pas un tableau de bord (§3.3).
-
-            LE RECOUVREMENT S'Y GREFFE SANS RIEN AJOUTER À L'ÉCRAN. Chaque ligne
-            porte, à droite, le nombre de critères qu'elle partage avec l'essai
-            de RÉFÉRENCE — par défaut le meilleur de la partie, et n'importe
-            lequel d'une touche. Une colonne de petits nombres, pas un tableau
-            croisé : la matrice complète est connue du navigateur, mais on n'en
-            montre qu'une tranche à la fois. */}
+        {/* L'HISTORIQUE — et le vrai retour du jeu.
+            
+            CINQ CASES PAR ESSAI, du critère le plus courant au plus rare. Le
+            rang veut dire la même chose d'une ligne à l'autre : deux essais qui
+            remplissent la même case partagent ce critère-là, et ça se voit sans
+            un mot, sans repère à désigner et sans nombre à comparer. C'est ce
+            qui remplace, en plus simple et en disant plus, l'affichage du
+            recouvrement et celui de la rareté essayés avant.
+            
+            La dernière case est la plus rare de la journée : c'est la seule qui
+            porte une couleur, parce que c'est la seule dont le remplissage
+            change vraiment la donne. */}
         {essais.length > 0 && (
           <div>
             <GLabel skin={skin}>{t("historique", { n: essais.length })}</GLabel>
-            {essais.length > 1 && communs.length === essais.length && (
+            {cases.length === essais.length && (
               <p style={{ margin: "5px 0 0", fontSize: 12.5, color: skin.muted, lineHeight: 1.45 }}>
-                {t("communsAide", { pays: nomPays(refPays, locale) })}
+                {t("casesAide")}
               </p>
             )}
             <ol style={{ margin: "8px 0 0", padding: 0, listStyle: "none", display: "grid", gap: 5 }}>
-              {essais.map((e, i) => {
-                const estRef = e.pays === refPays;
-                const croise = communs.length === essais.length ? communs[i]?.[indexRef] : undefined;
-                const comparable = essais.length > 1 && croise !== undefined && !estRef;
-                return (
-                  <li key={`${e.pays}-${i}`}>
-                    <button
-                      type="button"
-                      onClick={() => setReference(estRef ? null : e.pays)}
-                      aria-pressed={estRef}
-                      style={{
-                        width: "100%",
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 9,
-                        padding: "6px 9px",
-                        borderRadius: 9,
-                        background: skin.paper,
-                        border: `2px solid ${estRef ? skin.ink : `${skin.ink}18`}`,
-                        color: skin.ink,
-                        font: "inherit",
-                        textAlign: "left",
-                        cursor: essais.length > 1 ? "pointer" : "default",
-                      }}
-                    >
-                      <span style={{ width: 22, textAlign: "right", fontSize: 12, fontWeight: 700, color: skin.muted }}>
-                        {i + 1}
-                      </span>
-                      <Pastille score={e.score} />
-                      <span style={{ fontWeight: 700 }}>{nomPays(e.pays, locale)}</span>
-                      {estRef && essais.length > 1 && (
-                        <span style={{ marginLeft: "auto", fontSize: 11.5, fontWeight: 800, color: skin.muted }}>
-                          {t("reference")}
-                        </span>
-                      )}
-                      {comparable && (
-                        <span
-                          style={{
-                            marginLeft: "auto",
-                            flex: "none",
-                            fontSize: 12.5,
-                            fontWeight: 800,
-                            padding: "2px 9px",
-                            borderRadius: 999,
-                            border: `2px solid ${skin.ink}22`,
-                            color: skin.muted,
-                          }}
-                        >
-                          {t("communs", { n: croise })}
-                        </span>
-                      )}
-                    </button>
-                  </li>
-                );
-              })}
+              {essais.map((e, i) => (
+                <li
+                  key={`${e.pays}-${i}`}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    flexWrap: "wrap",
+                    gap: 9,
+                    rowGap: 7,
+                    padding: "7px 10px",
+                    borderRadius: 9,
+                    background: skin.paper,
+                    border: `2px solid ${skin.ink}18`,
+                  }}
+                >
+                  <span style={{ width: 20, textAlign: "right", fontSize: 12, fontWeight: 700, color: skin.muted }}>
+                    {i + 1}
+                  </span>
+                  <Pastille score={e.score} />
+                  <span style={{ fontWeight: 700, flex: "1 1 auto", minWidth: 0 }}>{nomPays(e.pays, locale)}</span>
+                  {cases[i] && <Cases remplies={cases[i]} etiquette={t("casesLues", { n: e.score })} />}
+                </li>
+              ))}
             </ol>
           </div>
         )}
       </div>
     </GameShell>
+  );
+}
+
+/**
+ * LES CINQ CASES D'UN ESSAI — le retour d'information du jeu.
+ *
+ * Rang fixe, du critère le plus courant au plus rare. Deux essais qui
+ * remplissent la même case partagent ce critère : c'est tout le mécanisme, et
+ * il tient sans légende.
+ *
+ * ⚠️ LA FORME PORTE L'INFORMATION, PAS SEULEMENT LA COULEUR. Une case pleine est
+ * un aplat cerné d'encre, une case vide est un contour sur fond de papier :
+ * l'écart se voit en noir et blanc, comme le gradient 0→5 de la carte. La
+ * dernière — la plus rare — est un losange doré : une forme ET une couleur de
+ * plus, parce que c'est la case dont le remplissage vaut le plus cher.
+ *
+ * Le lecteur d'écran reçoit la phrase entière ; les cases lui sont cachées,
+ * sinon il énoncerait cinq carrés.
+ */
+function Cases({ remplies, etiquette }: { remplies: number[]; etiquette: string }) {
+  return (
+    <span
+      role="img"
+      aria-label={etiquette}
+      style={{ display: "inline-flex", alignItems: "center", gap: 5, flex: "none", marginLeft: "auto" }}
+    >
+      {remplies.map((pleine, k) => {
+        const derniere = k === remplies.length - 1;
+        return (
+          <span
+            key={k}
+            aria-hidden
+            style={{
+              display: "block",
+              width: derniere ? 12 : 13,
+              height: derniere ? 12 : 13,
+              borderRadius: derniere ? 3 : 4,
+              border: `2px solid ${pleine ? skin.ink : `${skin.ink}45`}`,
+              background: pleine ? (derniere ? skin.accent2 : skin.ink) : "transparent",
+              transform: derniere ? "rotate(45deg)" : undefined,
+            }}
+          />
+        );
+      })}
+    </span>
   );
 }
 

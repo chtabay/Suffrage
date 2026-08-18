@@ -3,7 +3,7 @@ import { enLangue } from "@/content/pays/criteres";
 import { PAYS_PAR_ID } from "@/content/pays/referentiel";
 import { journeeDe, numeroDuJour } from "@/lib/games/pays/journee";
 import { journalise } from "@/lib/games/pays/journal";
-import { NB_CRITERES, matriceCommuns, scoreDe, scoresDeTous } from "@/lib/games/pays/moteur";
+import { NB_CRITERES, casesDeTous, ordreCanonique, scoreDe, scoresDeTous } from "@/lib/games/pays/moteur";
 import type { ReponseEssai } from "@/lib/games/pays/types";
 
 // UN ESSAI. Le navigateur envoie un pays, le serveur renvoie un entier.
@@ -47,7 +47,12 @@ export async function POST(req: Request) {
   const aujourdHui = numeroDuJour();
   if (jour > aujourdHui) return refus("journée à venir", 403);
 
-  const { criteres } = journeeDe(jour);
+  // ⚠️ ON TRAVAILLE SUR L'ORDRE CANONIQUE, ET SUR LUI SEUL. Les cases de l'écran
+  // sont positionnelles : si la révélation listait les critères dans un autre
+  // ordre, la case n° 4 ne désignerait pas le quatrième critère révélé, et tout
+  // ce que le joueur a déduit pendant la partie deviendrait faux au moment
+  // précis où il croit comprendre.
+  const criteres = ordreCanonique(journeeDe(jour).criteres);
   const score = scoreDe(PAYS_PAR_ID[pays], criteres);
   // La victoire se lit sur le SCORE, pas sur une comparaison avec la réponse
   // stockée : c'est la règle telle qu'elle est dite au joueur (« un seul pays
@@ -65,10 +70,10 @@ export async function POST(req: Request) {
 
   journalise("essai", { jour, pays, score, rang: rangEssai, partie: partieId });
 
-  // LES RECOUVREMENTS. Le navigateur envoie la suite de ses essais, le serveur
-  // rend la matrice complète — combien de critères chaque paire d'essais
-  // satisfait EN COMMUN. Jamais lesquels : c'est ce qui distingue cette réponse
-  // d'un dévoilement de critère (voir `communsEntre`).
+  // LES CASES. Le navigateur envoie la suite de ses essais, le serveur rend pour
+  // chacun les cinq cases — pleines quand le pays satisfait le critère de ce
+  // rang. Recalculées EN ENTIER à chaque essai : une partie reprise après un
+  // rechargement retrouve un tableau complet, sans cas particulier à l'écran.
   //
   // ⚠️ ON SE MÉFIE DE CETTE LISTE, elle vient du client. Bornée en longueur,
   // filtrée aux codes connus, dédoublonnée : sans ça, un tableau de dix mille
@@ -80,7 +85,7 @@ export async function POST(req: Request) {
 
   const reponse: ReponseEssai = {
     score,
-    communs: matriceCommuns(
+    cases: casesDeTous(
       suite.map((id) => PAYS_PAR_ID[id]),
       criteres,
     ),

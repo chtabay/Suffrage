@@ -2458,9 +2458,8 @@
     }
   },
   "Pays": {
-    "communsAide": "Chaque essai indique ce qu'il partage avec {pays}. Touchez-en un autre pour changer de repère.",
-    "reference": "REPÈRE",
-    "communs": "{n, plural, =0 {rien en commun} one {1 en commun} other {# en commun}}",
+    "casesAide": "Les cinq cases sont les caractéristiques du jour, de la plus courante à la plus rare. Deux essais qui remplissent la même case la partagent.",
+    "casesLues": "{n, plural, =0 {aucune caractéristique partagée} one {1 caractéristique partagée} other {# caractéristiques partagées}}",
     "serieTitre": "{n} jours d'affilée",
     "compte": {
       "serie": "{n} jours d'affilée",
