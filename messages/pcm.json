@@ -1658,6 +1658,21 @@
     "goSpaces": "My groups"
   },
   "Games": {
+    "prepare": "you go prepare am",
+    "familles": {
+      "quotidien": {
+        "nom": "One every day",
+        "pitch": "Small minutes, you alone, and new one go come tomorrow. Nothing to arrange: na di only shelf wey you fit play right now."
+      },
+      "accord": {
+        "nom": "Gree together",
+        "pitch": "You dey score by thinking like di others, without talking."
+      },
+      "enquete": {
+        "nom": "Di investigations",
+        "pitch": "Somebody dey hide something and na di app be di only host. Dem no dey remove anybody, nobody dey close eye."
+      }
+    },
     "metaTitle": "Play together — group games wey you share with one link",
     "metaDescription": "Games wey plenty people go play on dem phone, no install, no account. Unanimo: write di words wey everybody dey think.",
     "title": "Play together",
@@ -1673,31 +1688,26 @@
     "solo": "you alone",
     "unanimo": {
       "name": "Unanimo",
-      "tagline": "Think like di others",
-      "desc": "One theme, small words. You get point for every word wey another player write too. Di sweet part na to agree without talking."
+      "tagline": "Think like di others"
     },
     "engineTitle": "Under dis games, Placet dey.",
     "engineText": "Di same engine dey help people decide for real: pick date, choose between options, share places.",
     "engineCta": "See Placet",
     "alibi": {
       "name": "Alibi",
-      "tagline": "Find di room wey get one extra pesin",
-      "desc": "Every round, di house go put everybody for three rooms — except one pesin wey bin dey waka around. Nobody dey comot for di game, nobody dey close eye, and na di app be di only host."
+      "tagline": "Find di room wey get one extra pesin"
     },
     "rodeurs": {
       "name": "Prowlers",
-      "tagline": "Jam people — na your alibi be dat",
-      "desc": "Di game wey dey last di whole evening and let am flow: una dey chop, una dey waka, and every stamp meeting na alibi. Three players dey prowl — di house must shine light on dem, nobody dey commot."
+      "tagline": "Jam people — na your alibi be dat"
     },
     "fantome": {
       "name": "Di Night of di Ghost",
-      "tagline": "One of una dey haunt dis manor",
-      "desc": "Di event game: una go set di house, drop old phones for di rooms — dem go turn portraits. Do una rondes, and pull di Ghost mask before midnight. Nobody dey commot."
+      "tagline": "One of una dey haunt dis manor"
     },
     "pays": {
       "name": "Five Over Five",
-      "tagline": "One country every day, five secret mark",
-      "desc": "Find di country of di day for di map. Every country wey you try go tell you how many things e share with am, from 0/5 go 5/5. Na only one go make 5/5 — and di five criteria go show once you win."
+      "tagline": "One country every day, five secret mark"
     }
   },
   "Unanimo": {

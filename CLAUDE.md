@@ -19,6 +19,7 @@ corriger.
 | **Alibi** (`games/alibi`) | en prod, **relu et corrigé le 2026-08-13** | fermé — **ne pas y revenir** |
 | **Gestion de groupes** (`/espaces`) | en prod, 24 constats moyens/faibles en réserve | la session tableau de bord |
 | **Cinq sur cinq** (`games/pays`) | en prod le 2026-08-18 · **stock de contenu à rallonger avant le 7 octobre** | ouvert |
+| **La porte `/games`** | rangée par familles le 2026-08-18 ; ajouter un jeu = lui donner une `famille` dans `catalog.ts` | l'agent des jeux |
 
 **Alibi est clos.** Sa relecture indépendante a produit 53 constats ; les deux
 bloquants, les trois forts et le reliquat d'écran sont corrigés et poussés. Ce

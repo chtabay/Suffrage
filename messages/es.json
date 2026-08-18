@@ -1658,6 +1658,21 @@
     "goSpaces": "Mis grupos"
   },
   "Games": {
+    "prepare": "hay que prepararlo",
+    "familles": {
+      "quotidien": {
+        "nom": "Uno al día",
+        "pitch": "Unos minutos, en solitario, y uno nuevo mañana. Nada que organizar: es la única sección que puedes jugar ahora mismo."
+      },
+      "accord": {
+        "nom": "Ponerse de acuerdo",
+        "pitch": "Puntúas pensando como los demás, sin hablar."
+      },
+      "enquete": {
+        "nom": "Las investigaciones",
+        "pitch": "Alguien esconde algo y la aplicación es el único maestro de ceremonias. Nadie es eliminado, nadie cierra los ojos."
+      }
+    },
     "metaTitle": "Jugar juntos — juegos de grupo que se comparten con un enlace",
     "metaDescription": "Juegos para varias personas desde el móvil, sin instalar nada ni crear cuenta. Unanimo: escribe las palabras que todos tienen en la cabeza.",
     "title": "Jugar juntos",
@@ -1673,31 +1688,26 @@
     "solo": "en solitario",
     "unanimo": {
       "name": "Unanimo",
-      "tagline": "Piensa como los demás",
-      "desc": "Un tema, unas palabras. Puntúas por cada palabra que otro jugador también escribió. Lo divertido es coincidir sin hablar."
+      "tagline": "Piensa como los demás"
     },
     "engineTitle": "Debajo de estos juegos está Placet.",
     "engineText": "El mismo motor sirve para decidir de verdad: elegir una fecha, zanjar entre varias opciones, repartir plazas.",
     "engineCta": "Descubrir Placet",
     "alibi": {
       "name": "Alibi",
-      "tagline": "Encuentra la habitación con una persona de más",
-      "desc": "Cada ronda, la casa reparte a todos en tres habitaciones — salvo a una persona, que merodeaba. Nadie es eliminado, nadie cierra los ojos, y la aplicación es el único árbitro."
+      "tagline": "Encuentra la habitación con una persona de más"
     },
     "rodeurs": {
       "name": "Merodeadores",
-      "tagline": "Cruzaos — esa es vuestra coartada",
-      "desc": "El juego que dura toda la velada y la deja vivir: se cena, se circula, y cada encuentro validado es una coartada. Tres jugadores merodean — la casa debe señalarlos, sin eliminar nunca a nadie."
+      "tagline": "Cruzaos — esa es vuestra coartada"
     },
     "fantome": {
       "name": "La Noche del Fantasma",
-      "tagline": "Uno de vosotros ronda esta mansión",
-      "desc": "El juego-acontecimiento: se prepara la casa, se dejan aparatos viejos en las habitaciones — se convierten en retratos. Haced vuestras rondas y desenmascarad al Fantasma antes de medianoche. Nadie queda eliminado."
+      "tagline": "Uno de vosotros ronda esta mansión"
     },
     "pays": {
       "name": "Cinco sobre cinco",
-      "tagline": "Un país al día, cinco características secretas",
-      "desc": "Encuentra el país del día en el mapa. Cada país que pruebes te dice cuántas características comparte con él, de 0/5 a 5/5. Solo uno llega a 5/5 — y los cinco criterios se desvelan al ganar."
+      "tagline": "Un país al día, cinco características secretas"
     }
   },
   "Unanimo": {

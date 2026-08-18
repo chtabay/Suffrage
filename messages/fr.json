@@ -1658,6 +1658,21 @@
     "goSpaces": "Mes groupes"
   },
   "Games": {
+    "prepare": "ça se prépare",
+    "familles": {
+      "quotidien": {
+        "nom": "Un par jour",
+        "pitch": "Quelques minutes, seul, et un nouveau demain. Rien à organiser : c'est le seul rayon jouable tout de suite."
+      },
+      "accord": {
+        "nom": "Tomber d'accord",
+        "pitch": "On marque en pensant comme les autres, sans se parler."
+      },
+      "enquete": {
+        "nom": "Les enquêtes",
+        "pitch": "Quelqu'un cache quelque chose et l'application est le seul meneur. Personne n'est éliminé, personne ne ferme les yeux."
+      }
+    },
     "metaTitle": "Jouer ensemble — des jeux de groupe à partager d'un lien",
     "metaDescription": "Des jeux à plusieurs sur vos téléphones, sans installation ni compte. Unanimo : écrivez les mots que tout le monde a en tête.",
     "title": "Jouer ensemble",
@@ -1673,31 +1688,26 @@
     "solo": "solo",
     "unanimo": {
       "name": "Unanimo",
-      "tagline": "Pensez comme les autres",
-      "desc": "Un thème, quelques mots. Vous marquez pour chaque mot qu'un autre joueur a écrit aussi. Le plaisir, c'est de tomber d'accord sans se parler."
+      "tagline": "Pensez comme les autres"
     },
     "engineTitle": "Sous ces jeux, il y a Placet.",
     "engineText": "Le même moteur sert à décider pour de vrai : choisir une date, trancher entre plusieurs options, répartir des places.",
     "engineCta": "Découvrir Placet",
     "alibi": {
       "name": "Alibi",
-      "tagline": "Cherchez la pièce qui compte un occupant de trop",
-      "desc": "Chaque manche, la maison range tout le monde dans trois pièces — sauf une personne, qui rôdait. Personne n'est éliminé, personne ne ferme les yeux, et l'application est le seul meneur."
+      "tagline": "Cherchez la pièce qui compte un occupant de trop"
     },
     "rodeurs": {
       "name": "Rôdeurs",
-      "tagline": "Croisez du monde : c'est votre alibi",
-      "desc": "Le jeu qui dure la soirée et la laisse vivre : on mange, on circule, et chaque rencontre validée est un alibi. Trois joueurs rôdent — la maison doit les mettre en lumière, sans jamais éliminer personne."
+      "tagline": "Croisez du monde : c'est votre alibi"
     },
     "fantome": {
       "name": "La Nuit du Fantôme",
-      "tagline": "L'un de vous hante ce manoir",
-      "desc": "Le jeu-événement : on prépare la maison, on pose de vieux appareils dans les pièces — ils deviennent des portraits. Faites vos rondes, et démasquez le Fantôme avant minuit. Personne n'est éliminé."
+      "tagline": "L'un de vous hante ce manoir"
     },
     "pays": {
       "name": "Cinq sur cinq",
-      "tagline": "Un pays par jour, cinq caractéristiques secrètes",
-      "desc": "Trouvez le pays du jour sur la carte. Chaque pays essayé vous dit combien de caractéristiques il partage avec lui, de 0/5 à 5/5. Un seul fait 5/5 — et les cinq critères se dévoilent à la victoire."
+      "tagline": "Un pays par jour, cinq caractéristiques secrètes"
     }
   },
   "Unanimo": {

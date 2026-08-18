@@ -10,6 +10,15 @@ import { ALIBI_SKIN, FANTOME_SKIN, PAYS_SKIN, RODEURS_SKIN, UNANIMO_SKIN, type G
 export interface GameEntry {
   /** Slug technique, aussi la valeur de `scrutin_game_rooms.game`. */
   slug: string;
+  /**
+   * La FAMILLE sous laquelle la porte « Jouer » range le jeu.
+   *
+   * Elle ne classe pas par genre mais par OCCASION — ce qui décide si un jeu est
+   * seulement possible ce soir. « Nous sommes huit après le dîner » et « j'ai
+   * trois minutes » ne mènent pas au même rayon, et c'est la question que se
+   * pose un visiteur avant celle du thème.
+   */
+  famille: "quotidien" | "accord" | "enquete";
   /** `soon` = emplacement annoncé, sans salle possible. */
   status: "live" | "soon";
   emoji: string;
@@ -19,11 +28,21 @@ export interface GameEntry {
   /** Nombre de joueurs conseillé, à titre indicatif — jamais une limite. */
   bestWith: string;
   minutes: string;
+  /**
+   * Le jeu demande une PRÉPARATION avant de commencer (matériel, mise en place).
+   *
+   * C'est une pastille et non une ligne de description : l'information change la
+   * décision — on ne lance pas un jeu qui réclame vingt minutes de préparation
+   * quand on cherche quoi faire tout de suite — et une pastille se lit, alors
+   * qu'un paragraphe se saute.
+   */
+  prepare?: boolean;
 }
 
 export const GAMES: GameEntry[] = [
   {
     slug: "unanimo",
+    famille: "accord",
     status: "live",
     emoji: "🧠",
     skin: UNANIMO_SKIN,
@@ -36,6 +55,7 @@ export const GAMES: GameEntry[] = [
     // par ALIBI, qui n'est pas un loup-garou et c'est le point. Personne n'est
     // éliminé, personne ne ferme les yeux, et l'application est le seul meneur.
     slug: "alibi",
+    famille: "enquete",
     status: "live",
     emoji: "🕯️",
     skin: ALIBI_SKIN,
@@ -47,6 +67,7 @@ export const GAMES: GameEntry[] = [
     // Le jeu de soirée : il PONCTUE le dîner au lieu de le remplacer, et c'est
     // sa raison d'être — « permettre à la vie de continuer dans la maison ».
     slug: "rodeurs",
+    famille: "enquete",
     status: "live",
     emoji: "🔦",
     skin: RODEURS_SKIN,
@@ -60,7 +81,9 @@ export const GAMES: GameEntry[] = [
     // préparation est la bande-annonce de la soirée, comme pour une murder
     // party — et c'est pour ça qu'il annonce son matériel dès la vignette.
     slug: "fantome",
+    famille: "enquete",
     status: "live",
+    prepare: true,
     emoji: "👻",
     skin: FANTOME_SKIN,
     route: "/games/fantome",
@@ -73,6 +96,7 @@ export const GAMES: GameEntry[] = [
     // `roomPath` ne le désignera jamais, et c'est correct : aucun code de salle
     // ne peut y mener.
     slug: "pays",
+    famille: "quotidien",
     status: "live",
     emoji: "🌍",
     skin: PAYS_SKIN,
@@ -83,6 +107,18 @@ export const GAMES: GameEntry[] = [
 ];
 
 export const LIVE_GAMES = GAMES.filter((g) => g.status === "live");
+
+/**
+ * L'ORDRE DES FAMILLES SUR LA PORTE « JOUER », et il n'est pas décoratif : le
+ * quotidien vient en tête parce que c'est le SEUL rayon jouable tout de suite,
+ * seul, sans réunir personne. Un visiteur qui arrive à trois heures du matin
+ * doit pouvoir jouer avant d'avoir à organiser quoi que ce soit.
+ */
+export const FAMILLES = ["quotidien", "accord", "enquete"] as const;
+
+export function gamesParFamille(famille: string): GameEntry[] {
+  return GAMES.filter((g) => g.famille === famille);
+}
 
 export function gameBySlug(slug: string): GameEntry | undefined {
   return GAMES.find((g) => g.slug === slug);
