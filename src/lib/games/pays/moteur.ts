@@ -23,6 +23,39 @@ export function scoresDeTous(criteres: Critere[]): Record<string, number> {
   return Object.fromEntries(PAYS.map((p) => [p.id, scoreDe(p, criteres)]));
 }
 
+/**
+ * Combien de critères du jour DEUX pays satisfont tous les deux.
+ *
+ * ⚠️ CE NOMBRE NE DIT JAMAIS *LESQUELS*, et c'est toute la différence. Le §3.3
+ * interdit de préciser quels critères sont satisfaits ; il n'interdit pas de
+ * dire que deux essais se recouvrent. La distinction n'est pas juridique, elle
+ * est de jeu : « la France et les États-Unis ont un critère en commun » se
+ * raisonne (le compte des critères propres à chacun devient calculable) sans
+ * qu'aucun critère ne soit nommé, et sans que la révélation finale perde sa
+ * surprise.
+ *
+ * C'est aussi la réponse au seul défaut mesuré de la boucle : avec le score
+ * seul, deux essais consécutifs peuvent n'apprendre RIEN l'un sur l'autre —
+ * 2/5 puis 3/5 est compatible avec « aucun critère partagé » comme avec « les
+ * deux mêmes plus un ». Le joueur sent qu'il n'avance pas, et il a raison.
+ */
+export function communsEntre(a: Pays, b: Pays, criteres: Critere[]): number {
+  return criteres.reduce((n, c) => n + (c.verifie(a) && c.verifie(b) ? 1 : 0), 0);
+}
+
+/**
+ * La matrice complète des recouvrements d'une suite d'essais.
+ *
+ * Symétrique, diagonale au score du pays lui-même. On la recalcule ENTIÈREMENT
+ * à chaque essai plutôt que d'ajouter une ligne : une partie reprise après un
+ * rechargement, ou commencée avant que cette fonction n'existe, retrouve ainsi
+ * une matrice complète sans trou — et l'écran n'a aucun cas particulier à
+ * afficher.
+ */
+export function matriceCommuns(pays: Pays[], criteres: Critere[]): number[][] {
+  return pays.map((a) => pays.map((b) => communsEntre(a, b, criteres)));
+}
+
 /** `[combien de 0/5, de 1/5, … de 5/5]`. */
 export function distributionDe(scores: Record<string, number>): number[] {
   const d = [0, 0, 0, 0, 0, 0];

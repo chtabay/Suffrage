@@ -2458,6 +2458,9 @@
     }
   },
   "Pays": {
+    "communsAide": "Each guess shows what it shares with {pays}. Tap another one to compare from there.",
+    "reference": "BENCHMARK",
+    "communs": "{n, plural, =0 {nothing shared} one {1 shared} other {# shared}}",
     "serieTitre": "{n} days in a row",
     "compte": {
       "serie": "{n} days in a row",

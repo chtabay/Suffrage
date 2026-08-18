@@ -2458,6 +2458,9 @@
     }
   },
   "Pays": {
+    "communsAide": "Every try dey show wetin e share with {pays}. Touch anoda one make e become di new mark.",
+    "reference": "DI MARK",
+    "communs": "{n, plural, =0 {notin dey common} one {1 dey common} other {# dey common}}",
     "serieTitre": "{n} days back to back",
     "compte": {
       "serie": "{n} days back to back",

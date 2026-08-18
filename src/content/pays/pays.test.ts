@@ -17,7 +17,7 @@ import { JOURNEES } from "./journees";
 import { PAYS, PAYS_PAR_ID } from "./referentiel";
 import { POINTS, TRACES } from "./carte";
 import { serieEnCours } from "@/lib/games/pays/local";
-import { ORIGINE, dateCivile, evalueJournee, numeroDeJournee, scoreDe } from "@/lib/games/pays/moteur";
+import { ORIGINE, communsEntre, dateCivile, evalueJournee, matriceCommuns, numeroDeJournee, scoreDe } from "@/lib/games/pays/moteur";
 
 const LOCALES = ["fr", "en", "es", "pcm"] as const;
 
@@ -193,4 +193,52 @@ test("la purge quotidienne ne vise que les parties, jamais la liste des victoire
   assert.ok(journaliere.test("placet.pays.1"));
   assert.ok(!journaliere.test("placet.pays.resultats"));
   assert.ok(!journaliere.test("placet.pays."));
+});
+
+// ------------------------------------------------------------ les recouvrements
+
+test("le recouvrement compte les critères satisfaits par les DEUX pays", () => {
+  // La journée n° 1 : Brésil (Amérique du Sud, G20, pétrole, tropiques, 5 voisins).
+  const j = JOURNEES[0];
+  const criteres = j.criteres.map((id) => CRITERES.find((c) => c.id === id)!);
+  const de = (id: string) => PAYS_PAR_ID[id];
+
+  // Un pays avec lui-même : c'est son propre score.
+  for (const id of ["FRA", "USA", j.cible]) {
+    assert.equal(communsEntre(de(id), de(id), criteres), scoreDe(de(id), criteres));
+  }
+  // Symétrique, toujours.
+  assert.equal(communsEntre(de("FRA"), de("USA"), criteres), communsEntre(de("USA"), de("FRA"), criteres));
+  // Encadré par les deux scores : on ne partage pas plus qu'on ne satisfait.
+  for (const [a, b] of [["FRA", "USA"], ["IND", "COL"], ["TUV", "RUS"]] as const) {
+    const n = communsEntre(de(a), de(b), criteres);
+    assert.ok(n >= 0 && n <= Math.min(scoreDe(de(a), criteres), scoreDe(de(b), criteres)), `${a}/${b} : ${n}`);
+  }
+});
+
+test("la matrice des recouvrements est carrée, symétrique, et diagonale aux scores", () => {
+  const j = JOURNEES[0];
+  const criteres = j.criteres.map((id) => CRITERES.find((c) => c.id === id)!);
+  const suite = ["FRA", "USA", "BRA", "TUV"].map((id) => PAYS_PAR_ID[id]);
+  const m = matriceCommuns(suite, criteres);
+
+  assert.equal(m.length, suite.length);
+  for (const ligne of m) assert.equal(ligne.length, suite.length);
+  for (let i = 0; i < suite.length; i++) {
+    assert.equal(m[i][i], scoreDe(suite[i], criteres), `diagonale ${suite[i].id}`);
+    for (let k = 0; k < suite.length; k++) assert.equal(m[i][k], m[k][i], `symétrie ${i}/${k}`);
+  }
+});
+
+test("le recouvrement ne dit jamais QUELS critères sont partagés", () => {
+  // ⚠️ C'EST L'INVARIANT QUI AUTORISE CETTE FONCTIONNALITÉ. Le §3.3 interdit de
+  // préciser quels critères sont satisfaits ; un ENTIER ne le précise pas. Le
+  // test le tient littéralement : la valeur rendue est un nombre, jamais un
+  // identifiant — un jour où quelqu'un voudrait « juste ajouter le nom », il
+  // faudra casser cette ligne pour le faire, donc le voir.
+  const j = JOURNEES[0];
+  const criteres = j.criteres.map((id) => CRITERES.find((c) => c.id === id)!);
+  const m = matriceCommuns([PAYS_PAR_ID.FRA, PAYS_PAR_ID.USA], criteres);
+  for (const ligne of m) for (const v of ligne) assert.equal(typeof v, "number");
+  assert.ok(!JSON.stringify(m).includes("-"), "aucun identifiant de critère dans la matrice");
 });

@@ -31,6 +31,8 @@ import Revelation from "./Revelation";
 
 interface Sauvegarde {
   essais: Essai[];
+  /** `communs[i][j]` : critères satisfaits à la fois par l'essai i et l'essai j. */
+  communs?: number[][];
   revelation?: DonneesRevelation;
   /** Horodatage de l'arrivée sur la carte : sert au délai avant premier essai. */
   debut?: number;
@@ -47,6 +49,11 @@ export default function PaysDuJour({ jour }: { jour: number }) {
   const locale = useLocale();
 
   const [essais, setEssais] = useState<Essai[]>([]);
+  const [communs, setCommuns] = useState<number[][]>([]);
+  // L'essai auquel on compare les autres. `null` = celui qui a le meilleur
+  // score, choisi tout seul : c'est celui auquel on veut se comparer neuf fois
+  // sur dix, et le laisser choisir à la main coûterait un geste avant de servir.
+  const [reference, setReference] = useState<string | null>(null);
   const [revelation, setRevelation] = useState<DonneesRevelation | null>(null);
   const [carteComplete, setCarteComplete] = useState(false);
   const [surbrillance, setSurbrillance] = useState<string | null>(null);
@@ -72,6 +79,7 @@ export default function PaysDuJour({ jour }: { jour: number }) {
     partie.current = sauve?.partie ?? tirePartie();
     debut.current = sauve?.debut ?? Date.now();
     setEssais(sauve?.essais ?? []);
+    setCommuns(sauve?.communs ?? []);
     setRevelation(sauve?.revelation ?? null);
     setSerie(serieEnCours(jour));
     setPret(true);
@@ -92,9 +100,10 @@ export default function PaysDuJour({ jour }: { jour: number }) {
   }, [jour]);
 
   const enregistre = useCallback(
-    (prochains: Essai[], reveal: DonneesRevelation | null) => {
+    (prochains: Essai[], reveal: DonneesRevelation | null, croisements: number[][]) => {
       const corps: Sauvegarde = {
         essais: prochains,
+        communs: croisements,
         revelation: reveal ?? undefined,
         debut: debut.current,
         partie: partie.current,
@@ -130,6 +139,14 @@ export default function PaysDuJour({ jour }: { jour: number }) {
   }, [pret]);
 
   const scores = useMemo(() => Object.fromEntries(essais.map((e) => [e.pays, e.score])), [essais]);
+
+  // L'essai de référence : celui qu'on a touché, sinon le meilleur de la partie
+  // (le premier en cas d'égalité — celui qu'on a trouvé en premier).
+  const refPays = useMemo(() => {
+    if (reference && essais.some((e) => e.pays === reference)) return reference;
+    return essais.reduce((best, e) => (e.score > (best?.score ?? -1) ? e : best), essais[0])?.pays ?? "";
+  }, [reference, essais]);
+  const indexRef = essais.findIndex((e) => e.pays === refPays);
   const gagne = revelation !== null;
 
   const joue = async (id: string) => {
@@ -149,11 +166,23 @@ export default function PaysDuJour({ jour }: { jour: number }) {
         // `rang` est ce qui rend lisible « le score moyen du n-ième essai »
         // (§13) : sans lui, le journal sait combien d'essais ont été faits, mais
         // plus lequel valait combien.
-        body: JSON.stringify({ jour, pays: id, locale, partie: partie.current, rang: essais.length + 1 }),
+        // On renvoie toute la suite des essais : le serveur rend alors la
+        // matrice ENTIÈRE des recouvrements, y compris pour une partie reprise
+        // après un rechargement. Une matrice complète, jamais rapiécée.
+        body: JSON.stringify({
+          jour,
+          pays: id,
+          locale,
+          partie: partie.current,
+          rang: essais.length + 1,
+          precedents: essais.map((e) => e.pays),
+        }),
       });
       if (!r.ok) throw new Error("refus");
       const rep = (await r.json()) as ReponseEssai;
       const prochains = [...essais, { pays: id, score: rep.score }];
+      const croisements = rep.communs ?? [];
+      setCommuns(croisements);
       if (essais.length === 0) mesure("premier", { secondes: Math.round((Date.now() - debut.current) / 1000) });
       setEssais(prochains);
       setDernier({ pays: id, score: rep.score });
@@ -167,7 +196,7 @@ export default function PaysDuJour({ jour }: { jour: number }) {
         // propose de garder un chiffre que le joueur doit déjà voir.
         setSerie(serieEnCours(jour, ajouteResultat({ jour, essais: prochains.length, secondes })));
       }
-      enregistre(prochains, reveal);
+      enregistre(prochains, reveal, croisements);
     } catch {
       setErreur(true);
     }
@@ -312,31 +341,78 @@ export default function PaysDuJour({ jour }: { jour: number }) {
         )}
 
         {/* L'HISTORIQUE. Sous la carte, dans l'ordre des essais, et volontairement
-            sec : c'est une trace, pas un tableau de bord (§3.3). */}
+            sec : c'est une trace, pas un tableau de bord (§3.3).
+
+            LE RECOUVREMENT S'Y GREFFE SANS RIEN AJOUTER À L'ÉCRAN. Chaque ligne
+            porte, à droite, le nombre de critères qu'elle partage avec l'essai
+            de RÉFÉRENCE — par défaut le meilleur de la partie, et n'importe
+            lequel d'une touche. Une colonne de petits nombres, pas un tableau
+            croisé : la matrice complète est connue du navigateur, mais on n'en
+            montre qu'une tranche à la fois. */}
         {essais.length > 0 && (
           <div>
             <GLabel skin={skin}>{t("historique", { n: essais.length })}</GLabel>
+            {essais.length > 1 && communs.length === essais.length && (
+              <p style={{ margin: "5px 0 0", fontSize: 12.5, color: skin.muted, lineHeight: 1.45 }}>
+                {t("communsAide", { pays: nomPays(refPays, locale) })}
+              </p>
+            )}
             <ol style={{ margin: "8px 0 0", padding: 0, listStyle: "none", display: "grid", gap: 5 }}>
-              {essais.map((e, i) => (
-                <li
-                  key={`${e.pays}-${i}`}
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 9,
-                    padding: "6px 9px",
-                    borderRadius: 9,
-                    background: skin.paper,
-                    border: `2px solid ${skin.ink}18`,
-                  }}
-                >
-                  <span style={{ width: 22, textAlign: "right", fontSize: 12, fontWeight: 700, color: skin.muted }}>
-                    {i + 1}
-                  </span>
-                  <Pastille score={e.score} />
-                  <span style={{ fontWeight: 700 }}>{nomPays(e.pays, locale)}</span>
-                </li>
-              ))}
+              {essais.map((e, i) => {
+                const estRef = e.pays === refPays;
+                const croise = communs.length === essais.length ? communs[i]?.[indexRef] : undefined;
+                const comparable = essais.length > 1 && croise !== undefined && !estRef;
+                return (
+                  <li key={`${e.pays}-${i}`}>
+                    <button
+                      type="button"
+                      onClick={() => setReference(estRef ? null : e.pays)}
+                      aria-pressed={estRef}
+                      style={{
+                        width: "100%",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 9,
+                        padding: "6px 9px",
+                        borderRadius: 9,
+                        background: skin.paper,
+                        border: `2px solid ${estRef ? skin.ink : `${skin.ink}18`}`,
+                        color: skin.ink,
+                        font: "inherit",
+                        textAlign: "left",
+                        cursor: essais.length > 1 ? "pointer" : "default",
+                      }}
+                    >
+                      <span style={{ width: 22, textAlign: "right", fontSize: 12, fontWeight: 700, color: skin.muted }}>
+                        {i + 1}
+                      </span>
+                      <Pastille score={e.score} />
+                      <span style={{ fontWeight: 700 }}>{nomPays(e.pays, locale)}</span>
+                      {estRef && essais.length > 1 && (
+                        <span style={{ marginLeft: "auto", fontSize: 11.5, fontWeight: 800, color: skin.muted }}>
+                          {t("reference")}
+                        </span>
+                      )}
+                      {comparable && (
+                        <span
+                          style={{
+                            marginLeft: "auto",
+                            flex: "none",
+                            fontSize: 12.5,
+                            fontWeight: 800,
+                            padding: "2px 9px",
+                            borderRadius: 999,
+                            border: `2px solid ${skin.ink}22`,
+                            color: skin.muted,
+                          }}
+                        >
+                          {t("communs", { n: croise })}
+                        </span>
+                      )}
+                    </button>
+                  </li>
+                );
+              })}
             </ol>
           </div>
         )}

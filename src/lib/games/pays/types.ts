@@ -25,6 +25,16 @@ export interface Revelation {
 export interface ReponseEssai {
   /** 0 à 5. */
   score: number;
+  /**
+   * Recouvrements de TOUTE la partie : `communs[i][j]` = combien de critères du
+   * jour les essais `i` et `j` satisfont tous les deux, le nouvel essai compris
+   * et placé en dernier.
+   *
+   * Elle repart de zéro à chaque essai plutôt que de s'allonger d'une ligne :
+   * une partie reprise après rechargement n'a alors aucun trou à afficher.
+   * Un nombre, jamais un nom de critère — voir `communsEntre`.
+   */
+  communs?: number[][];
   /** Présente uniquement quand `score === 5`. */
   revelation?: Revelation;
 }

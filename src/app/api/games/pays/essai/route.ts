@@ -3,7 +3,7 @@ import { enLangue } from "@/content/pays/criteres";
 import { PAYS_PAR_ID } from "@/content/pays/referentiel";
 import { journeeDe, numeroDuJour } from "@/lib/games/pays/journee";
 import { journalise } from "@/lib/games/pays/journal";
-import { NB_CRITERES, scoreDe, scoresDeTous } from "@/lib/games/pays/moteur";
+import { NB_CRITERES, matriceCommuns, scoreDe, scoresDeTous } from "@/lib/games/pays/moteur";
 import type { ReponseEssai } from "@/lib/games/pays/types";
 
 // UN ESSAI. Le navigateur envoie un pays, le serveur renvoie un entier.
@@ -32,7 +32,7 @@ export async function POST(req: Request) {
   } catch {
     return refus("corps illisible");
   }
-  const { jour, pays, locale, partie, rang } = (corps ?? {}) as Record<string, unknown>;
+  const { jour, pays, locale, partie, rang, precedents } = (corps ?? {}) as Record<string, unknown>;
 
   if (typeof pays !== "string" || !PAYS_PAR_ID[pays]) return refus("pays inconnu");
   if (typeof jour !== "number" || !Number.isInteger(jour) || jour < 1) return refus("journée invalide");
@@ -65,7 +65,26 @@ export async function POST(req: Request) {
 
   journalise("essai", { jour, pays, score, rang: rangEssai, partie: partieId });
 
-  const reponse: ReponseEssai = { score };
+  // LES RECOUVREMENTS. Le navigateur envoie la suite de ses essais, le serveur
+  // rend la matrice complète — combien de critères chaque paire d'essais
+  // satisfait EN COMMUN. Jamais lesquels : c'est ce qui distingue cette réponse
+  // d'un dévoilement de critère (voir `communsEntre`).
+  //
+  // ⚠️ ON SE MÉFIE DE CETTE LISTE, elle vient du client. Bornée en longueur,
+  // filtrée aux codes connus, dédoublonnée : sans ça, un tableau de dix mille
+  // entrées ferait calculer une matrice de cent millions de cases au serveur.
+  const histoire = Array.isArray(precedents)
+    ? [...new Set(precedents.filter((x): x is string => typeof x === "string" && !!PAYS_PAR_ID[x]))].slice(0, 200)
+    : [];
+  const suite = [...histoire.filter((id) => id !== pays), pays];
+
+  const reponse: ReponseEssai = {
+    score,
+    communs: matriceCommuns(
+      suite.map((id) => PAYS_PAR_ID[id]),
+      criteres,
+    ),
+  };
 
   if (gagne) {
     // La révélation ne part QU'ICI, et seulement pour le pays qui vaut 5/5.

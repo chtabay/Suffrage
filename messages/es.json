@@ -2458,6 +2458,9 @@
     }
   },
   "Pays": {
+    "communsAide": "Cada intento indica lo que comparte con {pays}. Toca otro para cambiar de referencia.",
+    "reference": "REFERENCIA",
+    "communs": "{n, plural, =0 {nada en común} one {1 en común} other {# en común}}",
     "serieTitre": "{n} días seguidos",
     "compte": {
       "serie": "{n} días seguidos",
