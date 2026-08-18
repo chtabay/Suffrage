@@ -1661,7 +1661,7 @@
     "metaTitle": "Jouer ensemble — des jeux de groupe à partager d'un lien",
     "metaDescription": "Des jeux à plusieurs sur vos téléphones, sans installation ni compte. Unanimo : écrivez les mots que tout le monde a en tête.",
     "title": "Jouer ensemble",
-    "subtitle": "Des jeux où le groupe réfléchit, se surprend et décide ensemble. Un lien, un pseudo, on joue.",
+    "subtitle": "Des jeux où le groupe réfléchit, se surprend et décide ensemble. Un lien, un pseudo, on joue — et un jeu chaque jour, à faire seul.",
     "joinTitle": "On t'a donné un code ?",
     "joinPlaceholder": "ABC123",
     "joinCta": "Entrer",
@@ -1695,8 +1695,8 @@
       "desc": "Le jeu-événement : on prépare la maison, on pose de vieux appareils dans les pièces — ils deviennent des portraits. Faites vos rondes, et démasquez le Fantôme avant minuit. Personne n'est éliminé."
     },
     "pays": {
-      "name": "Pays du jour",
-      "tagline": "Un pays par jour, cinq secrets",
+      "name": "Cinq sur cinq",
+      "tagline": "Un pays par jour, cinq caractéristiques secrètes",
       "desc": "Trouvez le pays du jour sur la carte. Chaque pays essayé vous dit combien de caractéristiques il partage avec lui, de 0/5 à 5/5. Un seul fait 5/5 — et les cinq critères se dévoilent à la victoire."
     }
   },
@@ -2458,9 +2458,29 @@
     }
   },
   "Pays": {
-    "metaTitle": "Pays du jour — le jeu de géographie quotidien",
+    "serieTitre": "{n} jours d'affilée",
+    "compte": {
+      "serie": "{n} jours d'affilée",
+      "titre": "Garder vos résultats",
+      "texte": "Sans compte, votre série vit dans ce navigateur : elle disparaît si vous changez de téléphone ou effacez vos données. Un compte la garde, et vous montre où vous vous situez chaque jour.",
+      "google": "Continuer avec Google",
+      "emailPlaceholder": "votre@email.fr",
+      "envoyer": "Recevoir un lien",
+      "envoye": "C'est parti — ouvrez le lien qu'on vient de vous envoyer.",
+      "erreur": "L'envoi n'a pas fonctionné. Réessayez dans un instant.",
+      "bilanTitre": "Vos résultats",
+      "parties": "Trouvés",
+      "moyenne": "Essais en moyenne",
+      "meilleur": "Meilleure partie",
+      "serieLabel": "Série",
+      "rang": "{rang}e sur {joueurs} joueurs aujourd'hui.",
+      "rangSeul": "Vous êtes le premier à l'avoir trouvé aujourd'hui.",
+      "placet": "Le même compte sert à organiser de vrais votes sur Placet :",
+      "placetLien": "voir à quoi ça sert"
+    },
+    "metaTitle": "Cinq sur cinq — le jeu de géographie quotidien",
     "metaDescription": "Trouvez le pays du jour sur la carte du monde. Chaque essai vous dit combien de caractéristiques il partage avec lui. Un nouveau pays chaque jour, sans compte.",
-    "name": "Pays du jour",
+    "name": "Cinq sur cinq",
     "back": "Tous les jeux",
     "poweredBy": "Propulsé par Placet",
     "numero": "Journée n° {n}",

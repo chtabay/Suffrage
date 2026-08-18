@@ -1661,7 +1661,7 @@
     "metaTitle": "Play together — group games wey you share with one link",
     "metaDescription": "Games wey plenty people go play on dem phone, no install, no account. Unanimo: write di words wey everybody dey think.",
     "title": "Play together",
-    "subtitle": "Games where di group dey think, dey surprise demself, and dey decide together. One link, one nickname, and una don start.",
+    "subtitle": "Games where di group dey think, dey surprise demself, and dey decide together. One link, one nickname, and una don start — plus one game every day wey you fit play alone.",
     "joinTitle": "Dem give you code?",
     "joinPlaceholder": "ABC123",
     "joinCta": "Enter",
@@ -1695,8 +1695,8 @@
       "desc": "Di event game: una go set di house, drop old phones for di rooms — dem go turn portraits. Do una rondes, and pull di Ghost mask before midnight. Nobody dey commot."
     },
     "pays": {
-      "name": "Country of di day",
-      "tagline": "One country every day, five secret",
+      "name": "Five Over Five",
+      "tagline": "One country every day, five secret mark",
       "desc": "Find di country of di day for di map. Every country wey you try go tell you how many things e share with am, from 0/5 go 5/5. Na only one go make 5/5 — and di five criteria go show once you win."
     }
   },
@@ -2458,9 +2458,29 @@
     }
   },
   "Pays": {
-    "metaTitle": "Country of di day — di geography game wey dey come every day",
+    "serieTitre": "{n} days back to back",
+    "compte": {
+      "serie": "{n} days back to back",
+      "titre": "Keep your results",
+      "texte": "If you no get account, na dis browser dey hold your streak: e go vanish if you change phone or clear your data. Account go keep am, and e go show you where you stand every day.",
+      "google": "Continue with Google",
+      "emailPlaceholder": "you@email.com",
+      "envoyer": "Send me link",
+      "envoye": "E don go — open di link wey we just send you.",
+      "erreur": "E no waka. Try am again small time.",
+      "bilanTitre": "Your results",
+      "parties": "Wey you find",
+      "moyenne": "Average try",
+      "meilleur": "Your best game",
+      "serieLabel": "Streak",
+      "rang": "You be number {rang} out of {joueurs} players today.",
+      "rangSeul": "Na you first find am today.",
+      "placet": "Di same account dey run real voting for Placet:",
+      "placetLien": "see wetin e dey do"
+    },
+    "metaTitle": "Five Over Five — di geography game wey dey come every day",
     "metaDescription": "Find di country of di day for di world map. Every try go tell you how many things e share with am. New country every day, you no need account.",
-    "name": "Country of di day",
+    "name": "Five Over Five",
     "back": "All di games",
     "poweredBy": "Placet dey power am",
     "numero": "Day number {n}",

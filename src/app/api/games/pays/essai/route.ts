@@ -32,7 +32,7 @@ export async function POST(req: Request) {
   } catch {
     return refus("corps illisible");
   }
-  const { jour, pays, locale, partie } = (corps ?? {}) as Record<string, unknown>;
+  const { jour, pays, locale, partie, rang } = (corps ?? {}) as Record<string, unknown>;
 
   if (typeof pays !== "string" || !PAYS_PAR_ID[pays]) return refus("pays inconnu");
   if (typeof jour !== "number" || !Number.isInteger(jour) || jour < 1) return refus("journée invalide");
@@ -57,7 +57,13 @@ export async function POST(req: Request) {
   const lang = typeof locale === "string" && ["fr", "en", "es", "pcm"].includes(locale) ? locale : "fr";
   const partieId = typeof partie === "string" && /^[a-z0-9]{6,24}$/.test(partie) ? partie : "?";
 
-  journalise("essai", { jour, pays, score, partie: partieId });
+  // `rang` vient du navigateur : il n'engage rien (le score, lui, est calculé
+  // ici), mais c'est ce qui permet de lire « au 3e essai, on est en moyenne à
+  // 2,1/5 » — la courbe d'apprentissage d'une journée, demandée au §13. Borné,
+  // parce qu'un champ libre recopié dans un journal est une injection offerte.
+  const rangEssai = typeof rang === "number" && Number.isInteger(rang) && rang > 0 && rang <= 500 ? rang : -1;
+
+  journalise("essai", { jour, pays, score, rang: rangEssai, partie: partieId });
 
   const reponse: ReponseEssai = { score };
 

@@ -1661,7 +1661,7 @@
     "metaTitle": "Play together — group games you share with a link",
     "metaDescription": "Games to play together on your phones, no install and no account. Unanimo: write the words everyone else is thinking of.",
     "title": "Play together",
-    "subtitle": "Games where the group thinks, surprises itself and decides together. One link, one nickname, and you're playing.",
+    "subtitle": "Games where the group thinks, surprises itself and decides together. One link, one nickname, and you're playing — plus one game a day, on your own.",
     "joinTitle": "Got a code?",
     "joinPlaceholder": "ABC123",
     "joinCta": "Enter",
@@ -1695,8 +1695,8 @@
       "desc": "The event game: you set the house up, put old devices down in the rooms — they become portraits. Stand your watches, and unmask the Ghost before midnight. Nobody is eliminated."
     },
     "pays": {
-      "name": "Country of the day",
-      "tagline": "One country a day, five secrets",
+      "name": "Five by Five",
+      "tagline": "One country a day, five secret characteristics",
       "desc": "Find the country of the day on the map. Every country you try tells you how many characteristics it shares with it, from 0/5 to 5/5. Only one scores 5/5 — and the five criteria are revealed when you win."
     }
   },
@@ -2458,9 +2458,29 @@
     }
   },
   "Pays": {
-    "metaTitle": "Country of the day — the daily geography game",
+    "serieTitre": "{n} days in a row",
+    "compte": {
+      "serie": "{n} days in a row",
+      "titre": "Keep your results",
+      "texte": "Without an account, your streak lives in this browser: it disappears if you switch phones or clear your data. An account keeps it, and shows you where you stand each day.",
+      "google": "Continue with Google",
+      "emailPlaceholder": "you@email.com",
+      "envoyer": "Send me a link",
+      "envoye": "On its way — open the link we've just sent you.",
+      "erreur": "That didn't go through. Try again in a moment.",
+      "bilanTitre": "Your results",
+      "parties": "Found",
+      "moyenne": "Average guesses",
+      "meilleur": "Best game",
+      "serieLabel": "Streak",
+      "rang": "{rang}th of {joueurs} players today.",
+      "rangSeul": "You're the first to find it today.",
+      "placet": "The same account runs real votes on Placet:",
+      "placetLien": "see what it's for"
+    },
+    "metaTitle": "Five by Five — the daily geography game",
     "metaDescription": "Find the country of the day on the world map. Each guess tells you how many characteristics it shares with it. A new country every day, no account needed.",
-    "name": "Country of the day",
+    "name": "Five by Five",
     "back": "All games",
     "poweredBy": "Powered by Placet",
     "numero": "Day #{n}",

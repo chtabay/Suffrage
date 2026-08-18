@@ -26,6 +26,28 @@ export type Evenement =
   | "source" // un clic sur la source d'un critère
   | "partage";
 
+// LE SCHÉMA DES LIGNES, pour qui interrogera les journaux dans six mois. Chaque
+// ligne porte `{"jeu":"pays","evt":…}` plus :
+//
+//   partie         jour, essais            arrivée sur la carte (essais = reprise)
+//   premier        jour, secondes          délai avant de se lancer
+//   essai          jour, pays, score, rang un pays proposé, et à quel tour
+//   victoire       jour, pays              vu du serveur
+//   fini           jour, essais, secondes  vu du navigateur
+//   carte-complete jour, essais            la carte complète a été ouverte
+//   source         jour                    un clic vers la source d'un critère
+//   partage        jour, essais            le résultat a été partagé
+//
+// Ce qui s'en déduit sans rien ajouter : le taux de victoire (`partie` sans
+// `fini`), la difficulté d'une journée (distribution des `essais` de `fini`), la
+// courbe d'apprentissage (`score` moyen par `rang`), les sondes d'ouverture
+// (`pays` des essais de rang 1), l'appétit pour la révélation
+// (`carte-complete` / `victoire`).
+//
+// Ce qui NE s'en déduit PAS, et c'est délibéré : le retour à J+1. Il faudrait un
+// identifiant stable d'un jour sur l'autre, c'est-à-dire un traceur — or la page
+// de confidentialité de Placet promet le contraire. Cette mesure-là n'arrive
+// qu'avec les comptes, où elle est consentie (`scrutin_game_pays_results`).
 export function journalise(evt: Evenement, champs: Record<string, string | number | boolean>) {
   // Une seule ligne, un seul objet : les journaux d'hébergeur découpent les
   // lignes, pas les objets.
