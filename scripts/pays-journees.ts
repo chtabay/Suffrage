@@ -154,6 +154,44 @@ for (;;) {
   for (const id of meilleure.ids) usagesCritere.set(id, (usagesCritere.get(id) ?? 0) + 1);
 }
 
+// ------------------------------------------------------- 6 : l'éditorialisation
+//
+// LE GÉNÉRATEUR CLASSE PAR NOTE, PAS PAR TROUVABILITÉ. Les deux ne coïncident
+// pas : un pays rare est isolé par des critères rares, donc il produit un
+// gradient superbe — et Tuvalu s'est retrouvé en deuxième journée. Excellent
+// puzzle, porte fermée pour quelqu'un qui découvre le jeu la veille.
+//
+// Plutôt qu'un facteur de notoriété dans la note (qui déplacerait tout le stock
+// pour un problème qui ne concerne que les premières journées), on déclare ici
+// les déplacements décidés à la main, un par un. C'est court, c'est relu, et
+// surtout c'est REJOUÉ : le fichier reste généré, et la décision vit dans le
+// dépôt au lieu d'être une retouche invisible dans un fichier qui dit « ne pas
+// modifier à la main ».
+const REPORTS: Record<string, number> = {
+  // Tuvalu : 193e pays du monde par population, en deuxième journée. Reporté au
+  // quinzième jour, où un joueur régulier a pris l'habitude des sondes larges.
+  TUV: 15,
+};
+
+for (const [cible, place] of Object.entries(REPORTS)) {
+  const k = journees.findIndex((j) => j.cible === cible);
+  if (k < 0) throw new Error(`report impossible : ${cible} n'est pas dans le stock`);
+  const [dehors] = journees.splice(k, 1);
+  journees.splice(Math.min(place - 1, journees.length), 0, dehors);
+}
+
+// ⚠️ UN DÉPLACEMENT PEUT CASSER L'ALTERNANCE DES CONTINENTS, qui était tenue par
+// la sélection. On la revérifie donc APRÈS coup, et on refuse de produire un
+// stock où deux journées de suite servent la même région : c'est la répétition
+// qui se voit le plus vite.
+for (let i = 1; i < journees.length; i++) {
+  const avant = parId[journees[i - 1].cible].continent;
+  const apres = parId[journees[i].cible].continent;
+  if (avant === apres) {
+    throw new Error(`journées ${i} et ${i + 1} : deux fois ${apres} — revoir REPORTS`);
+  }
+}
+
 // ----------------------------------------------------------------- écriture
 const parContinent = new Map<string, number>();
 for (const j of journees) {

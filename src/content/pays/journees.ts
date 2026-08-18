@@ -25,7 +25,6 @@ export interface Journee {
 
 export const JOURNEES: Journee[] = [
   { criteres: ["g20", "opec-hors", "sup-1m", "tropiques", "voisins-5"], cible: "BRA", distribution: [49, 95, 25, 17, 6, 1], note: 100 },
-  { criteres: ["archipel-etat", "continent-oceanie", "densite-100", "langue-plusieurs", "royaume-commonwealth"], cible: "TUV", distribution: [62, 79, 28, 17, 6, 1], note: 100 },
   { criteres: ["cafe", "conduite-gauche", "hemisphere-sud", "langue-eng", "pop-50m"], cible: "TZA", distribution: [85, 50, 31, 21, 5, 1], note: 100 },
   { criteres: ["continent-europe", "mediterranee", "pop-moins-2m", "sans-armee", "sup-moins-30k"], cible: "MCO", distribution: [91, 46, 34, 15, 6, 1], note: 89 },
   { criteres: ["continent-asie", "independance-1990", "opec-hors", "pop-8m", "sup-400k"], cible: "KAZ", distribution: [56, 57, 52, 21, 6, 1], note: 99 },
@@ -39,6 +38,7 @@ export const JOURNEES: Journee[] = [
   { criteres: ["conduite-gauche", "continent-asie", "enclave", "pop-8m", "voisin-chn"], cible: "NPL", distribution: [39, 85, 44, 18, 6, 1], note: 98 },
   { criteres: ["archipel-etat", "densite-100", "monnaie-usd", "sans-armee", "tropiques"], cible: "MHL", distribution: [48, 84, 33, 20, 7, 1], note: 95 },
   { criteres: ["commonwealth", "continent-afrique", "langue-eng", "meridien-greenwich", "pop-20m"], cible: "GHA", distribution: [69, 51, 45, 20, 7, 1], note: 90 },
+  { criteres: ["archipel-etat", "continent-oceanie", "densite-100", "langue-plusieurs", "royaume-commonwealth"], cible: "TUV", distribution: [62, 79, 28, 17, 6, 1], note: 100 },
   { criteres: ["continent-europe", "independance-1990", "latitude-haute-nord", "opec-hors", "voisins-5"], cible: "RUS", distribution: [89, 56, 27, 15, 5, 1], note: 90 },
   { criteres: ["cafe", "conduite-gauche", "continent-asie", "langue-plusieurs", "sup-400k"], cible: "IND", distribution: [46, 69, 56, 16, 5, 1], note: 97 },
   { criteres: ["continent-oceanie", "densite-100", "equateur", "insulaire", "pop-moins-2m"], cible: "KIR", distribution: [80, 69, 17, 19, 7, 1], note: 84 },
