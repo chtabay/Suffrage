@@ -18,12 +18,14 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { nomPays } from "@/content/pays/referentiel";
+import { ajouteResultat, serieEnCours } from "@/lib/games/pays/local";
 import { CHIFFRES, ENCRE_SUR_GRADIENT, GRADIENT } from "@/lib/games/pays/palette";
 import type { Essai, ReponseEssai, Revelation as DonneesRevelation } from "@/lib/games/pays/types";
 import { PAYS_SKIN as skin } from "@/lib/games/skin";
 import GameShell from "@/components/games/GameShell";
 import { GCard, GLabel } from "@/components/games/ui";
 import Carte from "./Carte";
+import Compte from "./Compte";
 import Recherche from "./Recherche";
 import Revelation from "./Revelation";
 
@@ -51,6 +53,7 @@ export default function PaysDuJour({ jour }: { jour: number }) {
   const [dernier, setDernier] = useState<{ pays: string; score: number; repete?: boolean } | null>(null);
   const [erreur, setErreur] = useState(false);
   const [pret, setPret] = useState(false);
+  const [serie, setSerie] = useState(0);
   const partie = useRef<string>("");
   const debut = useRef<number>(0);
 
@@ -70,13 +73,21 @@ export default function PaysDuJour({ jour }: { jour: number }) {
     debut.current = sauve?.debut ?? Date.now();
     setEssais(sauve?.essais ?? []);
     setRevelation(sauve?.revelation ?? null);
+    setSerie(serieEnCours(jour));
     setPret(true);
 
     // On efface les journées précédentes : sans ça, le stockage grossit d'une
     // partie par jour, indéfiniment, pour un jeu qui ne relit jamais hier.
-    for (let i = 0; i < window.localStorage.length; i++) {
-      const k = window.localStorage.key(i);
-      if (k?.startsWith("placet.pays.") && k !== cle(jour)) window.localStorage.removeItem(k);
+    //
+    // ⚠️ LE FILTRE VISE UN NUMÉRO, PAS UN PRÉFIXE. La première version balayait
+    // tout ce qui commence par `placet.pays.` — ce qui emportait aussi
+    // `placet.pays.resultats`, la liste des victoires. Effet : la série se
+    // remettait à zéro au premier changement de journée, c'est-à-dire pour tout
+    // le monde, tous les jours, en silence. Trouvé en jouant deux journées de
+    // suite au navigateur ; ni tsc, ni eslint, ni le test ne pouvaient le voir.
+    const journaliere = /^placet\.pays\.\d+$/;
+    for (const k of Object.keys(window.localStorage)) {
+      if (journaliere.test(k) && k !== cle(jour)) window.localStorage.removeItem(k);
     }
   }, [jour]);
 
@@ -135,7 +146,10 @@ export default function PaysDuJour({ jour }: { jour: number }) {
       const r = await fetch("/api/games/pays/essai", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ jour, pays: id, locale, partie: partie.current }),
+        // `rang` est ce qui rend lisible « le score moyen du n-ième essai »
+        // (§13) : sans lui, le journal sait combien d'essais ont été faits, mais
+        // plus lequel valait combien.
+        body: JSON.stringify({ jour, pays: id, locale, partie: partie.current, rang: essais.length + 1 }),
       });
       if (!r.ok) throw new Error("refus");
       const rep = (await r.json()) as ReponseEssai;
@@ -145,9 +159,13 @@ export default function PaysDuJour({ jour }: { jour: number }) {
       setDernier({ pays: id, score: rep.score });
       const reveal = rep.revelation ?? null;
       if (reveal) {
+        const secondes = Math.round((Date.now() - debut.current) / 1000);
         setRevelation(reveal);
         setCarteComplete(false);
-        mesure("fini", { essais: prochains.length, secondes: Math.round((Date.now() - debut.current) / 1000) });
+        mesure("fini", { essais: prochains.length, secondes });
+        // La série se met à jour AVANT que le bloc « compte » ne s'affiche : il
+        // propose de garder un chiffre que le joueur doit déjà voir.
+        setSerie(serieEnCours(jour, ajouteResultat({ jour, essais: prochains.length, secondes })));
       }
       enregistre(prochains, reveal);
     } catch {
@@ -181,8 +199,26 @@ export default function PaysDuJour({ jour }: { jour: number }) {
       poweredBy={t("poweredBy")}
       maxWidth={860}
       aside={
-        <span style={{ fontWeight: 800, fontSize: 13, color: skin.muted }}>
-          {t("numero", { n: jour })}
+        <span style={{ display: "inline-flex", alignItems: "center", gap: 9 }}>
+          {/* La série se montre dès qu'elle vaut quelque chose, et ne demande
+              RIEN. C'est la seule trace du compte avant la victoire : une
+              récompense, pas un appel à l'inscription. */}
+          {serie > 1 && (
+            <span
+              title={t("serieTitre", { n: serie })}
+              style={{
+                fontWeight: 800,
+                fontSize: 13,
+                padding: "2px 9px",
+                borderRadius: 999,
+                border: `2px solid ${skin.ink}`,
+                background: skin.accent2,
+              }}
+            >
+              🔥 {serie}
+            </span>
+          )}
+          <span style={{ fontWeight: 800, fontSize: 13, color: skin.muted }}>{t("numero", { n: jour })}</span>
         </span>
       }
     >
@@ -268,6 +304,11 @@ export default function PaysDuJour({ jour }: { jour: number }) {
               source: t("victoire.source"),
             }}
           />
+        )}
+
+        {/* LE COMPTE — après la révélation, jamais avant (§16). */}
+        {gagne && (
+          <Compte skin={skin} jour={jour} serieLocale={serie} />
         )}
 
         {/* L'HISTORIQUE. Sous la carte, dans l'ordre des essais, et volontairement

@@ -16,6 +16,7 @@ import { CARDINAL_MAX, CARDINAL_MIN, CRITERES, cardinal, type Texte } from "./cr
 import { JOURNEES } from "./journees";
 import { PAYS, PAYS_PAR_ID } from "./referentiel";
 import { POINTS, TRACES } from "./carte";
+import { serieEnCours } from "@/lib/games/pays/local";
 import { dateCivile, evalueJournee, numeroDeJournee, scoreDe } from "@/lib/games/pays/moteur";
 
 const LOCALES = ["fr", "en", "es", "pcm"] as const;
@@ -154,4 +155,34 @@ test("la journée bascule à minuit à Paris, pas à minuit UTC", () => {
   // …et en janvier, le décalage n'est plus que d'une heure.
   assert.equal(dateCivile(new Date("2026-01-14T23:30:00Z")), "2026-01-15");
   assert.equal(dateCivile(new Date("2026-01-14T22:30:00Z")), "2026-01-14");
+});
+
+// ------------------------------------------------------------------- la série
+
+test("la série se compte à rebours depuis aujourd'hui, ou depuis hier", () => {
+  // Hier compte : à l'ouverture de la page, la journée du jour n'est pas encore
+  // gagnée, et afficher « série : 0 » à quelqu'un qui joue depuis six jours
+  // serait lui annoncer une rupture qui n'a pas eu lieu.
+  const r = (jours: number[]) => jours.map((jour) => ({ jour, essais: 5 }));
+  assert.equal(serieEnCours(230, r([227, 228, 229])), 3);
+  assert.equal(serieEnCours(230, r([228, 229, 230])), 3);
+  assert.equal(serieEnCours(230, r([230])), 1);
+  // Une série interrompue ne se recolle pas.
+  assert.equal(serieEnCours(230, r([220, 221, 229, 230])), 2);
+  // Cinq jours d'affilée, mais il y a trois mois : la série est finie.
+  assert.equal(serieEnCours(230, r([100, 101, 102, 103, 104])), 0);
+  assert.equal(serieEnCours(230, []), 0);
+});
+
+test("la purge quotidienne ne vise que les parties, jamais la liste des victoires", () => {
+  // ⚠️ CE TEST EXISTE PARCE QUE LE BUG A EU LIEU. La purge balayait tout ce qui
+  // commence par `placet.pays.`, ce qui emportait `placet.pays.resultats` : la
+  // série de chaque joueur repartait de zéro à chaque changement de journée,
+  // sans que rien ne le signale. Le motif est donc éprouvé ici, à part de
+  // l'écran, pour qu'un raccourci d'écriture ne le ré-élargisse pas.
+  const journaliere = /^placet\.pays\.\d+$/;
+  assert.ok(journaliere.test("placet.pays.229"));
+  assert.ok(journaliere.test("placet.pays.1"));
+  assert.ok(!journaliere.test("placet.pays.resultats"));
+  assert.ok(!journaliere.test("placet.pays."));
 });
