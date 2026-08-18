@@ -16,6 +16,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { FANTOME_SKIN } from "@/lib/games/skin";
 import { PIECES, pieceEmoji, pieceLabel } from "@/lib/games/fantome/manoir";
+import Portrait from "./Portraits";
 import * as verbes from "@/lib/games/fantome/verbes";
 
 const skin = FANTOME_SKIN;
@@ -224,9 +225,11 @@ export default function FantomeBorne({ code }: { code: string }) {
           animation: toll ? "flick 260ms steps(2) infinite" : undefined,
         }}
       >
-        <div style={{ fontSize: "clamp(40px,11vw,68px)", lineHeight: 1 }} aria-hidden>
-          {toll ? "🕯️" : "👁️"}
-        </div>
+        {/* LE PORTRAIT. Il remplace l'emoji qui tenait ce rôle : une tablette
+            posée dans le noir doit ressembler à un tableau, et un emoji est
+            rendu par la police système — l'objet le plus atmosphérique du jeu
+            n'avait pas la même tête d'un appareil à l'autre. */}
+        <Portrait piece={place ?? ""} glas={toll} />
         <div style={{ fontFamily: skin.fontDisplay, fontWeight: 800, fontSize: 19, marginTop: 8, color: skin.accent2 }}>
           {pieceEmoji(place ?? "")} {pieceLabel(place ?? "", locale)}
         </div>
