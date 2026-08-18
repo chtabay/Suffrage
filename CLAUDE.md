@@ -18,12 +18,24 @@ corriger.
 | **Unanimo** (`games/unanimo`) | en prod, relu | fermé |
 | **Alibi** (`games/alibi`) | en prod, **relu et corrigé le 2026-08-13** | fermé — **ne pas y revenir** |
 | **Gestion de groupes** (`/espaces`) | en prod, 24 constats moyens/faibles en réserve | la session tableau de bord |
-| **Pays du jour** (`games/pays`) | livré le 2026-08-18, jouable et éprouvé au navigateur | fermé |
+| **Cinq sur cinq** (`games/pays`) | en prod le 2026-08-18 · **stock de contenu à rallonger avant le 7 octobre** | ouvert |
 
 **Alibi est clos.** Sa relecture indépendante a produit 53 constats ; les deux
 bloquants, les trois forts et le reliquat d'écran sont corrigés et poussés. Ce
 qui reste est consigné dans la mémoire du projet (`jeu-alibi.md`), pas dans le
 code. Si tu tombes dessus en cherchant autre chose : laisse.
+
+**Cinq sur cinq n'est pas clos, et sa date de péremption est connue.** Le jeu
+sort une journée par jour d'un stock de 51, généré par
+`scripts/pays-journees.ts` : le 7 octobre 2026, il recommence à la première.
+Ce qui plafonne le stock n'est pas la bibliothèque entière (58 critères) mais
+son **étagère du haut** — 7 critères de palier `signature`, alors que chaque
+journée doit en porter un. Doubler cette seule étagère allonge le stock plus que
+trente critères larges.
+
+Ce jeu a aussi ajouté à la base `scrutin_game_pays_results` et trois fonctions
+`scrutin_game_pays_*` (migration `20260818-jeu-pays-resultats.sql`) : RLS active,
+aucune policy, tout passe par les fonctions `security definer`.
 
 ## Les règles qui coûtent cher
 
