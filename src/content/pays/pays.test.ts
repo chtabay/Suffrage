@@ -70,11 +70,20 @@ test("chaque critère est libellé dans les quatre langues", () => {
   }
 });
 
-test("chaque critère porte une source consultable et datée", () => {
+test("chaque critère porte une source consultable, datée, et nommée en quatre langues", () => {
   for (const c of CRITERES) {
-    assert.ok(c.source.nom.length, `${c.id} sans nom de source`);
+    // ⚠️ LE NOM DE LA SOURCE EST LU PAR LE JOUEUR, dans le panneau de victoire.
+    // Il est resté français dans les quatre langues jusqu'à ce qu'on joue le jeu
+    // en anglais ; ce test-là ne le laissera plus passer.
+    for (const l of LOCALES) assert.ok(c.source.nom[l]?.trim().length, `${c.id} : source sans nom en ${l}`);
     assert.match(c.source.url, /^https:\/\//, `${c.id} : source non consultable`);
     assert.match(c.source.date, /^\d{4}/, `${c.id} : source sans année de référence`);
+    // Et le lien ne doit pas être une page localisée : elle serait servie telle
+    // quelle aux trois autres langues.
+    assert.ok(
+      !/[/_.]fr[/_.]|donnees\.banquemondiale/.test(c.source.url),
+      `${c.id} : lien vers une page francophone (${c.source.url})`,
+    );
   }
 });
 

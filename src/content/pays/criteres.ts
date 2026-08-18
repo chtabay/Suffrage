@@ -36,7 +36,8 @@ export interface Texte {
 }
 
 export interface Source {
-  nom: string;
+  /** Le nom de la source, dans les quatre langues : il est LU par le joueur. */
+  nom: Texte;
   url: string;
   /** Année ou date de référence de la donnée, jamais « aujourd'hui ». */
   date: string;
@@ -108,21 +109,145 @@ const LANGUES: Record<string, Texte> = {
   por: { fr: "le portugais", en: "Portuguese", es: "el portugués", pcm: "Portuguese" },
 };
 
-/** Sources ONU / world-countries : le référentiel lui-même. */
+/**
+ * LES SOURCES, toutes ensemble et dans les quatre langues.
+ *
+ * ⚠️ LE NOM DE LA SOURCE EST LU PAR LE JOUEUR, au moment même de la récompense.
+ * Il est resté en français dans les quatre langues jusqu'à ce qu'on joue le jeu
+ * en anglais : cinq critères en anglais parfait, puis « base pays », « membres »,
+ * « production de pétrole brut ». Ce n'est pas un détail d'attribution, c'est la
+ * dernière ligne que le joueur lit avant de fermer.
+ *
+ * ⚠️ ET UNE SEULE URL, CANONIQUE. Huit liens sur vingt-quatre pointaient une page
+ * francophone, servie telle quelle à un hispanophone. On aurait pu quadrupler le
+ * champ ; on a préféré la page internationale de l'organisme — quatre-vingt-seize
+ * liens à garder vivants, ce sont quatre-vingt-seize liens qui meurent, et les
+ * chemins localisés bougent bien plus souvent que la page canonique.
+ */
 const SRC_M49: Source = {
-  nom: "ONU — découpage géographique standard (M49)",
+  nom: { fr: "ONU — découpage géographique standard (M49)", en: "UN — Standard Country or Area Codes (M49)", es: "ONU — clasificación geográfica estándar (M49)", pcm: "UN — Standard Country or Area Codes (M49)" },
   url: "https://unstats.un.org/unsd/methodology/m49/",
   date: "2023",
 };
 const SRC_ISO: Source = {
-  nom: "ISO 3166-1 / base pays « mledoze/countries »",
+  nom: { fr: "ISO 3166-1 / base pays « mledoze/countries »", en: "ISO 3166-1 / “mledoze/countries” dataset", es: "ISO 3166-1 / base de países «mledoze/countries»", pcm: "ISO 3166-1 / “mledoze/countries” dataset" },
   url: "https://github.com/mledoze/countries",
   date: "2024",
 };
 const SRC_BM_POP: Source = {
-  nom: "Banque mondiale — population totale (SP.POP.TOTL)",
-  url: "https://donnees.banquemondiale.org/indicator/SP.POP.TOTL",
+  nom: { fr: "Banque mondiale — population totale (SP.POP.TOTL)", en: "World Bank — total population (SP.POP.TOTL)", es: "Banco Mundial — población total (SP.POP.TOTL)", pcm: "World Bank — total population (SP.POP.TOTL)" },
+  url: "https://data.worldbank.org/indicator/SP.POP.TOTL",
   date: "2018",
+};
+const SRC_UE: Source = {
+  nom: { fr: "Union européenne — pays membres", en: "European Union — member countries", es: "Unión Europea — países miembros", pcm: "European Union — member countries" },
+  url: "https://european-union.europa.eu/principles-countries-history/eu-countries_en",
+  date: "2024",
+};
+const SRC_OTAN: Source = {
+  nom: { fr: "OTAN — pays membres", en: "NATO — member countries", es: "OTAN — países miembros", pcm: "NATO — member countries" },
+  url: "https://www.nato.int/cps/en/natohq/nato_countries.htm",
+  date: "2024",
+};
+const SRC_COMMONWEALTH: Source = {
+  nom: { fr: "The Commonwealth — pays membres", en: "The Commonwealth — member countries", es: "The Commonwealth — países miembros", pcm: "The Commonwealth — member countries" },
+  url: "https://thecommonwealth.org/our-member-countries",
+  date: "2024",
+};
+const SRC_ROYAUMES: Source = {
+  nom: { fr: "The Royal Family — royaumes du Commonwealth", en: "The Royal Family — Commonwealth realms", es: "The Royal Family — reinos de la Commonwealth", pcm: "The Royal Family — Commonwealth realms" },
+  url: "https://www.royal.uk/commonwealth",
+  date: "2024",
+};
+const SRC_OPEP: Source = {
+  nom: { fr: "OPEP — pays membres", en: "OPEC — member countries", es: "OPEP — países miembros", pcm: "OPEC — member countries" },
+  url: "https://www.opec.org/opec_web/en/about_us/25.htm",
+  date: "2024",
+};
+const SRC_CIA_COORD: Source = {
+  nom: { fr: "CIA — The World Factbook, coordonnées géographiques", en: "CIA — The World Factbook, geographic coordinates", es: "CIA — The World Factbook, coordenadas geográficas", pcm: "CIA — The World Factbook, geographic coordinates" },
+  url: "https://www.cia.gov/the-world-factbook/",
+  date: "2024",
+};
+const SRC_CIA_CONDUITE: Source = {
+  nom: { fr: "CIA — The World Factbook, « driving side »", en: "CIA — The World Factbook, “driving side”", es: "CIA — The World Factbook, «driving side»", pcm: "CIA — The World Factbook, “driving side”" },
+  url: "https://www.cia.gov/the-world-factbook/",
+  date: "2024",
+};
+const SRC_CIA_GEO: Source = {
+  nom: { fr: "CIA — The World Factbook, « geography »", en: "CIA — The World Factbook, “geography”", es: "CIA — The World Factbook, «geography»", pcm: "CIA — The World Factbook, “geography”" },
+  url: "https://www.cia.gov/the-world-factbook/",
+  date: "2024",
+};
+const SRC_CIA_ARMEE: Source = {
+  nom: { fr: "CIA — The World Factbook, « military and security forces »", en: "CIA — The World Factbook, “military and security forces”", es: "CIA — The World Factbook, «military and security forces»", pcm: "CIA — The World Factbook, “military and security forces”" },
+  url: "https://www.cia.gov/the-world-factbook/",
+  date: "2024",
+};
+const SRC_CIO: Source = {
+  nom: { fr: "Comité international olympique — Jeux olympiques d'été", en: "International Olympic Committee — Summer Olympic Games", es: "Comité Olímpico Internacional — Juegos Olímpicos de verano", pcm: "International Olympic Committee — Summer Olympic Games" },
+  url: "https://olympics.com/en/olympic-games",
+  date: "2024",
+};
+const SRC_FIFA: Source = {
+  nom: { fr: "FIFA — Coupe du monde, éditions", en: "FIFA — World Cup editions", es: "FIFA — ediciones de la Copa del Mundo", pcm: "FIFA — World Cup editions" },
+  url: "https://www.fifa.com/en/tournaments/mens/worldcup",
+  date: "2024",
+};
+const SRC_FAO: Source = {
+  nom: { fr: "FAO — FAOSTAT, production de café vert", en: "FAO — FAOSTAT, green coffee production", es: "FAO — FAOSTAT, producción de café verde", pcm: "FAO — FAOSTAT, green coffee production" },
+  url: "https://www.fao.org/faostat/en/#data/QCL",
+  date: "2022",
+};
+const SRC_ONU_MEMBRES: Source = {
+  nom: { fr: "ONU — États membres, dates d'admission", en: "UN — member states and admission dates", es: "ONU — Estados miembros, fechas de admisión", pcm: "UN — member states and admission dates" },
+  url: "https://www.un.org/en/about-us/member-states",
+  date: "2024",
+};
+const SRC_UNESCO: Source = {
+  nom: { fr: "UNESCO — Liste du patrimoine mondial, biens par État partie", en: "UNESCO — World Heritage List, properties by State Party", es: "UNESCO — Lista del Patrimonio Mundial, bienes por Estado parte", pcm: "UNESCO — World Heritage List, properties by State Party" },
+  url: "https://whc.unesco.org/en/list/stat",
+  date: "2023",
+};
+const SRC_UICN: Source = {
+  nom: { fr: "UICN — Liste rouge, aire de répartition du genre Gorilla", en: "IUCN — Red List, range of the genus Gorilla", es: "UICN — Lista Roja, área de distribución del género Gorilla", pcm: "IUCN — Red List, range of the genus Gorilla" },
+  url: "https://www.iucnredlist.org/species/9404/136250858",
+  date: "2023",
+};
+const SRC_BARCELONE: Source = {
+  nom: { fr: "PNUE/PAM — Convention de Barcelone, parties contractantes", en: "UNEP/MAP — Barcelona Convention, contracting parties", es: "PNUMA/PAM — Convenio de Barcelona, partes contratantes", pcm: "UNEP/MAP — Barcelona Convention, contracting parties" },
+  url: "https://www.unep.org/unepmap/",
+  date: "2024",
+};
+const SRC_HELCOM: Source = {
+  nom: { fr: "HELCOM (Baltique) et Commission de la mer Noire", en: "HELCOM (Baltic) and the Black Sea Commission", es: "HELCOM (Báltico) y la Comisión del Mar Negro", pcm: "HELCOM (Baltic) and di Black Sea Commission" },
+  url: "https://helcom.fi/about-us/contracting-parties/",
+  date: "2024",
+};
+const SRC_PERSGA: Source = {
+  nom: { fr: "PERSGA — organisation régionale pour la conservation de la mer Rouge", en: "PERSGA — Regional Organization for the Conservation of the Red Sea", es: "PERSGA — organización regional para la conservación del mar Rojo", pcm: "PERSGA — Regional Organization for the Conservation of the Red Sea" },
+  url: "https://persga.org/",
+  date: "2024",
+};
+const SRC_FLEUVES: Source = {
+  nom: { fr: "Commission internationale du Danube (ICPDR), Nile Basin Initiative, Mekong River Commission", en: "International Commission for the Danube (ICPDR), Nile Basin Initiative, Mekong River Commission", es: "Comisión Internacional del Danubio (ICPDR), Nile Basin Initiative, Mekong River Commission", pcm: "International Commission for di Danube (ICPDR), Nile Basin Initiative, Mekong River Commission" },
+  url: "https://www.icpdr.org/",
+  date: "2024",
+};
+const SRC_GREENWICH: Source = {
+  nom: { fr: "Royal Museums Greenwich — le méridien d'origine", en: "Royal Museums Greenwich — the prime meridian", es: "Royal Museums Greenwich — el meridiano de origen", pcm: "Royal Museums Greenwich — di prime meridian" },
+  url: "https://www.rmg.co.uk/stories/topics/prime-meridian-greenwich",
+  date: "2024",
+};
+const SRC_G20: Source = {
+  nom: { fr: "G20 — membres", en: "G20 — members", es: "G20 — miembros", pcm: "G20 — members" },
+  url: "https://www.g20.org/",
+  date: "2024",
+};
+const SRC_EIA: Source = {
+  nom: { fr: "US Energy Information Administration — production de pétrole brut", en: "US Energy Information Administration — crude oil production", es: "US Energy Information Administration — producción de petróleo crudo", pcm: "US Energy Information Administration — crude oil production" },
+  url: "https://www.eia.gov/international/data/world",
+  date: "2023",
 };
 
 // ---------------------------------------------------------------------------
@@ -506,7 +631,7 @@ liste({
     es: "El país es miembro de la Unión Europea",
     pcm: "Di country na member of European Union",
   },
-  source: { nom: "Union européenne — pays membres", url: "https://european-union.europa.eu/principles-countries-history/eu-countries_fr", date: "2024" },
+  source: SRC_UE,
   pays: "AUT BEL BGR HRV CYP CZE DNK EST FIN FRA DEU GRC HUN IRL ITA LVA LTU LUX MLT NLD POL PRT ROU SVK SVN ESP SWE".split(" "),
 });
 
@@ -520,7 +645,7 @@ liste({
     es: "El país es miembro de la OTAN",
     pcm: "Di country na member of NATO",
   },
-  source: { nom: "OTAN — pays membres", url: "https://www.nato.int/cps/fr/natohq/nato_countries.htm", date: "2024" },
+  source: SRC_OTAN,
   pays: "ALB BEL BGR CAN HRV CZE DNK EST FIN FRA DEU GRC HUN ISL ITA LVA LTU LUX MNE NLD MKD NOR POL PRT ROU SVK SVN ESP SWE TUR GBR USA".split(" "),
 });
 
@@ -534,7 +659,7 @@ liste({
     es: "El país es miembro de la Commonwealth",
     pcm: "Di country na member of di Commonwealth",
   },
-  source: { nom: "The Commonwealth — member countries", url: "https://thecommonwealth.org/our-member-countries", date: "2024" },
+  source: SRC_COMMONWEALTH,
   pays: "ATG AUS BHS BGD BRB BLZ BWA BRN CMR CAN CYP DMA SWZ FJI GAB GMB GHA GRD GUY IND JAM KEN KIR LSO MWI MYS MDV MLT MUS MOZ NAM NRU NZL NGA PAK PNG RWA KNA LCA VCT WSM SYC SLE SGP SLB ZAF LKA TZA TGO TON TTO TUV UGA GBR VUT ZMB".split(" "),
 });
 
@@ -554,7 +679,7 @@ liste({
     es: "Quince Estados soberanos comparten el mismo jefe de Estado sin depender unos de otros: son los reinos de la Commonwealth.",
     pcm: "Fifteen sovereign country dey share di same head of state but nobody dey under anoda one: na dem be di Commonwealth realms.",
   },
-  source: { nom: "The Royal Family — Commonwealth realms", url: "https://www.royal.uk/commonwealth", date: "2024" },
+  source: SRC_ROYAUMES,
   pays: "ATG AUS BHS BLZ CAN GRD JAM NZL PNG KNA LCA VCT SLB TUV GBR".split(" "),
 });
 
@@ -568,7 +693,7 @@ liste({
     es: "El país es miembro de la OPEP",
     pcm: "Di country na member of OPEC",
   },
-  source: { nom: "OPEP — member countries", url: "https://www.opec.org/opec_web/en/about_us/25.htm", date: "2024" },
+  source: SRC_OPEP,
   pays: "DZA COG GNQ GAB IRN IRQ KWT LBY NGA SAU ARE VEN".split(" "),
 });
 
@@ -588,7 +713,7 @@ liste({
     es: "Trece Estados son atravesados por el ecuador — solo uno, Ecuador, tomó de él su nombre.",
     pcm: "Thirteen country dey wey di equator dey cross — but na only one, Ecuador, take im name from am.",
   },
-  source: { nom: "CIA — The World Factbook, geographic coordinates", url: "https://www.cia.gov/the-world-factbook/", date: "2024" },
+  source: SRC_CIA_COORD,
   pays: "GAB COG COD UGA KEN SOM STP ECU COL BRA IDN MDV KIR".split(" "),
 });
 
@@ -608,7 +733,7 @@ liste({
     es: "El meridiano de origen corta Europa y luego África occidental, del Reino Unido al golfo de Guinea: ocho países en total.",
     pcm: "Di prime meridian dey cut through Europe come reach West Africa, from United Kingdom go Gulf of Guinea: eight country altogether.",
   },
-  source: { nom: "Royal Museums Greenwich — the prime meridian", url: "https://www.rmg.co.uk/stories/topics/prime-meridian-greenwich", date: "2024" },
+  source: SRC_GREENWICH,
   pays: "GBR FRA ESP DZA MLI BFA TGO GHA".split(" "),
 });
 
@@ -622,7 +747,7 @@ liste({
     es: "El trópico de Cáncer atraviesa el país",
     pcm: "Di tropic of Cancer dey pass through di country",
   },
-  source: { nom: "CIA — The World Factbook, geographic coordinates", url: "https://www.cia.gov/the-world-factbook/", date: "2024" },
+  source: SRC_CIA_COORD,
   pays: "MEX BHS MRT MLI DZA NER LBY EGY SAU ARE OMN IND BGD MMR CHN".split(" "),
 });
 
@@ -636,7 +761,7 @@ liste({
     es: "El país tiene costa en el Mediterráneo",
     pcm: "Di country get coast for Mediterranean sea",
   },
-  source: { nom: "PNUE/PAM — Convention de Barcelone, parties contractantes", url: "https://www.unep.org/unepmap/", date: "2024" },
+  source: SRC_BARCELONE,
   pays: "ESP FRA MCO ITA MLT SVN HRV BIH MNE ALB GRC TUR CYP SYR LBN ISR EGY LBY TUN DZA MAR".split(" "),
 });
 
@@ -650,7 +775,7 @@ liste({
     es: "El país tiene costa en el mar Báltico o en el mar Negro",
     pcm: "Di country get coast for Baltic Sea or Black Sea",
   },
-  source: { nom: "HELCOM (Baltique) et Commission de la mer Noire", url: "https://helcom.fi/about-us/contracting-parties/", date: "2024" },
+  source: SRC_HELCOM,
   pays: "DNK EST FIN DEU LVA LTU POL RUS SWE BGR GEO ROU TUR UKR".split(" "),
 });
 
@@ -664,7 +789,7 @@ liste({
     es: "El país tiene costa en el mar Rojo",
     pcm: "Di country get coast for Red Sea",
   },
-  source: { nom: "PERSGA — Regional Organization for the Conservation of the Red Sea", url: "https://persga.org/", date: "2024" },
+  source: SRC_PERSGA,
   pays: "EGY SDN ERI DJI SAU YEM JOR ISR SOM".split(" "),
 });
 
@@ -684,7 +809,7 @@ liste({
     es: "Tres ríos, tres continentes y la misma consecuencia: un río compartido obliga a los Estados a hablarse — comisiones del Danubio, Iniciativa de la Cuenca del Nilo, Comisión del Mekong.",
     pcm: "Three river, three continent, but na di same result: river wey people dey share dey force country dem to talk — Danube commission, Nile Basin Initiative, Mekong River Commission.",
   },
-  source: { nom: "Commission internationale du Danube (ICPDR), Nile Basin Initiative, Mekong River Commission", url: "https://www.icpdr.org/", date: "2024" },
+  source: SRC_FLEUVES,
   pays: "DEU AUT SVK HUN HRV SRB ROU BGR MDA UKR BDI RWA TZA UGA COD KEN ETH SSD SDN EGY ERI CHN MMR LAO THA KHM VNM".split(" "),
 });
 
@@ -704,7 +829,7 @@ liste({
     es: "Cerca de un tercio de la humanidad circula por la izquierda, y el mapa de esa costumbre es casi el del Imperio británico — con Japón, Tailandia e Indonesia como excepciones notables.",
     pcm: "Like one-third of people for world dey drive for left, and di map of dis habit resemble di map of British Empire — but Japan, Thailand and Indonesia na correct exception.",
   },
-  source: { nom: "CIA — The World Factbook, « driving side »", url: "https://www.cia.gov/the-world-factbook/", date: "2024" },
+  source: SRC_CIA_CONDUITE,
   pays: (
     "GBR IRL MLT CYP IND PAK BGD LKA NPL BTN JPN THA IDN MYS SGP BRN TLS " +
     "AUS NZL PNG FJI WSM TON SLB NRU KIR TUV " +
@@ -723,7 +848,7 @@ liste({
     es: "El país ha acogido unos Juegos Olímpicos de verano",
     pcm: "Di country don host summer Olympic Games",
   },
-  source: { nom: "Comité international olympique — Jeux olympiques d'été", url: "https://olympics.com/fr/olympic-games", date: "2024" },
+  source: SRC_CIO,
   pays: "GRC FRA USA GBR SWE BEL NLD DEU FIN AUS ITA JPN MEX CAN RUS KOR ESP CHN BRA".split(" "),
 });
 
@@ -737,7 +862,7 @@ liste({
     es: "El país ha organizado una Copa del Mundo masculina de fútbol",
     pcm: "Di country don host men football World Cup",
   },
-  source: { nom: "FIFA — Coupe du monde, éditions", url: "https://www.fifa.com/fifaplus/fr/tournaments/mens/worldcup", date: "2024" },
+  source: SRC_FIFA,
   pays: "URY ITA FRA BRA CHE SWE CHL GBR MEX DEU ARG ESP USA JPN KOR ZAF RUS QAT".split(" "),
 });
 
@@ -757,7 +882,7 @@ liste({
     es: "El cafeto solo crece al aire libre entre los trópicos: la lista de productores es ante todo una franja de latitud.",
     pcm: "Coffee tree only dey grow for open field between di tropics: so di producer list na latitude band before anything else.",
   },
-  source: { nom: "FAO — FAOSTAT, production de café vert", url: "https://www.fao.org/faostat/fr/#data/QCL", date: "2022" },
+  source: SRC_FAO,
   pays: "BRA VNM COL IDN ETH HND IND UGA PER MEX GTM NIC CHN CIV TZA KEN PNG CRI SLV LAO".split(" "),
 });
 
@@ -777,7 +902,7 @@ liste({
     es: "Casi todos estos Estados nacieron de tres desmembramientos: la URSS, Yugoslavia y Checoslovaquia — más algunas independencias aisladas, la última Sudán del Sur en 2011.",
     pcm: "Almost all dis country dem comot from three break-up: USSR, Yugoslavia and Czechoslovakia — plus small independence here and there, di last one na South Sudan for 2011.",
   },
-  source: { nom: "ONU — États membres, dates d'admission", url: "https://www.un.org/fr/about-us/member-states", date: "2024" },
+  source: SRC_ONU_MEMBRES,
   pays: (
     "NAM EST LVA LTU RUS UKR BLR MDA GEO ARM AZE KAZ UZB TKM KGZ TJK " +
     "SVN HRV BIH MKD SRB MNE CZE SVK ERI PLW TLS SSD MHL FSM"
@@ -800,7 +925,7 @@ liste({
     es: "Todas las poblaciones salvajes de gorilas caben en una decena de países del África ecuatorial, y la UICN clasifica las cuatro subespecies en peligro o en peligro crítico.",
     pcm: "All di wild gorilla wey remain dey inside like ten country for equatorial Africa, and IUCN talk say all four subspecies dey endangered or critically endangered.",
   },
-  source: { nom: "UICN — Liste rouge, aires de répartition du genre Gorilla", url: "https://www.iucnredlist.org/species/9404/136250858", date: "2023" },
+  source: SRC_UICN,
   pays: "CMR CAF COG COD GNQ GAB NGA AGO RWA UGA".split(" "),
 });
 
@@ -820,7 +945,7 @@ liste({
     es: "Costa Rica abolió su ejército en 1948 e inscribió la prohibición en su Constitución; los demás son sobre todo Estados muy pequeños cuya defensa descansa en un tratado o en un vecino.",
     pcm: "Costa Rica scatter im army for 1948 come put di ban inside im constitution; di others na mostly very small country wey dey rely on treaty or on neighbour for defence.",
   },
-  source: { nom: "CIA — The World Factbook, « military and security forces »", url: "https://www.cia.gov/the-world-factbook/", date: "2024" },
+  source: SRC_CIA_ARMEE,
   pays: "CRI PAN ISL AND LIE MCO SMR GRD DMA VCT KNA MHL FSM PLW NRU TUV WSM SLB HTI".split(" "),
 });
 
@@ -834,7 +959,7 @@ liste({
     es: "El país es miembro del G20",
     pcm: "Di country na member of G20",
   },
-  source: { nom: "G20 — membres", url: "https://www.g20.org/", date: "2024" },
+  source: SRC_G20,
   pays: "ARG AUS BRA CAN CHN FRA DEU IND IDN ITA JPN MEX RUS SAU ZAF KOR TUR GBR USA".split(" "),
 });
 
@@ -848,7 +973,7 @@ liste({
     es: "El país tiene más de veinticinco bienes inscritos en el Patrimonio Mundial",
     pcm: "Di country get pass twenty-five World Heritage site",
   },
-  source: { nom: "UNESCO — Liste du patrimoine mondial, biens par État partie", url: "https://whc.unesco.org/fr/list/stat", date: "2023" },
+  source: SRC_UNESCO,
   pays: "ITA CHN DEU FRA ESP IND MEX GBR RUS IRN JPN USA".split(" "),
 });
 
@@ -862,7 +987,7 @@ liste({
     es: "El país es un archipiélago: su territorio está formado por varias islas",
     pcm: "Di country na archipelago: im land na plenty island join together",
   },
-  source: { nom: "CIA — The World Factbook, « geography »", url: "https://www.cia.gov/the-world-factbook/", date: "2024" },
+  source: SRC_CIA_GEO,
   pays: (
     "IDN PHL JPN MDV FJI SLB VUT WSM TON KIR TUV NRU MHL FSM PLW " +
     "BHS ATG DMA GRD KNA LCA VCT TTO JAM CPV STP COM SYC MUS GBR NZL"
@@ -885,7 +1010,7 @@ liste({
     es: "Una veintena de Estados supera ese umbral, y la mitad no está en la OPEP: Estados Unidos produce por sí solo más que Arabia Saudí.",
     pcm: "Like twenty country dey pass dat mark, and half of dem no dey OPEC: US alone dey produce pass Saudi Arabia.",
   },
-  source: { nom: "US Energy Information Administration — production de pétrole brut", url: "https://www.eia.gov/international/data/world", date: "2023" },
+  source: SRC_EIA,
   pays: "USA SAU RUS CAN IRQ CHN ARE IRN BRA KWT NGA MEX NOR KAZ QAT DZA COL OMN LBY".split(" "),
 });
 

@@ -97,7 +97,9 @@ export async function POST(req: Request) {
       criteres: criteres.map((c) => ({
         libelle: enLangue(c.libelle, lang),
         eclairage: c.eclairage ? enLangue(c.eclairage, lang) : undefined,
-        source: c.source,
+        // Le nom de la source est résolu ICI, comme le libellé : le navigateur
+        // ne reçoit qu'une chaîne, dans la langue de l'écran.
+        source: { nom: enLangue(c.source.nom, lang), url: c.source.url, date: c.source.date },
       })),
       scores: scoresDeTous(criteres),
     };
