@@ -1711,6 +1711,21 @@
     }
   },
   "Unanimo": {
+    "apercu": {
+      "titre": "What you see, round after round",
+      "l1": "You write your words; nobody sees them yet.",
+      "l2": "The reveal: what someone else had too.",
+      "l3": "The points, at the end of the round.",
+      "theme": "The sea",
+      "mot1": "sand",
+      "mot2": "wave",
+      "mot3": "seagull",
+      "avec": "also written by Chloé and Sam",
+      "scores": "The points",
+      "j1": "Chloé",
+      "j2": "Sam",
+      "j3": "Iris"
+    },
     "metaTitle": "Unanimo — write the words everyone is thinking of",
     "metaDescription": "One theme, a few words, and points for every word someone else wrote too. Play together on your phones, no account.",
     "name": "Unanimo",
@@ -2009,6 +2024,12 @@
     }
   },
   "Rodeurs": {
+    "apercu": {
+      "titre": "On your screen, all evening",
+      "l1": "Your code: someone types it to prove you crossed paths.",
+      "l2": "Your role, seen by you alone.",
+      "l3": "Your mission for the round."
+    },
     "metaTitle": "Prowlers — live your evening, the log runs the investigation",
     "metaDescription": "A party game on your phones, one to two hours. Every time someone taps in your code, you have proof you were together — and three of you are prowling. Nobody is ever knocked out, no account needed.",
     "name": "Prowlers",

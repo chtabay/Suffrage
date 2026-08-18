@@ -1711,6 +1711,21 @@
     }
   },
   "Unanimo": {
+    "apercu": {
+      "titre": "Wetin you dey see, round by round",
+      "l1": "You dey write your words; nobody don see dem yet.",
+      "l2": "Di reveal: wetin anoda person get too.",
+      "l3": "Di points, when di round finish.",
+      "theme": "Di sea",
+      "mot1": "sand",
+      "mot2": "wave",
+      "mot3": "seagull",
+      "avec": "Chloé and Sam write am too",
+      "scores": "Di points",
+      "j1": "Chloé",
+      "j2": "Sam",
+      "j3": "Iris"
+    },
     "metaTitle": "Unanimo — write di words wey everybody dey think",
     "metaDescription": "One theme, small words, and point for every word wey another person write too. Plenty people, on dem phone, no account.",
     "name": "Unanimo",
@@ -2009,6 +2024,12 @@
     }
   },
   "Rodeurs": {
+    "apercu": {
+      "titre": "For your screen, di whole night",
+      "l1": "Your code: person go type am to prove say una see each other.",
+      "l2": "Your role, na you alone dey see am.",
+      "l3": "Your mission for dis round."
+    },
     "metaTitle": "Prowlers — enjoy di evening, di register go do di investigation",
     "metaDescription": "Party game of one to two hours on top una phones. Any time pesin type your code, e don prove say una bin dey together — and three of una dey prowl. Nobody dey commot for di game, no account.",
     "name": "Prowlers",

@@ -16,6 +16,7 @@ import { useRouter } from "@/i18n/navigation";
 import { createRoom, getRoom, lastNick, saveSeat } from "@/lib/games/room";
 import { UNANIMO_SKIN } from "@/lib/games/skin";
 import GameShell from "@/components/games/GameShell";
+import Apercus, { ApercuPastille, ApercuTexte, ApercuTitre } from "@/components/games/Apercus";
 import { GBtn, GCard, GLabel } from "@/components/games/ui";
 
 const skin = UNANIMO_SKIN;
@@ -138,6 +139,88 @@ export default function UnanimoCreate() {
             {t("create.pitch")}
           </p>
         </div>
+
+        {/* CE QU'ON VOIT SUR SON ÉCRAN.
+            
+            Trois vignettes, dans l'ordre de la manche : on écrit, on révèle, on
+            compte. La deuxième est la seule qui compte vraiment — c'est là que
+            le jeu se joue, et c'est celle qu'une description ne rend pas. */}
+        <Apercus
+          skin={skin}
+          titre={t("apercu.titre")}
+          ecrans={[
+            {
+              legende: t("apercu.l1"),
+              contenu: (
+                <>
+                  <ApercuTitre skin={skin}>{t("round.theme")}</ApercuTitre>
+                  <ApercuTexte skin={skin} fort taille={15}>
+                    🌊 {t("apercu.theme")}
+                  </ApercuTexte>
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: 4, marginTop: 2 }}>
+                    <ApercuPastille skin={skin}>{t("apercu.mot1")}</ApercuPastille>
+                    <ApercuPastille skin={skin}>{t("apercu.mot2")}</ApercuPastille>
+                    <ApercuPastille skin={skin}>{t("apercu.mot3")}</ApercuPastille>
+                  </div>
+                </>
+              ),
+            },
+            {
+              legende: t("apercu.l2"),
+              contenu: (
+                <>
+                  <ApercuTitre skin={skin}>{t("reveal.common")}</ApercuTitre>
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
+                    <ApercuPastille skin={skin} plein>
+                      {t("apercu.mot1")}
+                    </ApercuPastille>
+                  </div>
+                  <ApercuTexte skin={skin} taille={9.5}>
+                    {t("apercu.avec")}
+                  </ApercuTexte>
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: 4, marginTop: 3 }}>
+                    <ApercuPastille skin={skin}>{t("apercu.mot3")}</ApercuPastille>
+                  </div>
+                  <ApercuTexte skin={skin} taille={9.5}>
+                    {t("reveal.alone")}
+                  </ApercuTexte>
+                </>
+              ),
+            },
+            {
+              legende: t("apercu.l3"),
+              contenu: (
+                <>
+                  <ApercuTitre skin={skin}>{t("apercu.scores")}</ApercuTitre>
+                  {[
+                    [t("apercu.j1"), "7"],
+                    [t("apercu.j2"), "5"],
+                    [t("apercu.j3"), "4"],
+                  ].map(([nom, pts], i) => (
+                    <div
+                      key={nom}
+                      style={{
+                        display: "flex",
+                        alignItems: "baseline",
+                        justifyContent: "space-between",
+                        gap: 6,
+                        borderTop: i ? `1px solid ${skin.ink}18` : undefined,
+                        paddingTop: i ? 4 : 0,
+                      }}
+                    >
+                      <ApercuTexte skin={skin} fort taille={12}>
+                        {nom}
+                      </ApercuTexte>
+                      <ApercuTexte skin={skin} fort taille={13} style={{ color: skin.good }}>
+                        {pts}
+                      </ApercuTexte>
+                    </div>
+                  ))}
+                </>
+              ),
+            },
+          ]}
+        />
 
         <GCard skin={skin} accent={skin.accent} padding={16}>
           <GLabel skin={skin}>{t("create.name")}</GLabel>
