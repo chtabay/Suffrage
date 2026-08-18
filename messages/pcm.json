@@ -1670,6 +1670,7 @@
     "soon": "Soon",
     "players": "{n} players",
     "minutes": "{n} min",
+    "solo": "you alone",
     "unanimo": {
       "name": "Unanimo",
       "tagline": "Think like di others",
@@ -1692,6 +1693,11 @@
       "name": "Di Night of di Ghost",
       "tagline": "One of una dey haunt dis manor",
       "desc": "Di event game: una go set di house, drop old phones for di rooms — dem go turn portraits. Do una rondes, and pull di Ghost mask before midnight. Nobody dey commot."
+    },
+    "pays": {
+      "name": "Country of di day",
+      "tagline": "One country every day, five secret",
+      "desc": "Find di country of di day for di map. Every country wey you try go tell you how many things e share with am, from 0/5 go 5/5. Na only one go make 5/5 — and di five criteria go show once you win."
     }
   },
   "Unanimo": {
@@ -2449,6 +2455,35 @@
       "ranking": "Ranking",
       "replay": "Play again",
       "joinNew": "Di new game don open"
+    }
+  },
+  "Pays": {
+    "metaTitle": "Country of di day — di geography game wey dey come every day",
+    "metaDescription": "Find di country of di day for di world map. Every try go tell you how many things e share with am. New country every day, you no need account.",
+    "name": "Country of di day",
+    "back": "All di games",
+    "poweredBy": "Placet dey power am",
+    "numero": "Day number {n}",
+    "titre": "Find di country of di day",
+    "consigne": "Every try go tell you how many things e share with am. Touch one country for di map, or search im name.",
+    "recherche": "Search country…",
+    "carteEtiquette": "World map. Touch one country make you try am; di country wey you don try dey carry im score for colour.",
+    "dejaCourt": "you don try am",
+    "deja": "you don try am — e no dey count twice",
+    "erreur": "Di score no come back. Try am again small.",
+    "historique": "{n, plural, one {# try} other {# tries}}",
+    "partageTitre": "Country of di day number {n} — I find am for {essais, plural, one {# try} other {# tries}}",
+    "victoire": {
+      "titre": "na di country of di day",
+      "essais": "I find am for {n, plural, one {# try} other {# tries}}.",
+      "criteres": "Di five criteria of di day",
+      "voirCarte": "Understand di map",
+      "cacherCarte": "Go back to my tries",
+      "legende": "Score of every country",
+      "partager": "Share my result",
+      "copie": "I don copy am!",
+      "demain": "New country tomorrow.",
+      "source": "Source:"
     }
   }
 }

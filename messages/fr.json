@@ -1670,6 +1670,7 @@
     "soon": "Bientôt",
     "players": "{n} joueurs",
     "minutes": "{n} min",
+    "solo": "solo",
     "unanimo": {
       "name": "Unanimo",
       "tagline": "Pensez comme les autres",
@@ -1692,6 +1693,11 @@
       "name": "La Nuit du Fantôme",
       "tagline": "L'un de vous hante ce manoir",
       "desc": "Le jeu-événement : on prépare la maison, on pose de vieux appareils dans les pièces — ils deviennent des portraits. Faites vos rondes, et démasquez le Fantôme avant minuit. Personne n'est éliminé."
+    },
+    "pays": {
+      "name": "Pays du jour",
+      "tagline": "Un pays par jour, cinq secrets",
+      "desc": "Trouvez le pays du jour sur la carte. Chaque pays essayé vous dit combien de caractéristiques il partage avec lui, de 0/5 à 5/5. Un seul fait 5/5 — et les cinq critères se dévoilent à la victoire."
     }
   },
   "Unanimo": {
@@ -2449,6 +2455,35 @@
       "ranking": "Classement",
       "replay": "Rejouer",
       "joinNew": "La nouvelle partie est ouverte"
+    }
+  },
+  "Pays": {
+    "metaTitle": "Pays du jour — le jeu de géographie quotidien",
+    "metaDescription": "Trouvez le pays du jour sur la carte du monde. Chaque essai vous dit combien de caractéristiques il partage avec lui. Un nouveau pays chaque jour, sans compte.",
+    "name": "Pays du jour",
+    "back": "Tous les jeux",
+    "poweredBy": "Propulsé par Placet",
+    "numero": "Journée n° {n}",
+    "titre": "Trouvez le pays du jour",
+    "consigne": "Chaque essai vous indique combien de caractéristiques il partage avec lui. Touchez un pays sur la carte, ou cherchez son nom.",
+    "recherche": "Chercher un pays…",
+    "carteEtiquette": "Carte du monde. Touchez un pays pour l'essayer ; les pays déjà essayés portent leur score en couleur.",
+    "dejaCourt": "déjà essayé",
+    "deja": "déjà essayé — il ne compte pas deux fois",
+    "erreur": "Le score n'est pas revenu. Réessayez dans un instant.",
+    "historique": "{n, plural, one {# essai} other {# essais}}",
+    "partageTitre": "Pays du jour n° {n} — trouvé en {essais, plural, one {# essai} other {# essais}}",
+    "victoire": {
+      "titre": "c'est le pays du jour",
+      "essais": "Trouvé en {n, plural, one {# essai} other {# essais}}.",
+      "criteres": "Les cinq critères du jour",
+      "voirCarte": "Comprendre la carte",
+      "cacherCarte": "Revenir à mes essais",
+      "legende": "Score de chaque pays",
+      "partager": "Partager mon résultat",
+      "copie": "Copié !",
+      "demain": "Un nouveau pays demain.",
+      "source": "Source :"
     }
   }
 }

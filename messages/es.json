@@ -1670,6 +1670,7 @@
     "soon": "Pronto",
     "players": "{n} jugadores",
     "minutes": "{n} min",
+    "solo": "en solitario",
     "unanimo": {
       "name": "Unanimo",
       "tagline": "Piensa como los demás",
@@ -1692,6 +1693,11 @@
       "name": "La Noche del Fantasma",
       "tagline": "Uno de vosotros ronda esta mansión",
       "desc": "El juego-acontecimiento: se prepara la casa, se dejan aparatos viejos en las habitaciones — se convierten en retratos. Haced vuestras rondas y desenmascarad al Fantasma antes de medianoche. Nadie queda eliminado."
+    },
+    "pays": {
+      "name": "País del día",
+      "tagline": "Un país al día, cinco secretos",
+      "desc": "Encuentra el país del día en el mapa. Cada país que pruebes te dice cuántas características comparte con él, de 0/5 a 5/5. Solo uno llega a 5/5 — y los cinco criterios se desvelan al ganar."
     }
   },
   "Unanimo": {
@@ -2449,6 +2455,35 @@
       "ranking": "Clasificación",
       "replay": "Volver a jugar",
       "joinNew": "La nueva partida está abierta"
+    }
+  },
+  "Pays": {
+    "metaTitle": "País del día — el juego diario de geografía",
+    "metaDescription": "Encuentra el país del día en el mapa del mundo. Cada intento te dice cuántas características comparte con él. Un país nuevo cada día, sin cuenta.",
+    "name": "País del día",
+    "back": "Todos los juegos",
+    "poweredBy": "Con la tecnología de Placet",
+    "numero": "Día n.º {n}",
+    "titre": "Encuentra el país del día",
+    "consigne": "Cada intento te indica cuántas características comparte con él. Toca un país en el mapa, o busca su nombre.",
+    "recherche": "Buscar un país…",
+    "carteEtiquette": "Mapa del mundo. Toca un país para probarlo; los países ya probados llevan su puntuación en color.",
+    "dejaCourt": "ya probado",
+    "deja": "ya probado — no cuenta dos veces",
+    "erreur": "La puntuación no ha llegado. Inténtalo de nuevo en un momento.",
+    "historique": "{n, plural, one {# intento} other {# intentos}}",
+    "partageTitre": "País del día n.º {n} — encontrado en {essais, plural, one {# intento} other {# intentos}}",
+    "victoire": {
+      "titre": "es el país del día",
+      "essais": "Encontrado en {n, plural, one {# intento} other {# intentos}}.",
+      "criteres": "Los cinco criterios del día",
+      "voirCarte": "Entender el mapa",
+      "cacherCarte": "Volver a mis intentos",
+      "legende": "Puntuación de cada país",
+      "partager": "Compartir mi resultado",
+      "copie": "¡Copiado!",
+      "demain": "Un país nuevo mañana.",
+      "source": "Fuente:"
     }
   }
 }

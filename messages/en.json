@@ -1670,6 +1670,7 @@
     "soon": "Soon",
     "players": "{n} players",
     "minutes": "{n} min",
+    "solo": "solo",
     "unanimo": {
       "name": "Unanimo",
       "tagline": "Think like the others",
@@ -1692,6 +1693,11 @@
       "name": "The Night of the Ghost",
       "tagline": "One of you haunts this manor",
       "desc": "The event game: you set the house up, put old devices down in the rooms — they become portraits. Stand your watches, and unmask the Ghost before midnight. Nobody is eliminated."
+    },
+    "pays": {
+      "name": "Country of the day",
+      "tagline": "One country a day, five secrets",
+      "desc": "Find the country of the day on the map. Every country you try tells you how many characteristics it shares with it, from 0/5 to 5/5. Only one scores 5/5 — and the five criteria are revealed when you win."
     }
   },
   "Unanimo": {
@@ -2449,6 +2455,35 @@
       "ranking": "Standings",
       "replay": "Play again",
       "joinNew": "The new game is open"
+    }
+  },
+  "Pays": {
+    "metaTitle": "Country of the day — the daily geography game",
+    "metaDescription": "Find the country of the day on the world map. Each guess tells you how many characteristics it shares with it. A new country every day, no account needed.",
+    "name": "Country of the day",
+    "back": "All games",
+    "poweredBy": "Powered by Placet",
+    "numero": "Day #{n}",
+    "titre": "Find the country of the day",
+    "consigne": "Each guess tells you how many characteristics it shares with it. Tap a country on the map, or search for its name.",
+    "recherche": "Search for a country…",
+    "carteEtiquette": "World map. Tap a country to try it; countries already tried carry their score in colour.",
+    "dejaCourt": "already tried",
+    "deja": "already tried — it does not count twice",
+    "erreur": "The score did not come back. Try again in a moment.",
+    "historique": "{n, plural, one {# guess} other {# guesses}}",
+    "partageTitre": "Country of the day #{n} — found in {essais, plural, one {# guess} other {# guesses}}",
+    "victoire": {
+      "titre": "is the country of the day",
+      "essais": "Found in {n, plural, one {# guess} other {# guesses}}.",
+      "criteres": "Today's five criteria",
+      "voirCarte": "Understand the map",
+      "cacherCarte": "Back to my guesses",
+      "legende": "Every country's score",
+      "partager": "Share my result",
+      "copie": "Copied!",
+      "demain": "A new country tomorrow.",
+      "source": "Source:"
     }
   }
 }

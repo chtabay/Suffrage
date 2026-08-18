@@ -24,6 +24,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     "/games/alibi",
     "/games/rodeurs",
     "/games/fantome",
+    "/games/pays",
     "/ai",
     "/slack",
     "/privacy",

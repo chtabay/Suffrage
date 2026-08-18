@@ -5,7 +5,7 @@
 // registre dynamique, pas de manifeste. Ajouter un jeu = une entrée ici + un
 // dossier de composants. Le jour où il y en aura cinq, on saura ce qu'il faut
 // vraiment généraliser ; l'inventer maintenant serait deviner.
-import { ALIBI_SKIN, FANTOME_SKIN, RODEURS_SKIN, UNANIMO_SKIN, type GameSkin } from "./skin";
+import { ALIBI_SKIN, FANTOME_SKIN, PAYS_SKIN, RODEURS_SKIN, UNANIMO_SKIN, type GameSkin } from "./skin";
 
 export interface GameEntry {
   /** Slug technique, aussi la valeur de `scrutin_game_rooms.game`. */
@@ -66,6 +66,19 @@ export const GAMES: GameEntry[] = [
     route: "/games/fantome",
     bestWith: "7–12",
     minutes: "120",
+  },
+  {
+    // LE SEUL JEU SOLO, ET LE SEUL QUOTIDIEN. Il n'a pas de salle : son « code »
+    // est la date, la même pour tout le monde. D'où `route` sans `/<code>` —
+    // `roomPath` ne le désignera jamais, et c'est correct : aucun code de salle
+    // ne peut y mener.
+    slug: "pays",
+    status: "live",
+    emoji: "🌍",
+    skin: PAYS_SKIN,
+    route: "/games/pays",
+    bestWith: "1",
+    minutes: "3",
   },
 ];
 

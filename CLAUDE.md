@@ -18,6 +18,7 @@ corriger.
 | **Unanimo** (`games/unanimo`) | en prod, relu | fermé |
 | **Alibi** (`games/alibi`) | en prod, **relu et corrigé le 2026-08-13** | fermé — **ne pas y revenir** |
 | **Gestion de groupes** (`/espaces`) | en prod, 24 constats moyens/faibles en réserve | la session tableau de bord |
+| **Pays du jour** (`games/pays`) | livré le 2026-08-18, jouable et éprouvé au navigateur | fermé |
 
 **Alibi est clos.** Sa relecture indépendante a produit 53 constats ; les deux
 bloquants, les trois forts et le reliquat d'écran sont corrigés et poussés. Ce

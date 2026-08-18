@@ -159,7 +159,13 @@ export default function GamesHome() {
                   {t(`${g.slug}.desc`)}
                 </p>
                 <div style={{ display: "flex", gap: 7, flexWrap: "wrap", marginTop: 12 }}>
-                  {[t("players", { n: g.bestWith }), t("minutes", { n: g.minutes })].map((chip) => (
+                  {[
+                    // Le seul jeu SOLO du catalogue casse le gabarit : « 1
+                    // joueurs » est faux, et un pluriel ICU ne s'applique pas à
+                    // « 3–12 », qui est une chaîne, pas un nombre.
+                    g.bestWith === "1" ? t("solo") : t("players", { n: g.bestWith }),
+                    t("minutes", { n: g.minutes }),
+                  ].map((chip) => (
                     <span
                       key={chip}
                       style={{

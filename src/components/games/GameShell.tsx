@@ -30,6 +30,8 @@ export default function GameShell({
   aside,
   backLabel,
   poweredBy,
+  /** Largeur de la colonne. Par défaut 720 — la lecture ; une CARTE en veut plus. */
+  maxWidth = 720,
   children,
 }: {
   skin: GameSkin;
@@ -38,6 +40,7 @@ export default function GameShell({
   aside?: ReactNode;
   backLabel: string;
   poweredBy: string;
+  maxWidth?: number;
   children: ReactNode;
 }) {
   const head: CSSProperties = {
@@ -49,7 +52,7 @@ export default function GameShell({
   };
   return (
     <div style={{ background: skin.bg, minHeight: "100dvh", color: skin.ink, fontFamily: skin.fontBody }}>
-      <div className="pad" style={{ maxWidth: 720, margin: "0 auto", padding: "14px 18px 34px" }}>
+      <div className="pad" style={{ maxWidth, margin: "0 auto", padding: "14px 18px 34px" }}>
         <header style={head}>
           <Link
             href="/games"

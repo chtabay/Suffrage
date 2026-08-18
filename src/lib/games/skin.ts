@@ -136,6 +136,31 @@ export const FANTOME_SKIN: GameSkin = {
 };
 
 /**
+ * PAYS DU JOUR — l'atlas ouvert sur une table : bleu de mer profonde et sable
+ * chaud sur un papier ivoire.
+ *
+ * Le seul jeu du catalogue qui se joue SEUL et en trois minutes : l'écran doit
+ * ressembler à une page de journal qu'on ouvre le matin, pas à une console. Le
+ * rouge n'existe pas — se tromper de pays n'est pas une faute, c'est un sondage.
+ *
+ * Contrastes CALCULÉS : blanc sur `accent` 7,14:1 ; `ink` sur `accent2` 9,84:1 ;
+ * `muted` 6,03:1 sur `paper` et 5,34:1 sur `bg` ; `good` 5,78:1 sur `paper`.
+ */
+export const PAYS_SKIN: GameSkin = {
+  ink: "#14202B",
+  bg: "#E7F0F2",
+  paper: "#FFFCF4",
+  accent: "#1F5F73",
+  accent2: "#F2C14E",
+  good: "#17724B",
+  muted: "#55636E",
+  border: 2.5,
+  radius: 14,
+  fontDisplay: FONT_DISPLAY,
+  fontBody: FONT_BODY,
+};
+
+/**
  * Skin de la porte « Jouer » : celle-ci appartient encore à Placet (c'est une
  * page de Placet qui présente les jeux), d'où les tokens maison.
  */
