@@ -17,6 +17,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { FANTOME_SKIN } from "@/lib/games/skin";
 import { PIECES, pieceEmoji, pieceLabel } from "@/lib/games/fantome/manoir";
 import Portrait from "./Portraits";
+import { murmure } from "@/lib/games/fantome/murmures";
 import * as verbes from "@/lib/games/fantome/verbes";
 
 const skin = FANTOME_SKIN;
@@ -32,6 +33,7 @@ export default function FantomeBorne({ code }: { code: string }) {
   const [toll, setToll] = useState(false);
   const [lost, setLost] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [tour, setTour] = useState(0);
   const audioRef = useRef<AudioContext | null>(null);
 
   useEffect(() => {
@@ -104,6 +106,18 @@ export default function FantomeBorne({ code }: { code: string }) {
       window.clearInterval(id);
     };
   }, [secret, ring]);
+
+  // LE MURMURE TOURNE, à contretemps du code.
+  //
+  // ⚠️ 25 s, PAS 20. Le code tourne toutes les 20 secondes ; si le murmure
+  // changeait au même rythme, les deux battraient ensemble et l'écran aurait
+  // l'air d'un panneau d'affichage qui se rafraîchit. Décalés, ils donnent
+  // l'impression de deux choses qui vivent séparément — ce qui est le but.
+  useEffect(() => {
+    if (!secret) return;
+    const id = window.setInterval(() => setTour((n) => n + 1), 25_000);
+    return () => window.clearInterval(id);
+  }, [secret]);
 
   // Garder l'écran allumé. ⚠️ L'API n'existe pas sur les vieux navigateurs —
   // exactement les appareils de récupération qu'on pose dans les pièces — donc
@@ -215,13 +229,19 @@ export default function FantomeBorne({ code }: { code: string }) {
   // ─────────────────────────────────────────── le portrait est accroché
   return frame(
     <div style={{ width: "100%", maxWidth: 640, textAlign: "center", display: "grid", gap: 10 }}>
+      {/* ⚠️ LE CADRE DORÉ NE TIENT QUE LA PEINTURE. Il enveloppait aussi le nom
+          de la pièce et le code : sur une tablette en paysage, ça donnait un
+          grand panneau doré aux trois quarts vide, qui ne ressemblait à rien —
+          surtout pas à un tableau accroché au mur. Le cadre serre la toile, le
+          reste vit sur le mur noir en dessous. */}
       <div
         style={{
           border: `10px solid ${skin.accent2}`,
-          borderRadius: 8,
-          padding: "26px 18px",
+          borderRadius: 4,
+          lineHeight: 0,
+          justifySelf: "center",
           background: toll ? "#150C1E" : "#241C31",
-          boxShadow: toll ? "none" : "0 0 60px rgba(201,162,39,0.18) inset",
+          boxShadow: toll ? "none" : "0 0 70px rgba(201,162,39,0.22)",
           animation: toll ? "flick 260ms steps(2) infinite" : undefined,
         }}
       >
@@ -230,7 +250,10 @@ export default function FantomeBorne({ code }: { code: string }) {
             rendu par la police système — l'objet le plus atmosphérique du jeu
             n'avait pas la même tête d'un appareil à l'autre. */}
         <Portrait piece={place ?? ""} glas={toll} />
-        <div style={{ fontFamily: skin.fontDisplay, fontWeight: 800, fontSize: 19, marginTop: 8, color: skin.accent2 }}>
+      </div>
+
+      <div>
+        <div style={{ fontFamily: skin.fontDisplay, fontWeight: 800, fontSize: 19, color: skin.accent2 }}>
           {pieceEmoji(place ?? "")} {pieceLabel(place ?? "", locale)}
         </div>
 
@@ -262,6 +285,29 @@ export default function FantomeBorne({ code }: { code: string }) {
         )}
       </div>
 
+      {/* LE MURMURE. La borne parle, elle n'écoute jamais : un murmure qui
+          attendrait une réponse recréerait la file d'attente que le calcul de
+          capacité interdit (49 min de borne-temps pour 24 de capacité). Il
+          remplit les 90 secondes de la ronde sans réclamer une seconde
+          d'attention au téléphone. */}
+      {!toll && (
+        <div
+          key={tour}
+          className="borne-murmure"
+          style={{
+            fontSize: "clamp(14px,2.4vw,19px)",
+            lineHeight: 1.45,
+            color: "#9C8FA8",
+            fontStyle: "italic",
+            maxWidth: "34ch",
+            margin: "0 auto",
+            minHeight: "2.9em",
+          }}
+        >
+          {murmure(place ?? "", tour, locale)}
+        </div>
+      )}
+
       {lost ? (
         <div role="alert" style={{ fontSize: 14, fontWeight: 700, color: skin.accent2 }}>
           {t("borne.lost")}
@@ -272,7 +318,14 @@ export default function FantomeBorne({ code }: { code: string }) {
         </div>
       )}
 
-      <style>{`@keyframes flick{0%{opacity:1}50%{opacity:.35}100%{opacity:1}}`}</style>
+      <style>{`
+        @keyframes flick{0%{opacity:1}50%{opacity:.35}100%{opacity:1}}
+        /* Le murmure ne surgit pas : il monte. Une apparition sèche dans une
+           pièce sombre attire l'œil comme une notification. */
+        @keyframes souffle{from{opacity:0}to{opacity:1}}
+        .borne-murmure{animation:souffle 1600ms ease-out}
+        @media (prefers-reduced-motion: reduce){.borne-murmure{animation:none}}
+      `}</style>
     </div>,
   );
 }

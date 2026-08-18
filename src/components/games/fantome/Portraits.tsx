@@ -186,7 +186,7 @@ export default function Portrait({ piece, glas }: { piece: string; glas?: boolea
       role="img"
       aria-hidden
       style={{
-        height: "clamp(120px, 26vh, 230px)",
+        height: "clamp(150px, 38vh, 320px)",
         width: "auto",
         display: "block",
         margin: "0 auto",
