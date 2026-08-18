@@ -19,6 +19,7 @@ corriger.
 | **Alibi** (`games/alibi`) | en prod, **relu et corrigé le 2026-08-13** | fermé — **ne pas y revenir** |
 | **Gestion de groupes** (`/espaces`) | en prod, 24 constats moyens/faibles en réserve | la session tableau de bord |
 | **Cinq sur cinq** (`games/pays`) | en prod le 2026-08-18 · **stock de contenu à rallonger avant le 7 octobre** | ouvert |
+| **La Nuit du Fantôme** (`games/fantome`) | en prod ; portraits SVG + murmures de borne posés le 2026-08-18 | l'agent des jeux |
 | **La porte `/games`** | rangée par familles le 2026-08-18 ; ajouter un jeu = lui donner une `famille` dans `catalog.ts` | l'agent des jeux |
 | **Aperçus d'écrans** (`components/games/Apercus.tsx`) | posés sur Rôdeurs et Unanimo ; **reproduits, jamais capturés** — une capture ne parle qu'une langue sur quatre | l'agent des jeux |
 
@@ -26,6 +27,14 @@ corriger.
 bloquants, les trois forts et le reliquat d'écran sont corrigés et poussés. Ce
 qui reste est consigné dans la mémoire du projet (`jeu-alibi.md`), pas dans le
 code. Si tu tombes dessus en cherchant autre chose : laisse.
+
+**La borne du Fantôme est une BALISE, jamais un guichet.** Le portrait parle —
+son murmure de pièce, puis douze murmures de manoir qui tournent — mais il
+n'attend jamais de réponse, et c'est un calcul, pas une omission : 11 joueurs ×
+3 tâches × 90 s font 49 min de borne-temps par manche contre 24 min de capacité.
+La moindre interaction qui demande une réponse recrée une file d'attente devant
+un tableau. Et aucun murmure ne désigne quelqu'un : un décor qui accuse
+fabriquerait une preuve que le jeu n'a pas calculée.
 
 **Cinq sur cinq n'est pas clos, et sa date de péremption est connue.** Le jeu
 sort une journée par jour d'un stock de 51, généré par
