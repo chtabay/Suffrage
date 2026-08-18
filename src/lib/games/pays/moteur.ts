@@ -205,8 +205,21 @@ function note(distribution: number[], nbQuasi: number, diversite: number, criter
  */
 export const FUSEAU = "Europe/Paris";
 
-/** Origine du calendrier : la journée n° 1. */
-export const ORIGINE = "2026-01-01";
+/**
+ * Origine du calendrier : la journée n° 1. C'est le JOUR DE MISE EN LIGNE.
+ *
+ * ⚠️ ELLE NE SE DÉPLACE PLUS APRÈS LA PUBLICATION. Le numéro sert à trois
+ * choses — choisir le puzzle, s'afficher à l'écran, et voyager dans le texte de
+ * partage — et les trois deviennent fausses ensemble si on la bouge : un joueur
+ * qui a partagé « n° 12 » verrait sa capture désigner une autre journée, et le
+ * stock rejouerait des puzzles déjà sortis.
+ *
+ * Avant le lancement, en revanche, elle DEVAIT bouger. Fixée au 1er janvier,
+ * elle faisait ouvrir le jeu sur la journée n° 230 — un compteur qui annonce
+ * huit mois d'existence le jour de la sortie — et sur le dix-huitième puzzle du
+ * stock, donc pas sur la séquence relue et validée.
+ */
+export const ORIGINE = "2026-08-18";
 
 const CIVIL = new Intl.DateTimeFormat("en-CA", {
   timeZone: FUSEAU,

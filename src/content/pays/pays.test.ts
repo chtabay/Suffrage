@@ -17,7 +17,7 @@ import { JOURNEES } from "./journees";
 import { PAYS, PAYS_PAR_ID } from "./referentiel";
 import { POINTS, TRACES } from "./carte";
 import { serieEnCours } from "@/lib/games/pays/local";
-import { dateCivile, evalueJournee, numeroDeJournee, scoreDe } from "@/lib/games/pays/moteur";
+import { ORIGINE, dateCivile, evalueJournee, numeroDeJournee, scoreDe } from "@/lib/games/pays/moteur";
 
 const LOCALES = ["fr", "en", "es", "pcm"] as const;
 
@@ -141,11 +141,19 @@ test("le numéro de journée avance d'un par jour, changement d'heure compris", 
   // Paris passe de +01:00 à +02:00 le dernier dimanche de mars. Une version qui
   // retranchait un décalage fixe faisait basculer la journée une heure trop tôt
   // six mois par an ; on passe donc par la date CIVILE.
-  assert.equal(numeroDeJournee("2026-01-01"), 1);
-  assert.equal(numeroDeJournee("2026-01-02"), 2);
+  // ⚠️ ON ANCRE SUR `ORIGINE`, PAS SUR UNE DATE ÉCRITE EN DUR. La première
+  // version affirmait « le 1er janvier 2026 est la journée n° 1 » : déplacer
+  // l'origine au jour du lancement faisait alors échouer un test qui ne parlait
+  // pourtant que de l'arithmétique du calendrier. Un test doit casser quand le
+  // calcul se trompe, pas quand une décision éditoriale change.
+  const jourApres = (iso: string) => new Date(Date.parse(`${iso}T00:00:00Z`) + 86_400_000).toISOString().slice(0, 10);
+  assert.equal(numeroDeJournee(ORIGINE), 1);
+  assert.equal(numeroDeJournee(jourApres(ORIGINE)), 2);
+  // Paris change d'heure ces deux nuits-là : l'écart doit rester d'un jour.
   assert.equal(numeroDeJournee("2026-03-28") + 1, numeroDeJournee("2026-03-29"));
   assert.equal(numeroDeJournee("2026-10-24") + 1, numeroDeJournee("2026-10-25"));
-  assert.equal(numeroDeJournee("2027-01-01"), 366);
+  // Un an plus tard, 365 journées se sont écoulées — l'année 2026 n'est pas bissextile.
+  assert.equal(numeroDeJournee(`${Number(ORIGINE.slice(0, 4)) + 1}${ORIGINE.slice(4)}`), 366);
 });
 
 test("la journée bascule à minuit à Paris, pas à minuit UTC", () => {
