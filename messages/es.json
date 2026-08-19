@@ -2489,6 +2489,13 @@
     }
   },
   "Pays": {
+    "pictosAide": "Tras 25 intentos, cada casilla dice de qué habla su criterio. La última guarda su secreto.",
+    "catGeo": "geografía",
+    "catSociete": "sociedad",
+    "catPolitique": "política",
+    "catEco": "economía",
+    "catNature": "naturaleza",
+    "catMystere": "a ti te toca",
     "casesAide": "Las cinco casillas son las características del día, de la más común a la más rara. Dos intentos que llenan la misma casilla la comparten.",
     "casesLues": "{n, plural, =0 {ninguna característica compartida} one {1 característica compartida} other {# características compartidas}}",
     "serieTitre": "{n} días seguidos",

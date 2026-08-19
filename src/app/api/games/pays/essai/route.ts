@@ -3,7 +3,7 @@ import { enLangue } from "@/content/pays/criteres";
 import { PAYS_PAR_ID } from "@/content/pays/referentiel";
 import { journeeDe, numeroDuJour } from "@/lib/games/pays/journee";
 import { journalise } from "@/lib/games/pays/journal";
-import { NB_CRITERES, casesDeTous, ordreCanonique, scoreDe, scoresDeTous } from "@/lib/games/pays/moteur";
+import { NB_CRITERES, casesDeTous, ordreCanonique, pictosDe, scoreDe, scoresDeTous } from "@/lib/games/pays/moteur";
 import type { ReponseEssai } from "@/lib/games/pays/types";
 
 // UN ESSAI. Le navigateur envoie un pays, le serveur renvoie un entier.
@@ -89,6 +89,16 @@ export async function POST(req: Request) {
       suite.map((id) => PAYS_PAR_ID[id]),
       criteres,
     ),
+    // LES PICTOS. Le domaine de chaque critère, une fois la partie enlisée.
+    //
+    // ⚠️ LE COMPTE VIENT DE `suite`, donc du client — un joueur peut donc poster
+    // 25 pays d'un coup pour les obtenir au premier essai. On l'accepte, pour la
+    // même raison que l'en-tête de ce fichier accepte le postage des 193 pays :
+    // ce n'est pas un anti-triche militaire, et cette triche-là est strictement
+    // moins efficace que celle qu'on renonce déjà à empêcher. La défendre
+    // coûterait un état serveur par partie anonyme, pour protéger le joueur de
+    // lui-même.
+    pictos: pictosDe(criteres, suite.length),
   };
 
   if (gagne) {

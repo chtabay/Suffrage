@@ -8,7 +8,16 @@
 // ⚠️ CE FICHIER TOUCHE LES CRITÈRES : il est donc, comme eux, réservé au serveur.
 // Ce qui est utilisable partout (couleurs du gradient, texte de partage) vit
 // dans `partage.ts` et `palette.ts`, qui ne connaissent que des NOMBRES.
-import { CARDINAL_MAX, CARDINAL_MIN, CRITERE_PAR_ID, cardinal, type Critere } from "@/content/pays/criteres";
+import {
+  CARDINAL_MAX,
+  CARDINAL_MIN,
+  CRITERE_PAR_ID,
+  cardinal,
+  categorieDe,
+  combienDeCriteres,
+  type Categorie,
+  type Critere,
+} from "@/content/pays/criteres";
 import { PAYS, type Pays } from "@/content/pays/referentiel";
 
 export const NB_CRITERES = 5;
@@ -296,4 +305,53 @@ export function numeroDeJournee(dateIso: string): number {
   // changement d'heure, puisqu'il n'y en a pas en UTC.
   const ms = Date.parse(`${dateIso}T00:00:00Z`) - Date.parse(`${ORIGINE}T00:00:00Z`);
   return Math.floor(ms / jour) + 1;
+}
+
+// ---------------------------------------------------------------------------
+// LES PICTOS — ce qui débloque le joueur qui plafonne, sans lui donner la
+// réponse.
+//
+// LE DÉFAUT TRAITÉ, tel qu'il a été rapporté : « il m'a fallu 156 tentatives ;
+// à partir de la 50e, mes conclusions n'ont pas évolué. » Les cinq cases disent
+// QUELLES positions deux pays partagent, jamais de quoi elles parlent : passé un
+// certain point, le joueur a toutes les cases allumées et reste incapable de les
+// interpréter. Le picto lui donne le domaine, pas le critère.
+//
+// ⚠️ POURQUOI UN COMPTEUR D'ESSAIS, ET PAS « UNE CASE JAMAIS REMPLIE ».
+// Ce second déclencheur paraissait plus fin — n'aider que là où le joueur est
+// aveugle — mais il ne se déclencherait presque jamais. Probabilité qu'une case
+// soit encore éteinte, mesurée sur les 51 journées :
+//
+//     case            après 10   après 25   après 50
+//     1 large            12 %        2 %        0 %
+//     3 discriminant     10 %        2 %        0 %
+//     5 signature        36 %       11 %        2 %
+//
+// À 25 essais tout est allumé. Le blocage n'est donc pas « une case reste
+// noire », c'est « les cases sont allumées et je ne sais pas ce qu'elles
+// disent » — et seul un compteur simple répond à ça.
+export const ESSAIS_AVANT_PICTOS = 25;
+
+/**
+ * Les catégories montrables après `nbEssais` essais, une par case.
+ *
+ * ⚠️ LA CASE 5 NE PARLE JAMAIS. L'étagère `signature` ne compte que 7 critères
+ * répartis sur 4 catégories : son picto laisserait DEUX candidats la plupart des
+ * jours, et nommerait le critère 3 fois sur 51. C'est aussi, et surtout, la case
+ * qui fait la recherche : 28 % des pays à 4/5 ne ratent qu'elle. La taire est un
+ * choix de jeu autant qu'une protection.
+ *
+ * ⚠️ ET LE GARDE-FOU vaut pour les quatre autres : si la bibliothèque ne compte
+ * qu'un seul critère de ce palier dans cette catégorie, le picto NE DÉSIGNE PLUS
+ * un domaine, il désigne le critère. Cette case-là se tait aussi. Trois cas sur
+ * 204 aujourd'hui — assez rares pour qu'on soit tenté de les ignorer, assez
+ * précis pour qu'un joueur tombe dessus le jour où ça compte.
+ */
+export function pictosDe(criteres: Critere[], nbEssais: number): (Categorie | null)[] {
+  if (nbEssais < ESSAIS_AVANT_PICTOS) return criteres.map(() => null);
+  return criteres.map((c, k) => {
+    if (k === criteres.length - 1) return null;
+    const cat = categorieDe(c);
+    return combienDeCriteres(c.palier, cat) > 1 ? cat : null;
+  });
 }

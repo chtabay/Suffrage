@@ -33,6 +33,15 @@ interface Sauvegarde {
   essais: Essai[];
   /** `cases[i]` : les cinq 0/1 de l'essai i, du critère le plus courant au plus rare. */
   cases?: number[][];
+  /**
+   * Le domaine de chaque critère, une fois les 25 essais passés.
+   *
+   * ⚠️ GARDÉ AVEC LA PARTIE, alors qu'il se recalcule à chaque essai. Sans ça,
+   * un rechargement après le 30e essai ferait DISPARAÎTRE la légende jusqu'au
+   * coup suivant — un joueur qui vient de comprendre où chercher perdrait son
+   * repère au pire moment, et croirait à un bug.
+   */
+  pictos?: (string | null)[];
   revelation?: DonneesRevelation;
   /** Horodatage de l'arrivée sur la carte : sert au délai avant premier essai. */
   debut?: number;
@@ -50,6 +59,7 @@ export default function PaysDuJour({ jour }: { jour: number }) {
 
   const [essais, setEssais] = useState<Essai[]>([]);
   const [cases, setCases] = useState<number[][]>([]);
+  const [pictos, setPictos] = useState<(string | null)[]>([]);
   const [revelation, setRevelation] = useState<DonneesRevelation | null>(null);
   const [carteComplete, setCarteComplete] = useState(false);
   const [surbrillance, setSurbrillance] = useState<string | null>(null);
@@ -76,6 +86,7 @@ export default function PaysDuJour({ jour }: { jour: number }) {
     debut.current = sauve?.debut ?? Date.now();
     setEssais(sauve?.essais ?? []);
     setCases(sauve?.cases ?? []);
+    setPictos(sauve?.pictos ?? []);
     setRevelation(sauve?.revelation ?? null);
     setSerie(serieEnCours(jour));
     setPret(true);
@@ -96,10 +107,11 @@ export default function PaysDuJour({ jour }: { jour: number }) {
   }, [jour]);
 
   const enregistre = useCallback(
-    (prochains: Essai[], reveal: DonneesRevelation | null, remplies: number[][]) => {
+    (prochains: Essai[], reveal: DonneesRevelation | null, remplies: number[][], domaines: (string | null)[]) => {
       const corps: Sauvegarde = {
         essais: prochains,
         cases: remplies,
+        pictos: domaines,
         revelation: reveal ?? undefined,
         debut: debut.current,
         partie: partie.current,
@@ -171,7 +183,9 @@ export default function PaysDuJour({ jour }: { jour: number }) {
       const rep = (await r.json()) as ReponseEssai;
       const prochains = [...essais, { pays: id, score: rep.score }];
       const remplies = rep.cases ?? [];
+      const domaines = rep.pictos ?? [];
       setCases(remplies);
+      setPictos(domaines);
       if (essais.length === 0) mesure("premier", { secondes: Math.round((Date.now() - debut.current) / 1000) });
       setEssais(prochains);
       setDernier({ pays: id, score: rep.score });
@@ -185,7 +199,7 @@ export default function PaysDuJour({ jour }: { jour: number }) {
         // propose de garder un chiffre que le joueur doit déjà voir.
         setSerie(serieEnCours(jour, ajouteResultat({ jour, essais: prochains.length, secondes })));
       }
-      enregistre(prochains, reveal, remplies);
+      enregistre(prochains, reveal, remplies, domaines);
     } catch {
       setErreur(true);
     }
@@ -349,6 +363,24 @@ export default function PaysDuJour({ jour }: { jour: number }) {
                 {t("casesAide")}
               </p>
             )}
+            {pictos.some(Boolean) && (
+              <>
+                <p style={{ margin: "7px 0 0", fontSize: 12.5, color: skin.muted, lineHeight: 1.45 }}>
+                  {t("pictosAide")}
+                </p>
+                <Legende
+                  pictos={pictos}
+                  noms={{
+                    geo: t("catGeo"),
+                    societe: t("catSociete"),
+                    politique: t("catPolitique"),
+                    eco: t("catEco"),
+                    nature: t("catNature"),
+                  }}
+                  mystere={t("catMystere")}
+                />
+              </>
+            )}
             <ol style={{ margin: "8px 0 0", padding: 0, listStyle: "none", display: "grid", gap: 5 }}>
               {essais.map((e, i) => (
                 <li
@@ -378,6 +410,111 @@ export default function PaysDuJour({ jour }: { jour: number }) {
         )}
       </div>
     </GameShell>
+  );
+}
+
+/**
+ * LA LÉGENDE DES CASES — de quoi parle chaque critère, jamais lequel c'est.
+ *
+ * LE DÉFAUT QU'ELLE RÈGLE, rapporté par un joueur : « il m'a fallu 156
+ * tentatives ; à partir de la 50e, mes conclusions n'ont pas évolué. » Les cases
+ * disent quelles positions deux pays partagent, jamais de quoi elles parlent :
+ * passé un moment, tout est allumé et plus rien ne se déduit. Le domaine rend la
+ * recherche dirigeable — « il me manque quelque chose d'économique » est une
+ * piste, « il me manque la case 4 » n'en est pas une.
+ *
+ * ⚠️ LA CINQUIÈME NE PARLE JAMAIS, et c'est le cœur du réglage : 28 % des pays à
+ * 4/5 ne ratent qu'elle. Lui donner un domaine transformerait la fin de partie
+ * en formulaire ; la taire garde la dernière marche à gravir. Elle porte donc un
+ * libellé qui le DIT (« à toi de trouver ») plutôt qu'un blanc — un blanc se lit
+ * comme une panne, pas comme une intention.
+ *
+ * La légende reprend la forme des cases plutôt qu'un numéro : c'est ce qui
+ * permet de faire l'aller-retour avec les lignes en dessous sans compter.
+ */
+function Legende({
+  pictos,
+  noms,
+  mystere,
+}: {
+  pictos: (string | null)[];
+  noms: Record<string, string>;
+  mystere: string;
+}) {
+  const EMOJI: Record<string, string> = {
+    geo: "\u{1F30D}",
+    societe: "\u{1F465}",
+    politique: "\u{1F3DB}\u{FE0F}",
+    eco: "\u{1F4B0}",
+    nature: "\u{1F33F}",
+  };
+  return (
+    <ul
+      style={{
+        display: "flex",
+        flexWrap: "wrap",
+        gap: 6,
+        margin: "8px 0 0",
+        padding: 0,
+        listStyle: "none",
+      }}
+    >
+      {pictos.map((cat, k) => {
+        const derniere = k === pictos.length - 1;
+        const nom = cat ? noms[cat] : derniere ? mystere : null;
+        // Une case des quatre premières peut se taire aussi : le garde-fou du
+        // serveur la fait taire quand son domaine ne laisserait qu'un critère
+        // possible. Rien à montrer alors — mais on garde sa place dans la
+        // rangée, sinon les positions ne correspondent plus aux lignes.
+        return (
+          <li
+            key={k}
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 5,
+              padding: "3px 8px 3px 6px",
+              borderRadius: 999,
+              background: skin.paper,
+              border: `2px solid ${skin.ink}18`,
+              fontSize: 11.5,
+              fontWeight: 700,
+              color: nom ? skin.ink : skin.muted,
+            }}
+          >
+            {/* ⚠️ UN REPÈRE DE POSITION, PAS UNE CASE. La première version
+                montrait une seule case vide devant chaque pastille : les quatre
+                premières étaient alors strictement identiques, donc plus rien ne
+                disait de QUELLE colonne parlait la pastille — et il suffisait
+                que la rangée passe à la ligne pour que l'ordre ne suffise plus.
+                Vu en jouant, pas en lisant le code. On montre donc les cinq
+                positions avec la bonne noircie : la pastille se décrit
+                elle-même, où qu'elle tombe. */}
+            <span aria-hidden style={{ display: "inline-flex", gap: 2, flex: "none" }}>
+              {pictos.map((_, j) => {
+                const cinq = j === pictos.length - 1;
+                return (
+                  <span
+                    key={j}
+                    style={{
+                      display: "block",
+                      width: cinq ? 5 : 6,
+                      height: cinq ? 5 : 6,
+                      borderRadius: 1,
+                      border: `1.5px solid ${j === k ? skin.ink : `${skin.ink}30`}`,
+                      background: j === k ? (cinq ? skin.accent2 : skin.ink) : "transparent",
+                      transform: cinq ? "rotate(45deg)" : undefined,
+                    }}
+                  />
+                );
+              })}
+            </span>
+            {cat && <span aria-hidden>{EMOJI[cat]}</span>}
+            <span>{nom ?? "\u00B7"}</span>
+          </li>
+        );
+      })}
+    </ul>
   );
 }
 

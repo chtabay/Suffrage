@@ -12,12 +12,22 @@
 // c'est ici que ça casse — pas chez le joueur.
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { CARDINAL_MAX, CARDINAL_MIN, CRITERES, cardinal, type Texte } from "./criteres";
+import {
+  CARDINAL_MAX,
+  CARDINAL_MIN,
+  CRITERES,
+  cardinal,
+  categorieDe,
+  combienDeCriteres,
+  famillesSansCategorie,
+  type Texte,
+} from "./criteres";
 import { JOURNEES } from "./journees";
 import { PAYS, PAYS_PAR_ID } from "./referentiel";
 import { POINTS, TRACES } from "./carte";
 import { serieEnCours } from "@/lib/games/pays/local";
 import {
+  ESSAIS_AVANT_PICTOS,
   ORIGINE,
   casesDe,
   casesDeTous,
@@ -25,6 +35,7 @@ import {
   evalueJournee,
   numeroDeJournee,
   ordreCanonique,
+  pictosDe,
   scoreDe,
 } from "@/lib/games/pays/moteur";
 
@@ -282,4 +293,61 @@ test("les cases ne disent jamais de QUOI parle le critère", () => {
   const texte = JSON.stringify(casesDeTous([PAYS_PAR_ID.FRA, PAYS_PAR_ID.USA], ordonnes));
   assert.match(texte, /^[[\],01]+$/);
   for (const c of ordonnes) assert.ok(!texte.includes(c.id) && !texte.includes(c.famille));
+});
+
+// ------------------------------------------------------------------- pictos
+
+test("toute famille de critère a une catégorie", () => {
+  // Le filet de `categorieDe` : son repli sur « geo » rendrait un picto FAUX
+  // pour un critère neuf, et un joueur chercherait au mauvais endroit en toute
+  // confiance. Une famille ajoutée sans catégorie doit casser ici.
+  assert.deepEqual(famillesSansCategorie(), []);
+});
+
+test("avant 25 essais, aucune case ne parle", () => {
+  const j = JOURNEES[0];
+  const ordonnes = ordreCanonique(j.criteres.map((id) => CRITERES.find((c) => c.id === id)!));
+  for (const n of [0, 1, 10, ESSAIS_AVANT_PICTOS - 1]) {
+    assert.deepEqual(pictosDe(ordonnes, n), [null, null, null, null, null], `à ${n} essais`);
+  }
+});
+
+test("la case signature ne parle JAMAIS, quelle que soit la journée", () => {
+  // C'est elle qui fait la recherche : 28 % des pays à 4/5 ne ratent qu'elle.
+  // Une régression ici viderait la fin de partie sans qu'aucun autre test ne
+  // bronche — les quatre premières cases continueraient de marcher.
+  for (const j of JOURNEES) {
+    const ordonnes = ordreCanonique(j.criteres.map((id) => CRITERES.find((c) => c.id === id)!));
+    for (const n of [ESSAIS_AVANT_PICTOS, 100, 500]) {
+      assert.equal(pictosDe(ordonnes, n)[4], null, `journée ${j.cible} à ${n} essais`);
+    }
+  }
+});
+
+test("un picto montré laisse toujours au moins deux critères possibles", () => {
+  // LE GARDE-FOU, sur les 51 journées : montrer une catégorie qui ne
+  // correspondrait qu'à UN critère de la bibliothèque ne donnerait pas un
+  // domaine de recherche, ça donnerait le critère.
+  for (const j of JOURNEES) {
+    const ordonnes = ordreCanonique(j.criteres.map((id) => CRITERES.find((c) => c.id === id)!));
+    const montres = pictosDe(ordonnes, ESSAIS_AVANT_PICTOS);
+    for (const [k, cat] of montres.entries()) {
+      if (!cat) continue;
+      const restants = combienDeCriteres(ordonnes[k].palier, cat);
+      assert.ok(restants > 1, `journée ${j.cible}, case ${k + 1} : « ${cat} » ne laisse que ${restants} critère`);
+      assert.equal(cat, categorieDe(ordonnes[k]));
+    }
+  }
+});
+
+test("les pictos ne livrent jamais un identifiant ni une famille", () => {
+  // Même promesse que pour les cases : ce qui sort est une catégorie parmi cinq,
+  // rien qui nomme le critère.
+  const permises = new Set(["geo", "societe", "politique", "eco", "nature"]);
+  for (const j of JOURNEES) {
+    const ordonnes = ordreCanonique(j.criteres.map((id) => CRITERES.find((c) => c.id === id)!));
+    for (const cat of pictosDe(ordonnes, 500)) {
+      if (cat) assert.ok(permises.has(cat), `catégorie inattendue : ${cat}`);
+    }
+  }
 });

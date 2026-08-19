@@ -1037,3 +1037,85 @@ export function enLangue(t: Texte, locale: string): string {
 export function cardinal(c: Critere): number {
   return PAYS.filter((p) => c.verifie(p)).length;
 }
+
+// ---------------------------------------------------------------------------
+// LES CATÉGORIES — le grain le plus fin qui n'abrège pas la partie.
+//
+// Elles servent à UNE chose : montrer, après 25 essais, de quoi parle un critère
+// sans dire lequel c'est. Le joueur qui plafonne sait alors où chercher.
+//
+// ⚠️ POURQUOI CINQ, ET PAS LES 30 FAMILLES. La `famille` existe déjà au-dessus,
+// mais elle est bien trop fine pour être montrée : 18 des 30 familles ne
+// contiennent QU'UN critère. Mesuré sur les 51 journées × 4 cases révélables :
+//
+//     grain               étiquettes   désigne UN critère unique
+//     famille                  30            30 %
+//     sujet intermédiaire      10            13 %
+//     catégorie (ci-dessous)    5             1 %
+//
+// Une révélation sur trois qui nomme le critère n'est pas un indice, c'est la
+// solution. Le grain large est le seul qui laisse une recherche — médiane de six
+// critères encore possibles.
+export type Categorie = "geo" | "societe" | "politique" | "eco" | "nature";
+
+const CATEGORIE_PAR_FAMILLE: Record<string, Categorie> = {
+  continent: "geo",
+  densite: "geo",
+  frontieres: "geo",
+  geodesie: "geo",
+  geographie: "geo",
+  hydrographie: "geo",
+  latitude: "geo",
+  mer: "geo",
+  "mer-bordee": "geo",
+  superficie: "geo",
+  "voisinage-BRA": "geo",
+  "voisinage-CHN": "geo",
+  "voisinage-DEU": "geo",
+  "voisinage-IND": "geo",
+  "voisinage-RUS": "geo",
+  langue: "societe",
+  patrimoine: "societe",
+  population: "societe",
+  sport: "societe",
+  histoire: "politique",
+  institution: "politique",
+  "organisation-commonwealth": "politique",
+  "organisation-otan": "politique",
+  "organisation-ue": "politique",
+  agriculture: "eco",
+  economie: "eco",
+  energie: "eco",
+  monnaie: "eco",
+  transport: "eco",
+  biodiversite: "nature",
+};
+
+/**
+ * La catégorie d'un critère.
+ *
+ * ⚠️ Le repli sur « geo » n'est pas une valeur par défaut acceptable, c'est un
+ * filet : une famille ajoutée sans catégorie doit être signalée, et le test
+ * `criteres.test.ts` refuse justement qu'une seule famille y échappe. Sans ce
+ * test, un critère neuf montrerait un picto faux, ce qui est pire que pas de
+ * picto du tout — le joueur chercherait au mauvais endroit en toute confiance.
+ */
+export function categorieDe(c: Critere): Categorie {
+  return CATEGORIE_PAR_FAMILLE[c.famille] ?? "geo";
+}
+
+/** Les familles que la table ci-dessus ne classe pas. Vide, et le test l'exige. */
+export function famillesSansCategorie(): string[] {
+  return [...new Set(CRITERES.map((c) => c.famille).filter((f) => !CATEGORIE_PAR_FAMILLE[f]))];
+}
+
+/**
+ * Combien de critères de la bibliothèque partagent ce palier ET cette catégorie.
+ *
+ * C'est le GARDE-FOU de la révélation : quand ce nombre vaut 1, montrer le picto
+ * ne donne pas un domaine de recherche, il nomme le critère. Ces cas-là se
+ * taisent (voir `pictosDe`).
+ */
+export function combienDeCriteres(palier: Palier, categorie: Categorie): number {
+  return CRITERES.filter((c) => c.palier === palier && categorieDe(c) === categorie).length;
+}

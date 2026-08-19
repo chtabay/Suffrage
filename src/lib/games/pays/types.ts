@@ -35,6 +35,15 @@ export interface ReponseEssai {
    * critère parle. La révélation reste entière.
    */
   cases?: number[][];
+  /**
+   * Une catégorie par case, ou `null` quand la case se tait : de quoi PARLE le
+   * critère de ce rang, jamais lequel c'est. N'arrive qu'au bout de 25 essais.
+   *
+   * ⚠️ La cinquième est toujours `null` — l'étagère `signature` est trop mince
+   * pour qu'un domaine ne désigne pas le critère, et c'est elle qui fait la
+   * recherche. Voir `pictosDe`.
+   */
+  pictos?: (string | null)[];
   /** Présente uniquement quand `score === 5`. */
   revelation?: Revelation;
 }
