@@ -340,7 +340,7 @@ export default function PaysDuJour({ jour }: { jour: number }) {
 
         {/* LE COMPTE — après la révélation, jamais avant (§16). */}
         {gagne && (
-          <Compte skin={skin} jour={jour} serieLocale={serie} />
+          <Compte skin={skin} jour={jour} serieLocale={serie} essaisDuJour={essais.length} />
         )}
 
         {/* L'HISTORIQUE — et le vrai retour du jeu.

@@ -2500,6 +2500,9 @@
     "casesLues": "{n, plural, =0 {no characteristic shared} one {1 characteristic shared} other {# characteristics shared}}",
     "serieTitre": "{n} days in a row",
     "compte": {
+      "jourTitre": "Your round",
+      "essaisJour": "Guesses",
+      "medianeJour": "Median today",
       "serie": "{n} days in a row",
       "titre": "Keep your results",
       "texte": "Without an account, your streak lives in this browser: it disappears if you switch phones or clear your data. An account keeps it, and shows you where you stand each day.",

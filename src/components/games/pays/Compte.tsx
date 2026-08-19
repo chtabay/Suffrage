@@ -40,10 +40,21 @@ export default function Compte({
   skin,
   jour,
   serieLocale,
+  essaisDuJour,
 }: {
   skin: GameSkin;
   jour: number;
   serieLocale: number;
+  /**
+   * Ce que le joueur vient de faire, compté dans le navigateur.
+   *
+   * ⚠️ IL VIENT D'ICI ET PAS DE LA RPC, exprès : un refus ou une coupure réseau
+   * rend `monRang()` à `null`, et la règle du dépôt est qu'un NULL de RPC est un
+   * REFUS, pas une donnée. Le chiffre du joueur ne doit pas disparaître pour
+   * autant — c'est le sien, il est juste, et c'est justement celui qu'on veut
+   * mettre en avant. La médiane, elle, ne s'affiche que si le serveur a répondu.
+   */
+  essaisDuJour: number;
 }) {
   const t = useTranslations("Pays");
   const { user, loading, signIn, signInWithEmail } = useAuth();
@@ -105,18 +116,39 @@ export default function Compte({
     const b = bilan;
     return (
       <GCard skin={skin} padding={15} style={{ marginTop: 12 }} accent={skin.accent2}>
-        <GLabel skin={skin}>{t("compte.bilanTitre")}</GLabel>
+        {/* LA JOURNÉE D'ABORD, ET SON CHIFFRE À LUI.
+            
+            ⚠️ CE QU'ON MET DEVANT N'EST PLUS LE RANG. Le rang répond à « qui a
+            fait mieux que moi », et cette question-là punit deux joueurs sur
+            trois pour une raison qui ne leur appartient pas : les journées n'ont
+            pas la même difficulté, et se faire dire « 12e » après une partie
+            honnête décourage sans rien apprendre. Le nombre d'essais est ce que
+            le joueur a VRAIMENT fait, et la médiane du jour lui donne l'échelle
+            sans le classer. Le rang reste — il est utile à qui le cherche — mais
+            en dessous et en petit.
+            
+            La médiane était déjà renvoyée par `scrutin_game_pays_rank` et
+            n'était affichée nulle part. */}
+        <GLabel skin={skin}>{t("compte.jourTitre")}</GLabel>
+        <div style={{ display: "flex", gap: 18, flexWrap: "wrap", marginTop: 8 }}>
+          {ligne(t("compte.essaisJour"), String(rang?.essais ?? essaisDuJour))}
+          {rang?.median != null && ligne(t("compte.medianeJour"), String(rang.median))}
+        </div>
+        {rang?.rang != null && rang.joueurs > 0 && (
+          <p style={{ margin: "9px 0 0", fontSize: 13, color: skin.muted, lineHeight: 1.45 }}>
+            {rang.joueurs > 1 ? t("compte.rang", { rang: rang.rang, joueurs: rang.joueurs }) : t("compte.rangSeul")}
+          </p>
+        )}
+
+        <GLabel skin={skin} style={{ marginTop: 16 }}>
+          {t("compte.bilanTitre")}
+        </GLabel>
         <div style={{ display: "flex", gap: 18, flexWrap: "wrap", marginTop: 8 }}>
           {ligne(t("compte.serieLabel"), String(b?.serie ?? serieLocale))}
           {b && ligne(t("compte.parties"), String(b.parties))}
           {b?.moyenne != null && ligne(t("compte.moyenne"), String(b.moyenne))}
           {b?.meilleur != null && ligne(t("compte.meilleur"), String(b.meilleur))}
         </div>
-        {rang?.rang != null && rang.joueurs > 0 && (
-          <p style={{ margin: "12px 0 0", fontSize: 14.5, fontWeight: 700 }}>
-            {rang.joueurs > 1 ? t("compte.rang", { rang: rang.rang, joueurs: rang.joueurs }) : t("compte.rangSeul")}
-          </p>
-        )}
         <p style={{ margin: "10px 0 0", fontSize: 13.5, color: skin.muted, lineHeight: 1.5 }}>
           {t("compte.placet")}{" "}
           <Link href="/" style={{ color: skin.ink, fontWeight: 700 }}>

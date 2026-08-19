@@ -2500,6 +2500,9 @@
     "casesLues": "{n, plural, =0 {aucune caractéristique partagée} one {1 caractéristique partagée} other {# caractéristiques partagées}}",
     "serieTitre": "{n} jours d'affilée",
     "compte": {
+      "jourTitre": "Votre journée",
+      "essaisJour": "Essais",
+      "medianeJour": "Médiane du jour",
       "serie": "{n} jours d'affilée",
       "titre": "Garder vos résultats",
       "texte": "Sans compte, votre série vit dans ce navigateur : elle disparaît si vous changez de téléphone ou effacez vos données. Un compte la garde, et vous montre où vous vous situez chaque jour.",

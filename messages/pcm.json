@@ -2500,6 +2500,9 @@
     "casesLues": "{n, plural, =0 {no mark dey shared} one {1 mark dey shared} other {# marks dey shared}}",
     "serieTitre": "{n} days back to back",
     "compte": {
+      "jourTitre": "Your round",
+      "essaisJour": "Try",
+      "medianeJour": "Today median",
       "serie": "{n} days back to back",
       "titre": "Keep your results",
       "texte": "If you no get account, na dis browser dey hold your streak: e go vanish if you change phone or clear your data. Account go keep am, and e go show you where you stand every day.",

@@ -18,7 +18,7 @@ corriger.
 | **Unanimo** (`games/unanimo`) | en prod, relu ; sa page de présentation porte des aperçus d'écrans depuis le 2026-08-18 | fermé, sauf la présentation |
 | **Alibi** (`games/alibi`) | en prod, **relu et corrigé le 2026-08-13** | fermé — **ne pas y revenir** |
 | **Gestion de groupes** (`/espaces`) | en prod, 24 constats moyens/faibles en réserve | la session tableau de bord |
-| **Cinq sur cinq** (`games/pays`) | en prod le 2026-08-18 · pictos de catégorie posés le 2026-08-19 · **stock de contenu à rallonger avant le 7 octobre** | ouvert |
+| **Cinq sur cinq** (`games/pays`) | en prod le 2026-08-18 · pictos de catégorie et mise en avant des essais le 2026-08-19 | ouvert |
 | **La Nuit du Fantôme** (`games/fantome`) | en prod ; portraits SVG + murmures de borne posés le 2026-08-18 | l'agent des jeux |
 | **La porte `/games`** | rangée par familles le 2026-08-18 ; ajouter un jeu = lui donner une `famille` dans `catalog.ts` | l'agent des jeux |
 | **Aperçus d'écrans** (`components/games/Apercus.tsx`) | posés sur Rôdeurs et Unanimo ; **reproduits, jamais capturés** — une capture ne parle qu'une langue sur quatre | l'agent des jeux |
@@ -36,21 +36,30 @@ La moindre interaction qui demande une réponse recrée une file d'attente devan
 un tableau. Et aucun murmure ne désigne quelqu'un : un décor qui accuse
 fabriquerait une preuve que le jeu n'a pas calculée.
 
-**Cinq sur cinq n'est pas clos, et sa date de péremption est connue.** Le jeu
-sort une journée par jour d'un stock de 51, généré par
-`scripts/pays-journees.ts` : le 7 octobre 2026, il recommence à la première.
-Ce qui plafonne le stock n'est pas la bibliothèque entière (58 critères) mais
-son **étagère du haut** — 7 critères de palier `signature`, alors que chaque
-journée doit en porter un. Doubler cette seule étagère allonge le stock plus que
-trente critères larges.
+**Cinq sur cinq n'est pas clos, et le stock de 51 journées est ASSUMÉ.** Le jeu
+sort une journée par jour, générée par `scripts/pays-journees.ts` ; le 7 octobre
+2026 il recommence à la première, et **ce n'est pas un problème** : la période
+sert à tester. Ne pas rouvrir ce sujet comme s'il s'agissait d'une échéance.
 
-L'étagère `signature` mince coûte maintenant DEUX fois. Elle plafonne le stock,
-et elle interdit de montrer la catégorie de la cinquième case : à 7 critères sur
+Ce qui plafonne le stock n'est pas la bibliothèque entière (58 critères) mais son
+**étagère du haut** — 7 critères de palier `signature`, alors que chaque journée
+doit en porter un. C'est bon à savoir le jour où on voudra allonger : doubler
+cette seule étagère rapporte plus que trente critères larges.
+
+L'étagère `signature` mince a une seconde conséquence, elle sur le jeu lui-même :
+elle interdit de montrer la catégorie de la cinquième case. À 7 critères sur
 4 catégories, ce picto laisserait deux candidats et nommerait le critère 3 fois
 sur 51. La cinquième case se tait donc — c'est aussi ce qui fait la fin de
 partie, puisque 28 % des pays à 4/5 ne ratent qu'elle. Les quatre autres parlent
 au bout de 25 essais, au grain de 5 catégories larges (les 30 `famille`
 nommeraient le critère une fois sur trois : trop fin, mesuré).
+
+**Le rang n'est plus ce qu'on met devant.** Le classement est bien calculé sur
+les essais (rang olympique, `scrutin_game_pays_rank`), mais l'écran mettait la
+position en avant et ne montrait le nombre d'essais nulle part. C'est le chiffre
+du joueur qui passe devant, avec la **médiane du jour** pour l'échelle — elle
+était déjà renvoyée par la RPC et n'était affichée nulle part. Le rang reste,
+en dessous et en petit.
 
 Ce jeu a aussi ajouté à la base `scrutin_game_pays_results` et trois fonctions
 `scrutin_game_pays_*` (migration `20260818-jeu-pays-resultats.sql`) : RLS active,

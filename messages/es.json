@@ -2500,6 +2500,9 @@
     "casesLues": "{n, plural, =0 {ninguna característica compartida} one {1 característica compartida} other {# características compartidas}}",
     "serieTitre": "{n} días seguidos",
     "compte": {
+      "jourTitre": "Tu partida",
+      "essaisJour": "Intentos",
+      "medianeJour": "Mediana de hoy",
       "serie": "{n} días seguidos",
       "titre": "Guardar tus resultados",
       "texte": "Sin cuenta, tu racha vive en este navegador: desaparece si cambias de teléfono o borras tus datos. Una cuenta la conserva y te muestra dónde te sitúas cada día.",

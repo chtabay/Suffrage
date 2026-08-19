@@ -62,7 +62,24 @@ export default function Revelation({
         </span>
         <span style={{ fontWeight: 700, color: skin.muted }}>{textes.titre}</span>
       </div>
-      <p style={{ margin: "6px 0 0", fontWeight: 700, color: skin.muted }}>{textes.essais}</p>
+      {/* ⚠️ LE NOMBRE D'ESSAIS N'EST PLUS UNE MENTION GRISE. C'est le seul
+          chiffre que le joueur a produit lui-même, celui qu'il retient et qu'il
+          cite ; il était rendu à la même taille et dans la même couleur que le
+          reste du décor. Il passe en police de titre et en encre pleine — la
+          phrase entière est conservée telle quelle, donc la traduction et le
+          pluriel ICU restent intacts. */}
+      <p
+        style={{
+          margin: "8px 0 0",
+          fontFamily: skin.fontDisplay,
+          fontWeight: 800,
+          fontSize: "clamp(17px,3.4vw,21px)",
+          lineHeight: 1.2,
+          color: skin.ink,
+        }}
+      >
+        {textes.essais}
+      </p>
 
       <GLabel skin={skin} style={{ marginTop: 18 }}>
         {textes.criteres}
