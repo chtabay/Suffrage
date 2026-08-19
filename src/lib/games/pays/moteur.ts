@@ -13,9 +13,7 @@ import {
   CARDINAL_MIN,
   CRITERE_PAR_ID,
   cardinal,
-  categorieDe,
-  combienDeCriteres,
-  type Categorie,
+  etiquetteDe,
   type Critere,
 } from "@/content/pays/criteres";
 import { PAYS, type Pays } from "@/content/pays/referentiel";
@@ -333,25 +331,24 @@ export function numeroDeJournee(dateIso: string): number {
 export const ESSAIS_AVANT_PICTOS = 25;
 
 /**
- * Les catégories montrables après `nbEssais` essais, une par case.
+ * Les étiquettes montrables après `nbEssais` essais, une par case, dans la
+ * langue de l'écran.
  *
- * ⚠️ LA CASE 5 NE PARLE JAMAIS. L'étagère `signature` ne compte que 7 critères
- * répartis sur 4 catégories : son picto laisserait DEUX candidats la plupart des
- * jours, et nommerait le critère 3 fois sur 51. C'est aussi, et surtout, la case
- * qui fait la recherche : 28 % des pays à 4/5 ne ratent qu'elle. La taire est un
- * choix de jeu autant qu'une protection.
+ * ⚠️ LA CASE 5 NE PARLE JAMAIS. L'étagère `signature` ne compte que 7 critères :
+ * quel que soit le grain, son étiquette laisserait trop peu de candidats. C'est
+ * aussi, et surtout, la case qui fait la recherche — 28 % des pays à 4/5 ne
+ * ratent qu'elle. La taire est un choix de jeu autant qu'une protection.
  *
- * ⚠️ ET LE GARDE-FOU vaut pour les quatre autres : si la bibliothèque ne compte
- * qu'un seul critère de ce palier dans cette catégorie, le picto NE DÉSIGNE PLUS
- * un domaine, il désigne le critère. Cette case-là se tait aussi. Trois cas sur
- * 204 aujourd'hui — assez rares pour qu'on soit tenté de les ignorer, assez
- * précis pour qu'un joueur tombe dessus le jour où ça compte.
+ * Le reste de la garde vit dans `cleEtiquette` : elle ne descend jamais sous
+ * `SEUIL_ETIQUETTE` critères possibles, donc il n'y a plus de cas particulier à
+ * traiter ici. Une case peut rendre `null` — c'est que même la catégorie serait
+ * trop précise pour ce palier.
  */
-export function pictosDe(criteres: Critere[], nbEssais: number): (Categorie | null)[] {
+export function pictosDe(
+  criteres: Critere[],
+  nbEssais: number,
+  locale: string,
+): ({ picto: string; texte: string } | null)[] {
   if (nbEssais < ESSAIS_AVANT_PICTOS) return criteres.map(() => null);
-  return criteres.map((c, k) => {
-    if (k === criteres.length - 1) return null;
-    const cat = categorieDe(c);
-    return combienDeCriteres(c.palier, cat) > 1 ? cat : null;
-  });
+  return criteres.map((c, k) => (k === criteres.length - 1 ? null : etiquetteDe(c, locale)));
 }

@@ -2490,11 +2490,6 @@
   },
   "Pays": {
     "pictosAide": "After 25 guesses, each box tells you what its criterion is about. The last one keeps its secret.",
-    "catGeo": "geography",
-    "catSociete": "society",
-    "catPolitique": "politics",
-    "catEco": "economy",
-    "catNature": "nature",
     "catMystere": "yours to find",
     "casesAide": "The five boxes are the day's characteristics, from the most common to the rarest. Two guesses filling the same box share it.",
     "casesLues": "{n, plural, =0 {no characteristic shared} one {1 characteristic shared} other {# characteristics shared}}",

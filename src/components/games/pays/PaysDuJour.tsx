@@ -21,6 +21,9 @@ import { nomPays } from "@/content/pays/referentiel";
 import { ajouteResultat, serieEnCours } from "@/lib/games/pays/local";
 import { CHIFFRES, ENCRE_SUR_GRADIENT, GRADIENT } from "@/lib/games/pays/palette";
 import type { Essai, ReponseEssai, Revelation as DonneesRevelation } from "@/lib/games/pays/types";
+
+/** Ce que le serveur renvoie pour une case qui parle : un emoji et un mot. */
+type Etiquette = { picto: string; texte: string };
 import { PAYS_SKIN as skin } from "@/lib/games/skin";
 import GameShell from "@/components/games/GameShell";
 import { GCard, GLabel } from "@/components/games/ui";
@@ -34,14 +37,14 @@ interface Sauvegarde {
   /** `cases[i]` : les cinq 0/1 de l'essai i, du critère le plus courant au plus rare. */
   cases?: number[][];
   /**
-   * Le domaine de chaque critère, une fois les 25 essais passés.
+   * L'étiquette de chaque critère, une fois les 25 essais passés.
    *
    * ⚠️ GARDÉ AVEC LA PARTIE, alors qu'il se recalcule à chaque essai. Sans ça,
    * un rechargement après le 30e essai ferait DISPARAÎTRE la légende jusqu'au
    * coup suivant — un joueur qui vient de comprendre où chercher perdrait son
    * repère au pire moment, et croirait à un bug.
    */
-  pictos?: (string | null)[];
+  pictos?: (Etiquette | null)[];
   revelation?: DonneesRevelation;
   /** Horodatage de l'arrivée sur la carte : sert au délai avant premier essai. */
   debut?: number;
@@ -59,7 +62,7 @@ export default function PaysDuJour({ jour }: { jour: number }) {
 
   const [essais, setEssais] = useState<Essai[]>([]);
   const [cases, setCases] = useState<number[][]>([]);
-  const [pictos, setPictos] = useState<(string | null)[]>([]);
+  const [pictos, setPictos] = useState<(Etiquette | null)[]>([]);
   const [revelation, setRevelation] = useState<DonneesRevelation | null>(null);
   const [carteComplete, setCarteComplete] = useState(false);
   const [surbrillance, setSurbrillance] = useState<string | null>(null);
@@ -107,7 +110,7 @@ export default function PaysDuJour({ jour }: { jour: number }) {
   }, [jour]);
 
   const enregistre = useCallback(
-    (prochains: Essai[], reveal: DonneesRevelation | null, remplies: number[][], domaines: (string | null)[]) => {
+    (prochains: Essai[], reveal: DonneesRevelation | null, remplies: number[][], domaines: (Etiquette | null)[]) => {
       const corps: Sauvegarde = {
         essais: prochains,
         cases: remplies,
@@ -368,17 +371,7 @@ export default function PaysDuJour({ jour }: { jour: number }) {
                 <p style={{ margin: "7px 0 0", fontSize: 12.5, color: skin.muted, lineHeight: 1.45 }}>
                   {t("pictosAide")}
                 </p>
-                <Legende
-                  pictos={pictos}
-                  noms={{
-                    geo: t("catGeo"),
-                    societe: t("catSociete"),
-                    politique: t("catPolitique"),
-                    eco: t("catEco"),
-                    nature: t("catNature"),
-                  }}
-                  mystere={t("catMystere")}
-                />
+                <Legende pictos={pictos} mystere={t("catMystere")} />
               </>
             )}
             <ol style={{ margin: "8px 0 0", padding: 0, listStyle: "none", display: "grid", gap: 5 }}>
@@ -432,22 +425,7 @@ export default function PaysDuJour({ jour }: { jour: number }) {
  * La légende reprend la forme des cases plutôt qu'un numéro : c'est ce qui
  * permet de faire l'aller-retour avec les lignes en dessous sans compter.
  */
-function Legende({
-  pictos,
-  noms,
-  mystere,
-}: {
-  pictos: (string | null)[];
-  noms: Record<string, string>;
-  mystere: string;
-}) {
-  const EMOJI: Record<string, string> = {
-    geo: "\u{1F30D}",
-    societe: "\u{1F465}",
-    politique: "\u{1F3DB}\u{FE0F}",
-    eco: "\u{1F4B0}",
-    nature: "\u{1F33F}",
-  };
+function Legende({ pictos, mystere }: { pictos: (Etiquette | null)[]; mystere: string }) {
   return (
     <ul
       style={{
@@ -459,9 +437,9 @@ function Legende({
         listStyle: "none",
       }}
     >
-      {pictos.map((cat, k) => {
+      {pictos.map((etiq, k) => {
         const derniere = k === pictos.length - 1;
-        const nom = cat ? noms[cat] : derniere ? mystere : null;
+        const nom = etiq ? etiq.texte : derniere ? mystere : null;
         // Une case des quatre premières peut se taire aussi : le garde-fou du
         // serveur la fait taire quand son domaine ne laisserait qu'un critère
         // possible. Rien à montrer alors — mais on garde sa place dans la
@@ -509,7 +487,7 @@ function Legende({
                 );
               })}
             </span>
-            {cat && <span aria-hidden>{EMOJI[cat]}</span>}
+            {etiq && <span aria-hidden>{etiq.picto}</span>}
             <span>{nom ?? "\u00B7"}</span>
           </li>
         );

@@ -36,14 +36,18 @@ export interface ReponseEssai {
    */
   cases?: number[][];
   /**
-   * Une catégorie par case, ou `null` quand la case se tait : de quoi PARLE le
+   * Une étiquette par case, ou `null` quand la case se tait : de quoi PARLE le
    * critère de ce rang, jamais lequel c'est. N'arrive qu'au bout de 25 essais.
    *
+   * Le texte est déjà résolu dans la langue de l'écran, comme les libellés de la
+   * révélation : le navigateur ne reçoit qu'une chaîne et un emoji. Le grain
+   * varie d'une case à l'autre — voir `cleEtiquette`.
+   *
    * ⚠️ La cinquième est toujours `null` — l'étagère `signature` est trop mince
-   * pour qu'un domaine ne désigne pas le critère, et c'est elle qui fait la
+   * pour qu'une étiquette ne désigne pas le critère, et c'est elle qui fait la
    * recherche. Voir `pictosDe`.
    */
-  pictos?: (string | null)[];
+  pictos?: ({ picto: string; texte: string } | null)[];
   /** Présente uniquement quand `score === 5`. */
   revelation?: Revelation;
 }

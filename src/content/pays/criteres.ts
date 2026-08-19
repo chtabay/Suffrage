@@ -1119,3 +1119,257 @@ export function famillesSansCategorie(): string[] {
 export function combienDeCriteres(palier: Palier, categorie: Categorie): number {
   return CRITERES.filter((c) => c.palier === palier && categorieDe(c) === categorie).length;
 }
+
+// ---------------------------------------------------------------------------
+// LE GRAIN VARIABLE — pourquoi l'étiquette n'est pas toujours au même niveau.
+//
+// LE DÉFAUT DE LA VERSION PRÉCÉDENTE, qui montrait toujours la catégorie large :
+// les 9 critères de palier `large` sont TOUS géographiques, donc la case 1
+// affichait « géographie » les 51 journées sur 51. Pour un joueur régulier c'est
+// un mot appris par cœur, c'est-à-dire du bruit. Et deux cases pouvaient porter
+// le même mot le même jour, ce qui laissait croire à un lien qui n'existait pas.
+//
+// LA RÈGLE : l'étiquette la plus FINE qui laisse encore au moins `SEUIL_ETIQUETTE`
+// critères possibles dans son palier. Trois grains empilés — famille (30),
+// sujet (10), catégorie (5) — et on remonte tant que c'est trop précis.
+//
+// ⚠️ CE QUE MESURE LE SEUIL, c'est l'incertitude d'un joueur QUI CONNAÎT la
+// bibliothèque. C'est donc l'habitué qu'on protège du spoiler, pas le débutant —
+// lui en sait forcément moins.
+//
+// ⚠️ POURQUOI 2 ET PAS 3. Mesuré sur les 51 journées × 4 cases révélables :
+//
+//     seuil   cases muettes   classe min / médiane   case 1 dit
+//       2       28 / 204        2 / 4                latitude, continent
+//       3       53 / 204        3 / 4                continent
+//
+// Le seuil 3 fait taire UNE CASE SUR QUATRE, et il rend la case 1 monotone —
+// c'est-à-dire qu'il rate précisément le défaut qu'on vient corriger. Deux
+// candidats sur une case qui n'est jamais décisive (la cinquième, elle, se tait
+// toujours) restent une aide, pas une réponse.
+//
+// ⚠️ CE QUE LE SEUIL NE PEUT PAS RÉPARER : l'étagère `large` compte 6 critères
+// de continent sur 9. Aucun étiquetage ne créera l'information qui n'y est pas —
+// pour un joueur régulier, la case 1 restera pauvre tant que cette étagère ne
+// sera pas diversifiée. C'est du contenu, pas de l'affichage.
+export const SEUIL_ETIQUETTE = 2;
+
+/** Le grain intermédiaire : 10 sujets, entre les 30 familles et les 5 catégories. */
+const SUJET_PAR_FAMILLE: Record<string, string> = {
+  continent: "position",
+  geodesie: "position",
+  geographie: "position",
+  latitude: "position",
+  hydrographie: "mers",
+  mer: "mers",
+  "mer-bordee": "mers",
+  densite: "taille",
+  population: "taille",
+  superficie: "taille",
+  frontieres: "voisinage",
+  "voisinage-BRA": "voisinage",
+  "voisinage-CHN": "voisinage",
+  "voisinage-DEU": "voisinage",
+  "voisinage-IND": "voisinage",
+  "voisinage-RUS": "voisinage",
+  langue: "culture",
+  patrimoine: "culture",
+  sport: "culture",
+  histoire: "etat",
+  institution: "etat",
+  "organisation-commonwealth": "alliances",
+  "organisation-otan": "alliances",
+  "organisation-ue": "alliances",
+  economie: "richesse",
+  monnaie: "richesse",
+  agriculture: "ressources",
+  biodiversite: "ressources",
+  energie: "ressources",
+  transport: "usages",
+};
+
+export function sujetDe(c: Critere): string {
+  return SUJET_PAR_FAMILLE[c.famille] ?? "?";
+}
+
+/** Les familles que la table des sujets ne classe pas. Vide, et le test l'exige. */
+export function famillesSansSujet(): string[] {
+  return [...new Set(CRITERES.map((c) => c.famille).filter((f) => !SUJET_PAR_FAMILLE[f]))];
+}
+
+/**
+ * Ce que le joueur LIT : un pictogramme et un mot, dans sa langue.
+ *
+ * ⚠️ LE PICTO EST RANGÉ ICI, avec le texte, et pas dans le composant d'écran.
+ * Les deux vont ensemble : une étiquette ajoutée sans son emoji, ou l'inverse,
+ * donnerait une pastille bancale que rien ne signalerait. Une seule table, un
+ * seul endroit à compléter — et le test vérifie qu'aucune étiquette atteignable
+ * n'y manque.
+ *
+ * Treize entrées couvrent la bibliothèque ENTIÈRE, pas seulement les 51 journées
+ * publiées : les grains fins ne sont atteints que là où le palier est fourni.
+ */
+export interface Etiquette {
+  picto: string;
+  texte: Texte;
+}
+
+const ETIQUETTES: Record<string, Etiquette> = {
+  "famille:continent": {
+    picto: "🌍",
+    texte: { fr: "continent", en: "continent", es: "continente", pcm: "continent" },
+  },
+  "famille:frontieres": {
+    picto: "🚧",
+    texte: { fr: "frontières", en: "borders", es: "fronteras", pcm: "border dem" },
+  },
+  "famille:langue": {
+    picto: "💬",
+    texte: { fr: "langue", en: "language", es: "idioma", pcm: "language" },
+  },
+  "famille:latitude": {
+    picto: "🌐",
+    texte: { fr: "latitude", en: "latitude", es: "latitud", pcm: "latitude" },
+  },
+  "famille:mer-bordee": {
+    picto: "🏖️",
+    texte: { fr: "quelle mer", en: "which sea", es: "qué mar", pcm: "which sea" },
+  },
+  "famille:monnaie": {
+    picto: "🪙",
+    texte: { fr: "monnaie", en: "currency", es: "moneda", pcm: "money wey dem dey use" },
+  },
+  "famille:population": {
+    picto: "👥",
+    texte: { fr: "population", en: "population", es: "población", pcm: "how many people" },
+  },
+  "famille:superficie": {
+    picto: "📐",
+    texte: { fr: "superficie", en: "land area", es: "superficie", pcm: "how big di land be" },
+  },
+  "famille:sport": {
+    picto: "🏅",
+    texte: { fr: "sport", en: "sport", es: "deporte", pcm: "sport" },
+  },
+  "sujet:alliances": {
+    picto: "🤝",
+    texte: { fr: "alliances", en: "alliances", es: "alianzas", pcm: "alliance" },
+  },
+  "sujet:culture": {
+    picto: "🎭",
+    texte: { fr: "culture", en: "culture", es: "cultura", pcm: "culture" },
+  },
+  "sujet:mers": {
+    picto: "🌊",
+    texte: { fr: "mers et côtes", en: "seas and coasts", es: "mares y costas", pcm: "sea and coast" },
+  },
+  "sujet:position": {
+    picto: "🧭",
+    texte: { fr: "position", en: "position", es: "posición", pcm: "where e dey" },
+  },
+  "sujet:ressources": {
+    picto: "⛏️",
+    texte: { fr: "ressources", en: "resources", es: "recursos", pcm: "resources" },
+  },
+  "sujet:taille": {
+    picto: "📏",
+    texte: { fr: "taille", en: "size", es: "tamaño", pcm: "size" },
+  },
+  "sujet:voisinage": {
+    picto: "🧩",
+    texte: { fr: "voisinage", en: "neighbours", es: "vecindad", pcm: "neighbour dem" },
+  },
+  "categorie:eco": {
+    picto: "💰",
+    texte: { fr: "économie", en: "economy", es: "economía", pcm: "economy" },
+  },
+  "categorie:geo": {
+    picto: "🗺️",
+    texte: { fr: "géographie", en: "geography", es: "geografía", pcm: "geography" },
+  },
+  "categorie:nature": {
+    picto: "🌿",
+    texte: { fr: "nature", en: "nature", es: "naturaleza", pcm: "nature" },
+  },
+  "categorie:politique": {
+    picto: "🏛️",
+    texte: { fr: "politique", en: "politics", es: "política", pcm: "politics" },
+  },
+  "categorie:societe": {
+    picto: "👥",
+    texte: { fr: "société", en: "society", es: "sociedad", pcm: "society" },
+  },
+};
+
+/** Combien de critères du palier partagent cette valeur, à ce grain. */
+function combienAuGrain(palier: Palier, grain: (c: Critere) => string, valeur: string): number {
+  return CRITERES.filter((c) => c.palier === palier && grain(c) === valeur).length;
+}
+
+/** Le grain le plus fin qui regroupe au moins `SEUIL_ETIQUETTE` critères du palier. */
+function cleBrute(c: Critere): string | null {
+  const essais: [string, string, number][] = [
+    ["famille", c.famille, combienAuGrain(c.palier, (x) => x.famille, c.famille)],
+    ["sujet", sujetDe(c), combienAuGrain(c.palier, sujetDe, sujetDe(c))],
+    ["categorie", categorieDe(c), combienAuGrain(c.palier, categorieDe, categorieDe(c))],
+  ];
+  for (const [grain, valeur, n] of essais) if (n >= SEUIL_ETIQUETTE) return `${grain}:${valeur}`;
+  return null;
+}
+
+/**
+ * ⚠️ LE REPLI EST LUI-MÊME UNE INFORMATION, et c'est ce qui a fait tomber la
+ * première version de cette règle.
+ *
+ * Compter « combien de critères `spécifique` sont géographiques » donnait 5, donc
+ * l'étiquette « géographie » paraissait sûre. Mais trois de ces cinq portent une
+ * étiquette PLUS FINE ; un joueur qui connaît la bibliothèque en déduit que le
+ * critère est l'un des deux qui ont dû se replier — et il ne reste pas 5
+ * candidats, il en reste 2. Le test l'a attrapé sur `archipel-etat`.
+ *
+ * On compte donc la CLASSE DE RÉSOLUTION : combien de critères du palier
+ * affichent exactement la même étiquette. Sous le seuil, la case se tait —
+ * c'est moins généreux, mais c'est vrai.
+ */
+const TAILLE_CLASSE: Map<string, number> = (() => {
+  const m = new Map<string, number>();
+  for (const c of CRITERES) {
+    const cle = cleBrute(c);
+    if (cle) m.set(`${c.palier}|${cle}`, (m.get(`${c.palier}|${cle}`) ?? 0) + 1);
+  }
+  return m;
+})();
+
+/**
+ * La clé d'étiquette d'un critère, ou `null` quand la case doit se taire.
+ *
+ * La garde n'est plus un cas particulier traité ailleurs : elle est une
+ * propriété de la règle, vérifiée sur toute la bibliothèque par le test.
+ */
+export function cleEtiquette(c: Critere): string | null {
+  const cle = cleBrute(c);
+  if (!cle) return null;
+  return (TAILLE_CLASSE.get(`${c.palier}|${cle}`) ?? 0) >= SEUIL_ETIQUETTE ? cle : null;
+}
+
+/** L'étiquette lue par le joueur, résolue dans sa langue. */
+export function etiquetteDe(c: Critere, locale: string): { picto: string; texte: string } | null {
+  const cle = cleEtiquette(c);
+  const e = cle ? ETIQUETTES[cle] : undefined;
+  return e ? { picto: e.picto, texte: enLangue(e.texte, locale) } : null;
+}
+
+/**
+ * Les clés d'étiquette atteignables par la bibliothèque et qui n'ont pas de
+ * libellé. Vide, et le test l'exige : une étiquette manquante ferait taire une
+ * case sans que rien ne le signale, exactement là où le joueur attend l'aide.
+ */
+export function etiquettesManquantes(): string[] {
+  const manque = new Set<string>();
+  for (const c of CRITERES) {
+    if (c.palier === "signature") continue; // la cinquième case ne parle jamais
+    const cle = cleEtiquette(c);
+    if (cle && !ETIQUETTES[cle]) manque.add(cle);
+  }
+  return [...manque].sort();
+}

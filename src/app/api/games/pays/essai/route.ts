@@ -98,7 +98,7 @@ export async function POST(req: Request) {
     // moins efficace que celle qu'on renonce déjà à empêcher. La défendre
     // coûterait un état serveur par partie anonyme, pour protéger le joueur de
     // lui-même.
-    pictos: pictosDe(criteres, suite.length),
+    pictos: pictosDe(criteres, suite.length, lang),
   };
 
   if (gagne) {

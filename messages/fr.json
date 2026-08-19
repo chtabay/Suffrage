@@ -2490,11 +2490,6 @@
   },
   "Pays": {
     "pictosAide": "Après 25 essais, chaque case dit de quoi parle son critère. La dernière garde son secret.",
-    "catGeo": "géographie",
-    "catSociete": "société",
-    "catPolitique": "politique",
-    "catEco": "économie",
-    "catNature": "nature",
     "catMystere": "à toi de trouver",
     "casesAide": "Les cinq cases sont les caractéristiques du jour, de la plus courante à la plus rare. Deux essais qui remplissent la même case la partagent.",
     "casesLues": "{n, plural, =0 {aucune caractéristique partagée} one {1 caractéristique partagée} other {# caractéristiques partagées}}",

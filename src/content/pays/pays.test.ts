@@ -16,10 +16,13 @@ import {
   CARDINAL_MAX,
   CARDINAL_MIN,
   CRITERES,
+  SEUIL_ETIQUETTE,
   cardinal,
-  categorieDe,
-  combienDeCriteres,
+  cleEtiquette,
+  etiquetteDe,
+  etiquettesManquantes,
   famillesSansCategorie,
+  famillesSansSujet,
   type Texte,
 } from "./criteres";
 import { JOURNEES } from "./journees";
@@ -297,18 +300,58 @@ test("les cases ne disent jamais de QUOI parle le critère", () => {
 
 // ------------------------------------------------------------------- pictos
 
-test("toute famille de critère a une catégorie", () => {
-  // Le filet de `categorieDe` : son repli sur « geo » rendrait un picto FAUX
+test("toute famille de critère a une catégorie ET un sujet", () => {
+  // Les deux replis (`categorieDe`, `sujetDe`) rendraient une étiquette FAUSSE
   // pour un critère neuf, et un joueur chercherait au mauvais endroit en toute
-  // confiance. Une famille ajoutée sans catégorie doit casser ici.
+  // confiance. Une famille ajoutée sans classement doit casser ici.
   assert.deepEqual(famillesSansCategorie(), []);
+  assert.deepEqual(famillesSansSujet(), []);
+});
+
+test("toute étiquette atteignable a un libellé dans les quatre langues", () => {
+  // Sans ce test, ajouter des critères peut rendre atteignable un grain plus
+  // fin qu'aucun libellé ne couvre : la case se tairait en silence, exactement
+  // là où le joueur attend l'aide.
+  assert.deepEqual(etiquettesManquantes(), []);
+  for (const c of CRITERES) {
+    if (c.palier === "signature") continue;
+    if (!cleEtiquette(c)) continue;
+    for (const loc of LOCALES) {
+      const e = etiquetteDe(c, loc);
+      assert.ok(e && e.texte.length > 0 && e.picto.length > 0, `${c.id} en ${loc}`);
+    }
+  }
+});
+
+test("une étiquette laisse toujours au moins SEUIL_ETIQUETTE critères possibles", () => {
+  // LE CŒUR DE LA RÈGLE, et ce qui remplace l'ancien garde-fou ponctuel : le
+  // grain descend tant que c'est sûr, jamais au-delà. Ce qu'on mesure est
+  // l'incertitude d'un joueur qui CONNAÎT la bibliothèque.
+  for (const c of CRITERES) {
+    if (c.palier === "signature") continue;
+    const cle = cleEtiquette(c);
+    if (!cle) continue;
+    const [grain, valeur] = [cle.slice(0, cle.indexOf(":")), cle.slice(cle.indexOf(":") + 1)];
+    // ⚠️ ON COMPTE LA CLASSE DE RÉSOLUTION, pas le grain. Un joueur qui connaît
+    // la bibliothèque sait qu'un critère replié sur un grain large l'a fait
+    // FAUTE DE MIEUX : compter tous les critères du grain surestimait donc la
+    // protection. Attrapé ici sur `archipel-etat`, qui paraissait couvert par
+    // cinq critères et n'en avait que deux.
+    void grain;
+    void valeur;
+    const memeEtiquette = CRITERES.filter((x) => x.palier === c.palier && cleEtiquette(x) === cle);
+    assert.ok(
+      memeEtiquette.length >= SEUIL_ETIQUETTE,
+      `${c.id} : « ${cle} » ne laisse que ${memeEtiquette.length} critère(s)`,
+    );
+  }
 });
 
 test("avant 25 essais, aucune case ne parle", () => {
   const j = JOURNEES[0];
   const ordonnes = ordreCanonique(j.criteres.map((id) => CRITERES.find((c) => c.id === id)!));
   for (const n of [0, 1, 10, ESSAIS_AVANT_PICTOS - 1]) {
-    assert.deepEqual(pictosDe(ordonnes, n), [null, null, null, null, null], `à ${n} essais`);
+    assert.deepEqual(pictosDe(ordonnes, n, "fr"), [null, null, null, null, null], `à ${n} essais`);
   }
 });
 
@@ -319,35 +362,48 @@ test("la case signature ne parle JAMAIS, quelle que soit la journée", () => {
   for (const j of JOURNEES) {
     const ordonnes = ordreCanonique(j.criteres.map((id) => CRITERES.find((c) => c.id === id)!));
     for (const n of [ESSAIS_AVANT_PICTOS, 100, 500]) {
-      assert.equal(pictosDe(ordonnes, n)[4], null, `journée ${j.cible} à ${n} essais`);
+      assert.equal(pictosDe(ordonnes, n, "fr")[4], null, `journée ${j.cible} à ${n} essais`);
     }
   }
 });
 
-test("un picto montré laisse toujours au moins deux critères possibles", () => {
-  // LE GARDE-FOU, sur les 51 journées : montrer une catégorie qui ne
-  // correspondrait qu'à UN critère de la bibliothèque ne donnerait pas un
-  // domaine de recherche, ça donnerait le critère.
+test("les étiquettes ne livrent jamais un identifiant ni une famille de critère", () => {
+  // Même promesse que pour les cases : ce qui sort est un mot de domaine, rien
+  // qui nomme le critère. On vérifie sur le JSON réellement envoyé.
   for (const j of JOURNEES) {
     const ordonnes = ordreCanonique(j.criteres.map((id) => CRITERES.find((c) => c.id === id)!));
-    const montres = pictosDe(ordonnes, ESSAIS_AVANT_PICTOS);
-    for (const [k, cat] of montres.entries()) {
-      if (!cat) continue;
-      const restants = combienDeCriteres(ordonnes[k].palier, cat);
-      assert.ok(restants > 1, `journée ${j.cible}, case ${k + 1} : « ${cat} » ne laisse que ${restants} critère`);
-      assert.equal(cat, categorieDe(ordonnes[k]));
-    }
+    const envoye = JSON.stringify(pictosDe(ordonnes, 500, "fr"));
+    for (const c of ordonnes) assert.ok(!envoye.includes(c.id), `${c.id} fuite dans les étiquettes`);
   }
 });
 
-test("les pictos ne livrent jamais un identifiant ni une famille", () => {
-  // Même promesse que pour les cases : ce qui sort est une catégorie parmi cinq,
-  // rien qui nomme le critère.
-  const permises = new Set(["geo", "societe", "politique", "eco", "nature"]);
+test("le grain descend sous la catégorie là où c'est sûr", () => {
+  // CE QUE LE GRAIN VARIABLE APPORTE VRAIMENT : sur les 51 journées, la majorité
+  // des étiquettes sont plus fines qu'une catégorie. Au grain fixe, les 204
+  // révélations portaient les mêmes cinq mots.
+  const grains: Record<string, number> = {};
   for (const j of JOURNEES) {
     const ordonnes = ordreCanonique(j.criteres.map((id) => CRITERES.find((c) => c.id === id)!));
-    for (const cat of pictosDe(ordonnes, 500)) {
-      if (cat) assert.ok(permises.has(cat), `catégorie inattendue : ${cat}`);
+    for (const c of ordonnes.slice(0, 4)) {
+      const cle = cleEtiquette(c);
+      const g = cle ? cle.slice(0, cle.indexOf(":")) : "muet";
+      grains[g] = (grains[g] ?? 0) + 1;
     }
   }
+  const fins = (grains.famille ?? 0) + (grains.sujet ?? 0);
+  assert.ok(fins > (grains.categorie ?? 0), `grains retenus : ${JSON.stringify(grains)}`);
+  assert.ok((grains.famille ?? 0) > 0, "aucune étiquette au grain famille");
+});
+
+test("deux cases du même jour ne portent pas la même étiquette", () => {
+  // Au grain fixe, la journée 2 affichait « société » DEUX FOIS : le joueur
+  // lisait un lien entre deux critères qui n'en ont aucun. Le grain fin les
+  // sépare — et là où il ne le peut pas, on veut le savoir.
+  const doublons: string[] = [];
+  for (const j of JOURNEES) {
+    const ordonnes = ordreCanonique(j.criteres.map((id) => CRITERES.find((c) => c.id === id)!));
+    const cles = ordonnes.slice(0, 4).map((c) => cleEtiquette(c)).filter(Boolean);
+    if (new Set(cles).size !== cles.length) doublons.push(j.cible);
+  }
+  assert.deepEqual(doublons, [], `journées où deux cases disent la même chose : ${doublons.join(", ")}`);
 });
