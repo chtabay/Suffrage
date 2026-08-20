@@ -125,6 +125,16 @@ publiait dans une conversation et tout le monde marquait 100, pour le prix d'une
 réponse jetable. `scrutin_banalo_etat` scelle donc `mediane` ET `facteur`
 (médiane = ma réponse × facteur) jusqu'à la charnière suivante.
 
+**Sceller sans jamais montrer, c'est ne rien révéler du tout** — et c'est ce qui
+manquait. À la clôture, la page bascule sur la journée suivante : l'écran qui
+aurait rendu la médiane n'existe plus, donc elle n'apparaissait sur AUCUNE
+journée. `JourneePrecedente` est la seule place où ce nombre s'affiche ; il
+n'interroge que `jour − 1`, il se tait si la base ne rend pas la médiane (journée
+pas encore close de son point de vue), et il se tait aussi quand on n'a pas joué
+la veille — un bloc « vous n'avez pas joué » est un reproche adressé à quelqu'un
+qui vient précisément de revenir. ⚠️ Son titre dit « la journée précédente », pas
+« hier » : à 11 h 00, la journée précédente a commencé **avant-hier**.
+
 ⚠️ **Ce qui reste déductible est assumé** : le score est une fonction du rapport,
 donc `10^((100 − score)/100)` rend le facteur et deux candidats pour la médiane
 (mesuré : 92,1 sur une réponse de 1 000 000 donne 1 199 499 ou 833 681, la vraie

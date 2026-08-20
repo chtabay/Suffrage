@@ -2706,6 +2706,8 @@
     "mienne": "Votre réponse",
     "mediane": "La réponse médiane",
     "medianeScellee": "La réponse médiane reste cachée jusqu'à la clôture : affichée maintenant, il suffirait de la recopier pour marquer le maximum.",
+    "precedenteTitre": "La journée précédente",
+    "precedenteFoule": "La réponse médiane des {n} joueurs.",
     "bareme": "Cent points, moins cent par facteur dix d'écart.",
     "ecart": "Votre écart",
     "facteur": "×{f}",

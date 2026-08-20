@@ -26,6 +26,7 @@ import { finDeJournee } from "@/lib/games/banalo/jour";
 import { programmeDe } from "@/lib/games/banalo/programme";
 import NombreDuJour from "./NombreDuJour";
 import GrilleDeMots from "./GrilleDeMots";
+import JourneePrecedente from "./JourneePrecedente";
 
 const bcp = (locale: string) => (locale === "pcm" ? "en" : locale);
 
@@ -69,6 +70,18 @@ export default function BanaloDuJour({ jour }: { jour: number }) {
       ) : (
         <NombreDuJour jour={jour} />
       )}
+
+      {/* LE RÉSULTAT DE LA JOURNÉE PRÉCÉDENTE, EN BAS ET APRÈS TOUT LE RESTE.
+          Il est posé ICI et pas dans les deux écrans de format parce qu'il vaut
+          pour les deux — et en DERNIER parce que la partie du jour passe avant
+          la relecture de la veille : un joueur qui arrive doit voir la question
+          d'aujourd'hui, pas un résultat qu'il ne peut plus changer.
+
+          ⚠️ IL NE PREND PAS LA PLACE UNIQUE DE L'APRÈS-PARTIE (§0 de
+          `docs/regularite-des-joueurs.md`). Ce n'est pas une demande — il ne
+          réclame ni installation, ni compte, ni ami : c'est du jeu, et il ne
+          concurrence donc rien dans l'échelle de priorité. */}
+      <JourneePrecedente jour={jour} />
 
       {/* Les deux clés sont écrites EN CLAIR : une clé choisie en variable
           échapperait au contrôle de parité i18n. */}

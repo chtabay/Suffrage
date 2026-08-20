@@ -2706,6 +2706,8 @@
     "mienne": "Your answer",
     "mediane": "The median answer",
     "medianeScellee": "The median answer stays hidden until the day closes: shown now, anyone could simply copy it and score full marks.",
+    "precedenteTitre": "The previous day",
+    "precedenteFoule": "The median answer of {n} players.",
     "bareme": "A hundred points, minus a hundred per factor of ten off.",
     "ecart": "How far off",
     "facteur": "×{f}",

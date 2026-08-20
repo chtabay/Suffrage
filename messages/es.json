@@ -2706,6 +2706,8 @@
     "mienne": "Tu respuesta",
     "mediane": "La respuesta mediana",
     "medianeScellee": "La respuesta mediana permanece oculta hasta el cierre: si se mostrara ahora, bastaría con copiarla para sacar la máxima puntuación.",
+    "precedenteTitre": "El día anterior",
+    "precedenteFoule": "La respuesta mediana de {n} jugadores.",
     "bareme": "Cien puntos, menos cien por cada factor diez de desviación.",
     "ecart": "Tu desviación",
     "facteur": "×{f}",
