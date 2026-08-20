@@ -1833,6 +1833,7 @@
       "sending": "Dey send…",
       "duplicate": "“{word}” don count for you already",
       "isTheme": "Di theme itself no carry point",
+      "removed": "“{word}” don comot.",
       "full": "{max} words na di maximum",
       "remove": "Remove {word}"
     },

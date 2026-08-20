@@ -458,6 +458,7 @@ export default function BanaloRoom({ code }: { code: string }) {
                 sending: t("input.sending"),
                 duplicate: (w) => t("input.duplicate", { word: w }),
                 isTheme: t("input.isTheme"),
+                removed: (w) => t("input.removed", { word: w }),
                 full: t("input.full", { max: maxWords }),
                 remove: (w) => t("input.remove", { word: w }),
               }}

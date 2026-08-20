@@ -1833,6 +1833,7 @@
       "sending": "Envoi…",
       "duplicate": "« {word} » compte déjà pour toi",
       "isTheme": "Le thème lui-même ne rapporte rien",
+      "removed": "« {word} » retiré.",
       "full": "{max} mots, c'est le maximum",
       "remove": "Retirer {word}"
     },

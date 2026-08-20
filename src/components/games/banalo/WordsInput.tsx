@@ -19,6 +19,20 @@
 // • LE DOUBLON EST DIT, PAS AVALÉ. Écrire « Plage » puis « plages » ne rapporte
 //   qu'une fois (le serveur dédoublonne). Le taire donnerait un joueur persuadé
 //   d'avoir huit mots avec sept qui comptent. On le prévient, avec la raison.
+//
+// ⚠️ LE RETOUR ARRIÈRE SUR CHAMP VIDE EFFAÇAIT PLUSIEURS MOTS D'UN COUP, et des
+// joueurs l'ont signalé sans pouvoir l'expliquer. La cause : le raccourci de
+// suppression du dernier mot ne filtrait pas la RÉPÉTITION DE TOUCHE. Juste
+// après avoir poussé un mot, le champ est vide — la condition est donc armée —
+// et maintenir Retour arrière, ce que tout le monde fait en croyant vider un
+// champ, envoyait une dizaine d'événements et effaçait autant de mots. En
+// silence : pas de message, pas de trace, rien à annuler.
+//
+// Deux gardes, et il faut les deux. `e.repeat` écarte la répétition. Et le
+// raccourci demande DEUX appuis distincts : le premier ARME le dernier mot — il
+// s'affiche barré et en rouge — le second seulement le retire. C'est l'idiome
+// des champs à jetons (destinataires d'un courriel), et il existe pour cette
+// raison exacte. Toute autre frappe désarme.
 import { useMemo, useRef, useState } from "react";
 import { normalizeWord, themeTokens } from "@/lib/games/banalo/scoring";
 import type { GameSkin } from "@/lib/games/skin";
@@ -48,6 +62,8 @@ export default function WordsInput({
     isTheme: string;
     full: string;
     remove: (w: string) => string;
+    /** Dit ce qui vient d'être retiré : une suppression muette est ce qui a créé le bug. */
+    removed: (w: string) => string;
   };
   busy?: boolean;
   onSubmit: (words: string[]) => void | Promise<void>;
@@ -55,6 +71,8 @@ export default function WordsInput({
   const [words, setWords] = useState<string[]>(initial);
   const [draft, setDraft] = useState("");
   const [note, setNote] = useState<string | null>(null);
+  /** Le dernier mot est-il armé pour la suppression au prochain Retour arrière ? */
+  const [arme, setArme] = useState(false);
   const field = useRef<HTMLInputElement>(null);
 
   // Les MÊMES jetons que le dépouillement (thème entier + chaque mot de ≥ 3
@@ -95,12 +113,16 @@ export default function WordsInput({
     }
     setWords(next);
     setDraft("");
+    setArme(false);
     // Le focus reste dans le champ : on enchaîne au mot suivant sans viser.
     field.current?.focus();
   };
 
   const remove = (i: number) => {
-    setWords(words.filter((_, k) => k !== i));
+    // Forme fonctionnelle : deux suppressions rapprochées partiraient sinon du
+    // même tableau capturé, et la seconde annulerait la première.
+    setWords((cur) => cur.filter((_, k) => k !== i));
+    setArme(false);
     field.current?.focus();
   };
 
@@ -110,13 +132,29 @@ export default function WordsInput({
         <input
           ref={field}
           value={draft}
-          onChange={(e) => setDraft(e.target.value)}
+          onChange={(e) => {
+            setDraft(e.target.value);
+            setArme(false);
+          }}
           onKeyDown={(e) => {
             if (e.key === "Enter") {
               e.preventDefault();
               add(draft);
             }
-            if (e.key === "Backspace" && draft === "" && words.length) remove(words.length - 1);
+            // ⚠️ Voir l'en-tête : répétition écartée, puis deux appuis.
+            if (e.key === "Backspace" && draft === "" && words.length) {
+              if (e.repeat) return;
+              if (!arme) {
+                setArme(true);
+                return;
+              }
+              flash(labels.removed(words[words.length - 1]!));
+              remove(words.length - 1);
+              return;
+            }
+            // Toute autre frappe désarme : on ne garde pas un mot en sursis
+            // pendant qu'on écrit le suivant.
+            if (arme) setArme(false);
           }}
           placeholder={labels.placeholder}
           aria-label={labels.placeholder}
@@ -155,7 +193,9 @@ export default function WordsInput({
       </div>
 
       <ul style={{ listStyle: "none", margin: "6px 0 0", padding: 0, display: "flex", flexWrap: "wrap", gap: 7 }}>
-        {words.map((w, i) => (
+        {words.map((w, i) => {
+          const enSursis = arme && i === words.length - 1;
+          return (
           <li key={`${w}-${i}`} style={{ animation: "popIn 0.18s ease both" }}>
             <button
               type="button"
@@ -171,9 +211,10 @@ export default function WordsInput({
                 padding: "8px 11px",
                 borderRadius: 11,
                 cursor: "pointer",
-                border: `2px solid ${skin.ink}`,
-                background: skin.paper,
-                color: skin.ink,
+                border: `2px solid ${enSursis ? "#C62828" : skin.ink}`,
+                background: enSursis ? "#FDECEC" : skin.paper,
+                color: enSursis ? "#C62828" : skin.ink,
+                textDecoration: enSursis ? "line-through" : undefined,
               }}
             >
               {w}
@@ -182,7 +223,8 @@ export default function WordsInput({
               </span>
             </button>
           </li>
-        ))}
+          );
+        })}
       </ul>
 
       <GBtn

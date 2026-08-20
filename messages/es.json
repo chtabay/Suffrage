@@ -1833,6 +1833,7 @@
       "sending": "Enviando…",
       "duplicate": "«{word}» ya te cuenta",
       "isTheme": "El tema en sí no puntúa",
+      "removed": "«{word}» eliminado.",
       "full": "{max} palabras es el máximo",
       "remove": "Quitar {word}"
     },

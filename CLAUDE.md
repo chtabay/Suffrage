@@ -92,6 +92,16 @@ jour ». Conséquence à ne pas rater : **`banalo-jour` n'est PAS une valeur de
 en base. Le mode quotidien n'a pas de salle ; sa clé est `(jeton, jour, langue)`
 dans `scrutin_banalo_reponses`.
 
+⚠️ **Un raccourci destructeur muet finit toujours par mordre.** Dans la saisie
+de Banalo en groupe, Retour arrière sur champ vide retirait le dernier mot —
+idiome courant des champs à jetons — mais **sans filtrer la répétition de
+touche**. Or l'ajout d'un mot vide le champ, donc la condition est armée juste
+après ; maintenir la touche en croyant vider un champ effaçait une dizaine de
+mots, en silence. Signalé par des joueurs qui ne pouvaient pas l'expliquer. Deux
+gardes, et il faut les deux : `e.repeat` écarté, et **deux appuis distincts** —
+le premier arme le mot (barré, rouge), le second le retire, toute autre frappe
+désarme.
+
 **Une réponse de Banalo du jour est DÉFINITIVE, et c'est structurel.** La RPC
 rend la médiane du moment ; si un second dépôt écrasait le premier, il suffirait
 de répondre n'importe quoi, de lire la médiane rendue et de la redéposer pour

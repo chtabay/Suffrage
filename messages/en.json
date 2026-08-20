@@ -1833,6 +1833,7 @@
       "sending": "Sending…",
       "duplicate": "“{word}” already counts for you",
       "isTheme": "The theme itself scores nothing",
+      "removed": "“{word}” removed.",
       "full": "{max} words is the most",
       "remove": "Remove {word}"
     },
