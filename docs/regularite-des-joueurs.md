@@ -173,17 +173,36 @@ tableau nominatif demanderait un pseudo public et un consentement […] elle n'e
 pas prise ici ». Ce qu'elle coûte, et qu'il faudra assumer le jour où on la
 prend :
 
-* **Une identité publique**, sur des jeux dont la politique déclare une tranche
-  d'âge « enfant » : usurpation, harcèlement, noms choisis pour blesser. C'est
-  une surface de modération, et « on verra » n'est pas une réponse.
-* **La première visibilité de données de jeu par d'autres personnes.** Jusqu'ici
-  la politique ne parle que de conservation. C'est un changement de catégorie.
+⚠️ **Deux de ces coûts avaient d'abord été énoncés à tort comme nouveaux.**
+L'identité publique et le classement nominatif **existent déjà** : les jeux de
+salle demandent un prénom montré à tous, `PlayerBoard` classe les joueurs par
+nom, et Alibi produit des accusations qui désignent nommément quelqu'un. La
+visibilité des données de jeu par d'autres n'a rien d'inédit non plus.
+
+**Ce qui change avec des amis n'est donc pas l'identité, c'est son échappée hors
+de la salle.** Les jeux de salle se jouent EN PRÉSENCE, entre gens qui se gèrent
+— la modération, c'est le groupe, de vive voix. Trois propriétés la rendent
+possible : on entre par code, la salle est jetable, tout s'efface en sept jours.
+Un système d'amis retire les trois d'un coup : un nom **permanent**, **découvrable
+au-delà des gens qui vous ont invité**, et qui **survit à la purge** — et les amis
+sont par nature distants et asynchrones, donc hors de portée du seul mécanisme de
+régulation qui existe aujourd'hui.
+
+* **La persistance et la découvrabilité du nom**, sur des jeux dont la politique
+  déclare une tranche d'âge « enfant ». C'est le vrai coût, et il n'a pas de
+  contrepartie dans le modèle actuel.
+* **Une visibilité SANS acte à chaque fois.** Aujourd'hui montrer son résultat à
+  quelqu'un demande de le lui envoyer — un destinataire, un geste. Un fil
+  d'activité est une visibilité permanente et ambiante ; c'est ça, le changement
+  de catégorie.
 * **Le format « mots » fuit** : voir la grille d'un ami, c'est recevoir six
   réponses. Le détail d'un ami ne peut être visible que pour les journées qu'on
   a soi-même jouées.
-* **Un classement nominatif contredit l'éthos des deux jeux.** Banalo récompense
-  d'être BANAL, pas d'être bon. La sortie proposée : une **tablée** — qui a joué
-  aujourd'hui — et non un palmarès.
+* **Un classement nominatif PERMANENT** — le produit en a déjà un dans les
+  salles, mais une salle est un contexte choisi, borné, d'un soir. Un palmarès
+  d'amis est ambiant et sans fin, et Banalo récompense d'être BANAL, pas d'être
+  bon. La sortie proposée : une **tablée** — qui a joué aujourd'hui — et non un
+  palmarès.
 * **Un second graphe social.** Placet sert à décider en groupe, et ce groupe est
   déjà modélisé par `/espaces`, en production. Construire des « amis » à côté,
   c'est maintenir deux réseaux aux sémantiques différentes. Si social il y a, il

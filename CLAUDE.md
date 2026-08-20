@@ -223,6 +223,23 @@ mémoire pour y ajouter un mot** : la première rédaction de
 la fenêtre d'une heure et le plafond journalier par des approximations, toutes
 plausibles et toutes fausses. On repart du corps réel, et on `diff`.
 
+**LES JEUX DE SALLE SE JOUENT EN PRÉSENCE, ET C'EST CE QUI TIENT LIEU DE
+MODÉRATION.** Alibi, Rôdeurs, La Nuit du Fantôme réunissent des gens dans la même
+maison — le Fantôme va jusqu'à faire poser des appareils dans les pièces. On y
+tape du texte libre montré aux autres, et Alibi produit des accusations qui
+DÉSIGNENT nommément un joueur : la surface existe donc bel et bien. Elle est
+tenue par le groupe lui-même, qui se gère, immédiatement et de vive voix.
+
+Il n'y a donc **aucun bouton de signalement ni d'exclusion nulle part**, et ce
+n'est pas un oubli. Trois propriétés du modèle de salle portent la décision : on
+entre **par code**, donc parmi des gens qu'on connaît ; la salle est **jetable** ;
+tout s'efface en **sept jours**. ⚠️ Toute fonctionnalité qui casserait l'une des
+trois — un nom qui persiste, découvrable au-delà des gens qui vous ont invité,
+survivant à la purge — retirerait du même coup ce qui justifie l'absence de
+modération. C'est la question de fond d'un système d'amis, et la seule : non pas
+« faut-il accepter une surface de modération » (elle existe), mais « faut-il la
+laisser sortir de la salle ».
+
 **La couche sociale des jeux quotidiens N'A PAS DE GRAPHE**, et c'est un choix.
 Le lien de partage porte la journée et le résultat (`?j=&r=`, jamais `s` — pris
 par l'entonnoir) ; l'ami qui l'ouvre après avoir joué voit les deux résultats
