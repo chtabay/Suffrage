@@ -109,7 +109,12 @@ export const GAMES: GameEntry[] = [
     slug: "banalo-jour",
     famille: "quotidien",
     status: "live",
-    emoji: "🔢",
+    // ⚠️ PAS 🔢. L'emoji « input-numbers » rend une VIGNETTE — un cadre gris
+    // contenant « 1234 » minuscules — illisible dès qu'on descend sous 20 px,
+    // et c'est le seul élément froid d'une page chaude. 🎯 est un aplat rond qui
+    // tient à toute taille, et il dit ce que le jeu demande : viser la réponse
+    // commune. Vu à l'écran, sur les cartes de l'accueil.
+    emoji: "🎯",
     skin: UNANIMO_SKIN,
     route: "/games/banalo-jour",
     bestWith: "1",

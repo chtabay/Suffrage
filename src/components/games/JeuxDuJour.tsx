@@ -8,10 +8,32 @@
 // régularité c'est un rappel passif sur la page la plus visitée, qui ne coûte
 // rien en confiance — contrairement à une notification.
 //
-// ⚠️ AUX COULEURS DE PLACET, PAS À CELLES DES JEUX. C'est l'inverse exact de la
-// règle qui vaut à l'intérieur d'un jeu (`InstallJeu`, `PontPlacet`) : ici on est
-// chez Placet, sur sa page, et deux cartes en violet-menthe au milieu du crème
-// ressembleraient à un encart publicitaire collé là.
+// ⚠️ DANS LES VÊTEMENTS DE PLACET, AVEC UN SEUL ACCENT DU JEU — et la nuance
+// est tout le sujet. Une carte menthe-et-violet posée sur le crème (fond,
+// bordure et typo étrangers d'un coup) ressemblerait à un encart publicitaire
+// collé là. Un seul élément coloré sur une carte par ailleurs identique aux
+// autres de la page, non.
+//
+// L'accent n'est pas décoratif, il ANNONCE LA DESTINATION : cliquer une carte à
+// l'ombre violette et atterrir sur un écran violet est continu ; atterrir sur du
+// violet après une carte neutre est un saut.
+//
+// On le pose sur l'OMBRE PORTÉE, parce que c'est déjà l'idiome maison — `GCard`
+// prend une prop `accent` qui ne sert qu'à ça. On applique un dispositif
+// existant plutôt que d'en inventer un. Pas de liseré latéral : c'est le tic le
+// plus reconnaissable du design généré, et il ajoute une forme là où l'ombre
+// suffit.
+//
+// ⚠️ TOUT LE RESTE EST IDENTIQUE d'une carte à l'autre — bordure encre, rayon,
+// décalage, graisses, tailles. Si tout diffère, ce n'est plus une rangée, ce sont
+// deux publicités côte à côte.
+//
+// ⚠️ ET PAS L'ACCENT SECONDAIRE DE BANALO (`#FFC93C`) : il est à un cheveu du
+// jaune de Placet (`#FFB627`), et la distinction s'effacerait. On prend les
+// accents primaires, distincts entre eux et de la page.
+//
+// L'accent ne porte AUCUNE information — le nom, la journée et le sujet la
+// portent. Personne ne perd rien s'il ne distingue pas les deux teintes.
 //
 // ⚠️ ET SURTOUT : LES DEUX JEUX N'ONT PAS LE DROIT DE MONTRER LA MÊME CHOSE.
 //
@@ -29,6 +51,7 @@ import { useEffect, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { FONT_DISPLAY, INK, SUBINK, lift } from "@/components/scrutin/theme";
+import { PAYS_SKIN, UNANIMO_SKIN } from "@/lib/games/skin";
 import { numeroDuJour } from "@/lib/games/banalo/jour";
 import { programmeDe } from "@/lib/games/banalo/programme";
 import { enLangue } from "@/content/banalo/questions";
@@ -58,13 +81,7 @@ export default function JeuxDuJour() {
       ? `${prog.theme.emoji} ${themeLabel(prog.theme, locale)}`
       : enLangue(prog.question.texte, locale);
 
-  const carte = (
-    href: string,
-    emoji: string,
-    nom: string,
-    ligne: string,
-    clamp: number,
-  ) => (
+  const carte = (href: string, emoji: string, nom: string, ligne: string, accent: string) => (
     <Link
       href={href}
       className="dc-lift"
@@ -76,29 +93,31 @@ export default function JeuxDuJour() {
         border: `2.5px solid ${INK}`,
         background: "#fff",
         borderRadius: 12,
-        padding: "13px 15px",
-        ...lift(`4px 4px 0 ${INK}`, `6px 6px 0 ${INK}`),
+        padding: "10px 12px",
+        // Seule la TEINTE de l'ombre change d'une carte à l'autre ; la géométrie
+        // (décalage, survol) reste celle de la page.
+        ...lift(`4px 4px 0 ${accent}`, `6px 6px 0 ${accent}`),
       }}
     >
-      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-        <span aria-hidden style={{ fontSize: 18 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
+        <span aria-hidden style={{ fontSize: 15 }}>
           {emoji}
         </span>
-        <span style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 15 }}>{nom}</span>
-        <span style={{ marginLeft: "auto", fontSize: 12, color: SUBINK, fontWeight: 700 }}>
+        <span style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 14.5 }}>{nom}</span>
+        <span style={{ marginLeft: "auto", fontSize: 11.5, color: SUBINK, fontWeight: 700 }}>
           {t("jourNumero", { n: jour })}
         </span>
       </div>
       <p
         style={{
-          margin: "7px 0 0",
-          fontSize: 13.5,
+          margin: "5px 0 0",
+          fontSize: 13,
           color: SUBINK,
-          lineHeight: 1.4,
+          lineHeight: 1.35,
           // La question du jour peut être longue : on la borne à deux lignes
           // plutôt que de laisser la carte grandir sous elle.
           display: "-webkit-box",
-          WebkitLineClamp: clamp,
+          WebkitLineClamp: 2,
           WebkitBoxOrient: "vertical",
           overflow: "hidden",
         }}
@@ -109,10 +128,16 @@ export default function JeuxDuJour() {
   );
 
   return (
-    <div style={{ display: "flex", flexWrap: "wrap", gap: 12, marginTop: 16 }}>
-      {carte("/games/banalo-jour", prog.type === "mots" ? "💬" : "🔢", t("banalo-jour.name"), sujet, 2)}
+    <div style={{ display: "flex", flexWrap: "wrap", gap: 10, marginTop: 12 }}>
+      {carte(
+        "/games/banalo-jour",
+        prog.type === "mots" ? "💬" : "🎯",
+        t("banalo-jour.name"),
+        sujet,
+        UNANIMO_SKIN.accent,
+      )}
       {/* Pas de sujet ici, et c'est la règle — voir l'en-tête. */}
-      {carte("/games/pays", "🌍", t("pays.name"), t("pays.tagline"), 2)}
+      {carte("/games/pays", "🌍", t("pays.name"), t("pays.tagline"), PAYS_SKIN.accent)}
     </div>
   );
 }

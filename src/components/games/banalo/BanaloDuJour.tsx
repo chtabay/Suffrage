@@ -55,7 +55,7 @@ export default function BanaloDuJour({ jour }: { jour: number }) {
       title={t("name")}
       // L'emoji suit le format : c'est le seul repère qui dit, avant même de
       // lire, ce qu'on va devoir taper aujourd'hui.
-      emoji={prog.type === "mots" ? "💬" : "🔢"}
+      emoji={prog.type === "mots" ? "💬" : "🎯"}
       backLabel={t("back")}
       poweredBy={t("poweredBy")}
       aside={
