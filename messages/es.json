@@ -157,7 +157,7 @@
       "s3Text": "Cada uno vota, el ganador se calcula con el método real — y te explicamos por qué."
     },
     "gamesTitle": "Jugar juntos",
-    "gamesText": "El mismo motor también sirve para divertirse: juegos en grupo, un enlace que compartir, sin cuenta.",
+    "gamesText": "El mismo motor también sirve para divertirse: dos juegos diarios en solitario de dos minutos, y juegos en grupo alrededor de una mesa. Sin cuenta.",
     "gamesCta": "Ver los juegos"
   },
   "Create": {
@@ -1692,6 +1692,7 @@
     },
     "pontIntro": "Este juego te puntúa frente a la multitud. Placet sirve para decidir con ella — aquí tienes una pregunta abierta ahora mismo.",
     "pontCta": "Dar mi opinión",
+    "jourNumero": "Día n.º {n}",
     "engineTitle": "Debajo de estos juegos está Placet.",
     "engineText": "El mismo motor sirve para decidir de verdad: elegir una fecha, zanjar entre varias opciones, repartir plazas.",
     "engineCta": "Descubrir Placet",

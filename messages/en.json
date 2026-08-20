@@ -157,7 +157,7 @@
       "s3Text": "Everyone votes, the winner is computed by the real method — and we explain why."
     },
     "gamesTitle": "Play together",
-    "gamesText": "The same engine is also good for fun: games for a group, a link to share, no account.",
+    "gamesText": "The same engine is also for fun: two daily games you play alone in two minutes, and party games around a table. No account.",
     "gamesCta": "See the games"
   },
   "Create": {
@@ -1692,6 +1692,7 @@
     },
     "pontIntro": "This game scores you against the crowd. Placet is for deciding with it — here's a question open right now.",
     "pontCta": "Have my say",
+    "jourNumero": "Day #{n}",
     "engineTitle": "Underneath these games, there's Placet.",
     "engineText": "The same engine is used to decide for real: pick a date, settle between options, share out places.",
     "engineCta": "Discover Placet",

@@ -157,7 +157,7 @@
       "s3Text": "Chacun vote, le gagnant est calculé selon la vraie méthode — et on vous explique pourquoi."
     },
     "gamesTitle": "Jouer ensemble",
-    "gamesText": "Le même moteur sert aussi à s'amuser : des jeux à plusieurs, un lien à partager, aucun compte.",
+    "gamesText": "Le même moteur sert aussi à s'amuser : deux jeux quotidiens à faire seul en deux minutes, et des jeux à plusieurs autour d'une table. Aucun compte.",
     "gamesCta": "Voir les jeux"
   },
   "Create": {
@@ -1692,6 +1692,7 @@
     },
     "pontIntro": "Ce jeu vous note contre la foule. Placet sert à décider avec elle — voici une question ouverte en ce moment.",
     "pontCta": "Donner mon avis",
+    "jourNumero": "Journée n° {n}",
     "engineTitle": "Sous ces jeux, il y a Placet.",
     "engineText": "Le même moteur sert à décider pour de vrai : choisir une date, trancher entre plusieurs options, répartir des places.",
     "engineCta": "Découvrir Placet",

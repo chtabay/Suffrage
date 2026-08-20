@@ -223,6 +223,16 @@ mémoire pour y ajouter un mot** : la première rédaction de
 la fenêtre d'une heure et le plafond journalier par des approximations, toutes
 plausibles et toutes fausses. On repart du corps réel, et on `diff`.
 
+**L'accueil de Placet montre CE QUI SE JOUE AUJOURD'HUI** (`JeuxDuJour`), et les
+deux cartes n'ont pas le droit de montrer la même chose. **Banalo du jour peut
+afficher son sujet** — la question ou le thème EST l'énoncé, faite pour être lue.
+**Cinq sur cinq ne peut pas** : `games/pays/page.tsx` interdit « AUCUNE MÉTADONNÉE
+DÉRIVÉE DU PUZZLE — ni le pays, ni un critère » ; sa carte ne porte que le numéro
+de journée et sa promesse. Les confondre ferait fuiter le jeu depuis la page la
+plus vue du site. ⚠️ La journée s'y calcule APRÈS LE MONTAGE : la calculer au
+rendu serveur la figerait dans le HTML mis en cache, et ferait diverger
+l'hydratation autour de la charnière.
+
 **LES JEUX DE SALLE SE JOUENT EN PRÉSENCE, ET C'EST CE QUI TIENT LIEU DE
 MODÉRATION.** Alibi, Rôdeurs, La Nuit du Fantôme réunissent des gens dans la même
 maison — le Fantôme va jusqu'à faire poser des appareils dans les pièces. On y

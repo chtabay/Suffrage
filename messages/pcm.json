@@ -157,7 +157,7 @@
       "s3Text": "Everybody go vote, we go calculate di winner with di real method — and we go tell you why."
     },
     "gamesTitle": "Play together",
-    "gamesText": "Di same engine sweet for play too: games for group, one link to share, no account.",
+    "gamesText": "Di same engine dey also for enjoyment: two daily games wey you fit play alone for two minutes, and group games around table. No account.",
     "gamesCta": "See di games"
   },
   "Create": {
@@ -1692,6 +1692,7 @@
     },
     "pontIntro": "Dis game dey score you against di crowd. Placet na for take decide with dem — see one question wey dey open now.",
     "pontCta": "Talk my own",
+    "jourNumero": "Day {n}",
     "engineTitle": "Under dis games, Placet dey.",
     "engineText": "Di same engine dey help people decide for real: pick date, choose between options, share places.",
     "engineCta": "See Placet",
