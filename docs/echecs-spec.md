@@ -12,11 +12,11 @@ points, chaque fois avec un chiffre ou une source.
 La spec parlait d'un jeu ; les arbitrages du fondateur en ont fait trois, et
 c'est ce découpage qui rend le chantier faisable.
 
-| mode | adversaire | rythme | votes visibles | moteur d'échecs |
-|---|---|---|---|---|
-| **1 — Salon, équipe contre équipe** | l'autre équipe | direct, tours courts | **non** | **aucun** |
-| 2 — Collectif contre ordinateur | le moteur | direct | non | oui |
-| 3 — Longue durée | l'un ou l'autre | quelques coups par jour | **oui** | selon l'adversaire |
+| mode | adversaire | horloge | votes visibles | l'équipe qui attend | moteur |
+|---|---|---|---|---|---|
+| **1 — Salon, équipe c. équipe** | l'autre équipe | **aucune** — l'équipe active clôt | **non** | regarde décider, et entend tout | **aucun** |
+| 2 — Collectif c. ordinateur | le moteur | oui | non | *n'existe pas* | oui |
+| 3 — Longue durée | l'un ou l'autre | oui, en heures | **oui** | **anticipe** le coup adverse | selon l'adversaire |
 
 Chacun rejoint l'équipe qu'il veut — pas d'organisateur qui distribue des
 invitations. Les couleurs se tirent au lancement.
@@ -265,10 +265,7 @@ amis sur le même wifi. Un plafond haut par IP est le seul garde-fou acceptable.
 
 ## 8. Ce qui reste ouvert
 
-- **L'équipe qui attend.** Les échecs alternent : la moitié des joueurs est
-  inactive à tout instant, et la durée réelle double. En salon on parle — c'est
-  même là que la partie devient sociale — mais à distance, regarder tourner un
-  compteur une fois sur deux fait décrocher. À concevoir, puis à éprouver.
+- **La force de `js-chess-engine`**, non établie (voir §5).
 - **Le chat du mode 3** est du texte libre, et **la modération par LLM de Placet
   n'est pas branchée**. Sur une partie publique de plusieurs jours, c'est une
   exposition réelle. Le commentaire attaché à un coup en est une forme bornée.
@@ -277,6 +274,73 @@ amis sur le même wifi. Un plafond haut par IP est le seul garde-fou acceptable.
   à la main, sans dépendance d'affichage. À trancher.
 - **Le regroupement en trois familles** de la porte `/games` (§2), sans casser
   les URL ni le référencement.
+
+## 8 bis. L'équipe qui attend — et la conversation, qu'on avait oubliée
+
+Les échecs alternent : quand une équipe délibère, l'autre ne fait rien. La durée
+réelle double, et la moitié des joueurs est inactive à tout instant. C'est le
+seul vrai problème du mode 1 — le mode 2 ne l'a pas (l'ordinateur répond
+immédiatement).
+
+### D'abord, une correction : les égalités sont un artefact d'indépendance
+
+Les taux d'égalité annoncés plus haut supposent des **votes indépendants**. Dans
+un salon, on parle avant de voter. Mesuré, en faisant varier la probabilité
+qu'un votant se rallie à quelqu'un qui a déjà parlé (25 coups légaux, 200 000
+tirages) :
+
+| ralliement | égalités à 3 votants |
+|---|---|
+| 0 % (votes indépendants) | 63 % |
+| 20 % | 40 % |
+| 35 % | 27 % |
+| **50 %** | **16 %** |
+| 70 % | 6 % |
+
+⚠️ **La conversation, pas l'effectif, est la variable dominante.** Trois
+personnes qui argumentent à voix haute avant de voter se rallient beaucoup —
+l'égalité redevient un incident, pas le cas courant. (Mon chiffre à ralliement
+nul, 63 %, diffère du 41 % obtenu ailleurs sur ce chantier ; les deux modèles ne
+définissent pas l'égalité pareil. Ce qui est robuste, c'est la **pente**, pas le
+niveau.)
+
+### Ce qui rend l'attente pénible n'est pas l'attente, c'est le compteur
+
+Quatre-vingts demi-coups à trente secondes font **quarante minutes de décompte**
+pour une partie qu'un groupe qui se parle réglerait en bien moins. Le compteur
+impose un rythme dont la conversation n'a pas besoin.
+
+→ **En mode salon, pas d'horloge. L'équipe active clôt son propre tour** —
+« on est prêts ». L'équipe qui attend ne regarde pas un compte à rebours : elle
+regarde des gens décider, ce qui est exactement le cœur social du jeu. Une
+soupape généreuse (trois minutes) clôt d'office si personne ne le fait — c'est
+une **soupape, pas une règle**, au même titre que le plafond de joueurs.
+
+### En salon, tout le monde s'entend — et c'est le jeu, pas un défaut
+
+Trois personnes qui débattent de Cf3 dans un salon sont entendues par les trois
+autres. On ne peut pas l'empêcher, et il ne faut pas faire semblant : **la règle
+doit le dire**. Conséquence de conception : le commentaire attaché à une
+proposition sert peu en salon (on le dit à voix haute) et **beaucoup à
+distance** — c'est là qu'il porte tout le poids.
+
+### À distance, l'équipe qui attend ANTICIPE
+
+Là, l'attente est réelle (des heures en mode 3) et personne n'entend personne.
+Pendant que les blancs délibèrent, **les noirs votent sur le coup qu'ils pensent
+que les blancs vont jouer.** C'est :
+- **thématiquement juste** — anticiper l'adversaire, c'est jouer aux échecs ;
+- **presque gratuit** — même mécanisme de vote, même liste de coups légaux, même
+  écran ;
+- **producteur du bon moment** : « on savait que vous alliez jouer ça ».
+
+⚠️ La statistique d'anticipation est **collective et jamais individuelle**
+(« votre équipe a anticipé 6 coups sur 12 ») : le §21 interdit de désigner un
+meilleur joueur, et ce dépôt a payé trois fois les écrans qui pointent quelqu'un.
+
+⚠️ Et l'anticipation n'a **aucun effet mécanique** : elle ne fait pas gagner de
+temps, ne débloque rien, ne modifie aucun coup. Une seconde couche de règles
+transformerait le jeu en autre chose.
 
 ## 9. Les décisions du fondateur
 
