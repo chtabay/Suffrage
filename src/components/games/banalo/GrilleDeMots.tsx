@@ -24,7 +24,8 @@ import { GBtn, GCard, GLabel } from "@/components/games/ui";
 import { themeLabel } from "@/lib/games/banalo/themes";
 import type { Theme } from "@/lib/games/banalo/themes";
 import { monJeton } from "@/lib/games/banalo/jeton";
-import { motDe, teinteDe } from "@/lib/games/banalo/chaleur";
+import { blocDe, motDe, teinteDe } from "@/lib/games/banalo/chaleur";
+import PartageBanalo from "./PartageBanalo";
 import { etatMots, repondMots, type EtatMots } from "@/lib/db/banalo";
 
 const bcp = (locale: string) => (locale === "pcm" ? "en" : locale);
@@ -269,6 +270,19 @@ export default function GrilleDeMots({
               {jeu.assez ? t("motsRegle") : t("motsAttente", { n: jeu.votants })}
             </p>
           </GCard>
+
+          {jeu.assez && jeu.points !== null ? (
+            <PartageBanalo
+              jour={jour}
+              points={note.format(jeu.points)}
+              // La FORME du format « mots » : un bloc par case, coloré par la
+              // part. ⚠️ JAMAIS LES MOTS EUX-MÊMES — un ami qui les lit n'a plus
+              // qu'à les recopier, et comme on est noté par rapport à la foule,
+              // il ferait au moins aussi bien sans avoir joué.
+              forme={jeu.grille.map((c) => blocDe(c.part ?? 0)).join("")}
+              partMieux={jeu.partMieux}
+            />
+          ) : null}
         </div>
       ) : null}
 

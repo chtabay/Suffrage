@@ -19,15 +19,29 @@
 // ⚠️ ET L'URL EST TOUJOURS ÉCRITE EN TOUTES LETTRES sous le QR agrandi. Une
 // caméra qui refuse, un appareil trop vieux, quelqu'un qui préfère taper : le QR
 // est un raccourci, jamais le seul chemin.
+//
+// ⚠️ LE DESSIN ARRIVE EN PROP, IL N'EST PLUS IMPORTÉ. Le composant servait un
+// seul jeu et lisait `content/pays/qr` directement ; deux jeux ont maintenant
+// leur QR, engendrés par le même script. Ce qui reste ici est le COMPORTEMENT —
+// la vignette, le panneau, Échap, le noir sur blanc, la zone de silence gravée —
+// et il est le même pour tous.
 import { useEffect } from "react";
-import { QR_CHEMIN, QR_TAILLE, QR_URL } from "@/content/pays/qr";
 import type { GameSkin } from "@/lib/games/skin";
 
+export interface DonneesQR {
+  /** Ce que le QR encode, montré aussi en toutes lettres. */
+  url: string;
+  /** Côté total du `viewBox`, zone de silence comprise. */
+  taille: number;
+  /** Les modules sombres, en un seul chemin. */
+  chemin: string;
+}
+
 /** Le dessin seul, à la couleur et à la taille qu'on lui donne. */
-function Dessin({ couleur, taille }: { couleur: string; taille: number | string }) {
+function Dessin({ qr, couleur, taille }: { qr: DonneesQR; couleur: string; taille: number | string }) {
   return (
     <svg
-      viewBox={`0 0 ${QR_TAILLE} ${QR_TAILLE}`}
+      viewBox={`0 0 ${qr.taille} ${qr.taille}`}
       width={taille}
       height={taille}
       aria-hidden
@@ -37,18 +51,20 @@ function Dessin({ couleur, taille }: { couleur: string; taille: number | string 
       // correction d'erreur doit ensuite rattraper pour rien.
       style={{ display: "block", shapeRendering: "crispEdges" }}
     >
-      <path d={QR_CHEMIN} stroke={couleur} strokeWidth={1} fill="none" />
+      <path d={qr.chemin} stroke={couleur} strokeWidth={1} fill="none" />
     </svg>
   );
 }
 
 export default function PartageQR({
   skin,
+  qr,
   ouvert,
   onOuvrir,
   textes,
 }: {
   skin: GameSkin;
+  qr: DonneesQR;
   ouvert: boolean;
   onOuvrir: (ouvert: boolean) => void;
   textes: { aide: string; titre: string; fermer: string };
@@ -88,7 +104,7 @@ export default function PartageQR({
         }}
       >
         <span style={{ background: "#fff", borderRadius: 4, flex: "none", overflow: "hidden", lineHeight: 0 }}>
-          <Dessin couleur={skin.ink} taille={52} />
+          <Dessin qr={qr} couleur={skin.ink} taille={52} />
         </span>
         <span style={{ maxWidth: "18ch" }}>{textes.aide}</span>
       </button>
@@ -121,7 +137,7 @@ export default function PartageQR({
               lieu de quatre, ce qui passe sur un décodeur logiciel et échoue sur
               une caméra de biais. */}
           <div style={{ background: "#FFFFFF", borderRadius: 14, lineHeight: 0, overflow: "hidden" }}>
-            <Dessin couleur="#000000" taille="min(72vw, 320px)" />
+            <Dessin qr={qr} couleur="#000000" taille="min(72vw, 320px)" />
           </div>
           <p
             style={{
@@ -135,7 +151,7 @@ export default function PartageQR({
               wordBreak: "break-all",
             }}
           >
-            {QR_URL.replace(/^https:\/\//, "")}
+            {qr.url.replace(/^https:\/\//, "")}
           </p>
           <button
             type="button"

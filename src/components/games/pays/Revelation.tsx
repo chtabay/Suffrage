@@ -17,7 +17,8 @@ import { ENCRE_SUR_GRADIENT, GRADIENT } from "@/lib/games/pays/palette";
 import type { Revelation as Donnees } from "@/lib/games/pays/types";
 import type { GameSkin } from "@/lib/games/skin";
 import { GBtn, GCard, GLabel } from "@/components/games/ui";
-import PartageQR from "./PartageQR";
+import PartageQR from "@/components/games/PartageQR";
+import { QR_CHEMIN, QR_TAILLE, QR_URL } from "@/content/pays/qr";
 
 export interface TextesRevelation {
   titre: string;
@@ -162,6 +163,7 @@ export default function Revelation({
       <div style={{ marginTop: 10 }}>
         <PartageQR
           skin={skin}
+          qr={{ url: QR_URL, taille: QR_TAILLE, chemin: QR_CHEMIN }}
           ouvert={qr}
           onOuvrir={setQr}
           textes={{ aide: textes.qrAide, titre: textes.qrTitre, fermer: textes.qrFermer }}

@@ -1,8 +1,14 @@
 // GÉNÉRATEUR DU QR DE PARTAGE — à lancer À LA MAIN, jamais au build.
 //
-//     npm i --no-save qrcode && node scripts/pays-qr.mjs
+//     npm i --no-save qrcode && node scripts/jeu-qr.mjs pays banalo
 //
-// Il écrit `src/content/pays/qr.ts`, qui est COMMITÉ. Même choix que la carte du
+// ⚠️ CE `npm i --no-save` EMPORTE LES AUTRES PAQUETS INSTALLÉS DE LA MÊME FAÇON.
+// npm réinstalle l'arbre de `package.json` plus le paquet demandé : Playwright,
+// qui sert à la vérification au navigateur et n'est pas dans `package.json`,
+// disparaît en silence. Le remettre après : `npm i --no-save playwright`.
+//
+// Il écrit `src/content/<jeu>/qr.ts` pour chaque jeu nommé, et ces fichiers sont
+// COMMITÉS. Même choix que la carte du
 // monde : on projette une fois, on garde le résultat, et le navigateur ne paie
 // ni la bibliothèque ni le calcul.
 //
@@ -20,7 +26,14 @@
 import { writeFileSync } from "node:fs";
 import QRCode from "qrcode";
 
-const URL_JEU = "https://placet.app/games/pays";
+// Les jeux qui ont un QR, et l'URL CANONIQUE de chacun.
+const JEUX = {
+  pays:   { chemin: "pays",   url: "https://placet.app/games/pays" },
+  banalo: { chemin: "banalo", url: "https://placet.app/games/banalo-jour" },
+};
+
+const demandes = process.argv.slice(2).length ? process.argv.slice(2) : Object.keys(JEUX);
+for (const nom of demandes) if (!JEUX[nom]) throw new Error(`jeu inconnu : ${nom}`);
 
 // Niveau M, et c'est un arbitrage de LISIBILITÉ, pas de robustesse. Monter en Q
 // ou H ajoute des modules : à taille d'écran égale, chaque module devient plus
@@ -34,6 +47,9 @@ const URL_JEU = "https://placet.app/games/pays";
 // biais. Gravée dans le `viewBox`, elle ne peut plus se perdre.
 const MARGE = 4;
 
+for (const nom of demandes) {
+const { chemin: dossier, url: URL_JEU } = JEUX[nom];
+
 const svg = await QRCode.toString(URL_JEU, {
   type: "svg",
   errorCorrectionLevel: "M",
@@ -46,7 +62,7 @@ if (!chemin || !vue) throw new Error("SVG inattendu — la forme de sortie de `q
 const taille = Number(vue[1]);
 
 const sortie = `// ⚠️ FICHIER GÉNÉRÉ — ne pas modifier à la main.
-// Produit par \`node scripts/pays-qr.mjs\` (voir l'en-tête du script).
+// Produit par \`node scripts/jeu-qr.mjs ${nom}\` (voir l'en-tête du script).
 //
 // LE QR DE PARTAGE EN PRÉSENCE. Le partage texte marche par messagerie ; devant
 // quelqu'un, il ne sert à rien — on ne dicte pas une URL. Le QR est l'outil de
@@ -67,5 +83,6 @@ export const QR_CHEMIN =
   ${JSON.stringify(chemin)};
 `;
 
-writeFileSync(new URL("../src/content/pays/qr.ts", import.meta.url), sortie);
-console.log(`✓ qr.ts — ${taille}×${taille} modules (dont ${MARGE} de silence par côté), chemin de ${chemin.length} caractères, pour ${URL_JEU}`);
+writeFileSync(new URL(`../src/content/${dossier}/qr.ts`, import.meta.url), sortie);
+console.log(`✓ ${dossier}/qr.ts — ${taille}×${taille} modules (dont ${MARGE} de silence par côté), chemin de ${chemin.length} caractères, pour ${URL_JEU}`);
+}

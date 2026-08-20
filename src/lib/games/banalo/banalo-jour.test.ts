@@ -21,7 +21,7 @@ import {
 } from "./jour";
 import { POINTS_MAX, VOTANTS_MIN, facteurDe, medianeDe, pointsDe, positionDe } from "./bareme";
 import { nombreDe } from "./saisie";
-import { motDe, teinteDe } from "./chaleur";
+import { blocDe, motDe, teinteDe } from "./chaleur";
 import { traduis, traduisMots } from "@/lib/db/banalo";
 import { JOURNEES_CHIFFREES, programmeDe } from "./programme";
 import { CASES_MAX, CASES_MIN, CASES_PAR_DEFAUT, NB_THEMES, casesDe, themeDe } from "@/content/banalo/mots";
@@ -458,4 +458,14 @@ test("un refus de la base n'est jamais replié sur une grille vide", () => {
   assert.equal(traduisMots(null), null);
   assert.equal(traduisMots({ status: "invalid" }), null);
   assert.equal(traduisMots({ repondu: true, votants: 40 }), null, "sans `status: ok`, c'est un non");
+});
+
+test("les cinq blocs de partage sont distincts, et couvrent toute l'échelle", () => {
+  // Un partage ne porte pas de CSS : la seule couleur qui voyage dans une
+  // messagerie est celle d'un caractère. Cinq blocs pour cinq paliers — s'ils
+  // ne sont pas distincts, la forme partagée ne raconte plus rien.
+  const vus = new Set([100, 95, 80, 50, 20, 5, 0].map(blocDe));
+  assert.equal(vus.size, 5, `seulement ${vus.size} blocs distincts`);
+  for (let s = 0; s <= 100; s += 0.5) assert.ok(blocDe(s), `score ${s}`);
+  assert.ok(blocDe(NaN), "une valeur impossible ne casse pas le partage");
 });

@@ -1,5 +1,5 @@
 // ⚠️ FICHIER GÉNÉRÉ — ne pas modifier à la main.
-// Produit par `node scripts/pays-qr.mjs` (voir l'en-tête du script).
+// Produit par `node scripts/jeu-qr.mjs pays` (voir l'en-tête du script).
 //
 // LE QR DE PARTAGE EN PRÉSENCE. Le partage texte marche par messagerie ; devant
 // quelqu'un, il ne sert à rien — on ne dicte pas une URL. Le QR est l'outil de

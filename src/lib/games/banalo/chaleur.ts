@@ -77,3 +77,30 @@ export function motDe(score: number): string {
   for (const [seuil, cle] of MOTS) if (s >= seuil) return cle;
   return "glace";
 }
+
+/**
+ * Les cinq blocs du PARTAGE, un par palier de chaleur.
+ *
+ * ⚠️ DES EMOJI, PARCE QU'UN PARTAGE N'A PAS DE CSS. Le texte part dans une
+ * messagerie qui ne connaît ni la rampe ni les tokens du skin : la seule couleur
+ * qui voyage est celle d'un caractère. On perd la finesse du dégradé — cinq
+ * paliers au lieu d'un continuum — et c'est acceptable ici, parce que le partage
+ * raconte une forme, pas un score : le score exact est déjà dans le titre.
+ *
+ * ⚠️ LE BLANC EST LA GLACE, PAS LE VIDE. Le palier le plus froid pouvait se dire
+ * en noir (⬛), qui se lit « raté » dans une grille de jeu, ou en blanc (⬜), qui
+ * se lit « gelé » à côté d'un bleu. On garde donc la métaphore de température de
+ * bout en bout plutôt que de mélanger deux langages.
+ */
+const BLOCS: Record<string, string> = {
+  brule: "🟥",
+  chaud: "🟧",
+  tiede: "🟨",
+  froid: "🟦",
+  glace: "⬜",
+};
+
+/** Le bloc d'un score, pour le partage. */
+export function blocDe(score: number): string {
+  return BLOCS[motDe(score)] ?? BLOCS.glace!;
+}

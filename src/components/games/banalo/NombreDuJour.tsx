@@ -25,7 +25,8 @@ import { GBtn, GCard, GLabel } from "@/components/games/ui";
 import { UNITES, enLangue, questionDe } from "@/content/banalo/questions";
 import { monJeton } from "@/lib/games/banalo/jeton";
 import { nombreDe } from "@/lib/games/banalo/saisie";
-import { motDe, teinteDe } from "@/lib/games/banalo/chaleur";
+import { blocDe, motDe, teinteDe } from "@/lib/games/banalo/chaleur";
+import PartageBanalo from "./PartageBanalo";
 import { etat as litEtat, repond, type EtatBanalo } from "@/lib/db/banalo";
 
 /**
@@ -45,7 +46,6 @@ export default function NombreDuJour({ jour }: { jour: number }) {
   const [pret, setPret] = useState(false);
   const [saisie, setSaisie] = useState("");
   const [envoi, setEnvoi] = useState(false);
-  const [copie, setCopie] = useState(false);
   const [explique, setExplique] = useState(false);
 
   // ⚠️ LES CINQ MOTS DE CHALEUR SONT ÉCRITS EN CLAIR, un par un. Un
@@ -128,28 +128,6 @@ export default function NombreDuJour({ jour }: { jour: number }) {
 
   const n = nombreDe(saisie);
   const unite = enLangue(UNITES[question.unite], locale);
-
-  const partage = useCallback(async () => {
-    if (!jeu?.assez || jeu.points === null) return;
-    const lignes = [
-      t("partageTitre", { n: jour, points: note.format(jeu.points) }),
-      jeu.partMieux !== null ? t("partMieux", { n: jeu.partMieux }) : "",
-      typeof window !== "undefined" ? `${window.location.origin}${window.location.pathname}` : "",
-    ].filter(Boolean);
-    const texte = lignes.join("\n");
-    try {
-      // `navigator.share` d'abord : sur téléphone il ouvre la feuille de partage
-      // du système, qui est le geste attendu. Le presse-papier est le repli.
-      if (typeof navigator !== "undefined" && navigator.share) await navigator.share({ text: texte });
-      else {
-        await navigator.clipboard.writeText(texte);
-        setCopie(true);
-        window.setTimeout(() => setCopie(false), 2000);
-      }
-    } catch {
-      // Partage refusé par l'utilisateur : rien à dire.
-    }
-  }, [jeu, jour, t, note]);
 
   return (
     <>
@@ -445,10 +423,16 @@ export default function NombreDuJour({ jour }: { jour: number }) {
             </p>
           </GCard>
 
-          <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-            <GBtn skin={skin} variant="accent" onClick={() => void partage()}>
-              {copie ? t("copie") : t("partager")}
-            </GBtn>
+          <div>
+            <PartageBanalo
+              jour={jour}
+              points={note.format(jeu.points)}
+              // La FORME du format chiffré : le bloc de chaleur, le mot, et
+              // l'écart. Jamais la réponse ni la médiane — les deux se
+              // recopient, et ce jeu note par rapport à la foule.
+              forme={`${blocDe(jeu.points)} ${CHALEUR[motDe(jeu.points)]} · ${t("facteur", { f: ecart(jeu.facteur ?? 1) })}`}
+              partMieux={jeu.partMieux}
+            />
           </div>
         </div>
       ) : null}
