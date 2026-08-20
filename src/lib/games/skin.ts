@@ -51,6 +51,26 @@ export interface GameSkin {
    * Vide = le fond uni du jeu.
    */
   sol?: { image: string; taille: string };
+  /**
+   * La PROFONDEUR de l'ombre portée des cartes, en pixels.
+   *
+   * ⚠️ AVEC `border` ET `radius`, C'EST LA « MATIÈRE » DU JEU — et c'est le
+   * levier d'identité le moins cher qui existe. Trois cartes au même contenu,
+   * à la même grammaire et à la même famille de couleurs se lisent comme trois
+   * produits différents selon leur matière : trait 3 / rayon 5 / ombre 2 est
+   * sec et administratif, trait 3 / rayon 22 / ombre 6 est un jouet. Aucune
+   * image, aucune police en plus, aucun octet.
+   *
+   * ⚠️ ET LES TROIS CADRANS NE SONT PAS INDÉPENDANTS. Vu à l'écran : une ombre
+   * franchement plus épaisse que le trait qui la projette détache la carte de
+   * son propre contour — l'objet flotte à côté de sa silhouette. Garder
+   * `ombre` proche de `border`, jamais très au-dessus. Un essai à trait 2 /
+   * ombre 7 l'a montré tout de suite ; le même réglage à trait 3 tient.
+   *
+   * ⚠️ Vide = 5, la valeur historique. Les jeux qui ne la règlent pas ne bougent
+   * pas d'un pixel.
+   */
+  ombre?: number;
   /** L'identité néo-brutaliste est RÉGLABLE, pas figée. */
   border: number;
   radius: number;
@@ -78,9 +98,12 @@ export const UNANIMO_SKIN: GameSkin = {
   // LA FOULE : des points de tailles inégales, placés à la main sur une tuile de
   // 54 px. Neuf positions choisies, pas un semis aléatoire — c'est ce qui fait
   // qu'on la lit comme voulue. Et c'est le jeu : répondre comme la foule.
+  // MATIÈRE « JOUET » : rond, épais, posé haut. C'est le jeu le plus léger des
+  // deux quotidiens, et sa carte doit se sentir rebondie.
+  ombre: 6,
   sol: { image: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='54' height='54'%3E%3Cg fill='%23c2e5d3'%3E%3Ccircle cx='7' cy='11' r='2.1'/%3E%3Ccircle cx='23' cy='5' r='1.3'/%3E%3Ccircle cx='40' cy='14' r='2.4'/%3E%3Ccircle cx='13' cy='28' r='1.5'/%3E%3Ccircle cx='31' cy='24' r='2.2'/%3E%3Ccircle cx='48' cy='33' r='1.4'/%3E%3Ccircle cx='5' cy='43' r='2.3'/%3E%3Ccircle cx='24' cy='45' r='1.6'/%3E%3Ccircle cx='40' cy='49' r='2'/%3E%3C/g%3E%3C/svg%3E")`, taille: "54px 54px" },
-  border: 2.5,
-  radius: 16,
+  border: 3,
+  radius: 20,
   fontDisplay: FONT_DISPLAY,
   fontBody: FONT_BODY,
 };
@@ -187,9 +210,12 @@ export const PAYS_SKIN: GameSkin = {
   // LE GRATICULE : les méridiens d'une carte. La régularité est NATIVE au motif
   // — personne ne trouve du papier millimétré « fait par ordinateur ». Un point
   // aux croisements a été essayé : trop chargé.
+  // MATIÈRE « INSTRUMENT » : serrée et posée bas, comme un objet de report sur
+  // une table. C'est un jeu de précision, pas un jouet.
+  ombre: 3,
   sol: { image: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='26' height='26'%3E%3Cpath d='M0 .5h26M.5 0v26' stroke='%23c3d8dd' stroke-width='1' fill='none'/%3E%3C/svg%3E")`, taille: "26px 26px" },
   border: 2.5,
-  radius: 14,
+  radius: 12,
   fontDisplay: FONT_DISPLAY,
   fontBody: FONT_BODY,
 };

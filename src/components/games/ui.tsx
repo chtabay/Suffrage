@@ -29,6 +29,7 @@ export interface GBtnProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 export function GBtn({ skin, variant = "primary", size = "md", full, style, children, ...rest }: GBtnProps) {
+  const ombre = skin.ombre ?? 5;
   const paint: Record<Variant, CSSProperties> = {
     primary: { background: skin.accent, color: "#fff" },
     accent: { background: skin.accent2, color: skin.ink },
@@ -47,7 +48,12 @@ export function GBtn({ skin, variant = "primary", size = "md", full, style, chil
         width: full ? "100%" : undefined,
         ...SIZES[size],
         ...paint[variant],
-        ...(rest.disabled ? {} : liftOf(`4px 4px 0 ${skin.ink}`, `6px 6px 0 ${skin.ink}`)),
+        // Le bouton se pose UN CRAN sous la carte, et se soulève d'un cran au
+        // survol : le rapport historique (carte 5, bouton 4 → 6) est conservé
+        // quelle que soit la matière du jeu.
+        ...(rest.disabled
+          ? {}
+          : liftOf(`${ombre - 1}px ${ombre - 1}px 0 ${skin.ink}`, `${ombre + 1}px ${ombre + 1}px 0 ${skin.ink}`)),
         ...style,
       }}
       {...rest}
@@ -77,7 +83,7 @@ export function GCard({
         border: `${skin.border}px solid ${skin.ink}`,
         borderRadius: skin.radius,
         padding,
-        boxShadow: `5px 5px 0 ${accent ?? skin.ink}`,
+        boxShadow: `${skin.ombre ?? 5}px ${skin.ombre ?? 5}px 0 ${accent ?? skin.ink}`,
         ...style,
       }}
     >
