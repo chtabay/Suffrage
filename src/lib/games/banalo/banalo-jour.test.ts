@@ -22,7 +22,9 @@ import {
 import { POINTS_MAX, VOTANTS_MIN, facteurDe, medianeDe, pointsDe, positionDe } from "./bareme";
 import { nombreDe } from "./saisie";
 import { motDe, teinteDe } from "./chaleur";
-import { traduis } from "@/lib/db/banalo";
+import { traduis, traduisMots } from "@/lib/db/banalo";
+import { JOURNEES_CHIFFREES, programmeDe } from "./programme";
+import { CASES_MAX, CASES_MIN, CASES_PAR_DEFAUT, NB_THEMES, casesDe, themeDe } from "@/content/banalo/mots";
 
 const LOCALES = ["fr", "en", "es", "pcm"] as const;
 
@@ -375,4 +377,85 @@ test("le mot de chaleur suit le score, et couvre toute l'échelle", () => {
   // côté de la couleur, et son absence laisserait une ligne vide.
   for (let s = 0; s <= 100; s += 0.1) assert.ok(motDe(Math.round(s * 10) / 10), `score ${s}`);
   assert.equal(motDe(NaN), "glace", "une valeur impossible ne casse pas l'écran");
+});
+
+// ---------------------------------------------------------------- programme
+
+test("les quinze premières journées restent chiffrées, quoi qu'on ajoute", () => {
+  // ⚠️ ELLES SONT DÉJÀ SORTIES, OU VONT SORTIR. Changer le format d'une journée
+  // publiée reviendrait à changer le jeu sous les pieds de qui l'a commencée —
+  // et la médiane du jour se bâtirait sur deux formats à la fois.
+  for (let j = 1; j <= JOURNEES_CHIFFREES; j++) {
+    assert.equal(programmeDe(j).type, "nombre", `journée ${j}`);
+  }
+});
+
+test("passé le stock chiffré, les deux formats alternent", () => {
+  const suite = [];
+  for (let j = JOURNEES_CHIFFREES + 1; j <= JOURNEES_CHIFFREES + 6; j++) suite.push(programmeDe(j).type);
+  assert.deepEqual(suite, ["mots", "nombre", "mots", "nombre", "mots", "nombre"]);
+});
+
+test("le programme rend toujours quelque chose, même sur une horloge farfelue", () => {
+  // Un client qui se croit en 2019 ou en 2400 doit voir un jeu, pas un écran
+  // blanc : c'est la même exigence que le modulo positif de `questionDe`.
+  for (const j of [-500, 0, 1, 999, 100000]) {
+    const p = programmeDe(j);
+    assert.ok(p.type === "nombre" || p.type === "mots", `journée ${j}`);
+    if (p.type === "mots") {
+      assert.ok(p.theme?.fr, `journée ${j} sans thème`);
+      assert.ok(p.cases >= CASES_MIN && p.cases <= CASES_MAX, `journée ${j} : ${p.cases} cases`);
+    } else {
+      assert.ok(p.question?.id, `journée ${j} sans question`);
+    }
+  }
+});
+
+test("le stock de thèmes tourne en rond sans jamais rendre `undefined`", () => {
+  assert.equal(themeDe(1).fr, themeDe(NB_THEMES + 1).fr, "la roue ne boucle pas");
+  for (const n of [-3, 0, 1, NB_THEMES, NB_THEMES + 1]) assert.ok(themeDe(n).fr, `thème ${n}`);
+});
+
+test("le nombre de cases reste dans ses bornes, même mal réglé", () => {
+  // ⚠️ C'EST LE RÉGLAGE LE PLUS SENSIBLE DU FORMAT. Mesuré sur 3 000 joueurs qui
+  // optimisent tous, avec cinq réponses évidentes : six cases rendent 23 totaux
+  // distincts et un paquet d'ex aequo de 13,9 % EN HAUT du classement ; sept en
+  // rendent 131, et le paquet tombe à 2,1 %. Une case de plus divise le paquet
+  // par six. D'où des bornes dures : un `CASES` mal saisi ne doit pas pouvoir
+  // sortir un thème du domaine jouable.
+  for (const t of [themeDe(1), themeDe(7), themeDe(NB_THEMES)]) {
+    const n = casesDe(t);
+    assert.ok(Number.isInteger(n) && n >= CASES_MIN && n <= CASES_MAX, `${t.fr} : ${n}`);
+  }
+  assert.equal(casesDe(themeDe(1)), CASES_PAR_DEFAUT, "par défaut, tant qu'on n'a rien mesuré");
+});
+
+// --------------------------------------------------- passe-plat des mots
+
+test("la grille rendue par la base est reprise telle quelle", () => {
+  const e = traduisMots({
+    status: "ok", repondu: true, assez: true, votants: 32, cases: 6, total: 105, points: 54.7,
+    rang: 7, exaequo: 18, partmieux: 19,
+    grille: [{ mot: "sable", joueurs: 32, part: 100.0 }, { mot: "alpha5", joueurs: 4, part: 12.5 }],
+  });
+  assert.equal(e?.grille.length, 2);
+  assert.equal(e?.grille[0]!.mot, "sable");
+  assert.equal(e?.grille[1]!.part, 12.5);
+  assert.equal(e?.total, 105, "le total est l'entier qui classe");
+});
+
+test("le rang des mots s'éteint avec la part, comme celui des nombres", () => {
+  const mince = traduisMots({ status: "ok", repondu: true, assez: true, votants: 8, cases: 6,
+    total: 30, points: 62.5, rang: 3, exaequo: 1, partmieux: null, grille: [] });
+  assert.equal(mince?.rang, null);
+  assert.equal(mince?.exAequo, null);
+  assert.equal(mince?.points, 62.5, "le score, lui, reste");
+});
+
+test("un refus de la base n'est jamais replié sur une grille vide", () => {
+  // « Pas répondu » sur une panne proposerait de retaper six mots à quelqu'un
+  // dont la grille est déjà déposée — et le second envoi serait ignoré.
+  assert.equal(traduisMots(null), null);
+  assert.equal(traduisMots({ status: "invalid" }), null);
+  assert.equal(traduisMots({ repondu: true, votants: 40 }), null, "sans `status: ok`, c'est un non");
 });

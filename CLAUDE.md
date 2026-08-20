@@ -16,7 +16,7 @@ corriger.
 |---|---|---|
 | **Jeu 3** | en cours | l'agent des jeux |
 | **Banalo en groupe** (`games/banalo`) | en prod, relu ; **renommé depuis « Unanimo » le 2026-08-20** (marque) | fermé, sauf la présentation |
-| **Banalo du jour** (`games/banalo-jour`) | posé le 2026-08-20 : 15 questions chiffrées, charnière 11 h 30, barème en facteurs. L'étude est dans `docs/banalo-quotidien.md` | ouvert |
+| **Banalo du jour** (`games/banalo-jour`) | posé le 2026-08-20 : deux formats (nombre, mots), charnière 11 h 30, score sur 100 avec chaleur. L'étude est dans `docs/banalo-quotidien.md` | ouvert |
 | **Alibi** (`games/alibi`) | en prod, **relu et corrigé le 2026-08-13** | fermé — **ne pas y revenir** |
 | **Gestion de groupes** (`/espaces`) | en prod, 24 constats moyens/faibles en réserve | la session tableau de bord |
 | **Cinq sur cinq** (`games/pays`) | en prod le 2026-08-18 · pictos de catégorie et mise en avant des essais le 2026-08-19 | ouvert |
@@ -136,6 +136,41 @@ vers l'orange en RGB traverse un vert franc vers 40 sur 100, or le vert se lit
 Toute la rampe tient 4,5:1 sur les deux fonds, vérifié à chaque pas par un test —
 pas seulement aux ancres, parce qu'une rampe peut passer par un point plus clair
 que ses deux bornes.
+
+**Le format « mots » de Banalo du jour note AU CENTRE, et l'étude disait
+l'inverse.** Le §5 proposait de récompenser la rareté corroborée (plancher à 1 %
+des joueurs). Mesuré : sur 300 joueurs, **cinq complices gagnent la journée
+d'emblée**, personne ne fait mieux — « rare mais confirmé par plusieurs » est
+exactement ce qu'une petite entente fabrique, et aucune forme de courbe ne l'en
+distingue. Au centre, 90 complices sur 3 000 finissent au 85ᵉ centile : pour
+gagner il faut *être* la foule. Effet secondaire heureux, l'avertissement du §6
+(« deux barèmes inverses cohabitent ») tombe : nombres et mots disent la même
+chose — répondez comme la foule.
+
+**Et le réglage qui décide de tout est le NOMBRE DE CASES**, pas la courbe. Avec
+trois cases quand trois réponses sont évidentes, 100 % des joueurs sont ex aequo.
+Mesuré à 3 000 joueurs qui optimisent tous : 6 cases / 3 évidentes → 367 totaux
+distincts ; 6 / 4 → 147 ; **6 / 5 → 23**, avec un paquet de 13,9 % *en haut* du
+classement ; 7 / 5 → 131. **Une case de plus divise le paquet par six.** Comme on
+ne peut pas deviner la largeur de l'évidence d'un thème avant de jouer,
+`CASES` (`src/content/banalo/mots.ts`) est vide au départ : on ne la remplit que
+sur données réelles.
+
+**Le thème déclaré est la CLÉ DE FOULE, et c'est ce qui règle l'exclusion du mot
+du thème** sans que la base connaisse le calendrier. Un client qui mentirait sur
+le thème pour garder le mot gratuit se retrouve seul dans son groupe, sous le
+plancher de cinq votants, donc sans score. Le mensonge s'auto-punit.
+
+**Le temps est mesuré et ne classe rien**, comme `secondes` dans
+`scrutin_game_pays_results`. Départager les ex aequo au temps est envisagé, pas
+décidé : ça récompenserait la frappe plutôt que la représentation, et se
+contourne avec deux appareils. On décidera sur des journées réelles.
+
+⚠️ **Un dépôt de mots se garde par `(jeton, jour, langue)`, pas par la clé
+primaire.** `20260820-banalo-mots-depot-unique.sql` corrige le défaut : un
+doublon écarté faisait avancer le rang et laissait des trous, dans lesquels un
+second envoi venait se glisser — après avoir lu les parts. Trouvé par le bloc de
+vérification, pas à la relecture.
 
 **Le 30 de Banalo du jour vit à TROIS endroits** : `scrutin_banalo_purge`, le
 cron `scrutin-banalo-purge` (`20260820-banalo-du-jour-purge.sql`) et la politique

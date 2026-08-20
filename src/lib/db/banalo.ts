@@ -147,3 +147,141 @@ export async function etat(jeton: string, jour: number, langue: string): Promise
   if (error) return null;
   return traduis(data);
 }
+
+// ─────────────────────────────────────────────────────── le format « mots »
+
+/** Une case de la grille, avec ce que la foule en a fait. */
+export interface CaseBanalo {
+  /** Le mot tel que le joueur l'a tapé — jamais la forme normalisée. */
+  mot: string;
+  /** Combien de joueurs l'ont donné, celui-ci compris. */
+  joueurs: number;
+  /** La part correspondante, en pourcentage, déjà arrondie par la base. */
+  part: number | null;
+}
+
+/**
+ * L'état d'une journée de mots. Même grammaire que `EtatBanalo` — trois régimes,
+ * et l'écran doit savoir dire les trois.
+ */
+export interface EtatMots {
+  repondu: boolean;
+  votants: number;
+  assez: boolean;
+  /** Le nombre de cases de la journée, lu en base et non chez le client. */
+  cases: number;
+  grille: CaseBanalo[];
+  /**
+   * La somme des effectifs de mes réponses. C'EST LA VALEUR QUI CLASSE, et elle
+   * est entière : deux joueurs sont ex aequo si et seulement si leurs totaux
+   * sont exactement égaux. Aucun arrondi n'intervient.
+   */
+  total: number | null;
+  /**
+   * Le score affiché : la part MOYENNE des joueurs qui ont donné les mêmes
+   * réponses. « 51,3 » veut dire « en moyenne, 51,3 % des joueurs ont écrit ce
+   * que vous avez écrit » — une phrase, pas un réglage.
+   */
+  points: number | null;
+  rang: number | null;
+  exAequo: number | null;
+  partMieux: number | null;
+}
+
+interface EtatMotsBrut {
+  status?: string;
+  repondu?: boolean;
+  votants?: number;
+  assez?: boolean;
+  cases?: number;
+  grille?: unknown;
+  total?: number | null;
+  points?: number | null;
+  rang?: number | null;
+  exaequo?: number | null;
+  partmieux?: number | null;
+}
+
+/** Exporté pour être éprouvé seul, comme `traduis` : il porte la même règle du
+ *  rang qui s'éteint avec la part, et elle ne se voit pas à la relecture. */
+export function traduisMots(brut: unknown): EtatMots | null {
+  const e = brut as EtatMotsBrut | null;
+  if (!e || e.status !== "ok") return null;
+  const nombre = (v: unknown): number | null => (typeof v === "number" && Number.isFinite(v) ? v : null);
+  const grille: CaseBanalo[] = Array.isArray(e.grille)
+    ? (e.grille as Record<string, unknown>[]).map((c) => ({
+        mot: typeof c?.mot === "string" ? c.mot : "",
+        joueurs: nombre(c?.joueurs) ?? 0,
+        part: nombre(c?.part),
+      }))
+    : [];
+  // ⚠️ MÊME RÈGLE QUE POUR LE FORMAT CHIFFRÉ : le rang s'éteint avec la part.
+  // La base rend toujours `rang`, mais ne rend `partmieux` qu'au-delà du
+  // plancher de position — et c'est là que « 7e sur 8 » cesse d'être un rang
+  // pour devenir du bruit.
+  const partMieux = nombre(e.partmieux);
+  return {
+    repondu: e.repondu === true,
+    votants: nombre(e.votants) ?? 0,
+    assez: e.assez === true,
+    cases: nombre(e.cases) ?? 0,
+    grille,
+    total: nombre(e.total),
+    points: nombre(e.points),
+    rang: partMieux === null ? null : nombre(e.rang),
+    exAequo: partMieux === null ? null : nombre(e.exaequo),
+    partMieux,
+  };
+}
+
+/**
+ * Dépose une grille et rend l'état qui en découle.
+ *
+ * ⚠️ LE DÉPÔT EST DÉFINITIF, ET LA GARDE EST CÔTÉ BASE. Un second appel ne
+ * complète rien : voir `20260820-banalo-mots-depot-unique.sql`, où la première
+ * version laissait des trous de rang qu'un second envoi venait remplir après
+ * avoir lu les parts. L'écran doit donc afficher la grille RENDUE, jamais celle
+ * que le joueur vient de taper.
+ *
+ * ⚠️ `secondes` EST MESURÉ ET NE CLASSE RIEN. Même posture que Cinq sur cinq,
+ * qui stocke `secondes` et classe sur les essais. On saura sur données réelles
+ * si le temps sépare quelque chose ; en attendant il ne décide de rien.
+ */
+export async function repondMots(
+  jeton: string,
+  jour: number,
+  langue: string,
+  theme: string,
+  mots: string[],
+  secondes?: number,
+): Promise<EtatMots | null> {
+  const supabase = createClient();
+  const { data, error } = await supabase.rpc("scrutin_banalo_mots_repondre", {
+    p_jeton: jeton,
+    p_jour: jour,
+    p_langue: langue,
+    p_theme: theme,
+    p_mots: mots,
+    p_secondes: Number.isFinite(secondes) ? Math.round(secondes as number) : null,
+  });
+  if (error) return null;
+  return traduisMots(data);
+}
+
+/** L'état d'une journée de mots sans rien déposer. */
+export async function etatMots(
+  jeton: string,
+  jour: number,
+  langue: string,
+  theme: string,
+): Promise<EtatMots | null> {
+  const supabase = createClient();
+  const { data, error } = await supabase.rpc("scrutin_banalo_mots_etat", {
+    p_jeton: jeton,
+    p_jour: jour,
+    p_langue: langue,
+    p_theme: theme,
+  });
+  if (error) return null;
+  return traduisMots(data);
+}
