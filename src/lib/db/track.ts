@@ -3,8 +3,17 @@
 import { createClient } from "@/lib/supabase/client";
 
 export type ShareChannel = "copy" | "whatsapp" | "native" | "qr";
-/** `link` = lien collé à la main, sans passer par un bouton de partage. */
-export type FunnelChannel = ShareChannel | "link";
+/**
+ * `link` = lien collé à la main, sans passer par un bouton de partage.
+ * `jeu`  = invitation d'après-partie d'un jeu quotidien (voir
+ *          `docs/regularite-des-joueurs.md` §4).
+ *
+ * ⚠️ LA LISTE EST FERMÉE À TROIS ENDROITS : ici, dans `trackVisit` ci-dessous,
+ * et dans `scrutin_track_funnel`. Un `?s=` fabriqué à la main ne doit pas
+ * pouvoir inventer une colonne dans les statistiques ; ajouter un canal demande
+ * donc de toucher les trois, et c'est le prix voulu.
+ */
+export type FunnelChannel = ShareChannel | "link" | "jeu";
 
 /** Clé de session : l'origine du visiteur, jusqu'à sa propre création. */
 const SRC_KEY = "scrutin.src";
@@ -63,7 +72,7 @@ function trackFunnel(token: string, channel: FunnelChannel, kind: "visit" | "cre
  */
 export function trackVisit(token: string, source: string | null): void {
   const channel = (source ?? "").trim() as FunnelChannel;
-  if (!token || !["copy", "whatsapp", "native", "qr", "link"].includes(channel)) return;
+  if (!token || !["copy", "whatsapp", "native", "qr", "link", "jeu"].includes(channel)) return;
   trackFunnel(token, channel, "visit");
   try {
     sessionStorage.setItem(SRC_KEY, JSON.stringify({ token, channel }));

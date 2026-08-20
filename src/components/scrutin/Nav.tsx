@@ -210,6 +210,18 @@ export default function Nav() {
           {t("create")}
         </Link>
 
+        {/* ⚠️ LA LANGUE SORT DU TIROIR SUR MOBILE. Elle vivait dans `.nav-acts`,
+            donc dans `.nav-links`, que le média `max-width: 860px` masque tant
+            qu'on n'a pas ouvert le ☰ — et le commentaire d'à côté explique
+            justement qu'elle doit être atteignable « sans lire le français ».
+            Elle l'était sur ordinateur, pas sur téléphone, c'est-à-dire là où
+            ça compte le plus. Deux instances plutôt qu'une seule déplacée :
+            l'exemplaire d'ordinateur garde sa place à droite, et la mise en page
+            de la barre — utilisée sur tout le site — ne bouge pas d'un pixel. */}
+        <span className="locale-mobile" style={{ flex: "none" }}>
+          <LocaleSwitch />
+        </span>
+
         <button
           ref={burger}
           className="nav-burger"

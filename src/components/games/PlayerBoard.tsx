@@ -26,7 +26,7 @@ export default function PlayerBoard({
   /** Classement final : on numérote et on met le premier en avant. */
   podium = false,
   /**
-   * Afficher le score. VRAI par défaut — Unanimo marque à chaque manche.
+   * Afficher le score. VRAI par défaut — Banalo marque à chaque manche.
    *
    * Alibi, lui, ne calcule RIEN avant la résolution (un score qui bouge en
    * cours de partie trahirait un rôle) : onze zéros alignés pendant toute la

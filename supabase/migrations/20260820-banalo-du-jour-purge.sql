@@ -1,0 +1,21 @@
+-- LA DURÉE DE CONSERVATION DE BANALO DU JOUR, RENDUE VRAIE.
+--
+-- `scrutin_banalo_purge(p_days default 30)` est arrivée avec la table, et RIEN
+-- NE L'APPELAIT. C'est exactement la situation que `20260810-jeux-retention.sql`
+-- a corrigée pour les salles, avec la même phrase en tête : une durée non
+-- annoncée est une durée qui n'existe pas — et une durée annoncée que personne
+-- n'applique est pire, puisque c'est un engagement écrit qu'on ne tient pas.
+--
+-- ⚠️ LE CHIFFRE 30 VIT À TROIS ENDROITS : ici, dans la fonction, et dans la
+-- politique de confidentialité (`src/app/[locale]/privacy/page.tsx`, section
+-- « Conservation », mise à jour le 20 août 2026). Le changer à un seul endroit
+-- transforme la promesse en mensonge.
+--
+-- UNE FOIS PAR JOUR SUFFIT, contrairement à la purge des salles qui tourne toutes
+-- les heures : là-bas la fenêtre est de sept jours et les prénoms des joueurs
+-- sont en jeu ; ici la ligne ne porte qu'un nombre, un numéro de journée et un
+-- jeton anonyme, et trente jours ne se jouent pas à l'heure près. 03 h 41 UTC :
+-- creux d'activité, et une minute décalée pour ne pas s'empiler sur l'heure
+-- ronde des autres tâches.
+select cron.schedule('scrutin-banalo-purge', '41 3 * * *',
+                     $$select public.scrutin_banalo_purge(30);$$);

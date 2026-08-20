@@ -2,7 +2,7 @@
 //
 // Les composants de jeu génériques (liste de joueurs, jauge de réponses, barre
 // de l'hôte, écran d'entrée) ne DOIVENT PAS connaître les couleurs de Placet :
-// le jour où Unanimo vit sur son propre domaine avec sa propre identité, seul ce
+// le jour où Banalo vit sur son propre domaine avec sa propre identité, seul ce
 // fichier change. D'où un objet passé en prop plutôt qu'un import de
 // `components/scrutin/theme` au fond des composants.
 //
@@ -25,6 +25,52 @@ export interface GameSkin {
   good: string;
   /** Texte adouci (jamais sous 4,5:1 sur `paper` ni sur `bg`). */
   muted: string;
+  /**
+   * Le SOL du jeu : un motif répété, posé sous tout l'écran.
+   *
+   * ⚠️ C'EST LE POINT DE PLACET, SPÉCIALISÉ — et c'est ce qui tient la famille.
+   * `globals.css` peint le corps en crème pointillée (`radial-gradient`, un point
+   * tous les 22 px) : c'est une signature de la maison. La décliner par jeu donne
+   * une identité immédiate en gardant la parenté ÉVIDENTE, parce que le
+   * dispositif est le même — seul le motif change. C'est structurel, pas
+   * chromatique, et une teinte de plus n'aurait pas suffi : mesuré, sur six
+   * skins, `border` valait 2,5 partout et les polices étaient identiques. La
+   * couleur était le seul axe qui variait, et c'est le plus faible.
+   *
+   * ⚠️ ET LE MOTIF DOIT VOULOIR DIRE QUELQUE CHOSE, sinon il a l'air « fait par
+   * ordinateur ». Un graticule est une carte, une foule de points est une foule :
+   * régulier ou non, on le lit comme voulu par quelqu'un. Un anneau décoratif
+   * répété, non — sa perfection se remarque. Et ajouter du hasard n'y change
+   * rien : une irrégularité humaine a une intention, du jitter se lit comme du
+   * jitter.
+   *
+   * ⚠️ DEUX CHAMPS, PAS UN. `backgroundImage` n'accepte que l'image ; y glisser
+   * la syntaxe de raccourci `url(…) 0 0 / 54px` la rend invalide et le motif
+   * disparaît en silence. La taille voyage donc à part.
+   *
+   * Vide = le fond uni du jeu.
+   */
+  sol?: { image: string; taille: string };
+  /**
+   * La PROFONDEUR de l'ombre portée des cartes, en pixels.
+   *
+   * ⚠️ AVEC `border` ET `radius`, C'EST LA « MATIÈRE » DU JEU — et c'est le
+   * levier d'identité le moins cher qui existe. Trois cartes au même contenu,
+   * à la même grammaire et à la même famille de couleurs se lisent comme trois
+   * produits différents selon leur matière : trait 3 / rayon 5 / ombre 2 est
+   * sec et administratif, trait 3 / rayon 22 / ombre 6 est un jouet. Aucune
+   * image, aucune police en plus, aucun octet.
+   *
+   * ⚠️ ET LES TROIS CADRANS NE SONT PAS INDÉPENDANTS. Vu à l'écran : une ombre
+   * franchement plus épaisse que le trait qui la projette détache la carte de
+   * son propre contour — l'objet flotte à côté de sa silhouette. Garder
+   * `ombre` proche de `border`, jamais très au-dessus. Un essai à trait 2 /
+   * ombre 7 l'a montré tout de suite ; le même réglage à trait 3 tient.
+   *
+   * ⚠️ Vide = 5, la valeur historique. Les jeux qui ne la règlent pas ne bougent
+   * pas d'un pixel.
+   */
+  ombre?: number;
   /** L'identité néo-brutaliste est RÉGLABLE, pas figée. */
   border: number;
   radius: number;
@@ -49,8 +95,26 @@ export const UNANIMO_SKIN: GameSkin = {
   accent2: "#FFC93C",
   good: "#0E7C5A",
   muted: "#5C5470",
-  border: 2.5,
-  radius: 16,
+  // LA FOULE : des points de tailles inégales, placés à la main sur une tuile de
+  // 54 px. Neuf positions choisies, pas un semis aléatoire — c'est ce qui fait
+  // qu'on la lit comme voulue. Et c'est le jeu : répondre comme la foule.
+  // MATIÈRE « JOUET » : rond, épais, posé haut. C'est le jeu le plus léger des
+  // deux quotidiens, et sa carte doit se sentir rebondie.
+  ombre: 6,
+  // ⚠️ RETOUCHÉ APRÈS COUP : les points GÊNAIENT LA LECTURE. Mesuré — la
+  // première version couvrait 3,5 % de la surface en encre contre 1,3 % pour le
+  // sol de Placet, soit 2,8 fois plus, avec un contraste par point plus élevé.
+  // C'était le prix payé pour qu'ils se voient ; il était trop cher dès qu'un
+  // paragraphe se pose dessus. Rayons réduits d'environ 40 % et teinte adoucie
+  // (#c2e5d3 → #d3ece2) : on retombe à 1,3 %, la discrétion de la maison.
+  //
+  // ⚠️ LA TUILE RESTE À 54 px, et c'est le point à ne pas « optimiser ». Élargir
+  // le pas disperserait les points au lieu de les grouper — or c'est le
+  // GROUPEMENT qui fait lire une foule plutôt qu'une trame, et c'est lui qui
+  // porte tout le sens du motif.
+  sol: { image: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='54' height='54'%3E%3Cg fill='%23d3ece2'%3E%3Ccircle cx='7' cy='11' r='1.3'/%3E%3Ccircle cx='23' cy='5' r='.8'/%3E%3Ccircle cx='40' cy='14' r='1.5'/%3E%3Ccircle cx='13' cy='28' r='.9'/%3E%3Ccircle cx='31' cy='24' r='1.4'/%3E%3Ccircle cx='48' cy='33' r='.9'/%3E%3Ccircle cx='5' cy='43' r='1.4'/%3E%3Ccircle cx='24' cy='45' r='1'/%3E%3Ccircle cx='40' cy='49' r='1.2'/%3E%3C/g%3E%3C/svg%3E")`, taille: "54px 54px" },
+  border: 3,
+  radius: 20,
   fontDisplay: FONT_DISPLAY,
   fontBody: FONT_BODY,
 };
@@ -136,18 +200,38 @@ export const FANTOME_SKIN: GameSkin = {
 };
 
 /**
- * ÉCHECS COLLABORATIFS — ardoise et vert de tournoi, sur un papier froid.
+ * PAYS DU JOUR — l'atlas ouvert sur une table : bleu de mer profonde et sable
+ * chaud sur un papier ivoire.
  *
- * Les quatre autres jeux sont chauds et sombres : ce sont des jeux de soirée
- * qu'on joue lumières éteintes. Celui-ci est un jeu de RÉFLEXION, et sa famille
- * (« stratégie collaborative ») doit se distinguer d'un coup d'œil — d'où le
- * froid, le clair, et le calme.
+ * Le seul jeu du catalogue qui se joue SEUL et en trois minutes : l'écran doit
+ * ressembler à une page de journal qu'on ouvre le matin, pas à une console. Le
+ * rouge n'existe pas — se tromper de pays n'est pas une faute, c'est un sondage.
  *
- * Contrastes CALCULÉS : blanc sur `accent` 7,33:1 ; `muted` 6,22:1 sur `paper`
- * et 5,49:1 sur `bg` ; `ink` sur `paper` 15,21:1 ; `good` 6,20:1.
- * ⚠️ `accent2` (l'ambre du « à nous de jouer ») ne porte JAMAIS de texte blanc :
- * mesuré à 3,34:1, sous la barre. Sur l'ambre, on écrit à l'encre (4,68:1).
+ * Contrastes CALCULÉS : blanc sur `accent` 7,14:1 ; `ink` sur `accent2` 9,84:1 ;
+ * `muted` 6,03:1 sur `paper` et 5,34:1 sur `bg` ; `good` 5,78:1 sur `paper`.
  */
+export const PAYS_SKIN: GameSkin = {
+  ink: "#14202B",
+  bg: "#E7F0F2",
+  paper: "#FFFCF4",
+  accent: "#1F5F73",
+  accent2: "#F2C14E",
+  good: "#17724B",
+  muted: "#55636E",
+  // LE GRATICULE : les méridiens d'une carte. La régularité est NATIVE au motif
+  // — personne ne trouve du papier millimétré « fait par ordinateur ». Un point
+  // aux croisements a été essayé : trop chargé.
+  // MATIÈRE « INSTRUMENT » : serrée et posée bas, comme un objet de report sur
+  // une table. C'est un jeu de précision, pas un jouet.
+  ombre: 3,
+  sol: { image: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='26' height='26'%3E%3Cpath d='M0 .5h26M.5 0v26' stroke='%23c3d8dd' stroke-width='1' fill='none'/%3E%3C/svg%3E")`, taille: "26px 26px" },
+  border: 2.5,
+  radius: 12,
+  fontDisplay: FONT_DISPLAY,
+  fontBody: FONT_BODY,
+};
+
+/**
 /**
  * ÉCHECS — le registre CHAUD de Placet : encre marine sur crème, comme la
  * marque, parce que ce jeu-ci ne cherche pas à dépayser. Les autres jeux du

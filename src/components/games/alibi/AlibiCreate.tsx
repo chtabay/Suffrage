@@ -34,7 +34,7 @@ export default function AlibiCreate() {
   // Le pseudo de la dernière partie vit dans le localStorage : on ne peut le
   // lire qu'APRÈS le montage.
   //
-  // ⚠️ CE QUE COÛTAIT UN `useState(lastNick())`, payé une fois sur Unanimo. Le
+  // ⚠️ CE QUE COÛTAIT UN `useState(lastNick())`, payé une fois sur Banalo. Le
   // serveur rend « », le client rend le pseudo enregistré : désaccord
   // d'hydratation. React ne rattrape PAS les attributs — l'attribut `disabled`
   // du bouton reste celui du serveur, donc vrai, pendant que React le croit à
@@ -50,7 +50,7 @@ export default function AlibiCreate() {
       const a = await createRoom("alibi", name.trim(), ROUNDS_TOTAL, {}, locale);
       // `"code" in a` : le type de retour a une branche fourre-tout
       // `{ status: string }` qui empêche TypeScript de réduire sur le seul
-      // statut. C'est le même contrôle que dans UnanimoCreate.
+      // statut. C'est le même contrôle que dans BanaloCreate.
       if (a.status !== "ok" || !("code" in a)) {
         setErr(t("create.error"));
         return;

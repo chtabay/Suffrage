@@ -13,6 +13,7 @@ import SlackMark from "@/components/SlackMark";
 import { Link } from "@/i18n/navigation";
 import { Btn } from "@/components/ui/kit";
 import { CORAL, FONT_DISPLAY, GREEN, INK, MUTED, PAPER, SUBINK, YELLOW, lift } from "./theme";
+import JeuxDuJour from "@/components/games/JeuxDuJour";
 
 // 4 méthodes mises en avant (spectre représentatif) ; les 10 restent dans la galerie.
 const HOME_METHODS = ["fptp", "approval", "mj", "condorcet"];
@@ -556,6 +557,12 @@ export default function HomeScreen({ ctrl }: { ctrl: ScrutinController }) {
           <span aria-hidden>🧠</span> {t("gamesCta")}
         </Link>
       </div>
+
+      {/* ⚠️ CE QUI SE JOUE AUJOURD'HUI, pas une promesse de jeux. La bande
+          au-dessus est identique tous les jours — au troisième passage c'est du
+          mobilier. Les deux cartes changent seules, et sur la page la plus vue
+          du site c'est le rappel le moins cher qui existe. */}
+      <JeuxDuJour />
 
       {/* Intégration Slack — point d'entrée discret vers l'install */}
       <div

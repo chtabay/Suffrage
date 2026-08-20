@@ -5,11 +5,33 @@
 // registre dynamique, pas de manifeste. Ajouter un jeu = une entrée ici + un
 // dossier de composants. Le jour où il y en aura cinq, on saura ce qu'il faut
 // vraiment généraliser ; l'inventer maintenant serait deviner.
-import { ALIBI_SKIN, ECHECS_SKIN, FANTOME_SKIN, RODEURS_SKIN, UNANIMO_SKIN, type GameSkin } from "./skin";
+import {
+  ALIBI_SKIN,
+  ECHECS_SKIN,
+  FANTOME_SKIN,
+  PAYS_SKIN,
+  RODEURS_SKIN,
+  UNANIMO_SKIN,
+  type GameSkin,
+} from "./skin";
 
 export interface GameEntry {
-  /** Slug technique, aussi la valeur de `scrutin_game_rooms.game`. */
+  /**
+   * Slug technique, et pour les jeux À SALLE la valeur de
+   * `scrutin_game_rooms.game` — c'est-à-dire l'aiguillage du dépouillement.
+   * Les jeux quotidiens n'ont pas de salle : leur slug ne sert qu'à l'URL et
+   * aux libellés.
+   */
   slug: string;
+  /**
+   * La FAMILLE sous laquelle la porte « Jouer » range le jeu.
+   *
+   * Elle ne classe pas par genre mais par OCCASION — ce qui décide si un jeu est
+   * seulement possible ce soir. « Nous sommes huit après le dîner » et « j'ai
+   * trois minutes » ne mènent pas au même rayon, et c'est la question que se
+   * pose un visiteur avant celle du thème.
+   */
+  famille: "quotidien" | "accord" | "strategie" | "enquete";
   /** `soon` = emplacement annoncé, sans salle possible. */
   status: "live" | "soon";
   emoji: string;
@@ -19,15 +41,25 @@ export interface GameEntry {
   /** Nombre de joueurs conseillé, à titre indicatif — jamais une limite. */
   bestWith: string;
   minutes: string;
+  /**
+   * Le jeu demande une PRÉPARATION avant de commencer (matériel, mise en place).
+   *
+   * C'est une pastille et non une ligne de description : l'information change la
+   * décision — on ne lance pas un jeu qui réclame vingt minutes de préparation
+   * quand on cherche quoi faire tout de suite — et une pastille se lit, alors
+   * qu'un paragraphe se saute.
+   */
+  prepare?: boolean;
 }
 
 export const GAMES: GameEntry[] = [
   {
-    slug: "unanimo",
+    slug: "banalo",
+    famille: "accord",
     status: "live",
     emoji: "🧠",
     skin: UNANIMO_SKIN,
-    route: "/games/unanimo",
+    route: "/games/banalo",
     bestWith: "3–12",
     minutes: "15",
   },
@@ -36,6 +68,7 @@ export const GAMES: GameEntry[] = [
     // par ALIBI, qui n'est pas un loup-garou et c'est le point. Personne n'est
     // éliminé, personne ne ferme les yeux, et l'application est le seul meneur.
     slug: "alibi",
+    famille: "enquete",
     status: "live",
     emoji: "🕯️",
     skin: ALIBI_SKIN,
@@ -47,6 +80,7 @@ export const GAMES: GameEntry[] = [
     // Le jeu de soirée : il PONCTUE le dîner au lieu de le remplacer, et c'est
     // sa raison d'être — « permettre à la vie de continuer dans la maison ».
     slug: "rodeurs",
+    famille: "enquete",
     status: "live",
     emoji: "🔦",
     skin: RODEURS_SKIN,
@@ -60,12 +94,53 @@ export const GAMES: GameEntry[] = [
     // préparation est la bande-annonce de la soirée, comme pour une murder
     // party — et c'est pour ça qu'il annonce son matériel dès la vignette.
     slug: "fantome",
+    famille: "enquete",
     status: "live",
+    prepare: true,
     emoji: "👻",
     skin: FANTOME_SKIN,
     route: "/games/fantome",
     bestWith: "7–12",
     minutes: "120",
+  },
+  {
+    // LE MODE QUOTIDIEN DE BANALO — même nom, même jeu de l'accord, mais une
+    // AUTRE OCCASION : seul, en trois minutes, sans réunir personne. C'est ce
+    // qui justifie deux entrées plutôt qu'une, alors qu'un seul nom les couvre :
+    // la porte « Jouer » range par occasion, et « nous sommes huit après le
+    // dîner » ne mène pas au même rayon que « j'ai trois minutes ».
+    //
+    // ⚠️ CE SLUG N'EST PAS UNE VALEUR DE `scrutin_game_rooms.game`, contrairement
+    // à tous les autres. Le mode quotidien n'a pas de salle : sa clé est le
+    // couple (journée, langue) dans `scrutin_banalo_reponses`. `roomPath` ne le
+    // désignera donc jamais, et c'est correct — aucun code de salle n'y mène.
+    slug: "banalo-jour",
+    famille: "quotidien",
+    status: "live",
+    // ⚠️ PAS 🔢. L'emoji « input-numbers » rend une VIGNETTE — un cadre gris
+    // contenant « 1234 » minuscules — illisible dès qu'on descend sous 20 px,
+    // et c'est le seul élément froid d'une page chaude. 🎯 est un aplat rond qui
+    // tient à toute taille, et il dit ce que le jeu demande : viser la réponse
+    // commune. Vu à l'écran, sur les cartes de l'accueil.
+    emoji: "🎯",
+    skin: UNANIMO_SKIN,
+    route: "/games/banalo-jour",
+    bestWith: "1",
+    minutes: "2",
+  },
+  {
+    // LE PREMIER JEU SOLO DU CATALOGUE. Il n'a pas de salle : son « code » est
+    // la date, la même pour tout le monde. D'où `route` sans `/<code>` —
+    // `roomPath` ne le désignera jamais, et c'est correct : aucun code de salle
+    // ne peut y mener.
+    slug: "pays",
+    famille: "quotidien",
+    status: "live",
+    emoji: "🌍",
+    skin: PAYS_SKIN,
+    route: "/games/pays",
+    bestWith: "1",
+    minutes: "3",
   },
   {
     // ⚠️ LE SEUL JEU DU CATALOGUE SANS PLAFOND DE JOUEURS, et `bestWith` doit
@@ -79,6 +154,7 @@ export const GAMES: GameEntry[] = [
     // d'échecs dure ce qu'elle dure. À quatre joueurs qui délibèrent vite,
     // comptez trois quarts d'heure.
     slug: "echecs",
+    famille: "strategie",
     status: "live",
     emoji: "♟️",
     skin: ECHECS_SKIN,
@@ -89,6 +165,29 @@ export const GAMES: GameEntry[] = [
 ];
 
 export const LIVE_GAMES = GAMES.filter((g) => g.status === "live");
+
+/**
+ * L'ORDRE DES FAMILLES SUR LA PORTE « JOUER », et il n'est pas décoratif : le
+ * quotidien vient en tête parce que c'est le SEUL rayon jouable tout de suite,
+ * seul, sans réunir personne. Un visiteur qui arrive à trois heures du matin
+ * doit pouvoir jouer avant d'avoir à organiser quoi que ce soit.
+ */
+/**
+ * ⚠️ « STRATÉGIE » N'EST PAS UN QUATRIÈME RAYON DÉCORATIF. Les échecs
+ * collaboratifs n'entrent dans aucun des trois autres, et le vérifier prend une
+ * phrase : « Tomber d'accord », c'est marquer EN PENSANT COMME LES AUTRES, SANS
+ * SE PARLER — l'inverse exact d'une équipe qui délibère à voix haute avant de
+ * voter son coup. Et deux camps qui s'affrontent ne sont pas une enquête.
+ *
+ * Il vient APRÈS l'accord et AVANT les enquêtes, dans la même logique
+ * d'organisation croissante : réunir deux équipes coûte plus que se réunir tout
+ * court, et moins que préparer une soirée entière.
+ */
+export const FAMILLES = ["quotidien", "accord", "strategie", "enquete"] as const;
+
+export function gamesParFamille(famille: string): GameEntry[] {
+  return GAMES.filter((g) => g.famille === famille);
+}
 
 export function gameBySlug(slug: string): GameEntry | undefined {
   return GAMES.find((g) => g.slug === slug);

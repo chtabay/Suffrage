@@ -262,7 +262,17 @@ select:focus-visible,
   border: 0;
 }
 
+/* Le sélecteur de langue de la barre : un seul des deux exemplaires s'affiche.
+   Sur ordinateur c'est celui de `.nav-acts`, à droite ; sous 860 px c'est
+   celui-ci, à côté du ☰ — voir le commentaire dans `Nav.tsx`. */
+.locale-mobile {
+  display: none;
+}
+
 @media (max-width: 860px) {
+  .locale-mobile {
+    display: inline-flex;
+  }
   .nav-burger {
     display: inline-flex;
   }

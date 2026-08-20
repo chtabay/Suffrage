@@ -157,7 +157,7 @@
       "s3Text": "Everybody go vote, we go calculate di winner with di real method — and we go tell you why."
     },
     "gamesTitle": "Play together",
-    "gamesText": "Di same engine sweet for play too: games for group, one link to share, no account.",
+    "gamesText": "Di same engine dey also for enjoyment: two daily games wey you fit play alone for two minutes, and group games around table. No account.",
     "gamesCta": "See di games"
   },
   "Create": {
@@ -1658,10 +1658,29 @@
     "goSpaces": "My groups"
   },
   "Games": {
+    "prepare": "you go prepare am",
+    "familles": {
+      "quotidien": {
+        "nom": "One every day",
+        "pitch": "Small minutes, you alone, and new one go come tomorrow. Nothing to arrange: na di only shelf wey you fit play right now."
+      },
+      "accord": {
+        "nom": "Gree together",
+        "pitch": "You dey score by thinking like di others, without talking."
+      },
+      "strategie": {
+        "nom": "Play one move together",
+        "pitch": "Two sides for one table, one move wey una go decide. Una go talk am loud-loud, den everybody go vote."
+      },
+      "enquete": {
+        "nom": "Di investigations",
+        "pitch": "Somebody dey hide something and na di app be di only host. Dem no dey remove anybody, nobody dey close eye."
+      }
+    },
     "metaTitle": "Play together — group games wey you share with one link",
-    "metaDescription": "Games wey plenty people go play on dem phone, no install, no account. Unanimo: write di words wey everybody dey think.",
+    "metaDescription": "Games wey plenty people go play on dem phone, no install, no account. Banalo: write di words wey everybody dey think.",
     "title": "Play together",
-    "subtitle": "Games where di group dey think, dey surprise demself, and dey decide together. One link, one nickname, and una don start.",
+    "subtitle": "Games where di group dey think, dey surprise demself, and dey decide together. One link, one nickname, and una don start — plus one game every day wey you fit play alone.",
     "joinTitle": "Dem give you code?",
     "joinPlaceholder": "ABC123",
     "joinCta": "Enter",
@@ -1670,39 +1689,64 @@
     "soon": "Soon",
     "players": "{n} players",
     "minutes": "{n} min",
-    "unanimo": {
-      "name": "Unanimo",
-      "tagline": "Think like di others",
-      "desc": "One theme, small words. You get point for every word wey another player write too. Di sweet part na to agree without talking."
+    "solo": "you alone",
+    "banalo": {
+      "name": "Banalo with padi dem",
+      "tagline": "Think like di others"
     },
+    "pontIntro": "Dis game dey score you against di crowd. Placet na for take decide with dem — see one question wey dey open now.",
+    "pontCta": "Talk my own",
+    "jourNumero": "Day {n}",
     "engineTitle": "Under dis games, Placet dey.",
     "engineText": "Di same engine dey help people decide for real: pick date, choose between options, share places.",
     "engineCta": "See Placet",
     "alibi": {
       "name": "Alibi",
-      "tagline": "Find di room wey get one extra pesin",
-      "desc": "Every round, di house go put everybody for three rooms — except one pesin wey bin dey waka around. Nobody dey comot for di game, nobody dey close eye, and na di app be di only host."
+      "tagline": "Find di room wey get one extra pesin"
     },
     "rodeurs": {
       "name": "Prowlers",
-      "tagline": "Jam people — na your alibi be dat",
-      "desc": "Di game wey dey last di whole evening and let am flow: una dey chop, una dey waka, and every stamp meeting na alibi. Three players dey prowl — di house must shine light on dem, nobody dey commot."
+      "tagline": "Jam people — na your alibi be dat"
     },
     "fantome": {
       "name": "Di Night of di Ghost",
-      "tagline": "One of una dey haunt dis manor",
-      "desc": "Di event game: una go set di house, drop old phones for di rooms — dem go turn portraits. Do una rondes, and pull di Ghost mask before midnight. Nobody dey commot."
+      "tagline": "One of una dey haunt dis manor"
     },
     "echecs": {
       "name": "Collabo chess",
-      "tagline": "Two sides, one move, each pesin get one voice",
-      "desc": "Every side na one group. Every turn everybody go pick dem move, and di one wey carry di most voice na im dem go play — you go sabi wetin di group decide, but you no go sabi who vote wetin. No limit for how many people fit join."
+      "tagline": "Two sides, one move, each pesin get one voice"
+    },
+    "installTexte": "One game every day easy pass if e dey your home screen.",
+    "installCta": "Install di game",
+    "installIos": "For iPhone: press <b>Share</b>, then <b>“Add to Home Screen”</b>.",
+    "banalo-jour": {
+      "name": "Banalo of di Day",
+      "tagline": "One number wey you go guess, every day"
+    },
+    "pays": {
+      "name": "Five Over Five",
+      "tagline": "One country every day, five secret mark"
     }
   },
-  "Unanimo": {
-    "metaTitle": "Unanimo — write di words wey everybody dey think",
+  "Banalo": {
+    "apercu": {
+      "titre": "Wetin you dey see, round by round",
+      "l1": "You dey write your words; nobody don see dem yet.",
+      "l2": "Di reveal: wetin anoda person get too.",
+      "l3": "Di points, when di round finish.",
+      "theme": "Di sea",
+      "mot1": "sand",
+      "mot2": "wave",
+      "mot3": "seagull",
+      "avec": "Chloé and Sam write am too",
+      "scores": "Di points",
+      "j1": "Chloé",
+      "j2": "Sam",
+      "j3": "Iris"
+    },
+    "metaTitle": "Banalo — write di words wey everybody dey think",
     "metaDescription": "One theme, small words, and point for every word wey another person write too. Plenty people, on dem phone, no account.",
-    "name": "Unanimo",
+    "name": "Banalo with padi dem",
     "back": "All di games",
     "poweredBy": "Placet dey power am",
     "offline": "Network cut — we dey try again",
@@ -1741,7 +1785,7 @@
       "copied": "Copied",
       "share": "Share",
       "whatsapp": "WhatsApp",
-      "text": "You wan play Unanimo? Come join us:"
+      "text": "You wan play Banalo? Come join us:"
     },
     "rank": {
       "title": "Table"
@@ -1797,6 +1841,7 @@
       "sending": "Dey send…",
       "duplicate": "“{word}” don count for you already",
       "isTheme": "Di theme itself no carry point",
+      "removed": "“{word}” don comot.",
       "full": "{max} words na di maximum",
       "remove": "Remove {word}"
     },
@@ -1998,6 +2043,12 @@
     }
   },
   "Rodeurs": {
+    "apercu": {
+      "titre": "For your screen, di whole night",
+      "l1": "Your code: person go type am to prove say una see each other.",
+      "l2": "Your role, na you alone dey see am.",
+      "l3": "Your mission for dis round."
+    },
     "metaTitle": "Prowlers — enjoy di evening, di register go do di investigation",
     "metaDescription": "Party game of one to two hours on top una phones. Any time pesin type your code, e don prove say una bin dey together — and three of una dey prowl. Nobody dey commot for di game, no account.",
     "name": "Prowlers",
@@ -2577,6 +2628,148 @@
       "you": "Na una side win.",
       "them": "Na di oda side win.",
       "stats": "{plies} moves wey dem play · {ballots} votes wey land"
+    }
+  },
+  "BanaloJour": {
+    "metaTitle": "Banalo of di Day — one number wey you go guess every day",
+    "metaDescription": "Guess number wey you no fit find for internet. E no be say you must correct: na to reach near di median answer wey odd people give. One question every day, no account.",
+    "name": "Banalo of di Day",
+    "back": "All di games",
+    "poweredBy": "Placet dey power am",
+    "numero": "Day number {n}",
+    "question": "Today question",
+    "consigne": "Answer with whole number. E no be say you must correct — na to reach near di median answer wey all di players give.",
+    "chargement": "Small time…",
+    "saisieLabel": "Your guess, {unite}",
+    "placeholder": "One number",
+    "relectureVide": "Type whole number.",
+    "envoyer": "Send my answer",
+    "definitif": "Na one answer per day: e no go fit change again.",
+    "deposeTitre": "Your answer",
+    "attente": "Na {n} people don answer so far. Your score go show once plenty people don answer, so di median go mean something.",
+    "chaleur": {
+      "brule": "You dey burn",
+      "chaud": "E hot",
+      "tiede": "E warm small",
+      "froid": "E cold",
+      "glace": "Ice cold"
+    },
+    "expliquer": "How dem take calculate di score",
+    "calculDetail": "You miss am by ×{f}. Di score na 100 − 100 × log₁₀({f}), wey be {points}.",
+    "calculReperes": "Some marks: ×1 → 100 · ×2 → 69.9 · ×5 → 30.1 · ×10 and above → 0.",
+    "themeTitre": "Today theme",
+    "motsConsigne": "Write {n} words wey dis theme make you think of. No be say you must be original: you go score pass if odd players write di same ones.",
+    "motsCase": "Word {n}",
+    "motsIncomplet": "{n, plural, one {# box still empty} other {# boxes still empty}}.",
+    "motsGrille": "Your words",
+    "motsPart": "{p}%",
+    "motsRegle": "Every word dey worth di share of players wey write am. Di theme word itself no dey count, and two forms of di same word na one.",
+    "motsAttente": "Na {n} people don answer so far. Your score go show once plenty people don answer, so di shares go mean something.",
+    "demainMots": "New theme by {heure}.",
+    "qrAide": "Or show person dis code",
+    "qrTitre": "Code wey you go scan to open di game",
+    "qrFermer": "Close",
+    "compte": {
+      "titre": "Keep your results",
+      "texte": "Without account, your streak dey live for dis browser only: e go disappear if you change phone or clear your data. Account go keep am, and e go last pass di thirty days wey we dey keep answers.",
+      "google": "Continue with Google",
+      "emailPlaceholder": "your@email.com",
+      "envoyer": "Send me link",
+      "envoye": "Done — open di link wey we just send you.",
+      "erreur": "E no send. Try again small time.",
+      "bilanTitre": "Your results",
+      "parties": "Days",
+      "moyenne": "Average score",
+      "meilleur": "Best score",
+      "serieLabel": "Streak",
+      "serie": "{n} days back to back",
+      "placet": "Di same account dey run real votes for Placet:",
+      "placetLien": "see wetin e dey do"
+    },
+    "compareTitre": "You against your padi",
+    "compareMoi": "You",
+    "compareAmi": "Your padi",
+    "comparePassee": "Di link wey your padi send na for day wey don close — na today own be dis.",
+    "scoreTitre": "Your score",
+    "points": "{n} <petit>out of 100</petit>",
+    "partMieux": "{n}% of di players do pass you.",
+    "rang": "Number {rang} out of {votants} players",
+    "exAequo": "{n, plural, one {you tie with # other person} other {you tie with # other people}}",
+    "mienne": "Your answer",
+    "mediane": "Di median answer",
+    "medianeScellee": "Di median answer go hide until di day close: if e show now, person fit just copy am and score di highest.",
+    "bareme": "Hundred points, minus hundred for every factor of ten wey you miss.",
+    "ecart": "How far you dey",
+    "facteur": "×{f}",
+    "votants": "Answers",
+    "pasDeVerite": "Di game no dey find truth: di mark na di answer wey most people give, no be di correct one. Crowd fit make mistake together — and di game still dey reward person wey follow dem.",
+    "partager": "Share my result",
+    "copie": "I don copy am!",
+    "partageTitre": "Banalo of di Day number {n} — {points}/100",
+    "panne": "We no fit reach di counting. Reload di page make you see where your answer dey.",
+    "demain": "New question by {heure}."
+  },
+  "Pays": {
+    "pictosAide": "Every box go now tell you wetin im criterion dey talk about. Di last one go keep im secret.",
+    "catMystere": "na you go find am",
+    "casesAide": "Di five boxes na di marks of di day, from di one wey common pass to di one wey rare pass. Two try wey fill di same box dey share am.",
+    "casesLues": "{n, plural, =0 {no mark dey shared} one {1 mark dey shared} other {# marks dey shared}}",
+    "serieTitre": "{n} days back to back",
+    "compte": {
+      "jourTitre": "Your round",
+      "essaisJour": "Try",
+      "medianeJour": "Today median",
+      "serie": "{n} days back to back",
+      "titre": "Keep your results",
+      "texte": "If you no get account, na dis browser dey hold your streak: e go vanish if you change phone or clear your data. Account go keep am, and e go show you where you stand every day.",
+      "google": "Continue with Google",
+      "emailPlaceholder": "you@email.com",
+      "envoyer": "Send me link",
+      "envoye": "E don go — open di link wey we just send you.",
+      "erreur": "E no waka. Try am again small time.",
+      "bilanTitre": "Your results",
+      "parties": "Wey you find",
+      "moyenne": "Average try",
+      "meilleur": "Your best game",
+      "serieLabel": "Streak",
+      "rang": "You be number {rang} out of {joueurs} players today.",
+      "rangSeul": "Na you first find am today.",
+      "placet": "Di same account dey run real voting for Placet:",
+      "placetLien": "see wetin e dey do"
+    },
+    "metaTitle": "Five Over Five — di geography game wey dey come every day",
+    "metaDescription": "Find di country of di day for di world map. Every try go tell you how many things e share with am. New country every day, you no need account.",
+    "name": "Five Over Five",
+    "back": "All di games",
+    "poweredBy": "Placet dey power am",
+    "numero": "Day number {n}",
+    "titre": "Find di country of di day",
+    "consigne": "Every try go tell you how many things e share with am. Touch one country for di map, or search im name.",
+    "recherche": "Search country…",
+    "compareTitre": "You against your padi",
+    "compareMoi": "You",
+    "compareAmi": "Your padi",
+    "comparePassee": "Di link wey your padi send na for day wey don close — na today own be dis.",
+    "carteEtiquette": "World map. Touch one country make you try am; di country wey you don try dey carry im score for colour.",
+    "dejaCourt": "you don try am",
+    "deja": "you don try am — e no dey count twice",
+    "erreur": "Di score no come back. Try am again small.",
+    "historique": "{n, plural, one {# try} other {# tries}}",
+    "partageTitre": "{jeu} number {n} — I find am for {essais, plural, one {# try} other {# tries}}",
+    "victoire": {
+      "qrAide": "Or show person dis code",
+      "qrTitre": "Scan dis code to open di game",
+      "qrFermer": "Close am",
+      "titre": "na di country of di day",
+      "essais": "I find am for {n, plural, one {# try} other {# tries}}.",
+      "criteres": "Di five criteria of di day",
+      "voirCarte": "Understand di map",
+      "cacherCarte": "Go back to my tries",
+      "legende": "Score of every country",
+      "partager": "Share my result",
+      "copie": "I don copy am!",
+      "demain": "New country tomorrow.",
+      "source": "Source:"
     }
   }
 }

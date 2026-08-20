@@ -7,7 +7,7 @@
 //
 // ⚠️ AUCUNE RÈGLE DE JEU NE VIT ICI. Le tirage du coupable, la répartition en
 // pièces et le dépouillement sont ENTIÈREMENT en base (voir la migration
-// 20260812-jeu-alibi.sql). C'est délibéré : dans Unanimo, le client de l'hôte
+// 20260812-jeu-alibi.sql). C'est délibéré : dans Banalo, le client de l'hôte
 // tire le thème et l'envoie ; le même chemin donnerait ici la réponse à l'hôte,
 // qui saurait qui est le coupable. Ce fichier ne fait que TYPER ce que le
 // serveur envoie et NOMMER ce qui s'affiche.

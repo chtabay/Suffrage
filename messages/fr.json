@@ -157,7 +157,7 @@
       "s3Text": "Chacun vote, le gagnant est calculé selon la vraie méthode — et on vous explique pourquoi."
     },
     "gamesTitle": "Jouer ensemble",
-    "gamesText": "Le même moteur sert aussi à s'amuser : des jeux à plusieurs, un lien à partager, aucun compte.",
+    "gamesText": "Le même moteur sert aussi à s'amuser : deux jeux quotidiens à faire seul en deux minutes, et des jeux à plusieurs autour d'une table. Aucun compte.",
     "gamesCta": "Voir les jeux"
   },
   "Create": {
@@ -1658,10 +1658,29 @@
     "goSpaces": "Mes groupes"
   },
   "Games": {
+    "prepare": "ça se prépare",
+    "familles": {
+      "quotidien": {
+        "nom": "Un par jour",
+        "pitch": "Quelques minutes, seul, et un nouveau demain. Rien à organiser : c'est le seul rayon jouable tout de suite."
+      },
+      "accord": {
+        "nom": "Tomber d'accord",
+        "pitch": "On marque en pensant comme les autres, sans se parler."
+      },
+      "strategie": {
+        "nom": "Jouer un coup ensemble",
+        "pitch": "Deux équipes autour d'une table, un coup à décider. On délibère à voix haute, puis chacun vote."
+      },
+      "enquete": {
+        "nom": "Les enquêtes",
+        "pitch": "Quelqu'un cache quelque chose et l'application est le seul meneur. Personne n'est éliminé, personne ne ferme les yeux."
+      }
+    },
     "metaTitle": "Jouer ensemble — des jeux de groupe à partager d'un lien",
-    "metaDescription": "Des jeux à plusieurs sur vos téléphones, sans installation ni compte. Unanimo : écrivez les mots que tout le monde a en tête.",
+    "metaDescription": "Des jeux à plusieurs sur vos téléphones, sans installation ni compte. Banalo : écrivez les mots que tout le monde a en tête.",
     "title": "Jouer ensemble",
-    "subtitle": "Des jeux où le groupe réfléchit, se surprend et décide ensemble. Un lien, un pseudo, on joue.",
+    "subtitle": "Des jeux où le groupe réfléchit, se surprend et décide ensemble. Un lien, un pseudo, on joue — et un jeu chaque jour, à faire seul.",
     "joinTitle": "On t'a donné un code ?",
     "joinPlaceholder": "ABC123",
     "joinCta": "Entrer",
@@ -1670,39 +1689,64 @@
     "soon": "Bientôt",
     "players": "{n} joueurs",
     "minutes": "{n} min",
-    "unanimo": {
-      "name": "Unanimo",
-      "tagline": "Pensez comme les autres",
-      "desc": "Un thème, quelques mots. Vous marquez pour chaque mot qu'un autre joueur a écrit aussi. Le plaisir, c'est de tomber d'accord sans se parler."
+    "solo": "solo",
+    "banalo": {
+      "name": "Banalo en groupe",
+      "tagline": "Pensez comme les autres"
     },
+    "pontIntro": "Ce jeu vous note contre la foule. Placet sert à décider avec elle — voici une question ouverte en ce moment.",
+    "pontCta": "Donner mon avis",
+    "jourNumero": "Journée n° {n}",
     "engineTitle": "Sous ces jeux, il y a Placet.",
     "engineText": "Le même moteur sert à décider pour de vrai : choisir une date, trancher entre plusieurs options, répartir des places.",
     "engineCta": "Découvrir Placet",
     "alibi": {
       "name": "Alibi",
-      "tagline": "Cherchez la pièce qui compte un occupant de trop",
-      "desc": "Chaque manche, la maison range tout le monde dans trois pièces — sauf une personne, qui rôdait. Personne n'est éliminé, personne ne ferme les yeux, et l'application est le seul meneur."
+      "tagline": "Cherchez la pièce qui compte un occupant de trop"
     },
     "rodeurs": {
       "name": "Rôdeurs",
-      "tagline": "Croisez du monde : c'est votre alibi",
-      "desc": "Le jeu qui dure la soirée et la laisse vivre : on mange, on circule, et chaque rencontre validée est un alibi. Trois joueurs rôdent — la maison doit les mettre en lumière, sans jamais éliminer personne."
+      "tagline": "Croisez du monde : c'est votre alibi"
     },
     "fantome": {
       "name": "La Nuit du Fantôme",
-      "tagline": "L'un de vous hante ce manoir",
-      "desc": "Le jeu-événement : on prépare la maison, on pose de vieux appareils dans les pièces — ils deviennent des portraits. Faites vos rondes, et démasquez le Fantôme avant minuit. Personne n'est éliminé."
+      "tagline": "L'un de vous hante ce manoir"
     },
     "echecs": {
       "name": "Échecs collaboratifs",
-      "tagline": "Deux équipes, un coup, une voix chacun",
-      "desc": "Chaque camp est un groupe. À chaque tour tout le monde choisit son coup, et le plus voté est joué — on découvre ce que le groupe a décidé, jamais qui a voté quoi. Aucune limite de joueurs."
+      "tagline": "Deux équipes, un coup, une voix chacun"
+    },
+    "installTexte": "Un jeu par jour, c'est plus facile quand il est sur l'écran d'accueil.",
+    "installCta": "Installer le jeu",
+    "installIos": "Sur iPhone : touchez <b>Partager</b>, puis <b>« Sur l'écran d'accueil »</b>.",
+    "banalo-jour": {
+      "name": "Banalo du jour",
+      "tagline": "Un nombre à estimer, tous les jours"
+    },
+    "pays": {
+      "name": "Cinq sur cinq",
+      "tagline": "Un pays par jour, cinq caractéristiques secrètes"
     }
   },
-  "Unanimo": {
-    "metaTitle": "Unanimo — écrivez les mots que tout le monde a en tête",
+  "Banalo": {
+    "apercu": {
+      "titre": "Ce que tu vois, manche après manche",
+      "l1": "Tu écris tes mots, personne ne les voit encore.",
+      "l2": "La révélation : ce qu'un autre avait aussi.",
+      "l3": "Les points, à la fin de la manche.",
+      "theme": "La mer",
+      "mot1": "sable",
+      "mot2": "vague",
+      "mot3": "goéland",
+      "avec": "aussi écrit par Chloé et Sam",
+      "scores": "Les points",
+      "j1": "Chloé",
+      "j2": "Sam",
+      "j3": "Iris"
+    },
+    "metaTitle": "Banalo — écrivez les mots que tout le monde a en tête",
     "metaDescription": "Un thème, quelques mots, et des points pour chaque mot qu'un autre a écrit aussi. À plusieurs, sur vos téléphones, sans compte.",
-    "name": "Unanimo",
+    "name": "Banalo en groupe",
     "back": "Tous les jeux",
     "poweredBy": "Propulsé par Placet",
     "offline": "Connexion perdue — on réessaie",
@@ -1741,7 +1785,7 @@
       "copied": "Copié",
       "share": "Partager",
       "whatsapp": "WhatsApp",
-      "text": "On joue à Unanimo ? Rejoins-nous :"
+      "text": "On joue à Banalo ? Rejoins-nous :"
     },
     "rank": {
       "title": "Classement"
@@ -1797,6 +1841,7 @@
       "sending": "Envoi…",
       "duplicate": "« {word} » compte déjà pour toi",
       "isTheme": "Le thème lui-même ne rapporte rien",
+      "removed": "« {word} » retiré.",
       "full": "{max} mots, c'est le maximum",
       "remove": "Retirer {word}"
     },
@@ -1998,6 +2043,12 @@
     }
   },
   "Rodeurs": {
+    "apercu": {
+      "titre": "Sur ton écran, toute la soirée",
+      "l1": "Ton code : on te le tape pour prouver que vous vous êtes croisés.",
+      "l2": "Ton rôle, visible de toi seul.",
+      "l3": "Ta mission de la manche."
+    },
     "metaTitle": "Rôdeurs — vivez la soirée, le registre fait l'enquête",
     "metaDescription": "Un jeu de soirée d'une à deux heures sur vos téléphones. Chaque fois que quelqu'un tape ton code, vous avez la preuve que vous étiez ensemble — et trois d'entre vous rôdent. Personne n'est éliminé, sans compte.",
     "name": "Rôdeurs",
@@ -2577,6 +2628,148 @@
       "you": "Votre camp l'emporte.",
       "them": "L'autre camp l'emporte.",
       "stats": "{plies} coups joués · {ballots} bulletins déposés"
+    }
+  },
+  "BanaloJour": {
+    "metaTitle": "Banalo du jour — une question chiffrée par jour",
+    "metaDescription": "Estimez un nombre impossible à chercher sur le web. Le but n'est pas d'avoir raison : c'est de tomber au plus près de la réponse médiane des autres joueurs. Une question par jour, sans compte.",
+    "name": "Banalo du jour",
+    "back": "Tous les jeux",
+    "poweredBy": "Propulsé par Placet",
+    "numero": "Journée n° {n}",
+    "question": "La question du jour",
+    "consigne": "Répondez par un nombre entier. Le but n'est pas d'avoir raison, mais d'être au plus près de la réponse médiane de tous les joueurs.",
+    "chargement": "Un instant…",
+    "saisieLabel": "Votre estimation, {unite}",
+    "placeholder": "Un nombre",
+    "relectureVide": "Tapez un nombre entier.",
+    "envoyer": "Envoyer ma réponse",
+    "definitif": "Une seule réponse par jour : elle ne pourra plus changer.",
+    "deposeTitre": "Votre réponse",
+    "attente": "Vous êtes {n} pour l'instant. Le score s'affiche dès que la foule est assez nombreuse pour que la médiane veuille dire quelque chose.",
+    "chaleur": {
+      "brule": "Vous brûlez",
+      "chaud": "Chaud",
+      "tiede": "Tiède",
+      "froid": "Froid",
+      "glace": "Glacé"
+    },
+    "expliquer": "Comment le score est calculé",
+    "calculDetail": "Votre écart vaut ×{f}. Le score est 100 − 100 × log₁₀({f}), soit {points}.",
+    "calculReperes": "Quelques repères : ×1 → 100 · ×2 → 69,9 · ×5 → 30,1 · ×10 et au-delà → 0.",
+    "themeTitre": "Le thème du jour",
+    "motsConsigne": "Écrivez {n} mots que ce thème vous inspire. Le but n'est pas d'être original : vous marquez d'autant plus que d'autres joueurs ont écrit les mêmes.",
+    "motsCase": "Mot {n}",
+    "motsIncomplet": "Il vous reste {n, plural, one {# case vide} other {# cases vides}}.",
+    "motsGrille": "Vos mots",
+    "motsPart": "{p} %",
+    "motsRegle": "Chaque mot vaut la part des joueurs qui l'ont écrit. Le mot du thème lui-même ne compte pas, et deux formes du même mot n'en font qu'une.",
+    "motsAttente": "Vous êtes {n} pour l'instant. Votre score s'affiche dès que la foule est assez nombreuse pour que les parts veuillent dire quelque chose.",
+    "demainMots": "Nouveau thème à {heure}.",
+    "qrAide": "Ou montrez ce code à quelqu'un",
+    "qrTitre": "Code à scanner pour ouvrir le jeu",
+    "qrFermer": "Fermer",
+    "compte": {
+      "titre": "Garder vos résultats",
+      "texte": "Sans compte, votre série vit dans ce navigateur : elle disparaît si vous changez de téléphone ou effacez vos données. Un compte la garde, et la fait durer au-delà des trente jours de conservation des réponses.",
+      "google": "Continuer avec Google",
+      "emailPlaceholder": "votre@email.fr",
+      "envoyer": "Recevoir un lien",
+      "envoye": "C'est parti — ouvrez le lien qu'on vient de vous envoyer.",
+      "erreur": "L'envoi n'a pas fonctionné. Réessayez dans un instant.",
+      "bilanTitre": "Vos résultats",
+      "parties": "Journées",
+      "moyenne": "Score moyen",
+      "meilleur": "Meilleur score",
+      "serieLabel": "Série",
+      "serie": "{n} jours d'affilée",
+      "placet": "Le même compte sert à organiser de vrais votes sur Placet :",
+      "placetLien": "voir à quoi ça sert"
+    },
+    "compareTitre": "Face à votre ami",
+    "compareMoi": "Vous",
+    "compareAmi": "Votre ami",
+    "comparePassee": "Le lien de votre ami porte une journée déjà close — voici celle d'aujourd'hui.",
+    "scoreTitre": "Votre score",
+    "points": "{n} <petit>sur 100</petit>",
+    "partMieux": "{n} % des joueurs ont fait mieux.",
+    "rang": "{rang, selectordinal, one {#er} other {#e}} sur {votants} joueurs",
+    "exAequo": "{n, plural, one {à égalité avec # autre} other {à égalité avec # autres}}",
+    "mienne": "Votre réponse",
+    "mediane": "La réponse médiane",
+    "medianeScellee": "La réponse médiane reste cachée jusqu'à la clôture : affichée maintenant, il suffirait de la recopier pour marquer le maximum.",
+    "bareme": "Cent points, moins cent par facteur dix d'écart.",
+    "ecart": "Votre écart",
+    "facteur": "×{f}",
+    "votants": "Réponses",
+    "pasDeVerite": "Le jeu ne cherche pas la vérité : la référence est la réponse la plus commune, pas la bonne réponse. La foule peut se tromper ensemble — et le jeu récompense quand même ceux qui l'ont suivie.",
+    "partager": "Partager mon résultat",
+    "copie": "Copié !",
+    "partageTitre": "Banalo du jour n° {n} — {points}/100",
+    "panne": "On n'a pas pu joindre le dépouillement. Rechargez la page pour voir où en est votre réponse.",
+    "demain": "Nouvelle question à {heure}."
+  },
+  "Pays": {
+    "pictosAide": "Chaque case dit maintenant de quoi parle son critère. La dernière garde son secret.",
+    "catMystere": "à toi de trouver",
+    "casesAide": "Les cinq cases sont les caractéristiques du jour, de la plus courante à la plus rare. Deux essais qui remplissent la même case la partagent.",
+    "casesLues": "{n, plural, =0 {aucune caractéristique partagée} one {1 caractéristique partagée} other {# caractéristiques partagées}}",
+    "serieTitre": "{n} jours d'affilée",
+    "compte": {
+      "jourTitre": "Votre journée",
+      "essaisJour": "Essais",
+      "medianeJour": "Médiane du jour",
+      "serie": "{n} jours d'affilée",
+      "titre": "Garder vos résultats",
+      "texte": "Sans compte, votre série vit dans ce navigateur : elle disparaît si vous changez de téléphone ou effacez vos données. Un compte la garde, et vous montre où vous vous situez chaque jour.",
+      "google": "Continuer avec Google",
+      "emailPlaceholder": "votre@email.fr",
+      "envoyer": "Recevoir un lien",
+      "envoye": "C'est parti — ouvrez le lien qu'on vient de vous envoyer.",
+      "erreur": "L'envoi n'a pas fonctionné. Réessayez dans un instant.",
+      "bilanTitre": "Vos résultats",
+      "parties": "Trouvés",
+      "moyenne": "Essais en moyenne",
+      "meilleur": "Meilleure partie",
+      "serieLabel": "Série",
+      "rang": "{rang}e sur {joueurs} joueurs aujourd'hui.",
+      "rangSeul": "Vous êtes le premier à l'avoir trouvé aujourd'hui.",
+      "placet": "Le même compte sert à organiser de vrais votes sur Placet :",
+      "placetLien": "voir à quoi ça sert"
+    },
+    "metaTitle": "Cinq sur cinq — le jeu de géographie quotidien",
+    "metaDescription": "Trouvez le pays du jour sur la carte du monde. Chaque essai vous dit combien de caractéristiques il partage avec lui. Un nouveau pays chaque jour, sans compte.",
+    "name": "Cinq sur cinq",
+    "back": "Tous les jeux",
+    "poweredBy": "Propulsé par Placet",
+    "numero": "Journée n° {n}",
+    "titre": "Trouvez le pays du jour",
+    "consigne": "Chaque essai vous indique combien de caractéristiques il partage avec lui. Touchez un pays sur la carte, ou cherchez son nom.",
+    "recherche": "Chercher un pays…",
+    "compareTitre": "Face à votre ami",
+    "compareMoi": "Vous",
+    "compareAmi": "Votre ami",
+    "comparePassee": "Le lien de votre ami porte une journée déjà close — voici celle d'aujourd'hui.",
+    "carteEtiquette": "Carte du monde. Touchez un pays pour l'essayer ; les pays déjà essayés portent leur score en couleur.",
+    "dejaCourt": "déjà essayé",
+    "deja": "déjà essayé — il ne compte pas deux fois",
+    "erreur": "Le score n'est pas revenu. Réessayez dans un instant.",
+    "historique": "{n, plural, one {# essai} other {# essais}}",
+    "partageTitre": "{jeu} n° {n} — trouvé en {essais, plural, one {# essai} other {# essais}}",
+    "victoire": {
+      "qrAide": "Ou montrez ce code à quelqu'un",
+      "qrTitre": "Code à scanner pour ouvrir le jeu",
+      "qrFermer": "Fermer",
+      "titre": "c'est le pays du jour",
+      "essais": "Trouvé en {n, plural, one {# essai} other {# essais}}.",
+      "criteres": "Les cinq critères du jour",
+      "voirCarte": "Comprendre la carte",
+      "cacherCarte": "Revenir à mes essais",
+      "legende": "Score de chaque pays",
+      "partager": "Partager mon résultat",
+      "copie": "Copié !",
+      "demain": "Un nouveau pays demain.",
+      "source": "Source :"
     }
   }
 }

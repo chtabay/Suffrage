@@ -100,7 +100,7 @@ hasard.
    une béquille : ce bulletin est *déterministe*, l'innocent n'a aucun choix à
    faire. Coût : entre 0,0 et +0,5 point.
 2. **La marionnette** (fatale). `game_join` acceptait une arrivée en cours de
-   partie — une règle voulue pour Unanimo. Le coupable ouvrait un onglet privé,
+   partie — une règle voulue pour Banalo. Le coupable ouvrait un onglet privé,
    rejoignait sous un autre pseudo, et sa fausse identité recevait une carte
    pré-remplie : un renseignement gratuit, illimité, invisible.
    → **Roster fermé au lancement**, pour ce jeu seulement.
@@ -118,7 +118,7 @@ hasard.
 
 ## 5. Le modèle
 
-Le socle générique (salle, joueurs, manches, contributions) est celui d'Unanimo.
+Le socle générique (salle, joueurs, manches, contributions) est celui de Banalo.
 Ce que ce jeu y ajoute :
 
 - `scrutin_game_players.secret jsonb` — la carte du joueur. **Elle ne sort que
@@ -130,15 +130,15 @@ Ce que ce jeu y ajoute :
 - Trois branches par `game` dans les verbes génériques (`game_join`,
   `game_submit`, `game_reveal`, `game_next_round`), et la généralisation de
   `mine` dans `get_game_room` — il lisait `payload->'words'` **en dur**, hérité
-  d'Unanimo, si bien que tout autre jeu recevait `null` sans que rien ne le
+  de Banalo, si bien que tout autre jeu recevait `null` sans que rien ne le
   signale.
 
-⚠️ **La mise en place est SERVEUR, et c'est le point.** Dans Unanimo, le client
+⚠️ **La mise en place est SERVEUR, et c'est le point.** Dans Banalo, le client
 de l'hôte tire le thème et l'envoie ; le même chemin donnerait ici la réponse à
 l'hôte. Rien de la distribution ne transite par un navigateur.
 
 Les noms de pièces sont du **contenu** : douze clés × 4 langues dans
-`src/lib/games/alibi/lieux.ts`, hors i18n, comme les thèmes d'Unanimo. La base ne
+`src/lib/games/alibi/lieux.ts`, hors i18n, comme les thèmes de Banalo. La base ne
 connaît que les clés. ⚠️ Cette liste doit rester synchrone avec le tableau de
 `scrutin_game_alibi_deal`.
 

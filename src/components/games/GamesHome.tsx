@@ -15,7 +15,7 @@ import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { Link } from "@/i18n/navigation";
 import Nav from "@/components/scrutin/Nav";
-import { GAMES, roomPath } from "@/lib/games/catalog";
+import { FAMILLES, gamesParFamille, roomPath } from "@/lib/games/catalog";
 import { getRoom } from "@/lib/games/room";
 import { PLACET_GAMES_SKIN as skin } from "@/lib/games/skin";
 import { GBtn, GCard, GLabel } from "./ui";
@@ -108,133 +108,148 @@ export default function GamesHome() {
           )}
         </GCard>
 
-        <div
-          style={{
-            marginTop: 26,
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fit,minmax(260px,1fr))",
-            gap: 16,
-          }}
-        >
-          {GAMES.map((g) => {
-            const live = g.status === "live";
-            const body = (
-              <>
-                <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                  <span
-                    aria-hidden
-                    style={{
-                      width: 52,
-                      height: 52,
-                      flex: "none",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      fontSize: 27,
-                      borderRadius: 14,
-                      border: `2.5px solid ${skin.ink}`,
-                      background: live ? g.skin.accent2 : "#fff",
-                    }}
-                  >
-                    {g.emoji}
-                  </span>
-                  <span>
-                    <span
-                      style={{
-                        display: "block",
-                        fontFamily: skin.fontDisplay,
-                        fontWeight: 800,
-                        fontSize: 23,
-                        letterSpacing: "-0.02em",
-                      }}
-                    >
-                      {t(`${g.slug}.name`)}
-                    </span>
-                    <span style={{ display: "block", fontSize: 13, color: skin.muted, fontWeight: 700 }}>
-                      {t(`${g.slug}.tagline`)}
-                    </span>
-                  </span>
-                </div>
-                <p style={{ fontSize: 14.5, lineHeight: 1.5, color: skin.muted, margin: "12px 0 0" }}>
-                  {t(`${g.slug}.desc`)}
-                </p>
-                <div style={{ display: "flex", gap: 7, flexWrap: "wrap", marginTop: 12 }}>
-                  {[t("players", { n: g.bestWith }), t("minutes", { n: g.minutes })].map((chip) => (
-                    <span
-                      key={chip}
-                      style={{
-                        fontSize: 11.5,
-                        fontWeight: 800,
-                        padding: "3px 9px",
-                        borderRadius: 999,
-                        border: `2px solid ${skin.ink}`,
-                        background: "#fff",
-                      }}
-                    >
-                      {chip}
-                    </span>
-                  ))}
-                  {!live && (
-                    <span
-                      style={{
-                        fontSize: 11.5,
-                        fontWeight: 800,
-                        padding: "3px 9px",
-                        borderRadius: 999,
-                        border: `2px solid ${skin.ink}`,
-                        background: skin.accent2,
-                      }}
-                    >
-                      {t("soon")}
-                    </span>
-                  )}
-                </div>
-                {live && (
-                  <div
-                    className="dc-lift"
-                    style={{
-                      marginTop: 14,
-                      display: "inline-flex",
-                      alignItems: "center",
-                      gap: 7,
-                      fontFamily: skin.fontDisplay,
-                      fontWeight: 800,
-                      fontSize: 16,
-                      padding: "12px 20px",
-                      borderRadius: 12,
-                      border: `2.5px solid ${skin.ink}`,
-                      background: g.skin.accent,
-                      color: "#fff",
-                      boxShadow: `4px 4px 0 ${skin.ink}`,
-                    }}
-                  >
-                    ▶ {t("play")}
-                  </div>
-                )}
-              </>
-            );
-            const box = {
-              display: "block",
-              background: "#fff",
-              border: `2.5px solid ${skin.ink}`,
-              borderRadius: 18,
-              padding: 18,
-              textDecoration: "none",
-              color: skin.ink,
-              boxShadow: `5px 5px 0 ${live ? g.skin.accent : `${skin.ink}55`}`,
-              opacity: live ? 1 : 0.72,
-            } as const;
-            return live ? (
-              <Link key={g.slug} href={g.route} style={box}>
-                {body}
-              </Link>
-            ) : (
-              <div key={g.slug} style={box} aria-disabled="true">
-                {body}
+        {/* LES JEUX, RANGÉS PAR FAMILLE.
+            
+            Une grille à plat de cinq vignettes hautes demandait de tout lire pour
+            choisir. Le rayon répond d'abord à la question qu'on se pose vraiment
+            — « qu'est-ce qui est possible ce soir ? » — et la vignette, réduite à
+            un nom, une phrase et deux pastilles, se scanne au lieu de se lire.
+            
+            ⚠️ LES LIBELLÉS DE FAMILLE SONT ÉCRITS EN CLAIR. Le contrôle de parité
+            ne voit pas les clés passées en variable : une famille sans libellé
+            s'afficherait « Games.familles.enquete.nom » en toutes lettres, et
+            rien ne l'aurait signalé avant l'écran. */}
+        {FAMILLES.map((cle) => {
+          const jeux = gamesParFamille(cle);
+          if (!jeux.length) return null;
+          const libelle = {
+            quotidien: { nom: t("familles.quotidien.nom"), pitch: t("familles.quotidien.pitch") },
+            accord: { nom: t("familles.accord.nom"), pitch: t("familles.accord.pitch") },
+            strategie: { nom: t("familles.strategie.nom"), pitch: t("familles.strategie.pitch") },
+            enquete: { nom: t("familles.enquete.nom"), pitch: t("familles.enquete.pitch") },
+          }[cle];
+          return (
+            <section key={cle} style={{ marginTop: 30 }}>
+              <h2
+                style={{
+                  fontFamily: skin.fontDisplay,
+                  fontWeight: 800,
+                  fontSize: "clamp(19px,3.4vw,24px)",
+                  letterSpacing: "-0.02em",
+                  margin: 0,
+                }}
+              >
+                {libelle.nom}
+              </h2>
+              <p style={{ margin: "3px 0 0", fontSize: 14, color: skin.muted, maxWidth: "56ch" }}>{libelle.pitch}</p>
+
+              <div
+                // ⚠️ FLEX ET NON GRILLE, à cause des familles à un seul jeu. Avec
+                // `auto-fit` + `1fr`, une vignette seule s'étire sur toute la
+                // largeur : mille pixels de carte pour quarante de contenu, et
+                // « Un par jour » avait l'air d'une bannière. Le plafond rend la
+                // vignette solitaire de la même taille que ses voisines.
+                style={{ marginTop: 12, display: "flex", flexWrap: "wrap", gap: 10 }}
+              >
+                {jeux.map((g) => {
+                  const live = g.status === "live";
+                  const chips = [
+                    // Le seul jeu SOLO du catalogue casse le gabarit : « 1
+                    // joueurs » est faux, et un pluriel ICU ne s'applique pas à
+                    // « 3–12 », qui est une chaîne, pas un nombre.
+                    g.bestWith === "1" ? t("solo") : t("players", { n: g.bestWith }),
+                    t("minutes", { n: g.minutes }),
+                    ...(g.prepare ? [t("prepare")] : []),
+                    ...(live ? [] : [t("soon")]),
+                  ];
+                  const corps = (
+                    <>
+                      <span
+                        aria-hidden
+                        style={{
+                          width: 40,
+                          height: 40,
+                          flex: "none",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          fontSize: 21,
+                          borderRadius: 11,
+                          border: `2.5px solid ${skin.ink}`,
+                          background: live ? g.skin.accent2 : "#fff",
+                        }}
+                      >
+                        {g.emoji}
+                      </span>
+                      <span style={{ minWidth: 0, flex: "1 1 auto" }}>
+                        <span
+                          style={{
+                            display: "block",
+                            fontFamily: skin.fontDisplay,
+                            fontWeight: 800,
+                            fontSize: 18.5,
+                            letterSpacing: "-0.02em",
+                            lineHeight: 1.15,
+                          }}
+                        >
+                          {t(`${g.slug}.name`)}
+                        </span>
+                        <span style={{ display: "block", fontSize: 13, color: skin.muted, lineHeight: 1.35, marginTop: 2 }}>
+                          {t(`${g.slug}.tagline`)}
+                        </span>
+                        <span style={{ display: "flex", gap: 5, flexWrap: "wrap", marginTop: 7 }}>
+                          {chips.map((chip) => (
+                            <span
+                              key={chip}
+                              style={{
+                                fontSize: 11,
+                                fontWeight: 800,
+                                padding: "2px 8px",
+                                borderRadius: 999,
+                                border: `2px solid ${skin.ink}22`,
+                                color: skin.muted,
+                              }}
+                            >
+                              {chip}
+                            </span>
+                          ))}
+                        </span>
+                      </span>
+                    </>
+                  );
+                  const boite = {
+                    display: "flex",
+                    alignItems: "flex-start",
+                    gap: 11,
+                    background: "#fff",
+                    border: `2.5px solid ${skin.ink}`,
+                    borderRadius: 14,
+                    padding: 12,
+                    flex: "1 1 272px",
+                    maxWidth: 430,
+                    boxSizing: "border-box",
+                    textDecoration: "none",
+                    color: skin.ink,
+                    boxShadow: `4px 4px 0 ${live ? g.skin.accent : `${skin.ink}55`}`,
+                    opacity: live ? 1 : 0.72,
+                  } as const;
+                  // Toute la vignette est le lien : avec une carte de cette
+                  // taille, un bouton « Jouer » séparé prendrait plus de place
+                  // que ce qu'il annonce.
+                  return live ? (
+                    <Link key={g.slug} href={g.route} className="dc-lift" style={boite}>
+                      {corps}
+                    </Link>
+                  ) : (
+                    <div key={g.slug} style={boite} aria-disabled="true">
+                      {corps}
+                    </div>
+                  );
+                })}
               </div>
-            );
-          })}
-        </div>
+            </section>
+          );
+        })}
 
         {/* La réciprocité, dans le sens jeux → Placet. Discrète : on est venu jouer. */}
         <div

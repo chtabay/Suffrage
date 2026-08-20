@@ -20,10 +20,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // Les jeux : deux pages d'entrée publiques. Les SALLES, elles, n'y sont
     // jamais — elles sont éphémères et portent `noindex`.
     "/games",
-    "/games/unanimo",
+    "/games/banalo",
     "/games/alibi",
     "/games/rodeurs",
     "/games/fantome",
+    "/games/pays",
     "/games/echecs",
     "/ai",
     "/slack",

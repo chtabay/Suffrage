@@ -157,7 +157,7 @@
       "s3Text": "Everyone votes, the winner is computed by the real method — and we explain why."
     },
     "gamesTitle": "Play together",
-    "gamesText": "The same engine is also good for fun: games for a group, a link to share, no account.",
+    "gamesText": "The same engine is also for fun: two daily games you play alone in two minutes, and party games around a table. No account.",
     "gamesCta": "See the games"
   },
   "Create": {
@@ -1658,10 +1658,29 @@
     "goSpaces": "My groups"
   },
   "Games": {
+    "prepare": "needs setting up",
+    "familles": {
+      "quotidien": {
+        "nom": "One a day",
+        "pitch": "A few minutes, on your own, and a new one tomorrow. Nothing to organise: it's the only shelf you can play right now."
+      },
+      "accord": {
+        "nom": "Getting in step",
+        "pitch": "You score by thinking like the others, without saying a word."
+      },
+      "strategie": {
+        "nom": "Play a move together",
+        "pitch": "Two teams around a table, one move to settle. You talk it over out loud, then everyone votes."
+      },
+      "enquete": {
+        "nom": "The investigations",
+        "pitch": "Someone is hiding something and the app is the only host. Nobody is eliminated, nobody closes their eyes."
+      }
+    },
     "metaTitle": "Play together — group games you share with a link",
-    "metaDescription": "Games to play together on your phones, no install and no account. Unanimo: write the words everyone else is thinking of.",
+    "metaDescription": "Games to play together on your phones, no install and no account. Banalo: write the words everyone else is thinking of.",
     "title": "Play together",
-    "subtitle": "Games where the group thinks, surprises itself and decides together. One link, one nickname, and you're playing.",
+    "subtitle": "Games where the group thinks, surprises itself and decides together. One link, one nickname, and you're playing — plus one game a day, on your own.",
     "joinTitle": "Got a code?",
     "joinPlaceholder": "ABC123",
     "joinCta": "Enter",
@@ -1670,39 +1689,64 @@
     "soon": "Soon",
     "players": "{n} players",
     "minutes": "{n} min",
-    "unanimo": {
-      "name": "Unanimo",
-      "tagline": "Think like the others",
-      "desc": "One theme, a few words. You score for every word another player wrote too. The fun is agreeing without saying a thing."
+    "solo": "solo",
+    "banalo": {
+      "name": "Banalo with friends",
+      "tagline": "Think like the others"
     },
+    "pontIntro": "This game scores you against the crowd. Placet is for deciding with it — here's a question open right now.",
+    "pontCta": "Have my say",
+    "jourNumero": "Day #{n}",
     "engineTitle": "Underneath these games, there's Placet.",
     "engineText": "The same engine is used to decide for real: pick a date, settle between options, share out places.",
     "engineCta": "Discover Placet",
     "alibi": {
       "name": "Alibi",
-      "tagline": "Find the room with one person too many",
-      "desc": "Each round, the house puts everyone in one of three rooms — except one person, who was prowling. Nobody is eliminated, nobody closes their eyes, and the app is the only host."
+      "tagline": "Find the room with one person too many"
     },
     "rodeurs": {
       "name": "Prowlers",
-      "tagline": "Cross paths — that's your alibi",
-      "desc": "The game that lasts the whole evening and lets it happen: you eat, you wander, and every validated meeting is an alibi. Three players prowl — the house must put them in the spotlight, without ever knocking anyone out."
+      "tagline": "Cross paths — that's your alibi"
     },
     "fantome": {
       "name": "The Night of the Ghost",
-      "tagline": "One of you haunts this manor",
-      "desc": "The event game: you set the house up, put old devices down in the rooms — they become portraits. Stand your watches, and unmask the Ghost before midnight. Nobody is eliminated."
+      "tagline": "One of you haunts this manor"
     },
     "echecs": {
       "name": "Collaborative chess",
-      "tagline": "Two teams, one move, one vote each",
-      "desc": "Each side is a group. Every turn everyone picks a move, and the one with the most votes is played — you find out what the group decided, never who voted for what. No player limit."
+      "tagline": "Two teams, one move, one vote each"
+    },
+    "installTexte": "One game a day is easier to keep up when it's on your home screen.",
+    "installCta": "Install the game",
+    "installIos": "On iPhone: tap <b>Share</b>, then <b>“Add to Home Screen”</b>.",
+    "banalo-jour": {
+      "name": "Daily Banalo",
+      "tagline": "One number to estimate, every day"
+    },
+    "pays": {
+      "name": "Five by Five",
+      "tagline": "One country a day, five secret characteristics"
     }
   },
-  "Unanimo": {
-    "metaTitle": "Unanimo — write the words everyone is thinking of",
+  "Banalo": {
+    "apercu": {
+      "titre": "What you see, round after round",
+      "l1": "You write your words; nobody sees them yet.",
+      "l2": "The reveal: what someone else had too.",
+      "l3": "The points, at the end of the round.",
+      "theme": "The sea",
+      "mot1": "sand",
+      "mot2": "wave",
+      "mot3": "seagull",
+      "avec": "also written by Chloé and Sam",
+      "scores": "The points",
+      "j1": "Chloé",
+      "j2": "Sam",
+      "j3": "Iris"
+    },
+    "metaTitle": "Banalo — write the words everyone is thinking of",
     "metaDescription": "One theme, a few words, and points for every word someone else wrote too. Play together on your phones, no account.",
-    "name": "Unanimo",
+    "name": "Banalo with friends",
     "back": "All games",
     "poweredBy": "Powered by Placet",
     "offline": "Connection lost — retrying",
@@ -1741,7 +1785,7 @@
       "copied": "Copied",
       "share": "Share",
       "whatsapp": "WhatsApp",
-      "text": "Fancy a game of Unanimo? Join us:"
+      "text": "Fancy a game of Banalo? Join us:"
     },
     "rank": {
       "title": "Standings"
@@ -1797,6 +1841,7 @@
       "sending": "Sending…",
       "duplicate": "“{word}” already counts for you",
       "isTheme": "The theme itself scores nothing",
+      "removed": "“{word}” removed.",
       "full": "{max} words is the most",
       "remove": "Remove {word}"
     },
@@ -1998,6 +2043,12 @@
     }
   },
   "Rodeurs": {
+    "apercu": {
+      "titre": "On your screen, all evening",
+      "l1": "Your code: someone types it to prove you crossed paths.",
+      "l2": "Your role, seen by you alone.",
+      "l3": "Your mission for the round."
+    },
     "metaTitle": "Prowlers — live your evening, the log runs the investigation",
     "metaDescription": "A party game on your phones, one to two hours. Every time someone taps in your code, you have proof you were together — and three of you are prowling. Nobody is ever knocked out, no account needed.",
     "name": "Prowlers",
@@ -2577,6 +2628,148 @@
       "you": "Your side wins.",
       "them": "The other side wins.",
       "stats": "{plies} moves played · {ballots} ballots cast"
+    }
+  },
+  "BanaloJour": {
+    "metaTitle": "Daily Banalo — one number to estimate each day",
+    "metaDescription": "Estimate a number you can't look up. The point isn't to be right: it's to land closest to the median answer of everyone else. One question a day, no account needed.",
+    "name": "Daily Banalo",
+    "back": "All games",
+    "poweredBy": "Powered by Placet",
+    "numero": "Day #{n}",
+    "question": "Today's question",
+    "consigne": "Answer with a whole number. The point isn't to be right — it's to land as close as you can to the median answer of all players.",
+    "chargement": "One moment…",
+    "saisieLabel": "Your estimate, {unite}",
+    "placeholder": "A number",
+    "relectureVide": "Type a whole number.",
+    "envoyer": "Send my answer",
+    "definitif": "One answer a day: it can't be changed afterwards.",
+    "deposeTitre": "Your answer",
+    "attente": "There are {n} of you so far. Your score appears as soon as the crowd is big enough for the median to mean anything.",
+    "chaleur": {
+      "brule": "You're burning",
+      "chaud": "Warm",
+      "tiede": "Lukewarm",
+      "froid": "Cold",
+      "glace": "Freezing"
+    },
+    "expliquer": "How the score is worked out",
+    "calculDetail": "You were off by ×{f}. The score is 100 − 100 × log₁₀({f}), which is {points}.",
+    "calculReperes": "For reference: ×1 → 100 · ×2 → 69.9 · ×5 → 30.1 · ×10 and beyond → 0.",
+    "themeTitre": "Today's theme",
+    "motsConsigne": "Write {n} words this theme brings to mind. The point isn't to be original: you score more when other players wrote the same ones.",
+    "motsCase": "Word {n}",
+    "motsIncomplet": "{n, plural, one {# box left empty} other {# boxes left empty}}.",
+    "motsGrille": "Your words",
+    "motsPart": "{p}%",
+    "motsRegle": "Each word is worth the share of players who wrote it. The theme's own word doesn't count, and two forms of the same word count once.",
+    "motsAttente": "There are {n} of you so far. Your score appears as soon as the crowd is big enough for the shares to mean anything.",
+    "demainMots": "New theme at {heure}.",
+    "qrAide": "Or show this code to someone",
+    "qrTitre": "Code to scan to open the game",
+    "qrFermer": "Close",
+    "compte": {
+      "titre": "Keep your results",
+      "texte": "Without an account your streak lives in this browser: it disappears if you change phone or clear your data. An account keeps it, and makes it outlast the thirty days answers are stored for.",
+      "google": "Continue with Google",
+      "emailPlaceholder": "your@email.com",
+      "envoyer": "Send me a link",
+      "envoye": "Done — open the link we just sent you.",
+      "erreur": "That didn't send. Try again in a moment.",
+      "bilanTitre": "Your results",
+      "parties": "Days",
+      "moyenne": "Average score",
+      "meilleur": "Best score",
+      "serieLabel": "Streak",
+      "serie": "{n} days in a row",
+      "placet": "The same account runs real votes on Placet:",
+      "placetLien": "see what it's for"
+    },
+    "compareTitre": "Against your friend",
+    "compareMoi": "You",
+    "compareAmi": "Your friend",
+    "comparePassee": "Your friend's link is for a day that has already closed — here is today's.",
+    "scoreTitre": "Your score",
+    "points": "{n} <petit>out of 100</petit>",
+    "partMieux": "{n}% of players did better.",
+    "rang": "Rank {rang} of {votants} players",
+    "exAequo": "{n, plural, one {tied with # other} other {tied with # others}}",
+    "mienne": "Your answer",
+    "mediane": "The median answer",
+    "medianeScellee": "The median answer stays hidden until the day closes: shown now, anyone could simply copy it and score full marks.",
+    "bareme": "A hundred points, minus a hundred per factor of ten off.",
+    "ecart": "How far off",
+    "facteur": "×{f}",
+    "votants": "Answers",
+    "pasDeVerite": "The game isn't looking for the truth: the reference is the most common answer, not the right one. A crowd can be wrong together — and the game still rewards whoever followed it.",
+    "partager": "Share my result",
+    "copie": "Copied!",
+    "partageTitre": "Daily Banalo #{n} — {points}/100",
+    "panne": "We couldn't reach the count. Reload the page to see where your answer stands.",
+    "demain": "New question at {heure}."
+  },
+  "Pays": {
+    "pictosAide": "Each box now tells you what its criterion is about. The last one keeps its secret.",
+    "catMystere": "yours to find",
+    "casesAide": "The five boxes are the day's characteristics, from the most common to the rarest. Two guesses filling the same box share it.",
+    "casesLues": "{n, plural, =0 {no characteristic shared} one {1 characteristic shared} other {# characteristics shared}}",
+    "serieTitre": "{n} days in a row",
+    "compte": {
+      "jourTitre": "Your round",
+      "essaisJour": "Guesses",
+      "medianeJour": "Median today",
+      "serie": "{n} days in a row",
+      "titre": "Keep your results",
+      "texte": "Without an account, your streak lives in this browser: it disappears if you switch phones or clear your data. An account keeps it, and shows you where you stand each day.",
+      "google": "Continue with Google",
+      "emailPlaceholder": "you@email.com",
+      "envoyer": "Send me a link",
+      "envoye": "On its way — open the link we've just sent you.",
+      "erreur": "That didn't go through. Try again in a moment.",
+      "bilanTitre": "Your results",
+      "parties": "Found",
+      "moyenne": "Average guesses",
+      "meilleur": "Best game",
+      "serieLabel": "Streak",
+      "rang": "{rang}th of {joueurs} players today.",
+      "rangSeul": "You're the first to find it today.",
+      "placet": "The same account runs real votes on Placet:",
+      "placetLien": "see what it's for"
+    },
+    "metaTitle": "Five by Five — the daily geography game",
+    "metaDescription": "Find the country of the day on the world map. Each guess tells you how many characteristics it shares with it. A new country every day, no account needed.",
+    "name": "Five by Five",
+    "back": "All games",
+    "poweredBy": "Powered by Placet",
+    "numero": "Day #{n}",
+    "titre": "Find the country of the day",
+    "consigne": "Each guess tells you how many characteristics it shares with it. Tap a country on the map, or search for its name.",
+    "recherche": "Search for a country…",
+    "compareTitre": "Against your friend",
+    "compareMoi": "You",
+    "compareAmi": "Your friend",
+    "comparePassee": "Your friend's link is for a day that has already closed — here is today's.",
+    "carteEtiquette": "World map. Tap a country to try it; countries already tried carry their score in colour.",
+    "dejaCourt": "already tried",
+    "deja": "already tried — it does not count twice",
+    "erreur": "The score did not come back. Try again in a moment.",
+    "historique": "{n, plural, one {# guess} other {# guesses}}",
+    "partageTitre": "{jeu} #{n} — found in {essais, plural, one {# guess} other {# guesses}}",
+    "victoire": {
+      "qrAide": "Or show this code to someone",
+      "qrTitre": "Scan this code to open the game",
+      "qrFermer": "Close",
+      "titre": "is the country of the day",
+      "essais": "Found in {n, plural, one {# guess} other {# guesses}}.",
+      "criteres": "Today's five criteria",
+      "voirCarte": "Understand the map",
+      "cacherCarte": "Back to my guesses",
+      "legende": "Every country's score",
+      "partager": "Share my result",
+      "copie": "Copied!",
+      "demain": "A new country tomorrow.",
+      "source": "Source:"
     }
   }
 }
