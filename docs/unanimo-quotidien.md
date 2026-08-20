@@ -256,9 +256,85 @@ curiosités au lieu d'une, et surtout **la réponse qui surprend** — celle cho
 plus souvent que les joueurs ne l'avaient prédit. C'est souvent plus intéressant
 que la majorité, et c'est une révélation quotidienne gratuite.
 
+### La charnière : 12 h 30, heure de Paris
+
+**Pourquoi cette heure** : suivre Pédantix à la pause déjeuner, et faire arriver
+le résultat de la veille à une heure d'éveil. La boucle tombe alors juste — la
+question ouvre à 12 h 30 et se ferme à 12 h 30 le lendemain, donc le résultat
+clos de la veille est prêt exactement quand la nouvelle question s'ouvre.
+
+**La journée n'est plus une journée civile.** `dateCivile` et `numeroDeJournee`
+de Cinq sur cinq découpent à minuit ; ici il faut retrancher 12 h 30 à l'instant
+avant d'en prendre la date. La fonction est courte, mais elle ne se réutilise pas
+telle quelle — et tout ce qui dépend du numéro en dépend aussi : la clé de
+stockage local, la colonne `jour`, la série.
+
+⚠️ **NE JAMAIS AFFICHER UNE DATE CIVILE À CÔTÉ DU NUMÉRO DE JOURNÉE.** À 12 h 00
+et à 13 h 00 le même mardi, on est sur deux journées de jeu différentes. « Vous
+avez joué aujourd'hui et hier » un même mardi est exact et illisible. On dit la
+fenêtre, pas la date : « jusqu'à 12 h 30 demain ».
+
+⚠️ **« 12 h 30 à Paris » NE S'ÉCRIT PAS DANS UN CRON.** `pg_cron` planifie en
+UTC : `30 12 * * *` vaut 13 h 30 ou 14 h 30 à Paris selon la saison, et le
+basculement passe donc d'avant à après le déjeuner deux fois par an. Le motif
+déjà en place dans le dépôt est le bon — `scrutin-game-purge` tourne toutes les
+heures et laisse le SQL trancher. **Planifier souvent, décider dans la fonction.**
+
+**Le fuseau est un choix, pas une évidence.** 12 h 30 à Paris, c'est 6 h 30 à
+New York et 20 h 30 à Tokyo. Ça marche pour l'Europe et pour `pcm` (Lagos est à
+une heure près), pas pour les Amériques. Minuit, chez Cinq sur cinq, est neutre :
+personne n'attend que minuit-Paris soit sa pause déjeuner. 12 h 30 optimise
+explicitement un fuseau — défendable pour un produit d'abord français, mais à
+décider plutôt qu'à subir.
+
 ---
 
-## 8. Les garde-fous
+## 8. Le rang : tout de suite, puis définitif
+
+À la validation : **« vous êtes 38e des votants, ex aequo avec 8 personnes »**.
+Le lendemain, le rang définitif.
+
+**Ça ne fuite rien, et c'est vérifiable.** Le rang se déduit du score, le score
+de l'écart à la foule — mais il ne nomme aucune réponse, ni celles du joueur ni
+celles des autres. Même propriété que le rang de Cinq sur cinq : une position et
+un effectif, rien qui désigne quiconque.
+
+**Le compte d'ex aequo n'est pas une décoration.** « Ex aequo avec 8 personnes »
+dit qu'on est dans une grappe, donc qu'on a répondu comme un groupe. C'est
+exactement l'information émotionnelle du jeu — *suis-je typique ?* — livrée sans
+montrer une seule réponse.
+
+**Le rang est olympique**, comme `scrutin_game_pays_rank`, et pour la raison qui
+y est écrite : à égalité de score, même rang, sinon deux joueurs identiques sont
+départagés par l'ordre d'arrivée et c'est le fuseau horaire qu'on récompense.
+Réutilisable tel quel.
+
+### ⚠️ Le piège : le rang provisoire va MÉCANIQUEMENT empirer
+
+À 12 h 45 on est 38e sur 210. Le lendemain on est 412e sur 2 300 — sans avoir
+rien fait de mal, simplement parce que d'autres sont passés. Un joueur qui a vu
+« 38e » et découvre « 412e » se croira floué, et il aura l'air d'avoir raison.
+
+Le correctif tient dans l'unité affichée : **le rang avec son effectif ET son
+centile.**
+
+```
+à la validation     38e sur 210 votants     ·  dans les 18 % du haut
+le lendemain       412e sur 2 300 votants   ·  dans les 18 % du haut
+```
+
+Le centile, lui, ne bouge pas — et c'est lui qui porte le sens. Le rang brut
+seul serait une promesse qu'on reprend le lendemain.
+
+⚠️ **Et un plancher, comme pour les pourcentages.** « 3e sur 7 » à 12 h 31 n'est
+pas un rang, c'est du bruit — et il n'y a pas encore d'ex aequo à compter. En
+dessous du seuil, ne pas afficher de rang : dire que le dépouillement commence.
+C'est la règle du §9 appliquée ici — **ce qu'on affiche suit le nombre de
+votants.**
+
+---
+
+## 9. Les garde-fous
 
 ### Le seuil d'audience — et il commande la formulation
 
@@ -308,7 +384,7 @@ une élection en cours.**
 
 ---
 
-## 9. Ce qui est réutilisable tel quel
+## 10. Ce qui est réutilisable tel quel
 
 - `normalizeWord` / `scrutin_game_norm` — normalisation éprouvée, et son test qui
   crie si les deux divergent ;
@@ -320,7 +396,7 @@ une élection en cours.**
 
 ---
 
-## 10. Ordre de travail proposé
+## 11. Ordre de travail proposé
 
 1. **La question chiffrée (type C).** Pas d'alias, pas de table d'entités, pas de
    politique, barème déjà mesuré, contenu inépuisable — et elle exerce toute la
@@ -330,9 +406,15 @@ une élection en cours.**
    publication tranché.
 4. **L'agrégat anonyme (§3)** dès qu'on veut un score absolu et instantané.
 
+Deux choses à poser dès la première ligne plutôt qu'après coup, parce qu'elles
+traversent tout : **le découpage à 12 h 30** (§7), qui touche le numéro de
+journée, la clé de stockage et la série ; et **le rang en centile** (§8), qui
+n'est pas un habillage du rang brut mais ce qui l'empêche de se démentir le
+lendemain.
+
 ---
 
-## 11. Ce qui n'est pas vérifié
+## 12. Ce qui n'est pas vérifié
 
 - Les tableaux des §2, §4C et §5 sont des **modèles** à vocabulaire artificiel.
   Ils montrent des ruptures, pas des valeurs. Les bornes 1 / 3 / 10 / 30 % sont
