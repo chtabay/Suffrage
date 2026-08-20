@@ -109,6 +109,32 @@ marquer 10 tous les jours. Le `on conflict do nothing` n'est donc pas une
 commodité — c'est ce qui rend la médiane sûre à rendre. Et c'est aussi pourquoi
 ce mode a un jeton anonyme stable, là où Cinq sur cinq s'en passe fièrement.
 
+**La MÉDIANE DU JOUR NE SORT PAS tant que la journée est ouverte**, et la
+parade était à moitié faite avant ça. `on conflict do nothing` fermait le
+re-dépôt sous le MÊME jeton — mais la médiane restait affichée, donc un joueur la
+publiait dans une conversation et tout le monde marquait 100, pour le prix d'une
+réponse jetable. `scrutin_banalo_etat` scelle donc `mediane` ET `facteur`
+(médiane = ma réponse × facteur) jusqu'à la charnière suivante.
+
+⚠️ **Ce qui reste déductible est assumé** : le score est une fonction du rapport,
+donc `10^((100 − score)/100)` rend le facteur et deux candidats pour la médiane
+(mesuré : 92,1 sur une réponse de 1 000 000 donne 1 199 499 ou 833 681, la vraie
+étant 1 200 000). Le fermer exigerait de cacher le score, c'est-à-dire la
+récompense immédiate. La différence de nature justifie le choix : la médiane est
+un secret **diffusable** — un joueur la publie, mille en profitent — là où
+l'inversion du score est un effort **par tricheur**, avec une réponse à brûler et
+un jeton neuf à chaque fois.
+
+⚠️ **L'origine du calendrier est donc DUPLIQUÉE en SQL** (`jour.ts` et
+`20260820-banalo-mediane-scellee.sql`) : la base doit savoir si une journée est
+close, et laisser le client le déclarer offrirait la médiane à qui ment. Les deux
+valeurs bougent ensemble.
+
+⚠️ **Et le format « mots » a le MÊME trou, non refermé** : `grille` rend la part
+de chaque mot, donc les mots les plus donnés — qu'il suffit de recopier. Le
+fermer coûterait beaucoup plus cher, puisque cette grille EST la récompense du
+format.
+
 **Le score de Banalo du jour est CONTINU, et il l'est pour une raison mesurée.**
 `100 − 100·log₁₀(facteur)`, borné à [0 ; 100], **arrondi au dixième**. La première
 version notait par cinq paliers : sur n'importe quelle taille de foule, **100 %

@@ -14,11 +14,21 @@
 //    sans jamais concurrencer l'action principale. C'est la réciprocité demandée
 //    — Placet fait découvrir les jeux, chaque jeu peut faire découvrir Placet.
 //
+//    ⚠️ AVEC UNE EXCEPTION : LE CHOIX DE LA LANGUE. Supprimer la nav de Placet
+//    l'emportait avec elle, et sur les jeux quotidiens la langue ne décide pas
+//    que de l'habillage — elle décide de LA QUESTION (le français demande la
+//    France, le pidgin le Nigeria) et de la FOULE contre laquelle on est noté,
+//    les classements étant séparés par langue. Quelqu'un qui ouvre un lien de
+//    partage dans une langue qu'il ne lit pas n'avait aucun moyen d'en changer.
+//    Ce n'est donc pas une sortie de plus en concurrence avec le jeu, c'est la
+//    condition pour pouvoir y jouer.
+//
 // 3. LE FOND DU JEU RECOUVRE CELUI DE PLACET. `globals.css` peint le corps en
 //    crème pointillée ; une page de jeu doit pouvoir être ailleurs, donc on pose
 //    un calque plein écran à la couleur du skin.
 import type { CSSProperties, ReactNode } from "react";
 import { Link } from "@/i18n/navigation";
+import LocaleSwitch from "@/components/LocaleSwitch";
 import PlacetMark from "@/components/scrutin/PlacetMark";
 import type { GameSkin } from "@/lib/games/skin";
 
@@ -85,7 +95,12 @@ export default function GameShell({
             </span>
             {title}
           </Link>
-          {aside}
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            {aside}
+            <LocaleSwitch
+              skin={{ ink: skin.ink, paper: skin.paper, accent: skin.accent2, border: skin.border, radius: skin.radius - 4 }}
+            />
+          </div>
         </header>
 
         <main style={{ marginTop: 16 }}>{children}</main>

@@ -2566,6 +2566,7 @@
     "exAequo": "{n, plural, one {you tie with # other person} other {you tie with # other people}}",
     "mienne": "Your answer",
     "mediane": "Di median answer",
+    "medianeScellee": "Di median answer go hide until di day close: if e show now, person fit just copy am and score di highest.",
     "bareme": "Hundred points, minus hundred for every factor of ten wey you miss.",
     "ecart": "How far you dey",
     "facteur": "×{f}",

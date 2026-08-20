@@ -418,11 +418,15 @@ export default function NombreDuJour({ jour }: { jour: number }) {
                 libelle={t("mienne")}
                 valeur={`${jeu.mienne !== null ? chiffre(jeu.mienne) : "—"} ${unite}`}
               />
-              <Ligne
-                libelle={t("mediane")}
-                valeur={`${jeu.mediane !== null ? chiffre(jeu.mediane) : "—"} ${unite}`}
-                fort
-              />
+              {/* ⚠️ SCELLÉE TANT QUE LA JOURNÉE EST OUVERTE, et la base ne la
+                  renvoie même pas — voir `20260820-banalo-mediane-scellee.sql`.
+                  La médiane EST la réponse : affichée, elle se recopie dans une
+                  conversation de groupe et tout le monde marque 100. On ne
+                  laisse pas non plus un « — » : une case vide invite à demander
+                  pourquoi, la phrase de clôture l'explique. */}
+              {jeu.mediane !== null ? (
+                <Ligne libelle={t("mediane")} valeur={`${chiffre(jeu.mediane)} ${unite}`} fort />
+              ) : null}
               {jeu.facteur !== null ? (
                 <Ligne
                   libelle={t("ecart")}
@@ -431,6 +435,14 @@ export default function NombreDuJour({ jour }: { jour: number }) {
               ) : null}
               <Ligne libelle={t("votants")} valeur={chiffre(jeu.votants)} />
             </div>
+            {/* ⚠️ ON DIT POURQUOI ELLE MANQUE. Une ligne qui disparaît sans un
+                mot se lit comme une panne — et le joueur cherche l'information
+                ailleurs, c'est-à-dire chez quelqu'un qui l'a. */}
+            {jeu.mediane === null ? (
+              <p style={{ margin: "14px 0 0", fontSize: 12.5, color: skin.muted, lineHeight: 1.45 }}>
+                {t("medianeScellee")}
+              </p>
+            ) : null}
             {/* La phrase qui empêche le malentendu. Elle n'est pas décorative :
                 sans elle, la « médiane » se lit comme « la bonne réponse ». */}
             <p style={{ margin: "14px 0 0", fontSize: 12.5, color: skin.muted, lineHeight: 1.45 }}>
@@ -446,7 +458,12 @@ export default function NombreDuJour({ jour }: { jour: number }) {
               // La FORME du format chiffré : le bloc de chaleur, le mot, et
               // l'écart. Jamais la réponse ni la médiane — les deux se
               // recopient, et ce jeu note par rapport à la foule.
-              forme={`${blocDe(jeu.points)} ${CHALEUR[motDe(jeu.points)]} · ${t("facteur", { f: ecart(jeu.facteur ?? 1) })}`}
+              // ⚠️ PAS DE `?? 1` ICI. L'écart est scellé tant que la journée
+              // est ouverte ; le repli affichait « ×1,00 », c'est-à-dire un
+              // résultat parfait, à des joueurs qui n'en avaient pas.
+              forme={[blocDe(jeu.points), CHALEUR[motDe(jeu.points)]]
+                .concat(jeu.facteur !== null ? [t("facteur", { f: ecart(jeu.facteur) })] : [])
+                .join(" · ")}
               partMieux={jeu.partMieux}
             />
             {defi && jeu.points !== null ? (

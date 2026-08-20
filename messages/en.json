@@ -2566,6 +2566,7 @@
     "exAequo": "{n, plural, one {tied with # other} other {tied with # others}}",
     "mienne": "Your answer",
     "mediane": "The median answer",
+    "medianeScellee": "The median answer stays hidden until the day closes: shown now, anyone could simply copy it and score full marks.",
     "bareme": "A hundred points, minus a hundred per factor of ten off.",
     "ecart": "How far off",
     "facteur": "×{f}",

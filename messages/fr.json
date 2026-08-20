@@ -2566,6 +2566,7 @@
     "exAequo": "{n, plural, one {à égalité avec # autre} other {à égalité avec # autres}}",
     "mienne": "Votre réponse",
     "mediane": "La réponse médiane",
+    "medianeScellee": "La réponse médiane reste cachée jusqu'à la clôture : affichée maintenant, il suffirait de la recopier pour marquer le maximum.",
     "bareme": "Cent points, moins cent par facteur dix d'écart.",
     "ecart": "Votre écart",
     "facteur": "×{f}",

@@ -46,7 +46,28 @@ function Globe() {
   );
 }
 
-export default function LocaleSwitch() {
+/**
+ * ⚠️ LA PEAU EST FACULTATIVE, ET C'EST POUR LES JEUX. Posé tel quel dans
+ * l'en-tête d'un jeu, ce bouton arrivait en crème-et-navy sur un fond menthe :
+ * le défaut même que le système de peaux existe pour éviter (« tout composant
+ * bâti sur `scrutin/theme` est, par construction, aux couleurs de Placet — c'est
+ * exactement ce que le jeu ne doit pas être »). Sans peau, il reste celui de
+ * Placet et rien ne bouge sur le reste du site.
+ */
+export interface LocaleSwitchSkin {
+  ink: string;
+  paper: string;
+  accent: string;
+  border: number;
+  radius: number;
+}
+
+export default function LocaleSwitch({ skin }: { skin?: LocaleSwitchSkin }) {
+  const encre = skin?.ink ?? INK;
+  const fond = skin?.paper ?? CREAM;
+  const relief = skin?.accent ?? YELLOW;
+  const trait = skin?.border ?? 2;
+  const rayon = skin?.radius ?? 10;
   const locale = useLocale();
   const pathname = usePathname();
   const router = useRouter();
@@ -73,10 +94,10 @@ export default function LocaleSwitch() {
           fontWeight: 700,
           fontSize: 12.5,
           cursor: "pointer",
-          border: `2px solid ${INK}`,
-          borderRadius: 10,
-          background: open ? INK : CREAM,
-          color: open ? "#fff" : INK,
+          border: `${trait}px solid ${encre}`,
+          borderRadius: rayon,
+          background: open ? encre : fond,
+          color: open ? "#fff" : encre,
           // ⚠️ MÊME HAUTEUR QUE « CRÉER », son voisin immédiat dans la barre.
           // Trois contrôles de trois hauteurs différentes se lisaient comme
           // trois objets sans rapport ; à hauteur égale ils forment une rangée.
@@ -85,7 +106,7 @@ export default function LocaleSwitch() {
           display: "inline-flex",
           alignItems: "center",
           gap: 6,
-          ...lift(`3px 3px 0 ${YELLOW}`, `4px 4px 0 ${YELLOW}`),
+          ...lift(`3px 3px 0 ${relief}`, `4px 4px 0 ${relief}`),
         }}
       >
         <Globe />
@@ -101,9 +122,9 @@ export default function LocaleSwitch() {
             zIndex: 200,
             minWidth: 110,
             background: "#fff",
-            border: `2px solid ${INK}`,
-            borderRadius: 10,
-            boxShadow: `3px 3px 0 ${INK}`,
+            border: `${trait}px solid ${encre}`,
+            borderRadius: rayon,
+            boxShadow: `3px 3px 0 ${encre}`,
             overflow: "hidden",
           }}
         >
@@ -126,8 +147,8 @@ export default function LocaleSwitch() {
                   fontSize: 13,
                   cursor: "pointer",
                   border: "none",
-                  background: active ? INK : "#fff",
-                  color: active ? "#fff" : INK,
+                  background: active ? encre : "#fff",
+                  color: active ? "#fff" : encre,
                   padding: "9px 14px",
                 }}
               >
