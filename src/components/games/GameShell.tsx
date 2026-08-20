@@ -51,7 +51,19 @@ export default function GameShell({
     justifyContent: "space-between",
   };
   return (
-    <div style={{ background: skin.bg, minHeight: "100dvh", color: skin.ink, fontFamily: skin.fontBody }}>
+    <div
+      style={{
+        background: skin.bg,
+        // ⚠️ LE MOTIF SE POSE PAR-DESSUS L'APLAT, jamais à la place. Un
+        // `background` unique écraserait la couleur de fond et laisserait le
+        // blanc du navigateur transparaître entre les tuiles.
+        backgroundImage: skin.sol?.image,
+        backgroundSize: skin.sol?.taille,
+        minHeight: "100dvh",
+        color: skin.ink,
+        fontFamily: skin.fontBody,
+      }}
+    >
       <div className="pad" style={{ maxWidth, margin: "0 auto", padding: "14px 18px 34px" }}>
         <header style={head}>
           <Link

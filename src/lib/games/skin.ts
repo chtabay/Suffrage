@@ -25,6 +25,32 @@ export interface GameSkin {
   good: string;
   /** Texte adouci (jamais sous 4,5:1 sur `paper` ni sur `bg`). */
   muted: string;
+  /**
+   * Le SOL du jeu : un motif répété, posé sous tout l'écran.
+   *
+   * ⚠️ C'EST LE POINT DE PLACET, SPÉCIALISÉ — et c'est ce qui tient la famille.
+   * `globals.css` peint le corps en crème pointillée (`radial-gradient`, un point
+   * tous les 22 px) : c'est une signature de la maison. La décliner par jeu donne
+   * une identité immédiate en gardant la parenté ÉVIDENTE, parce que le
+   * dispositif est le même — seul le motif change. C'est structurel, pas
+   * chromatique, et une teinte de plus n'aurait pas suffi : mesuré, sur six
+   * skins, `border` valait 2,5 partout et les polices étaient identiques. La
+   * couleur était le seul axe qui variait, et c'est le plus faible.
+   *
+   * ⚠️ ET LE MOTIF DOIT VOULOIR DIRE QUELQUE CHOSE, sinon il a l'air « fait par
+   * ordinateur ». Un graticule est une carte, une foule de points est une foule :
+   * régulier ou non, on le lit comme voulu par quelqu'un. Un anneau décoratif
+   * répété, non — sa perfection se remarque. Et ajouter du hasard n'y change
+   * rien : une irrégularité humaine a une intention, du jitter se lit comme du
+   * jitter.
+   *
+   * ⚠️ DEUX CHAMPS, PAS UN. `backgroundImage` n'accepte que l'image ; y glisser
+   * la syntaxe de raccourci `url(…) 0 0 / 54px` la rend invalide et le motif
+   * disparaît en silence. La taille voyage donc à part.
+   *
+   * Vide = le fond uni du jeu.
+   */
+  sol?: { image: string; taille: string };
   /** L'identité néo-brutaliste est RÉGLABLE, pas figée. */
   border: number;
   radius: number;
@@ -49,6 +75,10 @@ export const UNANIMO_SKIN: GameSkin = {
   accent2: "#FFC93C",
   good: "#0E7C5A",
   muted: "#5C5470",
+  // LA FOULE : des points de tailles inégales, placés à la main sur une tuile de
+  // 54 px. Neuf positions choisies, pas un semis aléatoire — c'est ce qui fait
+  // qu'on la lit comme voulue. Et c'est le jeu : répondre comme la foule.
+  sol: { image: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='54' height='54'%3E%3Cg fill='%23c2e5d3'%3E%3Ccircle cx='7' cy='11' r='2.1'/%3E%3Ccircle cx='23' cy='5' r='1.3'/%3E%3Ccircle cx='40' cy='14' r='2.4'/%3E%3Ccircle cx='13' cy='28' r='1.5'/%3E%3Ccircle cx='31' cy='24' r='2.2'/%3E%3Ccircle cx='48' cy='33' r='1.4'/%3E%3Ccircle cx='5' cy='43' r='2.3'/%3E%3Ccircle cx='24' cy='45' r='1.6'/%3E%3Ccircle cx='40' cy='49' r='2'/%3E%3C/g%3E%3C/svg%3E")`, taille: "54px 54px" },
   border: 2.5,
   radius: 16,
   fontDisplay: FONT_DISPLAY,
@@ -154,6 +184,10 @@ export const PAYS_SKIN: GameSkin = {
   accent2: "#F2C14E",
   good: "#17724B",
   muted: "#55636E",
+  // LE GRATICULE : les méridiens d'une carte. La régularité est NATIVE au motif
+  // — personne ne trouve du papier millimétré « fait par ordinateur ». Un point
+  // aux croisements a été essayé : trop chargé.
+  sol: { image: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='26' height='26'%3E%3Cpath d='M0 .5h26M.5 0v26' stroke='%23c3d8dd' stroke-width='1' fill='none'/%3E%3C/svg%3E")`, taille: "26px 26px" },
   border: 2.5,
   radius: 14,
   fontDisplay: FONT_DISPLAY,
