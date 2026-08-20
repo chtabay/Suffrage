@@ -1692,6 +1692,11 @@
       "name": "La Noche del Fantasma",
       "tagline": "Uno de vosotros ronda esta mansión",
       "desc": "El juego-acontecimiento: se prepara la casa, se dejan aparatos viejos en las habitaciones — se convierten en retratos. Haced vuestras rondas y desenmascarad al Fantasma antes de medianoche. Nadie queda eliminado."
+    },
+    "echecs": {
+      "name": "Ajedrez colaborativo",
+      "tagline": "Dos bandos, una jugada, un voto cada uno",
+      "desc": "Cada bando es un grupo. En cada turno todos eligen su jugada y se juega la más votada: descubres lo que ha decidido el grupo, nunca quién ha votado qué. Sin límite de jugadores."
     }
   },
   "Unanimo": {
@@ -2449,6 +2454,129 @@
       "ranking": "Clasificación",
       "replay": "Volver a jugar",
       "joinNew": "La nueva partida está abierta"
+    }
+  },
+  "Echecs": {
+    "metaTitle": "Ajedrez colaborativo — dos equipos, una jugada, un voto cada uno",
+    "metaDescription": "Una partida de ajedrez en la que cada bando es un grupo: se delibera, se vota y se juega la jugada mayoritaria. Sin cuenta, sin límite de jugadores, desde el móvil.",
+    "name": "Ajedrez colaborativo",
+    "tagline": "Dos equipos. Una jugada. Un voto cada uno.",
+    "pitch": "Cada bando es un grupo. En cada turno, todo el mundo elige su jugada, y se juega la que reúne más votos. Después descubres lo que ha decidido el grupo — nunca quién ha votado qué.",
+    "back": "Todos los juegos",
+    "poweredBy": "Impulsado por Placet",
+    "create": {
+      "title": "Abrir una partida",
+      "nameLabel": "Tu nombre",
+      "namePlaceholder": "Tu nombre",
+      "cta": "Abrir una partida",
+      "opening": "Abriendo…",
+      "hint": "Sin cuenta, sin instalar nada. Compartes el código y cada uno elige su bando al llegar.",
+      "error": "No ha funcionado. Inténtalo de nuevo.",
+      "badCode": "No hay ninguna partida con ese código.",
+      "started": "Esta partida ya ha empezado."
+    },
+    "join": {
+      "title": "Unirse a una partida",
+      "codeLabel": "El código de la partida",
+      "codePlaceholder": "ABC123",
+      "cta": "Entrar",
+      "entering": "Entrando…"
+    },
+    "how": {
+      "title": "Cómo funciona",
+      "one": "Cada uno se une al bando que quiere, las blancas o las negras. Sin límite: tanto si sois seis como si sois seiscientos.",
+      "two": "Cuando le toca jugar a vuestro bando, cada uno elige su jugada en el tablero. Nadie ve la de los demás.",
+      "three": "Alguien del equipo dice «ya estamos listos»: se juega la jugada con más votos. Nunca se espera a todo el mundo.",
+      "four": "En caso de empate, una segunda vuelta desempata solo entre las jugadas empatadas. Si el empate sigue, decide el azar."
+    },
+    "seat": {
+      "title": "Ocupa tu sitio",
+      "hint": "Llegas por un enlace. Di tu nombre para sentarte a esta mesa.",
+      "cta": "Entrar en la partida"
+    },
+    "room": {
+      "loading": "Un momento…",
+      "missing": "Esta partida ya no existe. Quizá el código esté mal copiado, o la partida se haya borrado.",
+      "offline": "Conexión perdida — reintentando"
+    },
+    "lobby": {
+      "code": "El código de la partida",
+      "share": "Compártelo con quien quieras: cada uno elige su bando al llegar.",
+      "pick": "Elige tu bando",
+      "count": "{n, plural, =0 {nadie} one {# persona} other {# personas}}",
+      "switch": "Puedes cambiar de bando mientras la partida no haya empezado.",
+      "start": "Abrir la partida",
+      "waiting": "Hace falta al menos una persona en cada bando",
+      "needTeams": "Los dos bandos tienen que estar ocupados para empezar.",
+      "mine": "tu bando"
+    },
+    "camp": {
+      "blancs": "Las blancas",
+      "noirs": "Las negras",
+      "blanc": "blanco",
+      "noir": "negro"
+    },
+    "piece": {
+      "roi": "rey",
+      "dame": "dama",
+      "tour": "torre",
+      "fou": "alfil",
+      "cavalier": "caballo",
+      "pion": "peón",
+      "vide": "casilla vacía"
+    },
+    "promotion": {
+      "title": "¿En qué pieza corona el peón?"
+    },
+    "turn": {
+      "yours": "Le toca jugar a vuestro bando",
+      "white": "Juegan las blancas",
+      "black": "Juegan las negras",
+      "ballots": "{n, plural, =0 {Ninguna papeleta} one {# papeleta} other {# papeletas}} de {of}"
+    },
+    "ballot": {
+      "title": "Tu papeleta",
+      "empty": "Elige una pieza en el tablero y luego la casilla a la que la envías.",
+      "approved": "{n, plural, one {# jugada aprobada} other {# jugadas aprobadas}}",
+      "change": "Puedes cambiar de opinión mientras el turno siga abierto.",
+      "close": "Ya estamos listos",
+      "closeHint": "La jugada mayoritaria se juega enseguida. No se esperan las papeletas que faltan — es la regla, no un atajo.",
+      "needOne": "Hace falta al menos una papeleta para cerrar el turno: en ajedrez no se pasa turno."
+    },
+    "wait": {
+      "title": "El otro bando delibera",
+      "white": "{n, plural, =0 {Las blancas están pensando} one {# persona en el bando blanco} other {# personas en el bando blanco}}",
+      "black": "{n, plural, =0 {Las negras están pensando} one {# persona en el bando negro} other {# personas en el bando negro}}",
+      "ballots": "{n, plural, =0 {Todavía no se ha depositado ninguna papeleta} one {# papeleta depositada} other {# papeletas depositadas}}",
+      "valve": "Si se dispersan, el turno se cierra solo dentro de poco."
+    },
+    "watch": {
+      "title": "Estás mirando",
+      "hint": "No estás en ningún bando. Elige uno: podrás votar desde el próximo turno de ese bando."
+    },
+    "runoff": {
+      "title": "Empate — segunda vuelta",
+      "hint": "Marca todas las jugadas que te valgan, no solo tu preferida. Es lo que desempata.",
+      "watching": "El otro bando desempata entre estas jugadas."
+    },
+    "tally": {
+      "byWhite": "Las blancas han jugado",
+      "byBlack": "Las negras han jugado",
+      "share": "{pct} % — {n} de {of}",
+      "more": "{n, plural, one {y # jugada más} other {y # jugadas más}}",
+      "pending": "la jugada está en curso",
+      "silent": "Nadie ha votado: el azar ha elegido la jugada.",
+      "drawn": "Sigue el empate después de la segunda vuelta — ha decidido el azar.",
+      "approval": "Segunda vuelta por aprobación: cada uno podía marcar varias jugadas."
+    },
+    "end": {
+      "whiteWins": "Jaque mate — ganan las blancas",
+      "blackWins": "Jaque mate — ganan las negras",
+      "stalemate": "Rey ahogado — tablas",
+      "draw": "Tablas",
+      "you": "Gana vuestro bando.",
+      "them": "Gana el otro bando.",
+      "stats": "{plies} jugadas realizadas · {ballots} papeletas depositadas"
     }
   }
 }

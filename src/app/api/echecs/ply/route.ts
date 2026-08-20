@@ -138,8 +138,14 @@ export async function POST(req: Request) {
 
   const over = outcomeOf(game);
   if (over) {
+    // ⚠️ ON TRANSMET LE `san`, et c'est le seul endroit où on le peut : la
+    // notation algébrique demande les règles du jeu, que seule cette route
+    // connaît. Sans elle, l'écran final n'avait que l'UCI (`d8h4`) — or « Dh4# »,
+    // avec son dièse, est précisément le moment où la notation raconte quelque
+    // chose.
     const r = await supabase.rpc("echecs_finish", {
       p_secret: SECRET, p_code: code, p_outcome: over.outcome, p_winner: over.winner,
+      p_san: san,
     });
     if (r.error) return NextResponse.json({ status: "error" }, { status: 500 });
     return NextResponse.json({ status: "ok", move: chosen, san, ...over });

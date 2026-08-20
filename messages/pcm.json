@@ -1692,6 +1692,11 @@
       "name": "Di Night of di Ghost",
       "tagline": "One of una dey haunt dis manor",
       "desc": "Di event game: una go set di house, drop old phones for di rooms — dem go turn portraits. Do una rondes, and pull di Ghost mask before midnight. Nobody dey commot."
+    },
+    "echecs": {
+      "name": "Collabo chess",
+      "tagline": "Two sides, one move, each pesin get one voice",
+      "desc": "Every side na one group. Every turn everybody go pick dem move, and di one wey carry di most voice na im dem go play — you go sabi wetin di group decide, but you no go sabi who vote wetin. No limit for how many people fit join."
     }
   },
   "Unanimo": {
@@ -2449,6 +2454,129 @@
       "ranking": "Ranking",
       "replay": "Play again",
       "joinNew": "Di new game don open"
+    }
+  },
+  "Echecs": {
+    "metaTitle": "Chess wey we dey play together — two sides, one move, each pesin get one voice",
+    "metaDescription": "One chess game wey each side na one whole group: una go talk am, una go vote, and di move wey carry di most voice na im dem go play. No account, no limit on how many people fit join, and e dey work for phone.",
+    "name": "Chess wey we dey play together",
+    "tagline": "Two sides. One move. Each pesin get one voice.",
+    "pitch": "Every side na one whole group. For each turn, everybody go pick im own move, and di move wey carry di most voice na im dem go play. Afta, una go see wetin di group decide — but nobody go ever sabi who vote wetin.",
+    "back": "All di games",
+    "poweredBy": "Placet dey power am",
+    "create": {
+      "title": "Open one game",
+      "nameLabel": "Your name",
+      "namePlaceholder": "Your name",
+      "cta": "Open one game",
+      "opening": "We dey open…",
+      "hint": "No account, nothing to install. You go share di code, and everybody go pick im own side as e enter.",
+      "error": "E no work. Try am again.",
+      "badCode": "No game dey with dis code.",
+      "started": "Dis game don start already."
+    },
+    "join": {
+      "title": "Join one game",
+      "codeLabel": "Di game code",
+      "codePlaceholder": "ABC123",
+      "cta": "Enta",
+      "entering": "We dey enta…"
+    },
+    "how": {
+      "title": "How e dey go",
+      "one": "Everybody go join di side wey e like — white or black. No limit at all: whether una be six or six hundred, e still dey work.",
+      "two": "When e reach una turn to play, everybody go pick im own move for di board. Nobody dey see wetin di odas pick.",
+      "three": "One pesin for una side go press “We don ready”: di move wey carry di most voice na im dem go play. Dem no dey wait for everybody at all.",
+      "four": "If dem tie, second round go settle am, and na only di moves wey tie go dey inside. If dem still tie, na luck go choose."
+    },
+    "seat": {
+      "title": "Take your seat",
+      "hint": "Na link bring you come. Give your name make you sidon for dis table.",
+      "cta": "Enta di game"
+    },
+    "room": {
+      "loading": "Small time…",
+      "missing": "Dis game no dey again. Maybe dem copy di code wrong, or dem don clear di game.",
+      "offline": "Network don cut — we dey try again"
+    },
+    "lobby": {
+      "code": "Di game code",
+      "share": "Share am give di people wey dey around you: everybody go pick im own side as e enter.",
+      "pick": "Pick your side",
+      "count": "{n, plural, =0 {nobody} one {# pesin} other {# people}}",
+      "mine": "na your side",
+      "switch": "You fit change side as long as di game never start.",
+      "start": "Open di game",
+      "waiting": "Each side must get at least one pesin inside",
+      "needTeams": "Di two sides must get pesin inside before una fit start."
+    },
+    "camp": {
+      "blancs": "Di white side",
+      "noirs": "Di black side",
+      "blanc": "white",
+      "noir": "black"
+    },
+    "piece": {
+      "roi": "king",
+      "dame": "queen",
+      "tour": "rook",
+      "fou": "bishop",
+      "cavalier": "knight",
+      "pion": "pawn",
+      "vide": "empty square"
+    },
+    "promotion": {
+      "title": "Di pawn go turn wetin?"
+    },
+    "turn": {
+      "yours": "Na una side im turn to play",
+      "white": "Na di white side im turn to play",
+      "black": "Na di black side im turn to play",
+      "ballots": "{n, plural, =0 {No vote} one {# vote} other {# votes}} out of {of}"
+    },
+    "ballot": {
+      "title": "Your vote",
+      "empty": "Pick one piece for di board, den pick di square wey you wan send am go.",
+      "approved": "{n, plural, one {# move wey you gree for} other {# moves wey you gree for}}",
+      "change": "You fit change your mind as long as di turn still dey open.",
+      "close": "We don ready",
+      "closeHint": "Dem go play di move wey carry di most voice sharp sharp. Dem no dey wait for di votes wey never land — na di rule, no be shortcut.",
+      "needOne": "At least one vote must dey before una fit close di turn: for chess, you no fit jump your turn."
+    },
+    "wait": {
+      "title": "Di oda side dey talk am",
+      "white": "{n, plural, =0 {Di white side dey think} one {# pesin for di white side} other {# people for di white side}}",
+      "black": "{n, plural, =0 {Di black side dey think} one {# pesin for di black side} other {# people for di black side}}",
+      "ballots": "{n, plural, =0 {No vote never land} one {# vote don land} other {# votes don land}}",
+      "valve": "If dem scatter, di turn go close by itself small time."
+    },
+    "watch": {
+      "title": "You dey watch",
+      "hint": "You no dey for any side. Pick one: from dat side next turn, you go dey vote."
+    },
+    "runoff": {
+      "title": "Dem tie — second round",
+      "hint": "Tick every move wey you fit take, no be only di one wey you like pass. Na so dem dey break di tie.",
+      "watching": "Di oda side dey break di tie between dis moves."
+    },
+    "tally": {
+      "byWhite": "Di white side don play",
+      "byBlack": "Di black side don play",
+      "share": "{pct}% — {n} out of {of}",
+      "more": "{n, plural, one {and # oda move} other {and # oda moves}}",
+      "pending": "dem dey play di move now",
+      "silent": "Nobody vote at all: na luck pick di move.",
+      "drawn": "Dem still tie afta di second round — na luck settle am.",
+      "approval": "Second round na approval: everybody fit tick more dan one move."
+    },
+    "end": {
+      "whiteWins": "Checkmate — di white side win",
+      "blackWins": "Checkmate — di black side win",
+      "stalemate": "Stalemate — di game end for draw",
+      "draw": "Di game end for draw",
+      "you": "Na una side win.",
+      "them": "Na di oda side win.",
+      "stats": "{plies} moves wey dem play · {ballots} votes wey land"
     }
   }
 }

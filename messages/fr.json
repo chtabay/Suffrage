@@ -1692,6 +1692,11 @@
       "name": "La Nuit du Fantôme",
       "tagline": "L'un de vous hante ce manoir",
       "desc": "Le jeu-événement : on prépare la maison, on pose de vieux appareils dans les pièces — ils deviennent des portraits. Faites vos rondes, et démasquez le Fantôme avant minuit. Personne n'est éliminé."
+    },
+    "echecs": {
+      "name": "Échecs collaboratifs",
+      "tagline": "Deux équipes, un coup, une voix chacun",
+      "desc": "Chaque camp est un groupe. À chaque tour tout le monde choisit son coup, et le plus voté est joué — on découvre ce que le groupe a décidé, jamais qui a voté quoi. Aucune limite de joueurs."
     }
   },
   "Unanimo": {
@@ -2449,6 +2454,129 @@
       "ranking": "Classement",
       "replay": "Rejouer",
       "joinNew": "La nouvelle partie est ouverte"
+    }
+  },
+  "Echecs": {
+    "metaTitle": "Échecs collaboratifs — deux équipes, un coup, une voix chacun",
+    "metaDescription": "Une partie d'échecs où chaque camp est un groupe : on délibère, on vote, le coup majoritaire est joué. Sans compte, sans limite de joueurs, sur téléphone.",
+    "name": "Échecs collaboratifs",
+    "tagline": "Deux équipes. Un coup. Une voix chacun.",
+    "pitch": "Chaque camp est un groupe. À chaque tour, tout le monde choisit son coup, et celui qui réunit le plus de voix est joué. On découvre ensuite ce que le groupe a décidé — jamais qui a voté quoi.",
+    "back": "Tous les jeux",
+    "poweredBy": "Propulsé par Placet",
+    "create": {
+      "title": "Ouvrir une partie",
+      "nameLabel": "Ton prénom",
+      "namePlaceholder": "Ton prénom",
+      "cta": "Ouvrir une partie",
+      "opening": "On ouvre…",
+      "hint": "Sans compte, sans rien installer. Tu partages le code, et chacun choisit son camp en arrivant.",
+      "error": "Ça n'a pas marché. Réessaie.",
+      "badCode": "Aucune partie avec ce code.",
+      "started": "Cette partie a déjà commencé."
+    },
+    "join": {
+      "title": "Rejoindre une partie",
+      "codeLabel": "Le code de la partie",
+      "codePlaceholder": "ABC123",
+      "cta": "Entrer",
+      "entering": "On entre…"
+    },
+    "how": {
+      "title": "Comment ça se passe",
+      "one": "Chacun rejoint le camp qu'il veut, les blancs ou les noirs. Aucune limite : à six comme à six cents.",
+      "two": "Quand c'est à votre camp de jouer, chacun choisit son coup sur l'échiquier. Personne ne voit celui des autres.",
+      "three": "Quelqu'un de l'équipe dit « on est prêts » : le coup qui a le plus de voix est joué. On n'attend jamais tout le monde.",
+      "four": "En cas d'égalité, un second tour départage entre les seuls ex æquo. Si ça tient encore, le sort tranche."
+    },
+    "seat": {
+      "title": "Prends ta place",
+      "hint": "Tu arrives par un lien. Donne ton prénom pour t'asseoir à cette table.",
+      "cta": "Entrer dans la partie"
+    },
+    "room": {
+      "loading": "Un instant…",
+      "missing": "Cette partie n'existe plus. Le code est peut-être mal recopié, ou la partie a été effacée.",
+      "offline": "Connexion perdue — on réessaie"
+    },
+    "lobby": {
+      "code": "Le code de la partie",
+      "share": "Partage-le autour de toi : chacun choisit son camp en arrivant.",
+      "pick": "Choisis ton camp",
+      "count": "{n, plural, =0 {personne} one {# personne} other {# personnes}}",
+      "mine": "ton camp",
+      "switch": "Tu peux changer de camp tant que la partie n'a pas commencé.",
+      "start": "Ouvrir la partie",
+      "waiting": "Il faut au moins une personne dans chaque camp",
+      "needTeams": "Les deux camps doivent être occupés pour commencer."
+    },
+    "camp": {
+      "blancs": "Les blancs",
+      "noirs": "Les noirs",
+      "blanc": "blanc",
+      "noir": "noir"
+    },
+    "piece": {
+      "roi": "roi",
+      "dame": "dame",
+      "tour": "tour",
+      "fou": "fou",
+      "cavalier": "cavalier",
+      "pion": "pion",
+      "vide": "case vide"
+    },
+    "promotion": {
+      "title": "En quoi promeut-on le pion ?"
+    },
+    "turn": {
+      "yours": "À votre camp de jouer",
+      "white": "Aux blancs de jouer",
+      "black": "Aux noirs de jouer",
+      "ballots": "{n, plural, =0 {Aucun bulletin} one {# bulletin} other {# bulletins}} sur {of}"
+    },
+    "ballot": {
+      "title": "Ton bulletin",
+      "empty": "Choisis une pièce sur l'échiquier, puis la case où tu l'envoies.",
+      "approved": "{n, plural, one {# coup approuvé} other {# coups approuvés}}",
+      "change": "Tu peux changer d'avis tant que le tour est ouvert.",
+      "close": "On est prêts",
+      "closeHint": "Le coup majoritaire est joué tout de suite. On n'attend pas les bulletins manquants — c'est la règle, pas un raccourci.",
+      "needOne": "Il faut au moins un bulletin pour clore le tour : aux échecs, on ne passe pas son tour."
+    },
+    "wait": {
+      "title": "L'autre camp délibère",
+      "white": "{n, plural, =0 {Les blancs réfléchissent} one {# personne côté blancs} other {# personnes côté blancs}}",
+      "black": "{n, plural, =0 {Les noirs réfléchissent} one {# personne côté noirs} other {# personnes côté noirs}}",
+      "ballots": "{n, plural, =0 {Aucun bulletin déposé pour l'instant} one {# bulletin déposé} other {# bulletins déposés}}",
+      "valve": "S'ils se dispersent, le tour se clôt tout seul d'ici peu."
+    },
+    "watch": {
+      "title": "Tu regardes",
+      "hint": "Tu n'es dans aucun camp. Prends-en un : tu votes dès le prochain tour de ce camp."
+    },
+    "runoff": {
+      "title": "Égalité — second tour",
+      "hint": "Coche tous les coups qui te vont, pas seulement ton préféré. C'est ce qui départage.",
+      "watching": "L'autre camp départage entre ces coups."
+    },
+    "tally": {
+      "byWhite": "Les blancs ont joué",
+      "byBlack": "Les noirs ont joué",
+      "share": "{pct} % — {n} sur {of}",
+      "more": "{n, plural, one {et # autre coup} other {et # autres coups}}",
+      "pending": "Égalité — on départage",
+      "silent": "Personne n'a voté : le sort a choisi le coup.",
+      "drawn": "Toujours à égalité après le second tour — le sort a tranché.",
+      "approval": "Second tour à l'approbation : chacun pouvait cocher plusieurs coups."
+    },
+    "end": {
+      "whiteWins": "Échec et mat — les blancs gagnent",
+      "blackWins": "Échec et mat — les noirs gagnent",
+      "stalemate": "Pat — partie nulle",
+      "draw": "Partie nulle",
+      "you": "Votre camp l'emporte.",
+      "them": "L'autre camp l'emporte.",
+      "stats": "{plies} coups joués · {ballots} bulletins déposés"
     }
   }
 }
