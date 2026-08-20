@@ -2550,6 +2550,14 @@
       "missing": "Esta partida ya no existe. Quizá el código esté mal copiado, o la partida se haya borrado.",
       "offline": "Conexión perdida — reintentando"
     },
+    "share": {
+      "code": "Código de la partida",
+      "copy": "Copiar el enlace",
+      "copied": "Enlace copiado",
+      "share": "Compartir",
+      "whatsapp": "WhatsApp",
+      "text": "¿Jugamos al ajedrez colaborativo? Únete:"
+    },
     "lobby": {
       "code": "El código de la partida",
       "share": "Compártelo con quien quieras: cada uno elige su bando al llegar.",

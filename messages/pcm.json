@@ -2550,6 +2550,14 @@
       "missing": "Dis game no dey again. Maybe dem copy di code wrong, or dem don clear di game.",
       "offline": "Network don cut — we dey try again"
     },
+    "share": {
+      "code": "Game code",
+      "copy": "Copy di link",
+      "copied": "Dem don copy di link",
+      "share": "Share",
+      "whatsapp": "WhatsApp",
+      "text": "Make we play collabo chess? Come join us:"
+    },
     "lobby": {
       "code": "Di game code",
       "share": "Share am give di people wey dey around you: everybody go pick im own side as e enter.",

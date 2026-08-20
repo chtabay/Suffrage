@@ -22,6 +22,7 @@ import { campKey, valveRestante, type EchecsPrev, type EchecsState, type Uci } f
 import { useEchecs } from "@/lib/games/echecs/useEchecs";
 import { close as clore, start as demarrer, team as choisirCamp, vote as voter } from "@/lib/games/echecs/verbes";
 import GameShell from "@/components/games/GameShell";
+import ShareRoom from "@/components/games/ShareRoom";
 import { GBtn, GCard, GLabel } from "@/components/games/ui";
 import Echiquier from "./Echiquier";
 
@@ -163,6 +164,40 @@ function Assise({ code, onSeat }: { code: string; onSeat: (s: Seat) => void }) {
   );
 }
 
+/**
+ * Le bloc de partage d'une salle, celui d'Alibi, de Rôdeurs, du Fantôme et de
+ * Banalo : le code en gros, le lien, le partage natif, WhatsApp, et le QR.
+ *
+ * ⚠️ IL RESTE VISIBLE PENDANT LA PARTIE, et c'est propre à ce jeu-ci. Les quatre
+ * autres ferment leur roster au lancement — laisser entrer quelqu'un en cours de
+ * partie d'Alibi lui donnerait une carte pré-remplie. Aux échecs, une équipe est
+ * une entité dynamique : arriver au vingtième coup est une façon normale de
+ * jouer, et c'est ce qui rend « et si on était deux cents ? » possible. D'où la
+ * variante resserrée, où la place appartient à l'échiquier.
+ */
+function Partage({ code, compact }: { code: string; compact?: boolean }) {
+  const t = useTranslations("Echecs");
+  // Même construction que les autres jeux : l'origine courante, pas un hôte
+  // écrit en dur — on partage la salle où l'on est.
+  const url = typeof window === "undefined" ? "" : `${window.location.origin}/games/echecs/${code.toUpperCase()}`;
+  return (
+    <ShareRoom
+      skin={skin}
+      code={code}
+      url={url}
+      text={t("share.text")}
+      compact={compact}
+      labels={{
+        code: t("share.code"),
+        copy: t("share.copy"),
+        copied: t("share.copied"),
+        share: t("share.share"),
+        whatsapp: t("share.whatsapp"),
+      }}
+    />
+  );
+}
+
 // ─────────────────────────────────────────────────────────────── le salon
 //
 // ⚠️ CHACUN SE MET DANS UNE ÉQUIPE — il n'y a pas d'organisateur qui distribue
@@ -203,20 +238,7 @@ function Salon({ etat, seat }: { etat: EchecsState; seat: Seat }) {
 
   return (
     <>
-      <GCard skin={skin} accent={skin.accent}>
-        <div style={{ display: "grid", gap: 6, textAlign: "center" }}>
-          <GLabel skin={skin}>{t("lobby.code")}</GLabel>
-          <div
-            style={{
-              fontFamily: skin.fontDisplay, fontWeight: 800, fontSize: 34,
-              letterSpacing: "0.2em", color: skin.ink,
-            }}
-          >
-            {etat.code}
-          </div>
-          <div style={{ fontSize: 13, color: skin.muted, lineHeight: 1.45 }}>{t("lobby.share")}</div>
-        </div>
-      </GCard>
+      <Partage code={etat.code} />
 
       <GCard skin={skin}>
         <div style={{ display: "grid", gap: 11 }}>
@@ -390,6 +412,12 @@ function Partie({
       ) : (
         <Attente etat={etat} camp={camp} seat={seat} />
       )}
+
+      {/* ⚠️ APRÈS LE BULLETIN, PAS AVANT. Posée entre l'échiquier et le
+          bulletin, l'invitation s'intercalait entre la position et le geste
+          qu'elle appelle — vu à l'écran. Elle reste accessible, elle ne passe
+          plus devant. */}
+      <Partage code={etat.code} compact />
     </>
   );
 }

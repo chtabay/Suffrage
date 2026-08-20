@@ -2550,6 +2550,14 @@
       "missing": "Cette partie n'existe plus. Le code est peut-être mal recopié, ou la partie a été effacée.",
       "offline": "Connexion perdue — on réessaie"
     },
+    "share": {
+      "code": "Code de la partie",
+      "copy": "Copier le lien",
+      "copied": "Lien copié",
+      "share": "Partager",
+      "whatsapp": "WhatsApp",
+      "text": "On joue aux échecs collaboratifs ? Rejoins-nous :"
+    },
     "lobby": {
       "code": "Le code de la partie",
       "share": "Partage-le autour de toi : chacun choisit son camp en arrivant.",

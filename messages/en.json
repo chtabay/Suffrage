@@ -2550,6 +2550,14 @@
       "missing": "This game no longer exists. The code may have been copied wrong, or the game was deleted.",
       "offline": "Connection lost — retrying"
     },
+    "share": {
+      "code": "Game code",
+      "copy": "Copy the link",
+      "copied": "Link copied",
+      "share": "Share",
+      "whatsapp": "WhatsApp",
+      "text": "Fancy a game of collaborative chess? Join us:"
+    },
     "lobby": {
       "code": "The game code",
       "share": "Pass it around: everyone picks a side as they arrive.",
