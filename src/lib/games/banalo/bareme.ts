@@ -31,10 +31,14 @@ export function medianeDe(valeurs: number[]): number {
   const bonnes = valeurs.filter((v) => Number.isFinite(v) && v > 0).sort((a, b) => a - b);
   if (bonnes.length === 0) return 0;
   const m = Math.floor(bonnes.length / 2);
-  // Effectif pair : on prend la moyenne GÉOMÉTRIQUE des deux centrales, pas
-  // l'arithmétique. Sur une grandeur qui s'étale sur des ordres de grandeur,
-  // c'est elle qui est au milieu — entre 100 et 10 000, le milieu est 1 000.
-  return bonnes.length % 2 ? bonnes[m]! : Math.sqrt(bonnes[m - 1]! * bonnes[m]!);
+  // ⚠️ EFFECTIF PAIR : ON PREND LA VALEUR DU BAS, ON N'INTERPOLE PAS. Ce n'est
+  // pas la médiane la plus élégante — une moyenne géométrique des deux centrales
+  // serait « plus juste » sur une grandeur qui s'étale sur des ordres de
+  // grandeur. Mais l'AUTORITÉ est `percentile_disc(0.5)` en base, qui rend
+  // toujours une valeur OBSERVÉE, et deux calculs qui divergent d'un cheveu
+  // donneraient deux scores différents au même joueur selon qui a répondu.
+  // Ici on préfère l'accord exact à la finesse.
+  return bonnes[bonnes.length % 2 ? m : m - 1]!;
 }
 
 /**

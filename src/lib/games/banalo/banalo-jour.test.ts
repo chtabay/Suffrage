@@ -124,6 +124,14 @@ test("la fin de journée tombe après le début et avant 25 heures", () => {
 
 // ------------------------------------------------------------------- barème
 
+test("la médiane pour un effectif pair rend une valeur OBSERVÉE", () => {
+  // Elle doit s'accorder au caractère près avec `percentile_disc(0.5)` en base :
+  // deux calculs qui divergent d'un cheveu donneraient deux scores au même
+  // joueur. On prend donc la centrale du bas, sans interpoler.
+  assert.equal(medianeDe([1, 10, 100, 1000]), 10);
+  assert.equal(medianeDe([1, 10, 100]), 10);
+});
+
 test("la médiane tient quand la moyenne est détruite", () => {
   // Mille réponses honnêtes autour de 4 000, et une seule absurdité.
   const foule = Array.from({ length: 999 }, (_, i) => 3000 + (i % 2000));
@@ -136,7 +144,8 @@ test("la médiane tient quand la moyenne est détruite", () => {
 test("la médiane ignore les réponses impossibles plutôt que de rendre NaN", () => {
   assert.equal(medianeDe([]), 0);
   assert.equal(medianeDe([0, -3, NaN, Infinity]), 0);
-  assert.equal(medianeDe([10, 0, 1000]), 100, "le zéro est écarté, pas compté");
+  // Le zéro écarté, il reste [10, 1000] : effectif pair, donc la centrale du bas.
+  assert.equal(medianeDe([10, 0, 1000]), 10);
 });
 
 test("l'écart se compte en facteurs : ÷3 et ×3 valent pareil", () => {
