@@ -15,7 +15,7 @@ corriger.
 | Chantier | État | Qui |
 |---|---|---|
 | **Jeu 3** | en cours | l'agent des jeux |
-| **Unanimo** (`games/unanimo`) | en prod, relu ; sa page de présentation porte des aperçus d'écrans depuis le 2026-08-18 | fermé, sauf la présentation |
+| **Unanimo** (`games/unanimo`) | en prod, relu ; le jeu de salon est **fermé**. Une version quotidienne est à l'étude — `docs/unanimo-quotidien.md`, rien de construit | fermé, sauf la présentation |
 | **Alibi** (`games/alibi`) | en prod, **relu et corrigé le 2026-08-13** | fermé — **ne pas y revenir** |
 | **Gestion de groupes** (`/espaces`) | en prod, 24 constats moyens/faibles en réserve | la session tableau de bord |
 | **Cinq sur cinq** (`games/pays`) | en prod le 2026-08-18 · pictos de catégorie et mise en avant des essais le 2026-08-19 | ouvert |
@@ -35,6 +35,15 @@ n'attend jamais de réponse, et c'est un calcul, pas une omission : 11 joueurs �
 La moindre interaction qui demande une réponse recrée une file d'attente devant
 un tableau. Et aucun murmure ne désigne quelqu'un : un décor qui accuse
 fabriquerait une preuve que le jeu n'a pas calculée.
+
+**Les parties de jeu s'effacent au bout de SEPT JOURS.** Un cron horaire
+`scrutin-game-purge` supprime les salles inactives, et les joueurs, manches et
+saisies cascadent avec. Deux conséquences qui surprennent : un comptage rend zéro
+alors que des parties ont eu lieu (la trace est dans la taille des tables, pas
+dans les lignes), et **aucun corpus de mots ne peut se constituer**. Le chiffre 7
+vit aussi dans la politique de confidentialité : le changer d'un seul côté
+transforme un engagement écrit en mensonge. La sortie propre, si on veut un
+corpus, est d'écrire un agrégat anonyme à côté — voir `docs/unanimo-quotidien.md`.
 
 **Cinq sur cinq n'est pas clos, et le stock de 51 journées est ASSUMÉ.** Le jeu
 sort une journée par jour, générée par `scripts/pays-journees.ts` ; le 7 octobre
