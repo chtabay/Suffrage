@@ -101,7 +101,18 @@ export const UNANIMO_SKIN: GameSkin = {
   // MATIÈRE « JOUET » : rond, épais, posé haut. C'est le jeu le plus léger des
   // deux quotidiens, et sa carte doit se sentir rebondie.
   ombre: 6,
-  sol: { image: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='54' height='54'%3E%3Cg fill='%23c2e5d3'%3E%3Ccircle cx='7' cy='11' r='2.1'/%3E%3Ccircle cx='23' cy='5' r='1.3'/%3E%3Ccircle cx='40' cy='14' r='2.4'/%3E%3Ccircle cx='13' cy='28' r='1.5'/%3E%3Ccircle cx='31' cy='24' r='2.2'/%3E%3Ccircle cx='48' cy='33' r='1.4'/%3E%3Ccircle cx='5' cy='43' r='2.3'/%3E%3Ccircle cx='24' cy='45' r='1.6'/%3E%3Ccircle cx='40' cy='49' r='2'/%3E%3C/g%3E%3C/svg%3E")`, taille: "54px 54px" },
+  // ⚠️ RETOUCHÉ APRÈS COUP : les points GÊNAIENT LA LECTURE. Mesuré — la
+  // première version couvrait 3,5 % de la surface en encre contre 1,3 % pour le
+  // sol de Placet, soit 2,8 fois plus, avec un contraste par point plus élevé.
+  // C'était le prix payé pour qu'ils se voient ; il était trop cher dès qu'un
+  // paragraphe se pose dessus. Rayons réduits d'environ 40 % et teinte adoucie
+  // (#c2e5d3 → #d3ece2) : on retombe à 1,3 %, la discrétion de la maison.
+  //
+  // ⚠️ LA TUILE RESTE À 54 px, et c'est le point à ne pas « optimiser ». Élargir
+  // le pas disperserait les points au lieu de les grouper — or c'est le
+  // GROUPEMENT qui fait lire une foule plutôt qu'une trame, et c'est lui qui
+  // porte tout le sens du motif.
+  sol: { image: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='54' height='54'%3E%3Cg fill='%23d3ece2'%3E%3Ccircle cx='7' cy='11' r='1.3'/%3E%3Ccircle cx='23' cy='5' r='.8'/%3E%3Ccircle cx='40' cy='14' r='1.5'/%3E%3Ccircle cx='13' cy='28' r='.9'/%3E%3Ccircle cx='31' cy='24' r='1.4'/%3E%3Ccircle cx='48' cy='33' r='.9'/%3E%3Ccircle cx='5' cy='43' r='1.4'/%3E%3Ccircle cx='24' cy='45' r='1'/%3E%3Ccircle cx='40' cy='49' r='1.2'/%3E%3C/g%3E%3C/svg%3E")`, taille: "54px 54px" },
   border: 3,
   radius: 20,
   fontDisplay: FONT_DISPLAY,
