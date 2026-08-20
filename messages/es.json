@@ -1705,6 +1705,9 @@
       "name": "La Noche del Fantasma",
       "tagline": "Uno de vosotros ronda esta mansión"
     },
+    "installTexte": "Un juego al día se lleva mejor cuando está en la pantalla de inicio.",
+    "installCta": "Instalar el juego",
+    "installIos": "En iPhone: toca <b>Compartir</b> y luego <b>«Añadir a pantalla de inicio»</b>.",
     "banalo-jour": {
       "name": "Banalo del día",
       "tagline": "Un número que estimar, cada día"

@@ -30,6 +30,7 @@ import GameShell from "@/components/games/GameShell";
 import { GCard, GLabel } from "@/components/games/ui";
 import Carte from "./Carte";
 import Compte from "./Compte";
+import InstallJeu from "@/components/games/InstallJeu";
 import Recherche from "./Recherche";
 import Revelation from "./Revelation";
 
@@ -368,6 +369,12 @@ export default function PaysDuJour({ jour }: { jour: number }) {
         {gagne && (
           <Compte skin={skin} jour={jour} serieLocale={serie} essaisDuJour={essais.length} />
         )}
+
+        {/* L'INSTALLATION — même règle que le compte : après la partie. Avant,
+            elle demande un engagement à quelqu'un à qui le jeu n'a encore rien
+            donné. Le FAB de Placet ne flotte plus ici : c'est le jeu qui
+            invite, à ses couleurs et en vouvoyant comme le reste de l'écran. */}
+        {gagne && <InstallJeu skin={skin} />}
 
         {/* L'HISTORIQUE — et le vrai retour du jeu.
             

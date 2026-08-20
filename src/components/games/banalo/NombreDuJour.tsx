@@ -27,6 +27,7 @@ import { monJeton } from "@/lib/games/banalo/jeton";
 import { nombreDe } from "@/lib/games/banalo/saisie";
 import { blocDe, motDe, teinteDe } from "@/lib/games/banalo/chaleur";
 import PartageBanalo from "./PartageBanalo";
+import InstallJeu from "@/components/games/InstallJeu";
 import { etat as litEtat, repond, type EtatBanalo } from "@/lib/db/banalo";
 
 /**
@@ -433,6 +434,7 @@ export default function NombreDuJour({ jour }: { jour: number }) {
               forme={`${blocDe(jeu.points)} ${CHALEUR[motDe(jeu.points)]} · ${t("facteur", { f: ecart(jeu.facteur ?? 1) })}`}
               partMieux={jeu.partMieux}
             />
+            <InstallJeu skin={skin} />
           </div>
         </div>
       ) : null}

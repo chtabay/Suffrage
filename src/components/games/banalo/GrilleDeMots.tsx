@@ -26,6 +26,7 @@ import type { Theme } from "@/lib/games/banalo/themes";
 import { monJeton } from "@/lib/games/banalo/jeton";
 import { blocDe, motDe, teinteDe } from "@/lib/games/banalo/chaleur";
 import PartageBanalo from "./PartageBanalo";
+import InstallJeu from "@/components/games/InstallJeu";
 import { etatMots, repondMots, type EtatMots } from "@/lib/db/banalo";
 
 const bcp = (locale: string) => (locale === "pcm" ? "en" : locale);
@@ -283,6 +284,7 @@ export default function GrilleDeMots({
               partMieux={jeu.partMieux}
             />
           ) : null}
+          <InstallJeu skin={skin} />
         </div>
       ) : null}
 

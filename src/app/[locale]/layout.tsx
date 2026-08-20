@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { NextIntlClientProvider, hasLocale } from "next-intl";
 import { getMessages, getTranslations, setRequestLocale } from "next-intl/server";
 import { Bricolage_Grotesque, Plus_Jakarta_Sans } from "next/font/google";
-import InstallFab from "@/components/pwa/InstallFab";
+import InstallFabHorsJeux from "@/components/pwa/InstallFabHorsJeux";
 import { routing } from "@/i18n/routing";
 import "../globals.css";
 
@@ -53,7 +53,7 @@ export default async function LocaleLayout({
       <body className={`${display.variable} ${body.variable}`}>
         <NextIntlClientProvider messages={messages}>
           {children}
-          <InstallFab />
+          <InstallFabHorsJeux />
         </NextIntlClientProvider>
       </body>
     </html>

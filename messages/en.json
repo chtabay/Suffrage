@@ -1705,6 +1705,9 @@
       "name": "The Night of the Ghost",
       "tagline": "One of you haunts this manor"
     },
+    "installTexte": "One game a day is easier to keep up when it's on your home screen.",
+    "installCta": "Install the game",
+    "installIos": "On iPhone: tap <b>Share</b>, then <b>“Add to Home Screen”</b>.",
     "banalo-jour": {
       "name": "Daily Banalo",
       "tagline": "One number to estimate, every day"

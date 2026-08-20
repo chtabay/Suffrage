@@ -1705,6 +1705,9 @@
       "name": "La Nuit du Fantôme",
       "tagline": "L'un de vous hante ce manoir"
     },
+    "installTexte": "Un jeu par jour, c'est plus facile quand il est sur l'écran d'accueil.",
+    "installCta": "Installer le jeu",
+    "installIos": "Sur iPhone : touchez <b>Partager</b>, puis <b>« Sur l'écran d'accueil »</b>.",
     "banalo-jour": {
       "name": "Banalo du jour",
       "tagline": "Un nombre à estimer, tous les jours"
