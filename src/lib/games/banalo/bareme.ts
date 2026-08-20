@@ -121,10 +121,13 @@ export function pointsDe(facteur: number): number {
  */
 export const VOTANTS_MIN = 20;
 
+/** Au-delà de ce facteur, tout le monde est à zéro et personne n'est départagé. */
+export const FACTEUR_PLAFOND = 10;
+
 export interface Position {
-  /** Rang olympique : à score égal, même rang. */
+  /** Rang olympique : à écart égal, même rang. */
   rang: number;
-  /** Combien partagent exactement ce score, celui-ci compris. */
+  /** Combien partagent exactement cet écart, celui-ci compris. */
   exAequo: number;
   votants: number;
   /**
@@ -142,11 +145,29 @@ export interface Position {
 }
 
 /**
- * Où se situe un score dans la foule du jour.
+ * Où se situe un joueur dans la foule du jour, D'APRÈS SON ÉCART.
  *
- * ⚠️ LE RANG EST OLYMPIQUE, comme celui de Cinq sur cinq et pour la même raison :
- * à score égal, même rang. Sinon deux joueurs identiques sont départagés par
- * l'ordre d'arrivée, et c'est le fuseau horaire qu'on récompense.
+ * ⚠️ ON CLASSE SUR LE FACTEUR, PAS SUR LES POINTS, ET C'EST UNE CORRECTION.
+ * Les premières versions classaient sur le score ARRONDI, avec un raisonnement
+ * qui semblait prudent : « même score affiché, même rang », pour que l'écran ne
+ * se contredise pas quand deux amis comparent leurs téléphones. C'était payer
+ * trop cher — arrondir avant de compter déclare identiques deux joueurs dont
+ * les réponses diffèrent vraiment, pour éviter une surprise purement
+ * cosmétique. Mesuré en base : sur 200 réponses toutes distinctes, l'arrondi
+ * fabriquait des paquets d'ex aequo ; le facteur en rend ZÉRO.
+ *
+ * Le rang est la chose PRÉCISE ; le score affiché n'est qu'un résumé lisible de
+ * cette chose. C'est le résumé qui s'efface devant le rang, pas l'inverse.
+ *
+ * Le score étant une fonction strictement décroissante du facteur, classer par
+ * facteur croissant donne exactement le même ORDRE — mais sans arrondi. Deux
+ * joueurs sont donc ex aequo si et seulement si leur écart est le même, c'est-à-
+ * dire s'ils ont donné la même réponse, ou les deux réponses symétriques (÷k et
+ * ×k) — qui méritent l'égalité, puisque tout le barème est bâti sur elle.
+ *
+ * ⚠️ LE PLAFOND N'EST PAS UNE PRÉCAUTION, C'EST LE PAQUET DES ZÉROS. Sans lui,
+ * un joueur à ×50 passerait devant un joueur à ×500 alors que l'écran affiche
+ * 0,0 aux deux : on classerait des fautes de frappe.
  *
  * ⚠️ ET C'EST LA PART QU'ON MET DEVANT, pas le rang. Le rang provisoire va
  * MÉCANIQUEMENT empirer : 38e sur 210 à midi, 412e sur 2 300 le lendemain, sans
@@ -154,10 +175,14 @@ export interface Position {
  * second se croira floué. La part, elle, ne bouge pas — c'est donc elle qui
  * porte le sens, et le rang se lit en second, pour comprendre sa position.
  */
-export function positionDe(monScore: number, tousLesScores: number[]): Position {
-  const votants = tousLesScores.length;
-  const meilleurs = tousLesScores.filter((s) => s > monScore).length;
-  const exAequo = tousLesScores.filter((s) => s === monScore).length;
+export function positionDe(monFacteur: number, tousLesFacteurs: number[]): Position {
+  const borne = (f: number) => Math.min(Number.isFinite(f) ? f : FACTEUR_PLAFOND, FACTEUR_PLAFOND);
+  const mien = borne(monFacteur);
+  const tous = tousLesFacteurs.map(borne);
+  const votants = tous.length;
+  // Petit facteur = meilleur.
+  const meilleurs = tous.filter((f) => f < mien).length;
+  const exAequo = tous.filter((f) => f === mien).length;
   return {
     rang: meilleurs + 1,
     exAequo,

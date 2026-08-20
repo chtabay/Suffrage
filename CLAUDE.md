@@ -116,10 +116,16 @@ propre » refabriquerait en petit le problème des cinq paliers. Trois migration
 racontent cette décision qui se précise (`-score-continu`, `-sur-mille`,
 `-sur-cent`) ; on n'en réécrit aucune.
 
-Deux autres choses à ne pas « simplifier » : le zéro reste un paquet unique
-au-delà de ×10 (départager ×50 de ×500 classerait des fautes de frappe), et **le
-rang se calcule sur la valeur ARRONDIE** — d'où `numeric` en base, où l'égalité
-est exacte.
+**Le rang, lui, se calcule SANS ARRONDI — sur le facteur, pas sur les points.**
+C'est une correction : les trois premières migrations classaient sur le score
+arrondi, pour que « même score affiché » veuille dire « même rang ». C'était
+payer trop cher — arrondir avant de compter déclare identiques deux joueurs dont
+les réponses diffèrent vraiment, pour éviter une surprise cosmétique. Mesuré :
+sur 200 réponses toutes distinctes, l'arrondi fabriquait des paquets, le facteur
+en rend **zéro**. Le rang est la chose précise, le score affiché n'en est qu'un
+résumé. Seule exception, et elle est voulue : le `least(facteur, 10)` remet tous
+les ratés d'un facteur dix ou plus dans un seul paquet — sinon on classerait ×50
+devant ×500 alors que l'écran affiche 0,0 aux deux.
 
 **La chaleur du score (`chaleur.ts`) a deux règles non négociables.** La couleur
 ne porte JAMAIS seule : elle est doublée d'un mot (« vous brûlez », « tiède »,

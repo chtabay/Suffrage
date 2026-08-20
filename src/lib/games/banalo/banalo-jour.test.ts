@@ -215,41 +215,44 @@ test("une réponse nulle ou négative ne rapporte rien, sans planter", () => {
   assert.equal(pointsDe(facteurDe(1000, 0)), 0, "référence absente");
 });
 
-test("le rang est olympique : à score égal, même rang", () => {
-  const scores = [10, 10, 6, 6, 6, 3, 0];
-  assert.equal(positionDe(10, scores).rang, 1);
-  assert.equal(positionDe(6, scores).rang, 3, "les deux 10 occupent les rangs 1 et 2");
-  assert.equal(positionDe(3, scores).rang, 6);
-  assert.equal(positionDe(6, scores).exAequo, 3);
+test("le rang est olympique, et il se compte sur l'ÉCART", () => {
+  // Les facteurs, pas les points : petit facteur = meilleur.
+  const ecarts = [1, 1, 1.5, 1.5, 1.5, 3, 40];
+  assert.equal(positionDe(1, ecarts).rang, 1);
+  assert.equal(positionDe(1.5, ecarts).rang, 3, "les deux exacts occupent les rangs 1 et 2");
+  assert.equal(positionDe(3, ecarts).rang, 6);
+  assert.equal(positionDe(1.5, ecarts).exAequo, 3);
 });
 
-test("sous le plancher de votants, aucune part n'est affichée", () => {
-  // « 3e sur 7 » n'est pas un rang, c'est du bruit — et il n'y a pas encore
-  // d'ex aequo à compter.
-  const peu = Array.from({ length: VOTANTS_MIN - 1 }, () => 6);
-  assert.equal(positionDe(6, peu).partMieux, null);
-  const assez = Array.from({ length: VOTANTS_MIN }, () => 6);
-  assert.ok(positionDe(6, assez).partMieux !== null);
+test("le rang ne fabrique PLUS d'ex aequo par arrondi", () => {
+  // ⚠️ LA CORRECTION, EN UN TEST. Classer sur le score arrondi au dixième
+  // déclarait identiques des joueurs dont l'écart diffère vraiment. Deux cents
+  // écarts tous distincts doivent donner deux cents rangs distincts — vérifié
+  // aussi en base, où le même semis rendait zéro ex aequo.
+  // Deux cents écarts serrés : ils tiennent dans quatre points de score, donc
+  // l'arrondi au dixième les écrase forcément les uns sur les autres.
+  const ecarts = Array.from({ length: 200 }, (_, i) => 1 + i * 0.0005);
+  const rangs = new Set(ecarts.map((f) => positionDe(f, ecarts).rang));
+  assert.equal(rangs.size, 200, `seulement ${rangs.size} rangs distincts`);
+  for (const f of ecarts) assert.equal(positionDe(f, ecarts).exAequo, 1);
+  // Alors que les points, eux, se répètent : c'est bien l'arrondi qui groupait.
+  assert.ok(new Set(ecarts.map(pointsDe)).size < 200, "les points arrondis, eux, collisionnent");
 });
 
-test("la part ne bouge PAS quand la foule grandit à proportions égales", () => {
-  // ⚠️ C'EST TOUTE SA RAISON D'ÊTRE, et la première formule la lui retirait :
-  // avec le « +1 » du rang, la même performance donnait 21 % à cent votants et
-  // 20 % à mille. Le rang brut, lui, empire mécaniquement — on le vérifie aussi,
-  // pour que les deux comportements soient écrits noir sur blanc.
-  for (const facteur of [1, 10, 100]) {
-    const foule = [...Array(20 * facteur).fill(10), ...Array(80 * facteur).fill(3)];
-    assert.equal(positionDe(3, foule).partMieux, 20, `foule × ${facteur}`);
-  }
-  const petite = [...Array(20).fill(10), ...Array(80).fill(3)];
-  const grande = [...Array(200).fill(10), ...Array(800).fill(3)];
-  assert.ok(positionDe(3, grande).rang > positionDe(3, petite).rang, "le rang brut, lui, empire");
+test("au-delà du plafond, tout le monde est à égalité — et c'est voulu", () => {
+  // « Raté d'un facteur dix ou plus » est UNE information. Sans le plafond, un
+  // joueur à ×50 passerait devant un joueur à ×500 alors que l'écran affiche
+  // 0,0 aux deux : on classerait des fautes de frappe.
+  const ecarts = [1.2, 50, 500, 5000];
+  assert.equal(positionDe(50, ecarts).exAequo, 3);
+  assert.equal(positionDe(500, ecarts).rang, positionDe(5000, ecarts).rang);
+  assert.equal(pointsDe(50), pointsDe(5000), "leurs scores affichés sont bien les mêmes");
 });
 
 test("personne au-dessus donne bien zéro, pas un plancher inventé", () => {
-  const foule = [...Array(50).fill(3), 10];
-  assert.equal(positionDe(10, foule).partMieux, 0);
-  assert.equal(positionDe(10, foule).rang, 1);
+  const foule = [...Array(50).fill(4), 1.05];
+  assert.equal(positionDe(1.05, foule).partMieux, 0);
+  assert.equal(positionDe(1.05, foule).rang, 1);
 });
 
 // -------------------------------------------------------------------- saisie
