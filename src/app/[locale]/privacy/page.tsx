@@ -38,7 +38,7 @@ export default async function PrivacyPage({ params }: { params: Promise<{ locale
   const c = pickLocale<Content>(locale, {
     fr: {
       title: "Politique de confidentialité",
-      updated: "Dernière mise à jour : 13 août 2026",
+      updated: "Dernière mise à jour : 20 août 2026",
       intro:
         "Placet (placet.app) permet à un groupe d'organiser de vrais votes. Cette page explique ce que nous collectons et pourquoi. Nous gardons le strict minimum.",
       sections: [
@@ -68,7 +68,7 @@ export default async function PrivacyPage({ params }: { params: Promise<{ locale
         },
         {
           h: "Conservation",
-          p: "Les votes et les bulletins sont conservés jusqu'à ce que vous les supprimiez ou nous le demandiez. Les salles de jeu font exception : elles sont effacées automatiquement 7 jours après la dernière activité de la partie, avec les prénoms, les mots et les scores qu'elles contiennent.",
+          p: "Les votes et les bulletins sont conservés jusqu'à ce que vous les supprimiez ou nous le demandiez. Les salles de jeu font exception : elles sont effacées automatiquement 7 jours après la dernière activité de la partie, avec les prénoms, les mots et les scores qu'elles contiennent. Les jeux quotidiens n'ont pas de salle : la réponse d'un joueur, le numéro de la journée et un identifiant tiré au hasard par son navigateur — jamais un compte — sont conservés 30 jours, puis supprimés.",
         },
         {
           h: "Vos droits",
@@ -87,7 +87,7 @@ export default async function PrivacyPage({ params }: { params: Promise<{ locale
     },
     en: {
       title: "Privacy policy",
-      updated: "Last updated: 13 August 2026",
+      updated: "Last updated: 20 August 2026",
       intro:
         "Placet (placet.app) lets a group run proper votes. This page explains what we collect and why. We keep it to a minimum.",
       sections: [
@@ -117,7 +117,7 @@ export default async function PrivacyPage({ params }: { params: Promise<{ locale
         },
         {
           h: "Retention",
-          p: "Polls and ballots are kept until you delete them or ask us to. Game rooms are the exception: they are deleted automatically 7 days after the game's last activity, along with the names, words and scores they hold.",
+          p: "Polls and ballots are kept until you delete them or ask us to. Game rooms are the exception: they are deleted automatically 7 days after the game's last activity, along with the names, words and scores they hold. Daily games have no room: a player's answer, the day number and a random identifier drawn by their browser — never an account — are kept for 30 days, then deleted.",
         },
         {
           h: "Your rights",
@@ -136,7 +136,7 @@ export default async function PrivacyPage({ params }: { params: Promise<{ locale
     },
     es: {
       title: "Política de privacidad",
-      updated: "Última actualización: 13 de agosto de 2026",
+      updated: "Última actualización: 20 de agosto de 2026",
       intro:
         "Placet (placet.app) permite a un grupo organizar votaciones de verdad. Esta página explica qué recopilamos y por qué. Lo mantenemos al mínimo.",
       sections: [
@@ -166,7 +166,7 @@ export default async function PrivacyPage({ params }: { params: Promise<{ locale
         },
         {
           h: "Conservación",
-          p: "Las votaciones y las papeletas se conservan hasta que las elimines o nos lo pidas. Las salas de juego son la excepción: se borran automáticamente 7 días después de la última actividad de la partida, junto con los nombres, las palabras y las puntuaciones que contienen.",
+          p: "Las votaciones y las papeletas se conservan hasta que las elimines o nos lo pidas. Las salas de juego son la excepción: se borran automáticamente 7 días después de la última actividad de la partida, junto con los nombres, las palabras y las puntuaciones que contienen. Los juegos diarios no tienen sala: la respuesta de un jugador, el número del día y un identificador aleatorio generado por su navegador — nunca una cuenta — se conservan 30 días y luego se eliminan.",
         },
         {
           h: "Tus derechos",
