@@ -223,6 +223,23 @@ mémoire pour y ajouter un mot** : la première rédaction de
 la fenêtre d'une heure et le plafond journalier par des approximations, toutes
 plausibles et toutes fausses. On repart du corps réel, et on `diff`.
 
+**Il existe un lot de PICTOS pour les jeux** (`components/games/Picto.tsx`) :
+sept glyphes, grille 24, trait 2, une seule couleur héritée, aucun texte. Posé
+pour l'instant SUR LES SEULES CARTES DE L'ACCUEIL ; la porte `/games` et les
+en-têtes de jeu tirent toujours l'emoji de `catalog.ts`, et les basculer touche
+la surface de l'agent des jeux — ça se coordonne.
+
+⚠️ **La leçon du dessin, pour qui reprendra la série : POUR LA MOITIÉ DES JEUX,
+DESSINER L'OBJET ÉCHOUE, IL FAUT DESSINER L'IDÉE.** Trois tentatives de torche se
+sont lues « haut-parleur » (trapèze + arcs = icône de volume), « pile », puis
+« sablier » — à 24 px une silhouette entre en collision avec tous les objets de
+même silhouette. Les erreurs étaient SÉMANTIQUES : le SVG dessinait exactement ce
+qu'on lui demandait, donc rien ne se voyait à la relecture, seulement en
+regardant le rendu. Deux pictos ont changé de métaphore et y ont gagné : deux
+cercles qui se chevauchent (converger) plutôt qu'un cerveau (quiz) ; des
+empreintes de pas (on se croise dans la maison) plutôt qu'une lampe.
+
+
 **L'accueil de Placet montre CE QUI SE JOUE AUJOURD'HUI** (`JeuxDuJour`), et les
 deux cartes n'ont pas le droit de montrer la même chose. **Banalo du jour peut
 afficher son sujet** — la question ou le thème EST l'énoncé, faite pour être lue.

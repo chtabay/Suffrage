@@ -52,6 +52,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { FONT_DISPLAY, INK, SUBINK, lift } from "@/components/scrutin/theme";
 import { PAYS_SKIN, UNANIMO_SKIN } from "@/lib/games/skin";
+import Picto, { type NomPicto } from "./Picto";
 import { numeroDuJour } from "@/lib/games/banalo/jour";
 import { programmeDe } from "@/lib/games/banalo/programme";
 import { enLangue } from "@/content/banalo/questions";
@@ -81,7 +82,7 @@ export default function JeuxDuJour() {
       ? `${prog.theme.emoji} ${themeLabel(prog.theme, locale)}`
       : enLangue(prog.question.texte, locale);
 
-  const carte = (href: string, emoji: string, nom: string, ligne: string, accent: string) => (
+  const carte = (href: string, picto: NomPicto, nom: string, ligne: string, accent: string) => (
     <Link
       href={href}
       className="dc-lift"
@@ -100,9 +101,10 @@ export default function JeuxDuJour() {
       }}
     >
       <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
-        <span aria-hidden style={{ fontSize: 15 }}>
-          {emoji}
-        </span>
+        {/* Le picto prend l'accent du jeu, comme l'ombre : les deux disent la
+            même destination, et le nom reste en encre pour que la rangée se
+            lise d'abord comme une liste. */}
+        <Picto nom={picto} taille={16} style={{ color: accent }} />
         <span style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 14.5 }}>{nom}</span>
         <span style={{ marginLeft: "auto", fontSize: 11.5, color: SUBINK, fontWeight: 700 }}>
           {t("jourNumero", { n: jour })}
@@ -131,13 +133,13 @@ export default function JeuxDuJour() {
     <div style={{ display: "flex", flexWrap: "wrap", gap: 10, marginTop: 12 }}>
       {carte(
         "/games/banalo-jour",
-        prog.type === "mots" ? "💬" : "🎯",
+        prog.type === "mots" ? "mots" : "banalo-jour",
         t("banalo-jour.name"),
         sujet,
         UNANIMO_SKIN.accent,
       )}
       {/* Pas de sujet ici, et c'est la règle — voir l'en-tête. */}
-      {carte("/games/pays", "🌍", t("pays.name"), t("pays.tagline"), PAYS_SKIN.accent)}
+      {carte("/games/pays", "pays", t("pays.name"), t("pays.tagline"), PAYS_SKIN.accent)}
     </div>
   );
 }
