@@ -27,6 +27,7 @@ import { enregistreResultats, monBilan, monRang, type BilanPays, type RangPays }
 import { lisResultats, serieEnCours } from "@/lib/games/pays/local";
 import type { GameSkin } from "@/lib/games/skin";
 import { GBtn, GCard, GLabel } from "@/components/games/ui";
+import PontPlacet from "@/components/games/PontPlacet";
 
 // ⚠️ CE BLOC LIT SES TEXTES LUI-MÊME, contrairement à `Revelation` qui les
 // reçoit en props. La raison est concrète : deux de ses libellés dépendent de
@@ -221,6 +222,10 @@ export default function Compte({
           {t("compte.placetLien")}
         </Link>
       </p>
+      {/* ⚠️ RENDU ICI parce que c'est ce bloc qui détient l'état dont dépend
+          l'échelle de l'après-partie : compte ou non, et combien de journées.
+          Voir `docs/regularite-des-joueurs.md` §0. */}
+      <PontPlacet skin={skin} connecte={Boolean(user)} journees={bilan?.parties ?? 0} />
     </GCard>
   );
 }

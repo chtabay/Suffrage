@@ -30,6 +30,7 @@ import { Link } from "@/i18n/navigation";
 import { useAuth } from "@/lib/auth/useAuth";
 import { UNANIMO_SKIN as skin } from "@/lib/games/skin";
 import { GBtn, GCard, GLabel } from "@/components/games/ui";
+import PontPlacet from "@/components/games/PontPlacet";
 import { monJeton } from "@/lib/games/banalo/jeton";
 import { maSerie, monBilanBanalo, rattache, serieVivante, type BilanBanalo } from "@/lib/db/banalo";
 
@@ -181,6 +182,12 @@ export default function CompteBanalo({ jour }: { jour: number }) {
         </p>
       )}
       {lienPlacet}
+      {/* ⚠️ LE PONT EST RENDU ICI, ET PAS DANS L'ÉCRAN DE RÉSULTAT, parce que
+          c'est ce bloc qui détient l'état dont dépend l'échelle : y a-t-il un
+          compte, et combien de journées. Le poser à côté demanderait de faire
+          redescendre l'authentification et le bilan dans deux écrans, et
+          rendrait possible d'afficher deux demandes en même temps. */}
+      <PontPlacet skin={skin} connecte={Boolean(user)} journees={bilan?.parties ?? 0} />
     </GCard>
   );
 }

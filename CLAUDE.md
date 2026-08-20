@@ -207,6 +207,22 @@ conteneur répond 403 au CONNECT vers `xwlywozdxlgjwksypzmi.supabase.co` : tout
 qu'en interceptant la RPC avec `page.route`, ce qui éprouve l'écran et pas le
 calcul. Les jeux qui passent par une route `/api` (Cinq sur cinq) ne sont pas
 concernés — c'est le serveur Next qui appelle, et lui a le proxy.
+**L'après-partie des jeux quotidiens n'a QU'UNE place**, et plusieurs chantiers
+la veulent (installation, compte, pont vers Placet, plus tard les amis). Les
+empiler les ferait se cannibaliser : l'échelle de priorité est écrite dans
+`docs/regularite-des-joueurs.md` §0, et `PontPlacet` est le dernier servi — il se
+tait tant qu'une demande plus utile a quelque chose à dire, et **rien ne
+s'affiche avant deux journées jouées** (la première demande se mérite). Rien,
+jamais, avant la fin de la partie du jour.
+
+**Le canal d'entonnoir est une LISTE FERMÉE à trois endroits** : la fonction
+`scrutin_track_funnel`, le type `FunnelChannel` et la liste de `trackVisit`.
+Ajouter `jeu` a demandé les trois. Et ⚠️ **on ne réécrit pas une fonction de
+mémoire pour y ajouter un mot** : la première rédaction de
+`20260820-entonnoir-canal-jeu.sql` avait remplacé au passage la table, l'empreinte,
+la fenêtre d'une heure et le plafond journalier par des approximations, toutes
+plausibles et toutes fausses. On repart du corps réel, et on `diff`.
+
 
 ## Les règles qui coûtent cher
 
