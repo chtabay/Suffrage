@@ -1,6 +1,6 @@
 // SALLE DE JEU — la couche générique, celle qu'un second jeu ne réécrira pas.
 //
-// Ce fichier ne connaît RIEN d'Unanimo : ni mot, ni thème, ni barème. Il sait
+// Ce fichier ne connaît RIEN de Banalo : ni mot, ni thème, ni barème. Il sait
 // qu'une salle porte un jeu, des joueurs qui entrent et sortent, des manches qui
 // passent d'une phase à l'autre, des contributions privées puis révélées, et un
 // hôte qui donne le tempo. Le contenu d'une contribution (`payload`) et celui
@@ -76,7 +76,7 @@ export interface RoomState<TMine = unknown, TResult = unknown> {
   expected: number;
   /**
    * `secret` : ce que le serveur ne dit QU'À MOI (Alibi : ma pièce et son
-   * nombre d'occupants ; Unanimo : rien). Il ne sort que par cet objet, déjà
+   * nombre d'occupants ; Banalo : rien). Il ne sort que par cet objet, déjà
    * sous le jeton — jamais par `players`, `round` ni `result`.
    */
   me: {

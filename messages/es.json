@@ -1674,7 +1674,7 @@
       }
     },
     "metaTitle": "Jugar juntos — juegos de grupo que se comparten con un enlace",
-    "metaDescription": "Juegos para varias personas desde el móvil, sin instalar nada ni crear cuenta. Unanimo: escribe las palabras que todos tienen en la cabeza.",
+    "metaDescription": "Juegos para varias personas desde el móvil, sin instalar nada ni crear cuenta. Banalo: escribe las palabras que todos tienen en la cabeza.",
     "title": "Jugar juntos",
     "subtitle": "Juegos donde el grupo piensa, se sorprende y decide junto. Un enlace, un apodo, y ya se juega — y un juego cada día, para jugar solo.",
     "joinTitle": "¿Te han dado un código?",
@@ -1686,8 +1686,8 @@
     "players": "{n} jugadores",
     "minutes": "{n} min",
     "solo": "en solitario",
-    "unanimo": {
-      "name": "Unanimo",
+    "banalo": {
+      "name": "Banalo en grupo",
       "tagline": "Piensa como los demás"
     },
     "engineTitle": "Debajo de estos juegos está Placet.",
@@ -1710,7 +1710,7 @@
       "tagline": "Un país al día, cinco características secretas"
     }
   },
-  "Unanimo": {
+  "Banalo": {
     "apercu": {
       "titre": "Lo que ves, manga tras manga",
       "l1": "Escribes tus palabras; todavía nadie las ve.",
@@ -1726,9 +1726,9 @@
       "j2": "Sam",
       "j3": "Iris"
     },
-    "metaTitle": "Unanimo — escribe las palabras que todos tienen en la cabeza",
+    "metaTitle": "Banalo — escribe las palabras que todos tienen en la cabeza",
     "metaDescription": "Un tema, unas palabras, y puntos por cada palabra que otro también escribió. Para varias personas, desde el móvil, sin cuenta.",
-    "name": "Unanimo",
+    "name": "Banalo en grupo",
     "back": "Todos los juegos",
     "poweredBy": "Con la tecnología de Placet",
     "offline": "Conexión perdida — reintentando",
@@ -1767,7 +1767,7 @@
       "copied": "Copiado",
       "share": "Compartir",
       "whatsapp": "WhatsApp",
-      "text": "¿Jugamos a Unanimo? Únete:"
+      "text": "¿Jugamos a Banalo? Únete:"
     },
     "rank": {
       "title": "Clasificación"

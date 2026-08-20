@@ -4,7 +4,7 @@
 //
 // Ce composant est le seul à connaître les règles du jeu ; tout ce qu'il utilise
 // autour (salle, joueurs, phases, sondage, partage, entrée en cours de partie)
-// vient de `src/lib/games/*` et `src/components/games/*`, qui ignorent Unanimo.
+// vient de `src/lib/games/*` et `src/components/games/*`, qui ignorent Banalo.
 //
 // LES QUATRE ÉTATS DE L'ÉCRAN, et le fait qu'ils ne sont PAS quatre pages : la
 // partie est un fil (SALON → MANCHE → RÉVÉLATION → … → FIN), et l'URL ne change
@@ -15,20 +15,20 @@ import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { getSeat, host as hostVerbs, joinRoom, lastNick, saveSeat, submitEntry, type Seat } from "@/lib/games/room";
 import { useGameRoom } from "@/lib/games/useGameRoom";
-import { pickTheme } from "@/lib/games/unanimo/themes";
+import { pickTheme } from "@/lib/games/banalo/themes";
 import { UNANIMO_SKIN } from "@/lib/games/skin";
 import GameShell from "@/components/games/GameShell";
 import JoinGate from "@/components/games/JoinGate";
 import PlayerBoard from "@/components/games/PlayerBoard";
 import ShareRoom from "@/components/games/ShareRoom";
 import { GBtn, GCard, GLabel } from "@/components/games/ui";
-import RevealBoard, { type UnanimoResult } from "./RevealBoard";
+import RevealBoard, { type BanaloResult } from "./RevealBoard";
 import WordsInput from "./WordsInput";
 
 const skin = UNANIMO_SKIN;
 
-export default function UnanimoRoom({ code }: { code: string }) {
-  const t = useTranslations("Unanimo");
+export default function BanaloRoom({ code }: { code: string }) {
+  const t = useTranslations("Banalo");
   const router = useRouter();
   const [seat, setSeat] = useState<Seat | null>(null);
   const [seatRead, setSeatRead] = useState(false);
@@ -44,10 +44,10 @@ export default function UnanimoRoom({ code }: { code: string }) {
     setSeatRead(true);
   }, [code]);
 
-  const { room, loading, missing, offline, refresh } = useGameRoom<string[], UnanimoResult>(code, seat?.token ?? null);
+  const { room, loading, missing, offline, refresh } = useGameRoom<string[], BanaloResult>(code, seat?.token ?? null);
 
   const url = useMemo(
-    () => (typeof window === "undefined" ? "" : `${window.location.origin}/games/unanimo/${code.toUpperCase()}`),
+    () => (typeof window === "undefined" ? "" : `${window.location.origin}/games/banalo/${code.toUpperCase()}`),
     [code],
   );
 
@@ -123,7 +123,7 @@ export default function UnanimoRoom({ code }: { code: string }) {
       <GCard skin={skin} accent={skin.accent} padding={18}>
         <h1 style={{ fontFamily: skin.fontDisplay, fontWeight: 800, fontSize: 23, margin: 0 }}>{t("missing.title")}</h1>
         <p style={{ color: skin.muted, fontSize: 14.5, lineHeight: 1.5 }}>{t("missing.hint")}</p>
-        <GBtn skin={skin} size="lg" full onClick={() => router.push("/games/unanimo")}>
+        <GBtn skin={skin} size="lg" full onClick={() => router.push("/games/banalo")}>
           {t("missing.cta")}
         </GBtn>
       </GCard>,
@@ -313,7 +313,7 @@ export default function UnanimoRoom({ code }: { code: string }) {
                 const a = await joinRoom(room.nextCode!, me.name);
                 if (a.status === "ok") {
                   saveSeat({ code: room.nextCode!, token: a.token, name: a.name, isHost: false });
-                  router.push(`/games/unanimo/${room.nextCode}`);
+                  router.push(`/games/banalo/${room.nextCode}`);
                 }
               })
             }
@@ -337,7 +337,7 @@ export default function UnanimoRoom({ code }: { code: string }) {
                     if (typeof a.token === "string") {
                       saveSeat({ code: a.code, token: a.token, name: me.name, isHost: true });
                     }
-                    router.push(`/games/unanimo/${a.code}`);
+                    router.push(`/games/banalo/${a.code}`);
                   }
                 })
               }

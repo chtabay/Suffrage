@@ -163,7 +163,7 @@ export function ApercuTexte({
   );
 }
 
-/** Une pastille de mot : le geste visuel d'Unanimo comme celui des essais. */
+/** Une pastille de mot : le geste visuel de Banalo comme celui des essais. */
 export function ApercuPastille({ skin, children, plein }: { skin: GameSkin; children: ReactNode; plein?: boolean }) {
   return (
     <span

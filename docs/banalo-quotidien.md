@@ -1,7 +1,7 @@
 # UNANIMO À L'ÉCHELLE D'UNE COMMUNAUTÉ — analyse
 
 État au **2026-08-20**. Ce document n'est **pas** une spec : rien n'est construit,
-et Unanimo-le-jeu-de-salon reste clos. Il consigne l'étude d'une version
+et Banalo-le-jeu-de-salon reste clos. Il consigne l'étude d'une version
 quotidienne « un sujet par jour pour toute la communauté », les mesures qui la
 contraignent, et les décisions à ne pas refaire.
 
@@ -15,7 +15,7 @@ valent, pas les chiffres ;
 
 ## 1. Le verbe du jeu
 
-Unanimo n'est pas un jeu de vocabulaire, c'est un jeu de **coordination** :
+Banalo n'est pas un jeu de vocabulaire, c'est un jeu de **coordination** :
 deviner ce que les autres vont dire. La version communautaire n'ajoute donc pas
 un second jeu, elle change la **surface d'entrée** du même : un mot, une entité,
 un nombre, une prédiction sur autrui.
@@ -97,7 +97,7 @@ qu'à partir de *k* salles distinctes, et n'écrire l'agrégat qu'à ce moment.
 
 ## 4. Trois types de question, trois coûts
 
-### A. Le mot libre (Unanimo tel quel)
+### A. Le mot libre (Banalo tel quel)
 
 Ce qu'on a déjà. Coût : la normalisation existe et est éprouvée
 (`normalizeWord` / `scrutin_game_norm`), les 68 thèmes portent quatre langues.

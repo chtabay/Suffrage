@@ -15,13 +15,13 @@ corriger.
 | Chantier | État | Qui |
 |---|---|---|
 | **Jeu 3** | en cours | l'agent des jeux |
-| **Unanimo** (`games/unanimo`) | en prod, relu ; le jeu de salon est **fermé**. Une version quotidienne est à l'étude — `docs/unanimo-quotidien.md`, rien de construit | fermé, sauf la présentation |
+| **Banalo en groupe** (`games/banalo`) | en prod, relu ; **renommé depuis « Unanimo » le 2026-08-20** (marque). Le jeu de salon est fermé ; une version quotidienne est à l'étude — `docs/banalo-quotidien.md`, rien de construit | fermé, sauf la présentation |
 | **Alibi** (`games/alibi`) | en prod, **relu et corrigé le 2026-08-13** | fermé — **ne pas y revenir** |
 | **Gestion de groupes** (`/espaces`) | en prod, 24 constats moyens/faibles en réserve | la session tableau de bord |
 | **Cinq sur cinq** (`games/pays`) | en prod le 2026-08-18 · pictos de catégorie et mise en avant des essais le 2026-08-19 | ouvert |
 | **La Nuit du Fantôme** (`games/fantome`) | en prod ; portraits SVG + murmures de borne posés le 2026-08-18 | l'agent des jeux |
 | **La porte `/games`** | rangée par familles le 2026-08-18 ; ajouter un jeu = lui donner une `famille` dans `catalog.ts` | l'agent des jeux |
-| **Aperçus d'écrans** (`components/games/Apercus.tsx`) | posés sur Rôdeurs et Unanimo ; **reproduits, jamais capturés** — une capture ne parle qu'une langue sur quatre | l'agent des jeux |
+| **Aperçus d'écrans** (`components/games/Apercus.tsx`) | posés sur Rôdeurs et Banalo ; **reproduits, jamais capturés** — une capture ne parle qu'une langue sur quatre | l'agent des jeux |
 
 **Alibi est clos.** Sa relecture indépendante a produit 53 constats ; les deux
 bloquants, les trois forts et le reliquat d'écran sont corrigés et poussés. Ce
@@ -36,6 +36,15 @@ La moindre interaction qui demande une réponse recrée une file d'attente devan
 un tableau. Et aucun murmure ne désigne quelqu'un : un décor qui accuse
 fabriquerait une preuve que le jeu n'a pas calculée.
 
+**Le slug d'un jeu est ÉCRIT EN BASE et sert d'aiguillage.** `game_reveal` et
+`get_game_room` branchent sur `scrutin_game_rooms.game`. Renommer un jeu côté
+application sans toucher à la base fait donc échouer le dépouillement **en
+silence** : la manche passe en `reveal` et aucun score n'est calculé. Le
+renommage d'Unanimo en Banalo a dû passer par `20260820-banalo-renommage.sql`,
+qui fait accepter les DEUX valeurs le temps que la purge emporte les anciennes
+salles. Les fonctions `scrutin_game_unanimo_*` gardent leur nom : ce sont des
+identifiants Postgres, et les migrations déjà appliquées ne se réécrivent pas.
+
 **Les parties de jeu s'effacent au bout de SEPT JOURS.** Un cron horaire
 `scrutin-game-purge` supprime les salles inactives, et les joueurs, manches et
 saisies cascadent avec. Deux conséquences qui surprennent : un comptage rend zéro
@@ -43,7 +52,7 @@ alors que des parties ont eu lieu (la trace est dans la taille des tables, pas
 dans les lignes), et **aucun corpus de mots ne peut se constituer**. Le chiffre 7
 vit aussi dans la politique de confidentialité : le changer d'un seul côté
 transforme un engagement écrit en mensonge. La sortie propre, si on veut un
-corpus, est d'écrire un agrégat anonyme à côté — voir `docs/unanimo-quotidien.md`.
+corpus, est d'écrire un agrégat anonyme à côté — voir `docs/banalo-quotidien.md`.
 
 **Cinq sur cinq n'est pas clos, et le stock de 51 journées est ASSUMÉ.** Le jeu
 sort une journée par jour, générée par `scripts/pays-journees.ts` ; le 7 octobre
@@ -141,7 +150,7 @@ donc couvert que par tsc, eslint, le build et la parité — **jamais par un pas
 
 **Les jeux sont la seule surface sans compte**, donc la seule réellement
 vérifiable au navigateur (`preview_start`, puis on joue). Sers-t'en : sur
-Unanimo, deux défauts sur cinq n'étaient visibles qu'en jouant — un bouton mort
+Banalo, deux défauts sur cinq n'étaient visibles qu'en jouant — un bouton mort
 au deuxième passage et un emoji jeté en silence — et ni `tsc`, ni eslint, ni les
 tests, ni la parité ne les voyaient.
 

@@ -2,7 +2,7 @@
 //
 // Les composants de jeu génériques (liste de joueurs, jauge de réponses, barre
 // de l'hôte, écran d'entrée) ne DOIVENT PAS connaître les couleurs de Placet :
-// le jour où Unanimo vit sur son propre domaine avec sa propre identité, seul ce
+// le jour où Banalo vit sur son propre domaine avec sa propre identité, seul ce
 // fichier change. D'où un objet passé en prop plutôt qu'un import de
 // `components/scrutin/theme` au fond des composants.
 //

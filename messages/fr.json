@@ -1674,7 +1674,7 @@
       }
     },
     "metaTitle": "Jouer ensemble — des jeux de groupe à partager d'un lien",
-    "metaDescription": "Des jeux à plusieurs sur vos téléphones, sans installation ni compte. Unanimo : écrivez les mots que tout le monde a en tête.",
+    "metaDescription": "Des jeux à plusieurs sur vos téléphones, sans installation ni compte. Banalo : écrivez les mots que tout le monde a en tête.",
     "title": "Jouer ensemble",
     "subtitle": "Des jeux où le groupe réfléchit, se surprend et décide ensemble. Un lien, un pseudo, on joue — et un jeu chaque jour, à faire seul.",
     "joinTitle": "On t'a donné un code ?",
@@ -1686,8 +1686,8 @@
     "players": "{n} joueurs",
     "minutes": "{n} min",
     "solo": "solo",
-    "unanimo": {
-      "name": "Unanimo",
+    "banalo": {
+      "name": "Banalo en groupe",
       "tagline": "Pensez comme les autres"
     },
     "engineTitle": "Sous ces jeux, il y a Placet.",
@@ -1710,7 +1710,7 @@
       "tagline": "Un pays par jour, cinq caractéristiques secrètes"
     }
   },
-  "Unanimo": {
+  "Banalo": {
     "apercu": {
       "titre": "Ce que tu vois, manche après manche",
       "l1": "Tu écris tes mots, personne ne les voit encore.",
@@ -1726,9 +1726,9 @@
       "j2": "Sam",
       "j3": "Iris"
     },
-    "metaTitle": "Unanimo — écrivez les mots que tout le monde a en tête",
+    "metaTitle": "Banalo — écrivez les mots que tout le monde a en tête",
     "metaDescription": "Un thème, quelques mots, et des points pour chaque mot qu'un autre a écrit aussi. À plusieurs, sur vos téléphones, sans compte.",
-    "name": "Unanimo",
+    "name": "Banalo en groupe",
     "back": "Tous les jeux",
     "poweredBy": "Propulsé par Placet",
     "offline": "Connexion perdue — on réessaie",
@@ -1767,7 +1767,7 @@
       "copied": "Copié",
       "share": "Partager",
       "whatsapp": "WhatsApp",
-      "text": "On joue à Unanimo ? Rejoins-nous :"
+      "text": "On joue à Banalo ? Rejoins-nous :"
     },
     "rank": {
       "title": "Classement"

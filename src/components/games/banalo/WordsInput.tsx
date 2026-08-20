@@ -20,7 +20,7 @@
 //   qu'une fois (le serveur dédoublonne). Le taire donnerait un joueur persuadé
 //   d'avoir huit mots avec sept qui comptent. On le prévient, avec la raison.
 import { useMemo, useRef, useState } from "react";
-import { normalizeWord, themeTokens } from "@/lib/games/unanimo/scoring";
+import { normalizeWord, themeTokens } from "@/lib/games/banalo/scoring";
 import type { GameSkin } from "@/lib/games/skin";
 import { GBtn } from "@/components/games/ui";
 

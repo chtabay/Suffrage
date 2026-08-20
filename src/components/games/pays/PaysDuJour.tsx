@@ -78,7 +78,7 @@ export default function PaysDuJour({ jour }: { jour: number }) {
   // `useState(() => …)` fait diverger le rendu serveur (vide) du rendu client
   // (une partie en cours) : React ne rattrape pas les attributs, et l'écran
   // reste bloqué sur l'état du serveur. La leçon est déjà écrite dans
-  // UnanimoCreate ; elle vaut ici mot pour mot.
+  // BanaloCreate ; elle vaut ici mot pour mot.
   useEffect(() => {
     let sauve: Sauvegarde | null = null;
     try {

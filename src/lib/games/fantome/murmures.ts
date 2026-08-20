@@ -22,7 +22,7 @@
 // elle n'écoute pas — elle reste une BALISE.
 //
 // DU CONTENU, PAS DE L'i18n : même choix que `manoir.ts` et que les thèmes
-// d'Unanimo. Un seul tableau porte les quatre langues côte à côte, la parité est
+// de Banalo. Un seul tableau porte les quatre langues côte à côte, la parité est
 // garantie par la structure plutôt que par un contrôle.
 
 export interface Murmure {

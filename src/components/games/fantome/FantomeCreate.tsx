@@ -29,7 +29,7 @@ export default function FantomeCreate() {
 
   // Le pseudo vit dans le localStorage : lecture APRÈS le montage seulement.
   // Un `useState(lastNick())` rend le bouton mort au second passage (désaccord
-  // d'hydratation, payé sur Unanimo — React ne rattrape pas `disabled`).
+  // d'hydratation, payé sur Banalo — React ne rattrape pas `disabled`).
   useEffect(() => setName((n) => n || lastNick()), []);
 
   const create = async () => {

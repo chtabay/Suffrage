@@ -1674,7 +1674,7 @@
       }
     },
     "metaTitle": "Play together — group games wey you share with one link",
-    "metaDescription": "Games wey plenty people go play on dem phone, no install, no account. Unanimo: write di words wey everybody dey think.",
+    "metaDescription": "Games wey plenty people go play on dem phone, no install, no account. Banalo: write di words wey everybody dey think.",
     "title": "Play together",
     "subtitle": "Games where di group dey think, dey surprise demself, and dey decide together. One link, one nickname, and una don start — plus one game every day wey you fit play alone.",
     "joinTitle": "Dem give you code?",
@@ -1686,8 +1686,8 @@
     "players": "{n} players",
     "minutes": "{n} min",
     "solo": "you alone",
-    "unanimo": {
-      "name": "Unanimo",
+    "banalo": {
+      "name": "Banalo with padi dem",
       "tagline": "Think like di others"
     },
     "engineTitle": "Under dis games, Placet dey.",
@@ -1710,7 +1710,7 @@
       "tagline": "One country every day, five secret mark"
     }
   },
-  "Unanimo": {
+  "Banalo": {
     "apercu": {
       "titre": "Wetin you dey see, round by round",
       "l1": "You dey write your words; nobody don see dem yet.",
@@ -1726,9 +1726,9 @@
       "j2": "Sam",
       "j3": "Iris"
     },
-    "metaTitle": "Unanimo — write di words wey everybody dey think",
+    "metaTitle": "Banalo — write di words wey everybody dey think",
     "metaDescription": "One theme, small words, and point for every word wey another person write too. Plenty people, on dem phone, no account.",
-    "name": "Unanimo",
+    "name": "Banalo with padi dem",
     "back": "All di games",
     "poweredBy": "Placet dey power am",
     "offline": "Network cut — we dey try again",
@@ -1767,7 +1767,7 @@
       "copied": "Copied",
       "share": "Share",
       "whatsapp": "WhatsApp",
-      "text": "You wan play Unanimo? Come join us:"
+      "text": "You wan play Banalo? Come join us:"
     },
     "rank": {
       "title": "Table"

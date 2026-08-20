@@ -19,23 +19,23 @@
 import type { GameSkin } from "@/lib/games/skin";
 import { GCard, GLabel } from "@/components/games/ui";
 
-export interface UnanimoWord {
+export interface BanaloWord {
   label: string;
   norm: string;
   count: number;
   points: number;
   players: string[];
 }
-export interface UnanimoPlayerRound {
+export interface BanaloPlayerRound {
   name: string;
   points: number;
   answered: boolean;
   words: { label: string; count: number; points: number }[];
 }
-export interface UnanimoResult {
+export interface BanaloResult {
   rule: string;
-  words: UnanimoWord[];
-  players: UnanimoPlayerRound[];
+  words: BanaloWord[];
+  players: BanaloPlayerRound[];
 }
 
 /** Retard d'apparition d'une ligne, plafonné : à trente mots, on n'attend pas. */
@@ -48,7 +48,7 @@ export default function RevealBoard({
   labels,
 }: {
   skin: GameSkin;
-  result: UnanimoResult;
+  result: BanaloResult;
   myName?: string | null;
   labels: {
     common: string;
@@ -73,7 +73,7 @@ export default function RevealBoard({
     );
   }
 
-  const row = (w: UnanimoWord, i: number, dim: boolean) => (
+  const row = (w: BanaloWord, i: number, dim: boolean) => (
     <li
       key={w.norm}
       style={{

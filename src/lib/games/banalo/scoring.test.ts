@@ -1,4 +1,4 @@
-// Tests des règles d'Unanimo.
+// Tests des règles de Banalo.
 //
 // STRATÉGIE. Le barème et la normalisation sont les deux endroits où une
 // approximation se voit immédiatement à la table (« pourquoi Léa a 4 et moi 0 ? »),

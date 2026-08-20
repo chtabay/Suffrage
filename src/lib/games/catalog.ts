@@ -41,12 +41,12 @@ export interface GameEntry {
 
 export const GAMES: GameEntry[] = [
   {
-    slug: "unanimo",
+    slug: "banalo",
     famille: "accord",
     status: "live",
     emoji: "🧠",
     skin: UNANIMO_SKIN,
-    route: "/games/unanimo",
+    route: "/games/banalo",
     bestWith: "3–12",
     minutes: "15",
   },

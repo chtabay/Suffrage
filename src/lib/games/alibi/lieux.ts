@@ -1,6 +1,6 @@
 // LES PIÈCES DE LA MAISON — du CONTENU, pas de l'interface.
 //
-// Même règle que les thèmes d'Unanimo et que les fiches de `src/content/methods` :
+// Même règle que les thèmes de Banalo et que les fiches de `src/content/methods` :
 // un seul tableau porte les quatre langues côte à côte, hors i18n. La parité est
 // alors garantie par la STRUCTURE et non par un contrôle, et ajouter une langue
 // se fait en une colonne de plus par ligne.

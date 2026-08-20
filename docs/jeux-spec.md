@@ -1,4 +1,4 @@
-# Les jeux Placet — socle de salle, et Unanimo par-dessus
+# Les jeux Placet — socle de salle, et Banalo par-dessus
 
 Premier lot : une porte `/games`, un moteur de **salle de jeu** générique, et un
 jeu complet dessus. Livré et exercé de bout en bout (voir « Ce qui a été
@@ -14,8 +14,8 @@ dans le gameplay. Placet n'apparaît qu'en pied de page — « Propulsé par Pla
 
 ```
 /games                        porte des jeux (page Placet, nav Placet)
-  └─ /games/unanimo           le jeu : créer une partie, ou entrer par un code
-       └─ /games/unanimo/<CODE>   LA SALLE — un seul écran pour toute la partie
+  └─ /games/banalo           le jeu : créer une partie, ou entrer par un code
+       └─ /games/banalo/<CODE>   LA SALLE — un seul écran pour toute la partie
 ```
 
 Une partie est un **fil**, pas une suite de pages : `SALON → MANCHE 1 →
@@ -27,7 +27,7 @@ retombe exactement là où le groupe en est, quoi qu'il ait manqué.
 Quatre tables, toutes préfixées `scrutin_game_` (la base OpenSM est **partagée**
 avec une autre application, qui possède déjà une table `game_state`).
 
-| Table | Rôle | Connaît Unanimo ? |
+| Table | Rôle | Connaît Banalo ? |
 |---|---|---|
 | `scrutin_game_rooms` | la salle : jeu, code, statut, manches prévues, réglages `jsonb`, langue, salle suivante | non |
 | `scrutin_game_players` | qui joue : pseudo, jeton, hôte, score cumulé, **manche d'entrée** | non |
@@ -124,23 +124,23 @@ saura ce qu'il faut vraiment extraire ; l'inventer maintenant serait deviner.
 
 ---
 
-## 4. Éléments propres à Unanimo
+## 4. Éléments propres à Banalo
 
-- `src/lib/games/unanimo/themes.ts` — **68 thèmes × 4 langues**, en dur. Pas de
+- `src/lib/games/banalo/themes.ts` — **68 thèmes × 4 langues**, en dur. Pas de
   LLM : une manche ne doit pas attendre un appel réseau au milieu d'un salon, un
   thème doit être évident pour toute la table, et la partie doit tourner sans clé
   d'API. Un seul tableau porte les quatre langues côte à côte : la parité est
   garantie par la structure. Le thème est tiré **par le client de l'hôte** (la
   base garde ce qui a été joué, elle n'héberge pas le catalogue) et jamais deux
   fois dans la même partie.
-- `src/lib/games/unanimo/scoring.ts` — barème et normalisation, + le
+- `src/lib/games/banalo/scoring.ts` — barème et normalisation, + le
   dépouillement de référence qui sert de **spécification exécutable**.
-- `src/components/games/unanimo/` — `UnanimoCreate`, `UnanimoRoom` (le seul
+- `src/components/games/banalo/` — `BanaloCreate`, `BanaloRoom` (le seul
   composant qui connaît les règles), `WordsInput`, `RevealBoard`.
 
 ### Le barème, vérifié avant d'être écrit
 
-Règle **officielle** d'Unanimo (Cocktail Games) : *un mot rapporte autant de
+Règle **officielle** de Banalo (Cocktail Games) : *un mot rapporte autant de
 points qu'il y a de joueurs l'ayant écrit ; si on est seul à l'avoir eu, on ne
 marque rien.* Donc **N joueurs → N points chacun, 0 quand N = 1** — et non
 « N-1 » comme on pourrait le supposer. La marche franche entre être seul (0) et
@@ -227,7 +227,7 @@ Trois défauts trouvés et corrigés en route, listés au §6.
    encapsulée, onglet qui ne compose pas, application réveillée en arrière-plan)
    — et le symptôme est le pire possible pour un jeu : **la partie a l'air
    gelée**. On ralentit maintenant à 15 s au lieu de s'arrêter.
-3. **`Unanimo.host.more` s'est affiché en clair à l'écran.** Le message disait
+3. **`Banalo.host.more` s'est affiché en clair à l'écran.** Le message disait
    `{count, plural, …}` et l'appel passait `{ n }` : la clé existait, les quatre
    langues étaient d'accord, et le formatage ICU échouait en silence. Le garde-fou
    `scripts/i18n-parity.mjs` gagne donc deux contrôles — la **résolution des clés
@@ -262,7 +262,7 @@ Trois défauts trouvés et corrigés en route, listés au §6.
 - **60 joueurs par salle**, plafond purement technique (lisibilité d'une
   révélation, poids d'une réponse réseau) et non une règle du jeu.
 - **Le QR garde les couleurs de Placet** (encre navy sur crème) dans une salle
-  Unanimo : un QR est monochrome par nature, et dupliquer un composant qui marche
+  Banalo : un QR est monochrome par nature, et dupliquer un composant qui marche
   pour une nuance de cadre n'en valait pas le prix.
 - `mer`/`mers` restent deux mots — voir la normalisation.
 - Le score de la manche n'est pas animé (pas de compteur qui grimpe) : la

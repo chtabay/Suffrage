@@ -23,8 +23,8 @@ const skin = UNANIMO_SKIN;
 const ROUNDS = [3, 5, 8];
 const WORDS = [5, 8, 12];
 
-export default function UnanimoCreate() {
-  const t = useTranslations("Unanimo");
+export default function BanaloCreate() {
+  const t = useTranslations("Banalo");
   const locale = useLocale();
   const router = useRouter();
   const [name, setName] = useState("");
@@ -35,7 +35,7 @@ export default function UnanimoCreate() {
   const [err, setErr] = useState<string | null>(null);
 
   // Le pseudo de la dernière partie vit dans le localStorage : on ne peut le
-  // lire qu'APRÈS le montage — la règle est déjà écrite dans UnanimoRoom, et
+  // lire qu'APRÈS le montage — la règle est déjà écrite dans BanaloRoom, et
   // c'est ici qu'elle manquait.
   //
   // ⚠️ CE QUE COÛTAIT UN `useState(lastNick())`. Le serveur rend « » (pas de
@@ -56,13 +56,13 @@ export default function UnanimoCreate() {
     setBusy("create");
     setErr(null);
     try {
-      const a = await createRoom("unanimo", name.trim(), rounds, { words }, locale);
+      const a = await createRoom("banalo", name.trim(), rounds, { words }, locale);
       if (a.status !== "ok" || !("code" in a)) {
         setErr(t("create.error"));
         return;
       }
       saveSeat({ code: a.code, token: a.token, name: a.name, isHost: true });
-      router.push(`/games/unanimo/${a.code}`);
+      router.push(`/games/banalo/${a.code}`);
     } catch {
       setErr(t("create.error"));
     } finally {
@@ -81,7 +81,7 @@ export default function UnanimoCreate() {
     try {
       const a = await getRoom(c);
       if (a.status === "not_found") setErr(t("create.badCode"));
-      else router.push(`/games/unanimo/${c}`);
+      else router.push(`/games/banalo/${c}`);
     } catch {
       setErr(t("create.badCode"));
     } finally {

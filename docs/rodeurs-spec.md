@@ -120,7 +120,7 @@ défaut trouvé en jouant), `rodeurs_vote` (auto-résolution au dernier vote),
 `rodeurs_band`, `rodeurs_leave`. Fichiers : `20260813-jeu-rodeurs-1-schema.sql`
 et `-2-regles.sql` — **contrôle md5 fichier ↔ `pg_proc.prosrc` : 17/17
 identiques** au moment du commit (c'est le contrôle dont l'absence avait rendu
-une migration d'Unanimo non rejouable).
+une migration de Banalo non rejouable).
 
 ## 6. Ce qu'on ne fait pas en v1
 
