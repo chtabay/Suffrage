@@ -53,7 +53,30 @@ export default function BanaloDuJour({ jour }: { jour: number }) {
   // ⚠️ LE FACTEUR AUSSI PASSE PAR `Intl`. `toFixed(1)` rendait « ×1.6 » —
   // un point décimal anglais au milieu d'un écran français, à côté de nombres
   // groupés à la française. Vu à l'écran, invisible au test.
-  const decimal = useMemo(() => new Intl.NumberFormat(bcp(locale), { maximumFractionDigits: 1 }), [locale]);
+  //
+  // ⚠️ ET IL EN FAUT DEUX DÉCIMALES, PAS UNE. La ligne de barème posée sous
+  // l'écart invite explicitement à refaire le calcul ; avec « ×1,3 » on retombe
+  // sur 8,86 quand l'écran affiche 8,75, et la règle annoncée a l'air fausse.
+  // « ×1,33 » donne 8,76 : l'arrondi se voit, le barème tient. Au-delà de ×10 le
+  // score est zéro de toute façon, la décimale n'a plus rien à vérifier.
+  const ecartFin = useMemo(
+    () => new Intl.NumberFormat(bcp(locale), { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
+    [locale],
+  );
+  const ecartGros = useMemo(() => new Intl.NumberFormat(bcp(locale), { maximumFractionDigits: 0 }), [locale]);
+  const ecart = useCallback(
+    (f: number) => (f < 10 ? ecartFin.format(f) : ecartGros.format(f)),
+    [ecartFin, ecartGros],
+  );
+  // ⚠️ LE SCORE S'AFFICHE TOUJOURS AVEC SES DEUX DÉCIMALES, « 10,00 » compris.
+  // Laisser ICU couper les zéros donnerait « 8,7 » puis « 8,75 » d'un joueur à
+  // l'autre — deux largeurs, deux précisions apparentes, pour une même note. Et
+  // c'est cette valeur-là, au centième, qui décide du rang : l'afficher tronquée
+  // ferait apparaître deux joueurs au même score avec deux rangs différents.
+  const note = useMemo(
+    () => new Intl.NumberFormat(bcp(locale), { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
+    [locale],
+  );
 
   // ⚠️ LE JETON NE SE LIT QU'APRÈS LE MONTAGE. Le lire au rendu en créerait un
   // nouveau à chaque passage côté serveur, et l'hydratation le changerait — le
@@ -110,7 +133,7 @@ export default function BanaloDuJour({ jour }: { jour: number }) {
   const partage = useCallback(async () => {
     if (!jeu?.assez || jeu.points === null) return;
     const lignes = [
-      t("partageTitre", { n: jour, points: jeu.points }),
+      t("partageTitre", { n: jour, points: note.format(jeu.points) }),
       jeu.partMieux !== null ? t("partMieux", { n: jeu.partMieux }) : "",
       typeof window !== "undefined" ? `${window.location.origin}${window.location.pathname}` : "",
     ].filter(Boolean);
@@ -127,7 +150,7 @@ export default function BanaloDuJour({ jour }: { jour: number }) {
     } catch {
       // Partage refusé par l'utilisateur : rien à dire.
     }
-  }, [jeu, jour, t]);
+  }, [jeu, jour, t, note]);
 
   return (
     <GameShell
@@ -276,10 +299,13 @@ export default function BanaloDuJour({ jour }: { jour: number }) {
                 lineHeight: 1,
                 margin: "6px 0 0",
                 fontVariantNumeric: "tabular-nums",
-                color: jeu.points >= 6 ? skin.good : skin.ink,
+                // Le vert commence à 7, ce qui n'est pas un réglage d'humeur :
+                // la courbe rend 6,99 pile à ×2, donc « en vert » veut dire
+                // « à moins du double ou de la moitié de la médiane ».
+                color: jeu.points >= 7 ? skin.good : skin.ink,
               }}
             >
-              {t("points", { n: jeu.points })}
+              {t("points", { n: note.format(jeu.points) })}
             </p>
             {/* ⚠️ LA PART PASSE DEVANT LE RANG, ET C'EST LA MÊME LEÇON QUE CINQ
                 SUR CINQ. Le rang provisoire empire mécaniquement : 38e sur 210 à
@@ -313,9 +339,16 @@ export default function BanaloDuJour({ jour }: { jour: number }) {
               {jeu.facteur !== null ? (
                 <Ligne
                   libelle={t("ecart")}
-                  valeur={t("facteur", { f: decimal.format(arrondiFacteur(jeu.facteur)) })}
+                  valeur={t("facteur", { f: ecart(jeu.facteur) })}
                 />
               ) : null}
+              {/* ⚠️ LA RÈGLE EST ÉCRITE SOUS L'ÉCART, ET ELLE MANQUAIT. L'écran
+                  montrait « 8,75 sur 10 » et « ×1,33 » dans deux cartes, sans
+                  jamais dire comment on passe de l'un à l'autre : deux chiffres
+                  sans lien. Le barème a été fait énonçable en une ligne pour
+                  qu'il soit vérifiable de tête — encore faut-il que la ligne
+                  soit là. */}
+              <p style={{ margin: 0, fontSize: 12, color: skin.muted, lineHeight: 1.4 }}>{t("bareme")}</p>
               <Ligne libelle={t("votants")} valeur={chiffre(jeu.votants)} />
             </div>
             {/* La phrase qui empêche le malentendu. Elle n'est pas décorative :
@@ -342,17 +375,6 @@ export default function BanaloDuJour({ jour }: { jour: number }) {
       ) : null}
     </GameShell>
   );
-}
-
-/**
- * Le facteur, à une décimale sous 10 et entier au-delà.
- *
- * « ×2,3 » se lit ; « ×47,318 » ne dit rien de plus que « ×47 », et sur un écart
- * de cet ordre la précision est du bruit. Le RENDU, lui, revient à `Intl` : la
- * virgule décimale n'est pas la même dans les quatre langues.
- */
-function arrondiFacteur(f: number): number {
-  return f < 10 ? Math.round(f * 10) / 10 : Math.round(f);
 }
 
 function Ligne({ libelle, valeur, fort }: { libelle: string; valeur: string; fort?: boolean }) {

@@ -2516,6 +2516,7 @@
     "exAequo": "{n, plural, one {empatado con # más} other {empatado con # más}}",
     "mienne": "Tu respuesta",
     "mediane": "La respuesta mediana",
+    "bareme": "Diez puntos, menos diez por cada factor diez de desviación.",
     "ecart": "Tu desviación",
     "facteur": "×{f}",
     "votants": "Respuestas",

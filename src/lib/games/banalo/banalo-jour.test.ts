@@ -158,14 +158,52 @@ test("l'écart se compte en facteurs : ÷3 et ×3 valent pareil", () => {
   assert.equal(pointsDe(facteurDe(3000, 1000)), pointsDe(facteurDe(1000 / 3, 1000)));
 });
 
-test("les paliers de points sont ceux annoncés au joueur", () => {
+test("le score suit la courbe annoncée au joueur, au centième près", () => {
+  // « Dix points, moins dix par facteur dix d'écart. » Ces repères sont ceux
+  // écrits dans la migration ET affichés sous le score : ils doivent s'accorder
+  // au caractère près avec `scrutin_banalo_points`, vérifié en base.
   assert.equal(pointsDe(1), POINTS_MAX);
-  assert.equal(pointsDe(1.24), 10);
-  assert.equal(pointsDe(1.9), 6);
-  assert.equal(pointsDe(4.9), 3);
-  assert.equal(pointsDe(9.9), 1);
+  assert.equal(pointsDe(1.25), 9.03);
+  assert.equal(pointsDe(2), 6.99);
+  assert.equal(pointsDe(5), 3.01);
   assert.equal(pointsDe(10), 0);
+  assert.equal(pointsDe(1e9), 0, "au-delà de ×10, tout le monde a la même note");
   assert.equal(pointsDe(Infinity), 0, "une réponse impossible ne rapporte rien");
+});
+
+test("le score ne prend JAMAIS plus de deux décimales", () => {
+  // ⚠️ LE RANG SE CALCULE SUR LA VALEUR ARRONDIE. Une troisième décimale ferait
+  // apparaître deux joueurs au même score affiché avec deux rangs différents :
+  // l'écran se contredirait tout seul.
+  for (let f = 1; f < 10; f += 0.0137) {
+    const p = pointsDe(f);
+    assert.equal(p, Math.round(p * 100) / 100, `facteur ${f} rend ${p}`);
+  }
+});
+
+test("le score DISCRIMINE, là où les cinq paliers ne classaient rien", () => {
+  // ⚠️ LA RAISON DU CHANGEMENT, EN UN TEST. Le barème en paliers ne pouvait
+  // rendre que cinq valeurs : sur deux cents joueurs, cent pour cent d'entre eux
+  // étaient ex aequo et le plus gros paquet faisait 40 % du terrain. Le rang et
+  // la part n'avaient donc rien à mesurer.
+  const paliers = (f: number) => (f < 1.25 ? 10 : f < 2 ? 6 : f < 5 ? 3 : f < 10 ? 1 : 0);
+  // Deux cents écarts étalés entre ×1 et ×8, sans motif régulier — un semis à
+  // pas constant apparierait mécaniquement les facteurs symétriques.
+  const ecarts = Array.from({ length: 200 }, (_, i) => 1 + 7 * Math.abs(Math.sin(i * 12.9898)));
+  const distincts = (b: (f: number) => number) => new Set(ecarts.map(b)).size;
+  // Mesuré sur ce semis : 5 valeurs contre 135. Le seuil est posé sous la
+  // mesure, pas dessus — il garde la propriété sans se casser au premier
+  // ajustement de la courbe.
+  assert.ok(distincts(paliers) <= 5, "le barème d'avant ne pouvait pas faire mieux");
+  assert.ok(distincts(pointsDe) > 120, `seulement ${distincts(pointsDe)} scores distincts`);
+});
+
+test("le zéro reste un paquet, et c'est la seule égalité voulue", () => {
+  // « Raté d'un facteur dix ou plus » est UNE information. Départager ×50 de
+  // ×500 ferait dépendre le bas du classement des fautes de frappe.
+  assert.equal(pointsDe(10), pointsDe(50));
+  assert.equal(pointsDe(50), pointsDe(500));
+  assert.notEqual(pointsDe(9.9), pointsDe(9.8), "juste au-dessus, on départage encore");
 });
 
 test("une réponse nulle ou négative ne rapporte rien, sans planter", () => {

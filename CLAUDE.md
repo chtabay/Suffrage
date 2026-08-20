@@ -99,6 +99,17 @@ marquer 10 tous les jours. Le `on conflict do nothing` n'est donc pas une
 commodité — c'est ce qui rend la médiane sûre à rendre. Et c'est aussi pourquoi
 ce mode a un jeton anonyme stable, là où Cinq sur cinq s'en passe fièrement.
 
+**Le score de Banalo du jour est CONTINU, et il l'est pour une raison mesurée.**
+`10 − 10·log₁₀(facteur)`, borné à [0 ; 10], arrondi au centième. La première
+version notait par cinq paliers : sur n'importe quelle taille de foule, **100 %
+des joueurs étaient ex aequo** et le plus gros paquet faisait 38 à 42 % du
+terrain — le rang et la part n'avaient plus rien à mesurer. La courbe passe par
+les mêmes repères que les paliers (×2 → 6,99, ×5 → 3,01, ×10 → 0) : ce n'est pas
+un nouveau barème, c'est l'ancien sans les marches. Deux choses à ne pas
+« simplifier » : le zéro reste un paquet unique au-delà de ×10 (départager ×50 de
+×500 classerait des fautes de frappe), et **le rang se calcule sur la valeur
+ARRONDIE** — d'où `numeric` en base, où l'égalité est exacte.
+
 **Le 30 de Banalo du jour vit à TROIS endroits** : `scrutin_banalo_purge`, le
 cron `scrutin-banalo-purge` (`20260820-banalo-du-jour-purge.sql`) et la politique
 de confidentialité (`src/app/[locale]/privacy/page.tsx` — le fichier s'appelle

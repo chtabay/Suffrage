@@ -60,23 +60,44 @@ export function facteurDe(reponse: number, reference: number): number {
 }
 
 /**
- * Les points d'une réponse, par paliers de facteur.
+ * Les points d'une réponse : **dix, moins dix par facteur dix d'écart.**
  *
- * L'échelle est volontairement grossière et énonçable en une ligne — le joueur
- * doit pouvoir vérifier son score de tête :
+ *     points = 10 − 10·log₁₀(facteur), borné à [0 ; 10], arrondi au centième
  *
- *     à moins de ×1,25 → 10 · ×2 → 6 · ×5 → 3 · ×10 → 1 · au-delà → 0
+ * ⚠️ C'ÉTAIT CINQ PALIERS, ET LES CINQ PALIERS NE CLASSAIENT RIEN. Mesuré sur
+ * une foule simulée (log-normale d'écart-type ×3, plus 1 % d'absurdités) :
  *
- * Répartition obtenue sur la simulation : 21 % à 10 points, 36 % à 3. Ça
- * discrimine sans écraser.
+ *                       scores distincts   ex aequo   plus gros paquet
+ *     paliers,    214 joueurs        5       100 %        42 %
+ *     paliers, 20 000 joueurs        5       100 %        38 %
+ *     CONTINU,    214 joueurs      188                     2,3 %
+ *     CONTINU, 20 000 joueurs      944                     4,7 %
+ *
+ * Avec cinq valeurs possibles, le rang et la part n'avaient plus rien à
+ * mesurer : un joueur sur trois partageait son score avec sept mille autres, et
+ * « 63e sur 214 » était surtout une coïncidence de comptage.
+ *
+ * ⚠️ CE N'EST PAS UN NOUVEAU BARÈME, C'EST L'ANCIEN SANS LES MARCHES. La courbe
+ * passe presque exactement par les repères déjà annoncés — ×1,25 → 9,03 (contre
+ * 10), ×2 → 6,99 (contre 6), ×5 → 3,01 (contre 3), ×10 → 0 (contre 0). Rien n'a
+ * été retuné ; on a seulement cessé d'écraser la valeur sur le bas de sa
+ * tranche. Et l'énoncé est plus court qu'avant, ce qui compte : le barème doit
+ * rester vérifiable de tête, et il est maintenant écrit à l'écran.
+ *
+ * ⚠️ LE ZÉRO RESTE UN PAQUET, ET C'EST VOULU. Au-delà de ×10 tout le monde a la
+ * même note. « Raté d'un facteur dix ou plus » est UNE information ; départager
+ * un joueur à ×50 d'un joueur à ×500 serait du bruit, et ferait dépendre le bas
+ * du classement des fautes de frappe.
+ *
+ * ⚠️ L'ARRONDI AU CENTIÈME N'EST PAS COSMÉTIQUE : LE RANG SE CALCULE DESSUS.
+ * Classer sur la valeur exacte et n'afficher que deux décimales montrerait deux
+ * joueurs au même score avec deux rangs différents — l'écran se contredirait
+ * tout seul. La base fait pareil, en `numeric`, où l'égalité est exacte.
  */
 export function pointsDe(facteur: number): number {
-  if (!Number.isFinite(facteur)) return 0;
-  if (facteur < 1.25) return 10;
-  if (facteur < 2) return 6;
-  if (facteur < 5) return 3;
-  if (facteur < 10) return 1;
-  return 0;
+  if (!Number.isFinite(facteur) || facteur >= 10) return 0;
+  if (facteur <= 1) return POINTS_MAX;
+  return Math.round((10 - 10 * Math.log10(facteur)) * 100) / 100;
 }
 
 /**

@@ -2516,6 +2516,7 @@
     "exAequo": "{n, plural, one {you tie with # other person} other {you tie with # other people}}",
     "mienne": "Your answer",
     "mediane": "Di median answer",
+    "bareme": "Ten points, minus ten for every factor of ten wey you miss.",
     "ecart": "How far you dey",
     "facteur": "×{f}",
     "votants": "Answers",

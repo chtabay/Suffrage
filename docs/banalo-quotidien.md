@@ -158,8 +158,49 @@ l'un à ÷3 et l'autre à ×3 de la médiane :
 écart logarithmique    0,48  vs   0,48   → à égalité, comme il se doit
 ```
 
-D'où le barème : **×1,25 → 10 pts · ×2 → 6 · ×5 → 3 · ×10 → 1 · au-delà → 0**.
-Répartition obtenue : 21 % à 10 points, 36 % à 3 — ça discrimine sans écraser.
+D'où le barème : **dix points, moins dix par facteur dix d'écart.**
+
+```
+points = 10 − 10·log₁₀(facteur), borné à [0 ; 10], arrondi au centième
+```
+
+**Il était en cinq paliers, et les cinq paliers ne classaient rien.** Première
+version : ×1,25 → 10 pts · ×2 → 6 · ×5 → 3 · ×10 → 1 · au-delà → 0. Mesuré sur
+une foule simulée (log-normale d'écart-type ×3, plus 1 % d'absurdités) :
+
+```
+                      scores distincts   ex aequo   plus gros paquet
+paliers,    214 joueurs        5           100 %         42 %
+paliers, 20 000 joueurs        5           100 %         38 %
+CONTINU,    214 joueurs      188                          2,3 %
+CONTINU, 20 000 joueurs      944                          4,7 %
+```
+
+Avec cinq valeurs possibles, le rang et la part **n'avaient plus rien à
+mesurer** : un joueur sur trois partageait son score avec sept mille autres, et
+« 63e sur 214 » était surtout une coïncidence de comptage. Le classement était
+donc décoratif — ce qui est le contraire de ce qu'on lui demandait, puisque la
+part est le chiffre qu'on met devant.
+
+**Ce n'est pas un nouveau barème, c'est l'ancien sans les marches.** La courbe
+passe presque exactement par les repères déjà annoncés — ×1,25 → 9,03 (contre
+10), ×2 → 6,99 (contre 6), ×5 → 3,01 (contre 3), ×10 → 0 (contre 0). Rien n'a
+été retuné ; on a seulement cessé d'écraser la valeur sur le bas de sa tranche.
+Et l'énoncé est plus court qu'avant, ce qui compte : le barème doit rester
+vérifiable de tête, et il est maintenant **écrit à l'écran**, sous l'écart.
+
+Deux détails qui ne sont pas des détails :
+
+* **Le zéro reste un paquet.** Au-delà de ×10, tout le monde a la même note.
+  « Raté d'un facteur dix ou plus » est UNE information ; départager ×50 de ×500
+  ferait dépendre le bas du classement des fautes de frappe. C'est d'ailleurs le
+  plus gros paquet restant (4,7 %), et il doit le rester.
+* **L'arrondi au centième n'est pas cosmétique : le rang se calcule dessus.**
+  Classer sur la valeur exacte et n'afficher que deux décimales montrerait deux
+  joueurs au même score avec deux rangs différents. En base, le type est
+  `numeric` et non `double precision`, parce que l'égalité y est exacte.
+  Répartition obtenue : 16,6 % au-dessus de 9, 29,4 % entre 7 et 9, 22,4 % entre
+  5 et 7 — ça discrimine sans écraser.
 
 ---
 
