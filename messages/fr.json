@@ -2746,7 +2746,7 @@
       "placetLien": "voir à quoi ça sert"
     },
     "metaTitle": "Cinq sur cinq — le jeu de géographie quotidien",
-    "metaDescription": "Trouvez le pays du jour sur la carte du monde. Chaque essai vous dit combien de caractéristiques il partage avec lui. Un nouveau pays chaque jour, sans compte.",
+    "metaDescription": "Trouvez le pays du jour sur la carte. Chaque essai dit combien de caractéristiques il partage avec lui. Un pays par jour, sans compte.",
     "name": "Cinq sur cinq",
     "back": "Tous les jeux",
     "poweredBy": "Propulsé par Placet",
@@ -2764,6 +2764,7 @@
     "erreur": "Le score n'est pas revenu. Réessayez dans un instant.",
     "historique": "{n, plural, one {# essai} other {# essais}}",
     "partageTitre": "{jeu} n° {n} — trouvé en {essais, plural, one {# essai} other {# essais}}",
+    "partageRang": "{rang}e sur {joueurs} joueurs aujourd'hui",
     "victoire": {
       "qrAide": "Ou montrez ce code à quelqu'un",
       "qrTitre": "Code à scanner pour ouvrir le jeu",

@@ -297,6 +297,17 @@ test("l'infini rendu par Postgres ne s'affiche pas « ×Infinity »", () => {
   assert.equal(e?.facteur, null);
 });
 
+test("sous le plancher de votants, aucune part n'est calculée", () => {
+  // ⚠️ TEST REMIS APRÈS L'AVOIR PERDU. Il existait, puis la réécriture du rang
+  // sur le facteur l'a emporté sans que rien ne le signale — sauf un
+  // avertissement d'import inutilisé, qui est le seul indice qu'une règle
+  // n'était plus vérifiée. « 3e sur 7 » n'est pas un rang, c'est du bruit.
+  const peu = Array.from({ length: VOTANTS_MIN - 1 }, () => 1.5);
+  assert.equal(positionDe(1.5, peu).partMieux, null);
+  const assez = Array.from({ length: VOTANTS_MIN }, () => 1.5);
+  assert.ok(positionDe(1.5, assez).partMieux !== null, "au plancher exact, la part sort");
+});
+
 test("le rang s'éteint avec la part, jamais tout seul", () => {
   // ⚠️ TROUVÉ À L'ÉCRAN, pas à la relecture. La base rend toujours `rang` mais
   // ne rend `partmieux` qu'au-delà du plancher de position : une journée à huit

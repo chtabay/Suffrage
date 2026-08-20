@@ -2746,7 +2746,7 @@
       "placetLien": "see wetin e dey do"
     },
     "metaTitle": "Five Over Five — di geography game wey dey come every day",
-    "metaDescription": "Find di country of di day for di world map. Every try go tell you how many things e share with am. New country every day, you no need account.",
+    "metaDescription": "Find di country of di day for di map. Every try go tell you how many mark e share with am. One country every day, no account.",
     "name": "Five Over Five",
     "back": "All di games",
     "poweredBy": "Placet dey power am",
@@ -2764,6 +2764,7 @@
     "erreur": "Di score no come back. Try am again small.",
     "historique": "{n, plural, one {# try} other {# tries}}",
     "partageTitre": "{jeu} number {n} — I find am for {essais, plural, one {# try} other {# tries}}",
+    "partageRang": "Number {rang} out of {joueurs} players today",
     "victoire": {
       "qrAide": "Or show person dis code",
       "qrTitre": "Scan dis code to open di game",

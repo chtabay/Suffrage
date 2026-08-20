@@ -2746,7 +2746,7 @@
       "placetLien": "ver para qué sirve"
     },
     "metaTitle": "Cinco sobre cinco — el juego diario de geografía",
-    "metaDescription": "Encuentra el país del día en el mapa del mundo. Cada intento te dice cuántas características comparte con él. Un país nuevo cada día, sin cuenta.",
+    "metaDescription": "Encuentra el país del día en el mapa. Cada intento te dice cuántas características comparte con él. Un país al día, sin cuenta.",
     "name": "Cinco sobre cinco",
     "back": "Todos los juegos",
     "poweredBy": "Con la tecnología de Placet",
@@ -2764,6 +2764,7 @@
     "erreur": "La puntuación no ha llegado. Inténtalo de nuevo en un momento.",
     "historique": "{n, plural, one {# intento} other {# intentos}}",
     "partageTitre": "{jeu} n.º {n} — encontrado en {essais, plural, one {# intento} other {# intentos}}",
+    "partageRang": "Puesto {rang} de {joueurs} jugadores hoy",
     "victoire": {
       "qrAide": "O enseña este código a alguien",
       "qrTitre": "Escanea este código para abrir el juego",

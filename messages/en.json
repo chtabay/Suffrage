@@ -2746,7 +2746,7 @@
       "placetLien": "see what it's for"
     },
     "metaTitle": "Five by Five — the daily geography game",
-    "metaDescription": "Find the country of the day on the world map. Each guess tells you how many characteristics it shares with it. A new country every day, no account needed.",
+    "metaDescription": "Find today's country on the map. Each guess tells you how many characteristics it shares with it. One country a day, no account.",
     "name": "Five by Five",
     "back": "All games",
     "poweredBy": "Powered by Placet",
@@ -2764,6 +2764,7 @@
     "erreur": "The score did not come back. Try again in a moment.",
     "historique": "{n, plural, one {# guess} other {# guesses}}",
     "partageTitre": "{jeu} #{n} — found in {essais, plural, one {# guess} other {# guesses}}",
+    "partageRang": "Rank {rang} of {joueurs} players today",
     "victoire": {
       "qrAide": "Or show this code to someone",
       "qrTitre": "Scan this code to open the game",

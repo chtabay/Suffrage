@@ -73,6 +73,15 @@ partie, puisque 28 % des pays à 4/5 ne ratent qu'elle. Les quatre autres parlen
 au bout de 25 essais, au grain de 5 catégories larges (les 30 `famille`
 nommeraient le critère une fois sur trois : trop fin, mesuré).
 
+**Le partage de Cinq sur cinq ne raconte plus la partie, il la RÉSUME.** Deux
+retraits successifs : d'abord un emoji par essai (509 caractères pour 156 coups,
+donc une taille sans borne), puis la « montée » en cinq lignes fixes — écartée à
+son tour sur retour de terrain, parce qu'un ami ne compare pas des trajectoires,
+il compare un score. Restent le nombre d'essais et, **quand il existe**, le rang
+du jour. ⚠️ `scrutin_game_pays_rank` exige `auth.uid()` et `anon` n'a pas le
+droit d'exécution : sans compte le passe-plat rend `null` et la ligne se tait —
+ce n'est pas une panne.
+
 **Le rang n'est plus ce qu'on met devant.** Le classement est bien calculé sur
 les essais (rang olympique, `scrutin_game_pays_rank`), mais l'écran mettait la
 position en avant et ne montrait le nombre d'essais nulle part. C'est le chiffre

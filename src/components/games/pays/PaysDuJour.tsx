@@ -19,8 +19,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { nomPays } from "@/content/pays/referentiel";
 import { ajouteResultat, serieEnCours } from "@/lib/games/pays/local";
-import { CHIFFRES, ENCRE_SUR_GRADIENT, GRADIENT } from "@/lib/games/pays/palette";
-import { marchesDe } from "@/lib/games/pays/partage";
+import { ENCRE_SUR_GRADIENT, GRADIENT } from "@/lib/games/pays/palette";
 import type { Essai, ReponseEssai, Revelation as DonneesRevelation } from "@/lib/games/pays/types";
 
 /** Ce que le serveur renvoie pour une case qui parle : un emoji et un mot. */
@@ -30,6 +29,7 @@ import GameShell from "@/components/games/GameShell";
 import { GCard, GLabel } from "@/components/games/ui";
 import Carte from "./Carte";
 import Compte from "./Compte";
+import { monRang } from "@/lib/db/pays";
 import ComparaisonAmi from "@/components/games/ComparaisonAmi";
 import { lienDefi, litDefi, type Defi } from "@/lib/games/comparaison";
 import InstallJeu from "@/components/games/InstallJeu";
@@ -77,6 +77,11 @@ export default function PaysDuJour({ jour }: { jour: number }) {
   const [erreur, setErreur] = useState(false);
   const [pret, setPret] = useState(false);
   const [serie, setSerie] = useState(0);
+  // ⚠️ LE RANG N'EXISTE QUE POUR UN COMPTE. `scrutin_game_pays_rank` lève
+  // `forbidden` sans session, et `anon` n'a même pas le droit d'exécution : le
+  // passe-plat rend alors `null`, et le partage se tait. On ne le cherche
+  // qu'une fois la partie finie — avant, il n'y a rien à classer.
+  const [rang, setRang] = useState<{ rang: number; joueurs: number } | null>(null);
 
   // Le défi d'un ami, lu après le montage (voir `NombreDuJour` pour pourquoi
   // pas `useSearchParams`).
@@ -212,6 +217,11 @@ export default function PaysDuJour({ jour }: { jour: number }) {
         setRevelation(reveal);
         setCarteComplete(false);
         mesure("fini", { essais: prochains.length, secondes });
+        // Sans compte, l'appel est refusé et rend `null` : le partage n'aura
+        // simplement pas de ligne de rang.
+        void monRang(jour).then((r) => {
+          if (r && r.rang !== null) setRang({ rang: r.rang, joueurs: r.joueurs });
+        });
         // La série se met à jour AVANT que le bloc « compte » ne s'affiche : il
         // propose de garder un chiffre que le joueur doit déjà voir.
         setSerie(serieEnCours(jour, ajouteResultat({ jour, essais: prochains.length, secondes })));
@@ -223,24 +233,24 @@ export default function PaysDuJour({ jour }: { jour: number }) {
   };
 
   /**
-   * Le partage ne dit ni le pays, ni les critères : seulement la forme de la
-   * partie — et depuis peu, seulement sa MONTÉE.
+   * Le partage ne dit ni le pays, ni les critères : seulement le CHIFFRE de la
+   * partie, et le rang quand il existe.
    *
-   * ⚠️ CINQ LIGNES, QUELLE QUE SOIT LA PARTIE. La version précédente recopiait
-   * un emoji par essai : 509 caractères pour une partie de 156 essais, contre 54
-   * pour une de 5. La taille du partage était celle de la partie, donc sans
-   * borne — le jeu n'impose aucune limite d'essais. L'escalier tient en cinq
-   * lignes qu'on ait mis 5 coups ou 156, et il montre ce qui fait l'histoire :
-   * la marche où l'on a buté.
+   * ⚠️ L'HISTORIQUE EST PARTI, EN DEUX TEMPS. La première version recopiait un
+   * emoji par essai : 509 caractères pour une partie de 156 coups contre 54 pour
+   * une de 5 — la taille du partage était celle de la partie, donc sans borne.
+   * La deuxième la remplaçait par la « montée », cinq lignes fixes disant à quel
+   * essai chaque marche tombait. Retour de terrain : ça n'aide pas non plus. Un
+   * ami ne compare pas des trajectoires, il compare un score — et cinq lignes de
+   * chiffres à déchiffrer coûtent plus qu'elles ne racontent.
    *
-   * La flèche est un choix de langue : elle évite un ordinal, qui aurait demandé
-   * un `selectordinal` ICU dans les quatre langues pour dire « au 77e ».
+   * Reste ce qui se compare d'un coup d'œil : en combien d'essais, et où ça
+   * situe dans la journée.
    */
   const partage = () => {
-    const escalier = marchesDe(essais.map((e) => e.score))
-      .map((rang, m) => `${CHIFFRES[m + 1]} → ${rang}`)
-      .join("\n");
-    const texte = `${t("partageTitre", { jeu: t("name"), n: jour, essais: essais.length })}\n\n${escalier}`;
+    const lignes = [t("partageTitre", { jeu: t("name"), n: jour, essais: essais.length })];
+    if (rang) lignes.push(t("partageRang", { rang: rang.rang, joueurs: rang.joueurs }));
+    const texte = lignes.join("\n");
     mesure("partage", { essais: essais.length });
     // ⚠️ PAS `location.href`, ET C'EST UNE CORRECTION. La page peut avoir été
     // ouverte depuis le lien d'un ami, qui porte SON résultat (`?j=&r=`) :
