@@ -2516,8 +2516,11 @@
       "froid": "Frío",
       "glace": "Helado"
     },
+    "expliquer": "Cómo se calcula la puntuación",
+    "calculDetail": "Tu desviación es ×{f}. La puntuación es 100 − 100 × log₁₀({f}), es decir {points}.",
+    "calculReperes": "Algunas referencias: ×1 → 100 · ×2 → 69,9 · ×5 → 30,1 · ×10 y más → 0.",
     "scoreTitre": "Tu puntuación",
-    "points": "{n} sobre 100",
+    "points": "{n} <petit>sobre 100</petit>",
     "partMieux": "El {n} % de los jugadores lo hizo mejor.",
     "rang": "Puesto {rang} de {votants} jugadores",
     "exAequo": "{n, plural, one {empatado con # más} other {empatado con # más}}",

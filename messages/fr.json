@@ -2516,8 +2516,11 @@
       "froid": "Froid",
       "glace": "Glacé"
     },
+    "expliquer": "Comment le score est calculé",
+    "calculDetail": "Votre écart vaut ×{f}. Le score est 100 − 100 × log₁₀({f}), soit {points}.",
+    "calculReperes": "Quelques repères : ×1 → 100 · ×2 → 69,9 · ×5 → 30,1 · ×10 et au-delà → 0.",
     "scoreTitre": "Votre score",
-    "points": "{n} sur 100",
+    "points": "{n} <petit>sur 100</petit>",
     "partMieux": "{n} % des joueurs ont fait mieux.",
     "rang": "{rang, selectordinal, one {#er} other {#e}} sur {votants} joueurs",
     "exAequo": "{n, plural, one {à égalité avec # autre} other {à égalité avec # autres}}",

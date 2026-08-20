@@ -48,6 +48,7 @@ export default function BanaloDuJour({ jour }: { jour: number }) {
   const [saisie, setSaisie] = useState("");
   const [envoi, setEnvoi] = useState(false);
   const [copie, setCopie] = useState(false);
+  const [explique, setExplique] = useState(false);
 
   // ⚠️ LES CINQ MOTS DE CHALEUR SONT ÉCRITS EN CLAIR, un par un. Un
   // `t(`chaleur.${mot}`)` marcherait — et échapperait au contrôle de parité, qui
@@ -304,7 +305,58 @@ export default function BanaloDuJour({ jour }: { jour: number }) {
       {pret && jeu?.assez && jeu.points !== null ? (
         <div style={{ marginTop: 18, display: "grid", gap: 14 }}>
           <GCard skin={skin} accent={skin.accent} padding={20}>
-            <GLabel skin={skin}>{t("scoreTitre")}</GLabel>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
+              <GLabel skin={skin}>{t("scoreTitre")}</GLabel>
+              {/* ⚠️ LE CALCUL EST À DEUX DOIGTS, PAS À L'ÉCRAN. La règle tenait
+                  en une ligne sous l'écart, ce qui était honnête mais coûtait de
+                  la place à tout le monde pour une question que se pose une
+                  minorité. Derrière un (i), elle peut être PLUS complète — la
+                  formule, l'exemple avec les chiffres du joueur, les repères —
+                  sans peser sur la lecture ordinaire. */}
+              <button
+                type="button"
+                onClick={() => setExplique((v) => !v)}
+                aria-expanded={explique}
+                aria-controls="banalo-calcul"
+                aria-label={t("expliquer")}
+                title={t("expliquer")}
+                // ⚠️ LA CIBLE FAIT 42 px, LE CERCLE EN FAIT 26. Un bouton de
+                // 26 px est sous le seuil confortable au pouce ; le grossir
+                // visuellement en ferait une action principale, ce qu'il n'est
+                // pas. On élargit donc la ZONE et pas le dessin — d'où le
+                // rembourrage transparent autour du disque.
+                style={{
+                  flex: "0 0 auto",
+                  padding: 8,
+                  margin: -8,
+                  border: "none",
+                  background: "transparent",
+                  cursor: "pointer",
+                  lineHeight: 0,
+                }}
+              >
+                <span
+                  aria-hidden
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    width: 26,
+                    height: 26,
+                    borderRadius: "50%",
+                    border: `2px solid ${explique ? skin.ink : skin.muted}`,
+                    background: explique ? skin.ink : "transparent",
+                    color: explique ? skin.paper : skin.muted,
+                    fontFamily: skin.fontDisplay,
+                    fontWeight: 800,
+                    fontSize: 14,
+                    lineHeight: 1,
+                  }}
+                >
+                  i
+                </span>
+              </button>
+            </div>
             {/* ⚠️ LA CHALEUR DOUBLE LE NOMBRE, ELLE NE LE REMPLACE PAS. Un
                 score au dixième se lit lentement — il faut le comparer à 100,
                 puis se rappeler ce que vaut 87. La couleur et le mot donnent le
@@ -321,7 +373,17 @@ export default function BanaloDuJour({ jour }: { jour: number }) {
                 color: teinteDe(jeu.points),
               }}
             >
-              {t("points", { n: note.format(jeu.points) })}
+              {/* ⚠️ `t.rich` PLUTÔT QU'UNE CLÉ « sur 100 » À PART. Le suffixe
+                  suit le nombre dans les quatre langues d'aujourd'hui, mais une
+                  clé séparée figerait cet ordre pour toutes les suivantes ; ici
+                  la phrase reste entière et c'est la traduction qui place le
+                  morceau. */}
+              {t.rich("points", {
+                n: note.format(jeu.points),
+                petit: (c) => (
+                  <span style={{ fontSize: 19, fontWeight: 800, letterSpacing: "-0.01em" }}>{c}</span>
+                ),
+              })}
             </p>
             <p
               style={{
@@ -352,6 +414,36 @@ export default function BanaloDuJour({ jour }: { jour: number }) {
                 {jeu.exAequo && jeu.exAequo > 1 ? ` · ${t("exAequo", { n: jeu.exAequo - 1 })}` : ""}
               </p>
             ) : null}
+            {explique ? (
+              <div
+                id="banalo-calcul"
+                style={{
+                  marginTop: 14,
+                  paddingTop: 12,
+                  borderTop: `2px dashed ${skin.ink}22`,
+                  display: "grid",
+                  gap: 6,
+                  fontSize: 13,
+                  color: skin.muted,
+                  lineHeight: 1.5,
+                }}
+              >
+                <strong style={{ color: skin.ink, fontFamily: skin.fontDisplay, fontSize: 13.5 }}>
+                  {t("expliquer")}
+                </strong>
+                <p style={{ margin: 0 }}>{t("bareme")}</p>
+                {/* L'exemple porte les chiffres DU JOUEUR. Une formule abstraite
+                    se relit ; une formule où l'on reconnaît son propre écart se
+                    vérifie, et c'est ce qui fait qu'un score cesse d'être une
+                    décision de la machine. */}
+                {jeu.facteur !== null ? (
+                  <p style={{ margin: 0, fontVariantNumeric: "tabular-nums" }}>
+                    {t("calculDetail", { f: ecart(jeu.facteur), points: note.format(jeu.points) })}
+                  </p>
+                ) : null}
+                <p style={{ margin: 0, fontVariantNumeric: "tabular-nums" }}>{t("calculReperes")}</p>
+              </div>
+            ) : null}
           </GCard>
 
           <GCard skin={skin} padding={18}>
@@ -371,13 +463,6 @@ export default function BanaloDuJour({ jour }: { jour: number }) {
                   valeur={t("facteur", { f: ecart(jeu.facteur) })}
                 />
               ) : null}
-              {/* ⚠️ LA RÈGLE EST ÉCRITE SOUS L'ÉCART, ET ELLE MANQUAIT. L'écran
-                  montrait « 8,75 sur 10 » et « ×1,33 » dans deux cartes, sans
-                  jamais dire comment on passe de l'un à l'autre : deux chiffres
-                  sans lien. Le barème a été fait énonçable en une ligne pour
-                  qu'il soit vérifiable de tête — encore faut-il que la ligne
-                  soit là. */}
-              <p style={{ margin: 0, fontSize: 12, color: skin.muted, lineHeight: 1.4 }}>{t("bareme")}</p>
               <Ligne libelle={t("votants")} valeur={chiffre(jeu.votants)} />
             </div>
             {/* La phrase qui empêche le malentendu. Elle n'est pas décorative :

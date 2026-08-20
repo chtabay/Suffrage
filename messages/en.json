@@ -2516,8 +2516,11 @@
       "froid": "Cold",
       "glace": "Freezing"
     },
+    "expliquer": "How the score is worked out",
+    "calculDetail": "You were off by ×{f}. The score is 100 − 100 × log₁₀({f}), which is {points}.",
+    "calculReperes": "For reference: ×1 → 100 · ×2 → 69.9 · ×5 → 30.1 · ×10 and beyond → 0.",
     "scoreTitre": "Your score",
-    "points": "{n} out of 100",
+    "points": "{n} <petit>out of 100</petit>",
     "partMieux": "{n}% of players did better.",
     "rang": "Rank {rang} of {votants} players",
     "exAequo": "{n, plural, one {tied with # other} other {tied with # others}}",
