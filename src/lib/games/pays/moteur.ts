@@ -320,15 +320,20 @@ export function numeroDeJournee(dateIso: string): number {
 // aveugle — mais il ne se déclencherait presque jamais. Probabilité qu'une case
 // soit encore éteinte, mesurée sur les 51 journées :
 //
-//     case            après 10   après 25   après 50
-//     1 large            12 %        2 %        0 %
-//     3 discriminant     10 %        2 %        0 %
-//     5 signature        36 %       11 %        2 %
+//     case            après 10   après 15   après 25
+//     1 large            12 %        6 %        2 %
+//     3 discriminant     10 %        5 %        2 %
+//     5 signature        36 %       24 %       11 %
 //
-// À 25 essais tout est allumé. Le blocage n'est donc pas « une case reste
-// noire », c'est « les cases sont allumées et je ne sais pas ce qu'elles
-// disent » — et seul un compteur simple répond à ça.
-export const ESSAIS_AVANT_PICTOS = 25;
+// Passé une quinzaine d'essais tout est allumé. Le blocage n'est donc pas « une
+// case reste noire », c'est « les cases sont allumées et je ne sais pas ce
+// qu'elles disent » — et seul un compteur simple répond à ça.
+//
+// ⚠️ LE SEUIL N'EST ÉCRIT NULLE PART AILLEURS, et surtout pas dans le texte
+// affiché : `pictosAide` décrit ce que le joueur voit sans citer de nombre. Une
+// aide qui annoncerait « après 15 essais » se démentirait au premier réglage,
+// dans les quatre langues et sans que rien ne le signale.
+export const ESSAIS_AVANT_PICTOS = 15;
 
 /**
  * Les étiquettes montrables après `nbEssais` essais, une par case, dans la

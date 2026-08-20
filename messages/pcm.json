@@ -2489,7 +2489,7 @@
     }
   },
   "Pays": {
-    "pictosAide": "After 25 try, every box go tell you wetin im criterion dey talk about. Di last one go keep im secret.",
+    "pictosAide": "Every box go now tell you wetin im criterion dey talk about. Di last one go keep im secret.",
     "catMystere": "na you go find am",
     "casesAide": "Di five boxes na di marks of di day, from di one wey common pass to di one wey rare pass. Two try wey fill di same box dey share am.",
     "casesLues": "{n, plural, =0 {no mark dey shared} one {1 mark dey shared} other {# marks dey shared}}",
@@ -2530,7 +2530,7 @@
     "deja": "you don try am — e no dey count twice",
     "erreur": "Di score no come back. Try am again small.",
     "historique": "{n, plural, one {# try} other {# tries}}",
-    "partageTitre": "Country of di day number {n} — I find am for {essais, plural, one {# try} other {# tries}}",
+    "partageTitre": "{jeu} number {n} — I find am for {essais, plural, one {# try} other {# tries}}",
     "victoire": {
       "titre": "na di country of di day",
       "essais": "I find am for {n, plural, one {# try} other {# tries}}.",

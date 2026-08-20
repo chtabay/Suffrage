@@ -29,6 +29,7 @@ import { JOURNEES } from "./journees";
 import { PAYS, PAYS_PAR_ID } from "./referentiel";
 import { POINTS, TRACES } from "./carte";
 import { serieEnCours } from "@/lib/games/pays/local";
+import { NB_MARCHES, marchesDe } from "@/lib/games/pays/partage";
 import {
   ESSAIS_AVANT_PICTOS,
   ORIGINE,
@@ -406,4 +407,45 @@ test("deux cases du même jour ne portent pas la même étiquette", () => {
     if (new Set(cles).size !== cles.length) doublons.push(j.cible);
   }
   assert.deepEqual(doublons, [], `journées où deux cases disent la même chose : ${doublons.join(", ")}`);
+});
+
+// ------------------------------------------------------------------ partage
+
+test("l'escalier note le PREMIER essai qui atteint chaque marche", () => {
+  assert.deepEqual(marchesDe([1, 4, 4, 3, 5]), [1, 2, 2, 2, 5]);
+  assert.deepEqual(marchesDe([0, 0, 5]), [3, 3, 3, 3, 3]);
+  assert.deepEqual(marchesDe([5]), [1, 1, 1, 1, 1]);
+});
+
+test("une marche franchie ne redescend jamais", () => {
+  // Un essai à 4/5 suivi d'un essai à 1/5 garde la 4e marche : c'est un record,
+  // pas un état. Compter autrement ferait « redescendre » un joueur qui explore,
+  // ce que le jeu lui demande précisément de faire.
+  assert.deepEqual(marchesDe([4, 1, 1, 5]), [1, 1, 1, 1, 4]);
+});
+
+test("une marche jamais atteinte rend 0, sans décaler les autres", () => {
+  assert.deepEqual(marchesDe([2, 3, 3]), [1, 1, 2, 0, 0]);
+  assert.deepEqual(marchesDe([]), [0, 0, 0, 0, 0]);
+});
+
+test("l'escalier tient en cinq lignes quelle que soit la partie", () => {
+  // LE DÉFAUT CORRIGÉ : le partage recopiait un emoji par essai, donc sa taille
+  // était celle de la partie — 509 caractères pour 156 essais, sans borne
+  // puisque le jeu n'impose aucune limite.
+  const courte = marchesDe([1, 4, 4, 3, 5]);
+  const longue = marchesDe([...Array.from({ length: 155 }, (_, i) => i % 5), 5]);
+  assert.equal(courte.length, NB_MARCHES);
+  assert.equal(longue.length, NB_MARCHES);
+});
+
+test("l'escalier est croissant : on ne franchit pas la 4e marche avant la 2e", () => {
+  // La propriété qui fait qu'il se lit comme une montée. Vraie par construction,
+  // mais c'est exactement le genre d'invariant qu'une optimisation casse.
+  for (const scores of [[1, 4, 4, 3, 5], [0, 2, 5], [5], [3, 1, 4, 5]]) {
+    const m = marchesDe(scores).filter((r) => r > 0);
+    for (let i = 1; i < m.length; i++) {
+      assert.ok(m[i] >= m[i - 1], `${JSON.stringify(scores)} → ${JSON.stringify(m)}`);
+    }
+  }
 });

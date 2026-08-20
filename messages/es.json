@@ -2489,7 +2489,7 @@
     }
   },
   "Pays": {
-    "pictosAide": "Tras 25 intentos, cada casilla dice de qué habla su criterio. La última guarda su secreto.",
+    "pictosAide": "Cada casilla dice ahora de qué habla su criterio. La última guarda su secreto.",
     "catMystere": "a ti te toca",
     "casesAide": "Las cinco casillas son las características del día, de la más común a la más rara. Dos intentos que llenan la misma casilla la comparten.",
     "casesLues": "{n, plural, =0 {ninguna característica compartida} one {1 característica compartida} other {# características compartidas}}",
@@ -2530,7 +2530,7 @@
     "deja": "ya probado — no cuenta dos veces",
     "erreur": "La puntuación no ha llegado. Inténtalo de nuevo en un momento.",
     "historique": "{n, plural, one {# intento} other {# intentos}}",
-    "partageTitre": "País del día n.º {n} — encontrado en {essais, plural, one {# intento} other {# intentos}}",
+    "partageTitre": "{jeu} n.º {n} — encontrado en {essais, plural, one {# intento} other {# intentos}}",
     "victoire": {
       "titre": "es el país del día",
       "essais": "Encontrado en {n, plural, one {# intento} other {# intentos}}.",

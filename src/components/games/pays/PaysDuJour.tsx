@@ -20,6 +20,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { nomPays } from "@/content/pays/referentiel";
 import { ajouteResultat, serieEnCours } from "@/lib/games/pays/local";
 import { CHIFFRES, ENCRE_SUR_GRADIENT, GRADIENT } from "@/lib/games/pays/palette";
+import { marchesDe } from "@/lib/games/pays/partage";
 import type { Essai, ReponseEssai, Revelation as DonneesRevelation } from "@/lib/games/pays/types";
 
 /** Ce que le serveur renvoie pour une case qui parle : un emoji et un mot. */
@@ -208,16 +209,35 @@ export default function PaysDuJour({ jour }: { jour: number }) {
     }
   };
 
-  /** Le partage ne dit ni le pays, ni les critères : seulement la forme de la partie. */
+  /**
+   * Le partage ne dit ni le pays, ni les critères : seulement la forme de la
+   * partie — et depuis peu, seulement sa MONTÉE.
+   *
+   * ⚠️ CINQ LIGNES, QUELLE QUE SOIT LA PARTIE. La version précédente recopiait
+   * un emoji par essai : 509 caractères pour une partie de 156 essais, contre 54
+   * pour une de 5. La taille du partage était celle de la partie, donc sans
+   * borne — le jeu n'impose aucune limite d'essais. L'escalier tient en cinq
+   * lignes qu'on ait mis 5 coups ou 156, et il montre ce qui fait l'histoire :
+   * la marche où l'on a buté.
+   *
+   * La flèche est un choix de langue : elle évite un ordinal, qui aurait demandé
+   * un `selectordinal` ICU dans les quatre langues pour dire « au 77e ».
+   */
   const partage = () => {
-    const texte = `${t("partageTitre", { n: jour, essais: essais.length })}\n${essais.map((e) => CHIFFRES[e.score]).join("")}`;
+    const escalier = marchesDe(essais.map((e) => e.score))
+      .map((rang, m) => `${CHIFFRES[m + 1]} → ${rang}`)
+      .join("\n");
+    const texte = `${t("partageTitre", { jeu: t("name"), n: jour, essais: essais.length })}\n\n${escalier}`;
     mesure("partage", { essais: essais.length });
     const url = typeof window !== "undefined" ? window.location.href : "";
+    // Une ligne vide avant le lien : collé à la dernière marche, il se lisait
+    // comme une sixième ligne de l'escalier.
+    const complet = `${texte}\n\n${url}`;
     if (navigator.share) {
-      void navigator.share({ text: `${texte}\n${url}` }).catch(() => {});
+      void navigator.share({ text: complet }).catch(() => {});
       return;
     }
-    void navigator.clipboard?.writeText(`${texte}\n${url}`).catch(() => {});
+    void navigator.clipboard?.writeText(complet).catch(() => {});
   };
 
   // La carte montre les essais pendant la partie, et TOUT après la victoire —

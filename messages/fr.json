@@ -2489,7 +2489,7 @@
     }
   },
   "Pays": {
-    "pictosAide": "Après 25 essais, chaque case dit de quoi parle son critère. La dernière garde son secret.",
+    "pictosAide": "Chaque case dit maintenant de quoi parle son critère. La dernière garde son secret.",
     "catMystere": "à toi de trouver",
     "casesAide": "Les cinq cases sont les caractéristiques du jour, de la plus courante à la plus rare. Deux essais qui remplissent la même case la partagent.",
     "casesLues": "{n, plural, =0 {aucune caractéristique partagée} one {1 caractéristique partagée} other {# caractéristiques partagées}}",
@@ -2530,7 +2530,7 @@
     "deja": "déjà essayé — il ne compte pas deux fois",
     "erreur": "Le score n'est pas revenu. Réessayez dans un instant.",
     "historique": "{n, plural, one {# essai} other {# essais}}",
-    "partageTitre": "Pays du jour n° {n} — trouvé en {essais, plural, one {# essai} other {# essais}}",
+    "partageTitre": "{jeu} n° {n} — trouvé en {essais, plural, one {# essai} other {# essais}}",
     "victoire": {
       "titre": "c'est le pays du jour",
       "essais": "Trouvé en {n, plural, one {# essai} other {# essais}}.",
