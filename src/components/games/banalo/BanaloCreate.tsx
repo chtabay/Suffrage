@@ -121,7 +121,14 @@ export default function BanaloCreate() {
 
   return (
     <GameShell skin={skin} title={t("name")} emoji="🧠" backLabel={t("back")} poweredBy={t("poweredBy")}>
-      <div style={{ display: "grid", gap: 16 }}>
+      {/* ⚠️ `minmax(0, 1fr)` ET PAS `1fr`. Un élément de grille a `min-width:
+          auto` par défaut : il refuse de rétrécir sous le minimum intrinsèque de
+          son contenu. La rangée d'aperçus est FAITE pour déborder et défiler
+          (`overflow-x: auto`), mais son minimum vaut trois vignettes de 184 px —
+          soit 576 px, qui étiraient la piste, donc les CINQ blocs de la page, et
+          faisaient défiler tout l'écran latéralement sur un téléphone de 390 px.
+          Mesuré avant/après : 592 px de large pour 390 disponibles. */}
+      <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr)", gap: 16 }}>
         <div>
           <h1
             style={{
