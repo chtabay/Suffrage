@@ -2532,6 +2532,9 @@
     "historique": "{n, plural, one {# essai} other {# essais}}",
     "partageTitre": "{jeu} n° {n} — trouvé en {essais, plural, one {# essai} other {# essais}}",
     "victoire": {
+      "qrAide": "Ou montrez ce code à quelqu'un",
+      "qrTitre": "Code à scanner pour ouvrir le jeu",
+      "qrFermer": "Fermer",
       "titre": "c'est le pays du jour",
       "essais": "Trouvé en {n, plural, one {# essai} other {# essais}}.",
       "criteres": "Les cinq critères du jour",

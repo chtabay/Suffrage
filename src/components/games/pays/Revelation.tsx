@@ -17,6 +17,7 @@ import { ENCRE_SUR_GRADIENT, GRADIENT } from "@/lib/games/pays/palette";
 import type { Revelation as Donnees } from "@/lib/games/pays/types";
 import type { GameSkin } from "@/lib/games/skin";
 import { GBtn, GCard, GLabel } from "@/components/games/ui";
+import PartageQR from "./PartageQR";
 
 export interface TextesRevelation {
   titre: string;
@@ -29,6 +30,9 @@ export interface TextesRevelation {
   copie: string;
   demain: string;
   source: string;
+  qrAide: string;
+  qrTitre: string;
+  qrFermer: string;
 }
 
 export default function Revelation({
@@ -53,6 +57,7 @@ export default function Revelation({
   textes: TextesRevelation;
 }) {
   const [copie, setCopie] = useState(false);
+  const [qr, setQr] = useState(false);
 
   return (
     <GCard skin={skin} accent={skin.good} padding={16} style={{ marginTop: 14 }}>
@@ -149,6 +154,18 @@ export default function Revelation({
         >
           {copie ? textes.copie : textes.partager}
         </GBtn>
+      </div>
+
+      {/* LE PARTAGE EN PRÉSENCE, sous les boutons et non parmi eux : c'est un
+          troisième geste, pas une troisième option du même geste. Le texte
+          s'envoie, le QR se montre. */}
+      <div style={{ marginTop: 10 }}>
+        <PartageQR
+          skin={skin}
+          ouvert={qr}
+          onOuvrir={setQr}
+          textes={{ aide: textes.qrAide, titre: textes.qrTitre, fermer: textes.qrFermer }}
+        />
       </div>
 
       {/* La légende n'apparaît qu'avec la carte complète : avant la victoire,

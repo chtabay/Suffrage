@@ -2532,6 +2532,9 @@
     "historique": "{n, plural, one {# try} other {# tries}}",
     "partageTitre": "{jeu} number {n} — I find am for {essais, plural, one {# try} other {# tries}}",
     "victoire": {
+      "qrAide": "Or show person dis code",
+      "qrTitre": "Scan dis code to open di game",
+      "qrFermer": "Close am",
       "titre": "na di country of di day",
       "essais": "I find am for {n, plural, one {# try} other {# tries}}.",
       "criteres": "Di five criteria of di day",

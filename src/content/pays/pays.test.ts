@@ -30,6 +30,7 @@ import { PAYS, PAYS_PAR_ID } from "./referentiel";
 import { POINTS, TRACES } from "./carte";
 import { serieEnCours } from "@/lib/games/pays/local";
 import { NB_MARCHES, marchesDe } from "@/lib/games/pays/partage";
+import { QR_CHEMIN, QR_MARGE, QR_TAILLE, QR_URL } from "./qr";
 import {
   ESSAIS_AVANT_PICTOS,
   ORIGINE,
@@ -448,4 +449,37 @@ test("l'escalier est croissant : on ne franchit pas la 4e marche avant la 2e", (
       assert.ok(m[i] >= m[i - 1], `${JSON.stringify(scores)} → ${JSON.stringify(m)}`);
     }
   }
+});
+
+// ----------------------------------------------------------------------- qr
+
+test("le QR encode l'URL canonique du jeu, pas une adresse de session", () => {
+  // ⚠️ L'URL DOIT ÊTRE CANONIQUE. Le QR est montré à quelqu'un d'AUTRE : pointé
+  // sur `location.href`, il enverrait le lecteur sur `/es/...` parce que le
+  // partageur est en espagnol, ou sur un `localhost` en développement.
+  assert.equal(QR_URL, "https://placet.app/games/pays");
+  assert.doesNotMatch(QR_URL, /localhost|\/(en|es|pcm)\//);
+});
+
+test("le QR porte sa zone de silence de quatre modules", () => {
+  // ⚠️ LA MARGE EST DANS L'IMAGE. Confiée au CSS elle se perd sur un écran
+  // étroit, et le QR ne se décode plus qu'avec un lecteur tolérant. Ce test la
+  // rend indéboulonnable : la retirer du générateur casse ici.
+  assert.equal(QR_MARGE, 4);
+  const modules = QR_TAILLE - 2 * QR_MARGE;
+  // 21, 25, 29… : toute autre valeur veut dire que le fichier généré a été
+  // modifié à la main, ou que le générateur a changé de forme de sortie.
+  assert.equal((modules - 17) % 4, 0, `taille inattendue : ${modules}`);
+  assert.ok(modules >= 21 && modules <= 177);
+});
+
+test("le chemin du QR reste dans la matrice", () => {
+  // Un chemin qui déborde du `viewBox` se rendrait rogné : le QR paraîtrait
+  // correct à l'œil et refuserait de se décoder. On vérifie les ordonnées, qui
+  // sont toutes absolues dans la sortie du générateur (`M x y.5` puis `h`/`m`
+  // horizontaux) — c'est la coordonnée qu'un décalage de version ferait sortir.
+  const y = [...QR_CHEMIN.matchAll(/M\s*-?[\d.]+\s+(-?[\d.]+)/g)].map((m) => Number(m[1]));
+  assert.ok(y.length > 0, "chemin illisible");
+  for (const v of y) assert.ok(v >= QR_MARGE && v <= QR_TAILLE - QR_MARGE, `ordonnée hors matrice : ${v}`);
+  assert.equal(Math.max(...y), QR_TAILLE - QR_MARGE - 0.5, "la dernière rangée de modules manque");
 });

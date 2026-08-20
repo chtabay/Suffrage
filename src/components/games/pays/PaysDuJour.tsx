@@ -357,6 +357,9 @@ export default function PaysDuJour({ jour }: { jour: number }) {
               copie: t("victoire.copie"),
               demain: t("victoire.demain"),
               source: t("victoire.source"),
+              qrAide: t("victoire.qrAide"),
+              qrTitre: t("victoire.qrTitre"),
+              qrFermer: t("victoire.qrFermer"),
             }}
           />
         )}

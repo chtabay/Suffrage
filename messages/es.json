@@ -2532,6 +2532,9 @@
     "historique": "{n, plural, one {# intento} other {# intentos}}",
     "partageTitre": "{jeu} n.º {n} — encontrado en {essais, plural, one {# intento} other {# intentos}}",
     "victoire": {
+      "qrAide": "O enseña este código a alguien",
+      "qrTitre": "Escanea este código para abrir el juego",
+      "qrFermer": "Cerrar",
       "titre": "es el país del día",
       "essais": "Encontrado en {n, plural, one {# intento} other {# intentos}}.",
       "criteres": "Los cinco criterios del día",

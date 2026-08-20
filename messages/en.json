@@ -2532,6 +2532,9 @@
     "historique": "{n, plural, one {# guess} other {# guesses}}",
     "partageTitre": "{jeu} #{n} — found in {essais, plural, one {# guess} other {# guesses}}",
     "victoire": {
+      "qrAide": "Or show this code to someone",
+      "qrTitre": "Scan this code to open the game",
+      "qrFermer": "Close",
       "titre": "is the country of the day",
       "essais": "Found in {n, plural, one {# guess} other {# guesses}}.",
       "criteres": "Today's five criteria",
