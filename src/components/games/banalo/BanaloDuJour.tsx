@@ -27,6 +27,7 @@ import { UNITES, enLangue, questionDe } from "@/content/banalo/questions";
 import { finDeJournee } from "@/lib/games/banalo/jour";
 import { monJeton } from "@/lib/games/banalo/jeton";
 import { nombreDe } from "@/lib/games/banalo/saisie";
+import { motDe, teinteDe } from "@/lib/games/banalo/chaleur";
 import { etat as litEtat, repond, type EtatBanalo } from "@/lib/db/banalo";
 
 /**
@@ -48,6 +49,19 @@ export default function BanaloDuJour({ jour }: { jour: number }) {
   const [envoi, setEnvoi] = useState(false);
   const [copie, setCopie] = useState(false);
 
+  // ⚠️ LES CINQ MOTS DE CHALEUR SONT ÉCRITS EN CLAIR, un par un. Un
+  // `t(`chaleur.${mot}`)` marcherait — et échapperait au contrôle de parité, qui
+  // ne voit que les clés littérales. La clé pourrait alors manquer dans une
+  // langue, ou vivre dans le mauvais namespace, sans que rien ne le dise avant
+  // que l'écran n'affiche « BanaloJour.chaleur.tiede » en toutes lettres.
+  const CHALEUR: Record<string, string> = {
+    brule: t("chaleur.brule"),
+    chaud: t("chaleur.chaud"),
+    tiede: t("chaleur.tiede"),
+    froid: t("chaleur.froid"),
+    glace: t("chaleur.glace"),
+  };
+
   const format = useMemo(() => new Intl.NumberFormat(bcp(locale)), [locale]);
   const chiffre = useCallback((n: number) => format.format(n), [format]);
   // ⚠️ LE FACTEUR AUSSI PASSE PAR `Intl`. `toFixed(1)` rendait « ×1.6 » —
@@ -68,13 +82,13 @@ export default function BanaloDuJour({ jour }: { jour: number }) {
     (f: number) => (f < 10 ? ecartFin.format(f) : ecartGros.format(f)),
     [ecartFin, ecartGros],
   );
-  // ⚠️ LE SCORE S'AFFICHE TOUJOURS AVEC SES DEUX DÉCIMALES, « 10,00 » compris.
-  // Laisser ICU couper les zéros donnerait « 8,7 » puis « 8,75 » d'un joueur à
-  // l'autre — deux largeurs, deux précisions apparentes, pour une même note. Et
-  // c'est cette valeur-là, au centième, qui décide du rang : l'afficher tronquée
-  // ferait apparaître deux joueurs au même score avec deux rangs différents.
+  // ⚠️ LE SCORE S'AFFICHE TOUJOURS AVEC SA DÉCIMALE, « 100,0 » compris. Laisser
+  // ICU couper le zéro donnerait « 87 » puis « 87,5 » d'un joueur à l'autre —
+  // deux largeurs, deux précisions apparentes, pour une même note. Et c'est
+  // cette valeur-là, au dixième, qui décide du rang : l'afficher tronquée ferait
+  // apparaître deux joueurs au même score avec deux rangs différents.
   const note = useMemo(
-    () => new Intl.NumberFormat(bcp(locale), { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
+    () => new Intl.NumberFormat(bcp(locale), { minimumFractionDigits: 1, maximumFractionDigits: 1 }),
     [locale],
   );
 
@@ -291,6 +305,11 @@ export default function BanaloDuJour({ jour }: { jour: number }) {
         <div style={{ marginTop: 18, display: "grid", gap: 14 }}>
           <GCard skin={skin} accent={skin.accent} padding={20}>
             <GLabel skin={skin}>{t("scoreTitre")}</GLabel>
+            {/* ⚠️ LA CHALEUR DOUBLE LE NOMBRE, ELLE NE LE REMPLACE PAS. Un
+                score au dixième se lit lentement — il faut le comparer à 100,
+                puis se rappeler ce que vaut 87. La couleur et le mot donnent le
+                sens avant la lecture, et le mot fait que la couleur n'est jamais
+                seule à porter l'information. */}
             <p
               style={{
                 fontFamily: skin.fontDisplay,
@@ -299,13 +318,23 @@ export default function BanaloDuJour({ jour }: { jour: number }) {
                 lineHeight: 1,
                 margin: "6px 0 0",
                 fontVariantNumeric: "tabular-nums",
-                // Le vert commence à 7, ce qui n'est pas un réglage d'humeur :
-                // la courbe rend 6,99 pile à ×2, donc « en vert » veut dire
-                // « à moins du double ou de la moitié de la médiane ».
-                color: jeu.points >= 7 ? skin.good : skin.ink,
+                color: teinteDe(jeu.points),
               }}
             >
               {t("points", { n: note.format(jeu.points) })}
+            </p>
+            <p
+              style={{
+                fontFamily: skin.fontDisplay,
+                fontWeight: 800,
+                fontSize: 15,
+                letterSpacing: "0.04em",
+                textTransform: "uppercase",
+                margin: "4px 0 0",
+                color: teinteDe(jeu.points),
+              }}
+            >
+              {CHALEUR[motDe(jeu.points)]}
             </p>
             {/* ⚠️ LA PART PASSE DEVANT LE RANG, ET C'EST LA MÊME LEÇON QUE CINQ
                 SUR CINQ. Le rang provisoire empire mécaniquement : 38e sur 210 à

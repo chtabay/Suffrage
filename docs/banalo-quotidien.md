@@ -161,7 +161,7 @@ l'un à ÷3 et l'autre à ×3 de la médiane :
 D'où le barème : **dix points, moins dix par facteur dix d'écart.**
 
 ```
-points = 10 − 10·log₁₀(facteur), borné à [0 ; 10], arrondi au centième
+points = 100 − 100·log₁₀(facteur), borné à [0 ; 100], arrondi au DIXIÈME
 ```
 
 **Il était en cinq paliers, et les cinq paliers ne classaient rien.** Première
@@ -183,8 +183,8 @@ donc décoratif — ce qui est le contraire de ce qu'on lui demandait, puisque l
 part est le chiffre qu'on met devant.
 
 **Ce n'est pas un nouveau barème, c'est l'ancien sans les marches.** La courbe
-passe presque exactement par les repères déjà annoncés — ×1,25 → 9,03 (contre
-10), ×2 → 6,99 (contre 6), ×5 → 3,01 (contre 3), ×10 → 0 (contre 0). Rien n'a
+passe presque exactement par les repères déjà annoncés — ×1,25 → 90,3 (contre
+100), ×2 → 69,9 (contre 60), ×5 → 30,1 (contre 30), ×10 → 0. Rien n'a
 été retuné ; on a seulement cessé d'écraser la valeur sur le bas de sa tranche.
 Et l'énoncé est plus court qu'avant, ce qui compte : le barème doit rester
 vérifiable de tête, et il est maintenant **écrit à l'écran**, sous l'écart.
@@ -195,7 +195,13 @@ Deux détails qui ne sont pas des détails :
   « Raté d'un facteur dix ou plus » est UNE information ; départager ×50 de ×500
   ferait dépendre le bas du classement des fautes de frappe. C'est d'ailleurs le
   plus gros paquet restant (4,7 %), et il doit le rester.
-* **L'arrondi au centième n'est pas cosmétique : le rang se calcule dessus.**
+* **La base est de la présentation, la décimale porte la résolution.** Mesuré :
+  « 87,5 sur 100 » et « 875 sur 1000 » rendent exactement les mêmes paliers
+  (188 / 775 / 944 scores distincts). Mais **cent paliers entiers** feraient
+  remonter les ex aequo médians de 28 à 259 sur 20 000 joueurs. Deux décimales,
+  à l'inverse, ne gagneraient que 28 → 6 — imperceptible, et un chiffre de plus
+  à lire tous les jours.
+* **L'arrondi au dixième n'est pas cosmétique : le rang se calcule dessus.**
   Classer sur la valeur exacte et n'afficher que deux décimales montrerait deux
   joueurs au même score avec deux rangs différents. En base, le type est
   `numeric` et non `double precision`, parce que l'égalité y est exacte.

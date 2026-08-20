@@ -100,15 +100,36 @@ commodité — c'est ce qui rend la médiane sûre à rendre. Et c'est aussi pou
 ce mode a un jeton anonyme stable, là où Cinq sur cinq s'en passe fièrement.
 
 **Le score de Banalo du jour est CONTINU, et il l'est pour une raison mesurée.**
-`10 − 10·log₁₀(facteur)`, borné à [0 ; 10], arrondi au centième. La première
+`100 − 100·log₁₀(facteur)`, borné à [0 ; 100], **arrondi au dixième**. La première
 version notait par cinq paliers : sur n'importe quelle taille de foule, **100 %
 des joueurs étaient ex aequo** et le plus gros paquet faisait 38 à 42 % du
 terrain — le rang et la part n'avaient plus rien à mesurer. La courbe passe par
-les mêmes repères que les paliers (×2 → 6,99, ×5 → 3,01, ×10 → 0) : ce n'est pas
-un nouveau barème, c'est l'ancien sans les marches. Deux choses à ne pas
-« simplifier » : le zéro reste un paquet unique au-delà de ×10 (départager ×50 de
-×500 classerait des fautes de frappe), et **le rang se calcule sur la valeur
-ARRONDIE** — d'où `numeric` en base, où l'égalité est exacte.
+les mêmes repères que les paliers (×2 → 69,9, ×5 → 30,1, ×10 → 0) : ce n'est pas
+un nouveau barème, c'est l'ancien sans les marches.
+
+**La BASE est de la présentation, la DÉCIMALE porte la résolution** — et c'est la
+confusion à ne pas faire. « 87,5 sur 100 » et « 875 sur 1000 » sont la même
+valeur aux mêmes paliers (mesuré : 188 scores distincts sur 214 joueurs dans les
+deux cas). En revanche **cent paliers ENTIERS** feraient remonter les ex aequo
+médians de 28 à 259 sur 20 000 joueurs : retirer la décimale « pour faire
+propre » refabriquerait en petit le problème des cinq paliers. Trois migrations
+racontent cette décision qui se précise (`-score-continu`, `-sur-mille`,
+`-sur-cent`) ; on n'en réécrit aucune.
+
+Deux autres choses à ne pas « simplifier » : le zéro reste un paquet unique
+au-delà de ×10 (départager ×50 de ×500 classerait des fautes de frappe), et **le
+rang se calcule sur la valeur ARRONDIE** — d'où `numeric` en base, où l'égalité
+est exacte.
+
+**La chaleur du score (`chaleur.ts`) a deux règles non négociables.** La couleur
+ne porte JAMAIS seule : elle est doublée d'un mot (« vous brûlez », « tiède »,
+« glacé ») écrit en clair, un `t()` par mot — une clé en variable échapperait au
+contrôle de parité. Et **la rampe ne passe pas par le vert** : interpoler du bleu
+vers l'orange en RGB traverse un vert franc vers 40 sur 100, or le vert se lit
+« c'est bon » alors qu'à 40 la réponse est médiocre. Le milieu est un gris chaud.
+Toute la rampe tient 4,5:1 sur les deux fonds, vérifié à chaque pas par un test —
+pas seulement aux ancres, parce qu'une rampe peut passer par un point plus clair
+que ses deux bornes.
 
 **Le 30 de Banalo du jour vit à TROIS endroits** : `scrutin_banalo_purge`, le
 cron `scrutin-banalo-purge` (`20260820-banalo-du-jour-purge.sql`) et la politique

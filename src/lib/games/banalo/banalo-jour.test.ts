@@ -21,6 +21,7 @@ import {
 } from "./jour";
 import { POINTS_MAX, VOTANTS_MIN, facteurDe, medianeDe, pointsDe, positionDe } from "./bareme";
 import { nombreDe } from "./saisie";
+import { motDe, teinteDe } from "./chaleur";
 import { traduis } from "@/lib/db/banalo";
 
 const LOCALES = ["fr", "en", "es", "pcm"] as const;
@@ -158,26 +159,27 @@ test("l'écart se compte en facteurs : ÷3 et ×3 valent pareil", () => {
   assert.equal(pointsDe(facteurDe(3000, 1000)), pointsDe(facteurDe(1000 / 3, 1000)));
 });
 
-test("le score suit la courbe annoncée au joueur, au centième près", () => {
-  // « Dix points, moins dix par facteur dix d'écart. » Ces repères sont ceux
+test("le score suit la courbe annoncée au joueur, au dixième près", () => {
+  // « Cent points, moins cent par facteur dix d'écart. » Ces repères sont ceux
   // écrits dans la migration ET affichés sous le score : ils doivent s'accorder
   // au caractère près avec `scrutin_banalo_points`, vérifié en base.
   assert.equal(pointsDe(1), POINTS_MAX);
-  assert.equal(pointsDe(1.25), 9.03);
-  assert.equal(pointsDe(2), 6.99);
-  assert.equal(pointsDe(5), 3.01);
+  assert.equal(pointsDe(1.25), 90.3);
+  assert.equal(pointsDe(2), 69.9);
+  assert.equal(pointsDe(5), 30.1);
   assert.equal(pointsDe(10), 0);
   assert.equal(pointsDe(1e9), 0, "au-delà de ×10, tout le monde a la même note");
   assert.equal(pointsDe(Infinity), 0, "une réponse impossible ne rapporte rien");
 });
 
-test("le score ne prend JAMAIS plus de deux décimales", () => {
-  // ⚠️ LE RANG SE CALCULE SUR LA VALEUR ARRONDIE. Une troisième décimale ferait
+test("le score ne prend JAMAIS plus d'une décimale, et ne sort pas de [0 ; 100]", () => {
+  // ⚠️ LE RANG SE CALCULE SUR LA VALEUR ARRONDIE. Une seconde décimale ferait
   // apparaître deux joueurs au même score affiché avec deux rangs différents :
   // l'écran se contredirait tout seul.
   for (let f = 1; f < 10; f += 0.0137) {
     const p = pointsDe(f);
-    assert.equal(p, Math.round(p * 100) / 100, `facteur ${f} rend ${p}`);
+    assert.equal(p, Math.round(p * 10) / 10, `facteur ${f} rend ${p}`);
+    assert.ok(p >= 0 && p <= POINTS_MAX, `facteur ${f} rend ${p}`);
   }
 });
 
@@ -312,4 +314,62 @@ test("un refus de la base n'est jamais replié sur un état de jeu", () => {
   assert.equal(traduis(null), null);
   assert.equal(traduis({ status: "invalid" }), null);
   assert.equal(traduis({ repondu: true, votants: 40 }), null, "sans `status: ok`, c'est un non");
+});
+
+
+// ------------------------------------------------------------------ chaleur
+
+test("la rampe de chaleur tient 4,5:1 sur les deux fonds possibles", () => {
+  // ⚠️ MESURÉ À CHAQUE PAS, PAS SEULEMENT AUX ANCRES. Une rampe peut passer par
+  // un point plus clair que ses deux bornes ; c'est ce qui rend un « orange
+  // chaud » illisible sur blanc alors que ses voisins passent. Les deux fonds
+  // sont la carte (blanc) et la page (le vert d'eau du skin).
+  const canal = (c: number) => (c / 255 <= 0.03928 ? c / 255 / 12.92 : Math.pow((c / 255 + 0.055) / 1.055, 2.4));
+  const lum = (h: string) => {
+    const [r, g, b] = [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16)) as [number, number, number];
+    return 0.2126 * canal(r) + 0.7152 * canal(g) + 0.0722 * canal(b);
+  };
+  const contraste = (a: string, b: string) => {
+    const [x, y] = [lum(a), lum(b)].sort((p, q) => q - p) as [number, number];
+    return (x + 0.05) / (y + 0.05);
+  };
+  for (let s = 0; s <= 100; s += 1) {
+    for (const fond of ["#FFFFFF", "#E9FBF2"]) {
+      const c = contraste(teinteDe(s), fond);
+      assert.ok(c >= 4.5, `score ${s} sur ${fond} : ${c.toFixed(2)}:1`);
+    }
+  }
+});
+
+test("la rampe ne passe PAS par un vert franc", () => {
+  // ⚠️ TROUVÉ EN MESURANT, pas en regardant. Interpoler du bleu vers l'orange en
+  // RGB traverse un vert vif vers 40 sur 100 — et le vert se lit « c'est bon »
+  // dans toute interface, alors qu'à 40 la réponse est médiocre. Le milieu doit
+  // donc être DÉSATURÉ : « ni chaud ni froid » se dit par l'absence de couleur.
+  const sat = (h: string) => {
+    const c = [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16));
+    const mx = Math.max(...c);
+    return mx ? (mx - Math.min(...c)) / mx : 0;
+  };
+  const vert = (h: string) => {
+    const [r, g, b] = [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16)) as [number, number, number];
+    return g > r * 1.25 && g > b * 1.25;
+  };
+  for (let s = 0; s <= 100; s += 1) assert.ok(!vert(teinteDe(s)), `score ${s} rend un vert : ${teinteDe(s)}`);
+  assert.ok(sat(teinteDe(50)) < 0.2, `le milieu doit être neutre, il vaut ${sat(teinteDe(50)).toFixed(2)}`);
+  assert.ok(sat(teinteDe(0)) > 0.5 && sat(teinteDe(100)) > 0.5, "les deux bouts, eux, doivent trancher");
+});
+
+test("le mot de chaleur suit le score, et couvre toute l'échelle", () => {
+  assert.equal(motDe(100), "brule");
+  assert.equal(motDe(90), "brule");
+  assert.equal(motDe(89.9), "chaud");
+  assert.equal(motDe(70), "chaud");
+  assert.equal(motDe(40), "tiede");
+  assert.equal(motDe(15), "froid");
+  assert.equal(motDe(0), "glace");
+  // Aucune valeur possible ne doit tomber dans un trou : le mot est affiché à
+  // côté de la couleur, et son absence laisserait une ligne vide.
+  for (let s = 0; s <= 100; s += 0.1) assert.ok(motDe(Math.round(s * 10) / 10), `score ${s}`);
+  assert.equal(motDe(NaN), "glace", "une valeur impossible ne casse pas l'écran");
 });

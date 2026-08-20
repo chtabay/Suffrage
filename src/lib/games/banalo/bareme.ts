@@ -11,8 +11,19 @@
 // mais l'écran doit le dire, sinon quelqu'un viendra reprocher au jeu de s'être
 // trompé.
 
-/** Points possibles pour une réponse. Le maximum tient dans un chiffre. */
-export const POINTS_MAX = 10;
+/**
+ * Points possibles pour une réponse.
+ *
+ * ⚠️ CENT, AVEC UNE DÉCIMALE — et les deux moitiés de cette phrase comptent.
+ * La BASE est de la présentation pure : « 87,5 sur 100 » et « 875 sur 1000 »
+ * sont la même valeur aux mêmes paliers (mesuré : 188 scores distincts sur
+ * 214 joueurs dans les deux cas, paquets d'ex aequo identiques). La DÉCIMALE,
+ * elle, porte toute la résolution : cent paliers entiers au lieu de mille font
+ * remonter les ex aequo médians de 28 à 259 sur 20 000 joueurs. Retirer la
+ * décimale « pour faire propre » refabriquerait en petit le problème des cinq
+ * paliers.
+ */
+export const POINTS_MAX = 100;
 
 /**
  * La référence du jour : la MÉDIANE, jamais la moyenne.
@@ -62,7 +73,7 @@ export function facteurDe(reponse: number, reference: number): number {
 /**
  * Les points d'une réponse : **dix, moins dix par facteur dix d'écart.**
  *
- *     points = 10 − 10·log₁₀(facteur), borné à [0 ; 10], arrondi au centième
+ *     points = 100 − 100·log₁₀(facteur), borné à [0 ; 100], arrondi au dixième
  *
  * ⚠️ C'ÉTAIT CINQ PALIERS, ET LES CINQ PALIERS NE CLASSAIENT RIEN. Mesuré sur
  * une foule simulée (log-normale d'écart-type ×3, plus 1 % d'absurdités) :
@@ -78,8 +89,8 @@ export function facteurDe(reponse: number, reference: number): number {
  * « 63e sur 214 » était surtout une coïncidence de comptage.
  *
  * ⚠️ CE N'EST PAS UN NOUVEAU BARÈME, C'EST L'ANCIEN SANS LES MARCHES. La courbe
- * passe presque exactement par les repères déjà annoncés — ×1,25 → 9,03 (contre
- * 10), ×2 → 6,99 (contre 6), ×5 → 3,01 (contre 3), ×10 → 0 (contre 0). Rien n'a
+ * passe presque exactement par les repères déjà annoncés — ×1,25 → 90,3 (contre
+ * 100), ×2 → 69,9 (contre 60), ×5 → 30,1 (contre 30), ×10 → 0. Rien n'a
  * été retuné ; on a seulement cessé d'écraser la valeur sur le bas de sa
  * tranche. Et l'énoncé est plus court qu'avant, ce qui compte : le barème doit
  * rester vérifiable de tête, et il est maintenant écrit à l'écran.
@@ -89,7 +100,7 @@ export function facteurDe(reponse: number, reference: number): number {
  * un joueur à ×50 d'un joueur à ×500 serait du bruit, et ferait dépendre le bas
  * du classement des fautes de frappe.
  *
- * ⚠️ L'ARRONDI AU CENTIÈME N'EST PAS COSMÉTIQUE : LE RANG SE CALCULE DESSUS.
+ * ⚠️ L'ARRONDI AU DIXIÈME N'EST PAS COSMÉTIQUE : LE RANG SE CALCULE DESSUS.
  * Classer sur la valeur exacte et n'afficher que deux décimales montrerait deux
  * joueurs au même score avec deux rangs différents — l'écran se contredirait
  * tout seul. La base fait pareil, en `numeric`, où l'égalité est exacte.
@@ -97,7 +108,7 @@ export function facteurDe(reponse: number, reference: number): number {
 export function pointsDe(facteur: number): number {
   if (!Number.isFinite(facteur) || facteur >= 10) return 0;
   if (facteur <= 1) return POINTS_MAX;
-  return Math.round((10 - 10 * Math.log10(facteur)) * 100) / 100;
+  return Math.round((100 - 100 * Math.log10(facteur)) * 10) / 10;
 }
 
 /**
