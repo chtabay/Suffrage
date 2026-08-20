@@ -1705,6 +1705,10 @@
       "name": "Di Night of di Ghost",
       "tagline": "One of una dey haunt dis manor"
     },
+    "banalo-jour": {
+      "name": "Banalo of di Day",
+      "tagline": "One number wey you go guess, every day"
+    },
     "pays": {
       "name": "Five Over Five",
       "tagline": "One country every day, five secret mark"
@@ -2487,6 +2491,40 @@
       "replay": "Play again",
       "joinNew": "Di new game don open"
     }
+  },
+  "BanaloJour": {
+    "metaTitle": "Banalo of di Day — one number wey you go guess every day",
+    "metaDescription": "Guess number wey you no fit find for internet. E no be say you must correct: na to reach near di median answer wey odd people give. One question every day, no account.",
+    "name": "Banalo of di Day",
+    "back": "All di games",
+    "poweredBy": "Placet dey power am",
+    "numero": "Day number {n}",
+    "question": "Today question",
+    "consigne": "Answer with whole number. E no be say you must correct — na to reach near di median answer wey all di players give.",
+    "chargement": "Small time…",
+    "saisieLabel": "Your guess, {unite}",
+    "placeholder": "One number",
+    "relectureVide": "Type whole number.",
+    "envoyer": "Send my answer",
+    "definitif": "Na one answer per day: e no go fit change again.",
+    "deposeTitre": "Your answer",
+    "attente": "Na {n} people don answer so far. Your score go show once plenty people don answer, so di median go mean something.",
+    "scoreTitre": "Your score",
+    "points": "{n} out of 10",
+    "partMieux": "{n}% of di players do pass you.",
+    "rang": "Number {rang} out of {votants} players",
+    "exAequo": "{n, plural, one {you tie with # other person} other {you tie with # other people}}",
+    "mienne": "Your answer",
+    "mediane": "Di median answer",
+    "ecart": "How far you dey",
+    "facteur": "×{f}",
+    "votants": "Answers",
+    "pasDeVerite": "Di game no dey find truth: di mark na di answer wey most people give, no be di correct one. Crowd fit make mistake together — and di game still dey reward person wey follow dem.",
+    "partager": "Share my result",
+    "copie": "I don copy am!",
+    "partageTitre": "Banalo of di Day number {n} — {points}/10",
+    "panne": "We no fit reach di counting. Reload di page make you see where your answer dey.",
+    "demain": "New question by {heure}."
   },
   "Pays": {
     "pictosAide": "Every box go now tell you wetin im criterion dey talk about. Di last one go keep im secret.",

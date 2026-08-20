@@ -1705,6 +1705,10 @@
       "name": "The Night of the Ghost",
       "tagline": "One of you haunts this manor"
     },
+    "banalo-jour": {
+      "name": "Daily Banalo",
+      "tagline": "One number to estimate, every day"
+    },
     "pays": {
       "name": "Five by Five",
       "tagline": "One country a day, five secret characteristics"
@@ -2487,6 +2491,40 @@
       "replay": "Play again",
       "joinNew": "The new game is open"
     }
+  },
+  "BanaloJour": {
+    "metaTitle": "Daily Banalo — one number to estimate each day",
+    "metaDescription": "Estimate a number you can't look up. The point isn't to be right: it's to land closest to the median answer of everyone else. One question a day, no account needed.",
+    "name": "Daily Banalo",
+    "back": "All games",
+    "poweredBy": "Powered by Placet",
+    "numero": "Day #{n}",
+    "question": "Today's question",
+    "consigne": "Answer with a whole number. The point isn't to be right — it's to land as close as you can to the median answer of all players.",
+    "chargement": "One moment…",
+    "saisieLabel": "Your estimate, {unite}",
+    "placeholder": "A number",
+    "relectureVide": "Type a whole number.",
+    "envoyer": "Send my answer",
+    "definitif": "One answer a day: it can't be changed afterwards.",
+    "deposeTitre": "Your answer",
+    "attente": "There are {n} of you so far. Your score appears as soon as the crowd is big enough for the median to mean anything.",
+    "scoreTitre": "Your score",
+    "points": "{n} out of 10",
+    "partMieux": "{n}% of players did better.",
+    "rang": "Rank {rang} of {votants} players",
+    "exAequo": "{n, plural, one {tied with # other} other {tied with # others}}",
+    "mienne": "Your answer",
+    "mediane": "The median answer",
+    "ecart": "How far off",
+    "facteur": "×{f}",
+    "votants": "Answers",
+    "pasDeVerite": "The game isn't looking for the truth: the reference is the most common answer, not the right one. A crowd can be wrong together — and the game still rewards whoever followed it.",
+    "partager": "Share my result",
+    "copie": "Copied!",
+    "partageTitre": "Daily Banalo #{n} — {points}/10",
+    "panne": "We couldn't reach the count. Reload the page to see where your answer stands.",
+    "demain": "New question at {heure}."
   },
   "Pays": {
     "pictosAide": "Each box now tells you what its criterion is about. The last one keeps its secret.",

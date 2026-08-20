@@ -8,7 +8,12 @@
 import { ALIBI_SKIN, FANTOME_SKIN, PAYS_SKIN, RODEURS_SKIN, UNANIMO_SKIN, type GameSkin } from "./skin";
 
 export interface GameEntry {
-  /** Slug technique, aussi la valeur de `scrutin_game_rooms.game`. */
+  /**
+   * Slug technique, et pour les jeux À SALLE la valeur de
+   * `scrutin_game_rooms.game` — c'est-à-dire l'aiguillage du dépouillement.
+   * Les jeux quotidiens n'ont pas de salle : leur slug ne sert qu'à l'URL et
+   * aux libellés.
+   */
   slug: string;
   /**
    * La FAMILLE sous laquelle la porte « Jouer » range le jeu.
@@ -91,8 +96,28 @@ export const GAMES: GameEntry[] = [
     minutes: "120",
   },
   {
-    // LE SEUL JEU SOLO, ET LE SEUL QUOTIDIEN. Il n'a pas de salle : son « code »
-    // est la date, la même pour tout le monde. D'où `route` sans `/<code>` —
+    // LE MODE QUOTIDIEN DE BANALO — même nom, même jeu de l'accord, mais une
+    // AUTRE OCCASION : seul, en trois minutes, sans réunir personne. C'est ce
+    // qui justifie deux entrées plutôt qu'une, alors qu'un seul nom les couvre :
+    // la porte « Jouer » range par occasion, et « nous sommes huit après le
+    // dîner » ne mène pas au même rayon que « j'ai trois minutes ».
+    //
+    // ⚠️ CE SLUG N'EST PAS UNE VALEUR DE `scrutin_game_rooms.game`, contrairement
+    // à tous les autres. Le mode quotidien n'a pas de salle : sa clé est le
+    // couple (journée, langue) dans `scrutin_banalo_reponses`. `roomPath` ne le
+    // désignera donc jamais, et c'est correct — aucun code de salle n'y mène.
+    slug: "banalo-jour",
+    famille: "quotidien",
+    status: "live",
+    emoji: "🔢",
+    skin: UNANIMO_SKIN,
+    route: "/games/banalo-jour",
+    bestWith: "1",
+    minutes: "2",
+  },
+  {
+    // LE PREMIER JEU SOLO DU CATALOGUE. Il n'a pas de salle : son « code » est
+    // la date, la même pour tout le monde. D'où `route` sans `/<code>` —
     // `roomPath` ne le désignera jamais, et c'est correct : aucun code de salle
     // ne peut y mener.
     slug: "pays",

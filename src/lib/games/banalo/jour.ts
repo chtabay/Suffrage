@@ -104,7 +104,7 @@ export function finDeJournee(quand: Date = new Date()): number {
   // On cherche le premier instant à partir duquel la journée suivante commence.
   // Une recherche à la minute serait exacte mais lente ; on part de midi UTC le
   // lendemain de la date ouverte, puis on ajuste au quart d'heure.
-  let t = Date.parse(`${ouverte}T00:00:00Z`) + 86_400_000;
+  const t = Date.parse(`${ouverte}T00:00:00Z`) + 86_400_000;
   // La charnière tombe entre 09 h 30 et 10 h 30 UTC selon la saison ; on balaie
   // large et on s'arrête au premier instant qui a changé de journée.
   for (let m = 0; m <= 24 * 60; m += 5) {

@@ -1705,6 +1705,10 @@
       "name": "La Noche del Fantasma",
       "tagline": "Uno de vosotros ronda esta mansión"
     },
+    "banalo-jour": {
+      "name": "Banalo del día",
+      "tagline": "Un número que estimar, cada día"
+    },
     "pays": {
       "name": "Cinco sobre cinco",
       "tagline": "Un país al día, cinco características secretas"
@@ -2487,6 +2491,40 @@
       "replay": "Volver a jugar",
       "joinNew": "La nueva partida está abierta"
     }
+  },
+  "BanaloJour": {
+    "metaTitle": "Banalo del día — un número que estimar cada día",
+    "metaDescription": "Estima un número que no se puede buscar en internet. No se trata de acertar: se trata de acercarse lo máximo posible a la respuesta mediana de los demás jugadores. Una pregunta al día, sin cuenta.",
+    "name": "Banalo del día",
+    "back": "Todos los juegos",
+    "poweredBy": "Con la tecnología de Placet",
+    "numero": "Día n.º {n}",
+    "question": "La pregunta de hoy",
+    "consigne": "Responde con un número entero. No se trata de acertar, sino de acercarte lo máximo posible a la respuesta mediana de todos los jugadores.",
+    "chargement": "Un momento…",
+    "saisieLabel": "Tu estimación, {unite}",
+    "placeholder": "Un número",
+    "relectureVide": "Escribe un número entero.",
+    "envoyer": "Enviar mi respuesta",
+    "definitif": "Una sola respuesta al día: después ya no se puede cambiar.",
+    "deposeTitre": "Tu respuesta",
+    "attente": "Sois {n} por ahora. La puntuación aparece en cuanto haya suficiente gente para que la mediana signifique algo.",
+    "scoreTitre": "Tu puntuación",
+    "points": "{n} sobre 10",
+    "partMieux": "El {n} % de los jugadores lo hizo mejor.",
+    "rang": "Puesto {rang} de {votants} jugadores",
+    "exAequo": "{n, plural, one {empatado con # más} other {empatado con # más}}",
+    "mienne": "Tu respuesta",
+    "mediane": "La respuesta mediana",
+    "ecart": "Tu desviación",
+    "facteur": "×{f}",
+    "votants": "Respuestas",
+    "pasDeVerite": "El juego no busca la verdad: la referencia es la respuesta más común, no la correcta. Una multitud puede equivocarse junta, y el juego premia igualmente a quien la siguió.",
+    "partager": "Compartir mi resultado",
+    "copie": "¡Copiado!",
+    "partageTitre": "Banalo del día n.º {n} — {points}/10",
+    "panne": "No hemos podido contactar con el recuento. Recarga la página para ver cómo está tu respuesta.",
+    "demain": "Nueva pregunta a las {heure}."
   },
   "Pays": {
     "pictosAide": "Cada casilla dice ahora de qué habla su criterio. La última guarda su secreto.",

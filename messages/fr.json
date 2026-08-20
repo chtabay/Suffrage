@@ -1705,6 +1705,10 @@
       "name": "La Nuit du Fantôme",
       "tagline": "L'un de vous hante ce manoir"
     },
+    "banalo-jour": {
+      "name": "Banalo du jour",
+      "tagline": "Un nombre à estimer, tous les jours"
+    },
     "pays": {
       "name": "Cinq sur cinq",
       "tagline": "Un pays par jour, cinq caractéristiques secrètes"
@@ -2487,6 +2491,40 @@
       "replay": "Rejouer",
       "joinNew": "La nouvelle partie est ouverte"
     }
+  },
+  "BanaloJour": {
+    "metaTitle": "Banalo du jour — une question chiffrée par jour",
+    "metaDescription": "Estimez un nombre impossible à chercher sur le web. Le but n'est pas d'avoir raison : c'est de tomber au plus près de la réponse médiane des autres joueurs. Une question par jour, sans compte.",
+    "name": "Banalo du jour",
+    "back": "Tous les jeux",
+    "poweredBy": "Propulsé par Placet",
+    "numero": "Journée n° {n}",
+    "question": "La question du jour",
+    "consigne": "Répondez par un nombre entier. Le but n'est pas d'avoir raison, mais d'être au plus près de la réponse médiane de tous les joueurs.",
+    "chargement": "Un instant…",
+    "saisieLabel": "Votre estimation, {unite}",
+    "placeholder": "Un nombre",
+    "relectureVide": "Tapez un nombre entier.",
+    "envoyer": "Envoyer ma réponse",
+    "definitif": "Une seule réponse par jour : elle ne pourra plus changer.",
+    "deposeTitre": "Votre réponse",
+    "attente": "Vous êtes {n} pour l'instant. Le score s'affiche dès que la foule est assez nombreuse pour que la médiane veuille dire quelque chose.",
+    "scoreTitre": "Votre score",
+    "points": "{n} sur 10",
+    "partMieux": "{n} % des joueurs ont fait mieux.",
+    "rang": "{rang}e sur {votants} joueurs",
+    "exAequo": "{n, plural, one {à égalité avec # autre} other {à égalité avec # autres}}",
+    "mienne": "Votre réponse",
+    "mediane": "La réponse médiane",
+    "ecart": "Votre écart",
+    "facteur": "×{f}",
+    "votants": "Réponses",
+    "pasDeVerite": "Le jeu ne cherche pas la vérité : la référence est la réponse la plus commune, pas la bonne réponse. La foule peut se tromper ensemble — et le jeu récompense quand même ceux qui l'ont suivie.",
+    "partager": "Partager mon résultat",
+    "copie": "Copié !",
+    "partageTitre": "Banalo du jour n° {n} — {points}/10",
+    "panne": "On n'a pas pu joindre le dépouillement. Rechargez la page pour voir où en est votre réponse.",
+    "demain": "Nouvelle question à {heure}."
   },
   "Pays": {
     "pictosAide": "Chaque case dit maintenant de quoi parle son critère. La dernière garde son secret.",

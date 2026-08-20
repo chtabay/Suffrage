@@ -15,7 +15,8 @@ corriger.
 | Chantier | État | Qui |
 |---|---|---|
 | **Jeu 3** | en cours | l'agent des jeux |
-| **Banalo en groupe** (`games/banalo`) | en prod, relu ; **renommé depuis « Unanimo » le 2026-08-20** (marque). Le jeu de salon est fermé ; une version quotidienne est à l'étude — `docs/banalo-quotidien.md`, rien de construit | fermé, sauf la présentation |
+| **Banalo en groupe** (`games/banalo`) | en prod, relu ; **renommé depuis « Unanimo » le 2026-08-20** (marque) | fermé, sauf la présentation |
+| **Banalo du jour** (`games/banalo-jour`) | posé le 2026-08-20 : 15 questions chiffrées, charnière 11 h 30, barème en facteurs. L'étude est dans `docs/banalo-quotidien.md` | ouvert |
 | **Alibi** (`games/alibi`) | en prod, **relu et corrigé le 2026-08-13** | fermé — **ne pas y revenir** |
 | **Gestion de groupes** (`/espaces`) | en prod, 24 constats moyens/faibles en réserve | la session tableau de bord |
 | **Cinq sur cinq** (`games/pays`) | en prod le 2026-08-18 · pictos de catégorie et mise en avant des essais le 2026-08-19 | ouvert |
@@ -82,6 +83,35 @@ en dessous et en petit.
 Ce jeu a aussi ajouté à la base `scrutin_game_pays_results` et trois fonctions
 `scrutin_game_pays_*` (migration `20260818-jeu-pays-resultats.sql`) : RLS active,
 aucune policy, tout passe par les fonctions `security definer`.
+
+**Banalo a DEUX entrées au catalogue pour un seul nom**, et c'est voulu : la
+porte « Jouer » range par OCCASION, pas par genre. `banalo` (salle, 3–12 joueurs)
+vit sous « Tomber d'accord », `banalo-jour` (seul, deux minutes) sous « Un par
+jour ». Conséquence à ne pas rater : **`banalo-jour` n'est PAS une valeur de
+`scrutin_game_rooms.game`** — c'est le seul slug du catalogue qui n'aiguille rien
+en base. Le mode quotidien n'a pas de salle ; sa clé est `(jeton, jour, langue)`
+dans `scrutin_banalo_reponses`.
+
+**Une réponse de Banalo du jour est DÉFINITIVE, et c'est structurel.** La RPC
+rend la médiane du moment ; si un second dépôt écrasait le premier, il suffirait
+de répondre n'importe quoi, de lire la médiane rendue et de la redéposer pour
+marquer 10 tous les jours. Le `on conflict do nothing` n'est donc pas une
+commodité — c'est ce qui rend la médiane sûre à rendre. Et c'est aussi pourquoi
+ce mode a un jeton anonyme stable, là où Cinq sur cinq s'en passe fièrement.
+
+**Le 30 de Banalo du jour vit à TROIS endroits** : `scrutin_banalo_purge`, le
+cron `scrutin-banalo-purge` (`20260820-banalo-du-jour-purge.sql`) et la politique
+de confidentialité (`src/app/[locale]/privacy/page.tsx` — le fichier s'appelle
+`privacy`, pas `confidentialite` comme l'annonce à tort un commentaire de
+`20260810-jeux-retention.sql`). Le changer d'un seul côté transforme un
+engagement écrit en mensonge.
+
+**Le navigateur d'ici ne peut PAS joindre Supabase.** La politique de sortie du
+conteneur répond 403 au CONNECT vers `xwlywozdxlgjwksypzmi.supabase.co` : tout
+écran qui appelle la base *depuis le navigateur* (Banalo du jour) ne se vérifie
+qu'en interceptant la RPC avec `page.route`, ce qui éprouve l'écran et pas le
+calcul. Les jeux qui passent par une route `/api` (Cinq sur cinq) ne sont pas
+concernés — c'est le serveur Next qui appelle, et lui a le proxy.
 
 ## Les règles qui coûtent cher
 

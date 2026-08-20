@@ -20,6 +20,8 @@ import {
   numeroDuJour,
 } from "./jour";
 import { POINTS_MAX, VOTANTS_MIN, facteurDe, medianeDe, pointsDe, positionDe } from "./bareme";
+import { nombreDe } from "./saisie";
+import { traduis } from "@/lib/db/banalo";
 
 const LOCALES = ["fr", "en", "es", "pcm"] as const;
 
@@ -208,4 +210,68 @@ test("personne au-dessus donne bien zéro, pas un plancher inventé", () => {
   const foule = [...Array(50).fill(3), 10];
   assert.equal(positionDe(10, foule).partMieux, 0);
   assert.equal(positionDe(10, foule).rang, 1);
+});
+
+// -------------------------------------------------------------------- saisie
+
+test("les séparateurs de milliers passent, la décimale ne passe pas en douce", () => {
+  // ⚠️ LE PIÈGE DE LA VIRGULE. « 1,5 » vaut 1,5 en français et 1500 en anglais ;
+  // interpréter la frappe ferait varier une réponse d'un facteur mille selon la
+  // langue de l'écran, sans que personne ne le voie. On dépouille donc TOUT sauf
+  // les chiffres : un séparateur de milliers tombe juste, et une décimale rend
+  // un nombre visiblement trop grand, que la relecture formatée montre avant
+  // l'envoi.
+  assert.equal(nombreDe("4500000"), 4500000);
+  assert.equal(nombreDe("4 500 000"), 4500000);
+  assert.equal(nombreDe("4,500,000"), 4500000);
+  assert.equal(nombreDe("1,5"), 15, "la décimale devient un nombre franchement faux, pas un faux discret");
+});
+
+test("une saisie qui ne porte pas de nombre ne bloque rien", () => {
+  for (const vide of ["", "   ", "abc", "-", "0", "00"]) {
+    assert.equal(nombreDe(vide), null, `saisie ${JSON.stringify(vide)}`);
+  }
+});
+
+test("une saisie démesurée est refusée avant la base, pas par elle", () => {
+  // La table borne à 1e18 ; `isSafeInteger` s'arrête bien avant, donc rien de ce
+  // qui sort d'ici ne peut être rejeté par le `check`.
+  assert.equal(nombreDe("9".repeat(30)), null);
+  assert.ok((nombreDe("9007199254740991") ?? 0) > 0, "la borne sûre elle-même passe");
+});
+
+// ----------------------------------------------------------- passe-plat base
+
+test("l'infini rendu par Postgres ne s'affiche pas « ×Infinity »", () => {
+  // ⚠️ MESURÉ EN BASE : `jsonb_build_object('f', 'Infinity'::float8)` rend la
+  // CHAÎNE "Infinity", pas un nombre. Sans le filtre, l'écran l'afficherait tel
+  // quel.
+  const e = traduis({ status: "ok", repondu: true, assez: true, votants: 30, mienne: 5,
+    mediane: 5, facteur: "Infinity", points: 0, rang: 30, exaequo: 1, partmieux: 99 });
+  assert.equal(e?.facteur, null);
+});
+
+test("le rang s'éteint avec la part, jamais tout seul", () => {
+  // ⚠️ TROUVÉ À L'ÉCRAN, pas à la relecture. La base rend toujours `rang` mais
+  // ne rend `partmieux` qu'au-delà du plancher de position : une journée à huit
+  // votants affichait « 7e sur 8 joueurs », c'est-à-dire exactement le bruit que
+  // `VOTANTS_MIN` existe pour taire.
+  const mince = traduis({ status: "ok", repondu: true, assez: true, votants: 8, mienne: 5,
+    mediane: 41, facteur: 8.2, points: 1, rang: 7, exaequo: 1, partmieux: null });
+  assert.equal(mince?.rang, null);
+  assert.equal(mince?.exAequo, null);
+  assert.equal(mince?.points, 1, "le score, lui, reste");
+
+  const foule = traduis({ status: "ok", repondu: true, assez: true, votants: 214, mienne: 5,
+    mediane: 4, facteur: 1.25, points: 6, rang: 63, exaequo: 41, partmieux: 29 });
+  assert.equal(foule?.rang, 63);
+  assert.equal(foule?.partMieux, 29);
+});
+
+test("un refus de la base n'est jamais replié sur un état de jeu", () => {
+  // « Pas répondu » sur une panne proposerait de rejouer à quelqu'un dont la
+  // réponse est déjà déposée — et son second nombre serait ignoré en silence.
+  assert.equal(traduis(null), null);
+  assert.equal(traduis({ status: "invalid" }), null);
+  assert.equal(traduis({ repondu: true, votants: 40 }), null, "sans `status: ok`, c'est un non");
 });
