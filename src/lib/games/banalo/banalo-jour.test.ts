@@ -25,6 +25,7 @@ import { blocDe, motDe, teinteDe } from "./chaleur";
 import { serieVivante, traduis, traduisMots } from "@/lib/db/banalo";
 import { JOURNEES_CHIFFREES, programmeDe } from "./programme";
 import { CASES_MAX, CASES_MIN, CASES_PAR_DEFAUT, NB_THEMES, casesDe, themeDe } from "@/content/banalo/mots";
+import { lienDefi, litDefi } from "@/lib/games/comparaison";
 
 const LOCALES = ["fr", "en", "es", "pcm"] as const;
 
@@ -490,4 +491,42 @@ test("une série absente ou refusée vaut zéro, jamais NaN", () => {
   // plutôt qu'un chiffre inventé.
   assert.equal(serieVivante(null, 12), 0);
   assert.equal(serieVivante({ jours: 0, fin: null }, 12), 0);
+});
+
+// ------------------------------------------------------- comparaison entre amis
+
+test("le lien de partage porte la journée et le score, et jamais sous « s »", () => {
+  // ⚠️ `s` EST DÉJÀ PRIS par l'entonnoir (`shareUrl` décore avec `?s=<canal>`).
+  // Réutiliser cette lettre casserait l'attribution en silence : la visite
+  // serait comptée sur un canal inventé, donc jamais comptée.
+  const l = lienDefi("https://placet.app/games/banalo-jour", 12, 87.5, 100);
+  assert.match(l, /[?&]j=12(&|$)/);
+  assert.match(l, /[?&]r=87\.5(&|$)/);
+  assert.ok(!/[?&]s=/.test(l), "le lien ne doit pas écrire de paramètre « s »");
+  // Et il se greffe proprement sur une URL qui a déjà des paramètres.
+  assert.match(lienDefi("https://x.fr/a?s=jeu", 3, 40, 100), /\?s=jeu&j=3&r=40/);
+});
+
+test("un lien hors bornes n'est pas décoré, et pas relu", () => {
+  const nu = "https://placet.app/games/banalo-jour";
+  assert.equal(lienDefi(nu, 0, 50, 100), nu, "journée impossible");
+  assert.equal(lienDefi(nu, 5, 101, 100), nu, "score au-dessus du maximum");
+  assert.equal(lienDefi(nu, 5, -1, 100), nu, "score négatif");
+});
+
+test("un défi fabriqué à la main est refusé", () => {
+  // Sans ça, un paramètre bricolé afficherait « votre ami : 9 999 » — et la
+  // comparaison, qui n'a de sens qu'entre gens qui se connaissent, deviendrait
+  // une farce à la portée de n'importe qui.
+  assert.equal(litDefi("?j=12&r=87.5", 100)?.resultat, 87.5);
+  assert.equal(litDefi("?j=12&r=9999", 100), null, "score hors bornes");
+  assert.equal(litDefi("?j=0&r=50", 100), null, "journée nulle");
+  assert.equal(litDefi("?j=1.5&r=50", 100), null, "journée non entière");
+  assert.equal(litDefi("?j=abc&r=50", 100), null, "journée illisible");
+  assert.equal(litDefi("?r=50", 100), null, "journée absente");
+  assert.equal(litDefi("?j=12", 100), null, "score absent");
+  assert.equal(litDefi("", 100), null, "rien du tout");
+  // Cinq sur cinq compte des essais, pas des points : la borne est celle du jeu.
+  assert.equal(litDefi("?j=12&r=300", 500)?.resultat, 300);
+  assert.equal(litDefi("?j=12&r=300", 100), null);
 });

@@ -30,6 +30,8 @@ import GameShell from "@/components/games/GameShell";
 import { GCard, GLabel } from "@/components/games/ui";
 import Carte from "./Carte";
 import Compte from "./Compte";
+import ComparaisonAmi from "@/components/games/ComparaisonAmi";
+import { lienDefi, litDefi, type Defi } from "@/lib/games/comparaison";
 import InstallJeu from "@/components/games/InstallJeu";
 import Recherche from "./Recherche";
 import Revelation from "./Revelation";
@@ -55,6 +57,9 @@ interface Sauvegarde {
 
 const cle = (jour: number) => `placet.pays.${jour}`;
 
+/** La borne d'essais du jeu — la même que le `check` de `scrutin_game_pays_results`. */
+const ESSAIS_MAX = 500;
+
 /** Jeton anonyme d'une partie : de quoi recoudre les essais entre eux, rien de plus. */
 const tirePartie = () => Math.random().toString(36).slice(2, 12);
 
@@ -72,6 +77,13 @@ export default function PaysDuJour({ jour }: { jour: number }) {
   const [erreur, setErreur] = useState(false);
   const [pret, setPret] = useState(false);
   const [serie, setSerie] = useState(0);
+
+  // Le défi d'un ami, lu après le montage (voir `NombreDuJour` pour pourquoi
+  // pas `useSearchParams`).
+  const [defi, setDefi] = useState<Defi | null>(null);
+  useEffect(() => {
+    setDefi(litDefi(window.location.search, ESSAIS_MAX));
+  }, []);
   const partie = useRef<string>("");
   const debut = useRef<number>(0);
 
@@ -230,7 +242,13 @@ export default function PaysDuJour({ jour }: { jour: number }) {
       .join("\n");
     const texte = `${t("partageTitre", { jeu: t("name"), n: jour, essais: essais.length })}\n\n${escalier}`;
     mesure("partage", { essais: essais.length });
-    const url = typeof window !== "undefined" ? window.location.href : "";
+    // ⚠️ PAS `location.href`, ET C'EST UNE CORRECTION. La page peut avoir été
+    // ouverte depuis le lien d'un ami, qui porte SON résultat (`?j=&r=`) :
+    // repartager `href` aurait renvoyé le score de l'ami sous notre nom, en
+    // silence. On repart donc du chemin nu, et on y remet le NÔTRE.
+    const nu =
+      typeof window !== "undefined" ? `${window.location.origin}${window.location.pathname}` : "";
+    const url = lienDefi(nu, jour, essais.length, ESSAIS_MAX);
     // Une ligne vide avant le lien : collé à la dernière marche, il se lisait
     // comme une sixième ligne de l'escalier.
     const complet = `${texte}\n\n${url}`;
@@ -361,6 +379,23 @@ export default function PaysDuJour({ jour }: { jour: number }) {
               qrAide: t("victoire.qrAide"),
               qrTitre: t("victoire.qrTitre"),
               qrFermer: t("victoire.qrFermer"),
+            }}
+          />
+        )}
+
+        {/* FACE À UN AMI — sans graphe, sans identité : le lien qu'il a partagé
+            porte son nombre d'essais. Voir `lib/games/comparaison.ts`. */}
+        {gagne && defi && (
+          <ComparaisonAmi
+            skin={skin}
+            mien={t("historique", { n: essais.length })}
+            sien={t("historique", { n: defi.resultat })}
+            memeJournee={defi.jour === jour}
+            textes={{
+              titre: t("compareTitre"),
+              moi: t("compareMoi"),
+              ami: t("compareAmi"),
+              passee: t("comparePassee"),
             }}
           />
         )}

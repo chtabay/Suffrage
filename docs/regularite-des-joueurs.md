@@ -135,7 +135,65 @@ réserve : il est beaucoup plus facile à ajouter qu'à retirer.
 
 ---
 
-## 5. Les amis — et c'est là qu'on pose le push
+## 5. La comparaison AVANT les amis — et pourquoi on s'arrête là pour l'instant
+
+⚠️ **CONSTRUIT : la comparaison sans graphe** (`lib/games/comparaison.ts`). Le
+lien de partage porte la journée et le résultat de celui qui partage ; l'ami qui
+l'ouvre, **une fois qu'il a joué**, voit les deux côte à côte. Pas de pseudo, pas
+d'invitation, pas de fil d'activité, pas de modération.
+
+C'est déclaratif, donc falsifiable — et ce n'est pas un défaut : personne ne
+vérifie non plus une grille Wordle collée dans un groupe. C'est une conversation
+entre gens qui se connaissent, pas un classement officiel.
+
+Trois règles d'affichage, toutes payées :
+
+* **Rien avant d'avoir joué.** Le score d'un ami ne divulgue rien (il est
+  relatif à la foule), mais il ancre et met une pression que le jeu ne demande
+  pas.
+* **Jamais une autre journée que celle en cours** — un lien ouvert le lendemain
+  le dit et invite à jouer aujourd'hui.
+* **Pas de nom.** « Votre ami » plutôt qu'un pseudo : le fil de conversation où
+  le lien a circulé dit déjà de qui il s'agit, mieux qu'un pseudo qu'on aurait
+  stocké.
+
+⚠️ **Deux défauts trouvés en construisant, et aucun ne se voyait à la relecture :**
+
+* `Number(null)` vaut **zéro**, pas `NaN`. Un lien portant la journée sans le
+  score passait donc tous les contrôles de borne et affichait « votre ami :
+  0,0 ». Trouvé par le test.
+* Cinq sur cinq partageait `window.location.href`. Une page ouverte depuis le
+  lien d'un ami porte SON résultat : repartager `href` renvoyait **le score de
+  l'ami sous notre nom**, en silence. On repart du chemin nu.
+
+### Le système d'amis proprement dit : pas maintenant
+
+`20260818-jeu-pays-resultats.sql` a refusé cette décision par écrit — « un
+tableau nominatif demanderait un pseudo public et un consentement […] elle n'est
+pas prise ici ». Ce qu'elle coûte, et qu'il faudra assumer le jour où on la
+prend :
+
+* **Une identité publique**, sur des jeux dont la politique déclare une tranche
+  d'âge « enfant » : usurpation, harcèlement, noms choisis pour blesser. C'est
+  une surface de modération, et « on verra » n'est pas une réponse.
+* **La première visibilité de données de jeu par d'autres personnes.** Jusqu'ici
+  la politique ne parle que de conservation. C'est un changement de catégorie.
+* **Le format « mots » fuit** : voir la grille d'un ami, c'est recevoir six
+  réponses. Le détail d'un ami ne peut être visible que pour les journées qu'on
+  a soi-même jouées.
+* **Un classement nominatif contredit l'éthos des deux jeux.** Banalo récompense
+  d'être BANAL, pas d'être bon. La sortie proposée : une **tablée** — qui a joué
+  aujourd'hui — et non un palmarès.
+* **Un second graphe social.** Placet sert à décider en groupe, et ce groupe est
+  déjà modélisé par `/espaces`, en production. Construire des « amis » à côté,
+  c'est maintenir deux réseaux aux sémantiques différentes. Si social il y a, il
+  faudrait réutiliser les espaces — mais ils appartiennent à la session tableau
+  de bord : ça se coordonne, ça ne se prend pas.
+
+**Trois décisions à prendre avant la première ligne** : tablée ou classement,
+pseudo public ou réutilisation des espaces, et qui modère.
+
+## 6. Le push — au service des amis, pas du rappel
 
 Voir ce que les autres ont fait, être prévenu quand ils ont joué, consulter les
 historiques.
@@ -156,7 +214,7 @@ acceptation), ce qu'un ami voit exactement (le score ? le rang ? seulement
 
 ---
 
-## 6. Le rappel quotidien — en réserve, peut-être jamais
+## 7. Le rappel quotidien — en réserve, peut-être jamais
 
 **Décidé : pas de départage au temps, et pas de rappel quotidien pour l'instant.**
 

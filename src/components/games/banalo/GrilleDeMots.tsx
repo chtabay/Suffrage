@@ -26,6 +26,9 @@ import type { Theme } from "@/lib/games/banalo/themes";
 import { monJeton } from "@/lib/games/banalo/jeton";
 import { blocDe, motDe, teinteDe } from "@/lib/games/banalo/chaleur";
 import PartageBanalo from "./PartageBanalo";
+import ComparaisonAmi from "@/components/games/ComparaisonAmi";
+import { litDefi, type Defi } from "@/lib/games/comparaison";
+import { POINTS_MAX } from "@/lib/games/banalo/bareme";
 import InstallJeu from "@/components/games/InstallJeu";
 import CompteBanalo from "./CompteBanalo";
 import { etatMots, repondMots, type EtatMots } from "@/lib/db/banalo";
@@ -56,6 +59,16 @@ export default function GrilleDeMots({
 
   const [saisies, setSaisies] = useState<string[]>(() => Array(cases).fill(""));
   const [jeu, setJeu] = useState<EtatMots | null>(null);
+
+  // ⚠️ LE DÉFI SE LIT APRÈS LE MONTAGE, depuis `window`. `useSearchParams` de
+  // Next exige une frontière `Suspense` au prérendu ; ici on est de toute façon
+  // côté client, et la lecture directe évite d'ajouter une contrainte de rendu
+  // pour un bloc qui ne s'affiche presque jamais.
+  const [defi, setDefi] = useState<Defi | null>(null);
+  useEffect(() => {
+    setDefi(litDefi(window.location.search, POINTS_MAX));
+  }, []);
+
   const [panne, setPanne] = useState(false);
   const [pret, setPret] = useState(false);
   const [envoi, setEnvoi] = useState(false);
@@ -277,12 +290,27 @@ export default function GrilleDeMots({
             <PartageBanalo
               jour={jour}
               points={note.format(jeu.points)}
+              brut={jeu.points}
               // La FORME du format « mots » : un bloc par case, coloré par la
               // part. ⚠️ JAMAIS LES MOTS EUX-MÊMES — un ami qui les lit n'a plus
               // qu'à les recopier, et comme on est noté par rapport à la foule,
               // il ferait au moins aussi bien sans avoir joué.
               forme={jeu.grille.map((c) => blocDe(c.part ?? 0)).join("")}
               partMieux={jeu.partMieux}
+            />
+          ) : null}
+          {defi && jeu.points !== null ? (
+            <ComparaisonAmi
+              skin={skin}
+              mien={note.format(jeu.points)}
+              sien={note.format(defi.resultat)}
+              memeJournee={defi.jour === jour}
+              textes={{
+                titre: t("compareTitre"),
+                moi: t("compareMoi"),
+                ami: t("compareAmi"),
+                passee: t("comparePassee"),
+              }}
             />
           ) : null}
           <InstallJeu skin={skin} />

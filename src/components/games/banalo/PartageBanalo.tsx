@@ -28,16 +28,21 @@ import { UNANIMO_SKIN as skin } from "@/lib/games/skin";
 import { GBtn } from "@/components/games/ui";
 import PartageQR from "@/components/games/PartageQR";
 import { QR_CHEMIN, QR_TAILLE, QR_URL } from "@/content/banalo/qr";
+import { lienDefi } from "@/lib/games/comparaison";
+import { POINTS_MAX } from "@/lib/games/banalo/bareme";
 
 export default function PartageBanalo({
   jour,
   points,
+  brut,
   forme,
   partMieux,
 }: {
   jour: number;
   /** Le score, déjà formaté dans la langue de l'écran. */
   points: string;
+  /** Le même score, brut : c'est lui qui voyage dans le lien. */
+  brut: number;
   /** La ligne de forme : les blocs de chaleur, ou l'écart. Jamais la réponse. */
   forme: string;
   partMieux: number | null;
@@ -54,7 +59,12 @@ export default function PartageBanalo({
     ].filter(Boolean);
     // Une ligne vide avant le lien : collé à la dernière ligne, il se lisait
     // comme une suite de la forme. Même correction que sur Cinq sur cinq.
-    const texte = `${lignes.join("\n")}\n\n${QR_URL}`;
+    // ⚠️ LE LIEN DU TEXTE PORTE LE SCORE, PAS CELUI DU QR. Le lien de texte
+    // voyage dans une conversation : celui qui le reçoit pourra comparer son
+    // résultat au nôtre. Le QR, lui, est un SVG figé et commité pour l'URL nue —
+    // et il sert le partage EN PRÉSENCE, où les deux personnes sont l'une à côté
+    // de l'autre et n'ont rien à se faire parvenir.
+    const texte = `${lignes.join("\n")}\n\n${lienDefi(QR_URL, jour, brut, POINTS_MAX)}`;
     try {
       if (typeof navigator !== "undefined" && navigator.share) await navigator.share({ text: texte });
       else {

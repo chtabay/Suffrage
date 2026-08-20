@@ -27,6 +27,9 @@ import { monJeton } from "@/lib/games/banalo/jeton";
 import { nombreDe } from "@/lib/games/banalo/saisie";
 import { blocDe, motDe, teinteDe } from "@/lib/games/banalo/chaleur";
 import PartageBanalo from "./PartageBanalo";
+import ComparaisonAmi from "@/components/games/ComparaisonAmi";
+import { litDefi, type Defi } from "@/lib/games/comparaison";
+import { POINTS_MAX } from "@/lib/games/banalo/bareme";
 import InstallJeu from "@/components/games/InstallJeu";
 import CompteBanalo from "./CompteBanalo";
 import { etat as litEtat, repond, type EtatBanalo } from "@/lib/db/banalo";
@@ -44,6 +47,16 @@ export default function NombreDuJour({ jour }: { jour: number }) {
   const question = questionDe(jour);
 
   const [jeu, setJeu] = useState<EtatBanalo | null>(null);
+
+  // ⚠️ LE DÉFI SE LIT APRÈS LE MONTAGE, depuis `window`. `useSearchParams` de
+  // Next exige une frontière `Suspense` au prérendu ; ici on est de toute façon
+  // côté client, et la lecture directe évite d'ajouter une contrainte de rendu
+  // pour un bloc qui ne s'affiche presque jamais.
+  const [defi, setDefi] = useState<Defi | null>(null);
+  useEffect(() => {
+    setDefi(litDefi(window.location.search, POINTS_MAX));
+  }, []);
+
   const [panne, setPanne] = useState(false);
   const [pret, setPret] = useState(false);
   const [saisie, setSaisie] = useState("");
@@ -429,12 +442,27 @@ export default function NombreDuJour({ jour }: { jour: number }) {
             <PartageBanalo
               jour={jour}
               points={note.format(jeu.points)}
+              brut={jeu.points}
               // La FORME du format chiffré : le bloc de chaleur, le mot, et
               // l'écart. Jamais la réponse ni la médiane — les deux se
               // recopient, et ce jeu note par rapport à la foule.
               forme={`${blocDe(jeu.points)} ${CHALEUR[motDe(jeu.points)]} · ${t("facteur", { f: ecart(jeu.facteur ?? 1) })}`}
               partMieux={jeu.partMieux}
             />
+            {defi && jeu.points !== null ? (
+              <ComparaisonAmi
+                skin={skin}
+                mien={note.format(jeu.points)}
+                sien={note.format(defi.resultat)}
+                memeJournee={defi.jour === jour}
+                textes={{
+                  titre: t("compareTitre"),
+                  moi: t("compareMoi"),
+                  ami: t("compareAmi"),
+                  passee: t("comparePassee"),
+                }}
+              />
+            ) : null}
             <InstallJeu skin={skin} />
             {/* LE COMPTE — après la journée, sous le partage. */}
             <CompteBanalo jour={jour} />

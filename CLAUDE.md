@@ -223,6 +223,21 @@ mémoire pour y ajouter un mot** : la première rédaction de
 la fenêtre d'une heure et le plafond journalier par des approximations, toutes
 plausibles et toutes fausses. On repart du corps réel, et on `diff`.
 
+**La couche sociale des jeux quotidiens N'A PAS DE GRAPHE**, et c'est un choix.
+Le lien de partage porte la journée et le résultat (`?j=&r=`, jamais `s` — pris
+par l'entonnoir) ; l'ami qui l'ouvre après avoir joué voit les deux résultats
+côte à côte. Pas de pseudo public, donc pas de modération, sur des jeux où la
+politique déclare une tranche d'âge « enfant ». Un vrai système d'amis prendrait
+la décision que `20260818-jeu-pays-resultats.sql` a refusée par écrit ; les cinq
+coûts et les trois décisions préalables sont dans
+`docs/regularite-des-joueurs.md` §5.
+
+⚠️ **Ne JAMAIS repartager `window.location.href` depuis un écran de jeu.** La
+page a pu être ouverte depuis le lien d'un ami, qui porte SON résultat : le
+repartage renvoyait alors le score de l'ami sous notre nom, en silence. On repart
+du chemin nu. Et ⚠️ `Number(null)` vaut **zéro**, pas `NaN` — un paramètre absent
+passait tous les contrôles de borne et affichait « votre ami : 0,0 ».
+
 
 ## Les règles qui coûtent cher
 
