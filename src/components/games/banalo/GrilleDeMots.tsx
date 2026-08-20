@@ -27,6 +27,7 @@ import { monJeton } from "@/lib/games/banalo/jeton";
 import { blocDe, motDe, teinteDe } from "@/lib/games/banalo/chaleur";
 import PartageBanalo from "./PartageBanalo";
 import InstallJeu from "@/components/games/InstallJeu";
+import CompteBanalo from "./CompteBanalo";
 import { etatMots, repondMots, type EtatMots } from "@/lib/db/banalo";
 
 const bcp = (locale: string) => (locale === "pcm" ? "en" : locale);
@@ -285,6 +286,8 @@ export default function GrilleDeMots({
             />
           ) : null}
           <InstallJeu skin={skin} />
+          {/* LE COMPTE — après la journée, sous le partage. */}
+          <CompteBanalo jour={jour} />
         </div>
       ) : null}
 

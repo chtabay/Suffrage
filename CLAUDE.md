@@ -172,6 +172,28 @@ doublon écarté faisait avancer le rang et laissait des trous, dans lesquels un
 second envoi venait se glisser — après avoir lu les parts. Trouvé par le bloc de
 vérification, pas à la relecture.
 
+**Le compte de Banalo du jour NE REÇOIT AUCUN SCORE DU CLIENT.** Cinq sur cinq
+envoie un lot calculé dans le navigateur (`scrutin_game_pays_save`), parce que
+là-bas la partie ne quitte jamais le navigateur. Ici les réponses sont déjà en
+base sous le jeton : `scrutin_banalo_rattacher(jeton)` recalcule tout avec les
+mêmes fonctions que l'écran. Deux conséquences à ne pas défaire : personne ne
+peut s'inventer un palmarès, et l'`update` du score est INCONDITIONNEL — ce qui
+bouge n'est pas la réponse mais la foule, donc garder le maximum figerait la
+journée à l'instant de la connexion. (Chez Cinq sur cinq, « meilleur » est un
+MINIMUM d'essais ; ici un MAXIMUM de points. Le copier-coller inverse ça en
+silence.)
+
+**Et la série marche SANS compte**, calculée par `scrutin_banalo_serie(jeton)`
+sur les deux formats réunis. La base rend la dernière journée de la suite ; c'est
+l'ÉCRAN qui décide si elle est encore vivante (`serieVivante`), parce que la base
+ne connaît ni le fuseau ni la charnière de 11 h 30.
+
+**Le résumé par compte ne se purge pas**, contrairement aux réponses : c'est ce
+qui permet une série de plus de trente jours, et la politique de confidentialité
+le dit désormais explicitement (« si vous choisissez de rattacher vos résultats à
+un compte… »). La phrase « jamais un compte » qui s'y trouvait est tombée avec ce
+changement, dans le même commit.
+
 **Le 30 de Banalo du jour vit à TROIS endroits** : `scrutin_banalo_purge`, le
 cron `scrutin-banalo-purge` (`20260820-banalo-du-jour-purge.sql`) et la politique
 de confidentialité (`src/app/[locale]/privacy/page.tsx` — le fichier s'appelle

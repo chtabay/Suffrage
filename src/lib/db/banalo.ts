@@ -285,3 +285,72 @@ export async function etatMots(
   if (error) return null;
   return traduisMots(data);
 }
+
+// ────────────────────────────────────────────────────────── le compte
+
+/** Ce qu'un compte garde, et que le navigateur ne sait pas faire. */
+export interface BilanBanalo {
+  parties: number;
+  moyenne: number | null;
+  meilleur: number | null;
+  serie: number;
+  /** Numéro de la dernière journée de la série : l'écran seul sait si elle est vivante. */
+  serieFin: number | null;
+}
+
+/**
+ * La série d'un navigateur, SANS COMPTE.
+ *
+ * ⚠️ ELLE VIENT DU SERVEUR ICI, ALORS QUE CELLE DE CINQ SUR CINQ VIT DANS LE
+ * `localStorage`. Ce n'est pas une divergence de style : là-bas la partie ne
+ * quitte jamais le navigateur tant qu'on ne se connecte pas, donc le serveur ne
+ * sait rien. Ici les réponses sont déjà en base sous le jeton anonyme — les
+ * redemander au navigateur serait garder deux vérités pour une seule donnée,
+ * et c'est toujours la copie qui finit par mentir.
+ */
+export async function maSerie(jeton: string): Promise<{ jours: number; fin: number | null } | null> {
+  const supabase = createClient();
+  const { data, error } = await supabase.rpc("scrutin_banalo_serie", { p_jeton: jeton });
+  if (error || !data) return null;
+  const d = data as { jours?: number; fin?: number | null };
+  return { jours: Number(d.jours) || 0, fin: typeof d.fin === "number" ? d.fin : null };
+}
+
+/**
+ * La série est-elle ENCORE VIVANTE aujourd'hui ?
+ *
+ * ⚠️ LA BASE NE PEUT PAS RÉPONDRE À ÇA, et c'est délibéré : elle ne connaît ni
+ * le fuseau du joueur ni la charnière de 11 h 30. Elle rend donc la dernière
+ * journée de la suite, et c'est l'écran — qui sait quel jour on est — qui décide.
+ * Hier est admis parce que la journée d'aujourd'hui n'est pas encore jouée quand
+ * on ouvre la page.
+ */
+export function serieVivante(serie: { jours: number; fin: number | null } | null, jourActuel: number): number {
+  if (!serie || serie.fin === null) return 0;
+  return serie.fin === jourActuel || serie.fin === jourActuel - 1 ? serie.jours : 0;
+}
+
+/**
+ * Range les résultats de ce navigateur sur le compte connecté.
+ *
+ * ⚠️ AUCUN SCORE NE PART D'ICI, contrairement à `enregistreResultats` de Cinq
+ * sur cinq qui envoie un lot calculé dans le navigateur. On envoie le JETON, et
+ * le serveur recalcule tout avec les mêmes fonctions que l'écran. Personne ne
+ * peut s'inventer un palmarès.
+ *
+ * Idempotente : à appeler à chaque connexion sans se demander si c'est déjà fait.
+ */
+export async function rattache(jeton: string): Promise<number | null> {
+  const supabase = createClient();
+  const { data, error } = await supabase.rpc("scrutin_banalo_rattacher", { p_jeton: jeton });
+  if (error) return null;
+  return typeof data === "number" ? data : null;
+}
+
+/** Mon bilan, ou `null` si l'appel a été refusé (pas de session, réseau…). */
+export async function monBilanBanalo(): Promise<BilanBanalo | null> {
+  const supabase = createClient();
+  const { data, error } = await supabase.rpc("scrutin_banalo_moi");
+  if (error || !data) return null;
+  return data as BilanBanalo;
+}

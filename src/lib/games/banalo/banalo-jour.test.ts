@@ -22,7 +22,7 @@ import {
 import { POINTS_MAX, VOTANTS_MIN, facteurDe, medianeDe, pointsDe, positionDe } from "./bareme";
 import { nombreDe } from "./saisie";
 import { blocDe, motDe, teinteDe } from "./chaleur";
-import { traduis, traduisMots } from "@/lib/db/banalo";
+import { serieVivante, traduis, traduisMots } from "@/lib/db/banalo";
 import { JOURNEES_CHIFFREES, programmeDe } from "./programme";
 import { CASES_MAX, CASES_MIN, CASES_PAR_DEFAUT, NB_THEMES, casesDe, themeDe } from "@/content/banalo/mots";
 
@@ -468,4 +468,26 @@ test("les cinq blocs de partage sont distincts, et couvrent toute l'échelle", (
   assert.equal(vus.size, 5, `seulement ${vus.size} blocs distincts`);
   for (let s = 0; s <= 100; s += 0.5) assert.ok(blocDe(s), `score ${s}`);
   assert.ok(blocDe(NaN), "une valeur impossible ne casse pas le partage");
+});
+
+// ------------------------------------------------------------------- compte
+
+test("une série ancienne ne se rallume pas toute seule", () => {
+  // ⚠️ LA BASE NE PEUT PAS TRANCHER ÇA, et c'est délibéré : elle ne connaît ni
+  // le fuseau du joueur ni la charnière de 11 h 30. Elle rend la dernière
+  // journée de la suite ; l'écran décide si la suite est encore vivante.
+  // Sans cette règle, quelqu'un qui a joué cinq jours d'affilée il y a trois
+  // mois verrait « 🔥 5 jours d'affilée » en arrivant, et le chiffre cesserait
+  // de vouloir dire quoi que ce soit.
+  assert.equal(serieVivante({ jours: 5, fin: 40 }, 40), 5, "jouée aujourd'hui");
+  assert.equal(serieVivante({ jours: 5, fin: 39 }, 40), 5, "jouée hier : encore vivante");
+  assert.equal(serieVivante({ jours: 5, fin: 38 }, 40), 0, "avant-hier : rompue");
+  assert.equal(serieVivante({ jours: 99, fin: 1 }, 200), 0, "une vieille série reste éteinte");
+});
+
+test("une série absente ou refusée vaut zéro, jamais NaN", () => {
+  // Un NULL rendu par une RPC est un REFUS, pas une donnée : on n'affiche rien
+  // plutôt qu'un chiffre inventé.
+  assert.equal(serieVivante(null, 12), 0);
+  assert.equal(serieVivante({ jours: 0, fin: null }, 12), 0);
 });

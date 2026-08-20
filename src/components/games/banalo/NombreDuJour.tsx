@@ -28,6 +28,7 @@ import { nombreDe } from "@/lib/games/banalo/saisie";
 import { blocDe, motDe, teinteDe } from "@/lib/games/banalo/chaleur";
 import PartageBanalo from "./PartageBanalo";
 import InstallJeu from "@/components/games/InstallJeu";
+import CompteBanalo from "./CompteBanalo";
 import { etat as litEtat, repond, type EtatBanalo } from "@/lib/db/banalo";
 
 /**
@@ -435,6 +436,8 @@ export default function NombreDuJour({ jour }: { jour: number }) {
               partMieux={jeu.partMieux}
             />
             <InstallJeu skin={skin} />
+            {/* LE COMPTE — après la journée, sous le partage. */}
+            <CompteBanalo jour={jour} />
           </div>
         </div>
       ) : null}
