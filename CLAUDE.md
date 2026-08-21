@@ -297,16 +297,28 @@ qui regarde par-dessus l'épaule. Deux des trois exigences étaient déjà tenue
 `where jeton = moi`, donc structurellement incapable de porter le mot d'un
 autre). Seule la troisième demandait du code.
 
-⚠️ **ET L'ORPHELIN SE LIT SUR `joueurs`, JAMAIS SUR `part`.** La part COMPTE LE
-JOUEUR LUI-MÊME : mesuré en base sur une journée à deux votants, un mot que
-personne n'a partagé sort à **50 %** — lue seule, elle annonce « la moitié des
-joueurs » d'un mot qui n'a marché pour personne. Et à dix mille votants, un
-joueur comme deux s'arrondissent à 0,0 % : la marche disparaît. Chaque mot porte donc SES DEUX
-CHIFFRES — la part, et à combien de personnes elle correspond — et c'est
-l'effectif qui rend « personne d'autre » lisible là où la part n'y arrive pas.
-La ligne d'un mot à un seul joueur s'estompe, exactement le geste de la salle
-(`RevealBoard.tsx` estompe à `opacity: 0.55` un mot à zéro point ; elle ne barre
-rien et ne colle aucune icône).
+⚠️ **UN MOT QUE PERSONNE D'AUTRE N'A ÉCRIT NE RAPPORTE RIEN**
+(`20260822-banalo-mots-orphelin-zero.sql`) — la règle de la salle, écrite là-bas
+depuis le premier jour (`case when p_shared >= 2 then p_shared else 0 end`). Il
+rapportait une voix, la sienne, parce que `joueurs` compte le joueur lui-même ;
+l'écran l'annonçait même en toutes lettres, « 1 joueur », c'est-à-dire « vous
+marquez parce que vous avez répondu ». Le rang et le centile suivent la même
+somme, donc celui qui trouve six mots partagés passe devant celui qui en trouve
+cinq plus un mot à lui seul.
+
+⚠️ **ET LA LIGNE DE L'ORPHELIN LE DIT AU LIEU D'AFFICHER UN CHIFFRE.** Elle
+s'estompe (`opacity: 0.55`, exactement le geste de `RevealBoard.tsx`, qui ne
+barre rien et ne colle aucune icône) et porte « personne d'autre » à la place de
+l'effectif ET de la part — la part compte le joueur lui-même, donc « 2,5 % » à
+côté de « personne d'autre » se contredirait, et sur une journée à deux votants
+elle affiche carrément **50 %** pour un mot que personne n'a partagé. Sans ça, la
+colonne ne s'additionnerait plus au score : les effectifs affichés font
+exactement la somme montrée en haut (34 + 22 + 9 + 3 + 15 = 83).
+
+⚠️ **La bande de concentration, elle, GARDE le mot orphelin.** Elle décrit la
+JOURNÉE — quelle part des joueurs a donné le mot n° 1, le n° 2 — pas ce que le
+joueur marque. L'en écarter fausserait la couverture, qui sert à lire si la
+foule s'est serrée.
 
 **Et le score MONTRÉ par le format « mots » est la SOMME, pas un sur-100** — le
 score d'Unanimo : le nombre de voix que vos mots ont recueillies. Il donne un

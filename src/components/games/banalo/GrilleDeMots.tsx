@@ -315,13 +315,27 @@ export default function GrilleDeMots({
                       ET SANS REPLI — pas de `?? 0`, parce que « 0 joueur a écrit
                       ce mot » est faux d'un mot que le joueur vient d'écrire. */}
                   <span style={{ display: "flex", gap: 7, alignItems: "baseline", flex: "none" }}>
-                    {/* ⚠️ L'EFFECTIF PASSE DEVANT LA PART, parce que c'est LUI qui
-                        s'additionne : la colonne des effectifs fait le score
-                        affiché plus haut, à l'unité près. La part reste à côté,
-                        en gris, pour dire ce que cet effectif pèse dans la
-                        foule du jour — 34 joueurs ne veulent pas dire la même
-                        chose à 40 votants qu'à 4 000. */}
-                    {c.joueurs !== null ? (
+                    {/* ⚠️ UN MOT QUE PERSONNE D'AUTRE N'A ÉCRIT NE RAPPORTE RIEN,
+                        et la ligne doit le DIRE plutôt que d'afficher « 1 joueur ».
+                        C'est la règle de la salle (`p_shared >= 2`, sinon zéro),
+                        reprise en base le 22/08 ; l'écrire « 1 joueur » revenait
+                        à annoncer un point qui n'existe pas, et la colonne ne
+                        s'additionnait plus au score. Sa PART disparaît avec :
+                        elle compte le joueur lui-même, donc « 2,5 % » à côté de
+                        « personne d'autre » se contredirait.
+
+                        ⚠️ L'EFFECTIF PASSE DEVANT LA PART sur les autres lignes,
+                        parce que c'est LUI qui s'additionne : la colonne des
+                        effectifs fait exactement le score affiché plus haut. La
+                        part reste à côté, en gris, pour dire ce que cet effectif
+                        pèse dans la foule du jour — 34 joueurs ne veulent pas
+                        dire la même chose à 40 votants qu'à 4 000. */}
+                    {c.joueurs === 1 ? (
+                      <span style={{ fontSize: 12.5, fontWeight: 700, color: skin.muted }}>
+                        {t("motsSeul")}
+                      </span>
+                    ) : null}
+                    {c.joueurs !== null && c.joueurs !== 1 ? (
                       <span
                         style={{
                           fontFamily: skin.fontDisplay,
@@ -334,7 +348,7 @@ export default function GrilleDeMots({
                         {t("motsJoueurs", { n: c.joueurs })}
                       </span>
                     ) : null}
-                    {c.part !== null ? (
+                    {c.part !== null && c.joueurs !== 1 ? (
                       <span
                         style={{
                           fontSize: 12.5,

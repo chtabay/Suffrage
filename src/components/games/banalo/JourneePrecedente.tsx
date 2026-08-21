@@ -181,33 +181,50 @@ export default function JourneePrecedente({ jour }: { jour: number }) {
               {grille.map((c, i) => (
                 <div
                   key={`${c.mot}-${i}`}
-                  style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "baseline" }}
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    gap: 12,
+                    alignItems: "baseline",
+                    opacity: c.joueurs === 1 ? 0.55 : 1,
+                  }}
                 >
                   <span style={{ fontFamily: skin.fontDisplay, fontWeight: 800, fontSize: 15 }}>{c.mot}</span>
-                  {/* Les deux mêmes chiffres que sur l'écran du jour, arrêtés. */}
+                  {/* Les mêmes chiffres que sur l'écran du jour, arrêtés — et la
+                      même règle : un mot que personne d'autre n'a écrit ne
+                      rapporte rien, donc il le dit au lieu d'afficher « 1 ». */}
                   <span style={{ display: "flex", gap: 7, alignItems: "baseline", flex: "none" }}>
-                    <span
-                      style={{
-                        fontSize: 13.5,
-                        fontWeight: 700,
-                        fontVariantNumeric: "tabular-nums",
-                        color: teinteDe(c.part),
-                      }}
-                    >
-                      {t("motsPart", { p: part.format(c.part) })}
-                    </span>
-                    {c.joueurs !== null ? (
-                      <span
-                        style={{
-                          fontSize: 12,
-                          fontWeight: 700,
-                          color: skin.muted,
-                          fontVariantNumeric: "tabular-nums",
-                        }}
-                      >
-                        {t("motsJoueurs", { n: c.joueurs })}
+                    {c.joueurs === 1 ? (
+                      <span style={{ fontSize: 12, fontWeight: 700, color: skin.muted }}>
+                        {t("motsSeul")}
                       </span>
-                    ) : null}
+                    ) : (
+                      <>
+                        {c.joueurs !== null ? (
+                          <span
+                            style={{
+                              fontFamily: skin.fontDisplay,
+                              fontSize: 13.5,
+                              fontWeight: 800,
+                              fontVariantNumeric: "tabular-nums",
+                              color: teinteDe(c.part),
+                            }}
+                          >
+                            {t("motsJoueurs", { n: c.joueurs })}
+                          </span>
+                        ) : null}
+                        <span
+                          style={{
+                            fontSize: 12,
+                            fontWeight: 700,
+                            color: skin.muted,
+                            fontVariantNumeric: "tabular-nums",
+                          }}
+                        >
+                          {t("motsPart", { p: part.format(c.part) })}
+                        </span>
+                      </>
+                    )}
                   </span>
                 </div>
               ))}
