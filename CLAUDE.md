@@ -306,9 +306,10 @@ explique directement les scores du jour. L'échelle des barres part de la plus
 haute et non de 100 %, sinon un thème ouvert dessine dix traits collés au sol —
 c'est le chiffre en dessous qui porte l'échelle.
 
-**Elle sort DÈS LE DÉPÔT, au même plancher que le score** (cinq votants) — la
-demande était d'avoir quelque chose de satisfaisant à montrer juste après la
-réponse, et posée sur la seule journée close elle arrivait un jour trop tard.
+**Elle sort DÈS LE DÉPÔT, en même temps que le score** — la demande était
+d'avoir quelque chose de satisfaisant à montrer juste après la réponse, et posée
+sur la seule journée close elle arrivait un jour trop tard. (Elle a d'abord
+partagé le plancher de cinq votants du score ; il est tombé avec lui.)
 ⚠️ Ce qui la rend sûre à cet instant : **les libellés restent scellés tant que la
 journée est ouverte, même les siens**. « plage vaut 50 % » se recopie, une barre
 anonyme non. Le joueur apprend tout de suite la FORME du jour et le nombre de ses
@@ -400,6 +401,33 @@ résumé. Seule exception, et elle est voulue : le `least(facteur, 10)` remet to
 les ratés d'un facteur dix ou plus dans un seul paquet — sinon on classerait ×50
 devant ×500 alors que l'écran affiche 0,0 aux deux.
 
+**Le score sort DÈS LA PREMIÈRE RÉPONSE : le plancher de cinq votants est
+tombé** (`20260822-banalo-sans-plancher.sql`). Il gardait le score, la position
+et la forme de la journée derrière un effectif minimum ; l'arbitrage a été
+retourné parce qu'à trois joueurs le score n'est pas *significatif* mais n'est
+pas *gênant* — et que le taire coûtait plus cher : celui qui ouvrait une journée
+jeune déposait sa réponse et n'obtenait rien en retour, l'exact inverse de ce
+qu'un jeu quotidien doit rendre au moment du dépôt.
+
+⚠️ **`assez` N'A PAS DISPARU, IL A CHANGÉ DE MÉTIER.** Même définition
+(`votants >= 5`), mais il ne commande plus ce qui est CALCULÉ, seulement ce qui
+est DIT : la réserve sous le score (« la médiane repose sur très peu de monde »)
+et le choix de l'offre de bas de page — sous le plancher c'est l'INVITATION qui
+occupe la place, au-dessus le partage du résultat, jamais les deux. Le garder
+règle aussi le décalage de déploiement, la migration s'appliquant à la main
+AVANT que le code ne parte. Le second plancher, celui de la POSITION
+(`VOTANTS_MIN`, 20), ne bouge pas : « 3e sur 7 » reste du bruit.
+
+⚠️ **Ce que ça ouvre est assumé : sur une journée à DEUX réponses, on peut
+remonter à celle de l'autre.** `percentile_disc` rend une valeur réelle de
+l'échantillon, donc à deux votants la médiane EST l'une des deux réponses.
+Trois raisons de l'accepter : c'est un nombre, pas du texte libre ; le jeu est
+anonyme, donc il n'y a personne à qui l'attribuer ; et la garde vraiment
+structurante du format « mots » — ne jamais rendre le mot d'un autre joueur —
+n'est pas touchée, les libellés des barres restent scellés. Le scellement par
+`v_close` est entier lui aussi : médiane, écart, répartition et libellés
+n'arrivent toujours qu'à la clôture.
+
 **La chaleur du score (`chaleur.ts`) a deux règles non négociables.** La couleur
 ne porte JAMAIS seule : elle est doublée d'un mot (« vous brûlez », « tiède »,
 « glacé ») écrit en clair, un `t()` par mot — une clé en variable échapperait au
@@ -431,8 +459,17 @@ sur données réelles.
 
 **Le thème déclaré est la CLÉ DE FOULE, et c'est ce qui règle l'exclusion du mot
 du thème** sans que la base connaisse le calendrier. Un client qui mentirait sur
-le thème pour garder le mot gratuit se retrouve seul dans son groupe, sous le
-plancher de cinq votants, donc sans score. Le mensonge s'auto-punit.
+le thème pour garder le mot gratuit se retrouve seul dans son groupe.
+
+⚠️ **ET CE MENSONGE NE S'AUTO-PUNIT PLUS, DEPUIS QUE LE PLANCHER EST TOMBÉ.**
+Seul dans son groupe voulait dire « sous cinq votants, donc sans score » ; ça
+veut maintenant dire « sa propre foule, donc 100 ». La même porte existe sur le
+format chiffré en mentant sur la LANGUE. Ce qu'on y perd est borné — il n'y a
+aucun classement public, le centile se tait toujours sous 20 votants, et le
+tricheur ne se ment qu'à lui-même dans le résumé de son compte — mais ce n'est
+plus une garde, c'est une absence de garde. La rétablir sans rendre le premier
+joueur du jour muet demanderait un plancher à DEUX votants, pas à cinq : le seul
+cas vraiment dégénéré est celui où l'on est sa propre médiane.
 
 **Le temps est mesuré et ne classe rien**, comme `secondes` dans
 `scrutin_game_pays_results`. Départager les ex aequo au temps est envisagé, pas

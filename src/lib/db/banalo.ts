@@ -22,9 +22,14 @@ import { createClient } from "@/lib/supabase/client";
  * dire les trois — voir l'en-tête de la migration :
  *
  *  · pas encore répondu           → `repondu: false`
- *  · répondu, foule trop mince    → `repondu: true, assez: false` (aucune note)
- *  · répondu et dépouillé         → `assez: true`, avec la note ; la position
- *    (`rang`, `partMieux`) n'arrive qu'au-delà d'un second plancher.
+ *  · répondu                      → la note est là, à n'importe quel effectif ;
+ *    la position (`rang`, `partMieux`) n'arrive qu'au-delà du plancher de 20.
+ *
+ * ⚠️ `assez` N'EST PLUS UN VERROU, C'EST UNE RÉSERVE. Il valait « il existe une
+ * note » et gardait tout l'écran de résultat derrière cinq votants ; il vaut
+ * maintenant « cette note s'appuie-t-elle sur assez de monde ? », et l'écran
+ * s'en sert pour DIRE, pas pour CACHER — la phrase sous le score, et le choix
+ * entre inviter et partager. Voir `20260822-banalo-sans-plancher.sql`.
  */
 /**
  * LA RÉPARTITION D'UNE JOURNÉE CLOSE — la bande d'histogramme, prête à dessiner.
@@ -51,7 +56,10 @@ export interface EtatBanalo {
   repondu: boolean;
   /** Combien ont répondu à cette question, dans cette langue. */
   votants: number;
-  /** La note existe : la foule est assez nombreuse pour que la médiane veuille dire quelque chose. */
+  /**
+   * La foule est assez nombreuse pour que la médiane veuille dire quelque chose.
+   * ⚠️ NE COMMANDE PLUS L'EXISTENCE DU SCORE — voir l'en-tête du fichier.
+   */
   assez: boolean;
   /** Ma réponse, telle qu'elle est enregistrée. Autorité sur ce que le navigateur croit avoir envoyé. */
   mienne: number | null;
@@ -249,6 +257,7 @@ export interface Concentration {
 export interface EtatMots {
   repondu: boolean;
   votants: number;
+  /** Même métier que sur `EtatBanalo` : une réserve à afficher, pas un verrou. */
   assez: boolean;
   /** La journée est-elle close ? C'est elle qui décide si la grille rend ses parts. */
   close: boolean;

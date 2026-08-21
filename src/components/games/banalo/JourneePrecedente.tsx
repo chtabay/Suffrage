@@ -104,9 +104,10 @@ export default function JourneePrecedente({ jour }: { jour: number }) {
 
   const points = prog.type === "mots" ? mots?.points : nombre?.points;
   const partMieux = prog.type === "mots" ? mots?.partMieux : nombre?.partMieux;
-  // Rien à raconter tant que la journée précédente n'a pas été jouée ET dépouillée.
-  // Sous le plancher de cinq votants elle n'a jamais eu de note et n'en aura
-  // plus jamais : on n'a rien à en dire non plus.
+  // Rien à raconter tant que la journée précédente n'a pas été jouée. Depuis que
+  // le plancher de cinq votants est tombé, une note existe dès qu'on a répondu :
+  // un score absent veut donc dire « pas joué », et un bloc « vous n'avez pas
+  // joué » est un reproche adressé à quelqu'un qui vient précisément de revenir.
   if (points === undefined || points === null) return null;
 
   const chapeau = (

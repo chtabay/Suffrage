@@ -246,42 +246,13 @@ export default function NombreDuJour({ jour }: { jour: number }) {
         </div>
       ) : null}
 
-      {pret && jeu?.repondu && !jeu.assez ? (
-        <div style={{ marginTop: 18 }}>
-          <GCard skin={skin} padding={18}>
-            <GLabel skin={skin}>{t("deposeTitre")}</GLabel>
-            <p
-              style={{
-                fontFamily: skin.fontDisplay,
-                fontWeight: 800,
-                fontSize: 30,
-                margin: "6px 0 0",
-                fontVariantNumeric: "tabular-nums",
-              }}
-            >
-              {jeu.mienne !== null ? chiffre(jeu.mienne) : "—"}{" "}
-              <span style={{ fontSize: 15, fontWeight: 700, color: skin.muted }}>{unite}</span>
-            </p>
-            {/* Le régime du milieu : la réponse est prise, mais la foule est
-                trop mince pour que la médiane veuille dire quoi que ce soit.
-                Avec une seule réponse, la médiane EST la réponse, et le premier
-                joueur du jour marquerait 10 sur 10 pour avoir écrit n'importe
-                quoi. On le dit plutôt que d'inventer une note. */}
-            <p style={{ margin: "12px 0 0", fontSize: 14, color: skin.muted, lineHeight: 1.45 }}>
-              {t("attente", { n: jeu.votants })}
-            </p>
-            {/* Voir `InviterBanalo` : c'est la journée qui manque de monde qui a
-                le plus besoin d'un bouton pour en amener. */}
-            <InviterBanalo
-              jour={jour}
-              sujet={enLangue(question.texte, locale)}
-              consigne={t("inviteNombre")}
-            />
-          </GCard>
-        </div>
-      ) : null}
-
-      {pret && jeu?.assez && jeu.points !== null ? (
+      {/* ⚠️ LE SCORE NE DÉPEND PLUS DU NOMBRE DE VOTANTS, seulement d'avoir
+          répondu. Le plancher de cinq gardait tout un écran derrière lui : le
+          joueur d'une journée jeune déposait son nombre et n'obtenait rien en
+          retour, c'est-à-dire l'inverse de ce qu'un jeu quotidien doit rendre
+          au moment du dépôt. À trois joueurs le score n'est pas significatif,
+          mais il n'est pas gênant — et la réserve, plus bas, le dit. */}
+      {pret && jeu?.repondu && jeu.points !== null ? (
         <div style={{ marginTop: 18, display: "grid", gap: 14 }}>
           <GCard skin={skin} accent={skin.accent} padding={20}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
@@ -448,6 +419,16 @@ export default function NombreDuJour({ jour }: { jour: number }) {
               ) : null}
               <Ligne libelle={t("votants")} valeur={chiffre(jeu.votants)} />
             </div>
+            {/* ⚠️ LA RÉSERVE A REMPLACÉ LE VERROU. Sous cinq réponses, le score
+                ne s'affichait pas du tout ; on le montre désormais, mais on dit
+                sur quoi il repose. Elle est ICI et pas sur la carte d'accent :
+                c'est la ligne « Réponses » juste au-dessus qu'elle qualifie, et
+                une réserve posée sur la récompense elle-même l'annulerait. */}
+            {!jeu.assez ? (
+              <p style={{ margin: "14px 0 0", fontSize: 12.5, color: skin.muted, lineHeight: 1.45 }}>
+                {t("attente", { n: jeu.votants })}
+              </p>
+            ) : null}
             {/* ⚠️ ON DIT POURQUOI ELLE MANQUE. Une ligne qui disparaît sans un
                 mot se lit comme une panne — et le joueur cherche l'information
                 ailleurs, c'est-à-dire chez quelqu'un qui l'a. */}
@@ -464,21 +445,36 @@ export default function NombreDuJour({ jour }: { jour: number }) {
           </GCard>
 
           <div>
-            <PartageBanalo
-              jour={jour}
-              points={note.format(jeu.points)}
-              brut={jeu.points}
-              // La FORME du format chiffré : le bloc de chaleur, le mot, et
-              // l'écart. Jamais la réponse ni la médiane — les deux se
-              // recopient, et ce jeu note par rapport à la foule.
-              // ⚠️ PAS DE `?? 1` ICI. L'écart est scellé tant que la journée
-              // est ouverte ; le repli affichait « ×1,00 », c'est-à-dire un
-              // résultat parfait, à des joueurs qui n'en avaient pas.
-              forme={[blocDe(jeu.points), CHALEUR[motDe(jeu.points)]]
-                .concat(jeu.facteur !== null ? [t("facteur", { f: ecart(jeu.facteur) })] : [])
-                .join(" · ")}
-              partMieux={jeu.partMieux}
-            />
+            {/* ⚠️ UNE SEULE OFFRE, ET LE PLANCHER CHOISIT LAQUELLE. Le score
+                s'affiche maintenant dès la première réponse, mais un résultat
+                que trois joueurs appuient ne vaut pas d'être envoyé à un ami :
+                ce dont cette journée-là a besoin, c'est de MONDE. Sous cinq
+                votants c'est donc l'invitation qui occupe la place, au-dessus
+                le partage du résultat — jamais les deux, elles se
+                cannibaliseraient (même arbitrage que `CompteBanalo`). */}
+            {jeu.assez ? (
+              <PartageBanalo
+                jour={jour}
+                points={note.format(jeu.points)}
+                brut={jeu.points}
+                // La FORME du format chiffré : le bloc de chaleur, le mot, et
+                // l'écart. Jamais la réponse ni la médiane — les deux se
+                // recopient, et ce jeu note par rapport à la foule.
+                // ⚠️ PAS DE `?? 1` ICI. L'écart est scellé tant que la journée
+                // est ouverte ; le repli affichait « ×1,00 », c'est-à-dire un
+                // résultat parfait, à des joueurs qui n'en avaient pas.
+                forme={[blocDe(jeu.points), CHALEUR[motDe(jeu.points)]]
+                  .concat(jeu.facteur !== null ? [t("facteur", { f: ecart(jeu.facteur) })] : [])
+                  .join(" · ")}
+                partMieux={jeu.partMieux}
+              />
+            ) : (
+              <InviterBanalo
+                jour={jour}
+                sujet={enLangue(question.texte, locale)}
+                consigne={t("inviteNombre")}
+              />
+            )}
             {defi && jeu.points !== null ? (
               <ComparaisonAmi
                 skin={skin}

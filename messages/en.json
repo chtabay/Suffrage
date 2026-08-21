@@ -2664,8 +2664,7 @@
     "relectureVide": "Type a whole number.",
     "envoyer": "Send my answer",
     "definitif": "One answer a day: it can't be changed afterwards.",
-    "deposeTitre": "Your answer",
-    "attente": "There are {n} of you so far. Your score appears as soon as the crowd is big enough for the median to mean anything.",
+    "attente": "{n, plural, =1 {Only one answer so far} other {Only # answers so far}}: the median rests on very few people, and your score will move as more players arrive.",
     "chaleur": {
       "brule": "You're burning",
       "chaud": "Warm",
@@ -2690,7 +2689,7 @@
     "concentrationMeilleur": "{mot} is your best-placed word — {rang, selectordinal, one {#st} two {#nd} few {#rd} other {#th}} of the day.",
     "concentrationAlt": "The {n} most-given words of the day, in decreasing order, out of {distincts} distinct words written.",
     "motsPartsScellees": "Each word's share stays hidden until the day closes: shown now, anyone could simply copy your words and score what you scored.",
-    "motsAttente": "There are {n} of you so far. Your score appears as soon as the crowd is big enough for the shares to mean anything.",
+    "motsAttente": "{n, plural, =1 {Only one answer so far} other {Only # answers so far}}: the shares rest on very few people, and your score will move as more players arrive.",
     "demainMots": "New theme at {heure}.",
     "qrAide": "Or show this code to someone",
     "qrTitre": "Code to scan to open the game",

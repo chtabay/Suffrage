@@ -205,7 +205,12 @@ export default function GrilleDeMots({
 
       {pret && jeu?.repondu ? (
         <div style={{ marginTop: 18, display: "grid", gap: 14 }}>
-          {jeu.assez && jeu.points !== null ? (
+          {/* ⚠️ LE SCORE NE DÉPEND PLUS DU NOMBRE DE VOTANTS, seulement d'avoir
+              répondu. Sous cinq joueurs il n'existait pas du tout : celui qui
+              ouvrait une journée jeune déposait ses six mots et n'obtenait rien
+              en retour. À trois joueurs le score n'est pas significatif, mais
+              il n'est pas gênant — et la réserve, sous la grille, le dit. */}
+          {jeu.points !== null ? (
             <GCard skin={skin} accent={skin.accent} padding={20}>
               <GLabel skin={skin}>{t("scoreTitre")}</GLabel>
               <p
@@ -301,12 +306,24 @@ export default function GrilleDeMots({
                   a pas de médiane ici, il y a des parts. Vu à l'écran, invisible
                   au test : la clé existait et rendait un texte parfaitement
                   formé, simplement faux. */}
-              {jeu.assez ? t("motsRegle") : t("motsAttente", { n: jeu.votants })}
+              {t("motsRegle")}
             </p>
-            {/* ⚠️ L'INVITATION EST ICI SURTOUT POUR LA FOULE TROP MINCE. Le
-                partage de résultat n'existe qu'au-delà du plancher de cinq
-                votants : sans ce bouton, la journée qui manque de monde était
-                précisément celle où le jeu n'offrait aucun moyen d'en amener. */}
+            {/* ⚠️ LA RÉSERVE A REMPLACÉ LE VERROU, ET ELLE NE REMPLACE PLUS LA
+                RÈGLE. Les deux phrases s'excluaient : sous le plancher, le
+                joueur lisait qu'il fallait attendre et n'apprenait jamais
+                comment il était noté. La règle vaut à tout effectif ; la
+                réserve dit seulement sur combien de monde les parts reposent. */}
+            {!jeu.assez ? (
+              <p style={{ margin: "6px 0 0", fontSize: 12.5, color: skin.muted, lineHeight: 1.45 }}>
+                {t("motsAttente", { n: jeu.votants })}
+              </p>
+            ) : null}
+            {/* ⚠️ UNE SEULE OFFRE, ET LE PLANCHER CHOISIT LAQUELLE. Le score
+                s'affiche maintenant dès la première réponse, mais un résultat
+                que trois joueurs appuient ne vaut pas d'être envoyé à un ami :
+                ce dont cette journée-là a besoin, c'est de MONDE. Le partage du
+                résultat reste donc au-dessus du plancher, l'invitation en
+                dessous — jamais les deux à la fois. */}
             {!jeu.assez && (
               <InviterBanalo
                 jour={jour}

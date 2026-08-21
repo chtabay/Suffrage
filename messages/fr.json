@@ -2664,8 +2664,7 @@
     "relectureVide": "Tapez un nombre entier.",
     "envoyer": "Envoyer ma réponse",
     "definitif": "Une seule réponse par jour : elle ne pourra plus changer.",
-    "deposeTitre": "Votre réponse",
-    "attente": "Vous êtes {n} pour l'instant. Le score s'affiche dès que la foule est assez nombreuse pour que la médiane veuille dire quelque chose.",
+    "attente": "{n, plural, =1 {Une seule réponse pour l'instant} other {# réponses seulement pour l'instant}} : la médiane repose sur très peu de monde, et votre score bougera à mesure que d'autres joueurs arrivent.",
     "chaleur": {
       "brule": "Vous brûlez",
       "chaud": "Chaud",
@@ -2690,7 +2689,7 @@
     "concentrationMeilleur": "{mot} est votre mot le mieux placé — {rang, selectordinal, one {#er} other {#e}} de la journée.",
     "concentrationAlt": "Les {n} mots les plus donnés de la journée, par ordre décroissant, sur {distincts} mots écrits en tout.",
     "motsPartsScellees": "La part de chaque mot reste cachée jusqu'à la clôture : affichée maintenant, il suffirait de recopier vos mots pour marquer autant que vous.",
-    "motsAttente": "Vous êtes {n} pour l'instant. Votre score s'affiche dès que la foule est assez nombreuse pour que les parts veuillent dire quelque chose.",
+    "motsAttente": "{n, plural, =1 {Une seule réponse pour l'instant} other {# réponses seulement pour l'instant}} : les parts reposent sur très peu de monde, et votre score bougera à mesure que d'autres joueurs arrivent.",
     "demainMots": "Nouveau thème à {heure}.",
     "qrAide": "Ou montrez ce code à quelqu'un",
     "qrTitre": "Code à scanner pour ouvrir le jeu",
