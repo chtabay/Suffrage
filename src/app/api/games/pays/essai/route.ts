@@ -3,7 +3,15 @@ import { enLangue } from "@/content/pays/criteres";
 import { PAYS_PAR_ID } from "@/content/pays/referentiel";
 import { journeeDe, numeroDuJour } from "@/lib/games/pays/journee";
 import { journalise } from "@/lib/games/pays/journal";
-import { NB_CRITERES, casesDeTous, ordreCanonique, pictosDe, scoreDe, scoresDeTous } from "@/lib/games/pays/moteur";
+import {
+  NB_CRITERES,
+  casesDeTous,
+  coupDePouceDe,
+  ordreCanonique,
+  pictosDe,
+  scoreDe,
+  scoresDeTous,
+} from "@/lib/games/pays/moteur";
 import type { ReponseEssai } from "@/lib/games/pays/types";
 
 // UN ESSAI. Le navigateur envoie un pays, le serveur renvoie un entier.
@@ -100,6 +108,19 @@ export async function POST(req: Request) {
     // lui-même.
     pictos: pictosDe(criteres, suite.length, lang),
   };
+
+  // LE COUP DE POUCE. Un pays à 4/5 que le joueur n'a pas encore essayé, offert
+  // passé cinquante coups. Le nom est résolu ICI, comme les libellés de la
+  // révélation : le navigateur ne reçoit qu'une chaîne.
+  //
+  // ⚠️ MÊME FAIBLESSE QUE LES PICTOS, ET MÊME RÉPONSE : le compte vient de
+  // `suite`, donc du client. Poster cinquante pays d'un coup l'obtient tout de
+  // suite — et c'est strictement moins efficace que de poster les 193, ce que
+  // l'en-tête de ce fichier renonce déjà à empêcher.
+  const pouce = coupDePouceDe(criteres, suite, suite.length);
+  if (pouce && !gagne) {
+    reponse.coupDePouce = { ...pouce, nom: enLangue(PAYS_PAR_ID[pouce.pays].nom, lang) };
+  }
 
   if (gagne) {
     // La révélation ne part QU'ICI, et seulement pour le pays qui vaut 5/5.

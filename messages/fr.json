@@ -2734,6 +2734,13 @@
   },
   "Pays": {
     "pictosAide": "Chaque case dit maintenant de quoi parle son critère. La dernière garde son secret.",
+    "pouceTitre": "Un coup de pouce",
+    "pouceAide": "Ce pays n'est pas la réponse, mais il n'en rate qu'un critère. Comparez ses cases aux vôtres.",
+    "annoncePictosTitre": "Les cases parlent, maintenant",
+    "annoncePictosTexte": "Chaque case vous dit désormais de quel domaine parle son critère — jamais lequel c'est. La cinquième se tait : c'est elle qui fait la fin de partie.",
+    "annoncePouceTitre": "Voici un pays presque juste",
+    "annoncePouceTexte": "Cinquante essais, c'est beaucoup. On vous offre un pays qui ne rate qu'un seul critère — il ne compte pas dans vos essais.",
+    "annonceFermer": "Compris",
     "catMystere": "à toi de trouver",
     "casesAide": "Les cinq cases sont les caractéristiques du jour, de la plus courante à la plus rare. Deux essais qui remplissent la même case la partagent.",
     "casesLues": "{n, plural, =0 {aucune caractéristique partagée} one {1 caractéristique partagée} other {# caractéristiques partagées}}",

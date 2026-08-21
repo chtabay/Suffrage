@@ -37,7 +37,8 @@ export interface ReponseEssai {
   cases?: number[][];
   /**
    * Une étiquette par case, ou `null` quand la case se tait : de quoi PARLE le
-   * critère de ce rang, jamais lequel c'est. N'arrive qu'au bout de 25 essais.
+   * critère de ce rang, jamais lequel c'est. N'arrive qu'au seuil d'essais fixé
+   * par `ESSAIS_AVANT_PICTOS` — le nombre ne se recopie nulle part ailleurs.
    *
    * Le texte est déjà résolu dans la langue de l'écran, comme les libellés de la
    * révélation : le navigateur ne reçoit qu'une chaîne et un emoji. Le grain
@@ -48,6 +49,14 @@ export interface ReponseEssai {
    * recherche. Voir `pictosDe`.
    */
   pictos?: ({ picto: string; texte: string } | null)[];
+  /**
+   * UN PAYS OFFERT, à partir de cinquante essais — voir `coupDePouceDe`.
+   *
+   * ⚠️ C'EST TOUJOURS UN PAYS À MOINS DE 5/5 : l'aide ne peut pas résoudre la
+   * partie. Elle donne un fait nouveau dans le vocabulaire du jeu (un pays,
+   * cinq cases), pas une information d'un autre ordre.
+   */
+  coupDePouce?: { pays: string; nom: string; cases: number[] };
   /** Présente uniquement quand `score === 5`. */
   revelation?: Revelation;
 }

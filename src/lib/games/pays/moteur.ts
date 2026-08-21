@@ -357,3 +357,59 @@ export function pictosDe(
   if (nbEssais < ESSAIS_AVANT_PICTOS) return criteres.map(() => null);
   return criteres.map((c, k) => (k === criteres.length - 1 ? null : etiquetteDe(c, locale)));
 }
+
+// ---------------------------------------------------------------------------
+// LE COUP DE POUCE — un pays offert à qui s'enlise vraiment.
+//
+// LE DÉFAUT TRAITÉ, c'est la SUITE de celui des pictos : « il m'a fallu 156
+// tentatives ; à partir de la 50e, mes conclusions n'ont pas évolué. » Les
+// étiquettes arrivent bien avant et ne suffisent pas — elles disent de quoi
+// parlent quatre critères, pas où chercher. Passé cinquante essais, le joueur
+// n'a plus besoin d'un mot, il a besoin d'un FAIT NOUVEAU.
+//
+// ⚠️ CE QU'ON OFFRE EST UN PAYS, PAS UNE INFORMATION EN PLUS. C'est ce qui rend
+// l'aide sûre et lisible : un pays et ses cinq cases, exactement le vocabulaire
+// que le joueur manipule depuis cinquante coups. Rien de nouveau à comprendre,
+// aucune fuite sur la bibliothèque de critères.
+//
+// ⚠️ ET IL NE PEUT PAS RÉSOUDRE LA PARTIE : on n'offre qu'un pays à 4/5, donc
+// jamais la réponse. Mesuré sur les 51 journées, il en existe de 2 à 10 par
+// jour, médiane 6 — en offrir un laisse largement de quoi chercher.
+//
+// ⚠️ ON PRÉFÈRE UN 4/5 QUI REMPLIT LA CINQUIÈME CASE, et c'est tout l'intérêt.
+// La cinquième est celle qui ne parle jamais (l'étagère `signature` est trop
+// mince pour l'étiqueter) et c'est elle qui fait la recherche — 28 % des pays à
+// 4/5 ne ratent qu'elle. Un pays qui la remplit prouve au joueur qu'elle EST
+// atteignable et lui montre un exemple ; un pays qui la rate ne lui apprend
+// rien qu'il n'ait déjà vu cinquante fois. Mesuré : les 51 journées en ont au
+// moins un, médiane 5.
+//
+// ⚠️ IL NE COMPTE PAS COMME UN ESSAI. Le classement se fait au nombre d'essais,
+// et facturer une aide que le joueur n'a pas demandée serait doublement injuste.
+// Le risque de fausser le classement est nul en pratique : elle n'arrive qu'à
+// cinquante essais, très loin derrière la médiane du jour.
+export const ESSAIS_AVANT_COUP_DE_POUCE = 50;
+
+/** Le pays offert et ses cinq cases, ou `null` s'il est trop tôt. */
+export function coupDePouceDe(
+  ordonnes: Critere[],
+  essayes: string[],
+  nbEssais: number,
+): { pays: string; cases: number[] } | null {
+  if (nbEssais < ESSAIS_AVANT_COUP_DE_POUCE) return null;
+  const vus = new Set(essayes);
+  // ⚠️ TRIÉ PAR CODE, PAS AU HASARD. Deux appels de suite doivent rendre le même
+  // pays : un coup de pouce qui change à chaque essai serait illisible, et un
+  // joueur qui recharge la page verrait une aide différente de celle qu'il a
+  // notée. Le référentiel est déjà dans un ordre stable, on n'y touche pas.
+  const candidats = PAYS.filter((p) => !vus.has(p.id))
+    .map((p) => ({ p, score: scoreDe(p, ordonnes), cinq: ordonnes[ordonnes.length - 1].verifie(p) }))
+    .filter((x) => x.score < NB_CRITERES);
+  if (candidats.length === 0) return null;
+  const meilleur = Math.max(...candidats.map((x) => x.score));
+  const bons = candidats.filter((x) => x.score === meilleur);
+  // Le repli est explicite : si aucun des meilleurs ne remplit la cinquième
+  // case, on en offre un quand même — un exemple à 4/5 reste un fait nouveau.
+  const choisi = bons.find((x) => x.cinq) ?? bons[0];
+  return { pays: choisi.p.id, cases: casesDe(choisi.p, ordonnes) };
+}

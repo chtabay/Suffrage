@@ -70,8 +70,35 @@ elle interdit de montrer la catégorie de la cinquième case. À 7 critères sur
 4 catégories, ce picto laisserait deux candidats et nommerait le critère 3 fois
 sur 51. La cinquième case se tait donc — c'est aussi ce qui fait la fin de
 partie, puisque 28 % des pays à 4/5 ne ratent qu'elle. Les quatre autres parlent
-au bout de 25 essais, au grain de 5 catégories larges (les 30 `famille`
+au bout de 15 essais (`ESSAIS_AVANT_PICTOS`), au grain de 5 catégories larges (les 30 `famille`
 nommeraient le critère une fois sur trois : trop fin, mesuré).
+
+**Les deux aides de Cinq sur cinq S'ANNONCENT, elles n'apparaissent plus en
+silence.** La légende des cases se posait au-dessus d'une liste de quarante
+lignes, en gris 12,5 px : un joueur qui vient de taper son quinzième pays
+regarde sa pastille de score, pas le haut de l'historique. `AideModale` est la
+seule modale des jeux, et elle est acceptable pour une raison précise — **une
+fois par aide et par partie**. ⚠️ Ce qui est mémorisé est le PALIER FRANCHI
+(`vues` dans la sauvegarde), pas la présence de l'aide : les pictos reviennent
+dans toutes les réponses passé le seuil, donc tester leur présence rouvrirait la
+modale à chaque essai. Et les annonces font une FILE — la première version en
+gardait une seule et marquait les deux comme vues, donc la seconde disparaissait
+sans bruit dès qu'un joueur reprenait une partie de 49 essais.
+
+**Passé 50 essais, le jeu OFFRE UN PAYS** (`coupDePouceDe`) — c'est la suite du
+défaut qui a produit les pictos (« à partir de la 50e, mes conclusions n'ont pas
+évolué »). ⚠️ Ce qu'on offre est **un pays et ses cinq cases**, pas une
+information d'un autre ordre : aucun vocabulaire nouveau, aucune fuite sur la
+bibliothèque de critères. Trois garanties mesurées sur les 51 journées : c'est
+toujours un **4/5**, donc jamais la réponse (il en existe 2 à 10 par jour,
+médiane 6) ; on préfère celui qui **remplit la cinquième case** — celle qui ne
+parle jamais et qui fait la fin de partie — et les 51 journées en ont un ; et il
+**ne compte pas comme un essai**, parce que facturer une aide non demandée serait
+injuste et qu'à cinquante coups le classement est de toute façon joué.
+
+⚠️ Mesuré et ÉCARTÉ : révéler la sous-région laisserait 2 à 17 pays (médiane 9),
+c'est-à-dire la partie résolue ; le continent en laisse 44 mais ne dit rien de
+neuf à qui a déjà essayé cinquante pays.
 
 **Le partage de Cinq sur cinq ne raconte plus la partie, il la RÉSUME.** Deux
 retraits successifs : d'abord un emoji par essai (509 caractères pour 156 coups,

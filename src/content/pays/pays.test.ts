@@ -32,6 +32,7 @@ import { serieEnCours } from "@/lib/games/pays/local";
 import { NB_MARCHES, marchesDe } from "@/lib/games/pays/partage";
 import { QR_CHEMIN, QR_MARGE, QR_TAILLE, QR_URL } from "./qr";
 import {
+  ESSAIS_AVANT_COUP_DE_POUCE,
   ESSAIS_AVANT_PICTOS,
   ORIGINE,
   casesDe,
@@ -40,6 +41,8 @@ import {
   evalueJournee,
   numeroDeJournee,
   ordreCanonique,
+  NB_CRITERES,
+  coupDePouceDe,
   pictosDe,
   scoreDe,
 } from "@/lib/games/pays/moteur";
@@ -482,4 +485,47 @@ test("le chemin du QR reste dans la matrice", () => {
   assert.ok(y.length > 0, "chemin illisible");
   for (const v of y) assert.ok(v >= QR_MARGE && v <= QR_TAILLE - QR_MARGE, `ordonnée hors matrice : ${v}`);
   assert.equal(Math.max(...y), QR_TAILLE - QR_MARGE - 0.5, "la dernière rangée de modules manque");
+});
+
+test("le coup de pouce se tait avant le seuil, et ne résout jamais la partie", () => {
+  for (const j of JOURNEES) {
+    const ordonnes = ordreCanonique(j.criteres.map((id) => CRITERES.find((c) => c.id === id)!));
+    for (const n of [0, 1, 25, ESSAIS_AVANT_COUP_DE_POUCE - 1]) {
+      assert.equal(coupDePouceDe(ordonnes, [], n), null, `journée ${j.cible} à ${n} essais`);
+    }
+    const pouce = coupDePouceDe(ordonnes, [], ESSAIS_AVANT_COUP_DE_POUCE);
+    assert.ok(pouce, `journée ${j.cible} : aucun pays à offrir`);
+    // ⚠️ LA GARANTIE QUI COMPTE : on n'offre jamais la réponse. Un coup de
+    // pouce qui résout la partie n'est plus une aide, c'est la fin du jeu.
+    assert.notEqual(pouce.pays, j.cible, `journée ${j.cible} : la réponse a été offerte`);
+    assert.ok(
+      pouce.cases.filter(Boolean).length < NB_CRITERES,
+      `journée ${j.cible} : ${pouce.pays} fait 5/5`,
+    );
+    // Et il est bien à 4/5 : sur ces 51 journées, il en existe toujours.
+    assert.equal(pouce.cases.filter(Boolean).length, NB_CRITERES - 1, `journée ${j.cible}`);
+    // Le mieux qu'on puisse offrir : un 4/5 qui remplit la CINQUIÈME case,
+    // celle qui ne parle jamais. Les 51 journées en ont un.
+    assert.equal(pouce.cases[NB_CRITERES - 1], 1, `journée ${j.cible} : la 5e case est vide`);
+  }
+});
+
+test("le coup de pouce n'offre jamais un pays déjà essayé, et ne change pas d'un appel à l'autre", () => {
+  const j = JOURNEES[0];
+  const ordonnes = ordreCanonique(j.criteres.map((id) => CRITERES.find((c) => c.id === id)!));
+  const essayes: string[] = [];
+  let precedent = "";
+  for (let tour = 0; tour < 4; tour++) {
+    const a = coupDePouceDe(ordonnes, essayes, 60);
+    const b = coupDePouceDe(ordonnes, essayes, 60);
+    assert.ok(a && b);
+    // ⚠️ DÉTERMINISTE. Un coup de pouce qui change à chaque essai serait
+    // illisible, et un rechargement montrerait une aide différente de celle
+    // que le joueur vient de noter.
+    assert.equal(a.pays, b.pays, "deux appels identiques doivent rendre le même pays");
+    assert.notEqual(a.pays, precedent, "on n'offre pas deux fois le même une fois essayé");
+    assert.ok(!essayes.includes(a.pays), `${a.pays} avait déjà été essayé`);
+    essayes.push(a.pays);
+    precedent = a.pays;
+  }
 });

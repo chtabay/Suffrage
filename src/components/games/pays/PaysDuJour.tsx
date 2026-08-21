@@ -35,13 +35,14 @@ import { lienDefi, litDefi, type Defi } from "@/lib/games/comparaison";
 import InstallJeu from "@/components/games/InstallJeu";
 import Recherche from "./Recherche";
 import Revelation from "./Revelation";
+import AideModale from "./AideModale";
 
 interface Sauvegarde {
   essais: Essai[];
   /** `cases[i]` : les cinq 0/1 de l'essai i, du critère le plus courant au plus rare. */
   cases?: number[][];
   /**
-   * L'étiquette de chaque critère, une fois les 25 essais passés.
+   * L'étiquette de chaque critère, une fois le seuil d'essais passé.
    *
    * ⚠️ GARDÉ AVEC LA PARTIE, alors qu'il se recalcule à chaque essai. Sans ça,
    * un rechargement après le 30e essai ferait DISPARAÎTRE la légende jusqu'au
@@ -49,11 +50,29 @@ interface Sauvegarde {
    * repère au pire moment, et croirait à un bug.
    */
   pictos?: (Etiquette | null)[];
+  /**
+   * LE PAYS OFFERT passé cinquante essais, et ses cinq cases.
+   *
+   * ⚠️ GARDÉ AVEC LA PARTIE, pour la même raison que `pictos` : il ne revient
+   * du serveur qu'à l'essai suivant, et un rechargement le ferait DISPARAÎTRE
+   * entre-temps — l'aide s'évaporerait sous les yeux de qui vient de la
+   * recevoir.
+   */
+  coupDePouce?: CoupDePouce;
+  /**
+   * Les annonces déjà vues. ⚠️ SANS ÇA, LA MODALE REVIENT À CHAQUE ESSAI : les
+   * pictos sont présents dans toutes les réponses passé le seuil, pas seulement
+   * dans celle qui les débloque. Ce qui doit être mémorisé, c'est le PALIER
+   * FRANCHI, pas la présence de l'aide.
+   */
+  vues?: { pictos?: boolean; pouce?: boolean };
   revelation?: DonneesRevelation;
   /** Horodatage de l'arrivée sur la carte : sert au délai avant premier essai. */
   debut?: number;
   partie?: string;
 }
+
+type CoupDePouce = { pays: string; nom: string; cases: number[] };
 
 const cle = (jour: number) => `placet.pays.${jour}`;
 
@@ -70,6 +89,17 @@ export default function PaysDuJour({ jour }: { jour: number }) {
   const [essais, setEssais] = useState<Essai[]>([]);
   const [cases, setCases] = useState<number[][]>([]);
   const [pictos, setPictos] = useState<(Etiquette | null)[]>([]);
+  const [pouce, setPouce] = useState<CoupDePouce | null>(null);
+  // Les paliers déjà annoncés. ⚠️ EN `useRef`, pas en état : ils sont lus dans
+  // le gestionnaire d'essai juste après l'avoir mis à jour, et un état de React
+  // n'y serait pas encore à jour.
+  const vues = useRef<{ pictos?: boolean; pouce?: boolean }>({});
+  // ⚠️ UNE FILE, PAS UNE ANNONCE. Les deux paliers ne tombent jamais ensemble en
+  // jeu normal (15 puis 50), mais ils tombent ensemble dès qu'un joueur reprend
+  // une partie ou poste son historique d'un coup. La première version gardait
+  // UNE annonce et marquait les deux comme vues : la seconde disparaissait en
+  // silence. Vu au navigateur en semant une partie de 49 essais.
+  const [annonces, setAnnonces] = useState<("pictos" | "pouce")[]>([]);
   const [revelation, setRevelation] = useState<DonneesRevelation | null>(null);
   const [carteComplete, setCarteComplete] = useState(false);
   const [surbrillance, setSurbrillance] = useState<string | null>(null);
@@ -109,6 +139,8 @@ export default function PaysDuJour({ jour }: { jour: number }) {
     setEssais(sauve?.essais ?? []);
     setCases(sauve?.cases ?? []);
     setPictos(sauve?.pictos ?? []);
+    setPouce(sauve?.coupDePouce ?? null);
+    vues.current = sauve?.vues ?? {};
     setRevelation(sauve?.revelation ?? null);
     setSerie(serieEnCours(jour));
     setPret(true);
@@ -129,11 +161,19 @@ export default function PaysDuJour({ jour }: { jour: number }) {
   }, [jour]);
 
   const enregistre = useCallback(
-    (prochains: Essai[], reveal: DonneesRevelation | null, remplies: number[][], domaines: (Etiquette | null)[]) => {
+    (
+      prochains: Essai[],
+      reveal: DonneesRevelation | null,
+      remplies: number[][],
+      domaines: (Etiquette | null)[],
+      offert: CoupDePouce | null,
+    ) => {
       const corps: Sauvegarde = {
         essais: prochains,
         cases: remplies,
         pictos: domaines,
+        coupDePouce: offert ?? undefined,
+        vues: vues.current,
         revelation: reveal ?? undefined,
         debut: debut.current,
         partie: partie.current,
@@ -211,6 +251,28 @@ export default function PaysDuJour({ jour }: { jour: number }) {
       if (essais.length === 0) mesure("premier", { secondes: Math.round((Date.now() - debut.current) / 1000) });
       setEssais(prochains);
       setDernier({ pays: id, score: rep.score });
+      const offert = rep.coupDePouce ?? pouce;
+      if (offert) setPouce(offert);
+
+      // LES DEUX PALIERS. ⚠️ ON ANNONCE LE FRANCHISSEMENT, PAS LA PRÉSENCE : les
+      // pictos reviennent dans TOUTES les réponses passé le seuil, donc tester
+      // leur présence rouvrirait la modale à chaque essai. Le drapeau `vues`
+      // est ce qui distingue « ça vient d'arriver » de « c'est là depuis vingt
+      // coups ».
+      //
+      // Le coup de pouce passe en second : quand un joueur poste tout son
+      // historique d'un coup, les deux paliers tombent ensemble, et c'est la
+      // légende qu'il faut lire d'abord — le pays offert ne se comprend qu'avec.
+      const aAnnoncer: ("pictos" | "pouce")[] = [];
+      if (domaines.some(Boolean) && !vues.current.pictos) {
+        vues.current = { ...vues.current, pictos: true };
+        aAnnoncer.push("pictos");
+      }
+      if (offert && !vues.current.pouce) {
+        vues.current = { ...vues.current, pouce: true };
+        aAnnoncer.push("pouce");
+      }
+
       const reveal = rep.revelation ?? null;
       if (reveal) {
         const secondes = Math.round((Date.now() - debut.current) / 1000);
@@ -226,7 +288,11 @@ export default function PaysDuJour({ jour }: { jour: number }) {
         // propose de garder un chiffre que le joueur doit déjà voir.
         setSerie(serieEnCours(jour, ajouteResultat({ jour, essais: prochains.length, secondes })));
       }
-      enregistre(prochains, reveal, remplies, domaines);
+      // ⚠️ AUCUNE ANNONCE QUAND ON VIENT DE GAGNER. La révélation est l'écran
+      // le plus attendu du jeu ; une modale « voici une aide » posée par-dessus
+      // serait une insulte au joueur qui vient de trouver.
+      if (aAnnoncer.length > 0 && !reveal) setAnnonces(aAnnoncer);
+      enregistre(prochains, reveal, remplies, domaines, offert);
     } catch {
       setErreur(true);
     }
@@ -449,6 +515,19 @@ export default function PaysDuJour({ jour }: { jour: number }) {
                 <Legende pictos={pictos} mystere={t("catMystere")} />
               </>
             )}
+            {/* LE PAYS OFFERT. Posé AU-DESSUS de l'historique et non dedans :
+                l'historique dit « ce que vous avez essayé », et y glisser un
+                pays qu'on n'a pas proposé fausserait la seule liste que le
+                joueur relit. Mais il en garde la forme exacte — pastille, nom,
+                cinq cases — pour que l'aller-retour se fasse à l'œil. */}
+            {pouce && !gagne && (
+              <PaysOffert
+                offert={pouce}
+                titre={t("pouceTitre")}
+                aide={t("pouceAide")}
+                lecture={t("casesLues", { n: pouce.cases.filter(Boolean).length })}
+              />
+            )}
             <ol style={{ margin: "8px 0 0", padding: 0, listStyle: "none", display: "grid", gap: 5 }}>
               {essais.map((e, i) => (
                 <li
@@ -477,7 +556,94 @@ export default function PaysDuJour({ jour }: { jour: number }) {
           </div>
         )}
       </div>
+
+      {/* LES DEUX ANNONCES. Une seule à la fois, et une seule fois par partie.
+          Les clés sont écrites EN CLAIR, branche par branche : une clé choisie
+          en variable échapperait au contrôle de parité i18n. */}
+      {annonces[0] === "pictos" && (
+        <AideModale
+          skin={skin}
+          titre={t("annoncePictosTitre")}
+          texte={t("annoncePictosTexte")}
+          fermerLabel={t("annonceFermer")}
+          fermer={() => setAnnonces((a) => a.slice(1))}
+        >
+          <Legende pictos={pictos} mystere={t("catMystere")} />
+        </AideModale>
+      )}
+      {annonces[0] === "pouce" && pouce && (
+        <AideModale
+          skin={skin}
+          titre={t("annoncePouceTitre")}
+          texte={t("annoncePouceTexte")}
+          fermerLabel={t("annonceFermer")}
+          fermer={() => setAnnonces((a) => a.slice(1))}
+        >
+          <PaysOffert
+            offert={pouce}
+            titre={t("pouceTitre")}
+            aide={t("pouceAide")}
+            lecture={t("casesLues", { n: pouce.cases.filter(Boolean).length })}
+          />
+        </AideModale>
+      )}
     </GameShell>
+  );
+}
+
+/**
+ * LE PAYS OFFERT — la forme d'une ligne d'historique, le statut d'une aide.
+ *
+ * ⚠️ IL N'A PAS DE PASTILLE DE SCORE, alors que les lignes d'historique en ont
+ * une. C'est délibéré : le score se LIT sur les cases (quatre pleines), et
+ * l'afficher en chiffre ferait de ce pays un essai comme les autres — or il
+ * n'en est pas un, il ne compte pas dans le total. La bordure d'accent et le
+ * titre disent le reste.
+ */
+function PaysOffert({
+  offert,
+  titre,
+  aide,
+  lecture,
+}: {
+  offert: CoupDePouce;
+  titre: string;
+  aide: string;
+  /** ⚠️ CE QUE LIT UN LECTEUR D'ÉCRAN SUR LES CASES : « 4 caractéristiques sur
+   *  5 », pas la consigne. La première version passait la phrase d'aide en
+   *  `aria-label` — le seul chiffre de la carte devenait alors inaudible, et
+   *  la consigne était lue deux fois. */
+  lecture: string;
+}) {
+  return (
+    <div
+      style={{
+        margin: "10px 0 0",
+        padding: "10px 12px",
+        borderRadius: 11,
+        background: skin.paper,
+        border: `2.5px dashed ${skin.accent}`,
+      }}
+    >
+      <p
+        style={{
+          fontFamily: skin.fontDisplay,
+          fontWeight: 800,
+          fontSize: 11.5,
+          letterSpacing: "0.06em",
+          textTransform: "uppercase",
+          color: skin.accent,
+          margin: 0,
+        }}
+      >
+        {titre}
+      </p>
+      <div style={{ display: "flex", alignItems: "center", gap: 9, marginTop: 6, flexWrap: "wrap" }}>
+        <span style={{ fontWeight: 700, flex: "1 1 auto", minWidth: 0 }}>{offert.nom}</span>
+        <Cases remplies={offert.cases} etiquette={lecture} />
+      </div>
+      <p style={{ margin: "7px 0 0", fontSize: 12.5, color: skin.muted, lineHeight: 1.45 }}>{aide}</p>
+    </div>
   );
 }
 
