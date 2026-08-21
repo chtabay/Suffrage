@@ -1659,6 +1659,13 @@
   },
   "Games": {
     "prepare": "needs setting up",
+    "reprendre": {
+      "titre": "Pick up again",
+      "aide": "Games you started on this device.",
+      "salon": "not started yet",
+      "enCours": "in progress",
+      "finie": "finished"
+    },
     "familles": {
       "quotidien": {
         "nom": "One a day",

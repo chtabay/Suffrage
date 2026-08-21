@@ -1659,6 +1659,13 @@
   },
   "Games": {
     "prepare": "ça se prépare",
+    "reprendre": {
+      "titre": "Reprendre",
+      "aide": "Les parties commencées sur cet appareil.",
+      "salon": "pas encore commencée",
+      "enCours": "en cours",
+      "finie": "terminée"
+    },
     "familles": {
       "quotidien": {
         "nom": "Un par jour",

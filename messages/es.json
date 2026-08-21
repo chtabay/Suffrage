@@ -1659,6 +1659,13 @@
   },
   "Games": {
     "prepare": "hay que prepararlo",
+    "reprendre": {
+      "titre": "Retomar",
+      "aide": "Las partidas empezadas en este dispositivo.",
+      "salon": "aún no ha empezado",
+      "enCours": "en curso",
+      "finie": "terminada"
+    },
     "familles": {
       "quotidien": {
         "nom": "Uno al día",

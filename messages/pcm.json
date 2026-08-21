@@ -1659,6 +1659,13 @@
   },
   "Games": {
     "prepare": "you go prepare am",
+    "reprendre": {
+      "titre": "Continue",
+      "aide": "Di games wey you start for dis phone.",
+      "salon": "e neva start",
+      "enCours": "e dey go on",
+      "finie": "e don finish"
+    },
     "familles": {
       "quotidien": {
         "nom": "One every day",

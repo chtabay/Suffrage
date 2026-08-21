@@ -17,6 +17,7 @@ import { Link } from "@/i18n/navigation";
 import Nav from "@/components/scrutin/Nav";
 import { FAMILLES, gamesParFamille, roomPath } from "@/lib/games/catalog";
 import { getRoom } from "@/lib/games/room";
+import Reprendre from "@/components/games/Reprendre";
 import { PLACET_GAMES_SKIN as skin } from "@/lib/games/skin";
 import { GBtn, GCard, GLabel } from "./ui";
 
@@ -107,6 +108,12 @@ export default function GamesHome() {
             </div>
           )}
         </GCard>
+
+        {/* CE QU'ON A EN COURS, AVANT LE CATALOGUE. Quelqu'un qui revient ne
+            vient pas choisir un jeu : il vient reprendre celui qu'il a laissé.
+            Le composant ne rend rien s'il n'y a rien, donc il ne coûte pas une
+            ligne à qui découvre la porte. */}
+        <Reprendre skin={skin} />
 
         {/* LES JEUX, RANGÉS PAR FAMILLE.
             

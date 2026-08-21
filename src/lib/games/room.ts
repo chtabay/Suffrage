@@ -209,6 +209,73 @@ export function saveSeat(seat: Seat): void {
   }
 }
 
+/**
+ * TOUTES les places prises sur cet appareil.
+ *
+ * ⚠️ SANS COMPTE, C'EST LE `localStorage` QUI SAIT OÙ L'ON A JOUÉ — et jusqu'ici
+ * personne ne le lui demandait. `getSeat` ne répond qu'à qui connaît déjà le
+ * code, ce qui suppose d'avoir le lien sous la main. Anodin pour une soirée
+ * d'Alibi qu'on joue d'un bloc ; bloquant pour une partie qui dure des jours.
+ *
+ * ⚠️ ON NE FILTRE PAS SUR `placet.game.` TOUT COURT : `placet.game.nick` est
+ * une clé de cette famille et n'est pas un siège. On écarte donc explicitement,
+ * et on se garde de tout ce qui ne ressemble pas à un siège — une clé écrite
+ * par une version antérieure ne doit pas faire tomber l'écran.
+ */
+export function mesSieges(): Seat[] {
+  if (typeof window === "undefined") return [];
+  const out: Seat[] = [];
+  try {
+    for (let i = 0; i < window.localStorage.length; i++) {
+      const cle = window.localStorage.key(i);
+      if (!cle || !cle.startsWith("placet.game.") || cle === NICK_KEY) continue;
+      try {
+        const s = JSON.parse(window.localStorage.getItem(cle) || "") as Seat;
+        if (s && typeof s.token === "string" && s.token && typeof s.code === "string" && s.code) {
+          out.push(s);
+        }
+      } catch {
+        /* clé illisible : on l'ignore plutôt que de faire tomber la liste */
+      }
+    }
+  } catch {
+    /* navigation privée ou stockage refusé : pas de liste, pas d'erreur */
+  }
+  return out;
+}
+
+/** Oublie une place — la salle n'existe plus, ou on ne veut plus la voir. */
+export function oublierSiege(code: string): void {
+  if (typeof window === "undefined" || !code) return;
+  try {
+    window.localStorage.removeItem(SEAT_KEY(code));
+  } catch {
+    /* idem */
+  }
+}
+
+/**
+ * Les parties encore vivantes parmi celles de cet appareil.
+ *
+ * ⚠️ ON ENVOIE LES JETONS, PAS SEULEMENT LES CODES. Une fonction qui prendrait
+ * des codes seuls serait un guichet d'énumération ; avec le jeton, la base ne
+ * rend que des salles où l'on est réellement assis — donc rien que le
+ * `localStorage` ne contienne déjà. Voir `20260821-jeux-reprendre.sql`.
+ */
+export interface PartieEnCours {
+  game: string;
+  code: string;
+  status: RoomStatus;
+  roundNo: number;
+  lastActiveAt: string;
+}
+
+export function mesParties(sieges: Seat[]): Promise<PartieEnCours[]> {
+  return rpc<PartieEnCours[]>("scrutin_game_mine", {
+    p_seats: sieges.map((s) => ({ code: s.code, token: s.token })),
+  });
+}
+
 /** Le dernier pseudo utilisé, pour ne pas le retaper à chaque partie. */
 export function lastNick(): string {
   if (typeof window === "undefined") return "";
