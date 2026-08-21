@@ -290,9 +290,29 @@ export { FUSEAU, ORIGINE, dateCivile, numeroDeJournee } from "./calendrier";
 // dans les quatre langues et sans que rien ne le signale.
 export const ESSAIS_AVANT_PICTOS = 15;
 
+// ⚠️ MAIS LA PREMIÈRE CASE PARLE DÈS LE PREMIER COUP, et c'est un retour de
+// terrain sur de vrais nouveaux joueurs : sans aucun repère après leur première
+// proposition, ils CLIQUENT PARTOUT SUR LA CARTE. Le jeu leur rendait un chiffre
+// (« 1/5 ») et cinq cases muettes — de quoi savoir qu'on a marqué, pas de quoi
+// savoir où chercher. Le premier coup doit rapporter une PISTE, pas seulement
+// une note.
+//
+// ⚠️ ET ÇA NE COÛTE PRESQUE RIEN EN SECRET, mesuré sur les 51 journées :
+// l'étiquette de la case 1 dit « continent » 37 fois, « latitude » 11 fois, et
+// se tait 3 fois. Elle est donc quasi constante d'un jour à l'autre — c'est le
+// défaut connu de l'étagère `large` (6 critères de continent sur 9), et ici il
+// joue en notre faveur : on ouvre une information que le joueur régulier
+// connaît déjà par cœur, et qui manque cruellement au débutant. Le garde-fou de
+// `cleEtiquette` tient de toute façon — jamais moins de deux critères candidats.
+//
+// Les trois autres attendent toujours `ESSAIS_AVANT_PICTOS` : elles, elles
+// disent quelque chose de neuf chaque jour.
+export const ESSAIS_AVANT_PREMIER_PICTO = 1;
+
 /**
  * Les étiquettes montrables après `nbEssais` essais, une par case, dans la
- * langue de l'écran.
+ * langue de l'écran. Deux paliers : la PREMIÈRE case dès le premier coup, les
+ * trois suivantes à `ESSAIS_AVANT_PICTOS`.
  *
  * ⚠️ LA CASE 5 NE PARLE JAMAIS. L'étagère `signature` ne compte que 7 critères :
  * quel que soit le grain, son étiquette laisserait trop peu de candidats. C'est
@@ -309,8 +329,13 @@ export function pictosDe(
   nbEssais: number,
   locale: string,
 ): ({ picto: string; texte: string } | null)[] {
-  if (nbEssais < ESSAIS_AVANT_PICTOS) return criteres.map(() => null);
-  return criteres.map((c, k) => (k === criteres.length - 1 ? null : etiquetteDe(c, locale)));
+  if (nbEssais < ESSAIS_AVANT_PREMIER_PICTO) return criteres.map(() => null);
+  const toutes = nbEssais >= ESSAIS_AVANT_PICTOS;
+  return criteres.map((c, k) => {
+    if (k === criteres.length - 1) return null; // la cinquième ne parle jamais
+    if (k > 0 && !toutes) return null; // les trois du milieu attendent le seuil
+    return etiquetteDe(c, locale);
+  });
 }
 
 // ---------------------------------------------------------------------------

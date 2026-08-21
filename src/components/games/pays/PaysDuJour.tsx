@@ -212,6 +212,10 @@ export default function PaysDuJour({ jour }: { jour: number }) {
 
   const gagne = revelation !== null;
 
+  // Une seule case parle : on est entre le premier coup et le seuil des trois
+  // autres. C'est la fenêtre où la légende est une récompense.
+  const premierSeul = pictos.filter(Boolean).length === 1;
+
   const joue = async (id: string) => {
     if (gagne) return;
     const deja = essais.find((e) => e.pays === id);
@@ -264,7 +268,12 @@ export default function PaysDuJour({ jour }: { jour: number }) {
       // historique d'un coup, les deux paliers tombent ensemble, et c'est la
       // légende qu'il faut lire d'abord — le pays offert ne se comprend qu'avec.
       const aAnnoncer: ("pictos" | "pouce")[] = [];
-      if (domaines.some(Boolean) && !vues.current.pictos) {
+      // ⚠️ `> 1`, PAS `some`. Depuis que la première case parle dès le premier
+      // coup, un `some` ferait surgir la modale sur la première proposition de
+      // CHAQUE partie — une interruption quotidienne, exactement ce que la
+      // rareté de cette modale est censée éviter. Ce qu'on annonce, c'est
+      // l'arrivée des TROIS AUTRES ; la première a son propre cadre, en ligne.
+      if (domaines.filter(Boolean).length > 1 && !vues.current.pictos) {
         vues.current = { ...vues.current, pictos: true };
         aAnnoncer.push("pictos");
       }
@@ -507,14 +516,39 @@ export default function PaysDuJour({ jour }: { jour: number }) {
                 {t("casesAide")}
               </p>
             )}
-            {pictos.some(Boolean) && (
-              <>
-                <p style={{ margin: "7px 0 0", fontSize: 12.5, color: skin.muted, lineHeight: 1.45 }}>
-                  {t("pictosAide")}
-                </p>
-                <Legende pictos={pictos} mystere={t("catMystere")} />
-              </>
-            )}
+            {/* LA LÉGENDE, EN DEUX TEMPS.
+                
+                ⚠️ AU PREMIER COUP, ELLE EST UNE RÉCOMPENSE, PAS UNE NOTE DE BAS
+                DE PAGE. Vu sur de vrais nouveaux joueurs : après leur première
+                proposition, sans repère, ils cliquent partout sur la carte. À ce
+                moment-là l'écran est presque vide et la légende tombe juste sous
+                le résultat — mais en gris 12,5 px elle se lisait comme une
+                mention légale. Tant qu'une seule case parle, elle prend donc un
+                cadre à l'accent et sa phrase à elle. Passé le seuil, les quatre
+                étiquettes sont devenues du mobilier utile : la mise en avant
+                retombe, et c'est la modale qui annonce le changement. */}
+            {pictos.some(Boolean) &&
+              (premierSeul ? (
+                <div
+                  style={{
+                    margin: "8px 0 0",
+                    padding: "10px 12px",
+                    borderRadius: 11,
+                    background: skin.paper,
+                    border: `2.5px solid ${skin.accent}`,
+                  }}
+                >
+                  <p style={{ margin: 0, fontSize: 13, lineHeight: 1.45 }}>{t("pictosAidePremier")}</p>
+                  <Legende pictos={pictos} mystere={t("catMystere")} aVenir={t("catAVenir")} />
+                </div>
+              ) : (
+                <>
+                  <p style={{ margin: "7px 0 0", fontSize: 12.5, color: skin.muted, lineHeight: 1.45 }}>
+                    {t("pictosAide")}
+                  </p>
+                  <Legende pictos={pictos} mystere={t("catMystere")} />
+                </>
+              ))}
             {/* LE PAYS OFFERT. Posé AU-DESSUS de l'historique et non dedans :
                 l'historique dit « ce que vous avez essayé », et y glisser un
                 pays qu'on n'a pas proposé fausserait la seule liste que le
@@ -666,7 +700,22 @@ function PaysOffert({
  * La légende reprend la forme des cases plutôt qu'un numéro : c'est ce qui
  * permet de faire l'aller-retour avec les lignes en dessous sans compter.
  */
-function Legende({ pictos, mystere }: { pictos: (Etiquette | null)[]; mystere: string }) {
+function Legende({
+  pictos,
+  mystere,
+  aVenir,
+}: {
+  pictos: (Etiquette | null)[];
+  mystere: string;
+  /**
+   * ⚠️ CE QU'AFFICHE UNE CASE ENCORE VERROUILLÉE — et c'est un mot différent de
+   * celui d'une case muette. Le « · » veut dire « celle-là ne parlera jamais »
+   * (garde-fou du serveur) ; au premier coup, les trois du milieu ne sont pas
+   * muettes, elles sont À VENIR. Le même glyphe pour les deux se lisait comme
+   * une panne — vu à l'écran, sur la capture du premier essai.
+   */
+  aVenir?: string;
+}) {
   return (
     <ul
       style={{
@@ -680,7 +729,7 @@ function Legende({ pictos, mystere }: { pictos: (Etiquette | null)[]; mystere: s
     >
       {pictos.map((etiq, k) => {
         const derniere = k === pictos.length - 1;
-        const nom = etiq ? etiq.texte : derniere ? mystere : null;
+        const nom = etiq ? etiq.texte : derniere ? mystere : (aVenir ?? null);
         // Une case des quatre premières peut se taire aussi : le garde-fou du
         // serveur la fait taire quand son domaine ne laisserait qu'un critère
         // possible. Rien à montrer alors — mais on garde sa place dans la

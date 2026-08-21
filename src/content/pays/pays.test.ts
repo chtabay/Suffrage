@@ -33,6 +33,7 @@ import { NB_MARCHES, marchesDe } from "@/lib/games/pays/partage";
 import { QR_CHEMIN, QR_MARGE, QR_TAILLE, QR_URL } from "./qr";
 import {
   ESSAIS_AVANT_COUP_DE_POUCE,
+  ESSAIS_AVANT_PREMIER_PICTO,
   ESSAIS_AVANT_PICTOS,
   ORIGINE,
   casesDe,
@@ -352,11 +353,49 @@ test("une étiquette laisse toujours au moins SEUIL_ETIQUETTE critères possible
   }
 });
 
-test("avant 25 essais, aucune case ne parle", () => {
-  const j = JOURNEES[0];
-  const ordonnes = ordreCanonique(j.criteres.map((id) => CRITERES.find((c) => c.id === id)!));
-  for (const n of [0, 1, 10, ESSAIS_AVANT_PICTOS - 1]) {
-    assert.deepEqual(pictosDe(ordonnes, n, "fr"), [null, null, null, null, null], `à ${n} essais`);
+test("la légende arrive en deux temps : la première case, puis les trois autres", () => {
+  for (const j of JOURNEES) {
+    const ordonnes = ordreCanonique(j.criteres.map((id) => CRITERES.find((c) => c.id === id)!));
+    // Avant le premier essai, rien : l'écran d'accueil ne doit rien lâcher.
+    assert.deepEqual(pictosDe(ordonnes, 0, "fr"), [null, null, null, null, null], `journée ${j.cible}`);
+
+    // ⚠️ DÈS LE PREMIER COUP, LA CASE 1 PARLE — et elle SEULE. Le retour de
+    // terrain était que sans repère, un nouveau joueur clique partout sur la
+    // carte ; l'ouverture des trois autres, elle, reste un palier à mériter.
+    for (const n of [ESSAIS_AVANT_PREMIER_PICTO, 5, ESSAIS_AVANT_PICTOS - 1]) {
+      const p = pictosDe(ordonnes, n, "fr");
+      assert.deepEqual(p.slice(1), [null, null, null, null], `journée ${j.cible} à ${n} essais`);
+      // La case 1 peut se taire quand même : son garde-fou passe avant.
+      if (cleEtiquette(ordonnes[0]) === null) assert.equal(p[0], null, `journée ${j.cible}`);
+      else assert.ok(p[0]?.texte, `journée ${j.cible} à ${n} essais : la case 1 devrait parler`);
+    }
+
+    // Au seuil, les quatre premières parlent (sauf garde-fou), la cinquième non.
+    const tard = pictosDe(ordonnes, ESSAIS_AVANT_PICTOS, "fr");
+    assert.equal(tard[4], null, `journée ${j.cible}`);
+    for (let k = 0; k < 4; k++) {
+      const attendu = cleEtiquette(ordonnes[k]) === null;
+      assert.equal(tard[k] === null, attendu, `journée ${j.cible}, case ${k + 1}`);
+    }
+  }
+});
+
+test("la case 1 ne descend jamais sous le garde-fou, même ouverte dès le premier coup", () => {
+  // ⚠️ C'EST LA GARANTIE QUI AUTORISE L'OUVERTURE PRÉCOCE. Mesuré : l'étiquette
+  // de la case 1 dit « continent » 37 fois sur 51 et « latitude » 11 fois —
+  // elle est quasi constante, donc presque gratuite en secret. Mais la règle
+  // qui la rend sûre reste `cleEtiquette`, et elle doit tenir.
+  for (const j of JOURNEES) {
+    const ordonnes = ordreCanonique(j.criteres.map((id) => CRITERES.find((c) => c.id === id)!));
+    const cle = cleEtiquette(ordonnes[0]);
+    if (cle === null) continue;
+    const memeEtiquette = CRITERES.filter(
+      (x) => x.palier === ordonnes[0].palier && cleEtiquette(x) === cle,
+    );
+    assert.ok(
+      memeEtiquette.length >= SEUIL_ETIQUETTE,
+      `journée ${j.cible} : « ${cle} » ne laisse que ${memeEtiquette.length} critère(s)`,
+    );
   }
 });
 

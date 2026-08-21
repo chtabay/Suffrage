@@ -69,9 +69,28 @@ L'étagère `signature` mince a une seconde conséquence, elle sur le jeu lui-m�
 elle interdit de montrer la catégorie de la cinquième case. À 7 critères sur
 4 catégories, ce picto laisserait deux candidats et nommerait le critère 3 fois
 sur 51. La cinquième case se tait donc — c'est aussi ce qui fait la fin de
-partie, puisque 28 % des pays à 4/5 ne ratent qu'elle. Les quatre autres parlent
-au bout de 15 essais (`ESSAIS_AVANT_PICTOS`), au grain de 5 catégories larges (les 30 `famille`
-nommeraient le critère une fois sur trois : trop fin, mesuré).
+partie, puisque 28 % des pays à 4/5 ne ratent qu'elle. Les autres parlent au grain
+de 5 catégories larges (les 30 `famille` nommeraient le critère une fois sur
+trois : trop fin, mesuré).
+
+**Mais LA CASE 1 PARLE DÈS LE PREMIER COUP** (`ESSAIS_AVANT_PREMIER_PICTO`),
+alors que les trois du milieu attendent 15 essais (`ESSAIS_AVANT_PICTOS`). C'est
+un retour de terrain sur de vrais nouveaux joueurs : sans repère après leur
+première proposition, **ils cliquent partout sur la carte** — le jeu leur rendait
+un chiffre et cinq cases muettes, de quoi savoir qu'on a marqué, pas où
+chercher. ⚠️ Et l'ouverture est presque gratuite en secret : mesuré sur les 51
+journées, l'étiquette de la case 1 dit « continent » **37 fois**, « latitude »
+11 fois, et se tait 3 fois. C'est le défaut connu de l'étagère `large`
+(6 continents sur 9) qui joue ici en notre faveur — on ouvre ce que l'habitué
+connaît par cœur et qui manque au débutant.
+
+Trois conséquences à ne pas défaire : la légende du premier coup est **une
+récompense encadrée**, pas une ligne grise de 12,5 px (c'est ce qui la rend
+visible sur un écran presque vide) ; la modale du seuil se déclenche sur
+`> 1` étiquette et **jamais sur `some`**, sinon elle surgirait à la première
+proposition de chaque partie — une interruption quotidienne ; et une case
+encore verrouillée affiche « à venir », **pas le « · » des cases muettes** —
+le même glyphe pour « pas encore » et « jamais » se lit comme une panne.
 
 **Les deux aides de Cinq sur cinq S'ANNONCENT, elles n'apparaissent plus en
 silence.** La légende des cases se posait au-dessus d'une liste de quarante
