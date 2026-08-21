@@ -263,19 +263,35 @@ export default function GrilleDeMots({
                   style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "baseline" }}
                 >
                   <span style={{ fontFamily: skin.fontDisplay, fontWeight: 800, fontSize: 16 }}>{c.mot}</span>
-                  <span
-                    style={{
-                      fontSize: 14,
-                      fontWeight: 700,
-                      fontVariantNumeric: "tabular-nums",
-                      color: c.part !== null ? teinteDe(c.part) : skin.muted,
-                    }}
-                  >
-                    {c.part !== null ? t("motsPart", { p: part.format(c.part) }) : "—"}
-                  </span>
+                  {/* ⚠️ AUCUNE COLONNE PLUTÔT QU'UN TIRET. Un « — » en face de
+                      chaque mot se lit comme une panne, et le joueur va
+                      chercher le chiffre ailleurs — c'est-à-dire chez quelqu'un
+                      qui l'a. La phrase sous la grille dit pourquoi il manque. */}
+                  {c.part !== null ? (
+                    <span
+                      style={{
+                        fontSize: 14,
+                        fontWeight: 700,
+                        fontVariantNumeric: "tabular-nums",
+                        color: teinteDe(c.part),
+                      }}
+                    >
+                      {t("motsPart", { p: part.format(c.part) })}
+                    </span>
+                  ) : null}
                 </div>
               ))}
             </div>
+            {/* ⚠️ SCELLÉES TANT QUE LA JOURNÉE EST OUVERTE, et la base ne les
+                renvoie même pas — voir `20260821-banalo-mots-parts-scellees.sql`.
+                La grille EST la solution : lue maintenant, elle se recopie mot à
+                mot dans une conversation de groupe. On la rend le lendemain,
+                dans `JourneePrecedente`. */}
+            {jeu.repondu && jeu.grille.some((c) => c.part === null) ? (
+              <p style={{ margin: "14px 0 0", fontSize: 12.5, color: skin.muted, lineHeight: 1.45 }}>
+                {t("motsPartsScellees")}
+              </p>
+            ) : null}
             <p style={{ margin: "14px 0 0", fontSize: 12.5, color: skin.muted, lineHeight: 1.45 }}>
               {/* ⚠️ PAS LA MÊME PHRASE QUE POUR LES NOMBRES. Le format chiffré
                   dit « pour que la MÉDIANE veuille dire quelque chose » — il n'y
@@ -295,7 +311,17 @@ export default function GrilleDeMots({
               // part. ⚠️ JAMAIS LES MOTS EUX-MÊMES — un ami qui les lit n'a plus
               // qu'à les recopier, et comme on est noté par rapport à la foule,
               // il ferait au moins aussi bien sans avoir joué.
-              forme={jeu.grille.map((c) => blocDe(c.part ?? 0)).join("")}
+              //
+              // ⚠️ ET PAS DE `?? 0` ICI, exactement comme le format chiffré
+              // n'a pas de `?? 1` sur son écart. Les parts sont scellées tant
+              // que la journée est ouverte : le repli peignait six blocs de la
+              // couleur la plus froide — « tout raté » — sous un score de 51,3.
+              // La ligne se tait, et `PartageBanalo` écarte déjà les vides.
+              forme={
+                jeu.grille.some((c) => c.part === null)
+                  ? ""
+                  : jeu.grille.map((c) => blocDe(c.part ?? 0)).join("")
+              }
               partMieux={jeu.partMieux}
             />
           ) : null}

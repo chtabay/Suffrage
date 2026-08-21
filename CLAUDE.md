@@ -128,8 +128,8 @@ réponse jetable. `scrutin_banalo_etat` scelle donc `mediane` ET `facteur`
 **Sceller sans jamais montrer, c'est ne rien révéler du tout** — et c'est ce qui
 manquait. À la clôture, la page bascule sur la journée suivante : l'écran qui
 aurait rendu la médiane n'existe plus, donc elle n'apparaissait sur AUCUNE
-journée. `JourneePrecedente` est la seule place où ce nombre s'affiche ; il
-n'interroge que `jour − 1`, il se tait si la base ne rend pas la médiane (journée
+journée. `JourneePrecedente` est la seule place où ce nombre — et la grille des mots —
+s'affiche ; il n'interroge que `jour − 1`, il se tait si la base ne rend pas la médiane (journée
 pas encore close de son point de vue), et il se tait aussi quand on n'a pas joué
 la veille — un bloc « vous n'avez pas joué » est un reproche adressé à quelqu'un
 qui vient précisément de revenir. ⚠️ Son titre dit « la journée précédente », pas
@@ -144,15 +144,26 @@ un secret **diffusable** — un joueur la publie, mille en profitent — là où
 l'inversion du score est un effort **par tricheur**, avec une réponse à brûler et
 un jeton neuf à chaque fois.
 
-⚠️ **L'origine du calendrier est donc DUPLIQUÉE en SQL** (`jour.ts` et
-`20260820-banalo-mediane-scellee.sql`) : la base doit savoir si une journée est
-close, et laisser le client le déclarer offrirait la médiane à qui ment. Les deux
-valeurs bougent ensemble.
+⚠️ **L'origine du calendrier est donc DUPLIQUÉE en SQL, à DEUX endroits**
+(`jour.ts`, `20260820-banalo-mediane-scellee.sql` et
+`20260821-banalo-mots-parts-scellees.sql`) : la base doit savoir si une journée
+est close, et laisser le client le déclarer offrirait la solution à qui ment. Les
+trois valeurs bougent ensemble.
 
-⚠️ **Et le format « mots » a le MÊME trou, non refermé** : `grille` rend la part
-de chaque mot, donc les mots les plus donnés — qu'il suffit de recopier. Le
-fermer coûterait beaucoup plus cher, puisque cette grille EST la récompense du
-format.
+**Le format « mots » avait le MÊME trou, et il était PIRE** : `grille` rendait la
+part de chaque mot, donc les mots les plus donnés. Là où la médiane demande
+encore d'être comprise, une grille se recopie **mot à mot**, sans rien
+comprendre. Les parts sont donc scellées elles aussi
+(`20260821-banalo-mots-parts-scellees.sql`) ; **le mot, lui, reste rendu** — le
+joueur doit voir ce qui a été enregistré (mot du thème écarté, doublons pliés),
+et c'est le chiffre à côté qui se recopie, pas le mot.
+
+Ce qui rendait la fermeture « trop chère » — cette grille EST la récompense du
+format — **est tombé avec `JourneePrecedente`** : la récompense n'est pas
+supprimée, elle est décalée d'un jour, comme la médiane. ⚠️ Deux replis à ne
+jamais remettre : `part ?? 0` dans la ligne de partage peignait six blocs de la
+couleur la plus froide sous un score de 44,6, et `joueurs ?? 0` fait dire
+« 0 joueur a écrit ce mot » d'un mot que le joueur vient d'écrire.
 
 **Le score de Banalo du jour est CONTINU, et il l'est pour une raison mesurée.**
 `100 − 100·log₁₀(facteur)`, borné à [0 ; 100], **arrondi au dixième**. La première

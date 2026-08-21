@@ -2672,6 +2672,7 @@
     "motsGrille": "Your words",
     "motsPart": "{p}%",
     "motsRegle": "Each word is worth the share of players who wrote it. The theme's own word doesn't count, and two forms of the same word count once.",
+    "motsPartsScellees": "Each word's share stays hidden until the day closes: shown now, anyone could simply copy your words and score what you scored.",
     "motsAttente": "There are {n} of you so far. Your score appears as soon as the crowd is big enough for the shares to mean anything.",
     "demainMots": "New theme at {heure}.",
     "qrAide": "Or show this code to someone",

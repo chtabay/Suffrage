@@ -2672,6 +2672,7 @@
     "motsGrille": "Vos mots",
     "motsPart": "{p} %",
     "motsRegle": "Chaque mot vaut la part des joueurs qui l'ont écrit. Le mot du thème lui-même ne compte pas, et deux formes du même mot n'en font qu'une.",
+    "motsPartsScellees": "La part de chaque mot reste cachée jusqu'à la clôture : affichée maintenant, il suffirait de recopier vos mots pour marquer autant que vous.",
     "motsAttente": "Vous êtes {n} pour l'instant. Votre score s'affiche dès que la foule est assez nombreuse pour que les parts veuillent dire quelque chose.",
     "demainMots": "Nouveau thème à {heure}.",
     "qrAide": "Ou montrez ce code à quelqu'un",

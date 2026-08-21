@@ -150,13 +150,22 @@ export async function etat(jeton: string, jour: number, langue: string): Promise
 
 // ─────────────────────────────────────────────────────── le format « mots »
 
-/** Une case de la grille, avec ce que la foule en a fait. */
+/**
+ * Une case de la grille, avec ce que la foule en a fait.
+ *
+ * ⚠️ `joueurs` ET `part` SONT SCELLÉS TANT QUE LA JOURNÉE EST OUVERTE, et c'est
+ * la même règle que la médiane du format chiffré — voir
+ * `20260821-banalo-mots-parts-scellees.sql`. La grille est même le secret le
+ * plus facile à diffuser des deux : elle se recopie mot à mot, sans rien avoir
+ * à comprendre. Le MOT, lui, reste toujours rendu : le joueur doit voir ce qui
+ * a réellement été enregistré.
+ */
 export interface CaseBanalo {
   /** Le mot tel que le joueur l'a tapé — jamais la forme normalisée. */
   mot: string;
-  /** Combien de joueurs l'ont donné, celui-ci compris. */
-  joueurs: number;
-  /** La part correspondante, en pourcentage, déjà arrondie par la base. */
+  /** Combien de joueurs l'ont donné, celui-ci compris. `null` tant que la journée est ouverte. */
+  joueurs: number | null;
+  /** La part correspondante, en pourcentage, déjà arrondie par la base. `null` tant que la journée est ouverte. */
   part: number | null;
 }
 
@@ -168,6 +177,8 @@ export interface EtatMots {
   repondu: boolean;
   votants: number;
   assez: boolean;
+  /** La journée est-elle close ? C'est elle qui décide si la grille rend ses parts. */
+  close: boolean;
   /** Le nombre de cases de la journée, lu en base et non chez le client. */
   cases: number;
   grille: CaseBanalo[];
@@ -193,6 +204,7 @@ interface EtatMotsBrut {
   repondu?: boolean;
   votants?: number;
   assez?: boolean;
+  close?: boolean;
   cases?: number;
   grille?: unknown;
   total?: number | null;
@@ -211,7 +223,10 @@ export function traduisMots(brut: unknown): EtatMots | null {
   const grille: CaseBanalo[] = Array.isArray(e.grille)
     ? (e.grille as Record<string, unknown>[]).map((c) => ({
         mot: typeof c?.mot === "string" ? c.mot : "",
-        joueurs: nombre(c?.joueurs) ?? 0,
+        // ⚠️ PAS DE `?? 0` ICI. « 0 joueur a écrit ce mot » et « on ne vous le
+        // dira pas encore » ne sont pas la même chose, et le premier est faux :
+        // le joueur l'a écrit, donc l'effectif vaut au moins un.
+        joueurs: nombre(c?.joueurs),
         part: nombre(c?.part),
       }))
     : [];
@@ -224,6 +239,7 @@ export function traduisMots(brut: unknown): EtatMots | null {
     repondu: e.repondu === true,
     votants: nombre(e.votants) ?? 0,
     assez: e.assez === true,
+    close: e.close === true,
     cases: nombre(e.cases) ?? 0,
     grille,
     total: nombre(e.total),

@@ -1,9 +1,11 @@
 "use client";
 
-// LA JOURNÉE PRÉCÉDENTE — et c'est la SEULE place où la médiane se montre.
+// LA JOURNÉE PRÉCÉDENTE — la SEULE place où ce que le jeu scelle se montre :
+// la médiane du format chiffré, les parts de la grille du format « mots ».
 //
 // ⚠️ SANS CE BLOC, LE SCELLEMENT NE RÉVÈLE RIEN. `scrutin_banalo_etat` cache la
-// médiane et l'écart tant que la journée est ouverte, et les rend à la clôture.
+// médiane et l'écart, `scrutin_banalo_mots_etat` cache la part de chaque mot,
+// tant que la journée est ouverte ; les deux les rendent à la clôture.
 // Mais à la clôture, la page bascule sur la journée suivante : l'écran qui
 // aurait pu les afficher n'existe plus. Le joueur ne voyait donc jamais la
 // réponse de la foule, sur aucune journée — la récompense promise par la
@@ -11,8 +13,8 @@
 // quand la nouvelle s'ouvre », en tête de `jour.ts`) n'était pas tenue.
 //
 // ⚠️ IL NE REGARDE QUE LA JOURNÉE `jour − 1`, JAMAIS AUJOURD'HUI. C'est ce qui
-// fait qu'il ne peut rien divulguer : la médiane qu'il montre est celle d'une
-// question déjà close, qui n'est plus jouable. Et il garde la ceinture avec les
+// fait qu'il ne peut rien divulguer : ce qu'il montre appartient à une journée
+// déjà close, qui n'est plus jouable. Et il garde la ceinture avec les
 // bretelles — si la base refusait de rendre la médiane (journée pas encore
 // close de son point de vue), le bloc ne s'affiche pas du tout plutôt que de
 // montrer un résultat amputé.
@@ -84,6 +86,12 @@ export default function JourneePrecedente({ jour }: { jour: number }) {
     [locale],
   );
   const ecartGros = useMemo(() => new Intl.NumberFormat(bcp(locale), { maximumFractionDigits: 0 }), [locale]);
+  // Les parts de la grille : un chiffre après la virgule, comme sur l'écran du
+  // format « mots ».
+  const part = useMemo(
+    () => new Intl.NumberFormat(bcp(locale), { maximumFractionDigits: 1 }),
+    [locale],
+  );
   // Le score garde sa décimale, « 100,0 » compris : c'est elle qui décide du rang.
   const note = useMemo(
     () => new Intl.NumberFormat(bcp(locale), { minimumFractionDigits: 1, maximumFractionDigits: 1 }),
@@ -123,6 +131,11 @@ export default function JourneePrecedente({ jour }: { jour: number }) {
   );
 
   if (prog.type === "mots") {
+    // LA GRILLE RÉVÉLÉE. C'est le pendant exact de la médiane : les parts sont
+    // scellées pendant la journée parce qu'elles se recopient mot à mot, et
+    // c'est ici — et nulle part ailleurs — qu'on apprend enfin lequel de ses
+    // mots la foule partageait.
+    const grille = (mots?.grille ?? []).filter((c): c is typeof c & { part: number } => c.part !== null);
     return (
       <div style={{ marginTop: 20 }}>
         <GCard skin={skin} padding={18}>
@@ -133,6 +146,28 @@ export default function JourneePrecedente({ jour }: { jour: number }) {
             </span>
             {themeLabel(prog.theme, locale)}
           </p>
+          {grille.length > 0 ? (
+            <div style={{ display: "grid", gap: 6, margin: "12px 0 0" }}>
+              {grille.map((c, i) => (
+                <div
+                  key={`${c.mot}-${i}`}
+                  style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "baseline" }}
+                >
+                  <span style={{ fontFamily: skin.fontDisplay, fontWeight: 800, fontSize: 15 }}>{c.mot}</span>
+                  <span
+                    style={{
+                      fontSize: 13.5,
+                      fontWeight: 700,
+                      fontVariantNumeric: "tabular-nums",
+                      color: teinteDe(c.part),
+                    }}
+                  >
+                    {t("motsPart", { p: part.format(c.part) })}
+                  </span>
+                </div>
+              ))}
+            </div>
+          ) : null}
           {score}
         </GCard>
       </div>
