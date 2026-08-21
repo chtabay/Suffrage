@@ -26,6 +26,7 @@ import type { Theme } from "@/lib/games/banalo/themes";
 import { monJeton } from "@/lib/games/banalo/jeton";
 import { blocDe, motDe, teinteDe } from "@/lib/games/banalo/chaleur";
 import PartageBanalo from "./PartageBanalo";
+import ConcentrationDuJour from "./ConcentrationDuJour";
 import InviterBanalo from "./InviterBanalo";
 import ComparaisonAmi from "@/components/games/ComparaisonAmi";
 import { litDefi, type Defi } from "@/lib/games/comparaison";
@@ -314,6 +315,18 @@ export default function GrilleDeMots({
               />
             )}
           </GCard>
+
+          {/* LA FORME DE LA JOURNÉE, TOUT DE SUITE APRÈS LA RÉPONSE. C'était la
+              demande : avoir quelque chose de satisfaisant à proposer au moment
+              du dépôt, pas un jour plus tard. ⚠️ Elle ne fuit rien parce que les
+              barres sont ANONYMES tant que la journée est ouverte — même les
+              miennes. Le libellé, lui, reste scellé avec les parts et n'arrive
+              qu'à la clôture, dans `JourneePrecedente`. */}
+          {jeu.concentration ? (
+            <GCard skin={skin} padding={18}>
+              <ConcentrationDuJour conc={jeu.concentration} />
+            </GCard>
+          ) : null}
 
           {jeu.assez && jeu.points !== null ? (
             <PartageBanalo

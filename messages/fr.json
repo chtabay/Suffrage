@@ -2687,6 +2687,7 @@
     "concentrationCouverture": "Les {n} mots les plus donnés couvrent {part} % de toutes les réponses.",
     "concentrationMiens": "{n, plural, one {# de vos mots est} other {# de vos mots sont}} dans les {total} plus donnés.",
     "concentrationAucun": "Aucun de vos mots n'est dans les {n} plus donnés.",
+    "concentrationMeilleur": "{mot} est votre mot le mieux placé — {rang, selectordinal, one {#er} other {#e}} de la journée.",
     "concentrationAlt": "Les {n} mots les plus donnés de la journée, par ordre décroissant, sur {distincts} mots écrits en tout.",
     "motsPartsScellees": "La part de chaque mot reste cachée jusqu'à la clôture : affichée maintenant, il suffirait de recopier vos mots pour marquer autant que vous.",
     "motsAttente": "Vous êtes {n} pour l'instant. Votre score s'affiche dès que la foule est assez nombreuse pour que les parts veuillent dire quelque chose.",

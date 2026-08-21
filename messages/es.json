@@ -2687,6 +2687,7 @@
     "concentrationCouverture": "Las {n} palabras más dadas cubren el {part} % de todas las respuestas.",
     "concentrationMiens": "{n, plural, one {# de tus palabras está} other {# de tus palabras están}} entre las {total} más dadas.",
     "concentrationAucun": "Ninguna de tus palabras está entre las {n} más dadas.",
+    "concentrationMeilleur": "{mot} es tu palabra mejor situada: la {rang}.ª del día.",
     "concentrationAlt": "Las {n} palabras más dadas del día, en orden decreciente, de {distincts} palabras distintas escritas.",
     "motsPartsScellees": "La proporción de cada palabra permanece oculta hasta el cierre: si se mostrara ahora, bastaría con copiar tus palabras para sacar lo mismo que tú.",
     "motsAttente": "Sois {n} por ahora. Tu puntuación aparece en cuanto haya suficiente gente para que las proporciones signifiquen algo.",

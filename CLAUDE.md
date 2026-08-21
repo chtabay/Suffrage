@@ -306,8 +306,16 @@ explique directement les scores du jour. L'échelle des barres part de la plus
 haute et non de 100 %, sinon un thème ouvert dessine dix traits collés au sol —
 c'est le chiffre en dessous qui porte l'échelle.
 
-⚠️ **ET LES BARRES DES AUTRES SONT MUETTES : on rend leur hauteur, jamais leur
-libellé.** Nommer les mots les plus donnés diffuserait du **texte libre écrit par
+**Elle sort DÈS LE DÉPÔT, au même plancher que le score** (cinq votants) — la
+demande était d'avoir quelque chose de satisfaisant à montrer juste après la
+réponse, et posée sur la seule journée close elle arrivait un jour trop tard.
+⚠️ Ce qui la rend sûre à cet instant : **les libellés restent scellés tant que la
+journée est ouverte, même les siens**. « plage vaut 50 % » se recopie, une barre
+anonyme non. Le joueur apprend tout de suite la FORME du jour et le nombre de ses
+mots dans les dix premiers ; le nom du mieux placé n'arrive qu'à la clôture.
+
+⚠️ **ET LES BARRES DES AUTRES SONT MUETTES POUR TOUJOURS : on rend leur hauteur,
+jamais leur libellé.** Nommer les mots les plus donnés diffuserait du **texte libre écrit par
 des joueurs à tous les autres**, sur un jeu public, anonyme, dont la politique
 déclare une tranche d'âge « enfant ». La justification de l'absence de tout
 signalement (plus bas) repose sur le modèle de la SALLE — entrée par code, salle

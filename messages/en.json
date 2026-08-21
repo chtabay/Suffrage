@@ -2687,6 +2687,7 @@
     "concentrationCouverture": "The {n} most-given words cover {part}% of all answers.",
     "concentrationMiens": "{n, plural, one {# of your words is} other {# of your words are}} among the {total} most given.",
     "concentrationAucun": "None of your words is among the {n} most given.",
+    "concentrationMeilleur": "{mot} is your best-placed word — {rang, selectordinal, one {#st} two {#nd} few {#rd} other {#th}} of the day.",
     "concentrationAlt": "The {n} most-given words of the day, in decreasing order, out of {distincts} distinct words written.",
     "motsPartsScellees": "Each word's share stays hidden until the day closes: shown now, anyone could simply copy your words and score what you scored.",
     "motsAttente": "There are {n} of you so far. Your score appears as soon as the crowd is big enough for the shares to mean anything.",

@@ -14,18 +14,26 @@
 // thème ouvert, 23 % et 13 %. Un écart de quatre entre journées — et il explique
 // directement les scores du jour, ce qu'aucun autre chiffre de l'écran ne dit.
 //
-// ⚠️ LES BARRES DES AUTRES SONT MUETTES, ET CE N'EST PAS UNE PUDEUR DE FAÇADE.
+// ⚠️ ELLE SORT DÈS LE DÉPÔT, au même plancher que le score (cinq votants). La
+// demande était d'avoir quelque chose de satisfaisant à montrer JUSTE APRÈS la
+// réponse ; posée sur la seule journée close, elle arrivait un jour trop tard.
+//
+// ⚠️ ET LES LIBELLÉS RESTENT SCELLÉS TANT QUE LA JOURNÉE EST OUVERTE — MÊME LES
+// SIENS. « plage vaut 50 % » se recopie, une barre anonyme non : c'est la même
+// règle que les parts de la grille. Ce que le joueur apprend tout de suite est
+// la FORME du jour et le nombre de ses mots dans les dix premiers ; le nom du
+// mieux placé n'arrive qu'à la clôture, dans `JourneePrecedente`.
+//
+// ⚠️ LES BARRES DES AUTRES SONT MUETTES POUR TOUJOURS, ET CE N'EST PAS UNE PUDEUR
+// DE FAÇADE.
 // Nommer les mots les plus donnés reviendrait à diffuser du TEXTE LIBRE écrit
 // par des joueurs à TOUS les autres, sur un jeu public, anonyme, dont la
 // politique déclare une tranche d'âge « enfant ». La justification écrite dans
 // `CLAUDE.md` pour l'absence de tout signalement repose sur le modèle de la
 // SALLE — entrée par code, salle jetable, effacement à sept jours — et aucune
 // des trois propriétés ne tient ici. La garde vit en base
-// (`20260822-banalo-mots-concentration.sql`) : le libellé n'est même pas rendu.
-//
-// Les mots du joueur, eux, portent leur nom : la grille juste au-dessus les lui
-// montre déjà, et les nommer ici ne fait que relier deux choses qu'il a sous les
-// yeux.
+// (`20260822-banalo-mots-concentration.sql`) : le libellé n'est même pas rendu,
+// et `litConcentration` le jette une seconde fois côté écran.
 import { useMemo } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { UNANIMO_SKIN as skin } from "@/lib/games/skin";
@@ -50,6 +58,11 @@ export default function ConcentrationDuJour({ conc }: { conc: Concentration }) {
   // tout. C'est le PROFIL qu'on montre, et le chiffre en dessous donne l'échelle.
   const max = Math.max(1, ...conc.barres.map((b) => b.part));
   const miens = conc.barres.filter((b) => b.mien);
+  // ⚠️ LE LIBELLÉ N'ARRIVE QU'À LA CLÔTURE, MÊME POUR SES PROPRES MOTS : « plage
+  // vaut 50 % » se recopie, une barre anonyme non. Tant qu'il manque, la bande
+  // dit la forme et le compte ; une fois là, elle nomme le mieux placé.
+  const meilleur = conc.barres.find((b) => b.mien && b.mot);
+  const rangMeilleur = meilleur ? conc.barres.indexOf(meilleur) + 1 : 0;
 
   return (
     <div style={{ marginTop: 14 }}>
@@ -124,6 +137,11 @@ export default function ConcentrationDuJour({ conc }: { conc: Concentration }) {
           ? t("concentrationAucun", { n: conc.barres.length })
           : t("concentrationMiens", { n: miens.length, total: conc.barres.length })}
       </p>
+      {meilleur?.mot ? (
+        <p style={{ margin: "3px 0 0", fontSize: 12.5, color: skin.muted, lineHeight: 1.45 }}>
+          {t("concentrationMeilleur", { mot: meilleur.mot, rang: rangMeilleur })}
+        </p>
+      ) : null}
     </div>
   );
 }
