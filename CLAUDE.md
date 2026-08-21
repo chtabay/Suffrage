@@ -308,11 +308,45 @@ La ligne d'un mot à un seul joueur s'estompe, exactement le geste de la salle
 (`RevealBoard.tsx` estompe à `opacity: 0.55` un mot à zéro point ; elle ne barre
 rien et ne colle aucune icône).
 
-Le reste de l'échelle était déjà en place et ne bouge pas : le score est la somme
-des votes communs avec les autres, il donne un RANG parmi les participants, et un
-CENTILE qui situe le joueur — c'est ce centile qui se compare d'un format à
-l'autre. ⚠️ Le centile et le rang gardent leur propre plancher (`VOTANTS_MIN`,
-20) : « 3e sur 7 » reste du bruit.
+**Et le score MONTRÉ par le format « mots » est la SOMME, pas un sur-100** — le
+score d'Unanimo : le nombre de voix que vos mots ont recueillies. Il donne un
+RANG parmi les participants et un CENTILE qui situe le joueur, et c'est le
+centile qui se compare d'un format à l'autre. ⚠️ Centile et rang gardent leur
+propre plancher (`VOTANTS_MIN`, 20) : « 3e sur 7 » reste du bruit.
+
+⚠️ **LE SUR-100 A ÉTÉ RETIRÉ DE L'ÉCRAN PARCE QU'IL N'ÉTAIT PAS LISIBLE, ET
+C'EST MESURÉ.** Le score sur 100 est la moyenne des parts des mots du joueur :
+son plafond réel n'est donc pas 100 mais la couverture des six mots les plus
+donnés du jour. Simulé à 3 000 joueurs sur deux journées de nature opposée :
+**maximum atteignable 67,8 sur un thème serré (médiane 56,8), 13,7 sur un thème
+ouvert (médiane 4,9)**. Le même « 35 sur 100 » était donc hors d'atteinte par le
+bas un jour et par le haut le lendemain, et 100 n'était atteignable aucun jour.
+La somme, elle, ne prétend rien : c'est un décompte, et la colonne des effectifs
+juste en dessous l'additionne sous les yeux du joueur (34 + 1 + 22 + 9 + 3 + 15
+= 84).
+
+⚠️ **DEUX CHOSES SONT PARTIES AVEC LE CHIFFRE, ET IL FALLAIT QU'ELLES PARTENT** :
+le MOT DE CHALEUR et la COULEUR du grand nombre. Tous deux se calculaient sur le
+sur-100 — à 84 voix, l'écran annonçait « FROID », parce que 84 voix valent 35 sur
+100. Un qualificatif tiré d'une échelle qu'on n'affiche plus est un jugement
+qu'on ne peut pas vérifier. La chaleur reste sur les parts de chaque mot, qui
+sont affichées, elles.
+
+⚠️ **LE PLAFOND DU LIEN DE PARTAGE N'EST DONC PLUS UNE CONSTANTE.** `lienDefi` et
+`litDefi` bornent le résultat pour qu'un lien fabriqué à la main n'affiche pas
+« votre ami : 9 999 » ; ce plafond vaut `POINTS_MAX` pour le format chiffré et
+**`votants × cases`** pour le format « mots ». Figé à 100, il rejetterait au
+contraire tous les liens honnêtes des journées de mots. Conséquence : le défi ne
+se lit plus au montage mais quand l'état est là, puisque le plafond en dépend.
+
+⚠️ **LE SUR-100 CONTINUE D'EXISTER EN BASE, ET IL DOIT.** `scrutin_banalo_results`
+le stocke pour les DEUX formats sous une colonne `numeric(4,1) check between 0
+and 100`, et le résumé de compte en tire une moyenne et un meilleur. C'est la
+seule grandeur comparable entre une journée chiffrée et une journée de mots :
+une somme de voix et une distance à la médiane ne s'additionnent pas. Il n'est
+plus MONTRÉ, il n'est pas supprimé — et le jour où le résumé de compte devra
+dire quelque chose de juste, c'est le CENTILE qu'il faudra y mettre, pas l'un
+des deux scores.
 
 ⚠️ **PLUS RIEN DU FORMAT « MOTS » N'EST GARDÉ PAR L'HEURE**, donc
 `scrutin_banalo_mots_etat` a perdu `v_origine`, `v_close` et la clé `close` de sa

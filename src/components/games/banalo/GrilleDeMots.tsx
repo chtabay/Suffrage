@@ -24,13 +24,12 @@ import { GBtn, GCard, GLabel } from "@/components/games/ui";
 import { themeLabel } from "@/lib/games/banalo/themes";
 import type { Theme } from "@/lib/games/banalo/themes";
 import { monJeton } from "@/lib/games/banalo/jeton";
-import { blocDe, motDe, teinteDe } from "@/lib/games/banalo/chaleur";
+import { blocDe, teinteDe } from "@/lib/games/banalo/chaleur";
 import PartageBanalo from "./PartageBanalo";
 import ConcentrationDuJour from "./ConcentrationDuJour";
 import InviterBanalo from "./InviterBanalo";
 import ComparaisonAmi from "@/components/games/ComparaisonAmi";
 import { litDefi, type Defi } from "@/lib/games/comparaison";
-import { POINTS_MAX } from "@/lib/games/banalo/bareme";
 import InstallJeu from "@/components/games/InstallJeu";
 import CompteBanalo from "./CompteBanalo";
 import { etatMots, repondMots, type EtatMots } from "@/lib/db/banalo";
@@ -49,16 +48,6 @@ export default function GrilleDeMots({
   const t = useTranslations("BanaloJour");
   const locale = useLocale();
 
-  // ⚠️ LES CINQ MOTS DE CHALEUR SONT ÉCRITS EN CLAIR, un par un : une clé passée
-  // en variable échapperait au contrôle de parité i18n.
-  const CHALEUR: Record<string, string> = {
-    brule: t("chaleur.brule"),
-    chaud: t("chaleur.chaud"),
-    tiede: t("chaleur.tiede"),
-    froid: t("chaleur.froid"),
-    glace: t("chaleur.glace"),
-  };
-
   const [saisies, setSaisies] = useState<string[]>(() => Array(cases).fill(""));
   const [jeu, setJeu] = useState<EtatMots | null>(null);
 
@@ -66,10 +55,18 @@ export default function GrilleDeMots({
   // Next exige une frontière `Suspense` au prérendu ; ici on est de toute façon
   // côté client, et la lecture directe évite d'ajouter une contrainte de rendu
   // pour un bloc qui ne s'affiche presque jamais.
+  // ⚠️ ET SON PLAFOND EST CELUI DE LA JOURNÉE, PLUS `POINTS_MAX`. Le score du
+  // format « mots » n'est pas sur 100, c'est une somme d'effectifs : son maximum
+  // est `votants × cases`, atteint par qui aurait écrit les mots les plus donnés
+  // de la journée. La borne existe pour qu'un lien fabriqué à la main ne puisse
+  // pas afficher « votre ami : 9 999 » ; la garder à 100 rejetterait au contraire
+  // tous les liens honnêtes. On attend donc que l'état soit là pour la lire.
   const [defi, setDefi] = useState<Defi | null>(null);
+  const plafondDuJour = jeu ? jeu.votants * jeu.cases : 0;
   useEffect(() => {
-    setDefi(litDefi(window.location.search, POINTS_MAX));
-  }, []);
+    if (plafondDuJour <= 0) return;
+    setDefi(litDefi(window.location.search, plafondDuJour));
+  }, [plafondDuJour]);
 
   const [panne, setPanne] = useState(false);
   const [pret, setPret] = useState(false);
@@ -82,10 +79,9 @@ export default function GrilleDeMots({
   // c'est l'identifiant, pas la traduction.
   const cle = theme.fr;
 
-  const note = useMemo(
-    () => new Intl.NumberFormat(bcp(locale), { minimumFractionDigits: 1, maximumFractionDigits: 1 }),
-    [locale],
-  );
+  // Le score du format « mots » est une SOMME, donc un entier : il se groupe
+  // par milliers comme n'importe quel effectif.
+  const entier = useMemo(() => new Intl.NumberFormat(bcp(locale)), [locale]);
   const part = useMemo(
     () => new Intl.NumberFormat(bcp(locale), { maximumFractionDigits: 1 }),
     [locale],
@@ -210,7 +206,21 @@ export default function GrilleDeMots({
               ouvrait une journée jeune déposait ses six mots et n'obtenait rien
               en retour. À trois joueurs le score n'est pas significatif, mais
               il n'est pas gênant — et la réserve, sous la grille, le dit. */}
-          {jeu.points !== null ? (
+          {/* ⚠️ LE SCORE DU FORMAT « MOTS » EST LA SOMME, PAS UN SUR-100 —
+              c'est le score d'Unanimo, et c'est le seul qui se lise seul.
+              Mesuré sur deux journées simulées à 3 000 joueurs : le maximum
+              ATTEIGNABLE d'un sur-100 est la couverture des six mots les plus
+              donnés, soit 67,8 sur un thème serré et 13,7 sur un thème ouvert.
+              Le même « 35 sur 100 » était donc hors d'atteinte par le bas un
+              jour et par le haut le lendemain, et 100 n'était atteignable aucun
+              jour. La somme, elle, ne prétend rien : c'est le nombre de voix
+              que vos mots ont recueillies, et la colonne juste en dessous
+              l'additionne sous les yeux du joueur.
+
+              Le sur-100 reste calculé en base — il sert la couleur, le mot de
+              chaleur et le résumé de compte, qui lui doit rester comparable
+              entre les deux formats. Il n'est simplement plus montré. */}
+          {jeu.total !== null ? (
             <GCard skin={skin} accent={skin.accent} padding={20}>
               <GLabel skin={skin}>{t("scoreTitre")}</GLabel>
               <p
@@ -221,29 +231,22 @@ export default function GrilleDeMots({
                   lineHeight: 1,
                   margin: "6px 0 0",
                   fontVariantNumeric: "tabular-nums",
-                  color: teinteDe(jeu.points),
                 }}
               >
-                {t.rich("points", {
-                  n: note.format(jeu.points),
+                {t.rich("motsScore", {
+                  n: entier.format(jeu.total),
                   petit: (c) => (
                     <span style={{ fontSize: 19, fontWeight: 800, letterSpacing: "-0.01em" }}>{c}</span>
                   ),
                 })}
               </p>
-              <p
-                style={{
-                  fontFamily: skin.fontDisplay,
-                  fontWeight: 800,
-                  fontSize: 15,
-                  letterSpacing: "0.04em",
-                  textTransform: "uppercase",
-                  margin: "4px 0 0",
-                  color: teinteDe(jeu.points),
-                }}
-              >
-                {CHALEUR[motDe(jeu.points)]}
-              </p>
+              {/* ⚠️ C'EST CETTE LIGNE QUI DIT SI 84 VOIX, C'EST BIEN, et c'est
+                  la seule qui puisse le dire : la somme dépend du nombre de
+                  votants et de la nature du thème, donc elle ne se compare pas
+                  d'un jour à l'autre. Le mot de chaleur qui était ici se
+                  calculait sur le sur-100 — à 84 voix il annonçait « froid »,
+                  parce que 84 voix valent 35 sur 100. Un qualificatif tiré d'une
+                  échelle qu'on n'affiche plus n'a rien à faire à l'écran. */}
               {jeu.partMieux !== null ? (
                 <p style={{ margin: "12px 0 0", fontSize: 17, fontWeight: 700 }}>
                   {t("partMieux", { n: jeu.partMieux })}
@@ -290,19 +293,26 @@ export default function GrilleDeMots({
                       ET SANS REPLI — pas de `?? 0`, parce que « 0 joueur a écrit
                       ce mot » est faux d'un mot que le joueur vient d'écrire. */}
                   <span style={{ display: "flex", gap: 7, alignItems: "baseline", flex: "none" }}>
-                    {c.part !== null ? (
+                    {/* ⚠️ L'EFFECTIF PASSE DEVANT LA PART, parce que c'est LUI qui
+                        s'additionne : la colonne des effectifs fait le score
+                        affiché plus haut, à l'unité près. La part reste à côté,
+                        en gris, pour dire ce que cet effectif pèse dans la
+                        foule du jour — 34 joueurs ne veulent pas dire la même
+                        chose à 40 votants qu'à 4 000. */}
+                    {c.joueurs !== null ? (
                       <span
                         style={{
-                          fontSize: 14,
-                          fontWeight: 700,
+                          fontFamily: skin.fontDisplay,
+                          fontSize: 15,
+                          fontWeight: 800,
                           fontVariantNumeric: "tabular-nums",
-                          color: teinteDe(c.part),
+                          color: c.part !== null ? teinteDe(c.part) : skin.ink,
                         }}
                       >
-                        {t("motsPart", { p: part.format(c.part) })}
+                        {t("motsJoueurs", { n: c.joueurs })}
                       </span>
                     ) : null}
-                    {c.joueurs !== null ? (
+                    {c.part !== null ? (
                       <span
                         style={{
                           fontSize: 12.5,
@@ -311,7 +321,7 @@ export default function GrilleDeMots({
                           fontVariantNumeric: "tabular-nums",
                         }}
                       >
-                        {t("motsJoueurs", { n: c.joueurs })}
+                        {t("motsPart", { p: part.format(c.part) })}
                       </span>
                     ) : null}
                   </span>
@@ -366,8 +376,9 @@ export default function GrilleDeMots({
           {jeu.assez && jeu.points !== null ? (
             <PartageBanalo
               jour={jour}
-              points={note.format(jeu.points)}
-              brut={jeu.points}
+              points={entier.format(jeu.total ?? 0)}
+              brut={jeu.total ?? 0}
+              max={plafondDuJour}
               // La FORME du format « mots » : un bloc par case, coloré par la
               // part. ⚠️ JAMAIS LES MOTS EUX-MÊMES — un ami qui les lit n'a plus
               // qu'à les recopier, et comme on est noté par rapport à la foule,
@@ -388,11 +399,11 @@ export default function GrilleDeMots({
               partMieux={jeu.partMieux}
             />
           ) : null}
-          {defi && jeu.points !== null ? (
+          {defi && jeu.total !== null ? (
             <ComparaisonAmi
               skin={skin}
-              mien={note.format(jeu.points)}
-              sien={note.format(defi.resultat)}
+              mien={entier.format(jeu.total)}
+              sien={entier.format(defi.resultat)}
               memeJournee={defi.jour === jour}
               textes={{
                 titre: t("compareTitre"),

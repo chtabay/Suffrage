@@ -29,12 +29,12 @@ import { GBtn } from "@/components/games/ui";
 import PartageQR from "@/components/games/PartageQR";
 import { QR_CHEMIN, QR_TAILLE, QR_URL } from "@/content/banalo/qr";
 import { lienDefi } from "@/lib/games/comparaison";
-import { POINTS_MAX } from "@/lib/games/banalo/bareme";
 
 export default function PartageBanalo({
   jour,
   points,
   brut,
+  max,
   forme,
   partMieux,
 }: {
@@ -43,6 +43,17 @@ export default function PartageBanalo({
   points: string;
   /** Le même score, brut : c'est lui qui voyage dans le lien. */
   brut: number;
+  /**
+   * Le maximum que ce score peut atteindre, qui borne le lien.
+   *
+   * ⚠️ IL DÉPEND DU FORMAT, ET CE N'EST PLUS UNE CONSTANTE. Le format chiffré
+   * note sur 100 ; le format « mots » rend une SOMME d'effectifs, dont le
+   * maximum est `votants × cases` et change tous les jours. La borne existe
+   * pour qu'un lien fabriqué à la main ne puisse pas afficher « votre ami :
+   * 9 999 » — figée à 100, elle rejetterait au contraire tous les liens
+   * honnêtes du format « mots ».
+   */
+  max: number;
   /** La ligne de forme : les blocs de chaleur, ou l'écart. Jamais la réponse. */
   forme: string;
   partMieux: number | null;
@@ -64,7 +75,7 @@ export default function PartageBanalo({
     // résultat au nôtre. Le QR, lui, est un SVG figé et commité pour l'URL nue —
     // et il sert le partage EN PRÉSENCE, où les deux personnes sont l'une à côté
     // de l'autre et n'ont rien à se faire parvenir.
-    const texte = `${lignes.join("\n")}\n\n${lienDefi(QR_URL, jour, brut, POINTS_MAX)}`;
+    const texte = `${lignes.join("\n")}\n\n${lienDefi(QR_URL, jour, brut, max)}`;
     try {
       if (typeof navigator !== "undefined" && navigator.share) await navigator.share({ text: texte });
       else {

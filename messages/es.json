@@ -2682,6 +2682,7 @@
     "motsGrille": "Tus palabras",
     "motsPart": "{p} %",
     "motsJoueurs": "{n, plural, =1 {# jugador} other {# jugadores}}",
+    "motsScore": "{n} <petit>votos</petit>",
     "motsRegle": "Cada palabra vale la proporción de jugadores que la escribieron. La palabra del tema no cuenta, y dos formas de la misma palabra cuentan una vez.",
     "concentrationTitre": "La forma del día",
     "concentrationCouverture": "Las {n} palabras más dadas cubren el {part} % de todas las respuestas.",

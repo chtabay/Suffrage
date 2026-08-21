@@ -2682,6 +2682,7 @@
     "motsGrille": "Your words",
     "motsPart": "{p}%",
     "motsJoueurs": "{n, plural, =1 {# player} other {# players}}",
+    "motsScore": "{n} <petit>votes</petit>",
     "motsRegle": "Every word dey worth di share of players wey write am. Di theme word itself no dey count, and two forms of di same word na one.",
     "concentrationTitre": "Di shape of di day",
     "concentrationCouverture": "Di {n} words wey people give pass dey cover {part}% of all di answers.",

@@ -94,6 +94,7 @@ export default function JourneePrecedente({ jour }: { jour: number }) {
     () => new Intl.NumberFormat(bcp(locale), { maximumFractionDigits: 1 }),
     [locale],
   );
+  const entier = useMemo(() => new Intl.NumberFormat(bcp(locale)), [locale]);
   // Le score garde sa décimale, « 100,0 » compris : c'est elle qui décide du rang.
   const note = useMemo(
     () => new Intl.NumberFormat(bcp(locale), { minimumFractionDigits: 1, maximumFractionDigits: 1 }),
@@ -102,7 +103,10 @@ export default function JourneePrecedente({ jour }: { jour: number }) {
 
   if (!prog) return null;
 
+  // ⚠️ LE SUR-100 SERT ENCORE — MAIS PLUS À S'AFFICHER, seulement à colorer et à
+  // décider qu'une journée a été jouée. Le format « mots » montre sa SOMME.
   const points = prog.type === "mots" ? mots?.points : nombre?.points;
+  const sommeMots = mots?.total ?? null;
   const partMieux = prog.type === "mots" ? mots?.partMieux : nombre?.partMieux;
   // Rien à raconter tant que la journée précédente n'a pas été jouée. Depuis que
   // le plancher de cinq votants est tombé, une note existe dès qu'on a répondu :
@@ -119,13 +123,30 @@ export default function JourneePrecedente({ jour }: { jour: number }) {
 
   const score = (
     <p style={{ margin: "10px 0 0", fontSize: 14.5, lineHeight: 1.45, fontVariantNumeric: "tabular-nums" }}>
-      <strong style={{ fontFamily: skin.fontDisplay, fontSize: 17, color: teinteDe(points) }}>
+      {/* ⚠️ LA COULEUR NE SUIT QUE LE FORMAT CHIFFRÉ. Le format « mots » montre
+          une somme, et la chaleur se calculait sur le sur-100 qu'on n'affiche
+          plus : peindre 84 voix en « froid » parce qu'elles valent 35 sur 100
+          serait un jugement tiré d'une échelle invisible. */}
+      <strong
+        style={{
+          fontFamily: skin.fontDisplay,
+          fontSize: 17,
+          color: prog.type === "mots" ? skin.ink : teinteDe(points),
+        }}
+      >
         {/* Le suffixe reste DANS la phrase, comme sur l'écran du jour : une clé
-            « sur 100 » à part figerait son ordre pour les langues à venir. */}
-        {t.rich("points", {
-          n: note.format(points),
-          petit: (c) => <span style={{ fontSize: 12.5, fontWeight: 800 }}>{c}</span>,
-        })}
+            « sur 100 » à part figerait son ordre pour les langues à venir.
+            ⚠️ LES DEUX CLÉS SONT ÉCRITES EN CLAIR, jamais choisies en variable :
+            `t(cle)` échappe au contrôle de parité i18n. */}
+        {prog.type === "mots" && sommeMots !== null
+          ? t.rich("motsScore", {
+              n: entier.format(sommeMots),
+              petit: (c) => <span style={{ fontSize: 12.5, fontWeight: 800 }}>{c}</span>,
+            })
+          : t.rich("points", {
+              n: note.format(points),
+              petit: (c) => <span style={{ fontSize: 12.5, fontWeight: 800 }}>{c}</span>,
+            })}
       </strong>
       {partMieux !== undefined && partMieux !== null ? (
         <span style={{ color: skin.muted }}> · {t("partMieux", { n: partMieux })}</span>

@@ -457,6 +457,8 @@ export default function NombreDuJour({ jour }: { jour: number }) {
                 jour={jour}
                 points={note.format(jeu.points)}
                 brut={jeu.points}
+                // Le format chiffré, lui, note bien sur 100.
+                max={POINTS_MAX}
                 // La FORME du format chiffré : le bloc de chaleur, le mot, et
                 // l'écart. Jamais la réponse ni la médiane — les deux se
                 // recopient, et ce jeu note par rapport à la foule.

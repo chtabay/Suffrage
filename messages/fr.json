@@ -2682,6 +2682,7 @@
     "motsGrille": "Vos mots",
     "motsPart": "{p} %",
     "motsJoueurs": "{n, plural, =1 {# joueur} other {# joueurs}}",
+    "motsScore": "{n} <petit>voix</petit>",
     "motsRegle": "Chaque mot vaut la part des joueurs qui l'ont écrit. Le mot du thème lui-même ne compte pas, et deux formes du même mot n'en font qu'une.",
     "concentrationTitre": "La forme de la journée",
     "concentrationCouverture": "Les {n} mots les plus donnés couvrent {part} % de toutes les réponses.",
