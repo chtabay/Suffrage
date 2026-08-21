@@ -134,10 +134,16 @@ export default function JourneePrecedente({ jour }: { jour: number }) {
   );
 
   if (prog.type === "mots") {
-    // LA GRILLE RÉVÉLÉE. C'est le pendant exact de la médiane : les parts sont
-    // scellées pendant la journée parce qu'elles se recopient mot à mot, et
-    // c'est ici — et nulle part ailleurs — qu'on apprend enfin lequel de ses
-    // mots la foule partageait.
+    // LA GRILLE ARRÊTÉE. ⚠️ ELLE A CHANGÉ DE MÉTIER LE JOUR OÙ LES PARTS ONT
+    // CESSÉ D'ÊTRE SCELLÉES : ce n'est plus ici qu'on APPREND ce que la foule
+    // partageait — la grille du jour le dit maintenant dès le dépôt — c'est ici
+    // qu'on le lit ARRÊTÉ. Un joueur qui répond à 11 h 35 voit des parts
+    // calculées sur trente personnes ; le lendemain, les mêmes mots portent le
+    // chiffre de toute la journée, et son score n'est plus provisoire. C'est
+    // exactement ce que le format chiffré fait avec sa médiane.
+    //
+    // Le filtre sur `part !== null` reste : la base peut encore ne pas la
+    // rendre (aucun votant), et une ligne sans chiffre n'a rien à faire ici.
     const grille = (mots?.grille ?? []).filter((c): c is typeof c & { part: number } => c.part !== null);
     return (
       <div style={{ marginTop: 20 }}>

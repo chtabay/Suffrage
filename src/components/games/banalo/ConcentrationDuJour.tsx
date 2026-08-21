@@ -14,15 +14,15 @@
 // thème ouvert, 23 % et 13 %. Un écart de quatre entre journées — et il explique
 // directement les scores du jour, ce qu'aucun autre chiffre de l'écran ne dit.
 //
-// ⚠️ ELLE SORT DÈS LE DÉPÔT, au même plancher que le score (cinq votants). La
-// demande était d'avoir quelque chose de satisfaisant à montrer JUSTE APRÈS la
-// réponse ; posée sur la seule journée close, elle arrivait un jour trop tard.
+// ⚠️ ELLE SORT DÈS LE DÉPÔT, sans plancher d'effectif. La demande était d'avoir
+// quelque chose de satisfaisant à montrer JUSTE APRÈS la réponse ; posée sur la
+// seule journée close, elle arrivait un jour trop tard. (Elle a d'abord partagé
+// le plancher de cinq votants du score ; il est tombé avec lui.)
 //
-// ⚠️ ET LES LIBELLÉS RESTENT SCELLÉS TANT QUE LA JOURNÉE EST OUVERTE — MÊME LES
-// SIENS. « plage vaut 50 % » se recopie, une barre anonyme non : c'est la même
-// règle que les parts de la grille. Ce que le joueur apprend tout de suite est
-// la FORME du jour et le nombre de ses mots dans les dix premiers ; le nom du
-// mieux placé n'arrive qu'à la clôture, dans `JourneePrecedente`.
+// LES BARRES DU JOUEUR PORTENT LEUR NOM, ELLES AUSSI DÈS LE DÉPÔT — même règle
+// que la grille juste au-dessus, qui affiche déjà ces mots-là avec ce qu'ils ont
+// donné. Les nommer ici ne montre rien de neuf : ça relie deux choses que le
+// joueur a sous les yeux, sa grille et la forme du jour.
 //
 // ⚠️ LES BARRES DES AUTRES SONT MUETTES POUR TOUJOURS, ET CE N'EST PAS UNE PUDEUR
 // DE FAÇADE.
@@ -58,9 +58,10 @@ export default function ConcentrationDuJour({ conc }: { conc: Concentration }) {
   // tout. C'est le PROFIL qu'on montre, et le chiffre en dessous donne l'échelle.
   const max = Math.max(1, ...conc.barres.map((b) => b.part));
   const miens = conc.barres.filter((b) => b.mien);
-  // ⚠️ LE LIBELLÉ N'ARRIVE QU'À LA CLÔTURE, MÊME POUR SES PROPRES MOTS : « plage
-  // vaut 50 % » se recopie, une barre anonyme non. Tant qu'il manque, la bande
-  // dit la forme et le compte ; une fois là, elle nomme le mieux placé.
+  // ⚠️ LE TEST PORTE SUR `b.mot`, PAS SUR `b.mien`, ET IL DOIT Y RESTER. Le
+  // libellé d'une barre ne descend que si le mot est celui du joueur ; s'appuyer
+  // sur le drapeau plutôt que sur le nom ferait afficher « undefined est votre
+  // mot le mieux placé » le jour où la base cesserait de le rendre.
   const meilleur = conc.barres.find((b) => b.mien && b.mot);
   const rangMeilleur = meilleur ? conc.barres.indexOf(meilleur) + 1 : 0;
 

@@ -244,12 +244,20 @@ réponse jetable. `scrutin_banalo_etat` scelle donc `mediane` ET `facteur`
 **Sceller sans jamais montrer, c'est ne rien révéler du tout** — et c'est ce qui
 manquait. À la clôture, la page bascule sur la journée suivante : l'écran qui
 aurait rendu la médiane n'existe plus, donc elle n'apparaissait sur AUCUNE
-journée. `JourneePrecedente` est la seule place où ce nombre — et la grille des mots —
+journée. `JourneePrecedente` est la seule place où ce nombre
 s'affiche ; il n'interroge que `jour − 1`, il se tait si la base ne rend pas la médiane (journée
 pas encore close de son point de vue), et il se tait aussi quand on n'a pas joué
 la veille — un bloc « vous n'avez pas joué » est un reproche adressé à quelqu'un
 qui vient précisément de revenir. ⚠️ Son titre dit « la journée précédente », pas
 « hier » : à 11 h 00, la journée précédente a commencé **avant-hier**.
+
+⚠️ **Sa grille de mots, elle, n'est plus une RÉVÉLATION mais un ARRÊTÉ.** Depuis
+que les parts sortent dès le dépôt, ce n'est plus là qu'on apprend ce que la
+foule partageait : c'est là qu'on le lit **stabilisé**. Un joueur qui répond à
+11 h 35 voit des parts calculées sur trente personnes ; le lendemain, les mêmes
+mots portent le chiffre de la journée entière. C'est exactement ce que le format
+chiffré fait avec sa médiane, et c'est aussi pourquoi le « 100 » du premier
+votant n'est le score de personne.
 
 ⚠️ **Ce qui reste déductible est assumé** : le score est une fonction du rapport,
 donc `10^((100 − score)/100)` rend le facteur et deux candidats pour la médiane
@@ -266,17 +274,46 @@ un jeton neuf à chaque fois.
 est close, et laisser le client le déclarer offrirait la solution à qui ment. Les
 trois valeurs bougent ensemble.
 
-**Le format « mots » avait le MÊME trou, et il était PIRE** : `grille` rendait la
-part de chaque mot, donc les mots les plus donnés. Là où la médiane demande
-encore d'être comprise, une grille se recopie **mot à mot**, sans rien
-comprendre. Les parts sont donc scellées elles aussi
-(`20260821-banalo-mots-parts-scellees.sql`) ; **le mot, lui, reste rendu** — le
-joueur doit voir ce qui a été enregistré (mot du thème écarté, doublons pliés),
-et c'est le chiffre à côté qui se recopie, pas le mot.
+**Le format « mots » a d'abord scellé ses parts lui aussi**
+(`20260821-banalo-mots-parts-scellees.sql`), au motif qu'une grille se recopie
+**mot à mot**, sans rien avoir à comprendre, là où la médiane demande encore
+d'être lue.
 
-Ce qui rendait la fermeture « trop chère » — cette grille EST la récompense du
-format — **est tombé avec `JourneePrecedente`** : la récompense n'est pas
-supprimée, elle est décalée d'un jour, comme la médiane.
+⚠️ **CE SCELLEMENT EST TOMBÉ, ET SON MOTIF ÉTAIT FAUX**
+(`20260822-banalo-mots-eval-immediate.sql`). La grille affichait DÉJÀ les mots en
+clair sur une journée ouverte — c'est même sa seconde raison d'être : montrer ce
+qui a été enregistré, mot du thème écarté et doublons pliés. Une grille
+transmise remplissait donc déjà les six cases du receveur, avec ou sans les
+parts. Ce que les parts ajoutaient n'était pas la recopie, c'était le TRI entre
+plusieurs grilles. Le texte servi au joueur (« affichée maintenant, il suffirait
+de recopier vos mots pour marquer autant que vous ») décrivait une attaque que
+le verrou n'a jamais fermée ; il est parti avec lui.
+
+**La demande était une demande de COHÉRENCE avec le jeu de groupe** : on score si
+les autres ont répondu pareil, et pour chacun de ses mots on voit ce qui a
+marché — sans jamais voir les propositions des autres, pour ne pas les livrer à
+qui regarde par-dessus l'épaule. Deux des trois exigences étaient déjà tenues
+(le barème note l'accord avec la foule ; la grille est bâtie sur
+`where jeton = moi`, donc structurellement incapable de porter le mot d'un
+autre). Seule la troisième demandait du code.
+
+⚠️ **ET L'ORPHELIN SE LIT SUR `joueurs`, JAMAIS SUR `part`.** La part COMPTE LE
+JOUEUR LUI-MÊME : mesuré en base sur une journée à deux votants, un mot que
+personne n'a partagé sort à **50 %** — lue seule, elle annonce « la moitié des
+joueurs » d'un mot qui n'a marché pour personne. Et à dix mille votants, un
+joueur comme deux s'arrondissent à 0,0 % : la marche disparaît. `joueurs === 1`
+est donc le seul test valable, et c'est le seul endroit où la grille se tait —
+la ligne s'estompe et dit « personne d'autre », exactement le geste de la salle
+(`RevealBoard.tsx` estompe à `opacity: 0.55` un mot à zéro point ; elle ne barre
+rien et ne colle aucune icône).
+
+⚠️ **PLUS RIEN DU FORMAT « MOTS » N'EST GARDÉ PAR L'HEURE**, donc
+`scrutin_banalo_mots_etat` a perdu `v_origine`, `v_close` et la clé `close` de sa
+charge utile. Ce n'est pas du rangement : une copie de l'origine du calendrier
+qui ne garde plus rien est un piège, le prochain agent la lit et croit qu'un
+scellement existe. Il en reste **deux** (`jour.ts` et
+`20260820-banalo-mediane-scellee.sql`), et le format chiffré garde la sienne à
+bon droit — sa médiane, elle, reste scellée jusqu'à la clôture.
 
 **La journée close montre AUSSI sa répartition** (`RepartitionDuJour`), et c'est
 une décision prise sur mesure, pas au goût. La demande de départ était une
@@ -310,10 +347,10 @@ c'est le chiffre en dessous qui porte l'échelle.
 d'avoir quelque chose de satisfaisant à montrer juste après la réponse, et posée
 sur la seule journée close elle arrivait un jour trop tard. (Elle a d'abord
 partagé le plancher de cinq votants du score ; il est tombé avec lui.)
-⚠️ Ce qui la rend sûre à cet instant : **les libellés restent scellés tant que la
-journée est ouverte, même les siens**. « plage vaut 50 % » se recopie, une barre
-anonyme non. Le joueur apprend tout de suite la FORME du jour et le nombre de ses
-mots dans les dix premiers ; le nom du mieux placé n'arrive qu'à la clôture.
+⚠️ Ce qui la rend sûre : **seules les barres du joueur portent un nom**. Les
+siennes le portent dès le dépôt — la grille juste au-dessus les lui montre déjà
+avec leur part, les nommer ici ne fait que relier deux choses qu'il a sous les
+yeux. Celles des autres ne le portent jamais.
 
 ⚠️ **ET LES BARRES DES AUTRES SONT MUETTES POUR TOUJOURS : on rend leur hauteur,
 jamais leur libellé.** Nommer les mots les plus donnés diffuserait du **texte libre écrit par
@@ -461,15 +498,18 @@ sur données réelles.
 du thème** sans que la base connaisse le calendrier. Un client qui mentirait sur
 le thème pour garder le mot gratuit se retrouve seul dans son groupe.
 
-⚠️ **ET CE MENSONGE NE S'AUTO-PUNIT PLUS, DEPUIS QUE LE PLANCHER EST TOMBÉ.**
-Seul dans son groupe voulait dire « sous cinq votants, donc sans score » ; ça
-veut maintenant dire « sa propre foule, donc 100 ». La même porte existe sur le
-format chiffré en mentant sur la LANGUE. Ce qu'on y perd est borné — il n'y a
-aucun classement public, le centile se tait toujours sous 20 votants, et le
-tricheur ne se ment qu'à lui-même dans le résumé de son compte — mais ce n'est
-plus une garde, c'est une absence de garde. La rétablir sans rendre le premier
-joueur du jour muet demanderait un plancher à DEUX votants, pas à cinq : le seul
-cas vraiment dégénéré est celui où l'on est sa propre médiane.
+⚠️ **ET LE « 100 DU PREMIER VOTANT » A ÉTÉ SOULEVÉ PUIS ÉCARTÉ — NE PAS LE
+ROUVRIR.** Depuis la chute du plancher, être seul dans son groupe ne veut plus
+dire « sans score » mais « sa propre foule, donc 100 » ; la même porte existe sur
+le format chiffré en mentant sur la LANGUE. Un plancher à deux votants a été
+proposé pour la refermer : **refusé, et la raison est juste.** Ce 100 n'est le
+score de personne à la fin de la journée. `scrutin_banalo_etat` recalcule TOUT à
+chaque lecture depuis la médiane du moment, et le résumé de compte s'écrase de
+même (`update` inconditionnel, plus haut) : le 100 du premier arrivé fond dès le
+deuxième joueur. Ajouter un plancher pour tuer un chiffre transitoire rendrait
+muet, lui, un joueur bien réel — celui qui ouvre la journée. Il n'y a d'ailleurs
+aucun classement public à truquer, et le centile se tait toujours sous 20
+votants.
 
 **Le temps est mesuré et ne classe rien**, comme `secondes` dans
 `scrutin_game_pays_results`. Départager les ex aequo au temps est envisagé, pas

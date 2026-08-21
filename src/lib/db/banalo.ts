@@ -215,19 +215,23 @@ export async function etat(jeton: string, jour: number, langue: string): Promise
 /**
  * Une case de la grille, avec ce que la foule en a fait.
  *
- * ⚠️ `joueurs` ET `part` SONT SCELLÉS TANT QUE LA JOURNÉE EST OUVERTE, et c'est
- * la même règle que la médiane du format chiffré — voir
- * `20260821-banalo-mots-parts-scellees.sql`. La grille est même le secret le
- * plus facile à diffuser des deux : elle se recopie mot à mot, sans rien avoir
- * à comprendre. Le MOT, lui, reste toujours rendu : le joueur doit voir ce qui
- * a réellement été enregistré.
+ * ⚠️ ELLE DIT TOUT DÈS LE DÉPÔT, comme le dépouillement du jeu de groupe — le
+ * scellement des parts est tombé (`20260822-banalo-mots-eval-immediate.sql`).
+ * Ce qui n'a jamais été rendu, et ne le sera pas, c'est le mot d'un AUTRE
+ * joueur : la grille est bâtie sur `where jeton = moi`, elle est
+ * structurellement incapable d'en porter un.
+ *
+ * ⚠️ `joueurs` COMPTE LE JOUEUR LUI-MÊME, donc `1` veut dire « personne d'autre
+ * ne l'a écrit ». C'est cette valeur, et jamais `part`, qui dit l'orphelin :
+ * la part vaut 50 % à deux votants et 0,0 % à dix mille, pour le même mot
+ * partagé par personne.
  */
 export interface CaseBanalo {
   /** Le mot tel que le joueur l'a tapé — jamais la forme normalisée. */
   mot: string;
-  /** Combien de joueurs l'ont donné, celui-ci compris. `null` tant que la journée est ouverte. */
+  /** Combien de joueurs l'ont donné, CELUI-CI COMPRIS — donc `1` = personne d'autre. */
   joueurs: number | null;
-  /** La part correspondante, en pourcentage, déjà arrondie par la base. `null` tant que la journée est ouverte. */
+  /** La part correspondante, en pourcentage, déjà arrondie par la base. */
   part: number | null;
 }
 
@@ -259,8 +263,6 @@ export interface EtatMots {
   votants: number;
   /** Même métier que sur `EtatBanalo` : une réserve à afficher, pas un verrou. */
   assez: boolean;
-  /** La journée est-elle close ? C'est elle qui décide si la grille rend ses parts. */
-  close: boolean;
   /** Le nombre de cases de la journée, lu en base et non chez le client. */
   cases: number;
   grille: CaseBanalo[];
@@ -288,7 +290,6 @@ interface EtatMotsBrut {
   repondu?: boolean;
   votants?: number;
   assez?: boolean;
-  close?: boolean;
   cases?: number;
   grille?: unknown;
   total?: number | null;
@@ -352,7 +353,6 @@ export function traduisMots(brut: unknown): EtatMots | null {
     repondu: e.repondu === true,
     votants: nombre(e.votants) ?? 0,
     assez: e.assez === true,
-    close: e.close === true,
     cases: nombre(e.cases) ?? 0,
     concentration: litConcentration(e.concentration),
     grille,

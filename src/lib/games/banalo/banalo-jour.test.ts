@@ -486,6 +486,24 @@ test("la grille rendue par la base est reprise telle quelle", () => {
   assert.equal(e?.total, 105, "le total est l'entier qui classe");
 });
 
+test("un mot que personne d'autre n'a écrit se lit sur l'effectif, jamais sur la part", () => {
+  // ⚠️ LE PIÈGE, MESURÉ EN BASE. `part` COMPTE LE JOUEUR LUI-MÊME : sur une
+  // journée à deux votants, un mot partagé par personne sort à 50 % — lue
+  // seule, la part annonce donc « la moitié des joueurs » d'un mot qui n'a
+  // marché pour personne. Et à dix mille votants, un joueur comme deux joueurs
+  // s'arrondissent tous deux à 0,0 % : la marche disparaît. C'est `joueurs`,
+  // et lui seul, qui distingue l'orphelin — l'écran s'en sert pour taire la
+  // part et estomper la ligne, comme le fait le dépouillement en salle.
+  const e = traduisMots({
+    status: "ok", repondu: true, assez: false, votants: 2, cases: 6, total: 8, points: 66.7,
+    rang: 1, exaequo: 1, partmieux: null,
+    grille: [{ mot: "Plage", joueurs: 2, part: 100.0 }, { mot: "soleil", joueurs: 1, part: 50.0 }],
+  });
+  assert.equal(e?.grille[1]!.joueurs, 1, "un seul joueur : personne d'autre");
+  assert.equal(e?.grille[1]!.part, 50, "et pourtant la part dit 50 % — d'où le fait de la taire");
+  assert.equal(e?.grille[0]!.joueurs, 2, "deux joueurs : le mot a été partagé");
+});
+
 test("le rang des mots s'éteint avec la part, comme celui des nombres", () => {
   const mince = traduisMots({ status: "ok", repondu: true, assez: true, votants: 8, cases: 6,
     total: 30, points: 62.5, rang: 3, exaequo: 1, partmieux: null, grille: [] });
@@ -639,5 +657,5 @@ test("la forme de la journée ne nomme jamais le mot d'un autre", () => {
   // d'un diagramme se lit comme une panne.
   assert.equal(conc([{ part: 90, mien: true, mot: "sable" }, { mien: false }]), null);
   assert.equal(conc([]), null, "aucune barre");
-  assert.equal(traduisMots(base)?.concentration, null, "journée ouverte : rien");
+  assert.equal(traduisMots(base)?.concentration, null, "aucune bande rendue : rien");
 });

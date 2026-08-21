@@ -265,41 +265,51 @@ export default function GrilleDeMots({
                 doublons pliés, dépôt définitif). Un joueur doit voir ce qui a
                 réellement été enregistré. */}
             <div style={{ display: "grid", gap: 8, marginTop: 8 }}>
-              {jeu.grille.map((c, i) => (
-                <div
-                  key={`${c.mot}-${i}`}
-                  style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "baseline" }}
-                >
-                  <span style={{ fontFamily: skin.fontDisplay, fontWeight: 800, fontSize: 16 }}>{c.mot}</span>
-                  {/* ⚠️ AUCUNE COLONNE PLUTÔT QU'UN TIRET. Un « — » en face de
-                      chaque mot se lit comme une panne, et le joueur va
-                      chercher le chiffre ailleurs — c'est-à-dire chez quelqu'un
-                      qui l'a. La phrase sous la grille dit pourquoi il manque. */}
-                  {c.part !== null ? (
-                    <span
-                      style={{
-                        fontSize: 14,
-                        fontWeight: 700,
-                        fontVariantNumeric: "tabular-nums",
-                        color: teinteDe(c.part),
-                      }}
-                    >
-                      {t("motsPart", { p: part.format(c.part) })}
-                    </span>
-                  ) : null}
-                </div>
-              ))}
+              {jeu.grille.map((c, i) => {
+                // ⚠️ L'ORPHELIN SE LIT SUR L'EFFECTIF, JAMAIS SUR LA PART, parce
+                // que la part COMPTE LE JOUEUR LUI-MÊME. Mesuré en base sur une
+                // journée à deux votants : un mot que personne n'a partagé sort
+                // à 50 %. Lue seule, la part annonce donc « la moitié des
+                // joueurs » d'un mot qui n'a marché pour personne — et à dix
+                // mille votants elle affiche 0,0 % qu'on soit un ou deux, la
+                // marche disparaît dans l'arrondi. C'est `joueurs === 1` qui
+                // tranche, et c'est le seul endroit où la grille se tait.
+                const seul = c.joueurs === 1;
+                return (
+                  <div
+                    key={`${c.mot}-${i}`}
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      gap: 12,
+                      alignItems: "baseline",
+                      // La salle ne barre rien et ne colle aucune icône : elle
+                      // ESTOMPE (`RevealBoard.tsx`, opacity 0.55 sur un mot à
+                      // zéro point). On reprend son geste, pas un nouveau.
+                      opacity: seul ? 0.55 : 1,
+                    }}
+                  >
+                    <span style={{ fontFamily: skin.fontDisplay, fontWeight: 800, fontSize: 16 }}>{c.mot}</span>
+                    {seul ? (
+                      <span style={{ fontSize: 12.5, fontWeight: 700, color: skin.muted, flex: "none" }}>
+                        {t("motsSeul")}
+                      </span>
+                    ) : c.part !== null ? (
+                      <span
+                        style={{
+                          fontSize: 14,
+                          fontWeight: 700,
+                          fontVariantNumeric: "tabular-nums",
+                          color: teinteDe(c.part),
+                        }}
+                      >
+                        {t("motsPart", { p: part.format(c.part) })}
+                      </span>
+                    ) : null}
+                  </div>
+                );
+              })}
             </div>
-            {/* ⚠️ SCELLÉES TANT QUE LA JOURNÉE EST OUVERTE, et la base ne les
-                renvoie même pas — voir `20260821-banalo-mots-parts-scellees.sql`.
-                La grille EST la solution : lue maintenant, elle se recopie mot à
-                mot dans une conversation de groupe. On la rend le lendemain,
-                dans `JourneePrecedente`. */}
-            {jeu.repondu && jeu.grille.some((c) => c.part === null) ? (
-              <p style={{ margin: "14px 0 0", fontSize: 12.5, color: skin.muted, lineHeight: 1.45 }}>
-                {t("motsPartsScellees")}
-              </p>
-            ) : null}
             <p style={{ margin: "14px 0 0", fontSize: 12.5, color: skin.muted, lineHeight: 1.45 }}>
               {/* ⚠️ PAS LA MÊME PHRASE QUE POUR LES NOMBRES. Le format chiffré
                   dit « pour que la MÉDIANE veuille dire quelque chose » — il n'y
@@ -337,8 +347,8 @@ export default function GrilleDeMots({
               demande : avoir quelque chose de satisfaisant à proposer au moment
               du dépôt, pas un jour plus tard. ⚠️ Elle ne fuit rien parce que les
               barres sont ANONYMES tant que la journée est ouverte — même les
-              miennes. Le libellé, lui, reste scellé avec les parts et n'arrive
-              qu'à la clôture, dans `JourneePrecedente`. */}
+              miennes — et le libellé des miennes les nomme, comme la grille
+              juste au-dessus. Celui des autres, lui, ne sort JAMAIS. */}
           {jeu.concentration ? (
             <GCard skin={skin} padding={18}>
               <ConcentrationDuJour conc={jeu.concentration} />
@@ -355,11 +365,13 @@ export default function GrilleDeMots({
               // qu'à les recopier, et comme on est noté par rapport à la foule,
               // il ferait au moins aussi bien sans avoir joué.
               //
-              // ⚠️ ET PAS DE `?? 0` ICI, exactement comme le format chiffré
-              // n'a pas de `?? 1` sur son écart. Les parts sont scellées tant
-              // que la journée est ouverte : le repli peignait six blocs de la
-              // couleur la plus froide — « tout raté » — sous un score de 51,3.
-              // La ligne se tait, et `PartageBanalo` écarte déjà les vides.
+              // ⚠️ LE REPLI RESTE, MÊME SI SA CAUSE A CHANGÉ. Les parts ne sont
+              // plus scellées, mais elles peuvent encore manquer (`v_votants`
+              // nul côté base) — et `?? 0` peindrait alors six blocs de la
+              // couleur la plus froide, « tout raté », sous un score de 51,3.
+              // La ligne se tait plutôt que de mentir, et `PartageBanalo`
+              // écarte déjà les vides. C'est la même règle que le `?? 1` refusé
+              // sur l'écart du format chiffré.
               forme={
                 jeu.grille.some((c) => c.part === null)
                   ? ""
