@@ -1728,7 +1728,7 @@
     "installIos": "For iPhone: press <b>Share</b>, then <b>“Add to Home Screen”</b>.",
     "banalo-jour": {
       "name": "Banalo of di Day",
-      "tagline": "One number wey you go guess, every day"
+      "tagline": "One question or one theme, every day"
     },
     "pays": {
       "name": "Five Over Five",
@@ -2646,8 +2646,8 @@
     }
   },
   "BanaloJour": {
-    "metaTitle": "Banalo of di Day — one number wey you go guess every day",
-    "metaDescription": "Guess number wey you no fit find for internet. E no be say you must correct: na to reach near di median answer wey odd people give. One question every day, no account.",
+    "metaTitle": "Banalo of di day — answer like di crowd",
+    "metaDescription": "Every day, one question or one theme. Di point no be to dey correct: na to answer like most of di other players. Two minutes, no account.",
     "name": "Banalo of di Day",
     "back": "All di games",
     "poweredBy": "Placet dey power am",

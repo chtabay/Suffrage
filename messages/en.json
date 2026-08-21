@@ -1728,7 +1728,7 @@
     "installIos": "On iPhone: tap <b>Share</b>, then <b>“Add to Home Screen”</b>.",
     "banalo-jour": {
       "name": "Daily Banalo",
-      "tagline": "One number to estimate, every day"
+      "tagline": "One question or one theme, every day"
     },
     "pays": {
       "name": "Five by Five",
@@ -2646,8 +2646,8 @@
     }
   },
   "BanaloJour": {
-    "metaTitle": "Daily Banalo — one number to estimate each day",
-    "metaDescription": "Estimate a number you can't look up. The point isn't to be right: it's to land closest to the median answer of everyone else. One question a day, no account needed.",
+    "metaTitle": "Banalo of the day — answer like the crowd",
+    "metaDescription": "Every day, one question or one theme. The point is not to be right: it is to answer like most other players. Two minutes, no account.",
     "name": "Daily Banalo",
     "back": "All games",
     "poweredBy": "Powered by Placet",

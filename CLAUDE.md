@@ -351,6 +351,13 @@ cycle, pas au début : les journées 1 et 2 sont parues en chiffré, ouvrir le
 premier cycle par une chiffrée en aurait fait **trois d'affilée**, exactement la
 série qu'on casse. Ça ne se voit qu'en imprimant le calendrier.
 
+⚠️ **ET LA DESCRIPTION DU JEU NE PARLE PLUS DE NOMBRES.** `metaTitle`,
+`metaDescription` et la `tagline` du catalogue annonçaient « une question chiffrée
+par jour » — faux six jours sur sept depuis le changement de rythme, et c'est ce
+titre qu'un lien partagé affiche en aperçu. Ils disent maintenant la seule chose
+vraie tous les jours, celle qui autorise justement à mélanger les formats :
+**répondez comme la foule**.
+
 ⚠️ `JOURNEES_PARUES` **n'est pas un réglage, c'est une laisse d'eau** — et ce
 qu'elle marque est une journée **qui a des réponses en base**, pas une journée
 passée. Une journée répondue en chiffré a ses réponses dans

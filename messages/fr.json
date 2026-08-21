@@ -1728,7 +1728,7 @@
     "installIos": "Sur iPhone : touchez <b>Partager</b>, puis <b>« Sur l'écran d'accueil »</b>.",
     "banalo-jour": {
       "name": "Banalo du jour",
-      "tagline": "Un nombre à estimer, tous les jours"
+      "tagline": "Une question ou un thème, chaque jour"
     },
     "pays": {
       "name": "Cinq sur cinq",
@@ -2646,8 +2646,8 @@
     }
   },
   "BanaloJour": {
-    "metaTitle": "Banalo du jour — une question chiffrée par jour",
-    "metaDescription": "Estimez un nombre impossible à chercher sur le web. Le but n'est pas d'avoir raison : c'est de tomber au plus près de la réponse médiane des autres joueurs. Une question par jour, sans compte.",
+    "metaTitle": "Banalo du jour — répondez comme la foule",
+    "metaDescription": "Chaque jour, une question ou un thème. Le but n'est pas d'avoir raison : c'est de répondre comme la plupart des autres joueurs. Deux minutes, sans compte.",
     "name": "Banalo du jour",
     "back": "Tous les jeux",
     "poweredBy": "Propulsé par Placet",
