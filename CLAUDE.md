@@ -231,9 +231,15 @@ cycle, pas au début : les journées 1 et 2 sont parues en chiffré, ouvrir le
 premier cycle par une chiffrée en aurait fait **trois d'affilée**, exactement la
 série qu'on casse. Ça ne se voit qu'en imprimant le calendrier.
 
-⚠️ `JOURNEES_PARUES` **n'est pas un réglage, c'est une laisse d'eau** : les
-journées déjà sorties ont des réponses en base sous leur format et des liens de
-partage dans la nature. Elle ne baisse jamais. Et le rang d'une journée dans son
+⚠️ `JOURNEES_PARUES` **n'est pas un réglage, c'est une laisse d'eau** — et ce
+qu'elle marque est une journée **qui a des réponses en base**, pas une journée
+passée. Une journée répondue en chiffré a ses réponses dans
+`scrutin_banalo_reponses`, son résultat dans des liens de partage et sa relecture
+dans `JourneePrecedente` : la basculer en mots échouerait les trois. Tant que
+`select jour, count(*) from scrutin_banalo_reponses group by 1` rend zéro pour
+une journée, son format est encore libre — c'est ce qui a permis de rendre la
+journée 2 aux mots le 21 août, en cours de journée. Dès que le compte n'est plus
+nul, il est figé pour de bon. Et le rang d'une journée dans son
 PROPRE format sert d'index : indexer les deux stocks sur le numéro de journée ne
 montrerait qu'un thème sur sept. Conséquence de rythme : les 15 questions tiennent
 désormais 15 semaines, mais **les 68 thèmes n'en font que 11** — c'est le stock
@@ -389,6 +395,15 @@ de journée et sa promesse. Les confondre ferait fuiter le jeu depuis la page la
 plus vue du site. ⚠️ La journée s'y calcule APRÈS LE MONTAGE : la calculer au
 rendu serveur la figerait dans le HTML mis en cache, et ferait diverger
 l'hydratation autour de la charnière.
+
+⚠️ **ET IL FAUT DEUX NUMÉROS DE JOURNÉE, PAS UN.** Les deux jeux n'ont ni la même
+origine ni la même charnière (11 h 30 pour Banalo, minuit pour Cinq sur cinq) :
+la première version n'en calculait qu'un et l'affichait sur les deux cartes, si
+bien que l'accueil annonçait « Cinq sur cinq — journée n° 2 » quand le jeu en
+était à sa quatrième. Le numéro de Cinq sur cinq vient de
+`lib/games/pays/calendrier.ts`, **seul module du jeu lisible par le navigateur** :
+`moteur.ts` touche les critères et `journee.ts` les réponses, ni l'un ni l'autre
+n'entre dans un bundle client.
 
 **LES JEUX DE SALLE SE JOUENT EN PRÉSENCE, ET C'EST CE QUI TIENT LIEU DE
 MODÉRATION.** Alibi, Rôdeurs, La Nuit du Fantôme réunissent des gens dans la même
