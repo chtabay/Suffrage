@@ -116,6 +116,35 @@ exact où le joueur vient lire ses essais. Elle est aussi **plus discrète que l
 récompense** : deux cadres à l'accent empilés font un mur, et c'est l'indice
 qu'il faut voir en premier.
 
+**LA LÉGENDE EST UNE BARRE DE FILTRE, pas seulement un décodeur.** Toucher une
+case allume les pays qui la remplissent, dans l'historique ET sur la carte : le
+recoupement cesse d'être une chose à imaginer, il devient un geste. ⚠️ TOUTES les
+pastilles sont cliquables, **y compris celles qui se taisent** — ce qui filtre
+est la POSITION, pas l'étiquette, et « quels de mes essais remplissent la
+cinquième case ? » est la question la plus utile du jeu. Ça donne du même coup un
+rôle aux pastilles « à venir ». Trois règles : on **éteint** les lignes, on ne
+les masque pas (masquer ferait sauter les numéros d'essai et détruirait la
+chronologie) ; le filtre **tombe à chaque coup**, sinon le pays qu'on vient de
+jouer arrive éteint dans une liste grisée et se lit comme une panne ; et il n'est
+**pas dans la sauvegarde**, parce que c'est un geste de lecture, pas un état de
+partie.
+
+**L'INTRO DU PREMIER COUP dit la MÉTHODE, et elle ne descend pas du serveur.**
+Elle se construit sur `pictos[0]`, que le client a déjà : rien de neuf ne
+transite, donc rien de neuf ne peut fuiter. ⚠️ Elle a un texte de repli pour les
+3 journées sur 51 où la case 1 se tait.
+
+⚠️ **ET UNE INTRO VRAIMENT DIFFÉRENTE CHAQUE JOUR N'EST PAS FAISABLE
+AUJOURD'HUI** — mesuré, pas supposé. Tous les signaux de FORME du puzzle
+retombent sur un ventre mou, parce que le générateur valide les journées dans une
+bande jouable : une catégorie domine 33 journées sur 51 mais c'est « géo »
+32 fois ; les pays à 3/5 ou plus tiennent entre 11 et 39 avec 43 journées au
+milieu ; les pays à 0/5 vont de 24 à 137 avec 31 journées au centre. L'uniformité
+est une propriété voulue du générateur, pas un défaut à corriger là. Les deux
+seules vraies routes sont d'écrire un texte par journée (51 × 4 = 204 chaînes,
+attachées à un stock qu'on régénère) ou de **diversifier l'étagère `large`** —
+c'est le même chantier que celui déjà noté plus haut.
+
 **Les deux aides de Cinq sur cinq S'ANNONCENT, elles n'apparaissent plus en
 silence.** La légende des cases se posait au-dessus d'une liste de quarante
 lignes, en gris 12,5 px : un joueur qui vient de taper son quinzième pays

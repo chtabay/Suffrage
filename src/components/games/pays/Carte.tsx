@@ -32,7 +32,7 @@
 // résultat, atteignable au clavier et au lecteur d'écran. Le SVG est donc
 // annoncé comme une image, et l'historique des essais donne la lecture textuelle
 // de ce que la carte montre en couleur.
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { CARTE_HAUTEUR, CARTE_LARGEUR, DECORS, POINTS, TRACES } from "@/content/pays/carte";
 import { GRADIENT, NON_ESSAYE, TRAIT } from "@/lib/games/pays/palette";
 import type { GameSkin } from "@/lib/games/skin";
@@ -51,6 +51,7 @@ export default function Carte({
   skin,
   scores,
   surbrillance,
+  enLumiere,
   onPays,
   etiquette,
 }: {
@@ -59,10 +60,24 @@ export default function Carte({
   scores: Record<string, number>;
   /** Le pays visé par la recherche : il clignote sans être joué. */
   surbrillance?: string | null;
+  /**
+   * Les pays qui remplissent la case choisie dans la légende.
+   *
+   * ⚠️ SÉPARÉ DE `surbrillance`, QUI N'EN DÉSIGNE QU'UN. Celle-là suit le
+   * survol d'un résultat de recherche — un pays, celui qu'on s'apprête à
+   * jouer. Ici on éclaire un ENSEMBLE, et pour une autre raison : montrer que
+   * plusieurs essais partagent une caractéristique. Les confondre ferait
+   * clignoter le groupe au moindre survol.
+   */
+  enLumiere?: string[];
   onPays: (id: string) => void;
   /** Description du SVG pour les lecteurs d'écran. */
   etiquette: string;
 }) {
+  // Mémorisé : sans ça, un `new Set` par rendu ferait recalculer tous les
+  // tracés à chaque déplacement de la carte.
+  const lumiere = useMemo(() => new Set(enLumiere ?? []), [enLumiere]);
+
   const [vue, setVue] = useState<Vue>({ x: 0, y: 0, k: 1 });
   /** Largeur RENDUE du SVG, en pixels. 1000 avant la première mesure. */
   const [largeurPx, setLargeurPx] = useState(1000);
@@ -186,10 +201,11 @@ export default function Carte({
     return s === undefined ? NON_ESSAYE : GRADIENT[s];
   };
   const trait = (id: string) => {
-    if (surbrillance === id) return TRAIT.cible * parPx;
+    if (surbrillance === id || lumiere.has(id)) return TRAIT.cible * parPx;
     return (scores[id] === undefined ? TRAIT.neutre : TRAIT.essaye) * parPx;
   };
-  const couleurTrait = (id: string) => (surbrillance === id ? skin.accent : scores[id] === undefined ? `${skin.ink}44` : skin.ink);
+  const couleurTrait = (id: string) =>
+    surbrillance === id || lumiere.has(id) ? skin.accent : scores[id] === undefined ? `${skin.ink}44` : skin.ink;
 
   return (
     <div
@@ -252,9 +268,9 @@ export default function Carte({
             <circle
               cx={x}
               cy={y}
-              r={(surbrillance === id ? 4 : 2.6) * parPx}
+              r={(surbrillance === id || lumiere.has(id) ? 4 : 2.6) * parPx}
               fill={remplit(id)}
-              stroke={surbrillance === id ? skin.accent : skin.ink}
+              stroke={surbrillance === id || lumiere.has(id) ? skin.accent : skin.ink}
               strokeWidth={1 * parPx}
             />
           </g>

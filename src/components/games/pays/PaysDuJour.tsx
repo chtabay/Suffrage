@@ -67,7 +67,7 @@ interface Sauvegarde {
    * dans celle qui les débloque. Ce qui doit être mémorisé, c'est le PALIER
    * FRANCHI, pas la présence de l'aide.
    */
-  vues?: { pictos?: boolean; pouce?: boolean };
+  vues?: { intro?: boolean; pictos?: boolean; pouce?: boolean };
   revelation?: DonneesRevelation;
   /** Horodatage de l'arrivée sur la carte : sert au délai avant premier essai. */
   debut?: number;
@@ -106,16 +106,20 @@ export default function PaysDuJour({ jour }: { jour: number }) {
   // Les paliers déjà annoncés. ⚠️ EN `useRef`, pas en état : ils sont lus dans
   // le gestionnaire d'essai juste après l'avoir mis à jour, et un état de React
   // n'y serait pas encore à jour.
-  const vues = useRef<{ pictos?: boolean; pouce?: boolean }>({});
+  const vues = useRef<{ intro?: boolean; pictos?: boolean; pouce?: boolean }>({});
   // ⚠️ UNE FILE, PAS UNE ANNONCE. Les deux paliers ne tombent jamais ensemble en
   // jeu normal (15 puis 50), mais ils tombent ensemble dès qu'un joueur reprend
   // une partie ou poste son historique d'un coup. La première version gardait
   // UNE annonce et marquait les deux comme vues : la seconde disparaissait en
   // silence. Vu au navigateur en semant une partie de 49 essais.
-  const [annonces, setAnnonces] = useState<("pictos" | "pouce")[]>([]);
+  const [annonces, setAnnonces] = useState<("intro" | "pictos" | "pouce")[]>([]);
   const [revelation, setRevelation] = useState<DonneesRevelation | null>(null);
   const [carteComplete, setCarteComplete] = useState(false);
   const [surbrillance, setSurbrillance] = useState<string | null>(null);
+  // La case éclairée depuis la légende. ⚠️ PAS DANS LA SAUVEGARDE : c'est un
+  // geste de lecture, pas un état de partie — le retrouver au rechargement
+  // ferait revenir un historique à moitié éteint sans que rien ne l'explique.
+  const [colonne, setColonne] = useState<number | null>(null);
   const [dernier, setDernier] = useState<{ pays: string; score: number; repete?: boolean } | null>(null);
   const [erreur, setErreur] = useState(false);
   const [pret, setPret] = useState(false);
@@ -235,6 +239,13 @@ export default function PaysDuJour({ jour }: { jour: number }) {
   // Ce qui vient d'apparaître dans la rangée, depuis le coup précédent.
   const nouveaux = pictos.map((e, k) => e !== null && !pictosAvant[k]);
 
+  const bascule = (k: number) => setColonne((c) => (c === k ? null : k));
+  // Les pays de MES essais qui remplissent la case éclairée. Le filtre ne
+  // regarde que ce que le joueur a déjà joué : il ne révèle rien de neuf, il
+  // rend visible ce qu'il a sous les yeux depuis le début.
+  const eclaires =
+    colonne === null ? [] : essais.filter((_, i) => cases[i]?.[colonne] === 1).map((e) => e.pays);
+
   // L'EXEMPLE D'ENQUÊTE — deux de MES pays qui remplissent la même case.
   //
   // ⚠️ LE MÉCANISME NE SE DEVINE PAS TOUT SEUL, signalé sur de vrais joueurs :
@@ -298,6 +309,10 @@ export default function PaysDuJour({ jour }: { jour: number }) {
       // « voici cinq pastilles ».
       const avant = pictos;
       setPictosAvant(avant);
+      // ⚠️ LE FILTRE TOMBE À CHAQUE COUP. Sans ça, le pays qu'on vient de jouer
+      // peut arriver ÉTEINT dans une liste à moitié grisée : le joueur voit son
+      // propre essai s'effacer et croit à une panne.
+      setColonne(null);
       setCases(remplies);
       setPictos(domaines);
       if (essais.length === 0) mesure("premier", { secondes: Math.round((Date.now() - debut.current) / 1000) });
@@ -315,7 +330,15 @@ export default function PaysDuJour({ jour }: { jour: number }) {
       // Le coup de pouce passe en second : quand un joueur poste tout son
       // historique d'un coup, les deux paliers tombent ensemble, et c'est la
       // légende qu'il faut lire d'abord — le pays offert ne se comprend qu'avec.
-      const aAnnoncer: ("pictos" | "pouce")[] = [];
+      const aAnnoncer: ("intro" | "pictos" | "pouce")[] = [];
+      // ⚠️ L'INTRO PASSE EN PREMIER, ET ELLE NE COÛTE AUCUN ALLER-RETOUR. Elle
+      // ne dit rien que l'écran n'ait déjà : la catégorie de la case 1 arrive
+      // avec la réponse du premier essai. Rien de neuf ne descend du serveur,
+      // donc rien de neuf ne peut fuiter.
+      if (prochains.length === 1 && !vues.current.intro) {
+        vues.current = { ...vues.current, intro: true };
+        aAnnoncer.push("intro");
+      }
       // ⚠️ `> 1`, PAS `some`. Depuis que la première case parle dès le premier
       // coup, un `some` ferait surgir la modale sur la première proposition de
       // CHAQUE partie — une interruption quotidienne, exactement ce que la
@@ -462,6 +485,7 @@ export default function PaysDuJour({ jour }: { jour: number }) {
           skin={skin}
           scores={scoresAffiches}
           surbrillance={surbrillance}
+          enLumiere={eclaires}
           onPays={joue}
           etiquette={t("carteEtiquette")}
         />
@@ -624,6 +648,9 @@ export default function PaysDuJour({ jour }: { jour: number }) {
                     mystere={t("catMystere")}
                     aVenir={t("catAVenir")}
                     nouveaux={nouveaux}
+                    choisie={colonne}
+                    onChoix={bascule}
+                    position={(k) => t("catPosition", { n: k + 1 })}
                   />
                 </div>
               ) : (
@@ -631,7 +658,14 @@ export default function PaysDuJour({ jour }: { jour: number }) {
                   <p style={{ margin: "7px 0 0", fontSize: 12.5, color: skin.muted, lineHeight: 1.45 }}>
                     {t("pictosAide")}
                   </p>
-                  <Legende pictos={pictos} mystere={t("catMystere")} nouveaux={nouveaux} />
+                  <Legende
+                    pictos={pictos}
+                    mystere={t("catMystere")}
+                    nouveaux={nouveaux}
+                    choisie={colonne}
+                    onChoix={bascule}
+                    position={(k) => t("catPosition", { n: k + 1 })}
+                  />
                 </>
               ))}
             {/* LE PAYS OFFERT. Posé AU-DESSUS de l'historique et non dedans :
@@ -647,8 +681,27 @@ export default function PaysDuJour({ jour }: { jour: number }) {
                 lecture={t("casesLues", { n: pouce.cases.filter(Boolean).length })}
               />
             )}
-            <ol style={{ margin: "8px 0 0", padding: 0, listStyle: "none", display: "grid", gap: 5 }}>
-              {essais.map((e, i) => (
+            <p style={{ margin: "8px 0 0", fontSize: 12.5, color: skin.muted, lineHeight: 1.45 }}>
+              {/* ⚠️ LES TROIS CLÉS SONT ÉCRITES EN CLAIR, branche par branche.
+                  Le cas « zéro » a la sienne : le pluriel ICU du français range
+                  0 avec 1, donc « 0 de vos 6 essais remplit cette case » —
+                  correct pour la machine, bancal pour un lecteur. Et une clé
+                  choisie en variable échapperait au contrôle de parité. */}
+              {colonne === null
+                ? t("filtreInvite")
+                : eclaires.length === 0
+                  ? t("filtreVide")
+                  : t("filtreActif", { n: eclaires.length, total: essais.length })}
+            </p>
+            <ol style={{ margin: "6px 0 0", padding: 0, listStyle: "none", display: "grid", gap: 5 }}>
+              {essais.map((e, i) => {
+                // ⚠️ ON ÉTEINT, ON NE MASQUE PAS. Retirer les lignes qui ne
+                // remplissent pas la case ferait sauter les numéros d'essai et
+                // détruirait la chronologie — or c'est elle qui raconte la
+                // partie. Éteintes, elles restent lisibles et le motif de la
+                // colonne saute aux yeux.
+                const eteint = colonne !== null && cases[i]?.[colonne] !== 1;
+                return (
                 <li
                   key={`${e.pays}-${i}`}
                   style={{
@@ -660,7 +713,8 @@ export default function PaysDuJour({ jour }: { jour: number }) {
                     padding: "7px 10px",
                     borderRadius: 9,
                     background: skin.paper,
-                    border: `2px solid ${skin.ink}18`,
+                    border: `2px solid ${colonne !== null && !eteint ? skin.accent : `${skin.ink}18`}`,
+                    opacity: eteint ? 0.32 : 1,
                   }}
                 >
                   <span style={{ width: 20, textAlign: "right", fontSize: 12, fontWeight: 700, color: skin.muted }}>
@@ -670,7 +724,8 @@ export default function PaysDuJour({ jour }: { jour: number }) {
                   <span style={{ fontWeight: 700, flex: "1 1 auto", minWidth: 0 }}>{nomPays(e.pays, locale)}</span>
                   {cases[i] && <Cases remplies={cases[i]} etiquette={t("casesLues", { n: e.score })} />}
                 </li>
-              ))}
+                );
+              })}
             </ol>
           </div>
         )}
@@ -679,6 +734,19 @@ export default function PaysDuJour({ jour }: { jour: number }) {
       {/* LES DEUX ANNONCES. Une seule à la fois, et une seule fois par partie.
           Les clés sont écrites EN CLAIR, branche par branche : une clé choisie
           en variable échapperait au contrôle de parité i18n. */}
+      {annonces[0] === "intro" && (
+        <AideModale
+          skin={skin}
+          titre={t("introTitre")}
+          // ⚠️ DEUX TEXTES, ÉCRITS EN CLAIR. Sur 3 journées des 51, la case 1
+          // se tait (son garde-fou passe avant) : l'intro doit alors se
+          // contenter de la méthode, sans nommer une catégorie qui n'existe
+          // pas. Une clé choisie en variable échapperait au contrôle de parité.
+          texte={pictos[0] ? t("introTexte", { cat: pictos[0].texte }) : t("introTexteMuet")}
+          fermerLabel={t("annonceFermer")}
+          fermer={() => setAnnonces((a) => a.slice(1))}
+        />
+      )}
       {annonces[0] === "pictos" && (
         <AideModale
           skin={skin}
@@ -689,7 +757,14 @@ export default function PaysDuJour({ jour }: { jour: number }) {
         >
           {/* Dans la modale, on met en lumière ce qui vient d'arriver : la
               première case, elle, est là depuis le premier coup. */}
-          <Legende pictos={pictos} mystere={t("catMystere")} nouveaux={nouveaux} />
+          <Legende
+            pictos={pictos}
+            mystere={t("catMystere")}
+            nouveaux={nouveaux}
+            choisie={null}
+            onChoix={() => {}}
+            position={(k) => t("catPosition", { n: k + 1 })}
+          />
         </AideModale>
       )}
       {annonces[0] === "pouce" && pouce && (
@@ -724,7 +799,11 @@ export default function PaysDuJour({ jour }: { jour: number }) {
  * tombe. Extrait de `Legende` le jour où l'exemple d'enquête a eu besoin du
  * même geste — deux copies auraient divergé.
  */
-function Reperes({ k, n }: { k: number; n: number }) {
+function Reperes({ k, n, clair }: { k: number; n: number; clair?: boolean }) {
+  // ⚠️ SUR UNE PASTILLE ACTIVE, LE FOND EST L'ACCENT : des repères à l'encre y
+  // disparaîtraient au moment exact où on les regarde. Ils passent en clair.
+  const trait = clair ? "#fff" : skin.ink;
+  const eteint = clair ? "#ffffff55" : `${skin.ink}30`;
   return (
     <span aria-hidden style={{ display: "inline-flex", gap: 2, flex: "none" }}>
       {Array.from({ length: n }, (_, j) => {
@@ -737,8 +816,8 @@ function Reperes({ k, n }: { k: number; n: number }) {
               width: cinq ? 5 : 6,
               height: cinq ? 5 : 6,
               borderRadius: 1,
-              border: `1.5px solid ${j === k ? skin.ink : `${skin.ink}30`}`,
-              background: j === k ? (cinq ? skin.accent2 : skin.ink) : "transparent",
+              border: `1.5px solid ${j === k ? trait : eteint}`,
+              background: j === k ? (cinq && !clair ? skin.accent2 : trait) : "transparent",
               transform: cinq ? "rotate(45deg)" : undefined,
             }}
           />
@@ -828,6 +907,9 @@ function Legende({
   mystere,
   aVenir,
   nouveaux,
+  choisie,
+  onChoix,
+  position,
 }: {
   pictos: (Etiquette | null)[];
   mystere: string;
@@ -849,6 +931,20 @@ function Legende({
    * une panne — vu à l'écran, sur la capture du premier essai.
    */
   aVenir?: string;
+  /** La case actuellement éclairée, ou `null`. */
+  choisie: number | null;
+  /**
+   * Bascule l'éclairage d'une case.
+   *
+   * ⚠️ C'EST CE QUI FAIT DE LA LÉGENDE UNE BARRE DE FILTRE, et pas seulement un
+   * décodeur. Signalé sur de vrais joueurs : « ils ont du mal à voir qu'il y a
+   * une enquête à faire entre les indices communs ». Toucher une case allume les
+   * pays qui la remplissent, dans l'historique ET sur la carte — le recoupement
+   * cesse d'être une chose à imaginer, il devient un geste.
+   */
+  onChoix: (k: number) => void;
+  /** Ce que lit un lecteur d'écran sur une pastille sans étiquette. */
+  position: (k: number) => string;
 }) {
   return (
     <ul
@@ -875,34 +971,40 @@ function Legende({
         // laquelle. Celle qui parle est donc pleine, les autres s'effacent.
         const parle = etiq !== null;
         const neuve = parle && nouveaux?.[k] === true;
+        // ⚠️ TOUTES LES PASTILLES SONT CLIQUABLES, MÊME CELLES QUI SE TAISENT.
+        // Ce qui filtre, c'est la POSITION, pas l'étiquette : « quels de mes
+        // essais remplissent la cinquième case ? » est la question la plus utile
+        // du jeu, et c'est justement celle qui n'a pas de nom. Ça donne du même
+        // coup un rôle aux pastilles « à venir », qui n'étaient jusque-là que de
+        // l'échafaudage.
+        const active = choisie === k;
         return (
-          <li
-            key={k}
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: 5,
-              padding: parle ? "4px 10px 4px 7px" : "3px 8px 3px 6px",
-              borderRadius: 999,
-              background: neuve ? skin.accent2 : parle ? skin.paper : "transparent",
-              border: `2px solid ${parle ? skin.ink : `${skin.ink}18`}`,
-              fontSize: parle ? 12.5 : 11,
-              fontWeight: parle ? 800 : 600,
-              color: parle ? skin.ink : skin.muted,
-              opacity: parle ? 1 : 0.75,
-            }}
-          >
-            {/* ⚠️ UN REPÈRE DE POSITION, PAS UNE CASE. La première version
-                montrait une seule case vide devant chaque pastille : les quatre
-                premières étaient alors strictement identiques, donc plus rien ne
-                disait de QUELLE colonne parlait la pastille — et il suffisait
-                que la rangée passe à la ligne pour que l'ordre ne suffise plus.
-                Vu en jouant, pas en lisant le code. On montre donc les cinq
-                positions avec la bonne noircie : la pastille se décrit
-                elle-même, où qu'elle tombe. */}
-            <Reperes k={k} n={pictos.length} />
-            {etiq && <span aria-hidden>{etiq.picto}</span>}
-            <span>{nom ?? "\u00B7"}</span>
+          <li key={k}>
+            <button
+              type="button"
+              onClick={() => onChoix(k)}
+              aria-pressed={active}
+              aria-label={etiq ? undefined : position(k)}
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 5,
+                padding: parle ? "4px 10px 4px 7px" : "3px 8px 3px 6px",
+                borderRadius: 999,
+                background: active ? skin.accent : neuve ? skin.accent2 : parle ? skin.paper : "transparent",
+                border: `2px solid ${active ? skin.accent : parle ? skin.ink : `${skin.ink}18`}`,
+                fontSize: parle ? 12.5 : 11,
+                fontFamily: "inherit",
+                fontWeight: parle ? 800 : 600,
+                color: active ? "#fff" : parle ? skin.ink : skin.muted,
+                opacity: parle || active ? 1 : 0.75,
+                cursor: "pointer",
+              }}
+            >
+              <Reperes k={k} n={pictos.length} clair={active} />
+              {etiq && <span aria-hidden>{etiq.picto}</span>}
+              <span>{nom ?? "\u00B7"}</span>
+            </button>
           </li>
         );
       })}
