@@ -255,55 +255,10 @@ function note(distribution: number[], nbQuasi: number, diversite: number, criter
 // ---------------------------------------------------------------------------
 // LE CALENDRIER
 // ---------------------------------------------------------------------------
-
-/**
- * Fuseau produit. Explicite, parce qu'un jeu quotidien SANS fuseau déclaré
- * change de journée au milieu d'une partie pour la moitié de ses joueurs.
- */
-export const FUSEAU = "Europe/Paris";
-
-/**
- * Origine du calendrier : la journée n° 1. C'est le JOUR DE MISE EN LIGNE.
- *
- * ⚠️ ELLE NE SE DÉPLACE PLUS APRÈS LA PUBLICATION. Le numéro sert à trois
- * choses — choisir le puzzle, s'afficher à l'écran, et voyager dans le texte de
- * partage — et les trois deviennent fausses ensemble si on la bouge : un joueur
- * qui a partagé « n° 12 » verrait sa capture désigner une autre journée, et le
- * stock rejouerait des puzzles déjà sortis.
- *
- * Avant le lancement, en revanche, elle DEVAIT bouger. Fixée au 1er janvier,
- * elle faisait ouvrir le jeu sur la journée n° 230 — un compteur qui annonce
- * huit mois d'existence le jour de la sortie — et sur le dix-huitième puzzle du
- * stock, donc pas sur la séquence relue et validée.
- */
-export const ORIGINE = "2026-08-18";
-
-const CIVIL = new Intl.DateTimeFormat("en-CA", {
-  timeZone: FUSEAU,
-  year: "numeric",
-  month: "2-digit",
-  day: "2-digit",
-});
-
-/**
- * La date CIVILE à Paris, `AAAA-MM-JJ`.
- *
- * On passe par `Intl` plutôt que par un décalage en heures : le décalage de
- * Paris vaut +1 ou +2 selon la saison, et une soustraction fixe fait basculer la
- * journée une heure trop tôt six mois par an.
- */
-export function dateCivile(quand: Date = new Date()): string {
-  return CIVIL.format(quand);
-}
-
-/** Numéro de journée depuis l'origine : 1 le premier jour. */
-export function numeroDeJournee(dateIso: string): number {
-  const jour = 86_400_000;
-  // Minuit UTC des deux dates civiles : la soustraction ne traverse alors aucun
-  // changement d'heure, puisqu'il n'y en a pas en UTC.
-  const ms = Date.parse(`${dateIso}T00:00:00Z`) - Date.parse(`${ORIGINE}T00:00:00Z`);
-  return Math.floor(ms / jour) + 1;
-}
+// DATER — délégué à `calendrier.ts`, qui n'importe aucun contenu et peut donc,
+// lui, être lu par le navigateur. Réexporté ici pour que le serveur trouve tout
+// au même endroit qu'avant.
+export { FUSEAU, ORIGINE, dateCivile, numeroDeJournee } from "./calendrier";
 
 // ---------------------------------------------------------------------------
 // LES PICTOS — ce qui débloque le joueur qui plafonne, sans lui donner la

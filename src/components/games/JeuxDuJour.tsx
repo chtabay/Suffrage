@@ -54,6 +54,7 @@ import { FONT_DISPLAY, INK, SUBINK, lift } from "@/components/scrutin/theme";
 import { PAYS_SKIN, UNANIMO_SKIN } from "@/lib/games/skin";
 import Picto, { type NomPicto } from "./Picto";
 import { numeroDuJour } from "@/lib/games/banalo/jour";
+import { dateCivile, numeroDeJournee } from "@/lib/games/pays/calendrier";
 import { programmeDe } from "@/lib/games/banalo/programme";
 import { enLangue } from "@/content/banalo/questions";
 import { themeLabel } from "@/lib/games/banalo/themes";
@@ -67,14 +68,26 @@ export default function JeuxDuJour() {
   // déploiement, au pire dans une page mise en cache. Et le rendu serveur et le
   // rendu client ne partagent pas le même fuseau, ce qui produirait une
   // différence d'hydratation un jour sur deux autour de la charnière.
+  // ⚠️ DEUX NUMÉROS, ET C'EST OBLIGATOIRE. Les deux jeux n'ont ni la même
+  // origine ni la même charnière — Banalo bascule à 11 h 30, Cinq sur cinq à
+  // minuit, et ils n'ont pas ouvert le même jour. La première version n'en
+  // calculait qu'UN, celui de Banalo, et l'affichait sur les deux cartes :
+  // l'accueil annonçait « Cinq sur cinq — journée n° 2 » quand le jeu en était
+  // à sa quatrième. Vu en comparant la carte et la page du jeu, pas en relisant.
+  //
+  // ⚠️ ET LE NUMÉRO DE CINQ SUR CINQ VIENT DE `calendrier.ts`, PAS DE
+  // `journee.ts` : celui-là touche les réponses et n'entre jamais dans un
+  // bundle client.
   const [jour, setJour] = useState<number | null>(null);
+  const [jourPays, setJourPays] = useState<number | null>(null);
   useEffect(() => {
     setJour(numeroDuJour());
+    setJourPays(numeroDeJournee(dateCivile()));
   }, []);
 
   // Rien tant qu'on ne sait pas : une carte vide qui se remplit vaut mieux
   // qu'une carte qui affiche la mauvaise journée pendant une seconde.
-  if (jour === null) return null;
+  if (jour === null || jourPays === null) return null;
 
   const prog = programmeDe(jour);
   const sujet =
@@ -82,7 +95,7 @@ export default function JeuxDuJour() {
       ? `${prog.theme.emoji} ${themeLabel(prog.theme, locale)}`
       : enLangue(prog.question.texte, locale);
 
-  const carte = (href: string, picto: NomPicto, nom: string, ligne: string, accent: string) => (
+  const carte = (href: string, picto: NomPicto, nom: string, ligne: string, accent: string, n: number) => (
     <Link
       href={href}
       className="dc-lift"
@@ -107,7 +120,7 @@ export default function JeuxDuJour() {
         <Picto nom={picto} taille={16} style={{ color: accent }} />
         <span style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 14.5 }}>{nom}</span>
         <span style={{ marginLeft: "auto", fontSize: 11.5, color: SUBINK, fontWeight: 700 }}>
-          {t("jourNumero", { n: jour })}
+          {t("jourNumero", { n })}
         </span>
       </div>
       <p
@@ -137,9 +150,10 @@ export default function JeuxDuJour() {
         t("banalo-jour.name"),
         sujet,
         UNANIMO_SKIN.accent,
+        jour,
       )}
       {/* Pas de sujet ici, et c'est la règle — voir l'en-tête. */}
-      {carte("/games/pays", "pays", t("pays.name"), t("pays.tagline"), PAYS_SKIN.accent)}
+      {carte("/games/pays", "pays", t("pays.name"), t("pays.tagline"), PAYS_SKIN.accent, jourPays)}
     </div>
   );
 }
