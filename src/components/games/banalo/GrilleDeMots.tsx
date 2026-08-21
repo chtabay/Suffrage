@@ -24,6 +24,7 @@ import { GBtn, GCard, GLabel } from "@/components/games/ui";
 import { themeLabel } from "@/lib/games/banalo/themes";
 import type { Theme } from "@/lib/games/banalo/themes";
 import { monJeton } from "@/lib/games/banalo/jeton";
+import { VOTANTS_MIN } from "@/lib/games/banalo/bareme";
 import { blocDe, teinteDe } from "@/lib/games/banalo/chaleur";
 import PartageBanalo from "./PartageBanalo";
 import ConcentrationDuJour from "./ConcentrationDuJour";
@@ -247,6 +248,18 @@ export default function GrilleDeMots({
                   calculait sur le sur-100 — à 84 voix il annonçait « froid »,
                   parce que 84 voix valent 35 sur 100. Un qualificatif tiré d'une
                   échelle qu'on n'affiche plus n'a rien à faire à l'écran. */}
+              {/* ⚠️ ON DIT POURQUOI LA POSITION MANQUE — même règle que la médiane
+                  scellée du format chiffré. Sans un mot, la carte du score se
+                  réduit à « 9 voix » et rien d'autre : le joueur n'a AUCUNE
+                  échelle, et une ligne qui a disparu se lit comme une panne. Ce
+                  n'en est pas une : sous `VOTANTS_MIN`, « 3e sur 7 » n'est pas
+                  un rang, c'est du bruit — et le dire annonce en même temps que
+                  la journée est jeune. */}
+              {jeu.partMieux === null ? (
+                <p style={{ margin: "10px 0 0", fontSize: 13.5, color: skin.muted, lineHeight: 1.45 }}>
+                  {t("positionPlusTard", { n: VOTANTS_MIN })}
+                </p>
+              ) : null}
               {jeu.partMieux !== null ? (
                 <p
                   style={{

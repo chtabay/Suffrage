@@ -2720,6 +2720,7 @@
     "scoreTitre": "Tu puntuación",
     "points": "{n} <petit>sobre 100</petit>",
     "partMieux": "El {n} % de los jugadores lo hizo mejor.",
+    "positionPlusTard": "Tu posición entre los jugadores aparece a partir de {n} respuestas.",
     "rang": "Puesto {rang} de {votants} jugadores",
     "exAequo": "{n, plural, one {empatado con # más} other {empatado con # más}}",
     "mienne": "Tu respuesta",

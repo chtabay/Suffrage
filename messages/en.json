@@ -2720,6 +2720,7 @@
     "scoreTitre": "Your score",
     "points": "{n} <petit>out of 100</petit>",
     "partMieux": "{n}% of players did better.",
+    "positionPlusTard": "Your standing among players appears once there are {n} answers.",
     "rang": "Rank {rang} of {votants} players",
     "exAequo": "{n, plural, one {tied with # other} other {tied with # others}}",
     "mienne": "Your answer",

@@ -337,6 +337,16 @@ La somme, elle, ne prétend rien : c'est un décompte, et la colonne des effecti
 juste en dessous l'additionne sous les yeux du joueur (34 + 1 + 22 + 9 + 3 + 15
 = 84).
 
+⚠️ **ET QUAND LE CENTILE N'EST PAS ENCORE LÀ, ON DIT POURQUOI.** Sous
+`VOTANTS_MIN` (20), le rang et le centile se taisent — « 3e sur 7 » est du bruit
+— et la carte du score se réduisait alors à « 9 voix » et rien d'autre : aucune
+échelle, et une ligne disparue qui se lit comme une panne. Vu sur la vraie
+journée 2, à six votants. Les deux écrans posent donc à cette place la phrase qui
+manque (« votre position apparaît à partir de 20 réponses »), qui annonce du même
+coup que la journée est jeune. C'est la même règle que la médiane scellée du
+format chiffré : ⚠️ **une information absente sans un mot envoie le joueur la
+chercher ailleurs, c'est-à-dire chez quelqu'un qui l'a.**
+
 ⚠️ **ET LA SOMME NE PORTE PAS SEULE : LE CENTILE EST À CÔTÉ D'ELLE, PAS EN NOTE
 DE BAS DE PAGE.** Voir la somme monter au fil de la journée est le plaisir du
 format — mais elle ne se lit pas seule, puisqu'elle dépend du nombre de votants

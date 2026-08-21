@@ -30,7 +30,7 @@ import PartageBanalo from "./PartageBanalo";
 import InviterBanalo from "./InviterBanalo";
 import ComparaisonAmi from "@/components/games/ComparaisonAmi";
 import { litDefi, type Defi } from "@/lib/games/comparaison";
-import { POINTS_MAX } from "@/lib/games/banalo/bareme";
+import { POINTS_MAX, VOTANTS_MIN } from "@/lib/games/banalo/bareme";
 import InstallJeu from "@/components/games/InstallJeu";
 import CompteBanalo from "./CompteBanalo";
 import { etat as litEtat, repond, type EtatBanalo } from "@/lib/db/banalo";
@@ -353,6 +353,13 @@ export default function NombreDuJour({ jour }: { jour: number }) {
                 midi, 412e sur 2 300 le lendemain, sans rien avoir fait de mal.
                 La part, elle, ne bouge pas quand la foule grandit — c'est donc
                 elle qui porte le sens, et le rang se lit en second. */}
+            {/* Même règle que sur le format « mots » : on dit pourquoi la
+                position manque, plutôt que de laisser un trou. */}
+            {jeu.partMieux === null ? (
+              <p style={{ margin: "12px 0 0", fontSize: 13.5, color: skin.muted, lineHeight: 1.45 }}>
+                {t("positionPlusTard", { n: VOTANTS_MIN })}
+              </p>
+            ) : null}
             {jeu.partMieux !== null ? (
               <p style={{ margin: "12px 0 0", fontSize: 17, fontWeight: 700 }}>
                 {t("partMieux", { n: jeu.partMieux })}
