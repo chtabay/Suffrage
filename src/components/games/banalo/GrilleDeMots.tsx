@@ -217,9 +217,9 @@ export default function GrilleDeMots({
               que vos mots ont recueillies, et la colonne juste en dessous
               l'additionne sous les yeux du joueur.
 
-              Le sur-100 reste calculé en base — il sert la couleur, le mot de
-              chaleur et le résumé de compte, qui lui doit rester comparable
-              entre les deux formats. Il n'est simplement plus montré. */}
+              Le sur-100 reste calculé et stocké en base pour le résumé de
+              compte, qui doit rester comparable entre les deux formats — mais
+              plus rien de cet écran n'en dépend. */}
           {jeu.total !== null ? (
             <GCard skin={skin} accent={skin.accent} padding={20}>
               <GLabel skin={skin}>{t("scoreTitre")}</GLabel>
@@ -227,7 +227,7 @@ export default function GrilleDeMots({
                 style={{
                   fontFamily: skin.fontDisplay,
                   fontWeight: 800,
-                  fontSize: 46,
+                  fontSize: 38,
                   lineHeight: 1,
                   margin: "6px 0 0",
                   fontVariantNumeric: "tabular-nums",
@@ -248,7 +248,29 @@ export default function GrilleDeMots({
                   parce que 84 voix valent 35 sur 100. Un qualificatif tiré d'une
                   échelle qu'on n'affiche plus n'a rien à faire à l'écran. */}
               {jeu.partMieux !== null ? (
-                <p style={{ margin: "12px 0 0", fontSize: 17, fontWeight: 700 }}>
+                <p
+                  style={{
+                    // ⚠️ LES DEUX CHIFFRES SE RAPPROCHENT VOLONTAIREMENT. La
+                    // somme reste le plus gros — c'est la récompense, et la voir
+                    // monter au fil de la journée est le plaisir du format —
+                    // mais elle ne se lit PAS SEULE : elle dépend du nombre de
+                    // votants et de la nature du thème. Le centile, lui, est le
+                    // point clé, et il est comparable d'un jour et d'un format à
+                    // l'autre. À 17 px sous un nombre de 46, il passait pour une
+                    // note de bas de page ; l'écart passe de 2,7× à 1,9×.
+                    //
+                    // ⚠️ ET PAS PLUS GROS QUE ÇA : essayé à 26 px en police de
+                    // titre, la phrase passe sur DEUX LIGNES et devient le bloc
+                    // le plus lourd de la carte — le centile se met alors à
+                    // crier plus fort que le score. Vu à l'écran, invisible
+                    // autrement. Ce qu'on cherche est un second rôle audible,
+                    // pas un renversement.
+                    margin: "10px 0 0",
+                    fontSize: 20,
+                    lineHeight: 1.3,
+                    fontWeight: 700,
+                  }}
+                >
                   {t("partMieux", { n: jeu.partMieux })}
                 </p>
               ) : null}

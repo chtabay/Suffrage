@@ -325,6 +325,17 @@ La somme, elle, ne prétend rien : c'est un décompte, et la colonne des effecti
 juste en dessous l'additionne sous les yeux du joueur (34 + 1 + 22 + 9 + 3 + 15
 = 84).
 
+⚠️ **ET LA SOMME NE PORTE PAS SEULE : LE CENTILE EST À CÔTÉ D'ELLE, PAS EN NOTE
+DE BAS DE PAGE.** Voir la somme monter au fil de la journée est le plaisir du
+format — mais elle ne se lit pas seule, puisqu'elle dépend du nombre de votants
+et de la nature du thème. Le centile, lui, est comparable d'un jour et d'un
+format à l'autre. L'écart de taille entre les deux est donc **1,9×** (38 px
+contre 20), pas 2,7×. ⚠️ Essayé à 26 px en police de titre : la phrase passe sur
+DEUX LIGNES et devient le bloc le plus lourd de la carte — le centile se met à
+crier plus fort que le score. Ça ne se voit qu'à l'écran. Le format chiffré, lui,
+garde son échelle : son score sur 100 se lit seul, il n'a pas le même besoin
+d'ancre.
+
 ⚠️ **DEUX CHOSES SONT PARTIES AVEC LE CHIFFRE, ET IL FALLAIT QU'ELLES PARTENT** :
 le MOT DE CHALEUR et la COULEUR du grand nombre. Tous deux se calculaient sur le
 sur-100 — à 84 voix, l'écran annonçait « FROID », parce que 84 voix valent 35 sur
