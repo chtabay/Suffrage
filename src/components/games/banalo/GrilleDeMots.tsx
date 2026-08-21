@@ -412,7 +412,7 @@ export default function GrilleDeMots({
           {jeu.assez && jeu.points !== null ? (
             <PartageBanalo
               jour={jour}
-              points={entier.format(jeu.total ?? 0)}
+              titre={t("partageTitreMots", { n: jour, points: entier.format(jeu.total ?? 0) })}
               brut={jeu.total ?? 0}
               max={plafondDuJour}
               // La FORME du format « mots » : un bloc par case, coloré par la

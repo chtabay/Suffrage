@@ -2657,8 +2657,8 @@
     "chargement": "Un momento…",
     "inviteBouton": "Invitar a alguien a jugar",
     "inviteTitre": "Banalo del día n.º {n} — {sujet}",
-    "inviteMots": "{n} palabras, dos minutos: se trata de escribir las mismas que los demás.",
-    "inviteNombre": "Una estimación, dos minutos: se trata de acercarse lo más posible a la respuesta mediana.",
+    "inviteMots": "{n} palabras, dos minutos",
+    "inviteNombre": "Una estimación, dos minutos",
     "saisieLabel": "Tu estimación, {unite}",
     "placeholder": "Un número",
     "relectureVide": "Escribe un número entero.",
@@ -2740,6 +2740,7 @@
     "partager": "Compartir mi resultado",
     "copie": "¡Copiado!",
     "partageTitre": "Banalo del día n.º {n} — {points}/100",
+    "partageTitreMots": "Banalo del día n.º {n} — {points} votos",
     "panne": "No hemos podido contactar con el recuento. Recarga la página para ver cómo está tu respuesta.",
     "demain": "Nueva pregunta a las {heure}."
   },

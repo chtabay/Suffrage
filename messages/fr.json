@@ -2657,8 +2657,8 @@
     "chargement": "Un instant…",
     "inviteBouton": "Inviter quelqu'un à jouer",
     "inviteTitre": "Banalo du jour n° {n} — {sujet}",
-    "inviteMots": "{n} mots, deux minutes : le but est d'écrire les mêmes que les autres.",
-    "inviteNombre": "Une estimation, deux minutes : le but est de tomber au plus près de la réponse médiane.",
+    "inviteMots": "{n} mots, deux minutes",
+    "inviteNombre": "Une estimation, deux minutes",
     "saisieLabel": "Votre estimation, {unite}",
     "placeholder": "Un nombre",
     "relectureVide": "Tapez un nombre entier.",
@@ -2740,6 +2740,7 @@
     "partager": "Partager mon résultat",
     "copie": "Copié !",
     "partageTitre": "Banalo du jour n° {n} — {points}/100",
+    "partageTitreMots": "Banalo du jour n° {n} — {points} voix",
     "panne": "On n'a pas pu joindre le dépouillement. Rechargez la page pour voir où en est votre réponse.",
     "demain": "Nouvelle question à {heure}."
   },

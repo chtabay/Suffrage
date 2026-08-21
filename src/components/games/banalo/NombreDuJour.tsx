@@ -455,7 +455,7 @@ export default function NombreDuJour({ jour }: { jour: number }) {
             {jeu.assez ? (
               <PartageBanalo
                 jour={jour}
-                points={note.format(jeu.points)}
+                titre={t("partageTitre", { n: jour, points: note.format(jeu.points) })}
                 brut={jeu.points}
                 // Le format chiffré, lui, note bien sur 100.
                 max={POINTS_MAX}

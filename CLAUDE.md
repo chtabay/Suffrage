@@ -630,6 +630,21 @@ votants, aucun partage n'existait — donc la journée qui manquait de monde ét
 exactement celle où le jeu n'offrait aucun moyen d'en amener. Il s'affiche avant
 la réponse ET après, tant que la foule est trop mince.
 
+⚠️ **LA PREMIÈRE LIGNE DU PARTAGE EST ÉCRITE PAR L'ÉCRAN, PLUS PAR
+`PartageBanalo`.** La clé unique disait « n° {n} — {points}/100 », devenu faux le
+jour où le format « mots » a cessé de noter sur 100 : il aurait annoncé
+« 83/100 » pour 83 voix. Chaque écran passe donc sa ligne toute faite, avec sa
+clé EN CLAIR (`partageTitre` pour le chiffré, `partageTitreMots` pour les mots) —
+une clé choisie en variable échapperait au contrôle de parité. ⚠️ Et
+`partageTitre` existe AUSSI dans le namespace `Pays` : une insertion par ancre
+textuelle nue en vise une sur deux.
+
+**La ligne d'invitation ne promet plus rien** : « 6 mots, deux minutes », sans la
+suite (« le but est d'écrire les mêmes que les autres »). Retour de terrain sur
+un vrai partage WhatsApp : cette promesse « n'aide ni à comprendre réellement ni
+à donner envie » — autant ne rien mettre et être plus compact. Le format chiffré
+a perdu la sienne pour la même raison.
+
 ⚠️ **ET IL A LA MÊME FORME QUE LES AUTRES PARTAGES DES JEUX QUOTIDIENS** — un
 `GBtn` et le QR côte à côte, comme `PartageBanalo` et comme la révélation de
 Cinq sur cinq. Il n'en diffère que par la couleur du bouton : `ghost` et non

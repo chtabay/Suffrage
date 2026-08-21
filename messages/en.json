@@ -2657,8 +2657,8 @@
     "chargement": "One moment…",
     "inviteBouton": "Invite someone to play",
     "inviteTitre": "Banalo of the day #{n} — {sujet}",
-    "inviteMots": "{n} words, two minutes: the point is to write the same ones as everyone else.",
-    "inviteNombre": "One estimate, two minutes: the point is to land as close as possible to the median answer.",
+    "inviteMots": "{n} words, two minutes",
+    "inviteNombre": "One estimate, two minutes",
     "saisieLabel": "Your estimate, {unite}",
     "placeholder": "A number",
     "relectureVide": "Type a whole number.",
@@ -2740,6 +2740,7 @@
     "partager": "Share my result",
     "copie": "Copied!",
     "partageTitre": "Daily Banalo #{n} — {points}/100",
+    "partageTitreMots": "Daily Banalo #{n} — {points} votes",
     "panne": "We couldn't reach the count. Reload the page to see where your answer stands.",
     "demain": "New question at {heure}."
   },

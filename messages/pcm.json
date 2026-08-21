@@ -2657,8 +2657,8 @@
     "chargement": "Small time…",
     "inviteBouton": "Invite person make e play",
     "inviteTitre": "Banalo of di day number {n} — {sujet}",
-    "inviteMots": "{n} words, two minutes: di goal na to write di same ones as everybody else.",
-    "inviteNombre": "One estimate, two minutes: di goal na to land as close as possible to di median answer.",
+    "inviteMots": "{n} words, two minutes",
+    "inviteNombre": "One estimate, two minutes",
     "saisieLabel": "Your guess, {unite}",
     "placeholder": "One number",
     "relectureVide": "Type whole number.",
@@ -2740,6 +2740,7 @@
     "partager": "Share my result",
     "copie": "I don copy am!",
     "partageTitre": "Banalo of di Day number {n} — {points}/100",
+    "partageTitreMots": "Banalo of di Day number {n} — {points} votes",
     "panne": "We no fit reach di counting. Reload di page make you see where your answer dey.",
     "demain": "New question by {heure}."
   },

@@ -32,15 +32,24 @@ import { lienDefi } from "@/lib/games/comparaison";
 
 export default function PartageBanalo({
   jour,
-  points,
+  titre,
   brut,
   max,
   forme,
   partMieux,
 }: {
   jour: number;
-  /** Le score, déjà formaté dans la langue de l'écran. */
-  points: string;
+  /**
+   * La PREMIÈRE LIGNE du partage, déjà écrite par l'appelant.
+   *
+   * ⚠️ ELLE N'EST PLUS BÂTIE ICI, ET C'EST UN DÉFAUT CORRIGÉ : la clé unique
+   * disait « n° {n} — {points}/100 », ce qui est devenu faux le jour où le
+   * format « mots » a cessé de noter sur 100 — il aurait annoncé « 83/100 »
+   * pour 83 voix. Chaque écran écrit donc SA ligne, avec sa clé en clair
+   * (`partageTitre` pour le chiffré, `partageTitreMots` pour les mots) : une clé
+   * choisie ici en variable échapperait au contrôle de parité i18n.
+   */
+  titre: string;
   /** Le même score, brut : c'est lui qui voyage dans le lien. */
   brut: number;
   /**
@@ -64,7 +73,7 @@ export default function PartageBanalo({
 
   const partage = async () => {
     const lignes = [
-      t("partageTitre", { n: jour, points }),
+      titre,
       forme,
       partMieux !== null ? t("partMieux", { n: partMieux }) : "",
     ].filter(Boolean);
