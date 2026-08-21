@@ -23,7 +23,7 @@ import { POINTS_MAX, VOTANTS_MIN, facteurDe, medianeDe, pointsDe, positionDe } f
 import { nombreDe } from "./saisie";
 import { blocDe, motDe, teinteDe } from "./chaleur";
 import { serieVivante, traduis, traduisMots } from "@/lib/db/banalo";
-import { JOURNEES_CHIFFREES, programmeDe } from "./programme";
+import { CYCLE, JOURNEES_CHIFFREES, JOURNEES_PARUES, programmeDe } from "./programme";
 import { CASES_MAX, CASES_MIN, CASES_PAR_DEFAUT, NB_THEMES, casesDe, themeDe } from "@/content/banalo/mots";
 import { lienDefi, litDefi } from "@/lib/games/comparaison";
 
@@ -393,19 +393,49 @@ test("le mot de chaleur suit le score, et couvre toute l'échelle", () => {
 
 // ---------------------------------------------------------------- programme
 
-test("les quinze premières journées restent chiffrées, quoi qu'on ajoute", () => {
-  // ⚠️ ELLES SONT DÉJÀ SORTIES, OU VONT SORTIR. Changer le format d'une journée
-  // publiée reviendrait à changer le jeu sous les pieds de qui l'a commencée —
-  // et la médiane du jour se bâtirait sur deux formats à la fois.
-  for (let j = 1; j <= JOURNEES_CHIFFREES; j++) {
+test("les journées déjà parues restent chiffrées, quoi qu'on change au rythme", () => {
+  // ⚠️ ELLES SONT SORTIES. Des joueurs y ont répondu, leurs réponses sont en
+  // base sous ce format, et leur résultat voyage dans des liens de partage.
+  // Changer leur format après coup ferait chercher une grille de mots là où il
+  // y a des nombres, et rendrait la journée précédente illisible.
+  for (let j = 1; j <= JOURNEES_PARUES; j++) {
     assert.equal(programmeDe(j).type, "nombre", `journée ${j}`);
   }
 });
 
-test("passé le stock chiffré, les deux formats alternent", () => {
-  const suite = [];
-  for (let j = JOURNEES_CHIFFREES + 1; j <= JOURNEES_CHIFFREES + 6; j++) suite.push(programmeDe(j).type);
-  assert.deepEqual(suite, ["mots", "nombre", "mots", "nombre", "mots", "nombre"]);
+test("le format chiffré ne revient qu'une fois par semaine", () => {
+  // La demande est un MAXIMUM : jamais deux journées chiffrées dans une même
+  // fenêtre de sept jours, où qu'on place la fenêtre.
+  for (let debut = JOURNEES_PARUES + 1; debut <= JOURNEES_PARUES + 60; debut++) {
+    let chiffrees = 0;
+    for (let j = debut; j < debut + CYCLE; j++) if (programmeDe(j).type === "nombre") chiffrees++;
+    assert.ok(chiffrees <= 1, `${chiffrees} journées chiffrées à partir de ${debut}`);
+  }
+  // Et c'est bien UNE, pas zéro : le format ne disparaît pas.
+  const semaine = [];
+  for (let j = JOURNEES_PARUES + 1; j <= JOURNEES_PARUES + CYCLE; j++) semaine.push(programmeDe(j).type);
+  // ⚠️ LA CHIFFRÉE EST AU BOUT. Les journées 1 et 2 sont parues en chiffré :
+  // ouvrir le cycle par une chiffrée en aurait fait trois d'affilée.
+  assert.deepEqual(semaine, ["mots", "mots", "mots", "mots", "mots", "mots", "nombre"]);
+  assert.equal(programmeDe(JOURNEES_PARUES + 1).type, "mots", "la première non parue casse la série");
+});
+
+test("aucune question ni aucun thème n'est sauté par le nouveau rythme", () => {
+  // ⚠️ LE PIÈGE : indexer les deux stocks sur le NUMÉRO DE JOURNÉE ferait
+  // avancer les thèmes de sept en sept et n'en montrerait qu'un sur sept. Le
+  // rang doit être compté DANS LE FORMAT.
+  const questions = [], themes = [];
+  for (let j = JOURNEES_PARUES + 1; j <= JOURNEES_PARUES + 6 * CYCLE; j++) {
+    const p = programmeDe(j);
+    if (p.type === "nombre") questions.push(p.question.id);
+    else themes.push(p.theme.fr);
+  }
+  assert.equal(questions.length, 6, "six semaines, six questions");
+  assert.equal(new Set(questions).size, 6, "sans répétition");
+  assert.equal(themes.length, 6 * (CYCLE - 1));
+  assert.equal(new Set(themes).size, themes.length, "les thèmes défilent un par un");
+  // La suite des questions reprend là où les journées parues se sont arrêtées.
+  assert.equal(questions[0], questionDe(JOURNEES_PARUES + 1).id);
 });
 
 test("le programme rend toujours quelque chose, même sur une horloge farfelue", () => {

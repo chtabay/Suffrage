@@ -196,6 +196,22 @@ jamais remettre : `part ?? 0` dans la ligne de partage peignait six blocs de la
 couleur la plus froide sous un score de 44,6, et `joueurs ?? 0` fait dire
 « 0 joueur a écrit ce mot » d'un mot que le joueur vient d'écrire.
 
+**Le format CHIFFRÉ ne passe plus qu'UNE FOIS PAR SEMAINE** (`programme.ts`),
+sur retour de terrain : estimer un grand nombre marche de temps en temps, mais
+**en série** ça ne convainc pas — le geste s'use bien plus vite que celui
+d'écrire six mots. Six journées de mots, puis une chiffrée. ⚠️ Elle est en FIN de
+cycle, pas au début : les journées 1 et 2 sont parues en chiffré, ouvrir le
+premier cycle par une chiffrée en aurait fait **trois d'affilée**, exactement la
+série qu'on casse. Ça ne se voit qu'en imprimant le calendrier.
+
+⚠️ `JOURNEES_PARUES` **n'est pas un réglage, c'est une laisse d'eau** : les
+journées déjà sorties ont des réponses en base sous leur format et des liens de
+partage dans la nature. Elle ne baisse jamais. Et le rang d'une journée dans son
+PROPRE format sert d'index : indexer les deux stocks sur le numéro de journée ne
+montrerait qu'un thème sur sept. Conséquence de rythme : les 15 questions tiennent
+désormais 15 semaines, mais **les 68 thèmes n'en font que 11** — c'est le stock
+qui se vide le premier, et donc là qu'il faudra ajouter.
+
 **Le score de Banalo du jour est CONTINU, et il l'est pour une raison mesurée.**
 `100 − 100·log₁₀(facteur)`, borné à [0 ; 100], **arrondi au dixième**. La première
 version notait par cinq paliers : sur n'importe quelle taille de foule, **100 %
