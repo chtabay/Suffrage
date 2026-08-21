@@ -323,8 +323,8 @@ foule s'est serrée.
 **Et le score MONTRÉ par le format « mots » est la SOMME, pas un sur-100** — le
 score d'Unanimo : le nombre de voix que vos mots ont recueillies. Il donne un
 RANG parmi les participants et un CENTILE qui situe le joueur, et c'est le
-centile qui se compare d'un format à l'autre. ⚠️ Centile et rang gardent leur
-propre plancher (`VOTANTS_MIN`, 20) : « 3e sur 7 » reste du bruit.
+centile qui se compare d'un format à l'autre. ⚠️ Centile et rang ont leur propre
+plancher (`VOTANTS_MIN`), à **2** : seul votant, on serait « 1er sur 1 ».
 
 ⚠️ **LE SUR-100 A ÉTÉ RETIRÉ DE L'ÉCRAN PARCE QU'IL N'ÉTAIT PAS LISIBLE, ET
 C'EST MESURÉ.** Le score sur 100 est la moyenne des parts des mots du joueur :
@@ -337,15 +337,27 @@ La somme, elle, ne prétend rien : c'est un décompte, et la colonne des effecti
 juste en dessous l'additionne sous les yeux du joueur (34 + 1 + 22 + 9 + 3 + 15
 = 84).
 
-⚠️ **ET QUAND LE CENTILE N'EST PAS ENCORE LÀ, ON DIT POURQUOI.** Sous
-`VOTANTS_MIN` (20), le rang et le centile se taisent — « 3e sur 7 » est du bruit
-— et la carte du score se réduisait alors à « 9 voix » et rien d'autre : aucune
-échelle, et une ligne disparue qui se lit comme une panne. Vu sur la vraie
-journée 2, à six votants. Les deux écrans posent donc à cette place la phrase qui
-manque (« votre position apparaît à partir de 20 réponses »), qui annonce du même
-coup que la journée est jeune. C'est la même règle que la médiane scellée du
-format chiffré : ⚠️ **une information absente sans un mot envoie le joueur la
-chercher ailleurs, c'est-à-dire chez quelqu'un qui l'a.**
+⚠️ **LA POSITION SORT DÈS LA DEUXIÈME RÉPONSE : `VOTANTS_MIN` EST PASSÉ DE 20
+À 2** (`20260822-banalo-position-des-deux.sql`). Le motif écrit était « 3e sur 7
+n'est pas un rang, c'est du bruit » ; il tombe pour la même raison que le
+plancher de score avant lui. Vu sur la vraie journée 2, à six votants : la carte
+se réduisait à « 9 voix » et rien d'autre — aucune échelle — là où « 2e sur 6 »
+en donne une, grossière mais vraie. Et le format « mots » en a d'autant plus
+besoin que sa somme dépend du nombre de votants et de la nature du thème.
+
+⚠️ **DEUX, ET PAS UN** : seul votant, on est « 1er sur 1 » avec 0 % de joueurs
+devant — une tautologie, la même que le 100 du premier arrivé. La phrase qui dit
+l'absence (« votre position apparaît à partir de 2 réponses ») ne s'affiche donc
+plus que pour celui qui ouvre la journée. ⚠️ Elle reste néanmoins nécessaire :
+une information absente sans un mot se lit comme une panne et envoie le joueur
+la chercher ailleurs, c'est-à-dire chez quelqu'un qui l'a. Même règle que la
+médiane scellée du format chiffré.
+
+⚠️ **CE QUE ÇA REND EST GROSSIER, ET C'EST ASSUMÉ** : à six votants le centile
+avance par pas de 17 points. C'est aussi pourquoi l'écran met la PART devant le
+rang — le rang brut, lui, empire mécaniquement quand la foule grandit. Le nombre
+vit à DEUX endroits, `bareme.ts` et `v_min_position` en base : ils bougent
+ensemble.
 
 ⚠️ **ET LA SOMME NE PORTE PAS SEULE : LE CENTILE EST À CÔTÉ D'ELLE, PAS EN NOTE
 DE BAS DE PAGE.** Voir la somme monter au fil de la journée est le plaisir du
@@ -527,7 +539,7 @@ et le choix de l'offre de bas de page — sous le plancher c'est l'INVITATION qu
 occupe la place, au-dessus le partage du résultat, jamais les deux. Le garder
 règle aussi le décalage de déploiement, la migration s'appliquant à la main
 AVANT que le code ne parte. Le second plancher, celui de la POSITION
-(`VOTANTS_MIN`, 20), ne bouge pas : « 3e sur 7 » reste du bruit.
+(`VOTANTS_MIN`), est depuis descendu à 2 — voir plus haut.
 
 ⚠️ **Ce que ça ouvre est assumé : sur une journée à DEUX réponses, on peut
 remonter à celle de l'autre.** `percentile_disc` rend une valeur réelle de
@@ -582,8 +594,8 @@ chaque lecture depuis la médiane du moment, et le résumé de compte s'écrase 
 même (`update` inconditionnel, plus haut) : le 100 du premier arrivé fond dès le
 deuxième joueur. Ajouter un plancher pour tuer un chiffre transitoire rendrait
 muet, lui, un joueur bien réel — celui qui ouvre la journée. Il n'y a d'ailleurs
-aucun classement public à truquer, et le centile se tait toujours sous 20
-votants.
+aucun classement public à truquer, et un joueur seul dans son groupe n'a même
+pas de position, `VOTANTS_MIN` valant 2.
 
 **Le temps est mesuré et ne classe rien**, comme `secondes` dans
 `scrutin_game_pays_results`. Départager les ex aequo au temps est envisagé, pas

@@ -252,9 +252,9 @@ export default function GrilleDeMots({
                   scellée du format chiffré. Sans un mot, la carte du score se
                   réduit à « 9 voix » et rien d'autre : le joueur n'a AUCUNE
                   échelle, et une ligne qui a disparu se lit comme une panne. Ce
-                  n'en est pas une : sous `VOTANTS_MIN`, « 3e sur 7 » n'est pas
-                  un rang, c'est du bruit — et le dire annonce en même temps que
-                  la journée est jeune. */}
+                  n'en est pas une : sous `VOTANTS_MIN` (2), on serait « 1er sur
+                  1 », ce qui n'est pas un rang. La phrase ne s'affiche donc plus
+                  que pour celui qui ouvre la journée — et elle le lui dit. */}
               {jeu.partMieux === null ? (
                 <p style={{ margin: "10px 0 0", fontSize: 13.5, color: skin.muted, lineHeight: 1.45 }}>
                   {t("positionPlusTard", { n: VOTANTS_MIN })}

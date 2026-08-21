@@ -114,12 +114,26 @@ export function pointsDe(facteur: number): number {
 /**
  * En dessous de ce nombre de réponses, on n'affiche NI centile NI rang.
  *
- * ⚠️ « 3e sur 7 » n'est pas un rang, c'est du bruit — et il n'y a pas encore
- * d'ex aequo à compter. C'est la même règle que pour les pourcentages : ce qu'on
- * affiche suit le nombre de votants. En dessous, on dit que le dépouillement
- * commence.
+ * ⚠️ IL VALAIT 20, ET IL EST TOMBÉ À 2. Le motif écrit était « 3e sur 7 n'est
+ * pas un rang, c'est du bruit » ; il est parti pour la même raison que le
+ * plancher de score avant lui — ce qu'il protégeait valait moins que ce qu'il
+ * coûtait. Vu sur la vraie journée 2, à six votants : la carte se réduisait à
+ * « 9 voix » et rien d'autre, sans aucune échelle, là où « 2e sur 6 » en donne
+ * une, grossière mais vraie. Et le format « mots » en a d'autant plus besoin
+ * que sa somme dépend du nombre de votants et de la nature du thème.
+ *
+ * ⚠️ DEUX, ET PAS UN. Seul votant, on est « 1er sur 1 » avec 0 % de joueurs
+ * devant : ce n'est pas un classement, c'est une tautologie — la même que le
+ * 100 du premier arrivé sur le format chiffré.
+ *
+ * ⚠️ CE QUE ÇA REND EST GROSSIER, ET C'EST ASSUMÉ : à six votants le centile
+ * avance par pas de 17 points. C'est aussi pourquoi l'écran met la PART devant
+ * le rang — le rang brut, lui, empire mécaniquement quand la foule grandit.
+ *
+ * La valeur vit aussi en base (`v_min_position`), dans les deux fonctions
+ * d'état : `20260822-banalo-position-des-deux.sql`. Les deux bougent ensemble.
  */
-export const VOTANTS_MIN = 20;
+export const VOTANTS_MIN = 2;
 
 /** Au-delà de ce facteur, tout le monde est à zéro et personne n'est départagé. */
 export const FACTEUR_PLAFOND = 10;

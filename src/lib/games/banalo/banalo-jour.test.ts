@@ -301,7 +301,12 @@ test("sous le plancher de votants, aucune part n'est calculée", () => {
   // ⚠️ TEST REMIS APRÈS L'AVOIR PERDU. Il existait, puis la réécriture du rang
   // sur le facteur l'a emporté sans que rien ne le signale — sauf un
   // avertissement d'import inutilisé, qui est le seul indice qu'une règle
-  // n'était plus vérifiée. « 3e sur 7 » n'est pas un rang, c'est du bruit.
+  // n'était plus vérifiée.
+  //
+  // ⚠️ LE PLANCHER VAUT 2 DEPUIS LE 22/08, plus 20 : le cas qu'il écarte n'est
+  // plus « 3e sur 7 » mais « 1er sur 1 », c'est-à-dire le joueur qui ouvre la
+  // journée et n'a encore personne devant ni derrière. Le test s'écrit sur la
+  // constante, donc il suit sans être réécrit.
   const peu = Array.from({ length: VOTANTS_MIN - 1 }, () => 1.5);
   assert.equal(positionDe(1.5, peu).partMieux, null);
   const assez = Array.from({ length: VOTANTS_MIN }, () => 1.5);
