@@ -163,15 +163,30 @@ export default function JourneePrecedente({ jour }: { jour: number }) {
                   style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "baseline" }}
                 >
                   <span style={{ fontFamily: skin.fontDisplay, fontWeight: 800, fontSize: 15 }}>{c.mot}</span>
-                  <span
-                    style={{
-                      fontSize: 13.5,
-                      fontWeight: 700,
-                      fontVariantNumeric: "tabular-nums",
-                      color: teinteDe(c.part),
-                    }}
-                  >
-                    {t("motsPart", { p: part.format(c.part) })}
+                  {/* Les deux mêmes chiffres que sur l'écran du jour, arrêtés. */}
+                  <span style={{ display: "flex", gap: 7, alignItems: "baseline", flex: "none" }}>
+                    <span
+                      style={{
+                        fontSize: 13.5,
+                        fontWeight: 700,
+                        fontVariantNumeric: "tabular-nums",
+                        color: teinteDe(c.part),
+                      }}
+                    >
+                      {t("motsPart", { p: part.format(c.part) })}
+                    </span>
+                    {c.joueurs !== null ? (
+                      <span
+                        style={{
+                          fontSize: 12,
+                          fontWeight: 700,
+                          color: skin.muted,
+                          fontVariantNumeric: "tabular-nums",
+                        }}
+                      >
+                        {t("motsJoueurs", { n: c.joueurs })}
+                      </span>
+                    ) : null}
                   </span>
                 </div>
               ))}

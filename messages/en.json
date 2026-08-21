@@ -2681,7 +2681,7 @@
     "motsIncomplet": "{n, plural, one {# box left empty} other {# boxes left empty}}.",
     "motsGrille": "Your words",
     "motsPart": "{p}%",
-    "motsSeul": "no one else",
+    "motsJoueurs": "{n, plural, =1 {# player} other {# players}}",
     "motsRegle": "Each word is worth the share of players who wrote it. The theme's own word doesn't count, and two forms of the same word count once.",
     "concentrationTitre": "The shape of the day",
     "concentrationCouverture": "The {n} most-given words cover {part}% of all answers.",

@@ -265,36 +265,32 @@ export default function GrilleDeMots({
                 doublons pliés, dépôt définitif). Un joueur doit voir ce qui a
                 réellement été enregistré. */}
             <div style={{ display: "grid", gap: 8, marginTop: 8 }}>
-              {jeu.grille.map((c, i) => {
-                // ⚠️ L'ORPHELIN SE LIT SUR L'EFFECTIF, JAMAIS SUR LA PART, parce
-                // que la part COMPTE LE JOUEUR LUI-MÊME. Mesuré en base sur une
-                // journée à deux votants : un mot que personne n'a partagé sort
-                // à 50 %. Lue seule, la part annonce donc « la moitié des
-                // joueurs » d'un mot qui n'a marché pour personne — et à dix
-                // mille votants elle affiche 0,0 % qu'on soit un ou deux, la
-                // marche disparaît dans l'arrondi. C'est `joueurs === 1` qui
-                // tranche, et c'est le seul endroit où la grille se tait.
-                const seul = c.joueurs === 1;
-                return (
-                  <div
-                    key={`${c.mot}-${i}`}
-                    style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      gap: 12,
-                      alignItems: "baseline",
-                      // La salle ne barre rien et ne colle aucune icône : elle
-                      // ESTOMPE (`RevealBoard.tsx`, opacity 0.55 sur un mot à
-                      // zéro point). On reprend son geste, pas un nouveau.
-                      opacity: seul ? 0.55 : 1,
-                    }}
-                  >
-                    <span style={{ fontFamily: skin.fontDisplay, fontWeight: 800, fontSize: 16 }}>{c.mot}</span>
-                    {seul ? (
-                      <span style={{ fontSize: 12.5, fontWeight: 700, color: skin.muted, flex: "none" }}>
-                        {t("motsSeul")}
-                      </span>
-                    ) : c.part !== null ? (
+              {jeu.grille.map((c, i) => (
+                <div
+                  key={`${c.mot}-${i}`}
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    gap: 12,
+                    alignItems: "baseline",
+                    // ⚠️ UN MOT QUE PERSONNE D'AUTRE N'A ÉCRIT S'ESTOMPE, et le
+                    // test porte sur l'EFFECTIF, jamais sur la part : la part
+                    // compte le joueur lui-même, donc à deux votants un mot
+                    // partagé par personne sort à 50 %, et à dix mille votants
+                    // un joueur comme deux s'arrondissent à 0,0 %. C'est le
+                    // geste de la salle, repris tel quel (`RevealBoard.tsx`
+                    // estompe à 0.55 un mot à zéro point ; elle ne barre rien et
+                    // ne colle aucune icône).
+                    opacity: c.joueurs === 1 ? 0.55 : 1,
+                  }}
+                >
+                  <span style={{ fontFamily: skin.fontDisplay, fontWeight: 800, fontSize: 16 }}>{c.mot}</span>
+                  {/* LES DEUX CHIFFRES DU MOT : la part, et à combien de
+                      personnes elle correspond. ⚠️ CHACUN S'AFFICHE SÉPARÉMENT
+                      ET SANS REPLI — pas de `?? 0`, parce que « 0 joueur a écrit
+                      ce mot » est faux d'un mot que le joueur vient d'écrire. */}
+                  <span style={{ display: "flex", gap: 7, alignItems: "baseline", flex: "none" }}>
+                    {c.part !== null ? (
                       <span
                         style={{
                           fontSize: 14,
@@ -306,9 +302,21 @@ export default function GrilleDeMots({
                         {t("motsPart", { p: part.format(c.part) })}
                       </span>
                     ) : null}
-                  </div>
-                );
-              })}
+                    {c.joueurs !== null ? (
+                      <span
+                        style={{
+                          fontSize: 12.5,
+                          fontWeight: 700,
+                          color: skin.muted,
+                          fontVariantNumeric: "tabular-nums",
+                        }}
+                      >
+                        {t("motsJoueurs", { n: c.joueurs })}
+                      </span>
+                    ) : null}
+                  </span>
+                </div>
+              ))}
             </div>
             <p style={{ margin: "14px 0 0", fontSize: 12.5, color: skin.muted, lineHeight: 1.45 }}>
               {/* ⚠️ PAS LA MÊME PHRASE QUE POUR LES NOMBRES. Le format chiffré

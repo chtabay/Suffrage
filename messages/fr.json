@@ -2681,7 +2681,7 @@
     "motsIncomplet": "Il vous reste {n, plural, one {# case vide} other {# cases vides}}.",
     "motsGrille": "Vos mots",
     "motsPart": "{p} %",
-    "motsSeul": "personne d'autre",
+    "motsJoueurs": "{n, plural, =1 {# joueur} other {# joueurs}}",
     "motsRegle": "Chaque mot vaut la part des joueurs qui l'ont écrit. Le mot du thème lui-même ne compte pas, et deux formes du même mot n'en font qu'une.",
     "concentrationTitre": "La forme de la journée",
     "concentrationCouverture": "Les {n} mots les plus donnés couvrent {part} % de toutes les réponses.",

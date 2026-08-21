@@ -2681,7 +2681,7 @@
     "motsIncomplet": "{n, plural, one {Te queda # casilla vacía} other {Te quedan # casillas vacías}}.",
     "motsGrille": "Tus palabras",
     "motsPart": "{p} %",
-    "motsSeul": "nadie más",
+    "motsJoueurs": "{n, plural, =1 {# jugador} other {# jugadores}}",
     "motsRegle": "Cada palabra vale la proporción de jugadores que la escribieron. La palabra del tema no cuenta, y dos formas de la misma palabra cuentan una vez.",
     "concentrationTitre": "La forma del día",
     "concentrationCouverture": "Las {n} palabras más dadas cubren el {part} % de todas las respuestas.",

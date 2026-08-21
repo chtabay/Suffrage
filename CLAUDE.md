@@ -301,11 +301,18 @@ autre). Seule la troisième demandait du code.
 JOUEUR LUI-MÊME : mesuré en base sur une journée à deux votants, un mot que
 personne n'a partagé sort à **50 %** — lue seule, elle annonce « la moitié des
 joueurs » d'un mot qui n'a marché pour personne. Et à dix mille votants, un
-joueur comme deux s'arrondissent à 0,0 % : la marche disparaît. `joueurs === 1`
-est donc le seul test valable, et c'est le seul endroit où la grille se tait —
-la ligne s'estompe et dit « personne d'autre », exactement le geste de la salle
+joueur comme deux s'arrondissent à 0,0 % : la marche disparaît. Chaque mot porte donc SES DEUX
+CHIFFRES — la part, et à combien de personnes elle correspond — et c'est
+l'effectif qui rend « personne d'autre » lisible là où la part n'y arrive pas.
+La ligne d'un mot à un seul joueur s'estompe, exactement le geste de la salle
 (`RevealBoard.tsx` estompe à `opacity: 0.55` un mot à zéro point ; elle ne barre
 rien et ne colle aucune icône).
+
+Le reste de l'échelle était déjà en place et ne bouge pas : le score est la somme
+des votes communs avec les autres, il donne un RANG parmi les participants, et un
+CENTILE qui situe le joueur — c'est ce centile qui se compare d'un format à
+l'autre. ⚠️ Le centile et le rang gardent leur propre plancher (`VOTANTS_MIN`,
+20) : « 3e sur 7 » reste du bruit.
 
 ⚠️ **PLUS RIEN DU FORMAT « MOTS » N'EST GARDÉ PAR L'HEURE**, donc
 `scrutin_banalo_mots_etat` a perdu `v_origine`, `v_close` et la clé `close` de sa
