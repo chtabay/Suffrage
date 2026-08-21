@@ -36,18 +36,26 @@ export type Programme =
 export const JOURNEES_CHIFFREES = QUESTIONS.length;
 
 /**
- * Les journées DÉJÀ PARUES quand le rythme a changé, le 21 août 2026.
+ * Les journées qui gardent leur format chiffré, quoi qu'on change au rythme.
  *
- * ⚠️ CE N'EST PAS UN RÉGLAGE, C'EST UNE LAISSE D'EAU. Ces journées-là sont
- * sorties en format chiffré : des joueurs y ont répondu, leurs réponses sont en
- * base sous ce format, et leur résultat voyage dans des liens de partage.
- * Changer leur format après coup rendrait la journée précédente illisible et
- * ferait chercher une grille de mots là où il y a des nombres.
+ * ⚠️ CE N'EST PAS UN RÉGLAGE, C'EST UNE LAISSE D'EAU — et ce qu'elle marque,
+ * c'est UNE JOURNÉE QUI A DES RÉPONSES EN BASE, pas une journée passée. Une
+ * journée répondue en chiffré a ses réponses dans `scrutin_banalo_reponses`, son
+ * résultat dans des liens de partage, et sa relecture dans `JourneePrecedente` :
+ * la basculer en mots échouerait tout ça d'un coup — l'écran chercherait une
+ * grille là où il y a des nombres, et les réponses déjà déposées deviendraient
+ * inatteignables.
  *
- * Elle ne baisse JAMAIS. Elle ne monte que si l'on rebasculait des journées
- * déjà parues vers le chiffré, ce qui n'arrivera pas.
+ * ⚠️ ELLE NE SE MODIFIE DONC PAS AU JUGÉ, MAIS SUR UNE REQUÊTE. La journée 2 a
+ * été rendue aux mots le 21 août 2026, en cours de journée, après avoir vérifié
+ * qu'elle n'avait reçu AUCUNE réponse, dans aucune des quatre langues :
+ *
+ *     select jour, langue, count(*) from scrutin_banalo_reponses group by 1, 2;
+ *
+ * Tant que ce compte est nul pour une journée, son format est encore libre. Dès
+ * qu'il ne l'est plus, il est figé pour de bon.
  */
-export const JOURNEES_PARUES = 2;
+export const JOURNEES_PARUES = 1;
 
 /** Une journée chiffrée toutes les sept, à partir de la première non parue. */
 export const CYCLE = 7;
