@@ -449,8 +449,16 @@ thème ou l'énoncé (déjà publics, l'accueil les affiche), un lien NU, et rie
 ce qu'on a répondu. ⚠️ Le trou qu'il bouche était le pire possible : sous cinq
 votants, aucun partage n'existait — donc la journée qui manquait de monde était
 exactement celle où le jeu n'offrait aucun moyen d'en amener. Il s'affiche avant
-la réponse ET après, tant que la foule est trop mince, et reste volontairement
-discret avant le dépôt (§0 : avant de jouer, le joueur a une tâche).
+la réponse ET après, tant que la foule est trop mince.
+
+⚠️ **ET IL A LA MÊME FORME QUE LES AUTRES PARTAGES DES JEUX QUOTIDIENS** — un
+`GBtn` et le QR côte à côte, comme `PartageBanalo` et comme la révélation de
+Cinq sur cinq. Il n'en diffère que par la couleur du bouton : `ghost` et non
+`accent`, parce qu'avant le dépôt il cohabite avec « Envoyer ma réponse » et que
+§0 interdit de concurrencer le seul geste attendu. La taille les sépare déjà —
+le bouton d'envoi est `lg` et pleine largeur. Le QR, lui, pointe l'URL nue, ce
+qui est le meilleur usage d'une invitation : montrer le code à quelqu'un qui est
+là.
 
 **Et l'après-partie ne montre qu'UNE offre à la fois** : pas de compte → le
 compte ; compte → l'installation. `CompteBanalo` arbitre, l'installation lui est

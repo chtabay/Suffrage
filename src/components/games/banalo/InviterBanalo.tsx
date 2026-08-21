@@ -17,6 +17,11 @@
 // sort pas d'ici, c'est la réponse du joueur — il n'y en a pas encore — et le
 // résultat de la foule, qui ne voyage que dans `PartageBanalo`.
 //
+// ⚠️ IL A LA MÊME FORME QUE `PartageBanalo` — un `GBtn` et le QR côte à côte,
+// l'idiome des deux jeux quotidiens. Il n'en diffère que par la couleur du
+// bouton : le partage de résultat porte le jaune parce qu'il récompense, celui-
+// ci reste en papier parce qu'il cohabite parfois avec « Envoyer ma réponse ».
+//
 // ⚠️ LE LIEN EST LE CHEMIN NU, JAMAIS `window.location.href`. La page a pu être
 // ouverte depuis le lien d'un ami, qui porte SON résultat : repartager l'URL
 // courante renverrait le score de l'ami sous notre nom, en silence. Même règle
@@ -24,7 +29,9 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { UNANIMO_SKIN as skin } from "@/lib/games/skin";
-import { QR_URL } from "@/content/banalo/qr";
+import { GBtn } from "@/components/games/ui";
+import PartageQR from "@/components/games/PartageQR";
+import { QR_CHEMIN, QR_TAILLE, QR_URL } from "@/content/banalo/qr";
 
 export default function InviterBanalo({
   jour,
@@ -39,6 +46,7 @@ export default function InviterBanalo({
 }) {
   const t = useTranslations("BanaloJour");
   const [copie, setCopie] = useState(false);
+  const [qr, setQr] = useState(false);
 
   const invite = async () => {
     const texte = `${t("inviteTitre", { n: jour, sujet })}\n${consigne}\n\n${QR_URL}`;
@@ -55,29 +63,28 @@ export default function InviterBanalo({
   };
 
   return (
-    <button
-      type="button"
-      onClick={() => void invite()}
-      // ⚠️ DISCRET AVANT LA RÉPONSE, ET C'EST DÉLIBÉRÉ. La règle du dépôt est
-      // qu'avant de jouer le joueur a UNE tâche et que tout le reste est du
-      // bruit (§0 de `docs/regularite-des-joueurs.md`). L'invitation est le seul
-      // écart admis — elle amène des joueurs, donc elle sert la journée — mais
-      // elle ne prend pas la forme d'un bouton plein qui concurrencerait
-      // « Envoyer ma réponse ».
-      style={{
-        marginTop: 12,
-        padding: "8px 12px",
-        borderRadius: 999,
-        border: `2px solid ${skin.ink}22`,
-        background: "transparent",
-        color: skin.muted,
-        fontFamily: skin.fontBody,
-        fontWeight: 700,
-        fontSize: 13,
-        cursor: "pointer",
-      }}
-    >
-      {copie ? t("copie") : t("inviteBouton")}
-    </button>
+    <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center", marginTop: 14 }}>
+      {/* ⚠️ `ghost` ET PAS `accent`, ET C'EST LA SEULE DIFFÉRENCE AVEC
+          `PartageBanalo`. Même forme, même ombre, même famille — mais le
+          partage de RÉSULTAT porte le jaune, parce qu'il vient récompenser ;
+          l'invitation reste en papier. Avant le dépôt, elle cohabite avec
+          « Envoyer ma réponse », et §0 de `docs/regularite-des-joueurs.md`
+          interdit de mettre quoi que ce soit en concurrence avec le seul geste
+          attendu. La taille suffit d'ailleurs à les séparer : le bouton d'envoi
+          est `lg` et pleine largeur, celui-ci non. */}
+      <GBtn skin={skin} variant="ghost" onClick={() => void invite()}>
+        {copie ? t("copie") : t("inviteBouton")}
+      </GBtn>
+      {/* Le QR pointe l'URL NUE du jeu — donc exactement ce qu'une invitation
+          veut dire. C'est même son meilleur usage : montrer le code à quelqu'un
+          qui est là, sans rien avoir à s'envoyer. */}
+      <PartageQR
+        skin={skin}
+        qr={{ url: QR_URL, taille: QR_TAILLE, chemin: QR_CHEMIN }}
+        ouvert={qr}
+        onOuvrir={setQr}
+        textes={{ aide: t("qrAide"), titre: t("qrTitre"), fermer: t("qrFermer") }}
+      />
+    </div>
   );
 }
