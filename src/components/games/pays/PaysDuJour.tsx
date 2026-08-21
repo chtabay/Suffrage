@@ -18,7 +18,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { nomPays } from "@/content/pays/referentiel";
-import { ajouteResultat, serieEnCours } from "@/lib/games/pays/local";
+import { ajouteResultat, rappelleLaMethode, serieEnCours } from "@/lib/games/pays/local";
 import { ENCRE_SUR_GRADIENT, GRADIENT } from "@/lib/games/pays/palette";
 import type { Essai, ReponseEssai, Revelation as DonneesRevelation } from "@/lib/games/pays/types";
 
@@ -61,13 +61,15 @@ interface Sauvegarde {
   coupDePouce?: CoupDePouce;
   /** Les étiquettes du coup précédent : ce qui a changé depuis se met en lumière. */
   pictosAvant?: (Etiquette | null)[];
+  /** Le sujet annoncé au cinquième coup, en clé. */
+  sujetDuJour?: string;
   /**
    * Les annonces déjà vues. ⚠️ SANS ÇA, LA MODALE REVIENT À CHAQUE ESSAI : les
    * pictos sont présents dans toutes les réponses passé le seuil, pas seulement
    * dans celle qui les débloque. Ce qui doit être mémorisé, c'est le PALIER
    * FRANCHI, pas la présence de l'aide.
    */
-  vues?: { intro?: boolean; pictos?: boolean; pouce?: boolean };
+  vues?: { intro?: boolean; jour?: boolean; pictos?: boolean; pouce?: boolean };
   revelation?: DonneesRevelation;
   /** Horodatage de l'arrivée sur la carte : sert au délai avant premier essai. */
   debut?: number;
@@ -106,13 +108,19 @@ export default function PaysDuJour({ jour }: { jour: number }) {
   // Les paliers déjà annoncés. ⚠️ EN `useRef`, pas en état : ils sont lus dans
   // le gestionnaire d'essai juste après l'avoir mis à jour, et un état de React
   // n'y serait pas encore à jour.
-  const vues = useRef<{ intro?: boolean; pictos?: boolean; pouce?: boolean }>({});
+  const vues = useRef<{ intro?: boolean; jour?: boolean; pictos?: boolean; pouce?: boolean }>({});
   // ⚠️ UNE FILE, PAS UNE ANNONCE. Les deux paliers ne tombent jamais ensemble en
   // jeu normal (15 puis 50), mais ils tombent ensemble dès qu'un joueur reprend
   // une partie ou poste son historique d'un coup. La première version gardait
   // UNE annonce et marquait les deux comme vues : la seconde disparaissait en
   // silence. Vu au navigateur en semant une partie de 49 essais.
-  const [annonces, setAnnonces] = useState<("intro" | "pictos" | "pouce")[]>([]);
+  const [annonces, setAnnonces] = useState<("intro" | "jour" | "pictos" | "pouce")[]>([]);
+  // Le sujet de la journée, rendu par le serveur au cinquième coup. Gardé avec
+  // la partie : sinon un rechargement effacerait l'intro avant qu'on la lise.
+  const [sujet, setSujet] = useState<string | null>(null);
+  // ⚠️ CALCULÉ UNE FOIS, APRÈS LE MONTAGE. `lisResultats` touche le
+  // `localStorage` : l'appeler au rendu ferait diverger serveur et client.
+  const [debutant, setDebutant] = useState(false);
   const [revelation, setRevelation] = useState<DonneesRevelation | null>(null);
   const [carteComplete, setCarteComplete] = useState(false);
   const [surbrillance, setSurbrillance] = useState<string | null>(null);
@@ -158,6 +166,8 @@ export default function PaysDuJour({ jour }: { jour: number }) {
     setPictos(sauve?.pictos ?? []);
     setPouce(sauve?.coupDePouce ?? null);
     setPictosAvant(sauve?.pictosAvant ?? []);
+    setSujet(sauve?.sujetDuJour ?? null);
+    setDebutant(rappelleLaMethode(jour));
     vues.current = sauve?.vues ?? {};
     setRevelation(sauve?.revelation ?? null);
     setSerie(serieEnCours(jour));
@@ -186,6 +196,7 @@ export default function PaysDuJour({ jour }: { jour: number }) {
       domaines: (Etiquette | null)[],
       offert: CoupDePouce | null,
       avant: (Etiquette | null)[],
+      sujetJour: string | null,
     ) => {
       const corps: Sauvegarde = {
         essais: prochains,
@@ -193,6 +204,7 @@ export default function PaysDuJour({ jour }: { jour: number }) {
         pictos: domaines,
         coupDePouce: offert ?? undefined,
         pictosAvant: avant,
+      sujetDuJour: sujetJour ?? undefined,
         vues: vues.current,
         revelation: reveal ?? undefined,
         debut: debut.current,
@@ -238,6 +250,38 @@ export default function PaysDuJour({ jour }: { jour: number }) {
 
   // Ce qui vient d'apparaître dans la rangée, depuis le coup précédent.
   const nouveaux = pictos.map((e, k) => e !== null && !pictosAvant[k]);
+
+  // ⚠️ UN `switch` DE CLÉS LITTÉRALES, PAS `t(`sujetJour.${cle}`)`. Le contrôle
+  // de parité ne voit que les clés écrites EN CLAIR : une clé construite lui
+  // échapperait, et l'écran afficherait « Pays.sujetJour.mers » en toutes
+  // lettres le jour où une langue l'oublierait. Les dix sujets sont donc écrits
+  // un par un — c'est verbeux, et c'est ce qui les rend vérifiables.
+  const phraseDuJour = (cle: string) => {
+    switch (cle) {
+      case "position":
+        return t("sujetJour.position");
+      case "mers":
+        return t("sujetJour.mers");
+      case "taille":
+        return t("sujetJour.taille");
+      case "voisinage":
+        return t("sujetJour.voisinage");
+      case "culture":
+        return t("sujetJour.culture");
+      case "etat":
+        return t("sujetJour.etat");
+      case "alliances":
+        return t("sujetJour.alliances");
+      case "richesse":
+        return t("sujetJour.richesse");
+      case "ressources":
+        return t("sujetJour.ressources");
+      case "usages":
+        return t("sujetJour.usages");
+      default:
+        return t("sujetJour.autre");
+    }
+  };
 
   const bascule = (k: number) => setColonne((c) => (c === k ? null : k));
   // Les pays de MES essais qui remplissent la case éclairée. Le filtre ne
@@ -330,14 +374,27 @@ export default function PaysDuJour({ jour }: { jour: number }) {
       // Le coup de pouce passe en second : quand un joueur poste tout son
       // historique d'un coup, les deux paliers tombent ensemble, et c'est la
       // légende qu'il faut lire d'abord — le pays offert ne se comprend qu'avec.
-      const aAnnoncer: ("intro" | "pictos" | "pouce")[] = [];
+      const duJour = rep.sujetDuJour ?? sujet;
+      if (duJour) setSujet(duJour);
+
+      const aAnnoncer: ("intro" | "jour" | "pictos" | "pouce")[] = [];
       // ⚠️ L'INTRO PASSE EN PREMIER, ET ELLE NE COÛTE AUCUN ALLER-RETOUR. Elle
       // ne dit rien que l'écran n'ait déjà : la catégorie de la case 1 arrive
       // avec la réponse du premier essai. Rien de neuf ne descend du serveur,
       // donc rien de neuf ne peut fuiter.
-      if (prochains.length === 1 && !vues.current.intro) {
+      // ⚠️ LA MÉTHODE N'EST RAPPELÉE QU'À QUI EN A BESOIN. Elle dit toujours la
+      // même chose — c'est son objet — donc servie tous les jours à un habitué,
+      // elle devient une boîte qu'on ferme sans lire, et c'est la seule forme
+      // d'annonce dont le jeu dispose qu'on userait ainsi.
+      if (prochains.length === 1 && debutant && !vues.current.intro) {
         vues.current = { ...vues.current, intro: true };
         aAnnoncer.push("intro");
+      }
+      // L'INTRO DU JOUR, elle, est pour tout le monde : c'est la seule annonce
+      // dont le contenu CHANGE d'une journée à l'autre.
+      if (duJour && !vues.current.jour) {
+        vues.current = { ...vues.current, jour: true };
+        aAnnoncer.push("jour");
       }
       // ⚠️ `> 1`, PAS `some`. Depuis que la première case parle dès le premier
       // coup, un `some` ferait surgir la modale sur la première proposition de
@@ -372,7 +429,7 @@ export default function PaysDuJour({ jour }: { jour: number }) {
       // le plus attendu du jeu ; une modale « voici une aide » posée par-dessus
       // serait une insulte au joueur qui vient de trouver.
       if (aAnnoncer.length > 0 && !reveal) setAnnonces(aAnnoncer);
-      enregistre(prochains, reveal, remplies, domaines, offert, avant);
+      enregistre(prochains, reveal, remplies, domaines, offert, avant, duJour);
     } catch {
       setErreur(true);
     }
@@ -743,6 +800,15 @@ export default function PaysDuJour({ jour }: { jour: number }) {
           // contenter de la méthode, sans nommer une catégorie qui n'existe
           // pas. Une clé choisie en variable échapperait au contrôle de parité.
           texte={pictos[0] ? t("introTexte", { cat: pictos[0].texte }) : t("introTexteMuet")}
+          fermerLabel={t("annonceFermer")}
+          fermer={() => setAnnonces((a) => a.slice(1))}
+        />
+      )}
+      {annonces[0] === "jour" && sujet && (
+        <AideModale
+          skin={skin}
+          titre={t("sujetJour.titre")}
+          texte={phraseDuJour(sujet)}
           fermerLabel={t("annonceFermer")}
           fermer={() => setAnnonces((a) => a.slice(1))}
         />

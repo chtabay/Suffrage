@@ -11,6 +11,7 @@ import {
   pictosDe,
   scoreDe,
   scoresDeTous,
+  sujetDuJourDe,
 } from "@/lib/games/pays/moteur";
 import type { ReponseEssai } from "@/lib/games/pays/types";
 
@@ -117,6 +118,11 @@ export async function POST(req: Request) {
   // `suite`, donc du client. Poster cinquante pays d'un coup l'obtient tout de
   // suite — et c'est strictement moins efficace que de poster les 193, ce que
   // l'en-tête de ce fichier renonce déjà à empêcher.
+  // L'INTRO DU JOUR. Un sujet parmi les quatre premiers critères, au cinquième
+  // coup — voir `sujetDuJourDe` pour les trois gardes qui la rendent sûre.
+  const sujet = sujetDuJourDe(criteres, suite.length);
+  if (sujet && !gagne) reponse.sujetDuJour = sujet;
+
   const pouce = coupDePouceDe(criteres, suite, suite.length);
   if (pouce && !gagne) {
     reponse.coupDePouce = { ...pouce, nom: enLangue(PAYS_PAR_ID[pouce.pays].nom, lang) };

@@ -11,9 +11,12 @@
 import {
   CARDINAL_MAX,
   CARDINAL_MIN,
+  CRITERES as CRITERES_TOUS,
   CRITERE_PAR_ID,
+  SEUIL_ETIQUETTE,
   cardinal,
   etiquetteDe,
+  sujetDe,
   type Critere,
 } from "@/content/pays/criteres";
 import { PAYS, type Pays } from "@/content/pays/referentiel";
@@ -369,6 +372,54 @@ export function pictosDe(
 // Le risque de fausser le classement est nul en pratique : elle n'arrive qu'à
 // cinquante essais, très loin derrière la médiane du jour.
 export const ESSAIS_AVANT_COUP_DE_POUCE = 50;
+
+// ---------------------------------------------------------------------------
+// L'INTRO DE LA JOURNÉE — de quoi parle le puzzle d'aujourd'hui, en un mot.
+//
+// ⚠️ POURQUOI PAS UNE STATISTIQUE DE FORME. La première idée était de tirer
+// l'intro de la forme du puzzle — catégorie dominante, densité des 3/5, part de
+// la carte à zéro. Mesuré sur les 51 journées, TOUS ces signaux retombent sur un
+// ventre mou : une catégorie domine 33 journées mais c'est « géo » 32 fois ; les
+// pays à 3/5 tiennent entre 11 et 39 avec 43 journées au milieu ; ceux à 0/5 vont
+// de 24 à 137 avec 31 journées au centre. C'est logique : le générateur VALIDE
+// les journées dans une bande jouable, donc leur forme ne les distingue pas.
+// L'uniformité est voulue, et aucune intro n'en sortira.
+//
+// LE CONTENU, LUI, VARIE. Le grain `sujet` (10 valeurs, entre les 30 familles et
+// les 5 catégories) donne 28 combinaisons distinctes sur 51 journées. En
+// annonçant le sujet le plus RARE du jour, on obtient 7 valeurs, la plus
+// fréquente à 37 % — mesuré, avec les deux gardes ci-dessous.
+//
+// ⚠️ TROIS GARDES, ET IL FAUT LES TROIS :
+//
+//   · **jamais le cinquième critère.** Sa case ne parle pas, et c'est elle qui
+//     fait la fin de partie. Une intro qui le nommerait la viderait.
+//   · **jamais un sujet que la bibliothèque ne porte qu'une fois.** « usages »
+//     n'a qu'un critère : le nommer, c'est le désigner. Même seuil que les
+//     étiquettes (`SEUIL_ETIQUETTE`), et pour la même raison.
+//   · **jamais le sujet que la case 1 dit déjà.** Sinon l'intro paraphrase la
+//     légende et n'apporte rien.
+//
+// Ce qu'on donne reste donc STRICTEMENT PLUS FAIBLE que la légende du seuil :
+// un sujet, sans position, contre quatre étiquettes placées.
+export const ESSAIS_AVANT_INTRO_JOUR = 5;
+
+/**
+ * Le sujet à annoncer pour la journée, ou `null` s'il est trop tôt.
+ *
+ * Rend une CLÉ (« alliances », « mers »…), jamais un texte : l'écran a les
+ * phrases, une par sujet, et le contrôle de parité les voit toutes.
+ */
+export function sujetDuJourDe(ordonnes: Critere[], nbEssais: number): string | null {
+  if (nbEssais < ESSAIS_AVANT_INTRO_JOUR) return null;
+  const combien = new Map<string, number>();
+  for (const c of CRITERES_TOUS) combien.set(sujetDe(c), (combien.get(sujetDe(c)) ?? 0) + 1);
+  const dejaDit = ordonnes.length ? sujetDe(ordonnes[0]) : "";
+  const candidats = [...new Set(ordonnes.slice(0, ordonnes.length - 1).map(sujetDe))]
+    .filter((s) => s !== dejaDit && (combien.get(s) ?? 0) >= SEUIL_ETIQUETTE)
+    .sort((a, b) => (combien.get(a) ?? 0) - (combien.get(b) ?? 0));
+  return candidats[0] ?? null;
+}
 
 /** Le pays offert et ses cinq cases, ou `null` s'il est trop tôt. */
 export function coupDePouceDe(

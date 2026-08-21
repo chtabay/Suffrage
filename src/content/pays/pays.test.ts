@@ -17,6 +17,7 @@ import {
   CARDINAL_MIN,
   CRITERES,
   SEUIL_ETIQUETTE,
+  sujetDe,
   cardinal,
   cleEtiquette,
   etiquetteDe,
@@ -28,11 +29,12 @@ import {
 import { JOURNEES } from "./journees";
 import { PAYS, PAYS_PAR_ID } from "./referentiel";
 import { POINTS, TRACES } from "./carte";
-import { serieEnCours } from "@/lib/games/pays/local";
+import { JOURS_ABSENCE, rappelleLaMethode, serieEnCours } from "@/lib/games/pays/local";
 import { NB_MARCHES, marchesDe } from "@/lib/games/pays/partage";
 import { QR_CHEMIN, QR_MARGE, QR_TAILLE, QR_URL } from "./qr";
 import {
   ESSAIS_AVANT_COUP_DE_POUCE,
+  ESSAIS_AVANT_INTRO_JOUR,
   ESSAIS_AVANT_PREMIER_PICTO,
   ESSAIS_AVANT_PICTOS,
   ORIGINE,
@@ -44,6 +46,7 @@ import {
   ordreCanonique,
   NB_CRITERES,
   coupDePouceDe,
+  sujetDuJourDe,
   pictosDe,
   scoreDe,
 } from "@/lib/games/pays/moteur";
@@ -567,4 +570,54 @@ test("le coup de pouce n'offre jamais un pays déjà essayé, et ne change pas d
     essayes.push(a.pays);
     precedent = a.pays;
   }
+});
+
+test("l'intro du jour ne nomme jamais le 5e critère, ni un sujet unique, ni ce que la case 1 dit déjà", () => {
+  const combien = new Map<string, number>();
+  for (const c of CRITERES) combien.set(sujetDe(c), (combien.get(sujetDe(c)) ?? 0) + 1);
+  const vus = new Set<string>();
+  for (const j of JOURNEES) {
+    const ordonnes = ordreCanonique(j.criteres.map((id) => CRITERES.find((c) => c.id === id)!));
+    // Trop tôt : rien ne sort.
+    for (const n of [0, 1, ESSAIS_AVANT_INTRO_JOUR - 1]) {
+      assert.equal(sujetDuJourDe(ordonnes, n), null, `journée ${j.cible} à ${n} essais`);
+    }
+    const sujet = sujetDuJourDe(ordonnes, ESSAIS_AVANT_INTRO_JOUR);
+    if (sujet === null) continue; // le repli générique est permis
+    vus.add(sujet);
+    // ⚠️ LA GARANTIE QUI COMPTE : le sujet vient d'un des QUATRE premiers
+    // critères. Nommer celui de la cinquième case viderait la fin de partie.
+    const desQuatre = new Set(ordonnes.slice(0, 4).map(sujetDe));
+    assert.ok(desQuatre.has(sujet), `journée ${j.cible} : « ${sujet} » ne vient pas des quatre premiers`);
+    // Jamais un sujet que la bibliothèque ne porte qu'une fois : le nommer,
+    // c'est désigner le critère.
+    assert.ok(
+      (combien.get(sujet) ?? 0) >= SEUIL_ETIQUETTE,
+      `journée ${j.cible} : « ${sujet} » n'a que ${combien.get(sujet)} critère(s)`,
+    );
+    // Et jamais ce que la case 1 annonce déjà : l'intro doit ajouter.
+    assert.notEqual(sujet, sujetDe(ordonnes[0]), `journée ${j.cible} : l'intro répète la case 1`);
+  }
+  // ⚠️ ET ELLE DOIT VARIER — c'est toute sa raison d'être. Mesuré : 7 valeurs
+  // sur les 51 journées, la plus fréquente à 37 %. Un seul sujet pour tout le
+  // stock voudrait dire qu'on a réintroduit le ventre mou qu'on fuyait.
+  assert.ok(vus.size >= 5, `l'intro ne prend que ${vus.size} valeur(s) sur ${JOURNEES.length} journées`);
+});
+
+test("la méthode n'est rappelée qu'aux débutants et aux revenants", () => {
+  const gagne = (jour: number) => ({ jour, essais: 12 });
+  // Les trois premières parties : toujours.
+  assert.equal(rappelleLaMethode(10, []), true, "aucune partie finie");
+  assert.equal(rappelleLaMethode(10, [gagne(8), gagne(9)]), true, "deux parties finies");
+  // Passé trois victoires récentes : on se tait.
+  assert.equal(rappelleLaMethode(10, [gagne(7), gagne(8), gagne(9)]), false);
+  // ⚠️ MAIS LE REVENANT LA RETROUVE. Deux semaines suffisent à oublier ce que
+  // veulent dire cinq cases, et c'est exactement le joueur qu'on reperd.
+  assert.equal(rappelleLaMethode(30, [gagne(7), gagne(8), gagne(9)]), true, "trois semaines d'absence");
+  assert.equal(
+    rappelleLaMethode(9 + JOURS_ABSENCE, [gagne(7), gagne(8), gagne(9)]),
+    false,
+    "pile à la limite : on ne rappelle pas encore",
+  );
+  assert.equal(rappelleLaMethode(10 + JOURS_ABSENCE, [gagne(7), gagne(8), gagne(9)]), true);
 });

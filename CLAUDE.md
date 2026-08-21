@@ -129,21 +129,38 @@ jouer arrive éteint dans une liste grisée et se lit comme une panne ; et il n'
 **pas dans la sauvegarde**, parce que c'est un geste de lecture, pas un état de
 partie.
 
-**L'INTRO DU PREMIER COUP dit la MÉTHODE, et elle ne descend pas du serveur.**
-Elle se construit sur `pictos[0]`, que le client a déjà : rien de neuf ne
-transite, donc rien de neuf ne peut fuiter. ⚠️ Elle a un texte de repli pour les
-3 journées sur 51 où la case 1 se tait.
+**DEUX MODALES, DEUX PUBLICS, DEUX MOMENTS.** Au PREMIER coup, la MÉTHODE
+(« comment chercher ») — et seulement pour qui en a besoin :
+`rappelleLaMethode` la réserve aux trois premières parties **finies** et au
+retour après `JOURS_ABSENCE`. ⚠️ Ce sont des VICTOIRES qu'on compte, pas des
+visites : quelqu'un qui a ouvert le jeu trois fois sans jamais trouver reste un
+débutant, et c'est voulu. Servie tous les jours à un habitué, elle dirait
+toujours la même chose — c'est son objet — et deviendrait une boîte qu'on ferme
+sans lire, usant la seule forme d'annonce dont le jeu dispose. Elle ne descend
+pas du serveur : elle se construit sur `pictos[0]`, que le client a déjà.
 
-⚠️ **ET UNE INTRO VRAIMENT DIFFÉRENTE CHAQUE JOUR N'EST PAS FAISABLE
-AUJOURD'HUI** — mesuré, pas supposé. Tous les signaux de FORME du puzzle
-retombent sur un ventre mou, parce que le générateur valide les journées dans une
-bande jouable : une catégorie domine 33 journées sur 51 mais c'est « géo »
-32 fois ; les pays à 3/5 ou plus tiennent entre 11 et 39 avec 43 journées au
-milieu ; les pays à 0/5 vont de 24 à 137 avec 31 journées au centre. L'uniformité
-est une propriété voulue du générateur, pas un défaut à corriger là. Les deux
-seules vraies routes sont d'écrire un texte par journée (51 × 4 = 204 chaînes,
-attachées à un stock qu'on régénère) ou de **diversifier l'étagère `large`** —
-c'est le même chantier que celui déjà noté plus haut.
+Au CINQUIÈME coup, l'INTRO DE LA JOURNÉE (`sujetDuJourDe`), pour tout le monde :
+c'est la seule annonce dont le contenu CHANGE d'un jour à l'autre.
+
+⚠️ **ELLE VIENT DU CONTENU, PAS DE LA FORME — et c'est mesuré.** Tous les
+signaux de forme retombent sur un ventre mou, parce que le générateur valide les
+journées dans une bande jouable : une catégorie domine 33 journées sur 51 mais
+c'est « géo » 32 fois ; les pays à 3/5 tiennent entre 11 et 39 avec 43 journées
+au milieu ; ceux à 0/5 vont de 24 à 137 avec 31 journées au centre. L'uniformité
+est une propriété **voulue** du générateur. Le grain `sujet` (10 valeurs, entre
+les 30 familles et les 5 catégories), lui, donne 28 combinaisons distinctes sur
+51 journées ; en annonçant le sujet le plus RARE du jour on obtient **7 valeurs,
+la plus fréquente à 37 %**.
+
+⚠️ **TROIS GARDES, ET IL FAUT LES TROIS** : jamais le cinquième critère (sa case
+ne parle pas, c'est elle qui fait la fin de partie) ; jamais un sujet que la
+bibliothèque ne porte qu'une fois (« usages » n'en a qu'un — le nommer, c'est le
+désigner : même `SEUIL_ETIQUETTE` que les étiquettes) ; jamais le sujet que la
+case 1 dit déjà. Ce qu'on donne reste **strictement plus faible que la légende
+du seuil** : un sujet, sans position, contre quatre étiquettes placées. Le
+serveur rend une CLÉ, l'écran a les dix phrases — et un `switch` de clés
+littérales, jamais `t(\`sujetJour.${cle}\`)`, sinon le contrôle de parité ne
+les voit plus.
 
 **Les deux aides de Cinq sur cinq S'ANNONCENT, elles n'apparaissent plus en
 silence.** La légende des cases se posait au-dessus d'une liste de quarante

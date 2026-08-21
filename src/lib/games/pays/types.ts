@@ -57,6 +57,16 @@ export interface ReponseEssai {
    * cinq cases), pas une information d'un autre ordre.
    */
   coupDePouce?: { pays: string; nom: string; cases: number[] };
+  /**
+   * LE SUJET DE LA JOURNÉE, en clé — « alliances », « mers »… Arrive au
+   * cinquième essai et sert l'intro du jour.
+   *
+   * ⚠️ UNE CLÉ, PAS UN TEXTE, contrairement aux étiquettes : les phrases vivent
+   * dans `messages/*.json`, une par sujet, pour que le contrôle de parité les
+   * voie toutes. Et le sujet ne dit JAMAIS de quelle case il vient — c'est ce
+   * qui le rend plus faible que la légende du seuil.
+   */
+  sujetDuJour?: string;
   /** Présente uniquement quand `score === 5`. */
   revelation?: Revelation;
 }

@@ -72,3 +72,38 @@ export function serieEnCours(jourActuel: number, resultats = lisResultats()): nu
   }
   return n;
 }
+
+/**
+ * Combien de journées le joueur doit avoir finies avant qu'on cesse de lui
+ * rappeler la méthode.
+ *
+ * ⚠️ CE SONT DES VICTOIRES, PAS DES VISITES. `ajouteResultat` n'est appelé qu'à
+ * la victoire, donc quelqu'un qui a ouvert le jeu trois fois sans jamais
+ * trouver compte encore comme débutant — et c'est exactement ce qu'on veut : il
+ * n'a pas fini une partie, il n'a pas vu la mécanique aller au bout.
+ */
+export const PARTIES_DEBUTANT = 3;
+
+/**
+ * Au bout de combien de jours d'absence on redonne la méthode.
+ *
+ * Deux semaines : assez pour avoir oublié le sens des cinq cases, assez peu
+ * pour qu'un habitué en vacances ne se sente pas repris à zéro.
+ */
+export const JOURS_ABSENCE = 14;
+
+/**
+ * Faut-il rappeler à ce joueur COMMENT on cherche ?
+ *
+ * ⚠️ SANS CETTE CONDITION, LA MODALE DE MÉTHODE EST UNE INTERRUPTION
+ * QUOTIDIENNE. Elle dit toujours la même chose — c'est son objet — donc pour un
+ * habitué elle devient du mobilier qu'on ferme sans lire, et c'est ce qui use
+ * la seule forme d'annonce dont le jeu dispose. Elle est donc réservée à ceux
+ * qui en ont besoin : les trois premières parties, et le retour après une
+ * absence.
+ */
+export function rappelleLaMethode(jourActuel: number, resultats = lisResultats()): boolean {
+  if (resultats.length < PARTIES_DEBUTANT) return true;
+  const dernier = resultats[resultats.length - 1];
+  return jourActuel - dernier.jour > JOURS_ABSENCE;
+}
