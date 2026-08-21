@@ -26,6 +26,27 @@ import { createClient } from "@/lib/supabase/client";
  *  · répondu et dépouillé         → `assez: true`, avec la note ; la position
  *    (`rang`, `partMieux`) n'arrive qu'au-delà d'un second plancher.
  */
+/**
+ * LA RÉPARTITION D'UNE JOURNÉE CLOSE — la bande d'histogramme, prête à dessiner.
+ *
+ * ⚠️ TOUT EST DÉCIDÉ EN BASE, y compris le nombre de barres et l'index des deux
+ * repères. C'est voulu : l'écran ne doit pas pouvoir recalculer une position
+ * autrement que la base, sinon le repère « la foule » finirait un jour à côté de
+ * la barre qui contient vraiment la médiane.
+ */
+export interface Repartition {
+  /** log₁₀ du bord GAUCHE de la première barre. */
+  gauche: number;
+  /** Largeur d'une barre, en décades — une fraction : 1/6, 1/3, 1/2 ou 1. */
+  pas: number;
+  /** L'effectif de chaque barre. Les queues sont repliées dans les barres des bords. */
+  seaux: number[];
+  /** Index de la barre où tombe ma réponse. */
+  mien: number;
+  /** Index de la barre où tombe la médiane. */
+  foule: number;
+}
+
 export interface EtatBanalo {
   repondu: boolean;
   /** Combien ont répondu à cette question, dans cette langue. */
@@ -49,6 +70,14 @@ export interface EtatBanalo {
    * mécaniquement quand la foule grandit, la part ne bouge pas.
    */
   partMieux: number | null;
+  /**
+   * La bande de répartition, ou `null` tant que la journée est ouverte.
+   *
+   * ⚠️ SCELLÉE COMME LA MÉDIANE, et pour une raison plus forte encore : un
+   * histogramme montre la bosse, donc la médiane, sans demander le moindre
+   * raisonnement. Voir `20260821-banalo-repartition-du-jour.sql`.
+   */
+  repartition: Repartition | null;
 }
 
 /** Le jsonb rendu par la base. Les clés y sont en minuscules — Postgres n'a pas de camelCase. */
@@ -64,6 +93,7 @@ interface EtatBrut {
   rang?: number | null;
   exaequo?: number | null;
   partmieux?: number | null;
+  repartition?: unknown;
 }
 
 /**
@@ -94,6 +124,7 @@ export function traduis(brut: unknown): EtatBanalo | null {
     votants: nombre(e.votants) ?? 0,
     assez: e.assez === true,
     mienne: nombre(e.mienne),
+    repartition: litRepartition(e.repartition),
     mediane: nombre(e.mediane),
     facteur: nombre(e.facteur),
     points: nombre(e.points),
@@ -101,6 +132,29 @@ export function traduis(brut: unknown): EtatBanalo | null {
     exAequo: partMieux === null ? null : nombre(e.exaequo),
     partMieux,
   };
+}
+
+/**
+ * La bande de répartition, ou `null`.
+ *
+ * ⚠️ ELLE EST REFUSÉE EN BLOC OU ACCEPTÉE EN BLOC. Une bande à qui il manque un
+ * repère n'est pas une bande à moitié : elle dessinerait « vous » sur la
+ * première barre par défaut, c'est-à-dire un mensonge tranquille. On préfère ne
+ * rien montrer — le bloc entier se tait.
+ */
+function litRepartition(brut: unknown): Repartition | null {
+  const r = brut as Partial<Repartition> | null | undefined;
+  if (!r || !Array.isArray(r.seaux) || r.seaux.length === 0) return null;
+  const seaux = r.seaux.map((v) => (typeof v === "number" && Number.isFinite(v) && v >= 0 ? v : -1));
+  if (seaux.some((v) => v < 0)) return null;
+  const entier = (v: unknown) =>
+    typeof v === "number" && Number.isInteger(v) && v >= 0 && v < seaux.length ? v : null;
+  const gauche = typeof r.gauche === "number" && Number.isFinite(r.gauche) ? r.gauche : null;
+  const pas = typeof r.pas === "number" && Number.isFinite(r.pas) && r.pas > 0 ? r.pas : null;
+  const mien = entier(r.mien);
+  const foule = entier(r.foule);
+  if (gauche === null || pas === null || mien === null || foule === null) return null;
+  return { gauche, pas, seaux, mien, foule };
 }
 
 /**

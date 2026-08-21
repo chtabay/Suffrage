@@ -160,7 +160,38 @@ et c'est le chiffre à côté qui se recopie, pas le mot.
 
 Ce qui rendait la fermeture « trop chère » — cette grille EST la récompense du
 format — **est tombé avec `JourneePrecedente`** : la récompense n'est pas
-supprimée, elle est décalée d'un jour, comme la médiane. ⚠️ Deux replis à ne
+supprimée, elle est décalée d'un jour, comme la médiane.
+
+**La journée close montre AUSSI sa répartition** (`RepartitionDuJour`), et c'est
+une décision prise sur mesure, pas au goût. La demande de départ était une
+**courbe de position au fil de la journée** ; simulé, le percentile d'un joueur
+arrivé après la 500ᵉ réponse bouge de **1,1 à 2,0 points** sur tout le reste de
+la journée — une ligne plate. La seule courbe qui aurait bougé est celle du
+**rang brut**, et elle glisse identiquement pour tout le monde (5ᵉ → 2 170ᵉ pour
+le 31ᵉ joueur, 46ᵉ → 16 781ᵉ sur une foule aux nombres ronds) : elle aurait
+dessiné une dégradation que personne n'a subie. On a donc gardé l'image fixe.
+
+Trois réglages de cette bande sont mesurés, pas choisis : **échelle log** (les
+réponses s'étalent sur 1,9 à 3,8 décades, un axe linéaire écraserait 99 % des
+joueurs dans la première barre) ; **pas d'une fraction de décade** — 1/6, puis
+1/3, 1/2, 1 si la journée est très étalée — parce qu'une foule répond en nombres
+ronds et fait un **peigne**, qu'un pas calculé sur l'étendue couperait en deux ;
+et **queues repliées dans les barres des bords**, jamais jetées, sinon la somme
+des barres ne fait plus le nombre de votants annoncé juste à côté.
+
+⚠️ **La bande vit dans `scrutin_banalo_etat`, pas dans une fonction à elle** :
+une fonction séparée devrait savoir si la journée est close, donc porter une
+**troisième** copie de `ORIGINE`. Et un histogramme est plus dangereux que la
+médiane — il montre la bosse sans demander le moindre raisonnement — donc il ne
+sort **que** sur une journée close.
+
+⚠️ **Et la mesure a trouvé autre chose, qui ne concerne pas le dessin** : si la
+moitié d'une foule répond en nombres ronds, **727 joueurs sur 3 000 partagent
+exactement le même facteur** (24 % du terrain, plus un second paquet de 491). Le
+score continu a corrigé l'**échelle**, pas l'**entrée** : quand c'est la foule
+qui arrondit, les ex aequo reviennent par les données. C'est ce chiffre — et le
+taux réel de réponses rondes, qui se mesure en une requête — qui déciderait un
+jour du départage au temps, écarté pour l'instant. ⚠️ Deux replis à ne
 jamais remettre : `part ?? 0` dans la ligne de partage peignait six blocs de la
 couleur la plus froide sous un score de 44,6, et `joueurs ?? 0` fait dire
 « 0 joueur a écrit ce mot » d'un mot que le joueur vient d'écrire.

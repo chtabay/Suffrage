@@ -541,3 +541,41 @@ test("un défi fabriqué à la main est refusé", () => {
   assert.equal(litDefi("?j=12&r=300", 500)?.resultat, 300);
   assert.equal(litDefi("?j=12&r=300", 100), null);
 });
+
+test("la répartition arrive entière, ou pas du tout", () => {
+  // ⚠️ LA RÈGLE QUI NE SE VOIT PAS À LA RELECTURE : une bande à qui il manque un
+  // repère n'est pas une bande à moitié. Sans ce refus en bloc, un `mien`
+  // absent retomberait sur 0 et dessinerait « vous » sur la première barre —
+  // un mensonge tranquille, sur la seule page où le joueur vient chercher la
+  // vérité de la veille.
+  const bonne = { gauche: 5, pas: 1 / 6, seaux: [3, 8, 20, 4], mien: 2, foule: 1 };
+  const base = {
+    status: "ok", repondu: true, assez: true, votants: 35, mienne: 1e6,
+    mediane: 1.2e6, facteur: 1.2, points: 92.1, rang: 4, exaequo: 1, partmieux: 9,
+  };
+  assert.deepEqual(traduis({ ...base, repartition: bonne })?.repartition, bonne);
+
+  // La journée ouverte n'en rend aucune : c'est le scellement, pas une panne.
+  assert.equal(traduis({ ...base, repartition: null })?.repartition, null);
+  assert.equal(traduis(base)?.repartition, null, "clé absente");
+
+  for (const [quoi, rep] of [
+    ["repère manquant", { ...bonne, mien: undefined }],
+    ["repère hors des barres", { ...bonne, mien: 4 }],
+    ["repère négatif", { ...bonne, foule: -1 }],
+    ["repère non entier", { ...bonne, foule: 1.5 }],
+    ["bord illisible", { ...bonne, gauche: "cinq" }],
+    ["pas nul", { ...bonne, pas: 0 }],
+    ["effectif négatif", { ...bonne, seaux: [3, -8, 20, 4] }],
+    ["effectif illisible", { ...bonne, seaux: [3, "huit", 20, 4] }],
+    ["aucune barre", { ...bonne, seaux: [] }],
+  ] as [string, unknown][]) {
+    assert.equal(traduis({ ...base, repartition: rep })?.repartition, null, quoi);
+  }
+
+  // Et le reste de l'état survit à une bande refusée : on perd le dessin, pas
+  // le score.
+  const abime = traduis({ ...base, repartition: { ...bonne, mien: 99 } });
+  assert.equal(abime?.points, 92.1);
+  assert.equal(abime?.repartition, null);
+});

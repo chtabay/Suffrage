@@ -40,6 +40,7 @@ import { programmeDe } from "@/lib/games/banalo/programme";
 import { monJeton } from "@/lib/games/banalo/jeton";
 import { teinteDe } from "@/lib/games/banalo/chaleur";
 import { etat as litEtat, etatMots, type EtatBanalo, type EtatMots } from "@/lib/db/banalo";
+import RepartitionDuJour from "./RepartitionDuJour";
 
 /** `Intl` ne connaît pas `pcm` : le pidgin s'écrit aux conventions anglaises. */
 const bcp = (locale: string) => (locale === "pcm" ? "en" : locale);
@@ -233,6 +234,11 @@ export default function JourneePrecedente({ jour }: { jour: number }) {
           {ecart !== null ? ` · ${t("facteur", { f: ecart })}` : ""}
         </p>
         {score}
+        {/* LA BANDE. Elle vient APRÈS le score : le chiffre du joueur d'abord,
+            le paysage ensuite. Elle se tait si la base ne l'a pas rendue — une
+            journée trop maigre pour valoir un histogramme, ou une horloge qui
+            ne la déclare pas encore close. */}
+        {e.repartition ? <RepartitionDuJour rep={e.repartition} votants={e.votants} /> : null}
       </GCard>
     </div>
   );
