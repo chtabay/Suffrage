@@ -27,6 +27,7 @@ import { monJeton } from "@/lib/games/banalo/jeton";
 import { nombreDe } from "@/lib/games/banalo/saisie";
 import { blocDe, motDe, teinteDe } from "@/lib/games/banalo/chaleur";
 import PartageBanalo from "./PartageBanalo";
+import InviterBanalo from "./InviterBanalo";
 import ComparaisonAmi from "@/components/games/ComparaisonAmi";
 import { litDefi, type Defi } from "@/lib/games/comparaison";
 import { POINTS_MAX } from "@/lib/games/banalo/bareme";
@@ -236,6 +237,11 @@ export default function NombreDuJour({ jour }: { jour: number }) {
             <p style={{ margin: "10px 0 0", fontSize: 12.5, color: skin.muted, lineHeight: 1.4 }}>
               {t("definitif")}
             </p>
+            <InviterBanalo
+              jour={jour}
+              sujet={enLangue(question.texte, locale)}
+              consigne={t("inviteNombre")}
+            />
           </GCard>
         </div>
       ) : null}
@@ -264,6 +270,13 @@ export default function NombreDuJour({ jour }: { jour: number }) {
             <p style={{ margin: "12px 0 0", fontSize: 14, color: skin.muted, lineHeight: 1.45 }}>
               {t("attente", { n: jeu.votants })}
             </p>
+            {/* Voir `InviterBanalo` : c'est la journée qui manque de monde qui a
+                le plus besoin d'un bouton pour en amener. */}
+            <InviterBanalo
+              jour={jour}
+              sujet={enLangue(question.texte, locale)}
+              consigne={t("inviteNombre")}
+            />
           </GCard>
         </div>
       ) : null}
@@ -480,9 +493,8 @@ export default function NombreDuJour({ jour }: { jour: number }) {
                 }}
               />
             ) : null}
-            <InstallJeu skin={skin} />
-            {/* LE COMPTE — après la journée, sous le partage. */}
-            <CompteBanalo jour={jour} />
+            {/* Une seule offre à la fois — voir `CompteBanalo`. */}
+            <CompteBanalo jour={jour} install={<InstallJeu skin={skin} />} />
           </div>
         </div>
       ) : null}

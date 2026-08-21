@@ -26,6 +26,7 @@ import type { Theme } from "@/lib/games/banalo/themes";
 import { monJeton } from "@/lib/games/banalo/jeton";
 import { blocDe, motDe, teinteDe } from "@/lib/games/banalo/chaleur";
 import PartageBanalo from "./PartageBanalo";
+import InviterBanalo from "./InviterBanalo";
 import ComparaisonAmi from "@/components/games/ComparaisonAmi";
 import { litDefi, type Defi } from "@/lib/games/comparaison";
 import { POINTS_MAX } from "@/lib/games/banalo/bareme";
@@ -196,6 +197,7 @@ export default function GrilleDeMots({
               {t("definitif")}
               {remplies > 0 && remplies < cases ? ` ${t("motsIncomplet", { n: cases - remplies })}` : ""}
             </p>
+            <InviterBanalo jour={jour} sujet={themeLabel(theme, locale)} consigne={t("inviteMots", { n: cases })} />
           </GCard>
         </div>
       ) : null}
@@ -300,6 +302,17 @@ export default function GrilleDeMots({
                   formé, simplement faux. */}
               {jeu.assez ? t("motsRegle") : t("motsAttente", { n: jeu.votants })}
             </p>
+            {/* ⚠️ L'INVITATION EST ICI SURTOUT POUR LA FOULE TROP MINCE. Le
+                partage de résultat n'existe qu'au-delà du plancher de cinq
+                votants : sans ce bouton, la journée qui manque de monde était
+                précisément celle où le jeu n'offrait aucun moyen d'en amener. */}
+            {!jeu.assez && (
+              <InviterBanalo
+                jour={jour}
+                sujet={themeLabel(theme, locale)}
+                consigne={t("inviteMots", { n: cases })}
+              />
+            )}
           </GCard>
 
           {jeu.assez && jeu.points !== null ? (
@@ -339,9 +352,12 @@ export default function GrilleDeMots({
               }}
             />
           ) : null}
-          <InstallJeu skin={skin} />
-          {/* LE COMPTE — après la journée, sous le partage. */}
-          <CompteBanalo jour={jour} />
+          {/* ⚠️ UNE SEULE OFFRE À LA FOIS, et c'est `CompteBanalo` qui arbitre.
+              §0 de `docs/regularite-des-joueurs.md` : l'après-partie n'a QU'UNE
+              place, et empiler l'installation sous le compte les fait se
+              cannibaliser — deux demandes molles valent moins qu'une nette.
+              L'installation ne sort donc que pour qui a déjà un compte. */}
+          <CompteBanalo jour={jour} install={<InstallJeu skin={skin} />} />
         </div>
       ) : null}
 

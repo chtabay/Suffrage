@@ -442,6 +442,26 @@ conteneur répond 403 au CONNECT vers `xwlywozdxlgjwksypzmi.supabase.co` : tout
 qu'en interceptant la RPC avec `page.route`, ce qui éprouve l'écran et pas le
 calcul. Les jeux qui passent par une route `/api` (Cinq sur cinq) ne sont pas
 concernés — c'est le serveur Next qui appelle, et lui a le proxy.
+**Banalo du jour a DEUX partages, et ils ne se remplacent pas.**
+`PartageBanalo` partage un RÉSULTAT — il n'existe qu'au-delà du plancher de cinq
+votants et porte le score dans le lien. `InviterBanalo` partage la QUESTION : le
+thème ou l'énoncé (déjà publics, l'accueil les affiche), un lien NU, et rien de
+ce qu'on a répondu. ⚠️ Le trou qu'il bouche était le pire possible : sous cinq
+votants, aucun partage n'existait — donc la journée qui manquait de monde était
+exactement celle où le jeu n'offrait aucun moyen d'en amener. Il s'affiche avant
+la réponse ET après, tant que la foule est trop mince, et reste volontairement
+discret avant le dépôt (§0 : avant de jouer, le joueur a une tâche).
+
+**Et l'après-partie ne montre qu'UNE offre à la fois** : pas de compte → le
+compte ; compte → l'installation. `CompteBanalo` arbitre, l'installation lui est
+passée en `children`. Empiler les deux les faisait se cannibaliser, et le bloc du
+compte — signalé trop discret sur de vrais joueurs — porte maintenant l'accent et
+un titre en police de titre. ⚠️ **Les notifications, elles, N'EXISTENT PAS sur
+les jeux quotidiens** : `docs/regularite-des-joueurs.md` §6 les a écartées par
+écrit (la permission ne se demande qu'une fois, un rappel quotidien est du bruit
+pour qui a déjà joué, et la charnière de 11 h 30 n'est pas l'horloge du joueur).
+Il n'y a donc rien à rendre plus visible de ce côté-là.
+
 **L'après-partie des jeux quotidiens n'a QU'UNE place**, et plusieurs chantiers
 la veulent (installation, compte, pont vers Placet, plus tard les amis). Les
 empiler les ferait se cannibaliser : l'échelle de priorité est écrite dans

@@ -24,7 +24,7 @@
 // ⚠️ CE QU'IL NE RÉPÈTE PAS : le rang du jour. L'écran de score l'affiche déjà,
 // juste au-dessus. Le bloc compte de Cinq sur cinq le montre parce que là-bas
 // rien d'autre ne le dit ; ici ce serait le même chiffre deux fois.
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { useAuth } from "@/lib/auth/useAuth";
@@ -34,7 +34,7 @@ import PontPlacet from "@/components/games/PontPlacet";
 import { monJeton } from "@/lib/games/banalo/jeton";
 import { maSerie, monBilanBanalo, rattache, serieVivante, type BilanBanalo } from "@/lib/db/banalo";
 
-export default function CompteBanalo({ jour }: { jour: number }) {
+export default function CompteBanalo({ jour, install }: { jour: number; install?: ReactNode }) {
   const t = useTranslations("BanaloJour");
   const { user, loading, signIn, signInWithEmail } = useAuth();
   const [email, setEmail] = useState("");
@@ -121,19 +121,39 @@ export default function CompteBanalo({ jour }: { jour: number }) {
           {b?.meilleur != null && ligne(t("compte.meilleur"), String(b.meilleur))}
         </div>
         {lienPlacet}
+        {/* ⚠️ L'INSTALLATION NE SORT QUE POUR QUI A DÉJÀ UN COMPTE. §0 de
+            `docs/regularite-des-joueurs.md` : l'après-partie n'a QU'UNE place, et
+            deux demandes molles empilées valent moins qu'une nette. À qui n'a
+            pas de compte, on demande le compte ; à qui en a un, l'installation. */}
+        {install}
       </GCard>
     );
   }
 
+  // ⚠️ L'OFFRE DE COMPTE PORTE L'ACCENT, comme la carte de score. Signalée trop
+  // discrète sur de vrais joueurs : posée en carte neutre sous un partage et un
+  // bloc d'installation, elle se lisait comme un pied de page. C'est pourtant la
+  // seule chose qui empêche une série de disparaître avec le navigateur.
   return (
-    <GCard skin={skin} padding={15} style={{ marginTop: 12 }}>
+    <GCard skin={skin} padding={17} style={{ marginTop: 12 }} accent={skin.accent}>
       {/* Ce qu'il a DÉJÀ, avant qu'on lui demande quoi que ce soit. */}
       {serie > 1 && (
         <div style={{ fontFamily: skin.fontDisplay, fontWeight: 800, fontSize: 19, marginBottom: 6 }}>
           🔥 {t("compte.serie", { n: serie })}
         </div>
       )}
-      <GLabel skin={skin}>{t("compte.titre")}</GLabel>
+      <p
+        style={{
+          fontFamily: skin.fontDisplay,
+          fontWeight: 800,
+          fontSize: 18,
+          lineHeight: 1.25,
+          margin: 0,
+          textWrap: "balance",
+        }}
+      >
+        {t("compte.titre")}
+      </p>
       <p style={{ margin: "7px 0 0", fontSize: 14.5, lineHeight: 1.5, color: skin.muted, maxWidth: "46ch" }}>
         {t("compte.texte")}
       </p>
