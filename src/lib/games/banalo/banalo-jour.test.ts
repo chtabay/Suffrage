@@ -609,3 +609,35 @@ test("la répartition arrive entière, ou pas du tout", () => {
   assert.equal(abime?.points, 92.1);
   assert.equal(abime?.repartition, null);
 });
+
+test("la forme de la journée ne nomme jamais le mot d'un autre", () => {
+  // ⚠️ LA GARDE EST EN BASE — `20260822-banalo-mots-concentration.sql` ne rend
+  // même pas le libellé d'une barre qui n'est pas la nôtre. Celle-ci est la
+  // ceinture : si une régression le faisait sortir, l'écran refuserait quand
+  // même de l'afficher. Nommer les mots les plus donnés diffuserait du texte
+  // libre écrit par des joueurs à tous les autres, sur un jeu public et anonyme.
+  const base = {
+    status: "ok", repondu: true, assez: true, votants: 40, cases: 6,
+    grille: [], total: 108, points: 41.7, rang: 12, exaequo: 1, partmieux: 28,
+  };
+  const conc = (barres: unknown[]) =>
+    traduisMots({ ...base, concentration: { barres, distincts: 20, couverture: 45, cases: 6 } })?.concentration;
+
+  const bon = conc([
+    { part: 90, mien: true, mot: "sable" },
+    { part: 40, mien: false, mot: null },
+  ]);
+  assert.equal(bon?.barres[0].mot, "sable", "mon mot est nommé");
+  assert.equal(bon?.barres[1].mot, null);
+
+  // Un libellé sur une barre qui n'est pas la mienne est JETÉ, pas affiché.
+  const vole = conc([{ part: 40, mien: false, mot: "poisson" }]);
+  assert.equal(vole?.barres[0].mot, null, "un mot d'autrui a survécu");
+  assert.equal(vole?.barres[0].part, 40, "la hauteur, elle, reste");
+
+  // Et la bande entière est refusée si une hauteur manque : un trou au milieu
+  // d'un diagramme se lit comme une panne.
+  assert.equal(conc([{ part: 90, mien: true, mot: "sable" }, { mien: false }]), null);
+  assert.equal(conc([]), null, "aucune barre");
+  assert.equal(traduisMots(base)?.concentration, null, "journée ouverte : rien");
+});

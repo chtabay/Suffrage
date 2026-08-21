@@ -41,6 +41,7 @@ import { monJeton } from "@/lib/games/banalo/jeton";
 import { teinteDe } from "@/lib/games/banalo/chaleur";
 import { etat as litEtat, etatMots, type EtatBanalo, type EtatMots } from "@/lib/db/banalo";
 import RepartitionDuJour from "./RepartitionDuJour";
+import ConcentrationDuJour from "./ConcentrationDuJour";
 
 /** `Intl` ne connaît pas `pcm` : le pidgin s'écrit aux conventions anglaises. */
 const bcp = (locale: string) => (locale === "pcm" ? "en" : locale);
@@ -170,6 +171,10 @@ export default function JourneePrecedente({ jour }: { jour: number }) {
             </div>
           ) : null}
           {score}
+          {/* LA FORME DE LA JOURNÉE — le pendant, pour les mots, de la bande de
+              répartition des nombres. Elle vient APRÈS le score et après la
+              grille : le chiffre du joueur d'abord, le paysage ensuite. */}
+          {mots?.concentration ? <ConcentrationDuJour conc={mots.concentration} /> : null}
         </GCard>
       </div>
     );

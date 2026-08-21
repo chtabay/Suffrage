@@ -224,6 +224,25 @@ export interface CaseBanalo {
 }
 
 /**
+ * LA FORME D'UNE JOURNÉE DE MOTS — la foule s'est-elle serrée, ou éparpillée ?
+ *
+ * ⚠️ LES BARRES DES AUTRES SONT MUETTES : on rend leur hauteur, jamais leur
+ * libellé. Nommer les mots les plus donnés reviendrait à diffuser du texte libre
+ * écrit par des joueurs à tous les autres — voir
+ * `20260822-banalo-mots-concentration.sql`. Les mots du JOUEUR, eux, portent
+ * leur nom : il les a déjà sous les yeux dans la grille juste au-dessus.
+ */
+export interface Concentration {
+  /** Les dix premiers mots de la journée, du plus donné au moins donné. */
+  barres: { part: number; mien: boolean; mot: string | null }[];
+  /** Combien de mots distincts la journée a produits. */
+  distincts: number;
+  /** Quelle part de toutes les réponses les `cases` premiers mots représentent. */
+  couverture: number | null;
+  cases: number;
+}
+
+/**
  * L'état d'une journée de mots. Même grammaire que `EtatBanalo` — trois régimes,
  * et l'écran doit savoir dire les trois.
  */
@@ -251,6 +270,8 @@ export interface EtatMots {
   rang: number | null;
   exAequo: number | null;
   partMieux: number | null;
+  /** La forme de la journée, ou `null` tant qu'elle est ouverte. */
+  concentration: Concentration | null;
 }
 
 interface EtatMotsBrut {
@@ -266,6 +287,35 @@ interface EtatMotsBrut {
   rang?: number | null;
   exaequo?: number | null;
   partmieux?: number | null;
+  concentration?: unknown;
+}
+
+/**
+ * La forme de la journée, ou `null`.
+ *
+ * ⚠️ REFUSÉE EN BLOC, comme la bande des nombres : une barre sans hauteur
+ * dessinerait un vide au milieu d'un diagramme, et le joueur lirait une panne
+ * là où il n'y a qu'une donnée manquante.
+ */
+function litConcentration(brut: unknown): Concentration | null {
+  const c = brut as Partial<Concentration> | null | undefined;
+  if (!c || !Array.isArray(c.barres) || c.barres.length === 0) return null;
+  const barres = c.barres.map((b) => ({
+    part: typeof b?.part === "number" && Number.isFinite(b.part) ? b.part : -1,
+    mien: b?.mien === true,
+    // ⚠️ ON N'ACCEPTE UN LIBELLÉ QUE SUR UNE BARRE À SOI. Si la base en rendait
+    // un ailleurs — régression, main mal assurée — l'écran ne l'affichera pas.
+    mot: b?.mien === true && typeof b?.mot === "string" ? b.mot : null,
+  }));
+  if (barres.some((b) => b.part < 0)) return null;
+  const cases = typeof c.cases === "number" && Number.isInteger(c.cases) && c.cases > 0 ? c.cases : null;
+  if (cases === null) return null;
+  return {
+    barres,
+    distincts: typeof c.distincts === "number" && Number.isFinite(c.distincts) ? c.distincts : 0,
+    couverture: typeof c.couverture === "number" && Number.isFinite(c.couverture) ? c.couverture : null,
+    cases,
+  };
 }
 
 /** Exporté pour être éprouvé seul, comme `traduis` : il porte la même règle du
@@ -295,6 +345,7 @@ export function traduisMots(brut: unknown): EtatMots | null {
     assez: e.assez === true,
     close: e.close === true,
     cases: nombre(e.cases) ?? 0,
+    concentration: litConcentration(e.concentration),
     grille,
     total: nombre(e.total),
     points: nombre(e.points),

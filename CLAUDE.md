@@ -295,6 +295,29 @@ ronds et fait un **peigne**, qu'un pas calculé sur l'étendue couperait en deux
 et **queues repliées dans les barres des bords**, jamais jetées, sinon la somme
 des barres ne fait plus le nombre de votants annoncé juste à côté.
 
+**Le format « mots » a SA propre forme, et ce n'est pas un histogramme**
+(`ConcentrationDuJour`). Il n'existe pas d'axe pour des mots : ce qui se
+distribue, c'est la CONCENTRATION — la part des joueurs qui ont donné le mot
+n° 1, puis le n° 2. ⚠️ Et c'est bien la signature de la journée, mesuré à
+3 000 joueurs : sur un thème à évidence brutale le premier mot est écrit par
+**99 %** des joueurs et les six premiers couvrent **58 %** des réponses ; sur un
+thème ouvert, **23 %** et **13 %**. Un écart de quatre entre journées, qui
+explique directement les scores du jour. L'échelle des barres part de la plus
+haute et non de 100 %, sinon un thème ouvert dessine dix traits collés au sol —
+c'est le chiffre en dessous qui porte l'échelle.
+
+⚠️ **ET LES BARRES DES AUTRES SONT MUETTES : on rend leur hauteur, jamais leur
+libellé.** Nommer les mots les plus donnés diffuserait du **texte libre écrit par
+des joueurs à tous les autres**, sur un jeu public, anonyme, dont la politique
+déclare une tranche d'âge « enfant ». La justification de l'absence de tout
+signalement (plus bas) repose sur le modèle de la SALLE — entrée par code, salle
+jetable, effacement à sept jours — et **aucune des trois propriétés ne tient
+ici**. La garde est en base : le libellé n'est pas rendu, et `litConcentration`
+le jette une seconde fois côté écran. Les mots du JOUEUR portent leur nom : la
+grille juste au-dessus les lui montre déjà. Le jour où on voudra nommer les
+autres, ce qu'il faudra ajouter est un plancher qui suit la foule
+(`max(5, 5 % des votants)`), calibré sur des journées réelles.
+
 ⚠️ **La bande vit dans `scrutin_banalo_etat`, pas dans une fonction à elle** :
 une fonction séparée devrait savoir si la journée est close, donc porter une
 **troisième** copie de `ORIGINE`. Et un histogramme est plus dangereux que la
