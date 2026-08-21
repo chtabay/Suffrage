@@ -2745,6 +2745,7 @@
     "catMystere": "a ti te toca",
     "catAVenir": "pronto",
     "casesAide": "Las cinco casillas son las características del día, de la más común a la más rara. Dos intentos que llenan la misma casilla la comparten.",
+    "enqueteExemple": "{a} y {b} llenan los dos esta casilla: comparten la misma característica del día. Ahí está toda la investigación: cruza tus intentos.",
     "casesLues": "{n, plural, =0 {ninguna característica compartida} one {1 característica compartida} other {# características compartidas}}",
     "serieTitre": "{n} días seguidos",
     "compte": {

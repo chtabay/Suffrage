@@ -2745,6 +2745,7 @@
     "catMystere": "na you go find am",
     "catAVenir": "e go come",
     "casesAide": "Di five boxes na di marks of di day, from di one wey common pass to di one wey rare pass. Two try wey fill di same box dey share am.",
+    "enqueteExemple": "{a} and {b} both fill dis square: dem share di same characteristic of di day. Na di whole investigation be dat — compare your tries.",
     "casesLues": "{n, plural, =0 {no mark dey shared} one {1 mark dey shared} other {# marks dey shared}}",
     "serieTitre": "{n} days back to back",
     "compte": {

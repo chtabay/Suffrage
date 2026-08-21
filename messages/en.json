@@ -2745,6 +2745,7 @@
     "catMystere": "yours to find",
     "catAVenir": "coming",
     "casesAide": "The five boxes are the day's characteristics, from the most common to the rarest. Two guesses filling the same box share it.",
+    "enqueteExemple": "{a} and {b} both fill this square: they share the same characteristic of the day. That is the whole investigation — cross-check your guesses.",
     "casesLues": "{n, plural, =0 {no characteristic shared} one {1 characteristic shared} other {# characteristics shared}}",
     "serieTitre": "{n} days in a row",
     "compte": {

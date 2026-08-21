@@ -2745,6 +2745,7 @@
     "catMystere": "à toi de trouver",
     "catAVenir": "à venir",
     "casesAide": "Les cinq cases sont les caractéristiques du jour, de la plus courante à la plus rare. Deux essais qui remplissent la même case la partagent.",
+    "enqueteExemple": "{a} et {b} remplissent tous deux cette case : ils partagent donc la même caractéristique du jour. Toute l'enquête est là — recoupez vos essais.",
     "casesLues": "{n, plural, =0 {aucune caractéristique partagée} one {1 caractéristique partagée} other {# caractéristiques partagées}}",
     "serieTitre": "{n} jours d'affilée",
     "compte": {

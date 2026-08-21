@@ -59,6 +59,8 @@ interface Sauvegarde {
    * recevoir.
    */
   coupDePouce?: CoupDePouce;
+  /** Les étiquettes du coup précédent : ce qui a changé depuis se met en lumière. */
+  pictosAvant?: (Etiquette | null)[];
   /**
    * Les annonces déjà vues. ⚠️ SANS ÇA, LA MODALE REVIENT À CHAQUE ESSAI : les
    * pictos sont présents dans toutes les réponses passé le seuil, pas seulement
@@ -76,6 +78,12 @@ type CoupDePouce = { pays: string; nom: string; cases: number[] };
 
 const cle = (jour: number) => `placet.pays.${jour}`;
 
+/**
+ * Combien d'essais l'exemple d'enquête accompagne. Assez pour être vu deux ou
+ * trois fois, trop peu pour devenir du mobilier.
+ */
+const ESSAIS_AVEC_EXEMPLE = 6;
+
 /** La borne d'essais du jeu — la même que le `check` de `scrutin_game_pays_results`. */
 const ESSAIS_MAX = 500;
 
@@ -90,6 +98,11 @@ export default function PaysDuJour({ jour }: { jour: number }) {
   const [cases, setCases] = useState<number[][]>([]);
   const [pictos, setPictos] = useState<(Etiquette | null)[]>([]);
   const [pouce, setPouce] = useState<CoupDePouce | null>(null);
+  // Les étiquettes telles qu'elles étaient AU COUP PRÉCÉDENT. La différence
+  // avec les actuelles donne ce qui vient d'arriver — et c'est ça qu'on met en
+  // lumière dans la rangée. Gardé avec la partie : sinon un rechargement
+  // éteindrait la nouveauté avant que le joueur ne l'ait vue.
+  const [pictosAvant, setPictosAvant] = useState<(Etiquette | null)[]>([]);
   // Les paliers déjà annoncés. ⚠️ EN `useRef`, pas en état : ils sont lus dans
   // le gestionnaire d'essai juste après l'avoir mis à jour, et un état de React
   // n'y serait pas encore à jour.
@@ -140,6 +153,7 @@ export default function PaysDuJour({ jour }: { jour: number }) {
     setCases(sauve?.cases ?? []);
     setPictos(sauve?.pictos ?? []);
     setPouce(sauve?.coupDePouce ?? null);
+    setPictosAvant(sauve?.pictosAvant ?? []);
     vues.current = sauve?.vues ?? {};
     setRevelation(sauve?.revelation ?? null);
     setSerie(serieEnCours(jour));
@@ -167,12 +181,14 @@ export default function PaysDuJour({ jour }: { jour: number }) {
       remplies: number[][],
       domaines: (Etiquette | null)[],
       offert: CoupDePouce | null,
+      avant: (Etiquette | null)[],
     ) => {
       const corps: Sauvegarde = {
         essais: prochains,
         cases: remplies,
         pictos: domaines,
         coupDePouce: offert ?? undefined,
+        pictosAvant: avant,
         vues: vues.current,
         revelation: reveal ?? undefined,
         debut: debut.current,
@@ -216,6 +232,33 @@ export default function PaysDuJour({ jour }: { jour: number }) {
   // autres. C'est la fenêtre où la légende est une récompense.
   const premierSeul = pictos.filter(Boolean).length === 1;
 
+  // Ce qui vient d'apparaître dans la rangée, depuis le coup précédent.
+  const nouveaux = pictos.map((e, k) => e !== null && !pictosAvant[k]);
+
+  // L'EXEMPLE D'ENQUÊTE — deux de MES pays qui remplissent la même case.
+  //
+  // ⚠️ LE MÉCANISME NE SE DEVINE PAS TOUT SEUL, signalé sur de vrais joueurs :
+  // « ils ont du mal à voir qu'il y a une enquête à faire entre les indices
+  // communs entre pays ». La règle est pourtant écrite au-dessus de la liste —
+  // mais une phrase générale se saute, alors qu'une phrase qui nomme LEURS deux
+  // pays se lit. On la construit donc sur leurs données, au moment précis où la
+  // déduction devient possible : au deuxième essai, pas avant.
+  //
+  // ⚠️ ON PRÉFÈRE LA CASE LA PLUS RARE partagée — c'est celle qui vaut le plus
+  // cher, et l'exemple doit désigner le geste utile, pas le premier venu.
+  const enquete = useMemo(() => {
+    if (essais.length < 2 || cases.length !== essais.length) return null;
+    const dernier = cases[cases.length - 1];
+    for (let i = cases.length - 2; i >= 0; i--) {
+      for (let k = dernier.length - 1; k >= 0; k--) {
+        if (dernier[k] === 1 && cases[i][k] === 1) {
+          return { a: essais[essais.length - 1].pays, b: essais[i].pays, case: k, n: dernier.length };
+        }
+      }
+    }
+    return null;
+  }, [cases, essais]);
+
   const joue = async (id: string) => {
     if (gagne) return;
     const deja = essais.find((e) => e.pays === id);
@@ -250,6 +293,11 @@ export default function PaysDuJour({ jour }: { jour: number }) {
       const prochains = [...essais, { pays: id, score: rep.score }];
       const remplies = rep.cases ?? [];
       const domaines = rep.pictos ?? [];
+      // ⚠️ ON CAPTURE L'ÉTAT D'AVANT AVANT DE L'ÉCRASER. C'est la seule chose
+      // qui permette de dire « ces deux-là viennent d'arriver » plutôt que
+      // « voici cinq pastilles ».
+      const avant = pictos;
+      setPictosAvant(avant);
       setCases(remplies);
       setPictos(domaines);
       if (essais.length === 0) mesure("premier", { secondes: Math.round((Date.now() - debut.current) / 1000) });
@@ -301,7 +349,7 @@ export default function PaysDuJour({ jour }: { jour: number }) {
       // le plus attendu du jeu ; une modale « voici une aide » posée par-dessus
       // serait une insulte au joueur qui vient de trouver.
       if (aAnnoncer.length > 0 && !reveal) setAnnonces(aAnnoncer);
-      enregistre(prochains, reveal, remplies, domaines, offert);
+      enregistre(prochains, reveal, remplies, domaines, offert, avant);
     } catch {
       setErreur(true);
     }
@@ -516,6 +564,38 @@ export default function PaysDuJour({ jour }: { jour: number }) {
                 {t("casesAide")}
               </p>
             )}
+            {/* ⚠️ UNE FENÊTRE D'APPRENTISSAGE, PAS UN MEUBLE. L'exemple ne sert
+                qu'à faire comprendre le geste ; passé quelques coups, il
+                répéterait à un joueur qui a compris une évidence bruyante, à
+                l'endroit exact où il vient lire ses essais. */}
+            {enquete && !gagne && essais.length <= ESSAIS_AVEC_EXEMPLE && (
+              <p
+                style={{
+                  display: "flex",
+                  alignItems: "baseline",
+                  gap: 7,
+                  margin: "8px 0 0",
+                  padding: "8px 11px",
+                  borderRadius: 10,
+                  // ⚠️ PLUS DISCRET QUE LA RÉCOMPENSE, ET C'EST VOULU. Les deux
+                  // blocs cohabitent pendant les premiers coups ; deux cadres à
+                  // l'accent empilés font un mur, et c'est l'INDICE qu'il faut
+                  // voir en premier — la règle du jeu peut se contenter d'un
+                  // filet. La première version leur donnait la même bordure.
+                  background: `${skin.accent}0F`,
+                  borderLeft: `3px solid ${skin.accent}`,
+                  fontSize: 12.5,
+                  lineHeight: 1.45,
+                }}
+              >
+                <span style={{ flex: "none", transform: "translateY(1px)" }}>
+                  <Reperes k={enquete.case} n={enquete.n} />
+                </span>
+                <span>
+                  {t("enqueteExemple", { a: nomPays(enquete.a, locale), b: nomPays(enquete.b, locale) })}
+                </span>
+              </p>
+            )}
             {/* LA LÉGENDE, EN DEUX TEMPS.
                 
                 ⚠️ AU PREMIER COUP, ELLE EST UNE RÉCOMPENSE, PAS UNE NOTE DE BAS
@@ -528,7 +608,7 @@ export default function PaysDuJour({ jour }: { jour: number }) {
                 étiquettes sont devenues du mobilier utile : la mise en avant
                 retombe, et c'est la modale qui annonce le changement. */}
             {pictos.some(Boolean) &&
-              (premierSeul ? (
+              (premierSeul && !gagne ? (
                 <div
                   style={{
                     margin: "8px 0 0",
@@ -539,14 +619,19 @@ export default function PaysDuJour({ jour }: { jour: number }) {
                   }}
                 >
                   <p style={{ margin: 0, fontSize: 13, lineHeight: 1.45 }}>{t("pictosAidePremier")}</p>
-                  <Legende pictos={pictos} mystere={t("catMystere")} aVenir={t("catAVenir")} />
+                  <Legende
+                    pictos={pictos}
+                    mystere={t("catMystere")}
+                    aVenir={t("catAVenir")}
+                    nouveaux={nouveaux}
+                  />
                 </div>
               ) : (
                 <>
                   <p style={{ margin: "7px 0 0", fontSize: 12.5, color: skin.muted, lineHeight: 1.45 }}>
                     {t("pictosAide")}
                   </p>
-                  <Legende pictos={pictos} mystere={t("catMystere")} />
+                  <Legende pictos={pictos} mystere={t("catMystere")} nouveaux={nouveaux} />
                 </>
               ))}
             {/* LE PAYS OFFERT. Posé AU-DESSUS de l'historique et non dedans :
@@ -602,7 +687,9 @@ export default function PaysDuJour({ jour }: { jour: number }) {
           fermerLabel={t("annonceFermer")}
           fermer={() => setAnnonces((a) => a.slice(1))}
         >
-          <Legende pictos={pictos} mystere={t("catMystere")} />
+          {/* Dans la modale, on met en lumière ce qui vient d'arriver : la
+              première case, elle, est là depuis le premier coup. */}
+          <Legende pictos={pictos} mystere={t("catMystere")} nouveaux={nouveaux} />
         </AideModale>
       )}
       {annonces[0] === "pouce" && pouce && (
@@ -622,6 +709,42 @@ export default function PaysDuJour({ jour }: { jour: number }) {
         </AideModale>
       )}
     </GameShell>
+  );
+}
+
+/**
+ * LES CINQ POSITIONS, AVEC UNE DÉSIGNÉE — le « de quelle colonne je parle » du jeu.
+ *
+ * ⚠️ UN REPÈRE DE POSITION, PAS UNE CASE. La première version montrait une seule
+ * case vide devant chaque pastille : les quatre premières étaient alors
+ * strictement identiques, donc plus rien ne disait de QUELLE colonne parlait la
+ * pastille — et il suffisait que la rangée passe à la ligne pour que l'ordre ne
+ * suffise plus. Vu en jouant, pas en lisant le code. On montre donc les cinq
+ * positions avec la bonne noircie : le repère se décrit lui-même, où qu'il
+ * tombe. Extrait de `Legende` le jour où l'exemple d'enquête a eu besoin du
+ * même geste — deux copies auraient divergé.
+ */
+function Reperes({ k, n }: { k: number; n: number }) {
+  return (
+    <span aria-hidden style={{ display: "inline-flex", gap: 2, flex: "none" }}>
+      {Array.from({ length: n }, (_, j) => {
+        const cinq = j === n - 1;
+        return (
+          <span
+            key={j}
+            style={{
+              display: "block",
+              width: cinq ? 5 : 6,
+              height: cinq ? 5 : 6,
+              borderRadius: 1,
+              border: `1.5px solid ${j === k ? skin.ink : `${skin.ink}30`}`,
+              background: j === k ? (cinq ? skin.accent2 : skin.ink) : "transparent",
+              transform: cinq ? "rotate(45deg)" : undefined,
+            }}
+          />
+        );
+      })}
+    </span>
   );
 }
 
@@ -704,9 +827,20 @@ function Legende({
   pictos,
   mystere,
   aVenir,
+  nouveaux,
 }: {
   pictos: (Etiquette | null)[];
   mystere: string;
+  /**
+   * Les cases dont l'étiquette VIENT D'ARRIVER, au dernier coup.
+   *
+   * ⚠️ SANS ÇA, L'AJOUT PASSE INAPERÇU — signalé sur de vrais joueurs. La rangée
+   * montre cinq pastilles ; quand trois se remplissent d'un coup au seuil, rien
+   * ne dit lesquelles sont neuves, et la ligne entière se lit comme du décor
+   * qui était déjà là. La nouveauté doit se voir DANS la rangée, pas seulement
+   * dans une modale qu'on ferme.
+   */
+  nouveaux?: boolean[];
   /**
    * ⚠️ CE QU'AFFICHE UNE CASE ENCORE VERROUILLÉE — et c'est un mot différent de
    * celui d'une case muette. Le « · » veut dire « celle-là ne parlera jamais »
@@ -734,6 +868,13 @@ function Legende({
         // serveur la fait taire quand son domaine ne laisserait qu'un critère
         // possible. Rien à montrer alors — mais on garde sa place dans la
         // rangée, sinon les positions ne correspondent plus aux lignes.
+        // ⚠️ TROIS ÉTATS, PAS DEUX. Une pastille qui PARLE est l'information ;
+        // une pastille EN ATTENTE ou MUETTE n'est qu'un repère de colonne. La
+        // première version les habillait pareil : cinq pastilles identiques
+        // dont une seule portait quelque chose, et l'œil ne trouvait pas
+        // laquelle. Celle qui parle est donc pleine, les autres s'effacent.
+        const parle = etiq !== null;
+        const neuve = parle && nouveaux?.[k] === true;
         return (
           <li
             key={k}
@@ -741,13 +882,14 @@ function Legende({
               display: "inline-flex",
               alignItems: "center",
               gap: 5,
-              padding: "3px 8px 3px 6px",
+              padding: parle ? "4px 10px 4px 7px" : "3px 8px 3px 6px",
               borderRadius: 999,
-              background: skin.paper,
-              border: `2px solid ${skin.ink}18`,
-              fontSize: 11.5,
-              fontWeight: 700,
-              color: nom ? skin.ink : skin.muted,
+              background: neuve ? skin.accent2 : parle ? skin.paper : "transparent",
+              border: `2px solid ${parle ? skin.ink : `${skin.ink}18`}`,
+              fontSize: parle ? 12.5 : 11,
+              fontWeight: parle ? 800 : 600,
+              color: parle ? skin.ink : skin.muted,
+              opacity: parle ? 1 : 0.75,
             }}
           >
             {/* ⚠️ UN REPÈRE DE POSITION, PAS UNE CASE. La première version
@@ -758,25 +900,7 @@ function Legende({
                 Vu en jouant, pas en lisant le code. On montre donc les cinq
                 positions avec la bonne noircie : la pastille se décrit
                 elle-même, où qu'elle tombe. */}
-            <span aria-hidden style={{ display: "inline-flex", gap: 2, flex: "none" }}>
-              {pictos.map((_, j) => {
-                const cinq = j === pictos.length - 1;
-                return (
-                  <span
-                    key={j}
-                    style={{
-                      display: "block",
-                      width: cinq ? 5 : 6,
-                      height: cinq ? 5 : 6,
-                      borderRadius: 1,
-                      border: `1.5px solid ${j === k ? skin.ink : `${skin.ink}30`}`,
-                      background: j === k ? (cinq ? skin.accent2 : skin.ink) : "transparent",
-                      transform: cinq ? "rotate(45deg)" : undefined,
-                    }}
-                  />
-                );
-              })}
-            </span>
+            <Reperes k={k} n={pictos.length} />
             {etiq && <span aria-hidden>{etiq.picto}</span>}
             <span>{nom ?? "\u00B7"}</span>
           </li>

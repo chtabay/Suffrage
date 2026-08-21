@@ -92,6 +92,30 @@ proposition de chaque partie — une interruption quotidienne ; et une case
 encore verrouillée affiche « à venir », **pas le « · » des cases muettes** —
 le même glyphe pour « pas encore » et « jamais » se lit comme une panne.
 
+⚠️ **UNE PASTILLE QUI PARLE N'A PAS L'AIR D'UNE PASTILLE QUI SE TAIT**, et la
+NOUVEAUTÉ SE VOIT DANS LA RANGÉE. Deuxième retour de terrain : « la ligne des
+catégories passe parfois inaperçue, d'autant qu'il y a 5 catégories affichées
+directement et l'indice ajouté n'est pas mis en lumière ». Cinq pastilles
+habillées pareil dont une seule porte quelque chose : l'œil ne trouve pas
+laquelle. Celle qui parle est donc pleine et cernée, les autres s'effacent ; et
+celle qui vient d'arriver passe au jaune, jusqu'au coup suivant. C'est
+`pictosAvant` dans la sauvegarde qui porte la différence — pas un booléen
+« déjà vu », sinon un rechargement éteindrait la nouveauté avant qu'elle ne
+soit vue. La modale du seuil montre la même rangée, donc le joueur voit que
+DEUX pastilles sont neuves et que « continent » ne l'est pas.
+
+**L'ENQUÊTE NE SE DEVINE PAS, ON LA MONTRE SUR LES PROPRES PAYS DU JOUEUR.**
+Troisième retour : « les joueurs ont du mal à voir qu'il y a une enquête à faire
+entre les indices communs entre pays ». La règle était pourtant écrite au-dessus
+de la liste — mais une phrase générale se saute. Au DEUXIÈME essai, quand la
+déduction devient possible, une ligne nomme deux de leurs pays et la case qu'ils
+partagent. ⚠️ Elle choisit la case la plus RARE partagée (celle qui vaut le plus
+cher), elle se tait s'il n'y a rien à recouper, et elle disparaît après
+`ESSAIS_AVEC_EXEMPLE` coups — un exemple qui reste devient du bruit à l'endroit
+exact où le joueur vient lire ses essais. Elle est aussi **plus discrète que la
+récompense** : deux cadres à l'accent empilés font un mur, et c'est l'indice
+qu'il faut voir en premier.
+
 **Les deux aides de Cinq sur cinq S'ANNONCENT, elles n'apparaissent plus en
 silence.** La légende des cases se posait au-dessus d'une liste de quarante
 lignes, en gris 12,5 px : un joueur qui vient de taper son quinzième pays
