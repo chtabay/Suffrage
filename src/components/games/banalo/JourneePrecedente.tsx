@@ -38,10 +38,12 @@ import { cleTheme } from "@/content/banalo/mots";
 import { themeLabel } from "@/lib/games/banalo/themes";
 import { programmeDe } from "@/lib/games/banalo/programme";
 import { monJeton } from "@/lib/games/banalo/jeton";
+import { COURBE_MIN } from "@/lib/games/banalo/bareme";
 import { teinteDe } from "@/lib/games/banalo/chaleur";
 import { etat as litEtat, etatMots, type EtatBanalo, type EtatMots } from "@/lib/db/banalo";
 import RepartitionDuJour from "./RepartitionDuJour";
 import ConcentrationDuJour from "./ConcentrationDuJour";
+import CourbeDesScores from "./CourbeDesScores";
 
 /** `Intl` ne connaît pas `pcm` : le pidgin s'écrit aux conventions anglaises. */
 const bcp = (locale: string) => (locale === "pcm" ? "en" : locale);
@@ -231,9 +233,33 @@ export default function JourneePrecedente({ jour }: { jour: number }) {
             </div>
           ) : null}
           {score}
+          {/* LA COURBE DES SCORES, juste sous le chiffre qu'elle situe. ⚠️ ELLE
+              N'EXISTE QUE SUR LA JOURNÉE ARRÊTÉE, et c'est la raison d'être de
+              cet écran : en journée ouverte les sommes gonflent d'heure en
+              heure, donc deux lectures du même dépôt donneraient deux images.
+              Ici la foule est complète et le dessin ne bouge plus.
+
+              ⚠️ ET SEULEMENT AU-DELÀ DE `COURBE_MIN`, QUI N'EST PAS `assez`. La
+              première version se gardait sur `assez` (cinq votants) tout en
+              écrivant qu'à six votants « un dessin grossier ment » : elle se
+              contredisait elle-même. Un centile grossier reste VRAI ; un
+              histogramme grossier dessine une forme là où il n'y a que du bruit.
+              Ce plancher-là n'est donc pas un plancher sur le résultat du joueur
+              — celui-là est tombé le 22/08 et ne revient pas — c'est un plancher
+              sur ce qu'un DESSIN peut honnêtement porter.
+
+              ⚠️ Et `seaux.length > 1` écarte le cas dégénéré : quand tout le
+              monde a le même score, la base rend UNE barre, et l'écran
+              dessinerait un bandeau plein largeur sous un axe imprimant deux
+              fois le même nombre. Ça se lit comme une panne, pas comme une
+              information. */}
+          {mots?.courbe && mots.votants >= COURBE_MIN && mots.courbe.seaux.length > 1 ? (
+            <CourbeDesScores courbe={mots.courbe} votants={mots.votants} />
+          ) : null}
           {/* LA FORME DE LA JOURNÉE — le pendant, pour les mots, de la bande de
               répartition des nombres. Elle vient APRÈS le score et après la
-              grille : le chiffre du joueur d'abord, le paysage ensuite. */}
+              grille : le chiffre du joueur d'abord, le paysage ensuite. La
+              courbe distribue des JOUEURS, celle-ci distribue des MOTS. */}
           {mots?.concentration ? <ConcentrationDuJour conc={mots.concentration} /> : null}
         </GCard>
       </div>

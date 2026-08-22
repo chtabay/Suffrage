@@ -401,6 +401,57 @@ scellement existe. Il en reste **deux** (`jour.ts` et
 `20260820-banalo-mediane-scellee.sql`), et le format chiffré garde la sienne à
 bon droit — sa médiane, elle, reste scellée jusqu'à la clôture.
 
+**La COURBE DES SCORES existe, et elle DORT jusqu'à cinquante votants**
+(`CourbeDesScores`, `20260823-banalo-courbe-des-scores.sql`). Un joueur a demandé
+« comment on sait si on est bien placés ? » ; l'écran répondait déjà par un
+centile et un rang. ⚠️ **Ce n'est pourtant pas un doublon, et c'est mesuré** : un
+centile est un RANG, donc uniforme par construction — il ne peut pas dire si la
+foule s'est serrée. Simulé à 3 000 joueurs, la distribution des scores prend deux
+formes INVERSES selon le thème : bosse en haut sur un thème serré
+(0/0/1/3/5/13/18/25/22/13 %), bosse en bas sur un thème ouvert
+(11/19/18/13/14/11/8/3/1/0 %). Deux joueurs au 50ᵉ centile de ces deux journées
+ne sont pas dans la même situation.
+
+⚠️ **`COURBE_MIN` (50) N'EST PAS `VOTANTS_MIN` (2), ET LES CONFONDRE EST LE
+DÉFAUT QU'UNE ÉVALUATION UX A TROUVÉ.** La première version se gardait sur
+`assez` (5) tout en écrivant dans son propre en-tête qu'à six votants « un dessin
+grossier ment ». Un centile grossier reste VRAI — « 3e sur 6 » dit quelque chose ;
+un histogramme grossier dessine une forme là où il n'y a que du bruit. Sur la
+vraie journée 2 (11 joueurs) la courbe vaut [2,1,1,3,4] : un joueur de plus
+déplace une barre d'un quart. **À onze joueurs elle ne s'affiche donc pas, et
+c'est le sujet, pas un défaut.**
+
+⚠️ **Elle ne sort QUE sur la journée arrêtée, et QUE sur le format « mots ».**
+Côté chiffré, `score = 100 − 100·log₁₀(facteur)` et le facteur est le rapport à
+la médiane : l'histogramme des scores y serait celui des RÉPONSES replié autour
+de la médiane — `RepartitionDuJour` montre déjà la version dépliée, avec un axe
+de vrais nombres et deux repères dont l'un dégénérerait (la médiane vaut 100 par
+construction). Et ce format ne paraît qu'un jour sur sept.
+
+⚠️ **« VOUS » EST EN ACCENT, PAS EN ENCRE**, contrairement à `RepartitionDuJour`.
+Ce n'est pas une incohérence, c'est une cohabitation : dans la MÊME carte, la
+bande de concentration peint déjà les mots du joueur en accent, et un repère à
+l'encre juste au-dessus apprenait au lecteur une clé que la bande suivante
+contredisait aussitôt. `RepartitionDuJour` garde la sienne — elle sert l'autre
+format et les deux ne partagent jamais un écran.
+
+⚠️ **Et deux gardes de dessin, toutes deux vues à l'écran** : `seaux.length > 1`
+écarte le cas dégénéré (tout le monde au même score → une barre pleine largeur
+sous un axe imprimant deux fois le même nombre, ce qui se lit comme une panne) ;
+et la bande porte une PHRASE avec son effectif, parce que cinq barres donnent la
+même image à onze joueurs et à trois mille — une densité sans son effectif n'est
+pas une densité.
+
+⚠️ **L'ORDRE DE REJEU DES MIGRATIONS DU 22/08 EST INVERSÉ, et c'est réparé par
+la migration du 23.** Six fichiers portent la même date ; `-sans-plancher` a été
+appliqué en 3ᵉ mais se trie en DERNIER. Un rejeu à blanc dans l'ordre des noms
+remettait donc `v_min_position` à 20, refaisait payer le mot orphelin et
+réintroduisait la copie de l'origine du calendrier. `20260823-banalo-courbe-des-scores.sql`
+porte l'état final des DEUX fonctions et sort dernier dans les deux ordres.
+**Toute migration qui touchera encore ces fonctions devra être datée du 24/08 ou
+plus tard** — le piège se rouvre au premier fichier du 23 dont le nom commence
+avant « c ».
+
 **La journée close montre AUSSI sa répartition** (`RepartitionDuJour`), et c'est
 une décision prise sur mesure, pas au goût. La demande de départ était une
 **courbe de position au fil de la journée** ; simulé, le percentile d'un joueur

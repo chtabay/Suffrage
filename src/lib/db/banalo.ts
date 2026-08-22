@@ -166,6 +166,29 @@ function litRepartition(brut: unknown): Repartition | null {
 }
 
 /**
+ * La courbe des scores, ou `null`.
+ *
+ * ⚠️ REFUSÉE EN BLOC, comme la bande de répartition. Une courbe à qui il manque
+ * son repère dessinerait « vous » sur la première barre par défaut — un mensonge
+ * tranquille, et le genre de défaut qu'aucun joueur ne signalera jamais.
+ */
+function litCourbe(brut: unknown): Courbe | null {
+  const c = brut as Partial<Courbe> | null | undefined;
+  if (!c || !Array.isArray(c.seaux) || c.seaux.length === 0) return null;
+  const seaux = c.seaux.map((v) => (typeof v === "number" && Number.isInteger(v) && v >= 0 ? v : -1));
+  if (seaux.some((v) => v < 0)) return null;
+  const fini = (v: unknown) => (typeof v === "number" && Number.isFinite(v) ? v : null);
+  const bas = fini(c.bas);
+  const haut = fini(c.haut);
+  const mien =
+    typeof c.mien === "number" && Number.isInteger(c.mien) && c.mien >= 0 && c.mien < seaux.length
+      ? c.mien
+      : null;
+  if (bas === null || haut === null || mien === null || haut < bas) return null;
+  return { bas, haut, seaux, mien };
+}
+
+/**
  * Dépose une réponse et rend l'état qui en découle, en un seul aller-retour.
  *
  * ⚠️ LE DÉPÔT EST DÉFINITIF, ET LA BASE FAIT FOI. Un second appel n'écrase rien
@@ -236,6 +259,32 @@ export interface CaseBanalo {
 }
 
 /**
+ * LA COURBE DES SCORES — où se posent les JOUEURS, et où l'on est dedans.
+ *
+ * ⚠️ CE N'EST PAS UN DOUBLON DU CENTILE, ET C'EST MESURÉ. Un centile est un
+ * RANG : il est uniforme par construction, donc il ne peut pas dire si la foule
+ * s'est serrée. Simulé à 3 000 joueurs, la même courbe prend deux formes
+ * inverses selon la nature du thème — bosse en haut sur un thème serré, bosse en
+ * bas sur un thème ouvert. Deux joueurs au 50e centile de ces deux journées ne
+ * sont pas dans la même situation, et seule la densité le montre.
+ *
+ * ⚠️ ET ELLE NE PARLE QUE DU FORMAT « MOTS ». Côté chiffré, le score est
+ * `100 − 100·log₁₀(facteur)` et le facteur est le rapport à la médiane : un
+ * histogramme des scores y serait celui des réponses REPLIÉ sur la médiane,
+ * c'est-à-dire `RepartitionDuJour` en moins riche.
+ */
+export interface Courbe {
+  /** Le plus petit score de la journée — le bord gauche de la première barre. */
+  bas: number;
+  /** Le plus grand — le bord droit de la dernière. */
+  haut: number;
+  /** Combien de joueurs dans chaque barre. La somme fait le nombre de votants. */
+  seaux: number[];
+  /** Index de la barre où je tombe. Calculé EN BASE, jamais ici. */
+  mien: number;
+}
+
+/**
  * LA FORME D'UNE JOURNÉE DE MOTS — la foule s'est-elle serrée, ou éparpillée ?
  *
  * ⚠️ LES BARRES DES AUTRES SONT MUETTES : on rend leur hauteur, jamais leur
@@ -263,6 +312,8 @@ export interface EtatMots {
   votants: number;
   /** Même métier que sur `EtatBanalo` : une réserve à afficher, pas un verrou. */
   assez: boolean;
+  /** La distribution des scores du jour, avec l'index de ma barre. */
+  courbe: Courbe | null;
   /** Le nombre de cases de la journée, lu en base et non chez le client. */
   cases: number;
   grille: CaseBanalo[];
@@ -290,6 +341,7 @@ interface EtatMotsBrut {
   repondu?: boolean;
   votants?: number;
   assez?: boolean;
+  courbe?: unknown;
   cases?: number;
   grille?: unknown;
   total?: number | null;
@@ -353,6 +405,7 @@ export function traduisMots(brut: unknown): EtatMots | null {
     repondu: e.repondu === true,
     votants: nombre(e.votants) ?? 0,
     assez: e.assez === true,
+    courbe: litCourbe(e.courbe),
     cases: nombre(e.cases) ?? 0,
     concentration: litConcentration(e.concentration),
     grille,

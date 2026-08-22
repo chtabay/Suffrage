@@ -135,6 +135,27 @@ export function pointsDe(facteur: number): number {
  */
 export const VOTANTS_MIN = 2;
 
+/**
+ * En dessous de ce nombre de votants, la COURBE DES SCORES ne se dessine pas.
+ *
+ * ⚠️ CE N'EST PAS `VOTANTS_MIN`, ET LES DEUX NE DOIVENT PAS SE CONFONDRE. Un
+ * centile grossier reste VRAI : « 3e sur 6 » dit quelque chose, même par pas de
+ * 17 points. Un histogramme grossier, lui, MENT — il dessine une forme là où il
+ * n'y a que du bruit. Sur la vraie journée 2 (11 joueurs), la courbe vaut
+ * [2,1,1,3,4] : un joueur de plus ou de moins déplace une barre d'un quart.
+ *
+ * Le seuil vise DIX JOUEURS PAR BARRE. Le nombre de barres suit la foule
+ * (`least(10, greatest(4, votants / 2))`), donc il plafonne à dix : il faut une
+ * centaine de votants pour dix par barre, cinquante pour cinq. On prend
+ * cinquante — la moitié du confort, le double de ce qui serait manifestement
+ * faux — et on le relèvera sur des journées réelles plutôt que sur une intuition.
+ *
+ * ⚠️ CONSÉQUENCE ASSUMÉE : à onze joueurs, la courbe NE S'AFFICHE PAS. Ce n'est
+ * pas un défaut, c'est le sujet — elle attend une foule, et elle s'allumera
+ * seule le jour où elle arrivera.
+ */
+export const COURBE_MIN = 50;
+
 /** Au-delà de ce facteur, tout le monde est à zéro et personne n'est départagé. */
 export const FACTEUR_PLAFOND = 10;
 
