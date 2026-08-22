@@ -23,7 +23,7 @@ import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { useAuth } from "@/lib/auth/useAuth";
-import { enregistreResultats, monBilan, monRang, type BilanPays, type RangPays } from "@/lib/db/pays";
+import { enregistreResultats, maPosition, monBilan, rattachePays, type BilanPays, type RangPays } from "@/lib/db/pays";
 import { lisResultats, serieEnCours } from "@/lib/games/pays/local";
 import type { GameSkin } from "@/lib/games/skin";
 import { GBtn, GCard, GLabel } from "@/components/games/ui";
@@ -79,11 +79,16 @@ export default function Compte({
     rattachePour.current = user.id;
     let vivant = true;
     void (async () => {
-      await enregistreResultats(lisResultats());
+      // ⚠️ DEUX RATTACHEMENTS, ET IL FAUT LES DEUX. Le lot du navigateur porte
+      // les parties jouées AVANT que le jeu ne sache écrire en base ; le jeton
+      // porte celles d'après. Les deux fonctions gardent le meilleur essai et
+      // sont idempotentes, donc les répéter à chaque connexion ne coûte que
+      // deux allers-retours.
+      await Promise.all([enregistreResultats(lisResultats()), rattachePays()]);
       if (!vivant) return;
       // On ne relit qu'APRÈS avoir écrit : sinon le bilan affiché serait celui
       // d'avant le rattachement, donc faux exactement au moment où il compte.
-      const [b, r] = await Promise.all([monBilan(), monRang(jour)]);
+      const [b, r] = await Promise.all([monBilan(), maPosition(jour)]);
       if (!vivant) return;
       setBilan(b);
       setRang(r);
@@ -128,7 +133,7 @@ export default function Compte({
             sans le classer. Le rang reste — il est utile à qui le cherche — mais
             en dessous et en petit.
             
-            La médiane était déjà renvoyée par `scrutin_game_pays_rank` et
+            La médiane était déjà renvoyée par la position du jour et
             n'était affichée nulle part. */}
         <GLabel skin={skin}>{t("compte.jourTitre")}</GLabel>
         <div style={{ display: "flex", gap: 18, flexWrap: "wrap", marginTop: 8 }}>

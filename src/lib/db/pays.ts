@@ -10,6 +10,7 @@
 // l'écran n'affiche alors rien — jamais « 0 partie », qui ferait croire à un
 // joueur de trente jours qu'il a tout perdu.
 import { createClient } from "@/lib/supabase/client";
+import { monJetonPays } from "@/lib/games/pays/jeton";
 import type { Resultat } from "@/lib/games/pays/local";
 
 export interface BilanPays {
@@ -26,6 +27,15 @@ export interface RangPays {
   rang: number | null;
   essais: number | null;
   median: number | null;
+  /**
+   * Combien de joueurs ont fait EXACTEMENT le même nombre d'essais, moi compris.
+   *
+   * ⚠️ CE N'EST PAS UN DÉTAIL D'AFFICHAGE : le nombre d'essais est un petit
+   * entier, donc les ex aequo ne sont pas un cas rare mais le cas normal — et le
+   * barème de saison les fait PARTAGER les places qu'ils occupent. « 3e » tout
+   * seul laisserait croire à un solo.
+   */
+  exaequo?: number;
 }
 
 /**
@@ -52,10 +62,62 @@ export async function monBilan(): Promise<BilanPays | null> {
   return data as BilanPays;
 }
 
-/** Mon rang du jour. `rang: null` = journée pas encore enregistrée, ce n'est pas une erreur. */
-export async function monRang(jour: number): Promise<RangPays | null> {
+/**
+ * DÉPOSER LA PARTIE QU'ON VIENT DE FINIR, avec ou sans compte.
+ *
+ * ⚠️ C'EST CE QUI FAIT QUE LE JEU COMPTE SA FOULE. Avant, seul un compte
+ * laissait une trace : « votre rang du jour » se calculait sur deux ou trois
+ * comptes pendant que trente personnes jouaient. Un joueur sans compte écrit
+ * maintenant sous un jeton anonyme (`pays/jeton.ts`), qui disparaît dès qu'un
+ * compte adopte la partie.
+ *
+ * Elle rend la POSITION dans la foulée : c'est l'instant où le joueur la
+ * regarde, et le faire en deux appels doublerait l'aller-retour.
+ */
+export async function deposePartie(
+  jour: number,
+  essais: number,
+  secondes: number | null,
+): Promise<RangPays | null> {
   const supabase = createClient();
-  const { data, error } = await supabase.rpc("scrutin_game_pays_rank", { p_jour: jour });
+  const { data, error } = await supabase.rpc("scrutin_game_pays_jouer", {
+    p_jour: jour,
+    p_essais: essais,
+    p_secondes: secondes,
+    p_jeton: monJetonPays(),
+  });
   if (error || !data) return null;
   return data as RangPays;
+}
+
+/**
+ * Ma position du jour. `rang: null` = journée pas encore jouée, ce n'est pas une
+ * erreur — et `joueurs` est renseigné quand même, parce que « personne n'a
+ * encore joué » et « je n'ai pas encore joué » sont deux choses différentes.
+ */
+export async function maPosition(jour: number): Promise<RangPays | null> {
+  const supabase = createClient();
+  const { data, error } = await supabase.rpc("scrutin_game_pays_position", {
+    p_jour: jour,
+    p_jeton: monJetonPays(),
+  });
+  if (error || !data) return null;
+  return data as RangPays;
+}
+
+/**
+ * Adopter les parties jouées sans compte sur ce navigateur.
+ *
+ * ⚠️ ELLE FUSIONNE, ELLE N'ÉCRASE PAS, et elle est idempotente : une journée
+ * présente des deux côtés garde le meilleur essai, puis la ligne anonyme
+ * disparaît — sinon le joueur compterait deux fois dans sa propre foule.
+ * Appelée à chaque connexion, comme `enregistreResultats`.
+ */
+export async function rattachePays(): Promise<number | null> {
+  const jeton = monJetonPays();
+  if (!jeton) return null;
+  const supabase = createClient();
+  const { data, error } = await supabase.rpc("scrutin_game_pays_rattacher", { p_jeton: jeton });
+  if (error) return null;
+  return typeof data === "number" ? data : null;
 }

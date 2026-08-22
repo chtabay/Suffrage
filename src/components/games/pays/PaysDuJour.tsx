@@ -29,7 +29,7 @@ import GameShell from "@/components/games/GameShell";
 import { GCard, GLabel } from "@/components/games/ui";
 import Carte from "./Carte";
 import Compte from "./Compte";
-import { monRang } from "@/lib/db/pays";
+import { deposePartie } from "@/lib/db/pays";
 import ComparaisonAmi from "@/components/games/ComparaisonAmi";
 import { lienDefi, litDefi, type Defi } from "@/lib/games/comparaison";
 import InstallJeu from "@/components/games/InstallJeu";
@@ -132,10 +132,11 @@ export default function PaysDuJour({ jour }: { jour: number }) {
   const [erreur, setErreur] = useState(false);
   const [pret, setPret] = useState(false);
   const [serie, setSerie] = useState(0);
-  // ⚠️ LE RANG N'EXISTE QUE POUR UN COMPTE. `scrutin_game_pays_rank` lève
-  // `forbidden` sans session, et `anon` n'a même pas le droit d'exécution : le
-  // passe-plat rend alors `null`, et le partage se tait. On ne le cherche
-  // qu'une fois la partie finie — avant, il n'y a rien à classer.
+  // ⚠️ LE RANG EXISTE MAINTENANT SANS COMPTE, et c'est le sens du dépôt du
+  // 27 août : chaque partie part en base à la fin, sous un jeton anonyme si
+  // besoin, donc « votre rang » se calcule enfin sur TOUTE la foule et plus sur
+  // les deux ou trois comptes qui s'étaient inscrits. On ne le cherche qu'une
+  // fois la partie finie — avant, il n'y a rien à classer.
   const [rang, setRang] = useState<{ rang: number; joueurs: number } | null>(null);
 
   // Le défi d'un ami, lu après le montage (voir `NombreDuJour` pour pourquoi
@@ -416,9 +417,13 @@ export default function PaysDuJour({ jour }: { jour: number }) {
         setRevelation(reveal);
         setCarteComplete(false);
         mesure("fini", { essais: prochains.length, secondes });
-        // Sans compte, l'appel est refusé et rend `null` : le partage n'aura
-        // simplement pas de ligne de rang.
-        void monRang(jour).then((r) => {
+        // ⚠️ LE DÉPÔT ET LA LECTURE SONT LE MÊME APPEL. La base range la partie
+        // et rend la position dans la foulée : c'est exactement l'instant où le
+        // joueur la regarde, et le faire en deux allers-retours l'afficherait
+        // une seconde trop tard. Hors ligne, l'appel rend `null` et le partage
+        // n'a simplement pas de ligne de rang — la partie, elle, reste dans le
+        // navigateur et repartira à la prochaine occasion.
+        void deposePartie(jour, prochains.length, secondes).then((r) => {
           if (r && r.rang !== null) setRang({ rang: r.rang, joueurs: r.joueurs });
         });
         // La série se met à jour AVANT que le bloc « compte » ne s'affiche : il

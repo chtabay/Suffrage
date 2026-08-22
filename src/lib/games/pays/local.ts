@@ -7,10 +7,17 @@
 // vit donc ici d'abord, gratuitement ; le compte ne fait que la rendre durable
 // et lui ajouter le rang.
 //
-// ⚠️ CETTE LISTE NE SORT JAMAIS DU NAVIGATEUR TANT QUE PERSONNE NE SE CONNECTE.
-// Elle n'est envoyée qu'au moment où un compte existe, et à ce compte-là. Ce
-// n'est pas un identifiant : il n'y a pas de jeton stable, rien qui permette de
-// reconnaître ce navigateur d'un jour à l'autre côté serveur.
+// ⚠️ CETTE PROMESSE A ÉTÉ TENUE JUSQU'AU 27 AOÛT, ET ELLE NE L'EST PLUS. On
+// lisait ici « il n'y a pas de jeton stable, rien qui permette de reconnaître ce
+// navigateur d'un jour à l'autre côté serveur ». C'est faux depuis que le jeu
+// compte sa foule : chaque partie part en base à la fin, sous un jeton anonyme
+// (`pays/jeton.ts`), parce qu'un classement qui n'additionne que les comptes
+// classe deux personnes en prétendant en classer trente.
+//
+// CE QUE CETTE LISTE RESTE, ELLE : la mémoire du NAVIGATEUR, celle qui fait la
+// série et la reprise hors ligne. Elle n'est envoyée à un compte qu'au moment où
+// ce compte existe. Le jeton, lui, ne voyage qu'avec (jour, essais, secondes) et
+// disparaît dès qu'un compte adopte la partie.
 //
 // ⚠️ ELLE SURVIT À LA PURGE QUOTIDIENNE. L'écran efface `placet.pays.<jour>` des
 // journées passées — sinon le stockage grossit d'une partie par jour. Le
