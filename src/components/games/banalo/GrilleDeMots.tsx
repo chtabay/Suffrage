@@ -33,6 +33,7 @@ import ComparaisonAmi from "@/components/games/ComparaisonAmi";
 import { litDefi, type Defi } from "@/lib/games/comparaison";
 import InstallJeu from "@/components/games/InstallJeu";
 import CompteBanalo from "./CompteBanalo";
+import TableauDuJour from "./TableauDuJour";
 import { etatMots, repondMots, type EtatMots } from "@/lib/db/banalo";
 
 const bcp = (locale: string) => (locale === "pcm" ? "en" : locale);
@@ -421,6 +422,14 @@ export default function GrilleDeMots({
               <ConcentrationDuJour conc={jeu.concentration} />
             </GCard>
           ) : null}
+
+          {/* LE TABLEAU DU JOUR, DERNIER BLOC DE RÉSULTAT — avant les offres, et
+              jamais parmi elles. Ce n'est pas une demande de quitter le jeu
+              (compte, installation, pont vers Placet) mais un geste DANS le
+              jeu : §0 de `docs/regularite-des-joueurs.md` ne compte donc pas ce
+              bloc dans la place unique de l'après-partie. ⚠️ IL NE PORTE AUCUN
+              MOT, ni les miens ni ceux des autres — un nom et un score. */}
+          <TableauDuJour jour={jour} theme={cle} />
 
           {jeu.assez && jeu.points !== null ? (
             <PartageBanalo

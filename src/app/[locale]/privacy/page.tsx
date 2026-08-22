@@ -38,7 +38,7 @@ export default async function PrivacyPage({ params }: { params: Promise<{ locale
   const c = pickLocale<Content>(locale, {
     fr: {
       title: "Politique de confidentialité",
-      updated: "Dernière mise à jour : 20 août 2026",
+      updated: "Dernière mise à jour : 22 août 2026",
       intro:
         "Placet (placet.app) permet à un groupe d'organiser de vrais votes. Cette page explique ce que nous collectons et pourquoi. Nous gardons le strict minimum.",
       sections: [
@@ -52,7 +52,7 @@ export default async function PrivacyPage({ params }: { params: Promise<{ locale
         },
         {
           h: "Ce que nous collectons — dans les jeux",
-          p: "Une partie n'exige aucun compte. Chaque joueur choisit un prénom ou un pseudo, puis saisit ce que le jeu lui demande : des mots, ou — dans un jeu d'enquête — la pièce où il se trouvait, un soupçon et une accusation, qui DÉSIGNENT NOMMÉMENT un autre joueur de la même partie. Ces éléments sont montrés aux autres joueurs de la salle : le prénom et les réponses à chaque manche, les soupçons et les accusations à la fin de la partie. N'y mettez que ce que vous acceptez de montrer au groupe. Certains jeux demandent aussi une tranche d'âge (enfant, ado, adulte), déclarée librement et sans vérification — elle sert à calibrer les consignes, jamais à autre chose. Rien de tout cela n'est rattaché à un compte ni réutilisé ailleurs dans Placet.",
+          p: "Une partie n'exige aucun compte. Chaque joueur choisit un prénom ou un pseudo, puis saisit ce que le jeu lui demande : des mots, ou — dans un jeu d'enquête — la pièce où il se trouvait, un soupçon et une accusation, qui DÉSIGNENT NOMMÉMENT un autre joueur de la même partie. Ces éléments sont montrés aux autres joueurs de la salle : le prénom et les réponses à chaque manche, les soupçons et les accusations à la fin de la partie. N'y mettez que ce que vous acceptez de montrer au groupe. Certains jeux demandent aussi une tranche d'âge (enfant, ado, adulte), déclarée librement et sans vérification — elle sert à calibrer les consignes, jamais à autre chose. Rien de tout cela n'est rattaché à un compte ni réutilisé ailleurs dans Placet. Les jeux quotidiens, eux, se jouent seul et ne montrent jamais la réponse d'un autre joueur. Un tableau public existe pour chaque journée, et on n'y figure que si on l'a demandé : soit en déposant un nom pris dans une liste fermée fournie par le jeu, soit — si vous avez un compte Placet — en écrivant le nom de votre choix. Ce nom et votre score du jour sont alors montrés aux autres joueurs de la même journée et de la même langue ; vos mots ou votre réponse, jamais. Il n'y a pas de champ de nom libre sans compte, parce qu'un nom que tous les joueurs du jour peuvent lire appelle quelqu'un pour en répondre.",
         },
         {
           h: "Pourquoi",
@@ -68,7 +68,7 @@ export default async function PrivacyPage({ params }: { params: Promise<{ locale
         },
         {
           h: "Conservation",
-          p: "Les votes et les bulletins sont conservés jusqu'à ce que vous les supprimiez ou nous le demandiez. Les salles de jeu font exception : elles sont effacées automatiquement 7 jours après la dernière activité de la partie, avec les prénoms, les mots et les scores qu'elles contiennent. Les jeux quotidiens n'ont pas de salle : la réponse d'un joueur, le numéro de la journée et un identifiant tiré au hasard par son navigateur sont conservés 30 jours, puis supprimés. Si vous choisissez de rattacher vos résultats à un compte — c'est facultatif, et le jeu marche sans —, un résumé (numéro de journée, score, langue) est alors gardé sur ce compte tant que vous ne le supprimez pas : c'est ce qui permet à une série de durer plus de trente jours. Ni vos réponses ni vos mots ne sont recopiés dans ce résumé.",
+          p: "Les votes et les bulletins sont conservés jusqu'à ce que vous les supprimiez ou nous le demandiez. Les salles de jeu font exception : elles sont effacées automatiquement 7 jours après la dernière activité de la partie, avec les prénoms, les mots et les scores qu'elles contiennent. Les jeux quotidiens n'ont pas de salle : la réponse d'un joueur, le numéro de la journée, un identifiant tiré au hasard par son navigateur et, s'il y en a un, le nom déposé au tableau du jour sont conservés 30 jours, puis supprimés. Ce nom ne vaut que pour une journée : il n'existe ni profil ni pseudo permanent, et il n'est pas recopié dans le résumé de compte. Si vous choisissez de rattacher vos résultats à un compte — c'est facultatif, et le jeu marche sans —, un résumé (numéro de journée, score, langue) est alors gardé sur ce compte tant que vous ne le supprimez pas : c'est ce qui permet à une série de durer plus de trente jours. Ni vos réponses ni vos mots ne sont recopiés dans ce résumé.",
         },
         {
           h: "Vos droits",
@@ -87,7 +87,7 @@ export default async function PrivacyPage({ params }: { params: Promise<{ locale
     },
     en: {
       title: "Privacy policy",
-      updated: "Last updated: 20 August 2026",
+      updated: "Last updated: 22 August 2026",
       intro:
         "Placet (placet.app) lets a group run proper votes. This page explains what we collect and why. We keep it to a minimum.",
       sections: [
@@ -101,7 +101,7 @@ export default async function PrivacyPage({ params }: { params: Promise<{ locale
         },
         {
           h: "What we collect — in games",
-          p: "A game needs no account. Each player picks a first name or nickname, then enters whatever the game asks for: words, or — in a detective game — the room they were in, a suspicion and an accusation, which NAME another player in the same game. These are shown to the other players in the room: the name and each round's answers as you go, the suspicions and accusations at the end. Only put in what you're happy to show the group. Some games also ask for an age band (child, teen, adult), freely declared and unverified — it only calibrates the instructions, nothing else. None of it is attached to an account or reused elsewhere in Placet.",
+          p: "A game needs no account. Each player picks a first name or nickname, then enters whatever the game asks for: words, or — in a detective game — the room they were in, a suspicion and an accusation, which NAME another player in the same game. These are shown to the other players in the room: the name and each round's answers as you go, the suspicions and accusations at the end. Only put in what you're happy to show the group. Some games also ask for an age band (child, teen, adult), freely declared and unverified — it only calibrates the instructions, nothing else. None of it is attached to an account or reused elsewhere in Placet. Daily games, by contrast, are played alone and never show you another player's answer. Each day does have a public board, and you only appear on it if you asked to: either by leaving a name taken from a closed list the game provides, or — if you have a Placet account — by writing the name of your choice. That name and your score for the day are then shown to the other players of the same day and the same language; your words or your answer, never. There is no free name field without an account, because a name every player of the day can read needs someone to answer for it.",
         },
         {
           h: "Why",
@@ -117,7 +117,7 @@ export default async function PrivacyPage({ params }: { params: Promise<{ locale
         },
         {
           h: "Retention",
-          p: "Polls and ballots are kept until you delete them or ask us to. Game rooms are the exception: they are deleted automatically 7 days after the game's last activity, along with the names, words and scores they hold. Daily games have no room: a player's answer, the day number and a random identifier drawn by their browser are kept for 30 days, then deleted. If you choose to attach your results to an account — it is optional, and the game works without one — a summary (day number, score, language) is then kept on that account until you delete it: that is what lets a streak outlast the thirty days. Neither your answers nor your words are copied into that summary.",
+          p: "Polls and ballots are kept until you delete them or ask us to. Game rooms are the exception: they are deleted automatically 7 days after the game's last activity, along with the names, words and scores they hold. Daily games have no room: a player's answer, the day number, a random identifier drawn by their browser and, if there is one, the name left on that day's board are kept for 30 days, then deleted. That name is for one day only: there is no profile and no permanent nickname, and it is not copied into the account summary. If you choose to attach your results to an account — it is optional, and the game works without one — a summary (day number, score, language) is then kept on that account until you delete it: that is what lets a streak outlast the thirty days. Neither your answers nor your words are copied into that summary.",
         },
         {
           h: "Your rights",
@@ -136,7 +136,7 @@ export default async function PrivacyPage({ params }: { params: Promise<{ locale
     },
     es: {
       title: "Política de privacidad",
-      updated: "Última actualización: 20 de agosto de 2026",
+      updated: "Última actualización: 22 de agosto de 2026",
       intro:
         "Placet (placet.app) permite a un grupo organizar votaciones de verdad. Esta página explica qué recopilamos y por qué. Lo mantenemos al mínimo.",
       sections: [
@@ -150,7 +150,7 @@ export default async function PrivacyPage({ params }: { params: Promise<{ locale
         },
         {
           h: "Qué recopilamos — en los juegos",
-          p: "Una partida no requiere cuenta. Cada jugador elige un nombre o apodo y luego escribe lo que el juego le pide: palabras o —en un juego de detectives— la habitación donde estaba, una sospecha y una acusación, que SEÑALAN POR SU NOMBRE a otro jugador de la misma partida. Todo ello se muestra a los demás jugadores de la sala: el nombre y las respuestas de cada ronda sobre la marcha, las sospechas y acusaciones al final. Pon solo lo que aceptes mostrar al grupo. Algunos juegos piden también una franja de edad (peque, adolescente, adulto), declarada libremente y sin verificación — solo calibra las consignas, nada más. Nada de esto se vincula a una cuenta ni se reutiliza en otro lugar de Placet.",
+          p: "Una partida no requiere cuenta. Cada jugador elige un nombre o apodo y luego escribe lo que el juego le pide: palabras o —en un juego de detectives— la habitación donde estaba, una sospecha y una acusación, que SEÑALAN POR SU NOMBRE a otro jugador de la misma partida. Todo ello se muestra a los demás jugadores de la sala: el nombre y las respuestas de cada ronda sobre la marcha, las sospechas y acusaciones al final. Pon solo lo que aceptes mostrar al grupo. Algunos juegos piden también una franja de edad (peque, adolescente, adulto), declarada libremente y sin verificación — solo calibra las consignas, nada más. Nada de esto se vincula a una cuenta ni se reutiliza en otro lugar de Placet. Los juegos diarios, en cambio, se juegan en solitario y nunca muestran la respuesta de otro jugador. Cada día tiene sin embargo una tabla pública, y solo apareces en ella si lo has pedido: o bien dejando un nombre tomado de una lista cerrada que ofrece el juego, o bien —si tienes una cuenta Placet— escribiendo el nombre que quieras. Ese nombre y tu puntuación del día se muestran entonces a los demás jugadores del mismo día y del mismo idioma; tus palabras o tu respuesta, nunca. No hay campo de nombre libre sin cuenta, porque un nombre que pueden leer todos los jugadores del día necesita a alguien que responda por él.",
         },
         {
           h: "Por qué",
@@ -166,7 +166,7 @@ export default async function PrivacyPage({ params }: { params: Promise<{ locale
         },
         {
           h: "Conservación",
-          p: "Las votaciones y las papeletas se conservan hasta que las elimines o nos lo pidas. Las salas de juego son la excepción: se borran automáticamente 7 días después de la última actividad de la partida, junto con los nombres, las palabras y las puntuaciones que contienen. Los juegos diarios no tienen sala: la respuesta de un jugador, el número del día y un identificador aleatorio generado por su navegador se conservan 30 días y luego se eliminan. Si decides vincular tus resultados a una cuenta —es opcional, y el juego funciona sin ella—, se guarda entonces un resumen (número del día, puntuación, idioma) en esa cuenta hasta que la elimines: es lo que permite que una racha dure más de treinta días. Ni tus respuestas ni tus palabras se copian en ese resumen.",
+          p: "Las votaciones y las papeletas se conservan hasta que las elimines o nos lo pidas. Las salas de juego son la excepción: se borran automáticamente 7 días después de la última actividad de la partida, junto con los nombres, las palabras y las puntuaciones que contienen. Los juegos diarios no tienen sala: la respuesta de un jugador, el número del día, un identificador aleatorio generado por su navegador y, si lo hay, el nombre dejado en la tabla del día se conservan 30 días y luego se eliminan. Ese nombre vale para un solo día: no existe ni perfil ni apodo permanente, y no se copia en el resumen de la cuenta. Si decides vincular tus resultados a una cuenta —es opcional, y el juego funciona sin ella—, se guarda entonces un resumen (número del día, puntuación, idioma) en esa cuenta hasta que la elimines: es lo que permite que una racha dure más de treinta días. Ni tus respuestas ni tus palabras se copian en ese resumen.",
         },
         {
           h: "Tus derechos",

@@ -33,6 +33,7 @@ import { litDefi, type Defi } from "@/lib/games/comparaison";
 import { POINTS_MAX, VOTANTS_MIN } from "@/lib/games/banalo/bareme";
 import InstallJeu from "@/components/games/InstallJeu";
 import CompteBanalo from "./CompteBanalo";
+import TableauDuJour from "./TableauDuJour";
 import { etat as litEtat, repond, type EtatBanalo } from "@/lib/db/banalo";
 
 /**
@@ -450,6 +451,14 @@ export default function NombreDuJour({ jour }: { jour: number }) {
               {t("pasDeVerite")}
             </p>
           </GCard>
+
+          {/* LE TABLEAU DU JOUR, DERNIER BLOC DE RÉSULTAT — avant les offres, et
+              jamais parmi elles. Ce n'est pas une demande de quitter le jeu
+              (compte, installation, pont vers Placet) mais un geste DANS le
+              jeu : §0 de `docs/regularite-des-joueurs.md` ne compte donc pas ce
+              bloc dans la place unique de l'après-partie. ⚠️ `theme` vaut `null`
+              ici, et c'est ce qui dit à la base que la journée est chiffrée. */}
+          <TableauDuJour jour={jour} theme={null} />
 
           <div>
             {/* ⚠️ UNE SEULE OFFRE, ET LE PLANCHER CHOISIT LAQUELLE. Le score

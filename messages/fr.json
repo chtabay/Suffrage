@@ -2748,7 +2748,24 @@
     "partageTitre": "Banalo du jour n° {n} — {points}/100",
     "partageTitreMots": "Banalo du jour n° {n} — {points} voix",
     "panne": "On n'a pas pu joindre le dépouillement. Rechargez la page pour voir où en est votre réponse.",
-    "demain": "Nouvelle question à {heure}."
+    "demain": "Nouvelle question à {heure}.",
+    "tableau": {
+      "titre": "Le tableau du jour",
+      "invite": "Laissez un nom pour figurer au tableau de la journée.",
+      "deposer": "Déposer ce nom",
+      "autres": "En proposer d'autres",
+      "libre": "Ou écrivez le vôtre",
+      "librePlace": "Votre nom",
+      "pourquoi": "Les noms viennent d'une liste. Écrire le sien demande un compte Placet : un nom que tous les joueurs du jour peuvent lire appelle quelqu'un pour en répondre.",
+      "duree": "Ce nom ne vaut que pour aujourd'hui : il n'y a pas de profil, et rien à retrouver en dehors du tableau du jour.",
+      "vous": "vous",
+      "scoreNombre": "{n}/100",
+      "inscrits": "{n, plural, one {# joueur a laissé son nom aujourd'hui} other {# joueurs ont laissé leur nom aujourd'hui}}",
+      "seul": "Votre nom est déposé. Le tableau s'affiche à partir de {n} noms.",
+      "pris": "Ce nom est déjà porté aujourd'hui. En voici d'autres.",
+      "deja": "Vous avez déjà déposé un nom pour cette journée.",
+      "panne": "Le dépôt n'est pas parti. Réessayez."
+    }
   },
   "Pays": {
     "pictosAide": "Chaque case dit maintenant de quoi parle son critère. La dernière garde son secret.",

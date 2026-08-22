@@ -469,6 +469,128 @@ export async function etatMots(
   return traduisMots(data);
 }
 
+// ──────────────────────────────────────────────────── le tableau du jour
+
+/**
+ * Une ligne du tableau : un nom et un score, jamais un mot.
+ *
+ * ⚠️ `index` ET `nom` SONT EXCLUSIFS, et c'est la règle du jeu : un nom PRIS DANS
+ * LA LISTE FERMÉE se stocke par son index (`index`), un nom LIBRE n'existe que
+ * derrière un compte (`nom`). La base le tient par une contrainte, pas par du
+ * code d'écran — voir `20260823-banalo-noms-et-tableau.sql`.
+ */
+export interface LigneTableau {
+  /** Le rang du nom dans le vocabulaire fermé, ou `null` si le nom est libre. */
+  index: number | null;
+  /** Le nom libre d'un joueur connecté, ou `null` si le nom vient de la liste. */
+  nom: string | null;
+  score: number;
+  moi: boolean;
+}
+
+export interface Tableau {
+  /** Combien de joueurs ont déposé un nom aujourd'hui. */
+  inscrits: number;
+  /**
+   * Ce joueur a-t-il déposé un nom ?
+   *
+   * ⚠️ ÇA NE SE DÉDUIT PAS DES LIGNES, et c'est pour ça que la base le rend à
+   * part. Sous le plancher de deux inscrits la liste est vide : le SEUL inscrit
+   * de la journée serait indiscernable de quelqu'un qui n'a rien déposé, on lui
+   * reproposerait le formulaire et la base répondrait « deja » à un joueur qui
+   * n'a rien demandé.
+   */
+  inscrit: boolean;
+  /** La tête de liste, ordonnée par score (dix lignes — voir la migration). */
+  lignes: LigneTableau[];
+  /**
+   * Ma ligne, SI je suis inscrit mais hors de la tête de liste.
+   *
+   * ⚠️ Un tableau où l'on ne se trouve pas est un tableau qui parle des autres.
+   */
+  moi: (Omit<LigneTableau, "moi"> & { place: number }) | null;
+}
+
+/** Une ligne est acceptée en bloc, ou jetée. Une ligne à moitié ne se dessine pas. */
+function litLigne(brut: unknown): LigneTableau | null {
+  const l = brut as Record<string, unknown> | null;
+  if (!l) return null;
+  const index = typeof l.index === "number" && Number.isInteger(l.index) && l.index >= 0 ? l.index : null;
+  const nom = typeof l.nom === "string" && l.nom.trim().length > 0 ? l.nom : null;
+  const score = typeof l.score === "number" && Number.isFinite(l.score) ? l.score : null;
+  // ⚠️ EXACTEMENT L'UN DES DEUX. Une ligne qui porterait les deux, ou aucun,
+  // vient d'une base abîmée : on la jette plutôt que d'inventer un nom.
+  if (score === null || (index === null) === (nom === null)) return null;
+  return { index, nom, score, moi: l.moi === true };
+}
+
+export function litTableau(brut: unknown): Tableau | null {
+  const t = brut as Record<string, unknown> | null;
+  if (!t || t.status !== "ok") return null;
+  const brutes = Array.isArray(t.lignes) ? t.lignes : [];
+  const lignes = brutes.map(litLigne).filter((l): l is LigneTableau => l !== null);
+  // Une seule ligne abîmée ne doit pas emporter le tableau entier : contrairement
+  // à une bande dessinée, une liste amputée d'une ligne reste lisible et vraie.
+  const m = litLigne(t.moi);
+  const place = (t.moi as Record<string, unknown> | null)?.place;
+  return {
+    inscrits: typeof t.inscrits === "number" ? t.inscrits : 0,
+    inscrit: t.inscrit === true,
+    lignes,
+    moi:
+      m && typeof place === "number" && Number.isInteger(place)
+        ? { index: m.index, nom: m.nom, score: m.score, place }
+        : null,
+  };
+}
+
+export async function litTableauDuJour(
+  jeton: string,
+  jour: number,
+  langue: string,
+  theme: string | null,
+): Promise<Tableau | null> {
+  const supabase = createClient();
+  const { data, error } = await supabase.rpc("scrutin_banalo_tableau", {
+    p_jeton: jeton,
+    p_jour: jour,
+    p_langue: langue,
+    p_theme: theme,
+  });
+  if (error) return null;
+  return litTableau(data);
+}
+
+/**
+ * Le résultat d'un dépôt de nom, tel que la base le rend.
+ *
+ * `pris` : quelqu'un porte déjà ce nom aujourd'hui. `deja` : ce joueur a déjà
+ * déposé. `compte` : du texte libre sans compte — c'est LA règle, et elle est
+ * tenue par une contrainte de table autant que par la fonction.
+ */
+export type DepotNom = "ok" | "pris" | "deja" | "compte" | "refus" | "panne";
+
+export async function deposerNom(
+  jeton: string,
+  jour: number,
+  langue: string,
+  choix: { index: number } | { nom: string },
+): Promise<DepotNom> {
+  const supabase = createClient();
+  const { data, error } = await supabase.rpc("scrutin_banalo_nom_deposer", {
+    p_jeton: jeton,
+    p_jour: jour,
+    p_langue: langue,
+    p_index: "index" in choix ? choix.index : null,
+    p_nom: "nom" in choix ? choix.nom : null,
+  });
+  // ⚠️ UNE PANNE N'EST PAS UN REFUS. Replier l'erreur réseau sur « refus »
+  // ferait croire au joueur que son nom a été jugé, alors que rien n'est parti.
+  if (error) return "panne";
+  const s = (data as Record<string, unknown> | null)?.status;
+  return s === "ok" || s === "pris" || s === "deja" || s === "compte" ? s : "refus";
+}
+
 // ────────────────────────────────────────────────────────── le compte
 
 /** Ce qu'un compte garde, et que le navigateur ne sait pas faire. */

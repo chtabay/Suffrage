@@ -806,7 +806,8 @@ modération. C'est la question de fond d'un système d'amis, et la seule : non p
 « faut-il accepter une surface de modération » (elle existe), mais « faut-il la
 laisser sortir de la salle ».
 
-**LE TABLEAU DU JOUR : LA RÈGLE DU NOM EST ARBITRÉE, l'écran reste à faire.**
+**LE TABLEAU DU JOUR est en prod (`TableauDuJour.tsx`), PUBLIC, sur les deux
+formats.**
 Pour figurer au tableau d'une journée, il faut **soit un compte Placet** — et
 alors on choisit son nom librement — **soit déposer un nom PRIS DANS UNE LISTE
 FERMÉE** (`src/content/banalo/noms.ts`, 30 animaux × 20 compléments = 600 noms
@@ -834,13 +835,40 @@ base compte **2 comptes rattachés** contre **11 joueurs** sur la journée 2 et 
 jetons sur le format chiffré. Exiger un compte pour figurer au tableau le
 réduirait à deux lignes sur onze.
 
-⚠️ **CETTE RÈGLE FRANCHIT LA LIGNE DU §5, ET DÉLIBÉRÉMENT.** Un nom attaché à un
-compte **survit à la purge** (`scrutin_banalo_results` n'est purgée par rien) :
-c'est le nom permanent et découvrable que `docs/regularite-des-joueurs.md` §5
-donnait comme le vrai coût d'un système d'amis. On le franchit **avec la
-contrepartie qu'il réclamait** — une prise pour agir. Conséquence à ne pas
-oublier : les trois paragraphes de la politique de confidentialité se réécrivent
-dans le même commit, comme pour le 30 et pour le 7.
+⚠️ **ET LE NOM SE DÉPOSE PAR JOURNÉE, PAS UNE FOIS POUR LE COMPTE — c'est ce qui
+ÉVITE la ligne du §5.** L'étude posait comme vrai coût d'un système d'amis un nom
+**permanent et découvrable**, survivant à la purge. Ici il n'y a ni profil ni
+pseudo permanent : `scrutin_banalo_noms` est purgée à trente jours par
+`scrutin_banalo_noms_purge` et son cron, comme les réponses, et rien n'est
+recopié dans le résumé de compte. Un joueur qui veut le même nom tous les jours
+le redépose ; son navigateur peut le lui pré-remplir, la base ne le garde pas.
+⚠️ Conséquence quand même : la politique de confidentialité se réécrit **dans le
+même commit** — deux paragraphes, en trois langues (`pcm` retombe sur `en`) —
+comme pour le 30 et pour le 7. ⚠️ Et la durée n'est PAS répétée dans le texte du
+jeu : l'écran dit « ce nom ne vaut que pour aujourd'hui », sans chiffre, pour ne
+pas ouvrir une quatrième copie du 30.
+
+⚠️ **« JE SUIS INSCRIT » NE SE DÉDUIT PAS DES LIGNES**, et la base rend donc un
+drapeau à part. Sous le plancher de deux inscrits la liste est vide : le SEUL
+inscrit de la journée était indiscernable de quelqu'un qui n'a rien déposé,
+l'écran lui reproposait le formulaire et la base répondait « deja » à un joueur
+qui n'avait rien demandé. Trouvé en jouant, pas à la relecture.
+
+⚠️ **LE TABLEAU NE PORTE AUCUN NUMÉRO DE RANG, et il ne montre que DIX lignes.**
+Le rang affiché serait soit celui parmi les INSCRITS — « 1er » alors que trente
+joueurs ont fait mieux sans s'inscrire, c'est-à-dire un mensonge —, soit le rang
+réel, et deux lignes voisines afficheraient « 3e » puis « 17e », ce qui se lit
+comme un trou. L'ordre parle ; le vrai rang du joueur est déjà sur sa carte de
+score, juste au-dessus. Dix et non vingt est une **mesure d'écran** : à vingt, la
+carte fait 700 px sur un téléphone de 390 et il faut la franchir entière pour
+atteindre le partage et l'offre de compte. ⚠️ Corollaire de balisage : la tête de
+liste est un `ol` — « 3ᵉ élément » y est vrai — mais **ma ligne lointaine est
+dehors**, sinon un lecteur d'écran annoncerait « 11ᵉ élément » pour la 34ᵉ place,
+c'est-à-dire le chiffre faux que le tableau refuse d'imprimer.
+
+⚠️ **ET LA LIGNE SORT MÊME HORS DE LA TÊTE DE LISTE** : un tableau où l'on ne se
+trouve pas est un tableau qui parle des autres. Trois points la précèdent, sinon
+elle se lit comme la onzième.
 
 ⚠️ **AUCUN ADJECTIF DANS LA LISTE, ET C'EST UNE CONTRAINTE DE LANGUE.** Un
 adjectif s'accorde (« Renard malin » mais « Loutre maligne », « Zorro astuto »
@@ -852,9 +880,9 @@ français s'afficherait en français à un anglophone du même tableau. Et le
 contrôle de parité ne voyant que `messages/*.json`, ce sont les **tests** de
 `noms.test.ts` qui tiennent les quatre langues de ce fichier.
 
-**Reste à décider avant l'écran** : tableau PUBLIC de la journée, ou borné à un
-groupe rejoint par code ? La règle du nom tient dans les deux cas ; seul le
-signalement n'est indispensable que dans le premier.
+**Il est PUBLIC, pas borné à un groupe** — arbitré. Ce que ça laisse ouvert est
+le signalement, indispensable seulement dans cette forme-là : il n'existe pas
+encore, et la prise pour agir est le compte exigé derrière le texte libre.
 
 **La couche sociale des jeux quotidiens N'A PAS DE GRAPHE**, et c'est un choix.
 Le lien de partage porte la journée et le résultat (`?j=&r=`, jamais `s` — pris
@@ -942,6 +970,13 @@ vérifiable au navigateur (`preview_start`, puis on joue). Sers-t'en : sur
 Banalo, deux défauts sur cinq n'étaient visibles qu'en jouant — un bouton mort
 au deuxième passage et un emoji jeté en silence — et ni `tsc`, ni eslint, ni les
 tests, ni la parité ne les voyaient.
+
+⚠️ **ET IL FAUT BLOQUER LE SERVICE WORKER, sinon `page.route` ne tient qu'une
+navigation.** Le jeu en installe un (PWA) : dès la deuxième page, les appels RPC
+passent par lui et **échappent à l'interception**, la page tombe sur le vrai
+Supabase — injoignable d'ici — et affiche « panne ». Ça se lit comme un défaut de
+l'écran qu'on vient d'écrire. `browser.newContext({ serviceWorkers: "block" })`,
+et le premier écran vérifié n'est plus le seul.
 
 Pour la base, la vérification qui marche est un bloc `do $$ … raise exception $$` :
 on monte le cas, on l'éprouve, on lève une exception pour tout annuler. Une
