@@ -806,6 +806,56 @@ modération. C'est la question de fond d'un système d'amis, et la seule : non p
 « faut-il accepter une surface de modération » (elle existe), mais « faut-il la
 laisser sortir de la salle ».
 
+**LE TABLEAU DU JOUR : LA RÈGLE DU NOM EST ARBITRÉE, l'écran reste à faire.**
+Pour figurer au tableau d'une journée, il faut **soit un compte Placet** — et
+alors on choisit son nom librement — **soit déposer un nom PRIS DANS UNE LISTE
+FERMÉE** (`src/content/banalo/noms.ts`, 30 animaux × 20 compléments = 600 noms
+par langue). Qui ne fait ni l'un ni l'autre joue normalement, voit son rang et
+son centile, et **n'apparaît pas au tableau** : on n'y entre que par un geste,
+donc personne n'y est inscrit sans l'avoir voulu.
+
+⚠️ **CE N'EST PAS UNE PRÉCAUTION DE FAÇADE, C'EST CE QUI REND LE TABLEAU
+POSSIBLE.** Un champ de pseudo sur un classement public n'est pas un champ
+d'identité : c'est un canal de publication d'une ligne, adressé à tous les
+joueurs du jour. Par gravité réelle : du harcèlement visant quelqu'un de précis
+(« Marie du CM2 pue ») ; des données personnelles déposées sans malice par un
+enfant, sur un jeu dont la politique déclare une tranche d'âge « enfant » ; puis
+seulement les insultes. ⚠️ **Un filtre ne règle que le troisième** — une liste de
+mots interdits n'attrape pas « Marie du CM2 pue ». La sortie n'est donc pas de
+filtrer le texte libre, c'est de ne pas en ouvrir.
+
+⚠️ **ET SANS COMPTE, LA MODÉRATION EST IMPOSSIBLE PAR CONSTRUCTION**, ce qui rend
+la règle nécessaire et pas seulement prudente : un jeton anonyme ne se bannit pas
+— on efface son `localStorage` et on revient. Le texte libre n'existe donc que là
+où quelqu'un en répond.
+
+⚠️ **LE COMPTE CONDITIONNE LE NOM, JAMAIS LA PRÉSENCE, et c'est mesuré** : la
+base compte **2 comptes rattachés** contre **11 joueurs** sur la journée 2 et 7
+jetons sur le format chiffré. Exiger un compte pour figurer au tableau le
+réduirait à deux lignes sur onze.
+
+⚠️ **CETTE RÈGLE FRANCHIT LA LIGNE DU §5, ET DÉLIBÉRÉMENT.** Un nom attaché à un
+compte **survit à la purge** (`scrutin_banalo_results` n'est purgée par rien) :
+c'est le nom permanent et découvrable que `docs/regularite-des-joueurs.md` §5
+donnait comme le vrai coût d'un système d'amis. On le franchit **avec la
+contrepartie qu'il réclamait** — une prise pour agir. Conséquence à ne pas
+oublier : les trois paragraphes de la politique de confidentialité se réécrivent
+dans le même commit, comme pour le 30 et pour le 7.
+
+⚠️ **AUCUN ADJECTIF DANS LA LISTE, ET C'EST UNE CONTRAINTE DE LANGUE.** Un
+adjectif s'accorde (« Renard malin » mais « Loutre maligne », « Zorro astuto »
+mais « Nutria astuta ») : composer à la volée demanderait de porter le genre de
+chaque animal dans chaque langue. Un complément ne s'accorde jamais — « Renard de
+minuit », « Loutre de minuit » — et la même mécanique marche dans les quatre
+langues. ⚠️ **C'est l'INDEX qu'on stocke, pas le libellé** : un nom stocké en
+français s'afficherait en français à un anglophone du même tableau. Et le
+contrôle de parité ne voyant que `messages/*.json`, ce sont les **tests** de
+`noms.test.ts` qui tiennent les quatre langues de ce fichier.
+
+**Reste à décider avant l'écran** : tableau PUBLIC de la journée, ou borné à un
+groupe rejoint par code ? La règle du nom tient dans les deux cas ; seul le
+signalement n'est indispensable que dans le premier.
+
 **La couche sociale des jeux quotidiens N'A PAS DE GRAPHE**, et c'est un choix.
 Le lien de partage porte la journée et le résultat (`?j=&r=`, jamais `s` — pris
 par l'entonnoir) ; l'ami qui l'ouvre après avoir joué voit les deux résultats
