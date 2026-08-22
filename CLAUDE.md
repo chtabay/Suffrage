@@ -1013,11 +1013,44 @@ Sur la durée, aucun rang « vrai » n'existe : la plupart des joueurs sont des
 jetons anonymes sans identité d'un jour à l'autre. Le rang parmi les comptes
 classés est **le seul qui existe**, et l'effectif est rendu avec.
 
-⚠️ **UN PLANCHER DE CINQ JOURNÉES, SINON UNE SEULE JOURNÉE CHANCEUSE PREND LA
-TÊTE.** Et à égalité de moyenne, **celui qui a joué le plus passe devant** :
-c'est la seule façon de ne pas récompenser le tri. Le nombre de journées est
-affiché à côté de chaque moyenne — une moyenne sur cinq et une sur trente ne
-valent pas la même chose.
+⚠️ **ON Y ENTRE DÈS LA PREMIÈRE JOURNÉE, ET LE PLANCHER DE CINQ ÉTAIT UNE FAUTE**
+(`20260826-jeux-cumul-des-la-premiere-journee.sql`). Le motif écrit était « sinon
+une seule journée chanceuse prend la tête » — vrai, et il le restera. Ce qui ne
+l'était pas, c'est le chiffre : au moment où il a été posé, **Banalo du jour en
+était à sa journée 3 et Cinq sur cinq à sa journée 5**. Personne au monde ne
+pouvait avoir cinq journées CLASSABLES (une journée jouée seul n'a pas de
+position). Le classement affichait donc « 0 joueur classé » à tout le monde, tous
+les jours, sans exception possible : une porte dont la clé n'existait pas, sur
+une fonctionnalité dont le métier est de faire revenir. **Un classement est une
+récompense ; une récompense inatteignable n'encourage rien.**
+
+⚠️ **CE QUE LE PLANCHER ACHETAIT SE PAIE MAINTENANT EN MONTRANT.** L'effectif de
+journées est affiché à côté de chaque moyenne — « sur 1 » se lit —, la règle sous
+la carte le redit, et **à égalité de moyenne celui qui a joué le plus passe
+devant**. C'est exactement le chemin qu'a suivi `assez` chez Banalo du jour :
+cesser de commander ce qui est CALCULÉ pour ne commander que ce qui est DIT.
+⚠️ Le prix est réel et assumé — un joueur d'une seule journée à 12 % passe devant
+un habitué de trente journées à 22 %. La parade mesurée, si ça mord sur des
+données réelles, est un lissage vers 50 (`(somme + K·50)/(n + K)`), **écarté pour
+l'instant** : le nombre montré cesserait d'être « X % ont fait mieux », donc un
+second vocabulaire sur une page qui n'en connaît qu'un — la raison même pour
+laquelle la courbe retourne son AXE et pas son CHIFFRE ; et sur des journées 3
+et 5 il tasserait tout le monde entre 35 et 45.
+
+⚠️ **IL RESTE UN PLANCHER, ET IL PORTE SUR LES JOUEURS, PAS SUR LES JOURNÉES**
+(`minimumClasses`, 2). Un classement d'UNE ligne est le « 1er sur 1 » que ce
+produit refuse partout (`VOTANTS_MIN` 2, `INSCRITS_MIN` 2, `COURBE_MIN` 50).
+`lignes` et `moi` **tombent ensemble** : ma ligne isolée sous un titre « sur
+trente journées » est le même tableau cassé qu'une liste d'un élément.
+
+⚠️ **ET TROIS ÉTATS MUETS ONT CHACUN LEUR PHRASE**, parce qu'une absence sans un
+mot se lit comme une panne : personne de classé ; **un seul classé et c'est moi**
+(« vous y êtes ») ; aucune de mes journées ne compte. ⚠️ Le deuxième se DÉDUIT
+côté écran — pseudo non bloqué + au moins une journée qui compte + `joueurs` à 1
+⇒ c'est moi — parce que le faire dire à la base l'obligerait à rendre le « 1er
+sur 1 » qu'elle refuse. Et ce qui parle de MOI est en encre et en gras, ce qui
+parle des autres reste gris : « vous y êtes » servi dans la même grisaille qu'un
+constat sur la foule cesse d'être une bonne nouvelle.
 
 ⚠️ **LA FENÊTRE DE 30 N'EST PAS LE 30 DE LA CONSERVATION.** Celui-là dit combien
 de temps on GARDE une réponse (`scrutin_banalo_purge`, son cron, la politique de
@@ -1037,8 +1070,11 @@ un vrai joueur sur un vrai iPhone : il pose son pseudo, valide, et lit
 n'est faux — il en avait **quatre** — mais la phrase parle de TOUT LE MONDE là
 où la question porte sur LUI, et sans un chiffre à lui il ne peut pas
 distinguer « ça n'a pas marché » de « il me manque une journée ». La base rend
-donc son compte de journées classables **sans le plancher**, et la carte dit
-« vous n'y êtes pas encore : 4 sur les 5 qu'il faut ». ⚠️ Elle sort AUSSI quand
+donc son compte de journées classables **sans le plancher**. ⚠️ Depuis la chute
+du plancher de journées (plus bas), elle ne dit plus « il vous en manque N » —
+une seule journée suffit, donc le seul cas où l'on n'y est pas est celui où
+AUCUNE journée ne compte, c'est-à-dire des journées jouées seul : c'est un fait
+sur la FOULE, pas sur l'assiduité. ⚠️ Elle sort AUSSI quand
 la liste n'est pas vide — ne pas se trouver dans un classement peuplé pose la
 même question — et la phrase impersonnelle **s'efface** quand elle parle :
 empilées, les deux répètent le même plancher en trois paragraphes gris.
