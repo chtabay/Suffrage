@@ -2699,7 +2699,11 @@
     "pseudoBouton": "Save",
     "pseudoPris": "Person don take dat name.",
     "pseudoCourt": "Two characters minimum.",
-    "pseudoLong": "Twenty characters maximum."
+    "pseudoLong": "Twenty characters maximum.",
+    "navRang": "#{n}",
+    "navPlace": "You dey number {place} for di daily-games ranking, for thirty days.",
+    "navMonte": "You dey number {place} for di daily-games ranking: you go up {n, plural, one {# place} other {# places}} for one week.",
+    "navDescend": "You dey number {place} for di daily-games ranking: you go down {n, plural, one {# place} other {# places}} for one week."
   },
   "BanaloJour": {
     "detailBouton": "See di detail",

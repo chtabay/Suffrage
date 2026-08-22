@@ -1030,6 +1030,20 @@ avec la fenêtre reculée de sept jours (`p_recul`). Elle se tait si le joueur
 n'était pas classé la semaine dernière — « +12 places » depuis une place qui
 n'existait pas serait une invention.
 
+⚠️ **LA PLACE DU JOUEUR EST DANS LA BARRE DE PLACET** (`RangJeux.tsx`), et c'est
+l'image miroir d'une règle déjà écrite : `GameShell` interdit la nav de Placet
+sur un écran de jeu (« on vient jouer »). Ce qui rend l'inverse admissible est
+qu'elle ne DEMANDE rien — une place et une flèche, pas un appel à l'action.
+⚠️ **Silencieuse par défaut** : rien sans compte, rien sans pseudo, rien tant
+qu'on n'est pas classé. Une barre vue sur toutes les pages ne peut pas afficher
+un vide à ceux qui ne jouent pas. ⚠️ **Une lecture par SESSION, pas par page** —
+un cache de module, comme `useIsAdmin` ; sinon deux agrégats tourneraient à
+chaque chargement de chaque page du produit. Et le pseudo se lit EN PREMIER : pas
+de pseudo, pas de classement à calculer (mesuré : 1 appel au lieu de 2).
+⚠️ **Sur mobile elle est dans le tiroir ☰**, comme le choix de langue et le
+bouton de compte : seul « Créer » est épinglé hors du tiroir, et l'épingler à
+côté mettrait un jeu en concurrence avec le seul geste que le produit demande.
+
 ⚠️ **ELLE NE MONTRE QUE DES CENTILES, ET C'EST LA SEULE CHOSE POSSIBLE.** Un
 nombre d'essais et une somme de voix ne s'additionnent pas ; le sur-100 de Banalo
 ne veut même pas dire la même chose d'un thème à l'autre. « X % ont fait mieux »

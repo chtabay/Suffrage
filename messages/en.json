@@ -2699,7 +2699,11 @@
     "pseudoBouton": "Save",
     "pseudoPris": "That name is already taken.",
     "pseudoCourt": "Two characters minimum.",
-    "pseudoLong": "Twenty characters maximum."
+    "pseudoLong": "Twenty characters maximum.",
+    "navRang": "{n, selectordinal, one {#st} two {#nd} few {#rd} other {#th}}",
+    "navPlace": "You're {place, selectordinal, one {#st} two {#nd} few {#rd} other {#th}} in the daily-games ranking, over thirty days.",
+    "navMonte": "You're {place, selectordinal, one {#st} two {#nd} few {#rd} other {#th}} in the daily-games ranking: {n, plural, one {# place up} other {# places up}} in a week.",
+    "navDescend": "You're {place, selectordinal, one {#st} two {#nd} few {#rd} other {#th}} in the daily-games ranking: {n, plural, one {# place down} other {# places down}} in a week."
   },
   "BanaloJour": {
     "detailBouton": "See the detail",

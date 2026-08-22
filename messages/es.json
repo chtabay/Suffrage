@@ -2699,7 +2699,11 @@
     "pseudoBouton": "Guardar",
     "pseudoPris": "Ese apodo ya está cogido.",
     "pseudoCourt": "Dos caracteres como mínimo.",
-    "pseudoLong": "Veinte caracteres como máximo."
+    "pseudoLong": "Veinte caracteres como máximo.",
+    "navRang": "{n}.º",
+    "navPlace": "Estás en el puesto {place} de la clasificación de los juegos diarios, en treinta días.",
+    "navMonte": "Estás en el puesto {place} de la clasificación de los juegos diarios: {n, plural, one {# puesto ganado} other {# puestos ganados}} en una semana.",
+    "navDescend": "Estás en el puesto {place} de la clasificación de los juegos diarios: {n, plural, one {# puesto perdido} other {# puestos perdidos}} en una semana."
   },
   "BanaloJour": {
     "detailBouton": "Ver el detalle",

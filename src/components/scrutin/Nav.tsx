@@ -8,6 +8,7 @@ import { useIsAdmin } from "@/lib/db/admin";
 import { Link, usePathname as useHere } from "@/i18n/navigation";
 import LocaleSwitch from "@/components/LocaleSwitch";
 import AboutPlacet from "./AboutPlacet";
+import RangJeux from "@/components/games/RangJeux";
 import PlacetMark from "./PlacetMark";
 import { CORAL, CREAM, FONT_BODY, FONT_DISPLAY, GREEN, INK, lift } from "./theme";
 
@@ -278,6 +279,16 @@ export default function Nav() {
 
           {/* Les cadres : rien ici ne quitte la page. */}
           <ul className="nav-acts">
+            {/* ⚠️ LA PLACE AUX JEUX QUOTIDIENS, ET ELLE EST SILENCIEUSE PAR
+                DÉFAUT : rien sans compte, rien sans pseudo, rien tant qu'on
+                n'est pas classé. Une barre vue sur toutes les pages du produit
+                ne peut pas afficher un espace vide à ceux qui ne jouent pas.
+                Elle ne demande rien non plus — une place et une flèche, pas un
+                appel à l'action : c'est ce qui la rend admissible ici, là où
+                `GameShell` interdit l'inverse (la nav de Placet sur un jeu). */}
+            <li>
+              <RangJeux />
+            </li>
             <li>
               {/* Aide « C'est quoi Placet ? » — sans couper le flux de création. */}
               <AboutPlacet compact />

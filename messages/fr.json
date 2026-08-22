@@ -2699,7 +2699,11 @@
     "pseudoBouton": "Valider",
     "pseudoPris": "Ce pseudo est déjà pris.",
     "pseudoCourt": "Deux caractères au minimum.",
-    "pseudoLong": "Vingt caractères au maximum."
+    "pseudoLong": "Vingt caractères au maximum.",
+    "navRang": "{n, selectordinal, one {#er} other {#e}}",
+    "navPlace": "Vous êtes {place, selectordinal, one {#er} other {#e}} au classement des jeux quotidiens, sur trente journées.",
+    "navMonte": "Vous êtes {place, selectordinal, one {#er} other {#e}} au classement des jeux quotidiens : {n, plural, one {# place gagnée} other {# places gagnées}} en une semaine.",
+    "navDescend": "Vous êtes {place, selectordinal, one {#er} other {#e}} au classement des jeux quotidiens : {n, plural, one {# place perdue} other {# places perdues}} en une semaine."
   },
   "BanaloJour": {
     "detailBouton": "Voir le détail",
