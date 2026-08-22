@@ -1030,6 +1030,18 @@ avec la fenêtre reculée de sept jours (`p_recul`). Elle se tait si le joueur
 n'était pas classé la semaine dernière — « +12 places » depuis une place qui
 n'existait pas serait une invention.
 
+⚠️ **LA PORTE `/games` Y MÈNE, ET C'EST LE SEUL CHEMIN QUI VAUT POUR TOUT LE
+MONDE** — un lien « Résultats et classements » sous le pitch de la famille
+« Un par jour ». Les écrans d'après-partie n'y menaient que pour un joueur
+CONNECTÉ ayant deux journées ; un habitué sans compte n'avait aucun chemin, alors
+que les classements se lisent sans compte. ⚠️ Il est posé sur la PORTE et pas sur
+un écran de jeu : `GameShell` interdit la nav de Placet pendant une partie, la
+porte est justement le lieu où l'on ne joue pas encore. ⚠️ Et contrairement à
+`Reprendre` juste au-dessus, **il n'est pas silencieux** : celui-là montre ce
+qu'on a EN COURS, celui-ci mène à des classements PUBLICS, qui disent à un
+nouveau venu qu'il y a du monde derrière. Son libellé ne dit donc pas « mes » —
+à qui n'a jamais joué, « mes résultats » promet une page vide.
+
 ⚠️ **LA PLACE DU JOUEUR EST DANS LA BARRE DE PLACET** (`RangJeux.tsx`), et c'est
 l'image miroir d'une règle déjà écrite : `GameShell` interdit la nav de Placet
 sur un écran de jeu (« on vient jouer »). Ce qui rend l'inverse admissible est

@@ -149,6 +149,32 @@ export default function GamesHome() {
                 {libelle.nom}
               </h2>
               <p style={{ margin: "3px 0 0", fontSize: 14, color: skin.muted, maxWidth: "56ch" }}>{libelle.pitch}</p>
+              {/* L'INDEX DE LA FAMILLE QUOTIDIENNE — mes résultats et les
+                  classements, pour les deux jeux à la fois.
+
+                  ⚠️ IL EST ICI ET PAS SUR UN ÉCRAN DE JEU. `GameShell` interdit
+                  la nav de Placet sur une partie (« on vient jouer ») ; la porte,
+                  elle, est exactement le lieu où l'on ne joue pas encore. Et les
+                  écrans d'après-partie n'y mènent que pour un joueur CONNECTÉ
+                  ayant deux journées : un habitué sans compte n'avait aucun
+                  chemin, alors que les classements se lisent sans compte.
+
+                  ⚠️ IL N'EST PAS SILENCIEUX POUR AUTANT, contrairement à
+                  `Reprendre` juste au-dessus. Celui-là montre ce qu'on a EN
+                  COURS — donc rien à montrer à qui n'a rien. Celui-ci mène à des
+                  classements PUBLICS : ils disent à quelqu'un qui découvre la
+                  famille qu'il y a du monde derrière, et c'est une information
+                  sur les jeux, ce que cette page est faite pour donner.
+
+                  ⚠️ ET SON LIBELLÉ NE DIT PAS « MES » : à quelqu'un qui n'a
+                  jamais joué, « mes résultats » promet une page vide. */}
+              {cle === "quotidien" ? (
+                <p style={{ margin: "7px 0 0", fontSize: 13.5 }}>
+                  <Link href="/games/quotidien" style={{ color: skin.ink, fontWeight: 700 }}>
+                    {t("resultatsLien")}
+                  </Link>
+                </p>
+              ) : null}
 
               <div
                 // ⚠️ FLEX ET NON GRILLE, à cause des familles à un seul jeu. Avec
