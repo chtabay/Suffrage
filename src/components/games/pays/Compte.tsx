@@ -150,6 +150,16 @@ export default function Compte({
           {b?.moyenne != null && ligne(t("compte.moyenne"), String(b.moyenne))}
           {b?.meilleur != null && ligne(t("compte.meilleur"), String(b.meilleur))}
         </div>
+        {/* LA PORTE DE LA PAGE COMMUNE. ⚠️ Elle ne s'ouvre qu'au-delà d'une
+            journée : y envoyer quelqu'un qui n'en a joué qu'une lui montrerait
+            une courbe d'un point, c'est-à-dire ce qu'il vient de lire. */}
+        {b && b.parties > 1 ? (
+          <p style={{ margin: "9px 0 0", fontSize: 13.5 }}>
+            <Link href="/games/quotidien" style={{ color: skin.ink, fontWeight: 700 }}>
+              {t("compte.mesResultats")}
+            </Link>
+          </p>
+        ) : null}
         <p style={{ margin: "10px 0 0", fontSize: 13.5, color: skin.muted, lineHeight: 1.5 }}>
           {t("compte.placet")}{" "}
           <Link href="/" style={{ color: skin.ink, fontWeight: 700 }}>

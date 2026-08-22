@@ -1,27 +1,18 @@
-import type { Metadata } from "next";
-import { getTranslations } from "next-intl/server";
-import HistoriquePage from "@/components/games/banalo/HistoriquePage";
-import { numeroDuJour } from "@/lib/games/banalo/jour";
+import { redirect } from "@/i18n/navigation";
+import { getLocale } from "next-intl/server";
 
-// MES JOURNÉES — la page personnelle d'un compte.
+// L'ANCIENNE PAGE D'HISTORIQUE DE BANALO, DEVENUE UNE REDIRECTION.
 //
-// ⚠️ HORS DES MOTEURS. Elle ne montre rien de public : c'est le passé d'un
-// joueur, et elle est vide pour qui n'est pas connecté. L'indexer donnerait un
-// résultat de recherche qui ne dit rien à personne.
-export const dynamic = "force-dynamic";
-
-export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
-  const { locale } = await params;
-  const t = await getTranslations({ locale, namespace: "BanaloJour" });
-  return {
-    title: t("historique.metaTitle"),
-    robots: { index: false, follow: false },
-  };
-}
-
-export default async function BanaloHistoriquePage() {
-  // ⚠️ LE NUMÉRO EST CALCULÉ ICI, en heure de Paris, comme sur la page de jeu.
-  // Il ne sert pas à jouer mais à savoir si la série est VIVANTE : la base rend
-  // la dernière journée de la suite, jamais un verdict.
-  return <HistoriquePage jour={numeroDuJour()} />;
+// ⚠️ ELLE A VÉCU DEUX JOURS ET ELLE EST REMPLACÉE, PAS SUPPRIMÉE. La page
+// commune `/games/quotidien` répond à la même question pour les DEUX jeux ; en
+// garder deux ferait deux endroits à tenir à jour, et c'est toujours la copie
+// qui finit par mentir. Le chemin reste vivant parce qu'il a été mis en lien
+// dans la carte de compte : un lien qu'on a pu suivre ne se coupe pas.
+//
+// ⚠️ CE QU'ON PERD EN CHEMIN, ET C'EST ASSUMÉ : la page de Banalo nommait le
+// SUJET de chaque journée. La page commune ne peut pas le faire — Cinq sur cinq
+// interdit toute métadonnée dérivée du puzzle, et une colonne qui ne se remplit
+// que pour un jeu sur deux se lit comme une donnée manquante.
+export default async function HistoriqueRedirige() {
+  redirect({ href: "/games/quotidien", locale: await getLocale() });
 }

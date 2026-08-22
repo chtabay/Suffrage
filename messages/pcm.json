@@ -2645,6 +2645,36 @@
       "stats": "{plies} moves wey dem play · {ballots} votes wey land"
     }
   },
+  "JeuxQuotidiens": {
+    "metaTitle": "My results — daily games",
+    "titre": "My results",
+    "retour": "All di games",
+    "poweredBy": "Placet dey power am",
+    "intro": "How many players do beta pass you, day by day. Di lower am, di beta you do — na di only measure wey mean di same thing for all di games.",
+    "banalo": "Banalo of di Day",
+    "pays": "Five by five",
+    "jouer": "Play",
+    "journees": "{n, plural, one {# day} other {# days}}",
+    "aucune": "No day never save for dis account yet.",
+    "numero": "Day #{n}",
+    "pourcent": "{n}%",
+    "ontFaitMieux": "do beta pass you, for your last day.",
+    "sansPosition": "None of your days get position yet: at least two people must don play.",
+    "seul": "na you only dat day",
+    "meilleur": "Your best",
+    "moyen": "On average",
+    "courbeLegende": "High na beta: di fewer players wey dey your front, di higher di line.",
+    "courbeAlt": "How your position waka for {n} days.",
+    "sansCompteTitre": "Keep every day wey you play",
+    "sansCompteTexte": "Dem no dey keep your answers forever, and na only di browser wey send dem get dem. Account go keep result of every day, for all your devices and for di two games.",
+    "google": "Continue with Google",
+    "emailPlaceholder": "your@email.com",
+    "envoyer": "Send me link",
+    "envoye": "E don go — open di link wey we just send you.",
+    "erreur": "E no send. Try again small time.",
+    "versLesJeux": "See all di games",
+    "panne": "We no fit reach your results. Reload di page."
+  },
   "BanaloJour": {
     "detailBouton": "See di detail",
     "metaTitle": "Banalo of di day — answer like di crowd",
@@ -2764,7 +2794,8 @@
       "seul": "Your name don enta. Di board go show once {n} names dey.",
       "pris": "Person don carry dat name today. See oda ones.",
       "deja": "You don already drop name for today.",
-      "panne": "Di name no go through. Try again."
+      "panne": "Di name no go through. Try again.",
+      "libreSeul": "Your name"
     },
     "historique": {
       "metaTitle": "My days — Banalo of di Day",
@@ -2860,7 +2891,8 @@
       "rang": "You be number {rang} out of {joueurs} players today.",
       "rangSeul": "Na you first find am today.",
       "placet": "Di same account dey run real voting for Placet:",
-      "placetLien": "see wetin e dey do"
+      "placetLien": "see wetin e dey do",
+      "mesResultats": "See all my results"
     },
     "metaTitle": "Five Over Five — di geography game wey dey come every day",
     "metaDescription": "Find di country of di day for di map. Every try go tell you how many mark e share with am. One country every day, no account.",

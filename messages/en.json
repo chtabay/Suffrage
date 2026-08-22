@@ -2645,6 +2645,36 @@
       "stats": "{plies} moves played · {ballots} ballots cast"
     }
   },
+  "JeuxQuotidiens": {
+    "metaTitle": "My results — daily games",
+    "titre": "My results",
+    "retour": "All games",
+    "poweredBy": "Powered by Placet",
+    "intro": "The share of players who did better than you, day after day. The lower it is, the better you did — and it's the one measure that means the same thing across games.",
+    "banalo": "Daily Banalo",
+    "pays": "Five by five",
+    "jouer": "Play",
+    "journees": "{n, plural, one {# day} other {# days}}",
+    "aucune": "No day kept on this account yet.",
+    "numero": "Day #{n}",
+    "pourcent": "{n}%",
+    "ontFaitMieux": "did better than you, on your last day.",
+    "sansPosition": "None of your days has a position yet: at least two people have to have played.",
+    "seul": "only player that day",
+    "meilleur": "Best",
+    "moyen": "Average",
+    "courbeLegende": "Higher is better: the fewer players ahead of you, the higher the line.",
+    "courbeAlt": "How your position moved over {n} days.",
+    "sansCompteTitre": "Keep every day you play",
+    "sansCompteTexte": "Your answers are only kept for a while, and only in the browser that sent them. An account keeps the result of every day, across your devices and for both games.",
+    "google": "Continue with Google",
+    "emailPlaceholder": "your@email.com",
+    "envoyer": "Send me a link",
+    "envoye": "Off you go — open the link we just sent you.",
+    "erreur": "That didn't send. Try again in a moment.",
+    "versLesJeux": "See all games",
+    "panne": "We couldn't reach your results. Reload the page."
+  },
   "BanaloJour": {
     "detailBouton": "See the detail",
     "metaTitle": "Banalo of the day — answer like the crowd",
@@ -2764,7 +2794,8 @@
       "seul": "Your name is in. The board shows from {n} names on.",
       "pris": "That name is already taken today. Here are others.",
       "deja": "You have already left a name for today.",
-      "panne": "The name did not go through. Try again."
+      "panne": "The name did not go through. Try again.",
+      "libreSeul": "Your name"
     },
     "historique": {
       "metaTitle": "My days — Daily Banalo",
@@ -2860,7 +2891,8 @@
       "rang": "{rang}th of {joueurs} players today.",
       "rangSeul": "You're the first to find it today.",
       "placet": "The same account runs real votes on Placet:",
-      "placetLien": "see what it's for"
+      "placetLien": "see what it's for",
+      "mesResultats": "See all my results"
     },
     "metaTitle": "Five by Five — the daily geography game",
     "metaDescription": "Find today's country on the map. Each guess tells you how many characteristics it shares with it. One country a day, no account.",

@@ -85,6 +85,38 @@ export default function ChoisirSonNom({
     [jeton, etat.tour],
   );
 
+  // ⚠️ LES NOMS TOUT FAITS NE S'AFFICHENT PAS À QUI EST CONNECTÉ. Ils existent
+  // pour permettre de se nommer SANS COMPTE ; devant quelqu'un qui a un compte,
+  // ils proposent quatre noms d'animaux au-dessus du champ où il va de toute
+  // façon écrire le sien. C'est quatre pastilles, une ligne de « en proposer
+  // d'autres » et un paragraphe d'explication en moins — sur un écran qui se
+  // bat pour sa hauteur.
+  if (connecte) {
+    return (
+      <div style={{ marginTop: 12 }}>
+        <GLabel skin={skin}>{t("tableau.libreSeul")}</GLabel>
+        <input
+          value={etat.libre}
+          maxLength={24}
+          onChange={(e) => setEtat({ ...etat, libre: e.target.value, index: null })}
+          placeholder={t("tableau.librePlace")}
+          style={{
+            width: "100%",
+            marginTop: 6,
+            padding: "9px 11px",
+            fontSize: 15,
+            fontWeight: 700,
+            borderRadius: 8,
+            border: `2px solid ${skin.ink}`,
+            background: skin.paper,
+            color: skin.ink,
+            boxSizing: "border-box",
+          }}
+        />
+      </div>
+    );
+  }
+
   return (
     <>
       <div style={{ display: "flex", flexWrap: "wrap", gap: 8, margin: "10px 0 0" }}>
@@ -130,48 +162,18 @@ export default function ChoisirSonNom({
         </button>
       </div>
 
-      {/* ⚠️ LE CHAMP LIBRE N'EXISTE QUE DERRIÈRE UN COMPTE, et c'est LA règle.
-          La base la tient par une contrainte de table, pas seulement par cette
-          condition d'écran : une erreur ici ne peut pas l'ouvrir. */}
-      {connecte ? (
-        <div style={{ marginTop: 12 }}>
-          <GLabel skin={skin}>{t("tableau.libre")}</GLabel>
-          <input
-            value={etat.libre}
-            maxLength={24}
-            onChange={(e) =>
-              setEtat({
-                ...etat,
-                libre: e.target.value,
-                index: e.target.value.trim().length > 0 ? null : etat.index,
-              })
-            }
-            placeholder={t("tableau.librePlace")}
-            style={{
-              width: "100%",
-              marginTop: 6,
-              padding: "9px 11px",
-              fontSize: 15,
-              fontWeight: 700,
-              borderRadius: 8,
-              border: `2px solid ${skin.ink}`,
-              background: skin.paper,
-              color: skin.ink,
-              boxSizing: "border-box",
-            }}
-          />
-        </div>
-      ) : (
-        // Factuel, et à sa place : ça explique pourquoi la liste est fermée.
-        // ⚠️ Ce n'est PAS l'offre de compte de l'après-partie — celle-là a sa
-        // carte, et §0 interdit d'en empiler deux. Une phrase grise sans bouton
-        // ne concurrence rien.
-        <p style={{ margin: "10px 0 0", fontSize: 12.5, color: skin.muted, lineHeight: 1.45 }}>
+      {/* ⚠️ SANS COMPTE, IL N'Y A QUE LA LISTE — et la phrase qui dit pourquoi.
+          La règle est tenue par une CONTRAINTE DE TABLE, pas par cette
+          condition d'écran : une erreur ici ne peut pas ouvrir le texte libre. */}
+      {/* Factuel, et à sa place : ça explique pourquoi la liste est fermée.
+          ⚠️ Ce n'est PAS l'offre de compte de l'après-partie — celle-là a sa
+          carte, et §0 interdit d'en empiler deux. Une phrase grise sans bouton
+          ne concurrence rien. */}
+      <p style={{ margin: "10px 0 0", fontSize: 12.5, color: skin.muted, lineHeight: 1.45 }}>
           {/* ⚠️ LES DEUX CLÉS SONT ÉCRITES EN CLAIR : une clé choisie en
               variable échapperait au contrôle de parité i18n. */}
-          {portee === "tablee" ? t("tablee.pourquoi") : t("tableau.pourquoi")}
-        </p>
-      )}
+        {portee === "tablee" ? t("tablee.pourquoi") : t("tableau.pourquoi")}
+      </p>
     </>
   );
 }

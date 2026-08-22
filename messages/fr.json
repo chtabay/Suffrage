@@ -2645,6 +2645,36 @@
       "stats": "{plies} coups joués · {ballots} bulletins déposés"
     }
   },
+  "JeuxQuotidiens": {
+    "metaTitle": "Mes résultats — jeux quotidiens",
+    "titre": "Mes résultats",
+    "retour": "Tous les jeux",
+    "poweredBy": "Propulsé par Placet",
+    "intro": "Le pourcentage de joueurs qui ont fait mieux que vous, jour après jour. Plus il est bas, meilleur est le résultat — et c'est la seule mesure qui veut dire la même chose d'un jeu à l'autre.",
+    "banalo": "Banalo du jour",
+    "pays": "Cinq sur cinq",
+    "jouer": "Jouer",
+    "journees": "{n, plural, one {# journée} other {# journées}}",
+    "aucune": "Aucune journée gardée sur ce compte pour l'instant.",
+    "numero": "Journée n° {n}",
+    "pourcent": "{n} %",
+    "ontFaitMieux": "ont fait mieux que vous, sur votre dernière journée.",
+    "sansPosition": "Aucune de vos journées n'a encore de position : il faut être au moins deux à avoir joué.",
+    "seul": "seul ce jour-là",
+    "meilleur": "Au mieux",
+    "moyen": "En moyenne",
+    "courbeLegende": "Le haut du dessin est le meilleur : moins il y a de joueurs devant vous, plus le trait monte.",
+    "courbeAlt": "Évolution de votre position sur {n} journées.",
+    "sansCompteTitre": "Retrouvez toutes vos journées",
+    "sansCompteTexte": "Vos réponses ne sont gardées qu'un temps, et seulement dans le navigateur qui les a envoyées. Un compte garde le résultat de chaque journée, sur tous vos appareils et pour les deux jeux.",
+    "google": "Continuer avec Google",
+    "emailPlaceholder": "votre@email.fr",
+    "envoyer": "Recevoir un lien",
+    "envoye": "C'est parti — ouvrez le lien qu'on vient de vous envoyer.",
+    "erreur": "L'envoi n'a pas fonctionné. Réessayez dans un instant.",
+    "versLesJeux": "Voir tous les jeux",
+    "panne": "On n'a pas pu joindre vos résultats. Rechargez la page."
+  },
   "BanaloJour": {
     "detailBouton": "Voir le détail",
     "metaTitle": "Banalo du jour — répondez comme la foule",
@@ -2764,7 +2794,8 @@
       "seul": "Votre nom est déposé. Le tableau s'affiche à partir de {n} noms.",
       "pris": "Ce nom est déjà porté aujourd'hui. En voici d'autres.",
       "deja": "Vous avez déjà déposé un nom pour cette journée.",
-      "panne": "Le dépôt n'est pas parti. Réessayez."
+      "panne": "Le dépôt n'est pas parti. Réessayez.",
+      "libreSeul": "Votre nom"
     },
     "historique": {
       "metaTitle": "Mes journées — Banalo du jour",
@@ -2860,7 +2891,8 @@
       "rang": "{rang}e sur {joueurs} joueurs aujourd'hui.",
       "rangSeul": "Vous êtes le premier à l'avoir trouvé aujourd'hui.",
       "placet": "Le même compte sert à organiser de vrais votes sur Placet :",
-      "placetLien": "voir à quoi ça sert"
+      "placetLien": "voir à quoi ça sert",
+      "mesResultats": "Voir tous mes résultats"
     },
     "metaTitle": "Cinq sur cinq — le jeu de géographie quotidien",
     "metaDescription": "Trouvez le pays du jour sur la carte. Chaque essai dit combien de caractéristiques il partage avec lui. Un pays par jour, sans compte.",

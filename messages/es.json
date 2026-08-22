@@ -2645,6 +2645,36 @@
       "stats": "{plies} jugadas realizadas · {ballots} papeletas depositadas"
     }
   },
+  "JeuxQuotidiens": {
+    "metaTitle": "Mis resultados — juegos diarios",
+    "titre": "Mis resultados",
+    "retour": "Todos los juegos",
+    "poweredBy": "Con la tecnología de Placet",
+    "intro": "El porcentaje de jugadores que lo hicieron mejor que tú, día tras día. Cuanto más bajo, mejor — y es la única medida que significa lo mismo en todos los juegos.",
+    "banalo": "Banalo del día",
+    "pays": "Cinco sobre cinco",
+    "jouer": "Jugar",
+    "journees": "{n, plural, one {# día} other {# días}}",
+    "aucune": "Aún no hay ningún día guardado en esta cuenta.",
+    "numero": "Día n.º {n}",
+    "pourcent": "{n} %",
+    "ontFaitMieux": "lo hicieron mejor que tú en tu último día.",
+    "sansPosition": "Ninguno de tus días tiene todavía posición: hay que ser al menos dos.",
+    "seul": "único jugador ese día",
+    "meilleur": "Tu mejor",
+    "moyen": "De media",
+    "courbeLegende": "Cuanto más alto, mejor: cuantos menos jugadores por delante, más sube la línea.",
+    "courbeAlt": "Evolución de tu posición en {n} días.",
+    "sansCompteTitre": "Guarda todos tus días",
+    "sansCompteTexte": "Tus respuestas solo se conservan un tiempo, y solo en el navegador que las envió. Una cuenta guarda el resultado de cada día, en todos tus dispositivos y para los dos juegos.",
+    "google": "Continuar con Google",
+    "emailPlaceholder": "tu@email.com",
+    "envoyer": "Enviarme un enlace",
+    "envoye": "Listo — abre el enlace que acabamos de enviarte.",
+    "erreur": "No se ha podido enviar. Inténtalo de nuevo.",
+    "versLesJeux": "Ver todos los juegos",
+    "panne": "No hemos podido acceder a tus resultados. Recarga la página."
+  },
   "BanaloJour": {
     "detailBouton": "Ver el detalle",
     "metaTitle": "Banalo del día — responde como la mayoría",
@@ -2764,7 +2794,8 @@
       "seul": "Tu nombre está puesto. La tabla aparece a partir de {n} nombres.",
       "pris": "Ese nombre ya está tomado hoy. Aquí tienes otros.",
       "deja": "Ya has dejado un nombre para hoy.",
-      "panne": "El nombre no se ha enviado. Inténtalo de nuevo."
+      "panne": "El nombre no se ha enviado. Inténtalo de nuevo.",
+      "libreSeul": "Tu nombre"
     },
     "historique": {
       "metaTitle": "Mis días — Banalo del día",
@@ -2860,7 +2891,8 @@
       "rang": "{rang}.º de {joueurs} jugadores hoy.",
       "rangSeul": "Eres el primero en encontrarlo hoy.",
       "placet": "La misma cuenta sirve para organizar votaciones de verdad en Placet:",
-      "placetLien": "ver para qué sirve"
+      "placetLien": "ver para qué sirve",
+      "mesResultats": "Ver todos mis resultados"
     },
     "metaTitle": "Cinco sobre cinco — el juego diario de geografía",
     "metaDescription": "Encuentra el país del día en el mapa. Cada intento te dice cuántas características comparte con él. Un país al día, sin cuenta.",

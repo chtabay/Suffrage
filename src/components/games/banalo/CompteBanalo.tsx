@@ -150,7 +150,7 @@ export default function CompteBanalo({ jour, install }: { jour: number; install?
             a qu'une l'envoie sur une page qui répète ce qu'il vient de lire. */}
         {b && b.parties > 1 ? (
           <p style={{ margin: "9px 0 0", fontSize: 13.5 }}>
-            <Link href="/games/banalo-jour/historique" style={{ color: skin.ink, fontWeight: 700 }}>
+            <Link href="/games/quotidien" style={{ color: skin.ink, fontWeight: 700 }}>
               {t("historique.lien")}
             </Link>
           </p>

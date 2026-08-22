@@ -977,6 +977,42 @@ contrôle de parité ne voyant que `messages/*.json`, ce sont les **tests** de
 le signalement, indispensable seulement dans cette forme-là : il n'existe pas
 encore, et la prise pour agir est le compte exigé derrière le texte libre.
 
+**LA PAGE COMMUNE DES JEUX QUOTIDIENS est en prod** (`/games/quotidien`,
+`components/games/quotidien/`) — une carte par jeu, le chiffre du moment, la
+courbe dans le temps, les records, les cinq dernières journées.
+
+⚠️ **ELLE EST MUTUALISÉE PARCE QUE LA QUESTION L'EST.** « Où j'en suis » n'est
+une question ni de Banalo ni de Cinq sur cinq, c'est une question du JOUEUR.
+Avant elle : Banalo cachait son historique derrière une ligne de texte dans sa
+carte de compte, Cinq sur cinq n'avait rien du tout, et passé la charnière le
+classement du jour devenait inatteignable. `/games/banalo-jour/historique` est
+donc devenue une REDIRECTION — deux pages qui répondent pareil, c'est toujours la
+copie qui finit par mentir.
+
+⚠️ **ELLE NE MONTRE QUE DES CENTILES, ET C'EST LA SEULE CHOSE POSSIBLE.** Un
+nombre d'essais et une somme de voix ne s'additionnent pas ; le sur-100 de Banalo
+ne veut même pas dire la même chose d'un thème à l'autre. « X % ont fait mieux »
+veut dire la même chose partout. ⚠️ Cinq sur cinq ne STOCKE pas son centile — il
+se calcule à la lecture dans `scrutin_game_pays_historique`, sur la même
+définition que `mieux` chez Banalo.
+
+⚠️ **CE QU'ELLE A PERDU EN CHEMIN** : la page de Banalo nommait le SUJET de
+chaque journée. La commune ne le peut pas — `games/pays/page.tsx` interdit toute
+métadonnée dérivée du puzzle, et une colonne qui ne se remplit que pour un jeu
+sur deux se lit comme une donnée manquante.
+
+⚠️ **L'AXE DE LA COURBE EST INVERSÉ, ET C'EST ÉCRIT SUR LE DESSIN** (0 % en haut,
+100 % en bas, tous deux imprimés). Le jeu ne connaît qu'une phrase — « X % ont
+fait mieux », plus bas = mieux. Retourner le CHIFFRE (« mieux que 86 % ») ferait
+un second vocabulaire sur une seule page, et on ne saurait plus lequel on lit. On
+retourne donc l'AXE, et on l'imprime : l'inversion se voit, elle ne se devine pas.
+
+⚠️ **ET LES TROUS SONT ENJAMBÉS EN POINTILLÉ, jamais reliés en plein ni laissés
+béants.** Vu à l'écran sur vingt journées dont deux manquantes : coupée net, la
+courbe faisait trois traits flottants qu'on lit comme un défaut d'affichage ;
+reliée en plein, elle affirmerait une progression qui n'a pas eu lieu. Le
+pointillé dit « on ne sait pas ».
+
 **LE GROUPE D'AMIS est en prod** (`MaTablee.tsx`, `RejoindrePage.tsx`,
 `20260824-banalo-tablee.sql`) — la couche sociale, **sans graphe d'amis**. On
 n'est pas ami AVEC quelqu'un, on est DANS un groupe : on rejoint par lien, on
