@@ -2711,12 +2711,12 @@
       "erreur": "That didn't send. Try again in a moment.",
       "bilanTitre": "Your results",
       "parties": "Days",
-      "moyenne": "Average score",
-      "meilleur": "Best score",
       "serieLabel": "Streak",
       "serie": "{n} days in a row",
       "placet": "The same account runs real votes on Placet:",
-      "placetLien": "see what it's for"
+      "placetLien": "see what it's for",
+      "devant": "Ahead of you",
+      "devantMieux": "Best day"
     },
     "compareTitre": "Against your friend",
     "compareMoi": "You",
@@ -2765,6 +2765,17 @@
       "pris": "That name is already taken today. Here are others.",
       "deja": "You have already left a name for today.",
       "panne": "The name did not go through. Try again."
+    },
+    "historique": {
+      "metaTitle": "My days — Daily Banalo",
+      "titre": "My days",
+      "lien": "See all my days",
+      "legende": "Share of players who did better that day: the lower, the better.",
+      "sansPosition": "only player that day",
+      "vide": "No day kept on this account yet. Play today's — it will land here.",
+      "versLeJeu": "Play today's game",
+      "sansCompteTitre": "Keep every day you play",
+      "sansCompteTexte": "Your answers are only kept for a while. An account keeps the result of every day — and lets your streak outlast them."
     }
   },
   "Pays": {

@@ -2711,12 +2711,12 @@
       "erreur": "No se ha podido enviar. Inténtalo dentro de un momento.",
       "bilanTitre": "Tus resultados",
       "parties": "Días",
-      "moyenne": "Puntuación media",
-      "meilleur": "Mejor puntuación",
       "serieLabel": "Racha",
       "serie": "{n} días seguidos",
       "placet": "La misma cuenta sirve para organizar votaciones reales en Placet:",
-      "placetLien": "ver para qué sirve"
+      "placetLien": "ver para qué sirve",
+      "devant": "Por delante",
+      "devantMieux": "Tu mejor día"
     },
     "compareTitre": "Frente a tu amigo",
     "compareMoi": "Tú",
@@ -2765,6 +2765,17 @@
       "pris": "Ese nombre ya está tomado hoy. Aquí tienes otros.",
       "deja": "Ya has dejado un nombre para hoy.",
       "panne": "El nombre no se ha enviado. Inténtalo de nuevo."
+    },
+    "historique": {
+      "metaTitle": "Mis días — Banalo del día",
+      "titre": "Mis días",
+      "lien": "Ver todos mis días",
+      "legende": "Porcentaje de jugadores que lo hicieron mejor ese día: cuanto más bajo, mejor.",
+      "sansPosition": "único jugador ese día",
+      "vide": "Aún no hay ningún día guardado en esta cuenta. Juega el de hoy y quedará aquí.",
+      "versLeJeu": "Jugar el día de hoy",
+      "sansCompteTitre": "Guarda todos tus días",
+      "sansCompteTexte": "Tus respuestas solo se conservan un tiempo. Una cuenta guarda el resultado de cada día — y hace que tu racha dure más."
     }
   },
   "Pays": {

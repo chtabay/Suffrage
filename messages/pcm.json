@@ -2711,12 +2711,12 @@
       "erreur": "E no send. Try again small time.",
       "bilanTitre": "Your results",
       "parties": "Days",
-      "moyenne": "Average score",
-      "meilleur": "Best score",
       "serieLabel": "Streak",
       "serie": "{n} days back to back",
       "placet": "Di same account dey run real votes for Placet:",
-      "placetLien": "see wetin e dey do"
+      "placetLien": "see wetin e dey do",
+      "devant": "Dey front you",
+      "devantMieux": "Your best day"
     },
     "compareTitre": "You against your padi",
     "compareMoi": "You",
@@ -2765,6 +2765,17 @@
       "pris": "Person don carry dat name today. See oda ones.",
       "deja": "You don already drop name for today.",
       "panne": "Di name no go through. Try again."
+    },
+    "historique": {
+      "metaTitle": "My days — Banalo of di Day",
+      "titre": "My days",
+      "lien": "See all my days",
+      "legende": "How many players do beta pass you dat day: di lower, di beta.",
+      "sansPosition": "na you only dat day",
+      "vide": "No day never save for dis account yet. Play today own, e go land here.",
+      "versLeJeu": "Play today game",
+      "sansCompteTitre": "Keep every day wey you play",
+      "sansCompteTexte": "Dem no dey keep your answers forever. Account dey keep result of every day — and e go make your streak last pass dem."
     }
   },
   "Pays": {

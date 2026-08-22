@@ -2711,12 +2711,12 @@
       "erreur": "L'envoi n'a pas fonctionné. Réessayez dans un instant.",
       "bilanTitre": "Vos résultats",
       "parties": "Journées",
-      "moyenne": "Score moyen",
-      "meilleur": "Meilleur score",
       "serieLabel": "Série",
       "serie": "{n} jours d'affilée",
       "placet": "Le même compte sert à organiser de vrais votes sur Placet :",
-      "placetLien": "voir à quoi ça sert"
+      "placetLien": "voir à quoi ça sert",
+      "devant": "Devant vous",
+      "devantMieux": "Au mieux"
     },
     "compareTitre": "Face à votre ami",
     "compareMoi": "Vous",
@@ -2765,6 +2765,17 @@
       "pris": "Ce nom est déjà porté aujourd'hui. En voici d'autres.",
       "deja": "Vous avez déjà déposé un nom pour cette journée.",
       "panne": "Le dépôt n'est pas parti. Réessayez."
+    },
+    "historique": {
+      "metaTitle": "Mes journées — Banalo du jour",
+      "titre": "Mes journées",
+      "lien": "Voir toutes mes journées",
+      "legende": "Part des joueurs qui ont fait mieux ce jour-là : plus c'est bas, mieux c'est.",
+      "sansPosition": "seul ce jour-là",
+      "vide": "Aucune journée gardée sur ce compte pour l'instant. Jouez celle du jour, elle viendra s'y ranger.",
+      "versLeJeu": "Jouer la journée du jour",
+      "sansCompteTitre": "Retrouvez toutes vos journées",
+      "sansCompteTexte": "Vos réponses ne sont gardées qu'un temps. Un compte garde le résultat de chaque journée — et fait durer votre série au-delà."
     }
   },
   "Pays": {

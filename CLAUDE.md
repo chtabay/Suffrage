@@ -670,6 +670,64 @@ journée à l'instant de la connexion. (Chez Cinq sur cinq, « meilleur » est u
 MINIMUM d'essais ; ici un MAXIMUM de points. Le copier-coller inverse ça en
 silence.)
 
+**L'HISTORIQUE PERSONNEL est en prod** (`/games/banalo-jour/historique`,
+`MonHistorique.tsx`, `scrutin_banalo_historique`) — c'est la réponse à la
+question d'un joueur : « est-ce qu'on peut créer un compte pour ça ? si oui,
+est-ce qu'on retrouve son propre historique ? » Il liste les journées gardées,
+la plus récente d'abord, avec le SUJET calculé dans le navigateur par
+`programmeDe(jour)` : stocké en base, un libellé reviendrait dans la langue où la
+journée a été jouée.
+
+⚠️ **IL MONTRE LE CENTILE, PAS LE SCORE — et le résumé de compte aussi
+maintenant** (`20260824-banalo-historique.sql`). C'était écrit ici depuis le
+retrait du sur-100 : « le jour où le résumé de compte devra dire quelque chose de
+juste, c'est le CENTILE qu'il faudra y mettre ». Le sur-100 n'est pas comparable
+d'un format à l'autre — son maximum ATTEIGNABLE vaut 67,8 sur un thème serré et
+13,7 sur un thème ouvert — donc « score moyen : 35 » mélangeait des journées où
+35 était hors d'atteinte par le haut et d'autres où c'était médiocre. La colonne
+`mieux` (le pourcentage de joueurs qui ont fait mieux) est **nullable** : une
+journée jouée seul n'a pas de position, et `0` voudrait dire « premier », le
+repli le plus flatteur possible sur une donnée absente.
+
+⚠️ **LES CLÉS DE `scrutin_banalo_moi` ONT ÉTÉ RENOMMÉES EXPRÈS**
+(`moyenne`/`meilleur` → `centileMoyen`/`centileMeilleur`). Garder les noms en y
+mettant un centile aurait changé le SENS d'un chiffre sans changer sa forme :
+l'écran aurait affiché « meilleur : 3 » en croyant montrer un score, alors que 3
+veut dire « 3 % ont fait mieux », c'est-à-dire excellent. ⚠️ Et le MEILLEUR est
+le PLUS PETIT — l'inverse du sur-100, comme « meilleur » est un MINIMUM d'essais
+chez Cinq sur cinq et un MAXIMUM de points ici.
+
+⚠️ **`scrutin_banalo_rattacher` SAUTAIT LES JOURNÉES OÙ `assez` EST FAUX**, et
+c'était un bug pur depuis le 22 août. La garde était juste quand `assez` voulait
+dire « il existe une note » ; depuis la chute du plancher elle veut dire « cette
+note s'appuie-t-elle sur assez de monde ? ». Un joueur qui répondait à une
+journée jeune voyait son score à l'écran mais cette journée n'entrait jamais dans
+son compte — donc un TROU dans sa série de compte. La garde est maintenant
+`points is null`.
+
+⚠️ **ET LA SÉRIE DU COMPTE NE PASSAIT PAS PAR `serieVivante`**, contrairement à
+celle du navigateur. La base rend la dernière journée de la suite, jamais un
+verdict : elle ne connaît ni le fuseau ni la charnière de 11 h 30. Un joueur
+revenu après dix jours lisait donc « série : 6 » là où le même écran, sans
+compte, affichait 0. L'écran garde la PLUS LONGUE des deux — le compte couvre
+tous les appareils, le jeton n'attend pas le rattachement.
+
+⚠️ **UN EFFET QUI DÉPEND DE `user` SE RELANCE EN BOUCLE** — dépendre de
+`user?.id`. `useAuth` rend un OBJET, dont la référence change chaque fois que la
+session est relue (une actualisation de jeton suffit). L'effet refait alors ses
+appels, et son ménage (`vivant = false`) coupe la réponse précédente avant
+qu'elle n'arrive : **la page reste blanche pour toujours tout en martelant la
+base**. Trouvé au navigateur, invisible à tsc comme à la relecture. Une CHAÎNE
+est stable, et le montage double du mode strict retombe alors sur le cas normal.
+`CompteBanalo` s'en tire par un `ref` par identifiant de compte, ce qui marche
+aussi.
+
+⚠️ **UNE LIGNE EN `nowrap` DANS UNE GRILLE ÉLARGIT LA PAGE ENTIÈRE.** Les sujets
+de journée ne se coupent pas tout seuls : sans `minWidth: 0` sur le `ul` ET sur
+la ligne, « Quel est le poids de tous les ballons de football… » poussait la
+carte à 760 px et faisait DÉFILER LA PAGE DE CÔTÉ sur un téléphone de 390, les
+pourcentages passant hors du cadre. Ni tsc ni la relecture ne voient une largeur.
+
 **Et la série marche SANS compte**, calculée par `scrutin_banalo_serie(jeton)`
 sur les deux formats réunis. La base rend la dernière journée de la suite ; c'est
 l'ÉCRAN qui décide si elle est encore vivante (`serieVivante`), parce que la base

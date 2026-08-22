@@ -111,15 +111,50 @@ export default function CompteBanalo({ jour, install }: { jour: number; install?
     // de source sûre (la série) plutôt qu'un tableau de zéros : la règle du
     // dépôt est qu'un NULL de RPC est un REFUS, pas une donnée.
     const b = bilan;
+    // ⚠️ LA SÉRIE DU COMPTE PASSE PAR `serieVivante` ELLE AUSSI. La base rend la
+    // dernière journée de la suite, jamais un verdict : elle ne connaît ni le
+    // fuseau du joueur ni la charnière de 11 h 30. La série anonyme y passait
+    // déjà, celle du compte non — un joueur revenu après dix jours d'absence
+    // lisait donc « série : 6 » là où le même écran, sans compte, affichait 0.
+    //
+    // ⚠️ ET ON GARDE LA PLUS LONGUE DES DEUX. Elles sont calculées à deux
+    // instants et sur deux sources : le compte couvre tous les appareils, le
+    // jeton ne couvre que ce navigateur mais n'attend pas le rattachement.
+    // Afficher une série plus courte que ce que le navigateur seul sait prouver
+    // serait une régression visible.
+    const serieCompte = b ? serieVivante({ jours: b.serie, fin: b.serieFin }, jour) : 0;
     return (
       <GCard skin={skin} padding={15} style={{ marginTop: 12 }} accent={skin.accent2}>
         <GLabel skin={skin}>{t("compte.bilanTitre")}</GLabel>
         <div style={{ display: "flex", gap: 18, flexWrap: "wrap", marginTop: 8 }}>
-          {ligne(t("compte.serieLabel"), String(b?.serie ?? serie))}
+          {ligne(t("compte.serieLabel"), String(Math.max(serieCompte, serie)))}
           {b && ligne(t("compte.parties"), String(b.parties))}
-          {b?.moyenne != null && ligne(t("compte.moyenne"), String(b.moyenne))}
-          {b?.meilleur != null && ligne(t("compte.meilleur"), String(b.meilleur))}
+          {/* ⚠️ DES CENTILES, PLUS DES POINTS. Le sur-100 n'est pas comparable
+              d'un format à l'autre — son maximum ATTEIGNABLE vaut 67,8 sur un
+              thème serré et 13,7 sur un thème ouvert — donc « score moyen : 35 »
+              mélangeait des journées où 35 était hors d'atteinte par le haut et
+              d'autres où c'était médiocre. Le centile est un rang : il veut dire
+              la même chose tous les jours. ⚠️ Et le MEILLEUR est le PLUS PETIT,
+              puisqu'il compte les joueurs qui ont fait mieux. */}
+          {b?.centileMoyen != null && ligne(t("compte.devant"), t("motsPart", { p: b.centileMoyen }))}
+          {b?.centileMeilleur != null && ligne(t("compte.devantMieux"), t("motsPart", { p: b.centileMeilleur }))}
         </div>
+        {/* La légende, une fois : « 14 % » ne se lit pas seul. */}
+        {b?.centileMoyen != null ? (
+          <p style={{ margin: "9px 0 0", fontSize: 12.5, color: skin.muted, lineHeight: 1.45 }}>
+            {t("historique.legende")}
+          </p>
+        ) : null}
+        {/* LA PORTE DE L'HISTORIQUE. Elle ne s'ouvre que pour qui a déjà des
+            journées : proposer « voir toutes mes journées » à quelqu'un qui n'en
+            a qu'une l'envoie sur une page qui répète ce qu'il vient de lire. */}
+        {b && b.parties > 1 ? (
+          <p style={{ margin: "9px 0 0", fontSize: 13.5 }}>
+            <Link href="/games/banalo-jour/historique" style={{ color: skin.ink, fontWeight: 700 }}>
+              {t("historique.lien")}
+            </Link>
+          </p>
+        ) : null}
         {lienPlacet}
         {/* ⚠️ L'INSTALLATION NE SORT QUE POUR QUI A DÉJÀ UN COMPTE. §0 de
             `docs/regularite-des-joueurs.md` : l'après-partie n'a QU'UNE place, et

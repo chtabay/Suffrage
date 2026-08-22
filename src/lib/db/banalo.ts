@@ -593,11 +593,23 @@ export async function deposerNom(
 
 // ────────────────────────────────────────────────────────── le compte
 
-/** Ce qu'un compte garde, et que le navigateur ne sait pas faire. */
+/**
+ * Ce qu'un compte garde, et que le navigateur ne sait pas faire.
+ *
+ * ⚠️ LE RÉSUMÉ EST EN CENTILES, PLUS EN POINTS. Le score sur 100 n'est pas
+ * comparable d'un format à l'autre : mesuré à 3 000 joueurs, son maximum
+ * ATTEIGNABLE vaut 67,8 sur un thème serré et 13,7 sur un thème ouvert, donc
+ * « moyenne : 35 » mélangeait des journées où 35 était hors d'atteinte par le
+ * haut et d'autres où c'était médiocre. Le centile, lui, est un rang : il veut
+ * dire la même chose tous les jours. Voir `20260824-banalo-historique.sql`.
+ *
+ * ⚠️ ET LE MEILLEUR CENTILE EST LE PLUS PETIT — c'est le pourcentage de joueurs
+ * qui ont fait MIEUX. Zéro veut dire premier de la journée.
+ */
 export interface BilanBanalo {
   parties: number;
-  moyenne: number | null;
-  meilleur: number | null;
+  centileMoyen: number | null;
+  centileMeilleur: number | null;
   serie: number;
   /** Numéro de la dernière journée de la série : l'écran seul sait si elle est vivante. */
   serieFin: number | null;
@@ -650,6 +662,56 @@ export async function rattache(jeton: string): Promise<number | null> {
   const { data, error } = await supabase.rpc("scrutin_banalo_rattacher", { p_jeton: jeton });
   if (error) return null;
   return typeof data === "number" ? data : null;
+}
+
+/**
+ * UNE JOURNÉE DE MON HISTORIQUE.
+ *
+ * ⚠️ NI MOT NI RÉPONSE N'EN FONT PARTIE, et le LIBELLÉ non plus : le thème ou
+ * la question se calculent dans le navigateur avec `programmeDe(jour)`, dans la
+ * langue de l'écran. Les faire descendre de la base doublerait une source de
+ * vérité, et les rendrait dans la langue où la journée a été jouée.
+ */
+export interface JourneeJouee {
+  jour: number;
+  format: "nombre" | "mots";
+  langue: string;
+  /** Le score sur 100 tel que la base le garde — montré seulement en chiffré. */
+  points: number | null;
+  /** Le pourcentage de joueurs qui ont fait mieux. `null` sous le plancher de position. */
+  mieux: number | null;
+}
+
+/**
+ * Mon historique, ou `null` si l'appel a été refusé.
+ *
+ * ⚠️ IL SURVIT À LA PURGE DES RÉPONSES : `scrutin_banalo_results` n'est purgée
+ * par rien, et c'est exactement ce qu'un compte apporte — les réponses brutes,
+ * elles, s'effacent à trente jours.
+ */
+export async function monHistoriqueBanalo(): Promise<JourneeJouee[] | null> {
+  const supabase = createClient();
+  const { data, error } = await supabase.rpc("scrutin_banalo_historique");
+  if (error) return null;
+  const d = data as Record<string, unknown> | null;
+  if (!d || d.status !== "ok" || !Array.isArray(d.journees)) return null;
+  return (d.journees as Record<string, unknown>[])
+    .map((j) => {
+      const jour = typeof j.jour === "number" ? j.jour : null;
+      const format = j.format === "mots" || j.format === "nombre" ? j.format : null;
+      if (jour === null || format === null) return null;
+      return {
+        jour,
+        format,
+        langue: typeof j.langue === "string" ? j.langue : "fr",
+        // ⚠️ PAS DE `?? 0`. « 0 % ont fait mieux » veut dire premier de la
+        // journée : c'est le repli le plus flatteur possible sur une donnée
+        // absente, et il tomberait sur toutes les journées jouées seul.
+        points: typeof j.points === "number" ? j.points : null,
+        mieux: typeof j.mieux === "number" ? j.mieux : null,
+      } satisfies JourneeJouee;
+    })
+    .filter((j): j is JourneeJouee => j !== null);
 }
 
 /** Mon bilan, ou `null` si l'appel a été refusé (pas de session, réseau…). */
