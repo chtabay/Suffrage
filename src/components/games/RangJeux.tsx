@@ -82,7 +82,7 @@ export default function RangJeux() {
       // ⚠️ ET ELLE NE DEMANDE PLUS DE NUMÉRO DE JOURNÉE. La saison est datée en
       // base par l'horodatage des résultats ; le client n'a plus à porter deux
       // calendriers d'origines différentes jusqu'ici.
-      const c = await saison("tout");
+      const c = await saison("tout", null);
       const valeur = c?.moi != null ? { place: c.moi.place, ecart: null } : null;
       cache = { userId: uid, rang: valeur };
       if (vivant) setRang(valeur);

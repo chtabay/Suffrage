@@ -2689,6 +2689,7 @@
     "cumulSansCompte": "You need account to enter dis ranking: na wetin dey make us sabi you from one day go anoda. To look am no need account.",
     "ongletTrophees": "Trophies",
     "saisonTitre": "Di season",
+    "langueClassement": "Language of di ranking",
     "points": "{n} pts",
     "place": "number {n}",
     "mesPoints": "You: {p} points for {n, plural, one {# day} other {# days}} dis month.",

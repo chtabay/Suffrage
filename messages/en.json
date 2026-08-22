@@ -2689,6 +2689,7 @@
     "cumulSansCompte": "An account is needed to appear in this ranking: it's what lets us find you again from one day to the next. Looking at it needs none.",
     "ongletTrophees": "Trophies",
     "saisonTitre": "The season",
+    "langueClassement": "Ranking language",
     "points": "{n} pts",
     "place": "{n, selectordinal, one {#st} two {#nd} few {#rd} other {#th}}",
     "mesPoints": "You: {p} points over {n, plural, one {# day} other {# days}} this month.",

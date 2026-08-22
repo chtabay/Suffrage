@@ -217,9 +217,25 @@ export interface LigneSaison {
   moi: boolean;
 }
 
+/** Une langue où Banalo a été joué cette saison, avec son volume. */
+export interface LangueJouee {
+  code: string;
+  journees: number;
+}
+
 export interface Saison {
   /** Le mois, en `AAAA-MM`. C'est une clé, jamais un libellé : l'écran le traduit. */
   saison: string;
+  /**
+   * ⚠️ LA LANGUE DU CLASSEMENT — Banalo seulement, `null` ailleurs. La foule de
+   * Banalo est PAR LANGUE (`scrutin_banalo_etat` classe parmi ceux qui ont
+   * répondu dans la même), donc un classement qui les mélange compare des gens
+   * qui n'ont jamais joué les uns contre les autres : mesuré sur la journée 1,
+   * 7 votants en français contre 1 en pidgin.
+   */
+  langue: string | null;
+  /** Les langues disponibles cette saison, la plus fréquentée d'abord. */
+  langues: LangueJouee[];
   courante: boolean;
   joueurs: number;
   minimumClasses: number;
@@ -267,19 +283,31 @@ function nombre(v: unknown, defaut: number): number {
  * pour le regarder — un classement qu'on ne peut pas voir avant de s'inscrire ne
  * donne aucune raison de s'inscrire.
  */
-export async function saison(portee: PorteeCumul, mois?: string): Promise<Saison | null> {
+export async function saison(
+  portee: PorteeCumul,
+  langue?: string | null,
+  mois?: string,
+): Promise<Saison | null> {
   const supabase = createClient();
   const { data, error } = await supabase.rpc("scrutin_jeux_saison", {
     p_jeu: portee,
     p_saison: mois ?? null,
+    p_langue: langue ?? null,
   });
   if (error) return null;
   const d = data as Record<string, unknown> | null;
   if (!d || d.status !== "ok" || typeof d.saison !== "string") return null;
   const brutes = Array.isArray(d.lignes) ? d.lignes : [];
   const moi = litLigneSaison(d.moi);
+  const langues = Array.isArray(d.langues) ? (d.langues as Record<string, unknown>[]) : [];
   return {
     saison: d.saison,
+    langue: typeof d.langue === "string" ? d.langue : null,
+    langues: langues
+      .map((l): LangueJouee | null =>
+        typeof l.code === "string" ? { code: l.code, journees: nombre(l.journees, 0) } : null,
+      )
+      .filter((l): l is LangueJouee => l !== null),
     courante: d.courante === true,
     joueurs: nombre(d.joueurs, 0),
     minimumClasses: nombre(d.minimumClasses, 2),
@@ -302,6 +330,8 @@ export interface Medaille {
 
 export interface TropheeJeu {
   jeu: PorteeCumul;
+  /** La langue de ce classement — Banalo seulement, `null` pour `tout` et `pays`. */
+  langue: string | null;
   /** L'effectif de la saison, figé avec elle : « 3ᵉ sur 4 » ≠ « 3ᵉ sur 400 ». */
   joueurs: number;
   /**
@@ -348,6 +378,7 @@ export async function trophees(saisons = 6): Promise<Trophees | null> {
           const m = g.moi as Record<string, unknown> | null;
           return {
             jeu: g.jeu,
+            langue: typeof g.langue === "string" ? g.langue : null,
             joueurs: nombre(g.joueurs, 0),
             medailles: nombre(g.medailles, 0),
             podium: podiumBrut

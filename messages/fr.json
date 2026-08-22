@@ -2689,6 +2689,7 @@
     "cumulSansCompte": "Un compte est nécessaire pour figurer à ce classement : c'est ce qui permet de vous retrouver d'une journée à l'autre. Le regarder n'en demande pas.",
     "ongletTrophees": "Trophées",
     "saisonTitre": "La saison",
+    "langueClassement": "Langue du classement",
     "points": "{n} pts",
     "place": "{n, selectordinal, one {#er} other {#e}}",
     "mesPoints": "Vous : {p} points sur {n, plural, one {# journée} other {# journées}} ce mois-ci.",

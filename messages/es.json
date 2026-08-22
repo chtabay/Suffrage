@@ -2689,6 +2689,7 @@
     "cumulSansCompte": "Hace falta una cuenta para aparecer en esta clasificación: es lo que permite reconocerte de un día a otro. Mirarla no requiere ninguna.",
     "ongletTrophees": "Trofeos",
     "saisonTitre": "La temporada",
+    "langueClassement": "Idioma de la clasificación",
     "points": "{n} pts",
     "place": "{n}.º",
     "mesPoints": "Tú: {p} puntos en {n, plural, one {# jornada} other {# jornadas}} este mes.",

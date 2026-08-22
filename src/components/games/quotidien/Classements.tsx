@@ -32,6 +32,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import type { User } from "@supabase/supabase-js";
+import { nomDeLangue } from "@/lib/games/langue";
 import { PLACET_GAMES_SKIN as skin } from "@/lib/games/skin";
 import { GBtn, GCard, GLabel } from "@/components/games/ui";
 import {
@@ -39,6 +40,7 @@ import {
   poserPseudo,
   saison as litSaison,
   type DepotPseudo,
+  type LangueJouee,
   type LigneSaison,
   type PorteeCumul,
   type Saison,
@@ -68,6 +70,10 @@ export default function Classements({ user }: { user: User | null }) {
   const locale = useLocale();
 
   const [portee, setPortee] = useState<PorteeCumul>("tout");
+  // ⚠️ LA LANGUE DU CLASSEMENT BANALO. `null` = « on n'a pas encore choisi »,
+  // et l'effet ci-dessous la cale sur celle de l'interface dès que la base a dit
+  // quelles langues existent — c'est la foule où le joueur a effectivement joué.
+  const [langue, setLangue] = useState<string | null>(null);
   const [table, setTable] = useState<Saison | null>(null);
   const [pseudo, setPseudo] = useState<string | null>(null);
   const [bloque, setBloque] = useState(false);
@@ -81,7 +87,10 @@ export default function Classements({ user }: { user: User | null }) {
   // était — sur le bouton qu'on vient de presser.
   const [confirme, setConfirme] = useState(false);
 
-  const relis = useCallback(async () => litSaison(portee), [portee]);
+  const relis = useCallback(
+    async () => litSaison(portee, portee === "banalo" ? langue : null),
+    [portee, langue],
+  );
 
   useEffect(() => {
     let vivant = true;
@@ -111,6 +120,16 @@ export default function Classements({ user }: { user: User | null }) {
       vivant = false;
     };
   }, [uid]);
+
+  // ⚠️ ON NE CHOISIT LA LANGUE QU'UNE FOIS, ET SUR CE QUE LA BASE A RENDU. La
+  // caler au montage sur `locale` proposerait un classement vide au lecteur
+  // anglophone d'un mois où personne n'a joué en anglais ; on préfère sa langue
+  // si elle existe, sinon la plus fréquentée.
+  const langues: LangueJouee[] = useMemo(() => table?.langues ?? [], [table]);
+  useEffect(() => {
+    if (langue !== null || langues.length === 0) return;
+    setLangue(langues.some((l) => l.code === locale) ? locale : langues[0]!.code);
+  }, [langue, langues, locale]);
 
   const nb = useMemo(() => new Intl.NumberFormat(bcp(locale), { maximumFractionDigits: 1 }), [locale]);
 
@@ -244,6 +263,39 @@ export default function Classements({ user }: { user: User | null }) {
             {p === "tout" ? t("porteeTout") : p === "banalo" ? t("banalo") : t("pays")}
           </button>
         ))}
+
+        {/* ⚠️ LA LANGUE NE SORT QUE SUR BANALO, et seulement s'il y en a
+            PLUSIEURS. Cinq sur cinq n'a pas de langue — on y nomme des pays — et
+            un menu à un seul choix est un menu qui ment sur ce qu'il offre.
+
+            ⚠️ UN `select` ET PAS DES PASTILLES : à quatre langues, une rangée de
+            plus repousserait la carte de cinquante pixels, et le nombre de
+            langues n'est pas borné par le dessin. Toutes restent accessibles
+            quelle que soit celle de l'interface — c'est tout l'objet. */}
+        {portee === "banalo" && langues.length > 1 ? (
+          <select
+            value={langue ?? ""}
+            onChange={(e) => setLangue(e.target.value)}
+            aria-label={t("langueClassement")}
+            style={{
+              fontFamily: skin.fontDisplay,
+              fontWeight: 800,
+              fontSize: 12.5,
+              padding: "5px 8px",
+              borderRadius: 999,
+              cursor: "pointer",
+              border: `2px solid ${skin.ink}`,
+              background: skin.paper,
+              color: skin.ink,
+            }}
+          >
+            {langues.map((l) => (
+              <option key={l.code} value={l.code}>
+                {nomDeLangue(l.code)}
+              </option>
+            ))}
+          </select>
+        ) : null}
       </div>
 
       <GCard skin={skin} padding={18} style={{ marginTop: 12 }}>
@@ -251,7 +303,16 @@ export default function Classements({ user }: { user: User | null }) {
           {/* ⚠️ LE MOIS EST LE TITRE, pas une note. Une saison qui ne dit pas
               laquelle elle est n'a ni début ni fin — c'est précisément ce qu'on
               vient de corriger. */}
-          <GLabel skin={skin}>{table ? moisLisible(table.saison, locale) : t("saisonTitre")}</GLabel>
+          {/* ⚠️ LE MOIS *ET* LA LANGUE : un classement français et un classement
+              pidgin du même mois sont deux compétitions, et rien d'autre à
+              l'écran ne les distingue une fois la liste défilée. */}
+          <GLabel skin={skin}>
+            {table
+              ? table.langue
+                ? `${moisLisible(table.saison, locale)} · ${nomDeLangue(table.langue)}`
+                : moisLisible(table.saison, locale)
+              : t("saisonTitre")}
+          </GLabel>
           {table ? (
             <span style={{ fontSize: 12, fontWeight: 700, color: skin.muted }}>
               {t("classes", { n: table.joueurs })}

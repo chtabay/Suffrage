@@ -19,6 +19,7 @@
 // honnête ; renuméroter serait un mensonge.
 import { useEffect, useMemo, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
+import { nomDeLangue } from "@/lib/games/langue";
 import { PLACET_GAMES_SKIN as skin } from "@/lib/games/skin";
 import { GCard, GLabel } from "@/components/games/ui";
 import { trophees as litTrophees, type Trophees, type TropheeJeu } from "@/lib/db/jeux";
@@ -73,12 +74,21 @@ export default function SalleDesTrophees() {
   }
 
   const bloc = (g: TropheeJeu) => (
-    <div key={g.jeu} style={{ marginTop: 12, minWidth: 0 }}>
+    // ⚠️ LA CLÉ PORTE LA LANGUE. Une saison de Banalo a maintenant un bloc par
+    // langue jouée : à la seule clé `g.jeu`, React voyait deux « banalo » et
+    // n'en rendait qu'un correctement.
+    <div key={`${g.jeu}-${g.langue ?? ""}`} style={{ marginTop: 12, minWidth: 0 }}>
       <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 10 }}>
         <span style={{ fontFamily: skin.fontDisplay, fontWeight: 800, fontSize: 15 }}>
           {/* Les trois clés sont écrites EN CLAIR : une clé choisie en variable
               échapperait au contrôle de parité i18n. */}
           {g.jeu === "tout" ? t("porteeTout") : g.jeu === "banalo" ? t("banalo") : t("pays")}
+          {/* ⚠️ LA LANGUE FAIT PARTIE DU NOM DU CLASSEMENT. Une saison de Banalo
+              en compte une par langue jouée : sans elle, la salle afficherait
+              deux blocs « Banalo du jour » qu'on prendrait pour un doublon. */}
+          {g.langue ? (
+            <span style={{ color: skin.muted, fontWeight: 700 }}> · {nomDeLangue(g.langue)}</span>
+          ) : null}
         </span>
         <span style={{ fontSize: 12, fontWeight: 700, color: skin.muted }}>
           {t("classes", { n: g.joueurs })}

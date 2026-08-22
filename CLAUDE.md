@@ -1156,6 +1156,40 @@ plancher — c'est la réponse au défaut qu'on assumait la veille. Et un habitu
 toujours 3ᵉ marque 480 quand un vainqueur sporadique en marque 260 : le talent
 paie encore.
 
+⚠️ **LE CLASSEMENT BANALO SE FAIT PAR LANGUE, ET IL N'EN EXISTE PLUS DE « TOUTES
+LANGUES »** (`20260830-jeux-saison-par-langue.sql`). `scrutin_banalo_etat(jeton,
+jour, LANGUE)` classe parmi ceux qui ont répondu **dans la même langue** :
+mesuré sur la journée 1, **7 votants en français contre 1 en pidgin**. Le barème
+donne 26 points au premier quelle que soit la foule — c'est voulu, une place doit
+valoir la même chose partout — mais les additionner dans un seul classement
+Banalo faisait valoir « premier de deux pidginophones » autant que « premier de
+trois mille francophones ». On ne tord pas le barème : on compare les gens à la
+foule où ils ont joué. **Toutes les langues restent consultables quelle que soit
+celle de l'interface** ; « Tous les jeux » reste un grand total assumé, qui
+additionne jeux ET langues parce que son objet est de récompenser qui joue à
+tout.
+
+⚠️ **ET ON POUVAIT MAGASINER SA LANGUE APRÈS AVOIR VU SON RÉSULTAT.** La clé de
+`scrutin_banalo_results` est `(user_id, jour)`, donc une journée jouée dans deux
+langues ne garde qu'une ligne — et le `do update` laissait gagner la DERNIÈRE
+traitée. Vu sur un vrai jeton : journée 1 jouée en français à 13 h 05 puis en
+pidgin à 19 h 57, la ligne gardée portait `pcm`. On répondait en français, on
+lisait « 6ᵉ sur 7 », on rejouait en pidgin, et on écrasait son résultat par un
+premier rang. **Désormais la PREMIÈRE langue jouée gagne** : le `do update` ne
+s'applique qu'à la même langue, et les journées sont traitées dans l'ordre où
+elles ont été jouées. Une journée de Banalo reste UN résultat — jouer la même
+question dans quatre langues ne doit pas rapporter quatre fois.
+
+⚠️ **LE PALMARÈS PORTE DONC LA LANGUE** (`(saison, jeu, langue, user_id)`, chaîne
+vide pour `tout` et `pays`), et la clôture gèle une saison par langue jouée. Elle
+ne gèle PAS de « Banalo toutes langues » : un trophée pour un classement que
+l'écran ne montre pas est un trophée sans sens.
+
+⚠️ **ET LES LANGUES SE NOMMENT COMME DANS LA BASCULE DE PLACET** — code ISO en
+majuscules, « Pidgin » en toutes lettres (`lib/games/langue.ts`). `Intl.DisplayNames`
+a été essayé et écarté : il ne connaît pas `pcm` et rendait, dans un menu
+français, « français, anglais, **pcm** ». Vu à l'écran.
+
 ⚠️ **LES EX AEQUO SE PARTAGENT LES PLACES QU'ILS OCCUPENT**, et ce n'est pas un
 détail : essais et sommes de voix sont de petits entiers, donc l'égalité est LE
 CAS NORMAL. Trois joueurs en tête touchent chacun (25+18+15)/3. Le budget d'une
