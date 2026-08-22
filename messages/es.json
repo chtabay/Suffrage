@@ -75,7 +75,12 @@
     "confirmDemote": "¿Quitar los poderes de la cabina a {email}?",
     "confirmDeleteUser": "¿Eliminar definitivamente la cuenta {email}? Sus grupos se eliminarán; sus votaciones seguirán accesibles por enlace (desvinculadas de la cuenta). Irreversible.",
     "userLinkedElsewhere": "Eliminación rechazada: esta cuenta tiene datos en la otra aplicación de la base compartida.",
-    "userActionFailed": "Acción imposible — inténtalo de nuevo."
+    "userActionFailed": "Acción imposible — inténtalo de nuevo.",
+    "pseudosTitle": "Apodos de los juegos diarios",
+    "pseudosHint": "Se bloquea un NOMBRE, no a un jugador: la cuenta sigue jugando y viendo su progreso, pero su apodo desaparece de las clasificaciones hasta que elija otro.",
+    "pseudosEmpty": "Todavía no hay ningún apodo.",
+    "pseudoBlock": "Retirar",
+    "pseudoUnblock": "Restablecer"
   },
   "Nav": {
     "mainNav": "Navegación principal",
@@ -2646,8 +2651,8 @@
     }
   },
   "JeuxQuotidiens": {
-    "metaTitle": "Mis resultados — juegos diarios",
-    "titre": "Mis resultados",
+    "metaTitle": "Juegos diarios — mis resultados y clasificaciones",
+    "titre": "Juegos diarios",
     "retour": "Todos los juegos",
     "poweredBy": "Con la tecnología de Placet",
     "intro": "El porcentaje de jugadores que lo hicieron mejor que tú, día tras día. Cuanto más bajo, mejor — y es la única medida que significa lo mismo en todos los juegos.",
@@ -2673,7 +2678,28 @@
     "envoye": "Listo — abre el enlace que acabamos de enviarte.",
     "erreur": "No se ha podido enviar. Inténtalo de nuevo.",
     "versLesJeux": "Ver todos los juegos",
-    "panne": "No hemos podido acceder a tus resultados. Recarga la página."
+    "panne": "No hemos podido acceder a tus resultados. Recarga la página.",
+    "ongletMoi": "Mis resultados",
+    "ongletClassements": "Clasificaciones",
+    "porteeTout": "Todos los juegos",
+    "cumulTitre": "En treinta días",
+    "classes": "{n, plural, one {# jugador clasificado} other {# jugadores clasificados}}",
+    "cumulVide": "Todavía no hay nadie clasificado: hacen falta al menos {n} días jugados de los últimos treinta.",
+    "cumulRegle": "La clasificación cubre los últimos treinta días, a partir de {n} días jugados. Se ordena por percentil medio — cuanto más bajo, mejor.",
+    "cumulSansCompte": "Hace falta una cuenta para aparecer en esta clasificación: es lo que permite reconocerte de un día a otro. Mirarla no requiere ninguna.",
+    "surN": "de {n}",
+    "vous": "tú",
+    "monteDe": "▲ {n, plural, one {# puesto ganado} other {# puestos ganados}} desde la semana pasada.",
+    "descendDe": "▼ {n, plural, one {# puesto perdido} other {# puestos perdidos}} desde la semana pasada.",
+    "pseudoTitre": "Tu apodo",
+    "pseudoPoser": "Elegir un apodo",
+    "pseudoTexte": "Es el nombre con el que apareces en las clasificaciones a largo plazo. Lo ven todos los jugadores, y puedes cambiarlo cuando quieras.",
+    "pseudoBloque": "Ese apodo lo ha retirado la moderación. Elige otro para volver a aparecer.",
+    "pseudoPlaceholder": "De dos a veinte caracteres",
+    "pseudoBouton": "Guardar",
+    "pseudoPris": "Ese apodo ya está cogido.",
+    "pseudoCourt": "Dos caracteres como mínimo.",
+    "pseudoLong": "Veinte caracteres como máximo."
   },
   "BanaloJour": {
     "detailBouton": "Ver el detalle",

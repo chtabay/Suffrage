@@ -17,6 +17,9 @@ import {
   type AdminOverview,
   type AdminPollRow,
   type AdminUser,
+  adminPseudos,
+  adminBloquerPseudo,
+  type AdminPseudo,
 } from "@/lib/db/admin";
 import { intlLocale } from "@/i18n/locales";
 import Nav from "@/components/scrutin/Nav";
@@ -106,10 +109,26 @@ export default function AdminScreen() {
   const [query, setQuery] = useState("");
   const [busy, setBusy] = useState<string | null>(null);
   const [usersNotice, setUsersNotice] = useState<string | null>(null);
+  // LES PSEUDOS DES JEUX QUOTIDIENS — la prise pour agir sur le seul nom du
+  // produit qui survive à une journée.
+  const [pseudos, setPseudos] = useState<AdminPseudo[]>([]);
+
+  const basculePseudo = async (p: AdminPseudo) => {
+    setBusy(p.userId);
+    const ok = await adminBloquerPseudo(p.userId, !p.bloque);
+    setBusy(null);
+    // On relit plutôt que de deviner : un échec silencieux laisserait l'écran
+    // afficher un blocage qui n'a pas eu lieu.
+    if (ok) setPseudos((await adminPseudos()) ?? []);
+  };
 
   const load = useCallback(async () => {
     try {
-      const [overview, userList] = await Promise.all([adminOverview(), adminListUsers()]);
+      const [overview, userList, noms] = await Promise.all([
+        adminOverview(),
+        adminListUsers(),
+        adminPseudos(),
+      ]);
       if (!overview) {
         // null = la RPC a répondu « pas admin » ; les erreurs réseau lèvent.
         setState("denied");
@@ -117,6 +136,7 @@ export default function AdminScreen() {
       }
       setData(overview);
       setUsers(userList ?? []);
+      setPseudos(noms ?? []);
       setState("ready");
     } catch {
       setState("error");
@@ -641,6 +661,53 @@ export default function AdminScreen() {
             </tbody>
           </table>
         </div>
+      </div>
+
+      {/* ══ LES PSEUDOS DES JEUX QUOTIDIENS ═══════════════════════════════════
+          ⚠️ ON BLOQUE UN NOM, PAS UN JOUEUR. Le compte continue de jouer, de
+          garder ses résultats et de voir sa propre progression ; il disparaît
+          des classements sur la durée jusqu'à ce qu'il en pose un autre — et en
+          poser un autre lève le blocage. C'est la contrepartie qui rend tenable
+          le seul nom de ce produit qui survive à une journée. */}
+      <div style={card}>
+        <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 15, marginBottom: 6 }}>
+          {t("pseudosTitle")}
+        </div>
+        <p style={{ fontSize: 13, fontWeight: 600, color: MUTED, margin: "4px 0 12px", lineHeight: 1.5 }}>
+          {t("pseudosHint")}
+        </p>
+        {pseudos.length === 0 ? (
+          <p style={{ fontSize: 13.5, fontWeight: 600, color: MUTED, margin: 0 }}>{t("pseudosEmpty")}</p>
+        ) : (
+          <div style={{ display: "grid", gap: 6 }}>
+            {pseudos.map((p) => (
+              <div
+                key={p.userId}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 10,
+                  flexWrap: "wrap",
+                  padding: "8px 10px",
+                  borderRadius: 8,
+                  background: p.bloque ? "#ffe1e0" : "transparent",
+                  border: `1px solid rgba(22,33,58,0.12)`,
+                }}
+              >
+                <span style={{ fontWeight: 800, flex: "1 1 140px", minWidth: 0 }}>{p.pseudo}</span>
+                <span style={{ fontSize: 11.5, fontWeight: 600, color: MUTED, whiteSpace: "nowrap" }}>
+                  {p.creeLe ? fmtDate(p.creeLe) : ""}
+                </span>
+                {actionBtn(
+                  p.bloque ? `↩ ${t("pseudoUnblock")}` : `🚫 ${t("pseudoBlock")}`,
+                  () => void basculePseudo(p),
+                  busy === p.userId,
+                  p.bloque ? undefined : "#ffe1e0",
+                )}
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </>,
   );

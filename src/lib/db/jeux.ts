@@ -61,3 +61,116 @@ export async function mesJourneesBanalo(): Promise<JourneeCommune[] | null> {
   if (error) return null;
   return litJournees(data, "points");
 }
+
+// ──────────────────────────────────────────── le pseudo, et le classement sur la durée
+
+/**
+ * MON PSEUDO DE COMPTE.
+ *
+ * ⚠️ C'EST LE SEUL NOM DU PRODUIT QUI SURVIT À UNE JOURNÉE, et c'est la
+ * contrepartie du classement sur la durée : sans nom qui persiste, il n'y a rien
+ * à cumuler. Partout ailleurs — tableau du jour, groupe d'amis — le nom vit dans
+ * son contexte et meurt avec lui. Voir `20260825-jeux-pseudo-et-cumul.sql`.
+ */
+export interface MonPseudo {
+  pseudo: string | null;
+  /** Un modérateur l'a retiré : le joueur doit en poser un autre. */
+  bloque: boolean;
+}
+
+export async function monPseudo(): Promise<MonPseudo | null> {
+  const supabase = createClient();
+  const { data, error } = await supabase.rpc("scrutin_jeux_pseudo_moi");
+  if (error) return null;
+  const d = data as Record<string, unknown> | null;
+  if (!d) return null;
+  return { pseudo: typeof d.pseudo === "string" ? d.pseudo : null, bloque: d.bloque === true };
+}
+
+export type DepotPseudo = "ok" | "pris" | "court" | "long" | "refus" | "panne";
+
+export async function poserPseudo(pseudo: string): Promise<DepotPseudo> {
+  const supabase = createClient();
+  const { data, error } = await supabase.rpc("scrutin_jeux_pseudo_poser", { p_pseudo: pseudo });
+  // ⚠️ UNE PANNE N'EST PAS UN REFUS : rien n'est parti, et le dire autrement
+  // ferait croire au joueur que son nom a été jugé.
+  if (error) return "panne";
+  const s = (data as Record<string, unknown> | null)?.status;
+  return s === "ok" || s === "pris" || s === "court" || s === "long" ? s : "refus";
+}
+
+/** Une ligne du classement sur la durée. Un pseudo, une moyenne, un effectif. */
+export interface LigneCumul {
+  place: number;
+  pseudo: string;
+  /** Le centile moyen sur la fenêtre. Plus c'est bas, mieux c'est. */
+  moyenne: number;
+  journees: number;
+  moi: boolean;
+}
+
+export interface Cumul {
+  joueurs: number;
+  lignes: LigneCumul[];
+  /** Ma ligne, même hors de la tête de liste. `null` si je ne suis pas classé. */
+  moi: Omit<LigneCumul, "moi"> | null;
+  /** Ma place il y a une semaine, pour dire la progression. `null` si je n'étais pas classé. */
+  avant: number | null;
+}
+
+/** Les trois portées du classement sur la durée. */
+export type PorteeCumul = "banalo" | "pays" | "tout";
+
+function litLigne(brut: unknown): LigneCumul | null {
+  const l = brut as Record<string, unknown> | null;
+  if (!l) return null;
+  const place = typeof l.place === "number" ? l.place : null;
+  const pseudo = typeof l.pseudo === "string" && l.pseudo.trim().length > 0 ? l.pseudo : null;
+  const moyenne = typeof l.moyenne === "number" ? l.moyenne : Number(l.moyenne);
+  if (place === null || pseudo === null || !Number.isFinite(moyenne)) return null;
+  return {
+    place,
+    pseudo,
+    moyenne,
+    journees: typeof l.journees === "number" ? l.journees : 0,
+    moi: l.moi === true,
+  };
+}
+
+/**
+ * Le classement sur la durée — trente journées glissantes.
+ *
+ * ⚠️ LES DEUX NUMÉROS DE JOURNÉE VIENNENT D'ICI, un par jeu : les deux
+ * calendriers n'ont ni la même origine ni la même charnière (11 h 30 pour
+ * Banalo, minuit pour Cinq sur cinq), et la base ne connaît ni fuseau ni
+ * charnière. C'est la même règle que partout dans ces jeux.
+ *
+ * ⚠️ ET IL SE LIT SANS COMPTE. Il faut un compte pour Y FIGURER, pas pour le
+ * regarder : un classement qu'on ne peut pas voir avant de s'inscrire ne donne
+ * aucune raison de s'inscrire.
+ */
+export async function cumul(
+  jourBanalo: number,
+  jourPays: number,
+  portee: PorteeCumul,
+): Promise<Cumul | null> {
+  const supabase = createClient();
+  const { data, error } = await supabase.rpc("scrutin_jeux_cumul", {
+    p_jour_banalo: jourBanalo,
+    p_jour_pays: jourPays,
+    p_jeu: portee,
+  });
+  if (error) return null;
+  const d = data as Record<string, unknown> | null;
+  if (!d || d.status !== "ok") return null;
+  const brutes = Array.isArray(d.lignes) ? d.lignes : [];
+  const moi = litLigne(d.moi);
+  return {
+    joueurs: typeof d.joueurs === "number" ? d.joueurs : 0,
+    lignes: brutes.map(litLigne).filter((l): l is LigneCumul => l !== null),
+    moi: moi ? { place: moi.place, pseudo: moi.pseudo, moyenne: moi.moyenne, journees: moi.journees } : null,
+    // ⚠️ PAS DE REPLI SUR ZÉRO. « place 0 la semaine dernière » n'existe pas, et
+    // afficher une progression inventée est pire que n'en afficher aucune.
+    avant: typeof d.avant === "number" ? d.avant : null,
+  };
+}

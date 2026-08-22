@@ -75,7 +75,12 @@
     "confirmDemote": "Retirer les pouvoirs de la régie à {email} ?",
     "confirmDeleteUser": "Supprimer définitivement le compte {email} ? Ses groupes seront supprimés ; ses scrutins resteront accessibles par lien (détachés du compte). Irréversible.",
     "userLinkedElsewhere": "Suppression refusée : ce compte a des données dans l'autre application de la base partagée.",
-    "userActionFailed": "Action impossible — réessayez."
+    "userActionFailed": "Action impossible — réessayez.",
+    "pseudosTitle": "Pseudos des jeux quotidiens",
+    "pseudosHint": "On bloque un NOM, pas un joueur : le compte continue de jouer et de voir sa progression, mais son pseudo disparaît des classements sur la durée jusqu'à ce qu'il en pose un autre.",
+    "pseudosEmpty": "Aucun pseudo déposé pour l'instant.",
+    "pseudoBlock": "Retirer",
+    "pseudoUnblock": "Rétablir"
   },
   "Nav": {
     "mainNav": "Navigation principale",
@@ -2646,8 +2651,8 @@
     }
   },
   "JeuxQuotidiens": {
-    "metaTitle": "Mes résultats — jeux quotidiens",
-    "titre": "Mes résultats",
+    "metaTitle": "Jeux quotidiens — mes résultats et classements",
+    "titre": "Jeux quotidiens",
     "retour": "Tous les jeux",
     "poweredBy": "Propulsé par Placet",
     "intro": "Le pourcentage de joueurs qui ont fait mieux que vous, jour après jour. Plus il est bas, meilleur est le résultat — et c'est la seule mesure qui veut dire la même chose d'un jeu à l'autre.",
@@ -2673,7 +2678,28 @@
     "envoye": "C'est parti — ouvrez le lien qu'on vient de vous envoyer.",
     "erreur": "L'envoi n'a pas fonctionné. Réessayez dans un instant.",
     "versLesJeux": "Voir tous les jeux",
-    "panne": "On n'a pas pu joindre vos résultats. Rechargez la page."
+    "panne": "On n'a pas pu joindre vos résultats. Rechargez la page.",
+    "ongletMoi": "Mes résultats",
+    "ongletClassements": "Classements",
+    "porteeTout": "Tous les jeux",
+    "cumulTitre": "Sur trente journées",
+    "classes": "{n, plural, one {# joueur classé} other {# joueurs classés}}",
+    "cumulVide": "Personne n'est encore classé : il faut avoir joué au moins {n} journées sur les trente dernières.",
+    "cumulRegle": "Le classement porte sur les trente dernières journées, à partir de {n} journées jouées. On y est classé par centile moyen — plus il est bas, meilleur est le résultat.",
+    "cumulSansCompte": "Un compte est nécessaire pour figurer à ce classement : c'est ce qui permet de vous retrouver d'une journée à l'autre. Le regarder n'en demande pas.",
+    "surN": "sur {n}",
+    "vous": "vous",
+    "monteDe": "▲ {n, plural, one {# place gagnée} other {# places gagnées}} depuis la semaine dernière.",
+    "descendDe": "▼ {n, plural, one {# place perdue} other {# places perdues}} depuis la semaine dernière.",
+    "pseudoTitre": "Votre pseudo",
+    "pseudoPoser": "Choisir un pseudo",
+    "pseudoTexte": "C'est le nom sous lequel vous apparaissez aux classements sur la durée. Il est visible de tous les joueurs, et vous pouvez le changer quand vous voulez.",
+    "pseudoBloque": "Ce pseudo a été retiré par la modération. Choisissez-en un autre pour réapparaître au classement.",
+    "pseudoPlaceholder": "Deux à vingt caractères",
+    "pseudoBouton": "Valider",
+    "pseudoPris": "Ce pseudo est déjà pris.",
+    "pseudoCourt": "Deux caractères au minimum.",
+    "pseudoLong": "Vingt caractères au maximum."
   },
   "BanaloJour": {
     "detailBouton": "Voir le détail",

@@ -24,8 +24,11 @@ import { useAuth } from "@/lib/auth/useAuth";
 import GameShell from "@/components/games/GameShell";
 import { PLACET_GAMES_SKIN as skin, UNANIMO_SKIN, PAYS_SKIN } from "@/lib/games/skin";
 import { GBtn, GCard } from "@/components/games/ui";
+import { numeroDuJour } from "@/lib/games/banalo/jour";
+import { numeroDeJournee } from "@/lib/games/pays/calendrier";
 import { mesJourneesBanalo, mesJourneesPays, type JourneeCommune } from "@/lib/db/jeux";
 import CarteJeu from "./CarteJeu";
+import Classements from "./Classements";
 
 export default function Quotidien() {
   const t = useTranslations("JeuxQuotidiens");
@@ -34,6 +37,20 @@ export default function Quotidien() {
   const [banalo, setBanalo] = useState<JourneeCommune[] | null>(null);
   const [pays, setPays] = useState<JourneeCommune[] | null>(null);
   const [panne, setPanne] = useState(false);
+  const [onglet, setOnglet] = useState<"moi" | "classements">("moi");
+  /**
+   * Les deux numéros de journée.
+   *
+   * ⚠️ IL EN FAUT DEUX, ET ILS SE CALCULENT APRÈS LE MONTAGE. Les deux jeux
+   * n'ont ni la même origine ni la même charnière — 11 h 30 pour Banalo, minuit
+   * pour Cinq sur cinq — donc un seul numéro pour les deux serait faux pour
+   * l'un. Et les calculer au rendu serveur les figerait dans le HTML, en faisant
+   * diverger l'hydratation autour de la charnière. Même leçon que `JeuxDuJour`.
+   */
+  const [jours, setJours] = useState<{ banalo: number; pays: number } | null>(null);
+  useEffect(() => {
+    setJours({ banalo: numeroDuJour(), pays: numeroDeJournee(new Date().toISOString()) });
+  }, []);
   const [email, setEmail] = useState("");
   const [etat, setEtat] = useState<"repos" | "envoi" | "envoye" | "erreur">("repos");
 
@@ -84,8 +101,13 @@ export default function Quotidien() {
   // ⚠️ ON DIT CE QUE LE COMPTE APPORTE, PAS « connectez-vous ». Même règle que
   // partout : on propose de GARDER quelque chose, on ne demande pas de croire
   // sur parole.
-  if (!user) {
-    return cadre(
+  //
+  // ⚠️ ET CE BLOC NE REMPLACE PLUS LA PAGE ENTIÈRE. Le classement sur la durée
+  // SE LIT sans compte — il faut un compte pour y FIGURER — et une page qui se
+  // refuse à un visiteur ne lui donne aucune raison de s'inscrire. Seule la
+  // moitié « mes résultats » exige la session, parce qu'elle n'a rien à montrer
+  // sans elle.
+  const offre = (
       <GCard skin={skin} padding={18} accent={skin.accent}>
         <p style={{ fontFamily: skin.fontDisplay, fontWeight: 800, fontSize: 19, margin: 0, textWrap: "balance" }}>
           {t("sansCompteTitre")}
@@ -141,15 +163,53 @@ export default function Quotidien() {
             {t("versLesJeux")}
           </Link>
         </p>
-      </GCard>,
-    );
-  }
+      </GCard>
+  );
 
-  if (panne) return cadre(<p style={{ fontSize: 14, fontWeight: 700 }}>{t("panne")}</p>);
-  if (banalo === null || pays === null) return cadre(null);
+  const onglets: { cle: "moi" | "classements"; texte: string }[] = [
+    { cle: "moi", texte: t("ongletMoi") },
+    { cle: "classements", texte: t("ongletClassements") },
+  ];
 
   return cadre(
     <>
+      {/* DEUX ONGLETS, DEUX QUESTIONS : « où j'en suis » et « où je me situe ».
+          Les empiler sur une seule page ferait quatre cartes avant la première
+          réponse ; les séparer laisse chacune tenir dans un écran. */}
+      <div style={{ display: "flex", gap: 8, marginBottom: 14 }}>
+        {onglets.map((o) => (
+          <button
+            key={o.cle}
+            type="button"
+            onClick={() => setOnglet(o.cle)}
+            aria-pressed={onglet === o.cle}
+            style={{
+              fontFamily: skin.fontDisplay,
+              fontWeight: 800,
+              fontSize: 14,
+              padding: "8px 14px",
+              borderRadius: 999,
+              cursor: "pointer",
+              border: `2px solid ${skin.ink}`,
+              background: onglet === o.cle ? skin.ink : skin.paper,
+              color: onglet === o.cle ? skin.paper : skin.ink,
+            }}
+          >
+            {o.texte}
+          </button>
+        ))}
+      </div>
+
+      {onglet === "classements" ? (
+        jours ? (
+          <Classements user={user} jourBanalo={jours.banalo} jourPays={jours.pays} />
+        ) : null
+      ) : !user ? (
+        offre
+      ) : panne ? (
+        <p style={{ fontSize: 14, fontWeight: 700 }}>{t("panne")}</p>
+      ) : banalo === null || pays === null ? null : (
+        <>
       <p style={{ margin: 0, fontSize: 13.5, color: skin.muted, lineHeight: 1.5, maxWidth: "52ch" }}>
         {t("intro")}
       </p>
@@ -174,6 +234,8 @@ export default function Quotidien() {
         jouer={t("jouer")}
         journees={pays}
       />
+        </>
+      )}
     </>,
   );
 }

@@ -989,6 +989,47 @@ classement du jour devenait inatteignable. `/games/banalo-jour/historique` est
 donc devenue une REDIRECTION — deux pages qui répondent pareil, c'est toujours la
 copie qui finit par mentir.
 
+⚠️ **ET ELLE A DEUX ONGLETS : « mes résultats » et « classements ».** Le second
+porte trois portées — Banalo, Cinq sur cinq, **tous jeux confondus** — sur une
+fenêtre glissante de **trente journées**.
+
+⚠️ **LE PSEUDO DE COMPTE EST LE SEUL NOM DU PRODUIT QUI SURVIT À UNE JOURNÉE**
+(`scrutin_jeux_pseudos`, `20260825-jeux-pseudo-et-cumul.sql`). Partout ailleurs —
+tableau du jour, groupe d'amis — le nom vit dans son contexte et meurt avec lui,
+et c'est ce qui évitait les cinq coûts du §5. Un classement CUMULÉ exige
+l'inverse. On franchit donc la ligne, avec la contrepartie qu'elle réclamait :
+**un compte derrière chaque nom, et une prise dans la Régie** pour le retirer.
+⚠️ On bloque un NOM, pas un joueur : le compte continue de jouer et de voir sa
+progression, et **reposer un pseudo lève le blocage**.
+
+⚠️ **TOUT LE MONDE PEUT FIGURER AU CLASSEMENT DU JOUR, IL FAUT UN COMPTE POUR
+CEUX SUR LA DURÉE** — mais **pas pour les REGARDER**. Un classement qu'on ne peut
+pas voir avant de s'inscrire ne donne aucune raison de s'inscrire.
+
+⚠️ **ICI LE RANG S'AFFICHE, ALORS QUE LE TABLEAU DU JOUR LE REFUSE**, et ce n'est
+pas un revirement. Au jour, un vrai rang existe parmi TOUS les joueurs (la carte
+de score l'affiche), donc un rang parmi les seuls inscrits serait un mensonge.
+Sur la durée, aucun rang « vrai » n'existe : la plupart des joueurs sont des
+jetons anonymes sans identité d'un jour à l'autre. Le rang parmi les comptes
+classés est **le seul qui existe**, et l'effectif est rendu avec.
+
+⚠️ **UN PLANCHER DE CINQ JOURNÉES, SINON UNE SEULE JOURNÉE CHANCEUSE PREND LA
+TÊTE.** Et à égalité de moyenne, **celui qui a joué le plus passe devant** :
+c'est la seule façon de ne pas récompenser le tri. Le nombre de journées est
+affiché à côté de chaque moyenne — une moyenne sur cinq et une sur trente ne
+valent pas la même chose.
+
+⚠️ **LA FENÊTRE DE 30 N'EST PAS LE 30 DE LA CONSERVATION.** Celui-là dit combien
+de temps on GARDE une réponse (`scrutin_banalo_purge`, son cron, la politique de
+confidentialité) ; celle-ci dit sur combien de journées on CLASSE, et elle porte
+sur `scrutin_banalo_results`, qui n'est purgée par rien. Les deux peuvent
+diverger sans que rien ne casse — ce n'est pas une quatrième copie.
+
+⚠️ **LA PROGRESSION HEBDO NE SE STOCKE PAS, ELLE SE RECALCULE** : la même requête
+avec la fenêtre reculée de sept jours (`p_recul`). Elle se tait si le joueur
+n'était pas classé la semaine dernière — « +12 places » depuis une place qui
+n'existait pas serait une invention.
+
 ⚠️ **ELLE NE MONTRE QUE DES CENTILES, ET C'EST LA SEULE CHOSE POSSIBLE.** Un
 nombre d'essais et une somme de voix ne s'additionnent pas ; le sur-100 de Banalo
 ne veut même pas dire la même chose d'un thème à l'autre. « X % ont fait mieux »

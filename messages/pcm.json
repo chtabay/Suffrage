@@ -75,7 +75,12 @@
     "confirmDemote": "You wan comot control-room powers from {email}?",
     "confirmDeleteUser": "Delete di account {email} forever? Dem groups go delete; dem polls go still dey reachable by link (detached from di account). E no fit undo.",
     "userLinkedElsewhere": "We no fit delete: dis account get data for di other application of di shared database.",
-    "userActionFailed": "Action no work — try again."
+    "userActionFailed": "Action no work — try again.",
+    "pseudosTitle": "Names for daily games",
+    "pseudosHint": "You dey block NAME, no be player: di account go still play and still see im own progress, but im name go comot from di long-run rankings until e pick anoda one.",
+    "pseudosEmpty": "Nobody don set name yet.",
+    "pseudoBlock": "Remove",
+    "pseudoUnblock": "Restore"
   },
   "Nav": {
     "mainNav": "Main navigation",
@@ -2646,8 +2651,8 @@
     }
   },
   "JeuxQuotidiens": {
-    "metaTitle": "My results — daily games",
-    "titre": "My results",
+    "metaTitle": "Daily games — my results and rankings",
+    "titre": "Daily games",
     "retour": "All di games",
     "poweredBy": "Placet dey power am",
     "intro": "How many players do beta pass you, day by day. Di lower am, di beta you do — na di only measure wey mean di same thing for all di games.",
@@ -2673,7 +2678,28 @@
     "envoye": "E don go — open di link wey we just send you.",
     "erreur": "E no send. Try again small time.",
     "versLesJeux": "See all di games",
-    "panne": "We no fit reach your results. Reload di page."
+    "panne": "We no fit reach your results. Reload di page.",
+    "ongletMoi": "My results",
+    "ongletClassements": "Rankings",
+    "porteeTout": "All di games",
+    "cumulTitre": "For thirty days",
+    "classes": "{n, plural, one {# player wey dem rank} other {# players wey dem rank}}",
+    "cumulVide": "Nobody dey ranked yet: you need at least {n} days wey you play for di last thirty.",
+    "cumulRegle": "Di ranking cover di last thirty days, from {n} days wey you play. Dem rank you by average percentile — di lower am, di beta.",
+    "cumulSansCompte": "You need account to enter dis ranking: na wetin dey make us sabi you from one day go anoda. To look am no need account.",
+    "surN": "of {n}",
+    "vous": "you",
+    "monteDe": "▲ You go up {n, plural, one {# place} other {# places}} since last week.",
+    "descendDe": "▼ You go down {n, plural, one {# place} other {# places}} since last week.",
+    "pseudoTitre": "Your name",
+    "pseudoPoser": "Pick name",
+    "pseudoTexte": "Na how you go show for di long-run rankings. Every player fit see am, and you fit change am anytime.",
+    "pseudoBloque": "Moderation don remove dat name. Pick anoda one make you show again.",
+    "pseudoPlaceholder": "Two to twenty characters",
+    "pseudoBouton": "Save",
+    "pseudoPris": "Person don take dat name.",
+    "pseudoCourt": "Two characters minimum.",
+    "pseudoLong": "Twenty characters maximum."
   },
   "BanaloJour": {
     "detailBouton": "See di detail",

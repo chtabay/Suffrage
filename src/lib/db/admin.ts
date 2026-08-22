@@ -165,3 +165,58 @@ export function useIsAdmin(userId: string | null | undefined): boolean {
   }, [userId]);
   return isAdmin;
 }
+
+// ───────────────────────────────────── les pseudos des jeux quotidiens
+
+/**
+ * UN PSEUDO DE JEU, VU DE LA RÉGIE.
+ *
+ * ⚠️ C'EST LA CONTREPARTIE D'UNE DÉCISION, pas un outil de confort. Le pseudo
+ * des classements sur la durée est le SEUL nom de ce produit qui survit à une
+ * journée : partout ailleurs (tableau du jour, groupe d'amis) le nom vit dans
+ * son contexte et meurt avec lui. Un nom persistant, lisible par tous les
+ * joueurs, n'est tenable que s'il existe quelqu'un pour agir — et c'est ici.
+ */
+export interface AdminPseudo {
+  userId: string;
+  pseudo: string;
+  creeLe: string;
+  bloque: boolean;
+}
+
+export async function adminPseudos(): Promise<AdminPseudo[] | null> {
+  const supabase = createClient();
+  const { data, error } = await supabase.rpc("scrutin_admin_pseudos");
+  if (error) return null;
+  const d = data as Record<string, unknown> | null;
+  if (!d || d.status !== "ok" || !Array.isArray(d.pseudos)) return null;
+  return (d.pseudos as Record<string, unknown>[])
+    .map((p) =>
+      typeof p.userId === "string" && typeof p.pseudo === "string"
+        ? {
+            userId: p.userId,
+            pseudo: p.pseudo,
+            creeLe: typeof p.creeLe === "string" ? p.creeLe : "",
+            bloque: p.bloque === true,
+          }
+        : null,
+    )
+    .filter((p): p is AdminPseudo => p !== null);
+}
+
+/**
+ * Retire un pseudo des classements, ou l'y remet.
+ *
+ * ⚠️ ON BLOQUE UN NOM, PAS UN JOUEUR. Le compte continue de jouer, de garder ses
+ * résultats et de voir sa propre progression ; il disparaît des classements
+ * jusqu'à ce qu'il en pose un autre — et en poser un autre lève le blocage.
+ */
+export async function adminBloquerPseudo(userId: string, bloque: boolean): Promise<boolean> {
+  const supabase = createClient();
+  const { data, error } = await supabase.rpc("scrutin_admin_pseudo_bloquer", {
+    p_user: userId,
+    p_bloque: bloque,
+  });
+  if (error) return false;
+  return (data as Record<string, unknown> | null)?.status === "ok";
+}

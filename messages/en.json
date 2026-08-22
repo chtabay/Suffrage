@@ -75,7 +75,12 @@
     "confirmDemote": "Remove control-room powers from {email}?",
     "confirmDeleteUser": "Permanently delete the account {email}? Their groups will be deleted; their polls stay reachable by link (detached from the account). Irreversible.",
     "userLinkedElsewhere": "Deletion refused: this account has data in the other application of the shared database.",
-    "userActionFailed": "Action failed — try again."
+    "userActionFailed": "Action failed — try again.",
+    "pseudosTitle": "Daily-game names",
+    "pseudosHint": "You block a NAME, not a player: the account keeps playing and keeps seeing its own progress, but its name drops out of the long-run rankings until they pick another.",
+    "pseudosEmpty": "No name set yet.",
+    "pseudoBlock": "Remove",
+    "pseudoUnblock": "Restore"
   },
   "Nav": {
     "mainNav": "Main navigation",
@@ -2646,8 +2651,8 @@
     }
   },
   "JeuxQuotidiens": {
-    "metaTitle": "My results — daily games",
-    "titre": "My results",
+    "metaTitle": "Daily games — my results and rankings",
+    "titre": "Daily games",
     "retour": "All games",
     "poweredBy": "Powered by Placet",
     "intro": "The share of players who did better than you, day after day. The lower it is, the better you did — and it's the one measure that means the same thing across games.",
@@ -2673,7 +2678,28 @@
     "envoye": "Off you go — open the link we just sent you.",
     "erreur": "That didn't send. Try again in a moment.",
     "versLesJeux": "See all games",
-    "panne": "We couldn't reach your results. Reload the page."
+    "panne": "We couldn't reach your results. Reload the page.",
+    "ongletMoi": "My results",
+    "ongletClassements": "Rankings",
+    "porteeTout": "All games",
+    "cumulTitre": "Over thirty days",
+    "classes": "{n, plural, one {# ranked player} other {# ranked players}}",
+    "cumulVide": "Nobody is ranked yet: you need at least {n} days played out of the last thirty.",
+    "cumulRegle": "The ranking covers the last thirty days, from {n} days played. You're ranked by average percentile — the lower, the better.",
+    "cumulSansCompte": "An account is needed to appear in this ranking: it's what lets us find you again from one day to the next. Looking at it needs none.",
+    "surN": "of {n}",
+    "vous": "you",
+    "monteDe": "▲ {n, plural, one {# place up} other {# places up}} since last week.",
+    "descendDe": "▼ {n, plural, one {# place down} other {# places down}} since last week.",
+    "pseudoTitre": "Your name",
+    "pseudoPoser": "Pick a name",
+    "pseudoTexte": "This is how you appear in the long-run rankings. Every player can see it, and you can change it whenever you want.",
+    "pseudoBloque": "That name was removed by moderation. Pick another one to appear again.",
+    "pseudoPlaceholder": "Two to twenty characters",
+    "pseudoBouton": "Save",
+    "pseudoPris": "That name is already taken.",
+    "pseudoCourt": "Two characters minimum.",
+    "pseudoLong": "Twenty characters maximum."
   },
   "BanaloJour": {
     "detailBouton": "See the detail",
