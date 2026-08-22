@@ -324,12 +324,14 @@ export default function Classements({ user }: { user: User | null }) {
         <p style={{ margin: "12px 0 0", fontSize: 12.5, color: skin.muted, lineHeight: 1.45 }}>
           {t("saisonRegle")}
         </p>
-        {/* ⚠️ LE PLANCHER DE MÉDAILLES SE DIT, il ne se découvre pas à la
-            clôture. Un joueur qui a passé le mois en tête d'un classement de
-            trois et qui ne reçoit rien le 1er a le droit de l'avoir su avant. */}
+        {/* ⚠️ CE QUI SERA DÉCERNÉ SE DIT AVANT LA CLÔTURE, et au chiffre du
+            moment plutôt qu'en règle abstraite. Un joueur qui a passé le mois en
+            tête a le droit de savoir combien de médailles il y aura — d'autant
+            que ce nombre MONTE quand la foule grandit, ce qui est exactement le
+            genre de chose qui donne envie d'inviter quelqu'un. */}
         {table ? (
           <p style={{ margin: "6px 0 0", fontSize: 12.5, color: skin.muted, lineHeight: 1.45 }}>
-            {t("saisonMedailles", { n: table.minimumMedailles })}
+            {t("saisonMedailles", { n: table.medailles })}
           </p>
         ) : null}
       </GCard>

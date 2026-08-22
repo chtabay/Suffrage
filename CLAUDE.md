@@ -1185,10 +1185,20 @@ trente journées tomber dans la saison de septembre.
 
 ⚠️ **UN TROPHÉE NE SE RECALCULE PAS, SINON CE N'EST PAS UN TROPHÉE.** Le
 palmarès est écrit UNE FOIS par `scrutin_jeux_saison_cloturer` (cron horaire, le
-SQL tranche — `pg_cron` planifie en UTC et Paris change deux fois par an). ⚠️ Les
-**médailles ont leur propre plancher, 5 joueurs classés**, plus haut que le
-plancher d'affichage (2) : un podium sur trois personnes en donne une à tout le
-monde, et un trophée dévalué l'est pour toujours. ⚠️ Le **pseudo n'est pas gelé**
+SQL tranche — `pg_cron` planifie en UTC et Paris change deux fois par an). ⚠️ **LES MÉDAILLES N'ONT PLUS DE PLANCHER PROPRE**
+(`20260829-jeux-medailles-sans-plancher.sql`), et celui de 5 classés que j'avais
+posé était la même faute que le plancher de cinq journées, commise le lendemain
+de sa correction : mesuré, **3 comptes existent en tout** sur ce produit, donc la
+récompense était inatteignable. Ce qu'il achetait — éviter « tout le monde a une
+médaille » — s'obtient exactement sans nombre arbitraire : **on décerne toujours
+une médaille de MOINS qu'il n'y a de classés**, plafonné à trois. C'est
+IDENTIQUE dès cinq classés et meilleur en dessous (2 classés → 1 médaille,
+3 → 2, 4 → 3). Il ne reste donc que le DEUX universel du produit : être premier
+de deux n'est pas une tautologie, être premier de un en est une. ⚠️ Le podium
+d'une saison gelée se coupe à SON propre effectif, pas au seuil du moment : une
+saison à deux classés garde une seule médaille pour toujours. ⚠️ Et l'écran
+annonce le NOMBRE du moment, pas une règle — il monte quand la foule grandit,
+ce qui donne une raison d'inviter quelqu'un. ⚠️ Le **pseudo n'est pas gelé**
 avec la médaille — le geler retirerait à la Régie sa prise, et un nom retiré
 resterait affiché indéfiniment. Conséquence assumée : un podium peut montrer 1ᵉ
 et 3ᵉ sans 2ᵉ ; renuméroter serait un mensonge.

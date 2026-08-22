@@ -223,7 +223,14 @@ export interface Saison {
   courante: boolean;
   joueurs: number;
   minimumClasses: number;
-  minimumMedailles: number;
+  /**
+   * ⚠️ COMBIEN DE MÉDAILLES SERAIENT DÉCERNÉES AUJOURD'HUI, pas un seuil. Un
+   * plancher fixe de cinq classés a été posé puis retiré : il rendait la
+   * récompense inatteignable (3 comptes existaient) sans rien acheter, puisque
+   * la règle « toujours une médaille de moins qu'il n'y a de classés » donne
+   * exactement le même résultat dès cinq et un résultat MEILLEUR en dessous.
+   */
+  medailles: number;
   lignes: LigneSaison[];
   moi: Omit<LigneSaison, "moi"> | null;
   /** Mes points, MÊME sous le plancher — un classement vide doit répondre « et moi ? ». */
@@ -276,7 +283,7 @@ export async function saison(portee: PorteeCumul, mois?: string): Promise<Saison
     courante: d.courante === true,
     joueurs: nombre(d.joueurs, 0),
     minimumClasses: nombre(d.minimumClasses, 2),
-    minimumMedailles: nombre(d.minimumMedailles, 5),
+    medailles: nombre(d.medailles, 0),
     lignes: brutes.map(litLigneSaison).filter((l): l is LigneSaison => l !== null),
     moi: moi ? { place: moi.place, pseudo: moi.pseudo, points: moi.points, journees: moi.journees, gagnees: moi.gagnees } : null,
     mesPoints: nombre(d.mesPoints, 0),
@@ -297,7 +304,13 @@ export interface TropheeJeu {
   jeu: PorteeCumul;
   /** L'effectif de la saison, figé avec elle : « 3ᵉ sur 4 » ≠ « 3ᵉ sur 400 ». */
   joueurs: number;
-  /** Vide sous le plancher de médailles : la saison existe, rien n'a été décerné. */
+  /**
+   * Combien cette saison-là a décerné — coupé à SON propre effectif, pas à un
+   * seuil global : une saison à deux classés garde une seule médaille pour
+   * toujours, même si le jeu compte trois mille joueurs l'année suivante.
+   */
+  medailles: number;
+  /** Vide quand la saison n'a décerné à personne (un seul classé : tautologie). */
   podium: Medaille[];
   /** Ma ligne de cette saison, même hors du podium. */
   moi: { place: number; points: number; journees: number } | null;
@@ -309,7 +322,6 @@ export interface SaisonClose {
 }
 
 export interface Trophees {
-  minimumMedailles: number;
   saisons: SaisonClose[];
 }
 
@@ -337,6 +349,7 @@ export async function trophees(saisons = 6): Promise<Trophees | null> {
           return {
             jeu: g.jeu,
             joueurs: nombre(g.joueurs, 0),
+            medailles: nombre(g.medailles, 0),
             podium: podiumBrut
               .map((p): Medaille | null =>
                 typeof p.pseudo === "string" && typeof p.place === "number"
@@ -360,5 +373,5 @@ export async function trophees(saisons = 6): Promise<Trophees | null> {
       return { saison: s.saison, jeux };
     })
     .filter((s): s is SaisonClose => s !== null);
-  return { minimumMedailles: nombre(d.minimumMedailles, 5), saisons: saisonsLues };
+  return { saisons: saisonsLues };
 }

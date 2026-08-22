@@ -86,12 +86,12 @@ export default function SalleDesTrophees() {
       </div>
 
       {g.podium.length === 0 ? (
-        // ⚠️ LA SAISON EXISTE, MAIS RIEN N'A ÉTÉ DÉCERNÉ — et on le DIT. Un
-        // podium sur trois joueurs donnerait une médaille à tout le monde : ce
-        // n'est plus une récompense, c'est un lot de consolation, et ça la
-        // dévalue pour toujours puisqu'un trophée ne se recalcule jamais.
+        // ⚠️ LA SAISON EXISTE, MAIS RIEN N'A ÉTÉ DÉCERNÉ — et on le DIT. Ça
+        // n'arrive plus que dans un seul cas : un unique classé, c'est-à-dire
+        // « 1er sur 1 », la tautologie que ce produit refuse partout. Le
+        // plancher de cinq qui produisait aussi cet état a été retiré.
         <p style={{ margin: "6px 0 0", fontSize: 12.5, color: skin.muted, lineHeight: 1.45 }}>
-          {t("tropheesTropPeu", { n: salle.minimumMedailles })}
+          {t("tropheesSeul")}
         </p>
       ) : (
         <ol style={{ display: "grid", gap: 3, margin: "6px 0 0", padding: 0, listStyle: "none", minWidth: 0 }}>
