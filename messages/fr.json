@@ -2777,7 +2777,27 @@
       "sansCompteTexte": "Vos réponses ne sont gardées qu'un temps. Un compte garde le résultat de chaque journée — et fait durer votre série au-delà."
     },
     "derniereTitre": "Votre dernière journée",
-    "derniereClose": "Cette journée est close : ces chiffres ne bougeront plus."
+    "derniereClose": "Cette journée est close : ces chiffres ne bougeront plus.",
+    "tablee": {
+      "metaTitle": "Rejoindre une tablée — Banalo du jour",
+      "titre": "Votre tablée",
+      "membres": "{n, plural, one {# joueur} other {# joueurs}}",
+      "pasEncore": "pas encore joué",
+      "ailleurs": "a joué",
+      "inviter": "Inviter à ma tablée",
+      "inviteTitre": "Venez à ma tablée sur Banalo du jour — on voit qui a joué chaque jour.",
+      "creerTitre": "Jouer avec vos amis",
+      "creerTexte": "Une tablée, c'est un lien à envoyer. Ceux qui l'ouvrent voient qui a joué aujourd'hui et son résultat — jamais vos mots, jamais votre réponse.",
+      "creerBouton": "Créer une tablée",
+      "trop": "Vous avez déjà beaucoup de tablées.",
+      "rejoindreTitre": "On vous invite à une tablée",
+      "rejoindreTexte": "Choisissez le nom sous lequel les autres vous verront. Vous verrez qui a joué chaque jour, une fois que vous aurez joué vous-même.",
+      "rejoindreBouton": "Rejoindre la tablée",
+      "rejoindreDuree": "Ce nom ne vaut que dans cette tablée, et il disparaît avec elle.",
+      "inconnue": "Cette tablée n'existe plus.",
+      "pleine": "Cette tablée est complète.",
+      "pourquoi": "Les noms viennent d'une liste. Écrire le sien demande un compte Placet : un nom que tous les membres de la tablée peuvent lire appelle quelqu'un pour en répondre."
+    }
   },
   "Pays": {
     "pictosAide": "Chaque case dit maintenant de quoi parle son critère. La dernière garde son secret.",

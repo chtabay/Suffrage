@@ -977,9 +977,67 @@ contrôle de parité ne voyant que `messages/*.json`, ce sont les **tests** de
 le signalement, indispensable seulement dans cette forme-là : il n'existe pas
 encore, et la prise pour agir est le compte exigé derrière le texte libre.
 
-**LES AMIS ET LES NOTIFICATIONS SONT ÉTUDIÉS, RIEN N'EST DÉCIDÉ**
-(`docs/amis-et-notifications.md`, 2026-08-22). Trois conclusions à ne pas
-redécouvrir :
+**LA TABLÉE est en prod** (`MaTablee.tsx`, `RejoindrePage.tsx`,
+`20260824-banalo-tablee.sql`) — la couche sociale, **sans graphe d'amis**. On
+n'est pas ami AVEC quelqu'un, on est DANS une tablée : on rejoint par lien, on
+voit qui a joué aujourd'hui, et il n'y a ni demande, ni acceptation, ni blocage,
+ni annuaire.
+
+⚠️ **C'EST CE QUI ÉVITE LES CINQ COÛTS DU §5** : le nom vit dans la TABLÉE et
+meurt avec elle, exactement comme le nom du tableau vit dans la JOURNÉE. Les
+trois propriétés qui rendent l'absence de modération tenable — on entre par code,
+l'objet est jetable, tout s'efface — sont conservées les trois.
+
+⚠️ **UNE TABLÉE N'A PAS DE NOM**, et c'est délibéré : ce serait du texte libre lu
+par tous ses membres, donc une surface de modération de plus, et il faudrait
+décider s'il exige un compte — une friction sur la moitié « invitation », la
+seule dont le produit manque à onze joueurs. On la reconnaît aux gens qui y sont.
+
+⚠️ **RIEN NE SORT TANT QU'ON N'A PAS JOUÉ, ET LA GARDE EST EN BASE.** `joue`
+faux ⇒ aucun score ne part. Le score d'un ami ne divulgue rien (il est relatif à
+la foule) mais il ANCRE, et le §5 l'avait écrit.
+
+⚠️ **TROIS ÉTATS PAR MEMBRE, ET IL EN FAUT TROIS** : un score ; « a joué » sans
+chiffre pour qui a joué dans une AUTRE langue — sa foule n'est pas la mienne,
+donc son résultat ne se compare pas ; et « pas encore ». Replier le deuxième sur
+le troisième dirait « n'a pas joué » de quelqu'un qui a joué.
+
+⚠️ **UNE SEULE DEMANDE DE NOM PAR ÉCRAN.** Le tableau du jour et la tablée
+posaient le MÊME formulaire l'un sous l'autre, avec les **mêmes quatre noms**
+(même jeton, même graine, même tour) : le joueur voyait deux fois « Renard des
+sables » dans deux cartes voulant dire deux choses. Le tableau passe d'abord — il
+concerne aujourd'hui et disparaît avec la journée — et l'écran arbitre
+(`onDemande` → `bloque`). ⚠️ Et la règle du nom elle-même vit maintenant dans
+**`ChoisirSonNom`**, un seul endroit : recopiée, elle aurait dérivé comme le
+calcul des scores, qui avait fini en TROIS exemplaires avant d'être sorti en base
+(`scrutin_banalo_scores`).
+
+⚠️ **L'OFFRE DE CRÉER UNE TABLÉE EST DISCRÈTE, LA TABLÉE EXISTANTE NE L'EST
+PAS.** Une tablée qu'on a est du RÉSULTAT et ne demande rien ; l'offre d'en créer
+une est une demande, donc elle attend deux journées jouées (« la première demande
+se mérite ») et elle porte le `ghost` d'`InviterBanalo`, pas l'accent — vu à
+l'écran, en carte à l'accent elle s'empilait avec l'offre de compte, qui l'a reçu
+après un retour de vrais joueurs et ne le rend pas.
+
+⚠️ **LA PURGE SUIT LES DONNÉES, ELLE NE COMPTE PAS LES JOURS** : une tablée
+s'efface quand plus aucun de ses membres n'a de réponse en base. Comme les
+réponses se purgent à trente jours, cela veut dire « personne n'y a joué depuis
+trente jours » — sans écrire une cinquième copie du 30.
+
+⚠️ **ET LE CODE D'UNE TABLÉE EST UNE CAPACITÉ** : la page qui le reçoit est en
+`noindex`, et elle ne montre RIEN de la tablée avant d'y être entré — ni les
+membres, ni leur nombre. Un lien qui circule ne doit pas exposer un groupe à qui
+le trouve.
+
+⚠️ **UN APPEL QUI A UN EFFET NE SE MET PAS DANS UN `or` SQL.** Le bloc de
+vérification écrivait `if purge(30) < 1 or exists(...)` : SQL ne promet pas
+d'évaluer la gauche d'abord, l'`exists` court-circuitait l'appel, et le test
+échouait sur une fonction parfaitement correcte. On appelle dans une variable,
+puis on teste.
+
+**L'ÉTUDE DES AMIS ET DES NOTIFICATIONS** (`docs/amis-et-notifications.md`,
+2026-08-22) a tranché pour la TABLÉE, **sans push pour commencer**. Trois
+conclusions à ne pas redécouvrir :
 
 ⚠️ **Le coût que le §5 a refusé de payer vient de l'IDENTITÉ PERMANENTE et de
 l'ANNUAIRE, pas du lien social lui-même.** Or le tableau du jour vient de résoudre

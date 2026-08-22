@@ -1,7 +1,11 @@
 # Les amis et les notifications — étude préalable
 
-**État : étude, rien n'est décidé.** Écrite le 2026-08-22, avant la première
-ligne de code. Elle prolonge `regularite-des-joueurs.md` §5 (la comparaison
+**État : étude ARBITRÉE le 2026-08-22.** L'option A (la tablée) est retenue,
+**sans push pour commencer**, et la première notification, le jour où il y en
+aura une, sera **la clôture de sa propre journée** — pas l'activité d'un ami. La
+tablée est en production depuis le même jour ; §8 ci-dessous garde la trace des
+sept décisions et de celles qui restent ouvertes. Écrite avant la première ligne
+de code. Elle prolonge `regularite-des-joueurs.md` §5 (la comparaison
 avant les amis) et §6 (le push au service des amis), qu'elle ne remplace pas.
 
 Tous les chiffres de production ci-dessous ont été **relevés dans la base**
@@ -260,25 +264,30 @@ conservées les trois. C'est ce qui la distingue de B, qui les retire toutes.
 
 ---
 
-## 8. Les décisions à prendre, et elles sont sept
+## 8. Les sept décisions — cinq prises, deux ouvertes
 
-Aucune n'est prise ici.
+1. ✅ **Tablée**, pas graphe.
+2. ✅ **Le nom vit dans la tablée**, règle du tableau du jour (liste fermée sans
+   compte, texte libre derrière un compte).
+3. ✅ **On voit un nom, une présence, un score — jamais le détail.** Le format
+   « mots » fuirait : voir la grille d'un ami, c'est recevoir six réponses. Et
+   rien du tout tant qu'on n'a pas joué soi-même, garde tenue EN BASE.
+4. ✅ **Tablée plate**, ordonnée par résultat mais sans numéro de rang — Banalo
+   récompense d'être BANAL, pas d'être bon.
+5. ⏳ **Push : pas maintenant.** Décidé. Reste à décider QUAND l'allumer, et le
+   §4 dit déjà quoi envoyer : la clôture de sa propre journée, une fois par jour,
+   au plus tard des deux horloges, seulement à qui a joué.
+6. ✅ **Le texte libre n'existe que derrière un compte** — un jeton anonyme ne se
+   bannit pas. Tenu par une contrainte de table, pas par du code d'écran.
+7. ✅ **La politique de confidentialité** a été réécrite dans le même commit.
 
-1. **Tablée ou graphe** (recommandation : tablée).
-2. **Le nom : par tablée ou par compte** (recommandation : par tablée, règle du
-   tableau du jour).
-3. **Ce qu'on voit d'un ami** : « a joué » seul, le score, ou le détail ?
-   ⚠️ Le format « mots » FUIT : voir la grille d'un ami, c'est recevoir six
-   réponses. Le détail ne peut apparaître que pour une journée qu'on a jouée.
-4. **Tablée plate ou classement** — ⚠️ le §5 rappelle que Banalo récompense
-   d'être BANAL, pas d'être bon ; un palmarès permanent y a moins de sens
-   qu'ailleurs.
-5. **Push : oui ou non — et si oui, quelle est la PREMIÈRE notification ?**
-   (recommandation : la clôture de sa propre journée, pas l'activité d'un ami.)
-6. **Qui modère, et sur quelle prise ?** La règle existe déjà : le texte libre
-   n'existe que derrière un compte, parce qu'un jeton anonyme ne se bannit pas.
-7. **La politique de confidentialité**, réécrite dans le même commit — comme
-   pour le 7, pour le 30 et pour le tableau.
+**Et une décision qui n'était pas dans la liste** : les ABONNEMENTS PAR TYPE de
+notification (« la clôture oui, les amis non »). Rien de ce qui est construit ne
+les empêche — `scrutin_push_subscriptions` porte déjà `user_id`, et une table de
+préférences se pose à côté le jour venu. ⚠️ Mais si le push s'allume un jour SANS
+cette table, il faudra la poser AVANT le deuxième type de notification, jamais
+après : un abonnement global qu'on découpe ensuite oblige à deviner ce que les
+gens avaient accepté.
 
 ---
 

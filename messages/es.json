@@ -2777,7 +2777,27 @@
       "sansCompteTexte": "Tus respuestas solo se conservan un tiempo. Una cuenta guarda el resultado de cada día — y hace que tu racha dure más."
     },
     "derniereTitre": "Tu último día",
-    "derniereClose": "Ese día está cerrado: estas cifras ya no cambiarán."
+    "derniereClose": "Ese día está cerrado: estas cifras ya no cambiarán.",
+    "tablee": {
+      "metaTitle": "Unirse a una mesa — Banalo del día",
+      "titre": "Tu mesa",
+      "membres": "{n, plural, one {# jugador} other {# jugadores}}",
+      "pasEncore": "aún no ha jugado",
+      "ailleurs": "ha jugado",
+      "inviter": "Invitar a mi mesa",
+      "inviteTitre": "Ven a mi mesa en Banalo del día — vemos quién ha jugado cada día.",
+      "creerTitre": "Jugar con tus amigos",
+      "creerTexte": "Una mesa es un enlace que envías. Quien lo abre ve quién ha jugado hoy y qué tal le ha ido — nunca tus palabras, nunca tu respuesta.",
+      "creerBouton": "Crear una mesa",
+      "trop": "Ya tienes muchas mesas.",
+      "rejoindreTitre": "Te invitan a una mesa",
+      "rejoindreTexte": "Elige el nombre con el que te verán los demás. Verás quién ha jugado cada día, en cuanto hayas jugado tú.",
+      "rejoindreBouton": "Unirse a la mesa",
+      "rejoindreDuree": "Este nombre solo vale en esta mesa, y desaparece con ella.",
+      "inconnue": "Esta mesa ya no existe.",
+      "pleine": "Esta mesa está completa.",
+      "pourquoi": "Los nombres vienen de una lista. Escribir el propio requiere una cuenta Placet: un nombre que pueden leer todos los miembros de la mesa necesita a alguien que responda por él."
+    }
   },
   "Pays": {
     "pictosAide": "Cada casilla dice ahora de qué habla su criterio. La última guarda su secreto.",

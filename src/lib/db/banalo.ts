@@ -591,6 +591,146 @@ export async function deposerNom(
   return s === "ok" || s === "pris" || s === "deja" || s === "compte" ? s : "refus";
 }
 
+// ──────────────────────────────────────────────────────────── la tablée
+
+/**
+ * UN MEMBRE D'UNE TABLÉE, POUR LA JOURNÉE EN COURS.
+ *
+ * ⚠️ `joue` ET `score` NE DISENT PAS LA MÊME CHOSE, et il faut les deux. Un
+ * membre qui a joué dans une AUTRE langue a bien joué — mais sa foule n'est pas
+ * la mienne, donc son score ne se compare pas au mien et la base ne le rend pas.
+ * Replier ce cas sur « n'a pas joué » serait mentir sur quelqu'un qui a joué.
+ */
+export interface MembreTablee {
+  /** Le rang du nom dans le vocabulaire fermé, ou `null` si le nom est libre. */
+  index: number | null;
+  /** Le nom libre d'un membre connecté, ou `null` si le nom vient de la liste. */
+  nom: string | null;
+  joue: boolean;
+  /** Son résultat, dans MA foule. `null` s'il a joué ailleurs, ou si je n'ai pas joué. */
+  score: number | null;
+  moi: boolean;
+}
+
+export interface Tablee {
+  code: string;
+  membres: MembreTablee[];
+}
+
+/** Une ligne à moitié ne se dessine pas — même règle que le tableau du jour. */
+function litMembre(brut: unknown): MembreTablee | null {
+  const m = brut as Record<string, unknown> | null;
+  if (!m) return null;
+  const index = typeof m.index === "number" && Number.isInteger(m.index) && m.index >= 0 ? m.index : null;
+  const nom = typeof m.nom === "string" && m.nom.trim().length > 0 ? m.nom : null;
+  // ⚠️ EXACTEMENT L'UN DES DEUX : une ligne qui porterait les deux, ou aucun,
+  // vient d'une base abîmée. On la jette plutôt que d'inventer un nom.
+  if ((index === null) === (nom === null)) return null;
+  return {
+    index,
+    nom,
+    joue: m.joue === true,
+    // ⚠️ PAS DE `?? 0`. « 0 » est un score réel — celui de qui n'a rien partagé —
+    // et l'afficher pour quelqu'un dont on ignore le résultat serait une accusation.
+    score: typeof m.score === "number" && Number.isFinite(m.score) ? m.score : null,
+    moi: m.moi === true,
+  };
+}
+
+export function litTablees(brut: unknown): Tablee[] | null {
+  const d = brut as Record<string, unknown> | null;
+  if (!d || d.status !== "ok" || !Array.isArray(d.tablees)) return null;
+  return (d.tablees as Record<string, unknown>[])
+    .map((t) => {
+      const code = typeof t.code === "string" ? t.code : null;
+      const bruts = Array.isArray(t.membres) ? t.membres : [];
+      const membres = bruts.map(litMembre).filter((m): m is MembreTablee => m !== null);
+      return code && membres.length > 0 ? { code, membres } : null;
+    })
+    .filter((t): t is Tablee => t !== null);
+}
+
+/**
+ * Mes tablées, pour la journée en cours.
+ *
+ * ⚠️ LA GARDE ANTI-ANCRAGE EST EN BASE, PAS ICI. Tant que je n'ai pas répondu,
+ * la fonction d'en face ne rend AUCUN score — seulement qui a joué. Le §5 de
+ * `docs/regularite-des-joueurs.md` l'avait posé pour la comparaison : le score
+ * d'un ami ne divulgue rien, mais il ancre et met une pression que le jeu ne
+ * demande pas.
+ */
+export async function mesTablees(
+  jeton: string,
+  jour: number,
+  langue: string,
+  theme: string | null,
+): Promise<Tablee[] | null> {
+  const supabase = createClient();
+  const { data, error } = await supabase.rpc("scrutin_banalo_tablee_du_jour", {
+    p_jeton: jeton,
+    p_jour: jour,
+    p_langue: langue,
+    p_theme: theme,
+  });
+  if (error) return null;
+  return litTablees(data);
+}
+
+/** Ce qu'un nom peut être : pris dans la liste fermée, ou libre derrière un compte. */
+export type ChoixDeNom = { index: number } | { nom: string };
+
+const nomEnArgs = (choix: ChoixDeNom) => ({
+  p_index: "index" in choix ? choix.index : null,
+  p_nom: "nom" in choix ? choix.nom : null,
+});
+
+export type CreationTablee =
+  | { status: "ok"; code: string }
+  | { status: "compte" | "trop" | "refus" | "panne" };
+
+export async function creerTablee(jeton: string, choix: ChoixDeNom): Promise<CreationTablee> {
+  const supabase = createClient();
+  const { data, error } = await supabase.rpc("scrutin_banalo_tablee_creer", {
+    p_jeton: jeton,
+    ...nomEnArgs(choix),
+  });
+  // ⚠️ UNE PANNE N'EST PAS UN REFUS : rien n'est parti, et le dire autrement
+  // ferait croire au joueur que sa tablée a été jugée.
+  if (error) return { status: "panne" };
+  const d = data as Record<string, unknown> | null;
+  const s = d?.status;
+  if (s === "ok" && typeof d?.code === "string") return { status: "ok", code: d.code };
+  return { status: s === "compte" || s === "trop" ? s : "refus" };
+}
+
+export type EntreeTablee =
+  | "ok"
+  | "pris"
+  | "deja"
+  | "compte"
+  | "inconnue"
+  | "pleine"
+  | "refus"
+  | "panne";
+
+export async function rejoindreTablee(
+  jeton: string,
+  code: string,
+  choix: ChoixDeNom,
+): Promise<EntreeTablee> {
+  const supabase = createClient();
+  const { data, error } = await supabase.rpc("scrutin_banalo_tablee_rejoindre", {
+    p_jeton: jeton,
+    p_code: code,
+    ...nomEnArgs(choix),
+  });
+  if (error) return "panne";
+  const s = (data as Record<string, unknown> | null)?.status;
+  return s === "ok" || s === "pris" || s === "deja" || s === "compte" || s === "inconnue" || s === "pleine"
+    ? s
+    : "refus";
+}
+
 // ────────────────────────────────────────────────────────── le compte
 
 /**

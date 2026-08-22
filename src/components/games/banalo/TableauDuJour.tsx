@@ -42,17 +42,33 @@ import { useAuth } from "@/lib/auth/useAuth";
 import { UNANIMO_SKIN as skin } from "@/lib/games/skin";
 import { GBtn, GCard, GLabel } from "@/components/games/ui";
 import { monJeton } from "@/lib/games/banalo/jeton";
-import { graineDe, nomDe, nomsProposes } from "@/content/banalo/noms";
+import { nomDe } from "@/content/banalo/noms";
+import ChoisirSonNom, { NOM_VIERGE, choixDeNom, type EtatNom } from "./ChoisirSonNom";
 import { deposerNom, litTableauDuJour, type DepotNom, type Tableau } from "@/lib/db/banalo";
 
 const bcp = (locale: string) => (locale === "pcm" ? "en" : locale);
 
-/** Combien de noms on propose d'un coup. Quatre tiennent sur deux lignes d'un téléphone. */
-const PROPOSES = 4;
 /** Le plancher d'affichage, celui de la base (`v_min`). Seul inscrit, on serait « premier sur un ». */
 const INSCRITS_MIN = 2;
 
-export default function TableauDuJour({ jour, theme }: { jour: number; theme: string | null }) {
+export default function TableauDuJour({
+  jour,
+  theme,
+  onDemande,
+}: {
+  jour: number;
+  theme: string | null;
+  /**
+   * Prévient le parent que CE bloc demande un nom au joueur.
+   *
+   * ⚠️ IL NE PEUT Y AVOIR QU'UNE DEMANDE DE NOM PAR ÉCRAN. La tablée en pose une
+   * aussi, et les deux formulaires se sont retrouvés l'un sous l'autre, avec les
+   * MÊMES quatre noms proposés (même graine, même tour) : le joueur voyait deux
+   * fois « Renard des sables » dans deux cartes différentes, et le choisir d'un
+   * côté ne le choisissait pas de l'autre. Vu au navigateur, invisible autrement.
+   */
+  onDemande?: (demande: boolean) => void;
+}) {
   const t = useTranslations("BanaloJour");
   const locale = useLocale();
   // ⚠️ `loading` COMPTE : sans lui, le champ de nom libre clignoterait — absent
@@ -61,9 +77,9 @@ export default function TableauDuJour({ jour, theme }: { jour: number; theme: st
   const { user, loading } = useAuth();
 
   const [tableau, setTableau] = useState<Tableau | null>(null);
-  const [tour, setTour] = useState(0);
-  const [choisi, setChoisi] = useState<number | null>(null);
-  const [libre, setLibre] = useState("");
+  // ⚠️ LE CHOIX DU NOM VIT DANS `ChoisirSonNom`, PAS ICI — la règle est partagée
+  // avec la tablée, et une règle recopiée dérive.
+  const [nom, setNom] = useState<EtatNom>(NOM_VIERGE);
   const [envoi, setEnvoi] = useState(false);
   const [souci, setSouci] = useState<DepotNom | null>(null);
 
@@ -83,14 +99,13 @@ export default function TableauDuJour({ jour, theme }: { jour: number; theme: st
     };
   }, [relis]);
 
-  // ⚠️ LES NOMS PROPOSÉS SONT TIRÉS D'UNE GRAINE, PAS DE `Math.random()`. Sans
-  // graine, chaque rendu de React redistribuerait la liste et le nom que le
-  // joueur s'apprêtait à choisir disparaîtrait sous ses yeux. « En proposer
-  // d'autres » incrémente le tour, ce qui redonne une liste stable.
-  const propositions = useMemo(() => {
-    const jeton = monJeton();
-    return nomsProposes(graineDe(jeton ?? "graine"), PROPOSES, tour);
-  }, [tour]);
+  // ⚠️ DANS UN EFFET, PAS PENDANT LE RENDU : appeler `onDemande` au fil du rendu
+  // ferait un `setState` du parent pendant le rendu de l'enfant, ce que React
+  // refuse.
+  const demande = tableau !== null && !tableau.inscrit;
+  useEffect(() => {
+    onDemande?.(demande);
+  }, [demande, onDemande]);
 
   // Le score du format « mots » est une somme de voix, celui du format chiffré
   // une note sur 100 au dixième. Deux unités, deux formats de nombre.
@@ -104,8 +119,7 @@ export default function TableauDuJour({ jour, theme }: { jour: number; theme: st
   const depose = async () => {
     const jeton = monJeton();
     if (!jeton || envoi) return;
-    const nom = libre.trim();
-    const choix = nom.length > 0 ? { nom } : choisi !== null ? { index: choisi } : null;
+    const choix = choixDeNom(nom);
     if (!choix) return;
     setEnvoi(true);
     setSouci(null);
@@ -119,10 +133,7 @@ export default function TableauDuJour({ jour, theme }: { jour: number; theme: st
     setSouci(r);
     // ⚠️ UN NOM PRIS SE REMPLACE, IL NE SE REDEMANDE PAS. Laisser la même liste
     // sous un message d'erreur invite à recliquer le nom qui vient d'échouer.
-    if (r === "pris") {
-      setChoisi(null);
-      setTour((n) => n + 1);
-    }
+    if (r === "pris") setNom({ tour: nom.tour + 1, index: null, libre: "" });
     // « deja » veut dire que ce joueur est inscrit — depuis un autre onglet, ou
     // parce que la réponse du premier dépôt s'est perdue en route. On relit
     // plutôt que de le laisser devant un formulaire qui ne marchera jamais.
@@ -132,9 +143,12 @@ export default function TableauDuJour({ jour, theme }: { jour: number; theme: st
     }
   };
 
+  // ⚠️ LE GARDE DE RENDU VIENT APRÈS TOUS LES CROCHETS, jamais avant : un
+  // `return` placé plus haut sauterait `useEffect` et `useMemo` selon l'état,
+  // ce que React interdit.
   if (loading || !tableau) return null;
 
-  const pret = libre.trim().length > 0 || choisi !== null;
+  const pret = choixDeNom(nom) !== null;
 
   const ligne = (nom: string, score: number, moi: boolean, cle: string) => (
     <li
@@ -238,56 +252,15 @@ export default function TableauDuJour({ jour, theme }: { jour: number; theme: st
         <div style={{ marginTop: tableau.lignes.length > 0 ? 16 : 10 }}>
           <p style={{ margin: 0, fontSize: 13.5, lineHeight: 1.5 }}>{t("tableau.invite")}</p>
 
-          <div style={{ display: "flex", flexWrap: "wrap", gap: 8, margin: "10px 0 0" }}>
-            {propositions.map((i) => (
-              <button
-                key={i}
-                type="button"
-                onClick={() => {
-                  setChoisi(i);
-                  setLibre("");
-                  setSouci(null);
-                }}
-                style={{
-                  fontFamily: skin.fontDisplay,
-                  fontWeight: 800,
-                  fontSize: 13.5,
-                  padding: "7px 11px",
-                  borderRadius: 999,
-                  cursor: "pointer",
-                  // Le nom retenu est PLEIN, les autres sont des contours : la
-                  // même règle que les pastilles de Cinq sur cinq, où une
-                  // pastille qui parle n'a pas l'air d'une pastille qui se tait.
-                  border: `2px solid ${skin.ink}`,
-                  background: choisi === i ? skin.accent : skin.paper,
-                  color: choisi === i ? "#fff" : skin.ink,
-                }}
-                aria-pressed={choisi === i}
-              >
-                {nomDe(i, locale)}
-              </button>
-            ))}
-            <button
-              type="button"
-              onClick={() => {
-                setChoisi(null);
-                setSouci(null);
-                setTour((n) => n + 1);
-              }}
-              style={{
-                fontSize: 13,
-                fontWeight: 700,
-                padding: "7px 4px",
-                border: "none",
-                background: "none",
-                color: skin.muted,
-                textDecoration: "underline",
-                cursor: "pointer",
-              }}
-            >
-              {t("tableau.autres")}
-            </button>
-          </div>
+          <ChoisirSonNom
+            jeton={monJeton()}
+            connecte={Boolean(user)}
+            etat={nom}
+            setEtat={(e) => {
+              setNom(e);
+              setSouci(null);
+            }}
+          />
 
           {/* ⚠️ LE MESSAGE SE POSE SOUS LES PASTILLES, PAS SOUS LE BOUTON. Vu à
               l'écran : plus bas, « ce nom est déjà porté » se lisait quatre
@@ -300,44 +273,6 @@ export default function TableauDuJour({ jour, theme }: { jour: number; theme: st
               {souci === "panne" || souci === "refus" || souci === "compte" ? t("tableau.panne") : null}
             </p>
           ) : null}
-          {/* ⚠️ LE CHAMP LIBRE N'EXISTE QUE DERRIÈRE UN COMPTE, et c'est LA
-              règle. La base la tient par une contrainte de table, pas seulement
-              par cette condition d'écran : une erreur ici ne peut pas l'ouvrir. */}
-          {user ? (
-            <div style={{ marginTop: 12 }}>
-              <GLabel skin={skin}>{t("tableau.libre")}</GLabel>
-              <input
-                value={libre}
-                maxLength={24}
-                onChange={(e) => {
-                  setLibre(e.target.value);
-                  if (e.target.value.trim().length > 0) setChoisi(null);
-                  setSouci(null);
-                }}
-                placeholder={t("tableau.librePlace")}
-                style={{
-                  width: "100%",
-                  marginTop: 6,
-                  padding: "9px 11px",
-                  fontSize: 15,
-                  fontWeight: 700,
-                  borderRadius: 8,
-                  border: `2px solid ${skin.ink}`,
-                  background: skin.paper,
-                  color: skin.ink,
-                }}
-              />
-            </div>
-          ) : (
-            // Factuel, et à sa place : ça explique pourquoi la liste est fermée.
-            // ⚠️ Ce n'est PAS l'offre de compte de l'après-partie — celle-là a
-            // sa carte, et §0 interdit d'en empiler deux. Une phrase grise sans
-            // bouton ne concurrence rien.
-            <p style={{ margin: "10px 0 0", fontSize: 12.5, color: skin.muted, lineHeight: 1.45 }}>
-              {t("tableau.pourquoi")}
-            </p>
-          )}
-
           <GBtn
             skin={skin}
             variant="accent"

@@ -34,6 +34,7 @@ import { litDefi, type Defi } from "@/lib/games/comparaison";
 import InstallJeu from "@/components/games/InstallJeu";
 import CompteBanalo from "./CompteBanalo";
 import TableauDuJour from "./TableauDuJour";
+import MaTablee from "./MaTablee";
 import { etatMots, repondMots, type EtatMots } from "@/lib/db/banalo";
 
 const bcp = (locale: string) => (locale === "pcm" ? "en" : locale);
@@ -70,6 +71,9 @@ export default function GrilleDeMots({
     setDefi(litDefi(window.location.search, plafondDuJour));
   }, [plafondDuJour]);
 
+  // ⚠️ UNE SEULE DEMANDE DE NOM PAR ÉCRAN — voir `MaTablee`. C'est l'écran qui
+  // arbitre, parce que c'est lui qui voit les deux blocs.
+  const [nomDemande, setNomDemande] = useState(false);
   const [panne, setPanne] = useState(false);
   const [pret, setPret] = useState(false);
   const [envoi, setEnvoi] = useState(false);
@@ -429,7 +433,15 @@ export default function GrilleDeMots({
               jeu : §0 de `docs/regularite-des-joueurs.md` ne compte donc pas ce
               bloc dans la place unique de l'après-partie. ⚠️ IL NE PORTE AUCUN
               MOT, ni les miens ni ceux des autres — un nom et un score. */}
-          <TableauDuJour jour={jour} theme={cle} />
+          <TableauDuJour jour={jour} theme={cle} onDemande={setNomDemande} />
+
+          {/* LA TABLÉE, JUSTE APRÈS LE TABLEAU PUBLIC — et c'est le bon ordre.
+              Le tableau du jour parle de la foule entière, la tablée de gens
+              qu'on connaît : on va du large au proche. ⚠️ Elle n'occupe pas la
+              place unique de l'après-partie tant qu'on en a une (c'est du
+              résultat, pas une demande) ; l'offre d'en créer une, elle, attend
+              deux journées jouées — voir `MaTablee`. */}
+          <MaTablee jour={jour} theme={cle} bloque={nomDemande} />
 
           {jeu.assez && jeu.points !== null ? (
             <PartageBanalo
