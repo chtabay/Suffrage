@@ -1030,6 +1030,38 @@ avec la fenêtre reculée de sept jours (`p_recul`). Elle se tait si le joueur
 n'était pas classé la semaine dernière — « +12 places » depuis une place qui
 n'existait pas serait une invention.
 
+⚠️ **UN CLASSEMENT VIDE DOIT RÉPONDRE « ET MOI ? », PAS « ET TOUT LE MONDE ? »**
+(`mesJournees` / `minimum`, `20260825-jeux-cumul-mes-journees.sql`). Signalé par
+un vrai joueur sur un vrai iPhone : il pose son pseudo, valide, et lit
+« Personne n'est encore classé : il faut avoir joué au moins 5 journées ». Rien
+n'est faux — il en avait **quatre** — mais la phrase parle de TOUT LE MONDE là
+où la question porte sur LUI, et sans un chiffre à lui il ne peut pas
+distinguer « ça n'a pas marché » de « il me manque une journée ». La base rend
+donc son compte de journées classables **sans le plancher**, et la carte dit
+« vous n'y êtes pas encore : 4 sur les 5 qu'il faut ». ⚠️ Elle sort AUSSI quand
+la liste n'est pas vide — ne pas se trouver dans un classement peuplé pose la
+même question — et la phrase impersonnelle **s'efface** quand elle parle :
+empilées, les deux répètent le même plancher en trois paragraphes gris.
+
+⚠️ **ET LE DÉPÔT DU PSEUDO NE CONFIRMAIT RIEN.** Le même signalement disait
+« quand je clique pour valider le pseudo, rien ne semble se passer » : il
+s'enregistrait bien, mais la SEULE trace à l'écran était une étiquette de 11 px
+qui passait de « CHOISIR UN PSEUDO » à « VOTRE PSEUDO », au-dessus d'un champ
+qui contenait déjà le texte tapé. Rien ne bougeait là où l'œil était — sur le
+bouton qu'on vient de presser. La ligne de confirmation est en `role="status"`
+(une réussite ne coupe pas la lecture d'un lecteur d'écran) et en `skin.good` :
+⚠️ le rouge du produit ne tient que **4,21:1** sur le papier blanc, sous les 4,5
+exigés à 13 px, quand le vert en tient 5,03.
+
+⚠️ **DEUX DÉFAUTS DE DESSIN NE SE VOIENT QU'À L'ÉCRAN, ET LES DEUX VENAIENT DE
+LA MÊME CAPTURE.** Les bornes de l'axe de `CourbeCentiles` étaient écrites en
+`x={0}` alors que le tracé commençait à `MARGE` : « 0 % » se retrouvait SOUS le
+premier point — un texte SVG n'a pas de boîte qui pousse ses voisins, il se
+superpose en silence (d'où `GOUTTIERE`). Et l'espace qui sépare le grand nombre
+de `CarteJeu` de sa phrase est dessiné à 15 px alors qu'il suit un chiffre de
+30 px : « 36 % » et « ont » se touchaient. Le blanc d'un chiffre deux fois plus
+gros se paie sur le chiffre, pas sur le texte.
+
 ⚠️ **LA PORTE `/games` Y MÈNE, ET C'EST LE SEUL CHEMIN QUI VAUT POUR TOUT LE
 MONDE** — un lien « Résultats et classements » sous le pitch de la famille
 « Un par jour ». Les écrans d'après-partie n'y menaient que pour un joueur

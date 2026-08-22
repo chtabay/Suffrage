@@ -116,6 +116,17 @@ export interface Cumul {
   moi: Omit<LigneCumul, "moi"> | null;
   /** Ma place il y a une semaine, pour dire la progression. `null` si je n'étais pas classé. */
   avant: number | null;
+  /** Le nombre de journées qu'il faut avoir jouées pour être classé. */
+  minimum: number;
+  /**
+   * ⚠️ MES JOURNÉES CLASSABLES, SANS LE PLANCHER — et c'est ce qui manquait.
+   * Un vrai joueur a posé son pseudo sur son iPhone, validé, et lu « Personne
+   * n'est encore classé : il faut avoir joué au moins 5 journées ». Vrai, mais
+   * la phrase parle de TOUT LE MONDE quand la question porte sur LUI : sans un
+   * chiffre à lui, il ne peut pas distinguer « ça n'a pas marché » de « il me
+   * manque une journée », et il conclut à la panne.
+   */
+  mesJournees: number;
 }
 
 /** Les trois portées du classement sur la durée. */
@@ -172,5 +183,7 @@ export async function cumul(
     // ⚠️ PAS DE REPLI SUR ZÉRO. « place 0 la semaine dernière » n'existe pas, et
     // afficher une progression inventée est pire que n'en afficher aucune.
     avant: typeof d.avant === "number" ? d.avant : null,
+    minimum: typeof d.minimum === "number" ? d.minimum : 5,
+    mesJournees: typeof d.mesJournees === "number" ? d.mesJournees : 0,
   };
 }

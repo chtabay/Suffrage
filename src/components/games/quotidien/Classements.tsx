@@ -53,6 +53,12 @@ export default function Classements({
   const [saisie, setSaisie] = useState("");
   const [envoi, setEnvoi] = useState(false);
   const [souci, setSouci] = useState<DepotPseudo | null>(null);
+  // ⚠️ RIEN NE CONFIRMAIT LE DÉPÔT, ET UN VRAI JOUEUR A CONCLU À LA PANNE. Le
+  // pseudo s'enregistrait bien : la SEULE trace à l'écran était une étiquette de
+  // 11 px qui passait de « CHOISIR UN PSEUDO » à « VOTRE PSEUDO », au-dessus
+  // d'un champ qui contenait déjà le texte tapé. Rien ne bougeait là où l'œil
+  // était — sur le bouton qu'on vient de presser.
+  const [confirme, setConfirme] = useState(false);
 
   const relis = useCallback(async () => cumul(jourBanalo, jourPays, portee), [jourBanalo, jourPays, portee]);
 
@@ -87,10 +93,22 @@ export default function Classements({
 
   const nb = useMemo(() => new Intl.NumberFormat(bcp(locale), { maximumFractionDigits: 1 }), [locale]);
 
+  // ⚠️ « ET MOI, POURQUOI JE N'Y SUIS PAS ? » — LA QUESTION QUE LA CARTE NE
+  // SAVAIT PAS ENTENDRE. Elle ne répondait que « Personne n'est encore classé :
+  // il faut avoir joué au moins 5 journées ». C'est vrai, et ça parle de TOUT LE
+  // MONDE là où le joueur vient de poser une question sur LUI — il en avait
+  // quatre. Sans un chiffre à lui, il ne peut pas distinguer « ça n'a pas
+  // marché » de « il me manque une journée », et il conclut à la panne.
+  //
+  // ⚠️ ELLE SORT AUSSI QUAND LA LISTE N'EST PAS VIDE : ne pas se trouver dans un
+  // classement peuplé pose exactement la même question.
+  const moiManque = Boolean(uid && table && !table.moi && table.mesJournees < table.minimum);
+
   const pose = async () => {
     if (envoi || saisie.trim().length < 2) return;
     setEnvoi(true);
     setSouci(null);
+    setConfirme(false);
     const r = await poserPseudo(saisie);
     setEnvoi(false);
     if (r !== "ok") {
@@ -99,6 +117,7 @@ export default function Classements({
     }
     setPseudo(saisie.trim());
     setBloque(false);
+    setConfirme(true);
     const c = await relis();
     if (c) setTable(c);
   };
@@ -197,10 +216,33 @@ export default function Classements({
           ) : null}
         </div>
 
-        {table === null ? null : table.lignes.length === 0 ? (
-          <p style={{ margin: "10px 0 0", fontSize: 13.5, color: skin.muted, lineHeight: 1.5 }}>
-            {t("cumulVide", { n: 5 })}
+        {/* ⚠️ « ET MOI, POURQUOI JE N'Y SUIS PAS ? » — LA QUESTION QUE LA CARTE
+            NE SAVAIT PAS ENTENDRE. Elle ne répondait que « Personne n'est encore
+            classé : il faut avoir joué au moins 5 journées ». C'est vrai, et ça
+            parle de TOUT LE MONDE là où le joueur vient de poser une question
+            sur LUI — il en avait quatre. Sans un chiffre à lui, il ne peut pas
+            distinguer « ça n'a pas marché » de « il me manque une journée ».
+
+            ⚠️ ELLE PASSE DEVANT LA PHRASE IMPERSONNELLE, et elle sort AUSSI
+            quand la liste n'est pas vide : ne pas se trouver dans un classement
+            peuplé pose exactement la même question. */}
+        {moiManque && table ? (
+          <p style={{ margin: "10px 0 0", fontSize: 13.5, fontWeight: 700, lineHeight: 1.5 }}>
+            {t("cumulMoiManque", { n: table.mesJournees, m: table.minimum })}
           </p>
+        ) : null}
+
+        {table === null ? null : table.lignes.length === 0 ? (
+          // ⚠️ ET LA PHRASE IMPERSONNELLE S'EFFACE QUAND LA LIGNE PERSONNELLE
+          // PARLE. Les deux disent le même plancher : empilées, elles font trois
+          // paragraphes gris dont deux répètent « 5 journées » — vu à l'écran.
+          // Celle-ci répond « pourquoi la liste est-elle vide », question que
+          // « 0 joueur classé » en tête de carte a déjà tranchée.
+          moiManque ? null : (
+            <p style={{ margin: "10px 0 0", fontSize: 13.5, color: skin.muted, lineHeight: 1.5 }}>
+              {t("cumulVide", { n: table.minimum })}
+            </p>
+          )
         ) : (
           <>
             <ol style={{ display: "grid", gap: 2, margin: "10px 0 0", padding: 0, listStyle: "none", minWidth: 0, fontSize: 14.5 }}>
@@ -231,7 +273,7 @@ export default function Classements({
         )}
 
         <p style={{ margin: "12px 0 0", fontSize: 12.5, color: skin.muted, lineHeight: 1.45 }}>
-          {t("cumulRegle", { n: 5 })}
+          {t("cumulRegle", { n: table?.minimum ?? 5 })}
         </p>
       </GCard>
 
@@ -257,6 +299,7 @@ export default function Classements({
               onChange={(e) => {
                 setSaisie(e.target.value);
                 setSouci(null);
+                setConfirme(false);
               }}
               onKeyDown={(e) => {
                 if (e.key === "Enter") void pose();
@@ -283,6 +326,18 @@ export default function Classements({
           {souci ? (
             <p role="alert" style={{ margin: "8px 0 0", fontSize: 13, fontWeight: 700 }}>
               {message()}
+            </p>
+          ) : confirme ? (
+            // `role="status"` et pas `role="alert"` : ce n'est pas une urgence,
+            // et un lecteur d'écran ne doit pas couper la lecture en cours pour
+            // annoncer une réussite.
+            //
+            // ⚠️ `skin.good` ET PAS `skin.accent` : le rouge du produit ne tient
+            // que 4,21:1 sur le papier blanc, sous les 4,5 exigés pour un texte
+            // de 13 px — le vert en tient 5,03. Et la couleur ne porte rien
+            // toute seule ici : c'est la phrase qui dit ce qui s'est passé.
+            <p role="status" style={{ margin: "8px 0 0", fontSize: 13, fontWeight: 700, color: skin.good }}>
+              {t("pseudoEnregistre")}
             </p>
           ) : null}
         </GCard>

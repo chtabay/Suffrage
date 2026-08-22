@@ -92,7 +92,14 @@ export default function CarteJeu({
               premier. */}
           {dernier ? (
             <p style={{ margin: "10px 0 0", fontSize: 15, lineHeight: 1.3 }}>
-              <strong style={{ fontFamily: skin.fontDisplay, fontSize: 30, color: couleur }}>
+              {/* ⚠️ LA MARGE N'EST PAS DÉCORATIVE : l'espace de la phrase est
+                  dessiné à 15 px, or il sépare un nombre de 30 px du mot qui
+                  suit — vu sur une vraie capture d'iPhone, « 36 % » et « ont »
+                  se touchent. Le blanc d'un chiffre deux fois plus gros doit
+                  être payé par le chiffre, pas par le texte. */}
+              <strong
+                style={{ fontFamily: skin.fontDisplay, fontSize: 30, color: couleur, marginInlineEnd: 5 }}
+              >
                 {t("pourcent", { n: nb.format(dernier.mieux!) })}
               </strong>{" "}
               {t("ontFaitMieux")}

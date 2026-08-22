@@ -23,6 +23,14 @@ const L = 300;
 const H = 92;
 /** De quoi laisser respirer le trait sans que les points touchent les bords. */
 const MARGE = 8;
+/**
+ * ⚠️ LA GOUTTIÈRE DE GAUCHE N'EST PAS DE L'ESPACE, C'EST UNE CORRECTION. Les
+ * deux bornes de l'axe étaient écrites en `x={0}` alors que le tracé commençait
+ * à `MARGE` : « 0 % » se retrouvait SOUS le premier point de la courbe. Vu sur
+ * une vraie capture d'iPhone, invisible à la relecture — un texte SVG n'a pas
+ * de boîte qui pousse ses voisins, il se superpose en silence.
+ */
+const GOUTTIERE = 26;
 
 export default function CourbeCentiles({
   skin,
@@ -43,7 +51,7 @@ export default function CourbeCentiles({
   const premier = vus[0]!.jour;
   const dernier = vus[vus.length - 1]!.jour;
   const etendue = Math.max(1, dernier - premier);
-  const x = (jour: number) => MARGE + ((jour - premier) / etendue) * (L - 2 * MARGE);
+  const x = (jour: number) => GOUTTIERE + ((jour - premier) / etendue) * (L - GOUTTIERE - MARGE);
   // 0 % en HAUT : c'est l'inversion, et l'axe l'imprime.
   const y = (mieux: number) => MARGE + (mieux / 100) * (H - 2 * MARGE);
 
@@ -83,16 +91,26 @@ export default function CourbeCentiles({
         style={{ display: "block", overflow: "visible" }}
       >
         {/* Les deux bornes de l'axe, écrites : c'est ce qui rend l'inversion
-            lisible sans légende supplémentaire. */}
-        <text x={0} y={MARGE + 3} fontSize={9} fill={skin.muted}>
+            lisible sans légende supplémentaire. Alignées à DROITE sur la
+            gouttière — « 0 % » et « 100 % » n'ont pas la même largeur, et deux
+            nombres calés à gauche donnent deux repères qui ne se répondent pas. */}
+        <text x={GOUTTIERE - 5} y={MARGE + 3} fontSize={9} fill={skin.muted} textAnchor="end">
           0 %
         </text>
-        <text x={0} y={H - MARGE + 3} fontSize={9} fill={skin.muted}>
+        <text x={GOUTTIERE - 5} y={H - MARGE + 3} fontSize={9} fill={skin.muted} textAnchor="end">
           100 %
         </text>
-        <line x1={MARGE} y1={MARGE} x2={L - MARGE} y2={MARGE} stroke={skin.muted} strokeWidth={0.5} opacity={0.35} />
         <line
-          x1={MARGE}
+          x1={GOUTTIERE}
+          y1={MARGE}
+          x2={L - MARGE}
+          y2={MARGE}
+          stroke={skin.muted}
+          strokeWidth={0.5}
+          opacity={0.35}
+        />
+        <line
+          x1={GOUTTIERE}
           y1={H - MARGE}
           x2={L - MARGE}
           y2={H - MARGE}
