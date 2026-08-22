@@ -31,13 +31,18 @@ import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { useAuth } from "@/lib/auth/useAuth";
-import { numeroDuJour } from "@/lib/games/banalo/jour";
-import { numeroDeJournee } from "@/lib/games/pays/calendrier";
-import { cumul, monPseudo } from "@/lib/db/jeux";
+import { monPseudo, saison } from "@/lib/db/jeux";
 
 interface Rang {
   place: number;
-  /** Le nombre de places gagnées (positif) ou perdues (négatif) en une semaine. */
+  /**
+   * ⚠️ TOUJOURS NUL DEPUIS LE PASSAGE À LA SAISON, et gardé exprès. La
+   * progression hebdomadaire se calculait en reculant la fenêtre glissante de
+   * sept jours ; une saison, elle, part de zéro le 1er du mois, donc « ma place
+   * il y a une semaine » n'existe pas les sept premiers jours et voudrait dire
+   * autre chose ensuite. Le champ reste pour que la pastille sache se taire, et
+   * pour que la question se repose quand on saura la calculer honnêtement.
+   */
   ecart: number | null;
 }
 
@@ -70,14 +75,15 @@ export default function RangJeux() {
         if (vivant) setRang(null);
         return;
       }
-      // Les deux numéros de journée se lisent ICI, après le montage : les deux
-      // jeux n'ont ni la même origine ni la même charnière, et les calculer au
-      // rendu serveur ferait diverger l'hydratation autour de la bascule.
-      const c = await cumul(numeroDuJour(), numeroDeJournee(new Date().toISOString()), "tout");
-      const valeur =
-        c?.moi != null
-          ? { place: c.moi.place, ecart: c.avant !== null ? c.avant - c.moi.place : null }
-          : null;
+      // ⚠️ LA SAISON, PAS LE CUMUL GLISSANT. C'est le classement qui a un début,
+      // une fin et des médailles au bout : celui dont la place BOUGE tous les
+      // jours, donc le seul dont une pastille de barre vaille la peine.
+      //
+      // ⚠️ ET ELLE NE DEMANDE PLUS DE NUMÉRO DE JOURNÉE. La saison est datée en
+      // base par l'horodatage des résultats ; le client n'a plus à porter deux
+      // calendriers d'origines différentes jusqu'ici.
+      const c = await saison("tout");
+      const valeur = c?.moi != null ? { place: c.moi.place, ecart: null } : null;
       cache = { userId: uid, rang: valeur };
       if (vivant) setRang(valeur);
     })();

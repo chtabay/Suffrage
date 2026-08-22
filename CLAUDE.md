@@ -689,6 +689,32 @@ doublon écarté faisait avancer le rang et laissait des trous, dans lesquels un
 second envoi venait se glisser — après avoir lu les parts. Trouvé par le bloc de
 vérification, pas à la relecture.
 
+**CINQ SUR CINQ COMPTE SA FOULE DEPUIS LE 27/08**
+(`20260827-jeu-pays-parties-anonymes.sql`), et ce fichier **renverse un point de
+conception écrit**. `scrutin_game_pays_results` ne contenait que des COMPTES :
+« votre rang du jour », le centile de la page commune et le classement sur la
+durée se calculaient sur deux ou trois comptes en se présentant comme des
+classements parmi les joueurs. Chaque partie part maintenant en base à la fin,
+sous un **jeton anonyme** quand il n'y a pas de compte — là où `banalo/jeton.ts`
+disait « Cinq sur cinq s'en passe fièrement » et `pays/local.ts` promettait « il
+n'y a pas de jeton stable ». Les deux commentaires ont été corrigés et **la
+politique de confidentialité réécrite dans le même commit**, en trois langues.
+
+⚠️ **LE JETON DE CINQ SUR CINQ EST DISTINCT DE CELUI DE BANALO**, et la mécanique
+partagée vit dans `games/jeton.ts`. Une clé commune relierait les deux jeux en
+base — « ce navigateur a joué aux deux » — information que personne n'a demandée.
+⚠️ Il **ne survit pas au rattachement** : le compte adopte la ligne, le jeton est
+effacé. Et la fusion **garde le meilleur essai** puis supprime la ligne anonyme,
+sinon le joueur se ferait concurrence à lui-même dans sa propre foule.
+⚠️ Les lignes anonymes se purgent à trente jours (`scrutin_game_pays_purge` + son
+cron), celles d'un compte non — même règle que Banalo. **Le 30 vit donc dans une
+cinquième commande de cron**, en plus des quatre autres, de chaque défaut de
+fonction et de la politique de confidentialité.
+
+⚠️ **EFFET DE BORD VOULU : LES RANGS DES COMPTES EXISTANTS EMPIRENT.** Le rang,
+la médiane et l'effectif du jour portent enfin sur toute la foule. C'est la
+correction d'un mensonge, pas une régression.
+
 **Le compte de Banalo du jour NE REÇOIT AUCUN SCORE DU CLIENT.** Cinq sur cinq
 envoie un lot calculé dans le navigateur (`scrutin_game_pays_save`), parce que
 là-bas la partie ne quitte jamais le navigateur. Ici les réponses sont déjà en
@@ -1097,6 +1123,81 @@ superpose en silence (d'où `GOUTTIERE`). Et l'espace qui sépare le grand nombr
 de `CarteJeu` de sa phrase est dessiné à 15 px alors qu'il suit un chiffre de
 30 px : « 36 % » et « ont » se touchaient. Le blanc d'un chiffre deux fois plus
 gros se paie sur le chiffre, pas sur le texte.
+
+**LA SAISON REMPLACE LE CUMUL GLISSANT** (`scrutin_jeux_saison`,
+`scrutin_jeux_palmares`, `20260828-jeux-saison-et-trophees.sql`) — un mois de
+POINTS, remis à zéro le 1er, avec des médailles au bout et une **salle des
+trophées** (`SalleDesTrophees.tsx`, troisième onglet).
+
+⚠️ **ELLE REMPLACE, ELLE NE S'AJOUTE PAS.** Les deux classaient les MÊMES
+comptes en disant des choses différentes : un joueur qui voyait les deux ne
+savait plus lequel était le vrai — le défaut des deux vocabulaires, déjà écarté
+pour la courbe (on retourne l'AXE, pas le CHIFFRE). Et une moyenne **punit la
+journée en plus**, alors qu'un jeu quotidien veut qu'on revienne : des points
+n'enlèvent jamais rien. `scrutin_jeux_cumul` reste en base, plus aucun écran ne
+l'appelle.
+
+⚠️ **LE BARÈME PORTE SUR LA PLACE, ET LE CENTILE A ÉTÉ ESSAYÉ PUIS ÉCARTÉ —
+MESURÉ.** Une table indexée sur le centile donne à la même place des valeurs
+très différentes selon la foule : la 2ᵉ place vaut **8 points à 3 joueurs et 25 à
+3 000**, parce que `round(100 × 1/3000)` vaut 0 — à trois mille joueurs les
+**seize premiers** touchent tous le maximum et la forme F1 disparaît là où elle
+sert le plus. Un centile normalise le CHAMP, pas la PLACE. C'est ce qui a exigé
+de **garder le rang** (`rang`, `sur`, `exaequo` sur `scrutin_banalo_results`,
+`20260828-banalo-garder-le-rang.sql`) : il existait déjà dans les fonctions
+d'état, il n'était simplement pas écrit.
+
+**Le barème** : `25 · 18 · 15 · 12 · 10 · 8 · 7 · 6 · 5 · 4 · 4 · 3 · 3 · 3 · 2 ·
+2 · 2 · 2 · 2 · 2` sur vingt places, **plus un point de présence** pour toute
+journée jouée, y compris seul. ⚠️ **CE POINT DE PRÉSENCE EST LE RÉGLAGE QUI
+DÉCIDE DE TOUT** : trente journées de présence pure font **30 points contre 26
+pour une victoire unique**, donc la régularité bat le coup de chance sans aucun
+plancher — c'est la réponse au défaut qu'on assumait la veille. Et un habitué
+toujours 3ᵉ marque 480 quand un vainqueur sporadique en marque 260 : le talent
+paie encore.
+
+⚠️ **LES EX AEQUO SE PARTAGENT LES PLACES QU'ILS OCCUPENT**, et ce n'est pas un
+détail : essais et sommes de voix sont de petits entiers, donc l'égalité est LE
+CAS NORMAL. Trois joueurs en tête touchent chacun (25+18+15)/3. Le budget d'une
+journée ne dépend donc pas des égalités. ⚠️ Le partage **olympique** est mesuré et
+écarté — à trois mille joueurs il distribue **490 points au lieu de 191** (×2,6),
+le plus gros paquet du top 20 comptant 46 joueurs. Le départage **au temps** est
+écarté aussi, pour la raison déjà écrite chez Banalo, en pire ici : on joue une
+fois pour trouver le pays, on rejoue en 1 essai et 8 secondes. Le partage, lui,
+dilue la manœuvre. ⚠️ Conséquence : **les points ont une décimale**, exactement
+comme le score de Banalo — la base est de la présentation, la décimale porte la
+résolution.
+
+⚠️ **CE QUE LA SIMULATION A SORTI ET QUI NE VIENT PAS DU BARÈME** : à grande
+échelle le sommet de Cinq sur cinq devient de la CHANCE. Trouver en 1 essai,
+c'est nommer le bon pays à l'aveugle (1 sur ~195) ; à 3 000 joueurs une dizaine y
+arrivent par accident et mangent les dix premières places, laissant 1,5 point à
+qui a trouvé en 2 essais par déduction. Le partage amortit (12 points chacun au
+lieu de 26) mais ne corrige pas la cause. À deux joueurs par jour c'est
+théorique ; **à rouvrir sur données réelles.**
+
+⚠️ **UNE SAISON EST UN MOIS CIVIL LU SUR `cree_le`, HEURE DE PARIS** — et ce
+n'est **pas** une troisième copie de l'origine du calendrier : on ne traduit
+aucun numéro de journée en date, on lit l'horodatage que les tables portent
+déjà. C'est pour ça que `scrutin_banalo_rattacher` porte maintenant l'heure
+RÉELLE de la réponse : sans elle, un joueur d'août inscrit le 2 septembre verrait
+trente journées tomber dans la saison de septembre.
+
+⚠️ **UN TROPHÉE NE SE RECALCULE PAS, SINON CE N'EST PAS UN TROPHÉE.** Le
+palmarès est écrit UNE FOIS par `scrutin_jeux_saison_cloturer` (cron horaire, le
+SQL tranche — `pg_cron` planifie en UTC et Paris change deux fois par an). ⚠️ Les
+**médailles ont leur propre plancher, 5 joueurs classés**, plus haut que le
+plancher d'affichage (2) : un podium sur trois personnes en donne une à tout le
+monde, et un trophée dévalué l'est pour toujours. ⚠️ Le **pseudo n'est pas gelé**
+avec la médaille — le geler retirerait à la Régie sa prise, et un nom retiré
+resterait affiché indéfiniment. Conséquence assumée : un podium peut montrer 1ᵉ
+et 3ᵉ sans 2ᵉ ; renuméroter serait un mensonge.
+
+⚠️ **ET LA PASTILLE DE LA BARRE SUIT LA SAISON**, plus le cumul : c'est le
+classement dont la place BOUGE tous les jours. Elle a perdu sa progression
+hebdomadaire au passage — une saison part de zéro le 1er, donc « ma place il y a
+une semaine » n'existe pas les sept premiers jours et voudrait dire autre chose
+ensuite.
 
 ⚠️ **LA PORTE `/games` Y MÈNE, ET C'EST LE SEUL CHEMIN QUI VAUT POUR TOUT LE
 MONDE** — un lien « Résultats et classements » sous le pitch de la famille

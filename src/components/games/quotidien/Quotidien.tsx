@@ -29,6 +29,7 @@ import { numeroDeJournee } from "@/lib/games/pays/calendrier";
 import { mesJourneesBanalo, mesJourneesPays, type JourneeCommune } from "@/lib/db/jeux";
 import CarteJeu from "./CarteJeu";
 import Classements from "./Classements";
+import SalleDesTrophees from "./SalleDesTrophees";
 
 export default function Quotidien() {
   const t = useTranslations("JeuxQuotidiens");
@@ -37,7 +38,7 @@ export default function Quotidien() {
   const [banalo, setBanalo] = useState<JourneeCommune[] | null>(null);
   const [pays, setPays] = useState<JourneeCommune[] | null>(null);
   const [panne, setPanne] = useState(false);
-  const [onglet, setOnglet] = useState<"moi" | "classements">("moi");
+  const [onglet, setOnglet] = useState<"moi" | "classements" | "trophees">("moi");
   /**
    * Les deux numéros de journée.
    *
@@ -166,17 +167,24 @@ export default function Quotidien() {
       </GCard>
   );
 
-  const onglets: { cle: "moi" | "classements"; texte: string }[] = [
+  const onglets: { cle: "moi" | "classements" | "trophees"; texte: string }[] = [
     { cle: "moi", texte: t("ongletMoi") },
     { cle: "classements", texte: t("ongletClassements") },
+    { cle: "trophees", texte: t("ongletTrophees") },
   ];
 
   return cadre(
     <>
-      {/* DEUX ONGLETS, DEUX QUESTIONS : « où j'en suis » et « où je me situe ».
-          Les empiler sur une seule page ferait quatre cartes avant la première
-          réponse ; les séparer laisse chacune tenir dans un écran. */}
-      <div style={{ display: "flex", gap: 8, marginBottom: 14 }}>
+      {/* TROIS ONGLETS, TROIS QUESTIONS : « où j'en suis », « qui gagne ce
+          mois-ci », « qui a gagné avant ». Les empiler sur une seule page ferait
+          six cartes avant la première réponse ; les séparer laisse chacune tenir
+          dans un écran.
+
+          ⚠️ ILS SE REPLIENT SUR DEUX LIGNES SUR UN TÉLÉPHONE ÉTROIT, et c'est
+          voulu : trois pastilles de police de titre à 390 px ne tiennent pas
+          côte à côte, et les rétrécir les rendrait moins lisibles que la nav
+          qu'elles remplacent. */}
+      <div style={{ display: "flex", gap: 8, marginBottom: 14, flexWrap: "wrap" }}>
         {onglets.map((o) => (
           <button
             key={o.cle}
@@ -200,10 +208,13 @@ export default function Quotidien() {
         ))}
       </div>
 
-      {onglet === "classements" ? (
-        jours ? (
-          <Classements user={user} jourBanalo={jours.banalo} jourPays={jours.pays} />
-        ) : null
+      {onglet === "trophees" ? (
+        // ⚠️ ELLE NE DEMANDE NI COMPTE NI NUMÉRO DE JOURNÉE. Les saisons closes
+        // sont datées en base par l'horodatage des résultats, pas par un
+        // calendrier que le client porterait — donc rien à attendre ici.
+        <SalleDesTrophees />
+      ) : onglet === "classements" ? (
+        <Classements user={user} />
       ) : !user ? (
         offre
       ) : panne ? (

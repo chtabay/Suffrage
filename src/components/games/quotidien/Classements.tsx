@@ -1,12 +1,24 @@
 "use client";
 
-// LES CLASSEMENTS SUR LA DURÉE — trente journées glissantes.
+// LE CLASSEMENT DE LA SAISON — un mois de points, puis on remet à zéro.
+//
+// ⚠️ IL A REMPLACÉ LA MOYENNE GLISSANTE SUR TRENTE JOURNÉES, et ce n'est pas un
+// ajout : les deux classaient les MÊMES comptes en disant des choses
+// différentes, donc un joueur qui voyait les deux ne savait plus lequel était le
+// vrai. C'est le défaut des deux vocabulaires, déjà écarté pour la courbe (on
+// retourne l'AXE, pas le CHIFFRE). Et une moyenne PUNIT la journée en plus :
+// jouer un jour de moins bonne forme fait baisser un chiffre, alors que ce
+// produit veut qu'on revienne. Des points, eux, n'enlèvent jamais rien.
+//
+// ⚠️ LE BARÈME EST EN BASE, PAS ICI (`scrutin_jeux_points`) : une table de
+// points recopiée à l'écran finirait par diverger de celle qui a gelé les
+// trophées, et un trophée ne se recalcule pas. L'écran affiche, il ne calcule
+// rien.
 //
 // ⚠️ TROIS PORTÉES, ET LA TROISIÈME EST L'INTÉRÊT DE LA PAGE : chaque jeu
-// séparément, et TOUS JEUX CONFONDUS. C'est possible parce que la grandeur
-// classée est un CENTILE — « X % ont fait mieux » veut dire la même chose chez
-// Banalo et chez Cinq sur cinq, là où un nombre d'essais et une somme de voix ne
-// s'additionnent pas.
+// séparément, et TOUS JEUX CONFONDUS. C'est possible parce que ce qui se cumule
+// est une PLACE — être premier veut dire la même chose chez Banalo et chez Cinq
+// sur cinq, là où un nombre d'essais et une somme de voix ne s'additionnent pas.
 //
 // ⚠️ ICI LE RANG S'AFFICHE, ALORS QUE LE TABLEAU DU JOUR LE REFUSE. Ce n'est pas
 // un revirement : au jour, un vrai rang existe parmi TOUS les joueurs (la carte
@@ -17,46 +29,46 @@
 //
 // ⚠️ IL FAUT UN COMPTE POUR Y FIGURER, PAS POUR LE REGARDER. Un classement qu'on
 // ne peut pas voir avant de s'inscrire ne donne aucune raison de s'inscrire.
-//
-// ⚠️ ET ON Y ENTRE DÈS LA PREMIÈRE JOURNÉE. Le plancher de cinq journées était
-// IMPOSSIBLE à satisfaire — mesuré au moment où il a été écrit : Banalo du jour
-// en était à sa journée 3 et Cinq sur cinq à sa journée 5, donc personne au
-// monde ne pouvait avoir cinq journées classables. Un classement est une
-// RÉCOMPENSE ; celle-ci était derrière une porte dont la clé n'existait pas.
-// Ce que le plancher achetait — « une seule journée chanceuse prend la tête » —
-// se paie maintenant en MONTRANT l'effectif de journées à côté de chaque
-// moyenne, et en faisant passer le plus assidu devant à moyenne égale.
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import type { User } from "@supabase/supabase-js";
 import { PLACET_GAMES_SKIN as skin } from "@/lib/games/skin";
 import { GBtn, GCard, GLabel } from "@/components/games/ui";
 import {
-  cumul,
   monPseudo,
   poserPseudo,
-  type Cumul,
+  saison as litSaison,
   type DepotPseudo,
+  type LigneSaison,
   type PorteeCumul,
+  type Saison,
 } from "@/lib/db/jeux";
 
 const bcp = (locale: string) => (locale === "pcm" ? "en" : locale);
 const PORTEES: PorteeCumul[] = ["tout", "banalo", "pays"];
 
-export default function Classements({
-  user,
-  jourBanalo,
-  jourPays,
-}: {
-  user: User | null;
-  jourBanalo: number;
-  jourPays: number;
-}) {
+/**
+ * « 2026-08 » → « août 2026 », dans la langue du lecteur.
+ *
+ * ⚠️ PAS DE CLÉ i18n POUR LES DOUZE MOIS. `Intl` les connaît déjà dans les
+ * quatre langues, et douze clés × quatre serait quarante-huit traductions à
+ * tenir pour un mot que la plateforme donne. On construit la date au MILIEU du
+ * mois : le 1er à minuit bascule d'un mois en arrière dans les fuseaux à l'ouest
+ * de Paris.
+ */
+function moisLisible(saison: string, locale: string): string {
+  const [a, m] = saison.split("-").map(Number);
+  if (!a || !m) return saison;
+  return new Intl.DateTimeFormat(bcp(locale), { month: "long", year: "numeric" })
+    .format(new Date(Date.UTC(a, m - 1, 15)));
+}
+
+export default function Classements({ user }: { user: User | null }) {
   const t = useTranslations("JeuxQuotidiens");
   const locale = useLocale();
 
   const [portee, setPortee] = useState<PorteeCumul>("tout");
-  const [table, setTable] = useState<Cumul | null>(null);
+  const [table, setTable] = useState<Saison | null>(null);
   const [pseudo, setPseudo] = useState<string | null>(null);
   const [bloque, setBloque] = useState(false);
   const [saisie, setSaisie] = useState("");
@@ -69,7 +81,7 @@ export default function Classements({
   // était — sur le bouton qu'on vient de presser.
   const [confirme, setConfirme] = useState(false);
 
-  const relis = useCallback(async () => cumul(jourBanalo, jourPays, portee), [jourBanalo, jourPays, portee]);
+  const relis = useCallback(async () => litSaison(portee), [portee]);
 
   useEffect(() => {
     let vivant = true;
@@ -108,11 +120,6 @@ export default function Classements({
   // pas distinguer « ça n'a pas marché » de « il me manque quelque chose », et
   // il conclut à la panne. Elle sort AUSSI quand la liste n'est pas vide : ne
   // pas se trouver dans un classement peuplé pose exactement la même question.
-  //
-  // ⚠️ DEPUIS LA CHUTE DU PLANCHER DE JOURNÉES, ELLE NE PEUT PLUS DIRE « IL VOUS
-  // EN MANQUE N ». Une seule journée suffit — donc le seul cas où l'on n'y est
-  // pas est celui où AUCUNE journée ne compte, c'est-à-dire des journées jouées
-  // seul. C'est un fait sur la foule, pas sur l'assiduité, et la phrase le dit.
   const moiAucune = Boolean(uid && table && !table.moi && table.mesJournees === 0);
   // ⚠️ ET LE SECOND ÉTAT MUET : le classement existe, j'en fais peut-être partie,
   // mais on est moins de deux — la base ne rend alors ni lignes ni `moi`. Sans un
@@ -125,6 +132,10 @@ export default function Classements({
   // constat sur les autres. On ne peut pas le faire dire à la base sans lui
   // faire rendre « 1er sur 1 », que ce produit refuse partout.
   const seulEtCestMoi = Boolean(troisPeu && pseudo && !bloque && table && table.mesJournees > 0);
+  // ⚠️ ET CELUI QUI A DES POINTS SANS PSEUDO NE DOIT PAS LIRE « 0 ». Ses journées
+  // comptent déjà ; il ne lui manque qu'un nom sous lequel figurer, et c'est la
+  // carte juste en dessous qui le lui propose.
+  const pointsSansNom = Boolean(uid && table && !table.moi && table.mesJournees > 0 && !troisPeu);
 
   const pose = async () => {
     if (envoi || saisie.trim().length < 2) return;
@@ -151,7 +162,7 @@ export default function Classements({
     return t("panne");
   };
 
-  const ligne = (l: { place: number; pseudo: string; moyenne: number; journees: number }, moi: boolean) => (
+  const ligne = (l: Omit<LigneSaison, "moi">, moi: boolean) => (
     <li
       key={`${l.place}-${l.pseudo}`}
       style={{
@@ -181,12 +192,9 @@ export default function Classements({
         {l.pseudo}
         {moi ? <span style={{ color: skin.accent, fontWeight: 800 }}> · {t("vous")}</span> : null}
       </span>
-      {/* ⚠️ L'EFFECTIF DE JOURNÉES EST À CÔTÉ DE LA MOYENNE, ET PAS EN NOTE —
-          et c'est LUI qui remplace le plancher de journées. Une moyenne sur UNE
-          journée et une moyenne sur trente ne valent pas la même chose : plutôt
-          que de fermer la porte aux premières, on montre de quoi juger. C'est le
-          chemin qu'a suivi `assez` chez Banalo du jour — cesser de commander ce
-          qui est CALCULÉ pour ne commander que ce qui est DIT. */}
+      {/* L'effectif de journées reste à côté des points : c'est lui qui dit d'où
+          ils viennent — trente journées de présence valent autant qu'une
+          victoire, et le lecteur doit pouvoir le voir. */}
       <span style={{ flex: "none", fontSize: 12, color: skin.muted }}>{t("surN", { n: l.journees })}</span>
       <span
         style={{
@@ -196,7 +204,7 @@ export default function Classements({
           fontVariantNumeric: "tabular-nums",
         }}
       >
-        {t("pourcent", { n: nb.format(l.moyenne) })}
+        {t("points", { n: nb.format(l.points) })}
       </span>
     </li>
   );
@@ -204,8 +212,15 @@ export default function Classements({
   return (
     <>
       {/* LES TROIS PORTÉES. Des onglets plutôt qu'un menu : à trois choix, un
-          menu cache deux options derrière un geste. */}
-      <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 4 }}>
+          menu cache deux options derrière un geste.
+
+          ⚠️ ELLES SONT PLUS PETITES QUE LES ONGLETS DE PAGE, et c'est mesuré.
+          Aux mêmes dimensions, les deux rangées se repliaient chacune sur deux
+          lignes : 380 px de pastilles avant le moindre contenu sur un téléphone
+          de 390 — près de la moitié du premier écran passée en navigation.
+          Réduites, les trois portées tiennent sur UNE ligne, et la hiérarchie y
+          gagne : la page d'abord, ce qu'on y regarde ensuite. */}
+      <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginTop: 4 }}>
         {PORTEES.map((p) => (
           <button
             key={p}
@@ -215,8 +230,8 @@ export default function Classements({
             style={{
               fontFamily: skin.fontDisplay,
               fontWeight: 800,
-              fontSize: 13.5,
-              padding: "7px 12px",
+              fontSize: 12.5,
+              padding: "5px 10px",
               borderRadius: 999,
               cursor: "pointer",
               border: `2px solid ${skin.ink}`,
@@ -233,7 +248,10 @@ export default function Classements({
 
       <GCard skin={skin} padding={18} style={{ marginTop: 12 }}>
         <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 10 }}>
-          <GLabel skin={skin}>{t("cumulTitre")}</GLabel>
+          {/* ⚠️ LE MOIS EST LE TITRE, pas une note. Une saison qui ne dit pas
+              laquelle elle est n'a ni début ni fin — c'est précisément ce qu'on
+              vient de corriger. */}
+          <GLabel skin={skin}>{table ? moisLisible(table.saison, locale) : t("saisonTitre")}</GLabel>
           {table ? (
             <span style={{ fontSize: 12, fontWeight: 700, color: skin.muted }}>
               {t("classes", { n: table.joueurs })}
@@ -241,9 +259,22 @@ export default function Classements({
           ) : null}
         </div>
 
+        {/* MES POINTS, MÊME QUAND JE NE SUIS PAS DANS LA LISTE. C'est le chiffre
+            qui bouge tous les jours, donc celui qui donne envie de revenir. */}
+        {uid && table && table.mesJournees > 0 ? (
+          <p style={{ margin: "10px 0 0", fontSize: 13.5, fontWeight: 700, lineHeight: 1.5 }}>
+            {t("mesPoints", { p: nb.format(table.mesPoints), n: table.mesJournees })}
+          </p>
+        ) : null}
+
         {moiAucune && table ? (
           <p style={{ margin: "10px 0 0", fontSize: 13.5, fontWeight: 700, lineHeight: 1.5 }}>
-            {t("cumulMoiAucune")}
+            {t("saisonMoiAucune")}
+          </p>
+        ) : null}
+        {pointsSansNom ? (
+          <p style={{ margin: "6px 0 0", fontSize: 13.5, fontWeight: 700, lineHeight: 1.5 }}>
+            {t("saisonSansPseudo")}
           </p>
         ) : null}
 
@@ -251,7 +282,7 @@ export default function Classements({
           // ⚠️ LA PHRASE IMPERSONNELLE S'EFFACE QUAND LA LIGNE PERSONNELLE PARLE.
           // Empilées, les deux disent la même chose : vu à l'écran, ça faisait
           // trois paragraphes gris dont deux répétaient le même plancher.
-          moiAucune ? null : (
+          moiAucune || pointsSansNom ? null : (
             // ⚠️ CE QUI PARLE DE MOI EST EN ENCRE ET EN GRAS, ce qui parle des
             // autres est en gris. « Vous y êtes » est une récompense ; servie
             // dans la même grisaille qu'un constat sur la foule, elle ne se lit
@@ -268,7 +299,7 @@ export default function Classements({
                 ? t("cumulSeulVous")
                 : troisPeu
                   ? t("cumulPresqueVide", { n: table.minimumClasses })
-                  : t("cumulVide")}
+                  : t("saisonVide")}
             </p>
           )
         ) : (
@@ -287,22 +318,20 @@ export default function Classements({
                 {ligne(table.moi, true)}
               </ul>
             ) : null}
-            {/* LA PROGRESSION HEBDO. ⚠️ Elle se tait si je n'étais pas classé la
-                semaine dernière : « +12 places » depuis une place qui n'existait
-                pas serait une invention. */}
-            {table.moi && table.avant !== null && table.avant !== table.moi.place ? (
-              <p style={{ margin: "10px 0 0", fontSize: 13, fontWeight: 700 }}>
-                {table.avant > table.moi.place
-                  ? t("monteDe", { n: table.avant - table.moi.place })
-                  : t("descendDe", { n: table.moi.place - table.avant })}
-              </p>
-            ) : null}
           </>
         )}
 
         <p style={{ margin: "12px 0 0", fontSize: 12.5, color: skin.muted, lineHeight: 1.45 }}>
-          {t("cumulRegle")}
+          {t("saisonRegle")}
         </p>
+        {/* ⚠️ LE PLANCHER DE MÉDAILLES SE DIT, il ne se découvre pas à la
+            clôture. Un joueur qui a passé le mois en tête d'un classement de
+            trois et qui ne reçoit rien le 1er a le droit de l'avoir su avant. */}
+        {table ? (
+          <p style={{ margin: "6px 0 0", fontSize: 12.5, color: skin.muted, lineHeight: 1.45 }}>
+            {t("saisonMedailles", { n: table.minimumMedailles })}
+          </p>
+        ) : null}
       </GCard>
 
       {/* ── LE PSEUDO ──────────────────────────────────────────────────────

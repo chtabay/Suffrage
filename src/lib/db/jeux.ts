@@ -196,3 +196,169 @@ export async function cumul(
     mesJournees: typeof d.mesJournees === "number" ? d.mesJournees : 0,
   };
 }
+
+// ───────────────────────────────────── la saison, et les trophées qu'elle laisse
+
+/** Une ligne du classement de la saison. */
+export interface LigneSaison {
+  place: number;
+  pseudo: string;
+  /**
+   * ⚠️ AVEC UNE DÉCIMALE, et ce n'est pas de la coquetterie. Les ex aequo se
+   * partagent les places qu'ils occupent — trois joueurs en tête touchent chacun
+   * (25+18+15)/3 — donc les points ne sont pas entiers. C'est exactement le rôle
+   * que la décimale joue déjà dans le score de Banalo du jour : « la base est de
+   * la présentation, la décimale porte la résolution ».
+   */
+  points: number;
+  journees: number;
+  /** Les journées finies à la première place. Sert de départage, comme en F1. */
+  gagnees: number;
+  moi: boolean;
+}
+
+export interface Saison {
+  /** Le mois, en `AAAA-MM`. C'est une clé, jamais un libellé : l'écran le traduit. */
+  saison: string;
+  courante: boolean;
+  joueurs: number;
+  minimumClasses: number;
+  minimumMedailles: number;
+  lignes: LigneSaison[];
+  moi: Omit<LigneSaison, "moi"> | null;
+  /** Mes points, MÊME sous le plancher — un classement vide doit répondre « et moi ? ». */
+  mesPoints: number;
+  mesJournees: number;
+}
+
+function litLigneSaison(brut: unknown): LigneSaison | null {
+  const l = brut as Record<string, unknown> | null;
+  if (!l) return null;
+  const place = typeof l.place === "number" ? l.place : null;
+  const pseudo = typeof l.pseudo === "string" && l.pseudo.trim().length > 0 ? l.pseudo : null;
+  const points = typeof l.points === "number" ? l.points : Number(l.points);
+  if (place === null || pseudo === null || !Number.isFinite(points)) return null;
+  return {
+    place,
+    pseudo,
+    points,
+    journees: typeof l.journees === "number" ? l.journees : 0,
+    gagnees: typeof l.gagnees === "number" ? l.gagnees : 0,
+    moi: l.moi === true,
+  };
+}
+
+function nombre(v: unknown, defaut: number): number {
+  const n = typeof v === "number" ? v : Number(v);
+  return Number.isFinite(n) ? n : defaut;
+}
+
+/**
+ * Le classement de la saison. `saison` nulle = celle en cours.
+ *
+ * ⚠️ IL SE LIT SANS COMPTE, comme le cumul : il en faut un pour y FIGURER, pas
+ * pour le regarder — un classement qu'on ne peut pas voir avant de s'inscrire ne
+ * donne aucune raison de s'inscrire.
+ */
+export async function saison(portee: PorteeCumul, mois?: string): Promise<Saison | null> {
+  const supabase = createClient();
+  const { data, error } = await supabase.rpc("scrutin_jeux_saison", {
+    p_jeu: portee,
+    p_saison: mois ?? null,
+  });
+  if (error) return null;
+  const d = data as Record<string, unknown> | null;
+  if (!d || d.status !== "ok" || typeof d.saison !== "string") return null;
+  const brutes = Array.isArray(d.lignes) ? d.lignes : [];
+  const moi = litLigneSaison(d.moi);
+  return {
+    saison: d.saison,
+    courante: d.courante === true,
+    joueurs: nombre(d.joueurs, 0),
+    minimumClasses: nombre(d.minimumClasses, 2),
+    minimumMedailles: nombre(d.minimumMedailles, 5),
+    lignes: brutes.map(litLigneSaison).filter((l): l is LigneSaison => l !== null),
+    moi: moi ? { place: moi.place, pseudo: moi.pseudo, points: moi.points, journees: moi.journees, gagnees: moi.gagnees } : null,
+    mesPoints: nombre(d.mesPoints, 0),
+    mesJournees: nombre(d.mesJournees, 0),
+  };
+}
+
+/** Une marche du podium d'une saison close. */
+export interface Medaille {
+  place: number;
+  pseudo: string;
+  points: number;
+  journees: number;
+  moi: boolean;
+}
+
+export interface TropheeJeu {
+  jeu: PorteeCumul;
+  /** L'effectif de la saison, figé avec elle : « 3ᵉ sur 4 » ≠ « 3ᵉ sur 400 ». */
+  joueurs: number;
+  /** Vide sous le plancher de médailles : la saison existe, rien n'a été décerné. */
+  podium: Medaille[];
+  /** Ma ligne de cette saison, même hors du podium. */
+  moi: { place: number; points: number; journees: number } | null;
+}
+
+export interface SaisonClose {
+  saison: string;
+  jeux: TropheeJeu[];
+}
+
+export interface Trophees {
+  minimumMedailles: number;
+  saisons: SaisonClose[];
+}
+
+/**
+ * LA SALLE DES TROPHÉES — les saisons closes, la plus récente d'abord.
+ *
+ * ⚠️ ELLE SE LIT SANS COMPTE. C'est en voyant qu'il y a du monde derrière qu'on
+ * a envie d'y entrer ; une salle fermée à qui n'a pas de compte n'en donne
+ * aucune raison.
+ */
+export async function trophees(saisons = 6): Promise<Trophees | null> {
+  const supabase = createClient();
+  const { data, error } = await supabase.rpc("scrutin_jeux_trophees", { p_saisons: saisons });
+  if (error) return null;
+  const d = data as Record<string, unknown> | null;
+  if (!d || d.status !== "ok" || !Array.isArray(d.saisons)) return null;
+  const saisonsLues = (d.saisons as Record<string, unknown>[])
+    .map((s): SaisonClose | null => {
+      if (typeof s.saison !== "string" || !Array.isArray(s.jeux)) return null;
+      const jeux = (s.jeux as Record<string, unknown>[])
+        .map((g): TropheeJeu | null => {
+          if (g.jeu !== "banalo" && g.jeu !== "pays" && g.jeu !== "tout") return null;
+          const podiumBrut = Array.isArray(g.podium) ? (g.podium as Record<string, unknown>[]) : [];
+          const m = g.moi as Record<string, unknown> | null;
+          return {
+            jeu: g.jeu,
+            joueurs: nombre(g.joueurs, 0),
+            podium: podiumBrut
+              .map((p): Medaille | null =>
+                typeof p.pseudo === "string" && typeof p.place === "number"
+                  ? {
+                      place: p.place,
+                      pseudo: p.pseudo,
+                      points: nombre(p.points, 0),
+                      journees: nombre(p.journees, 0),
+                      moi: p.moi === true,
+                    }
+                  : null,
+              )
+              .filter((p): p is Medaille => p !== null),
+            moi:
+              m && typeof m.place === "number"
+                ? { place: m.place, points: nombre(m.points, 0), journees: nombre(m.journees, 0) }
+                : null,
+          };
+        })
+        .filter((g): g is TropheeJeu => g !== null);
+      return { saison: s.saison, jeux };
+    })
+    .filter((s): s is SaisonClose => s !== null);
+  return { minimumMedailles: nombre(d.minimumMedailles, 5), saisons: saisonsLues };
+}
