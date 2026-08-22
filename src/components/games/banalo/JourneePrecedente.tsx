@@ -44,10 +44,10 @@
 // n'apporte rien : c'est un reproche à quelqu'un qui vient justement de revenir.
 // Le silence est le bon défaut ; la série, elle, est déjà comptée ailleurs
 // (`scrutin_banalo_serie`).
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { UNANIMO_SKIN as skin } from "@/lib/games/skin";
-import { GCard, GLabel } from "@/components/games/ui";
+import { GBtn, GCard, GLabel } from "@/components/games/ui";
 import { UNITES, enLangue } from "@/content/banalo/questions";
 import { cleTheme } from "@/content/banalo/mots";
 import { themeLabel } from "@/lib/games/banalo/themes";
@@ -62,6 +62,7 @@ import {
   type EtatBanalo,
   type EtatMots,
 } from "@/lib/db/banalo";
+import Modale from "@/components/games/Modale";
 import RepartitionDuJour from "./RepartitionDuJour";
 import ConcentrationDuJour from "./ConcentrationDuJour";
 import CourbeDesScores from "./CourbeDesScores";
@@ -96,6 +97,8 @@ export default function JourneePrecedente({ jour }: { jour: number }) {
     [precedente],
   );
 
+  /** Le tiroir du détail. Fermé au départ : rien ne s'ouvre tout seul. */
+  const [ouvert, setOuvert] = useState(false);
   const [nombre, setNombre] = useState<EtatBanalo | null>(null);
   const [mots, setMots] = useState<EtatMots | null>(null);
 
@@ -208,114 +211,154 @@ export default function JourneePrecedente({ jour }: { jour: number }) {
     </p>
   );
 
+  // ⚠️ LE DÉTAIL EST DANS UN TIROIR, PLUS DANS LA PAGE — et c'est une mesure
+  // d'écran. L'après-partie faisait 2 551 px, trois écrans de téléphone, sept
+  // cartes ; celle-ci en pesait 353 pour un résultat qu'on ne relit pas tous les
+  // jours. Le résumé (le sujet, le score, la mention « close ») reste à demeure ;
+  // la grille arrêtée, la médiane, l'écart et les deux bandes s'ouvrent à la
+  // demande.
+  //
+  // ⚠️ ET C'EST LE JOUEUR QUI L'OUVRE, ce qui n'est pas la même chose qu'une
+  // modale qui surgit. `Modale` porte le comportement ; la règle « une fois par
+  // aide et par partie » appartient à Cinq sur cinq, dont les aides
+  // apparaissaient en silence. Ici rien ne s'ouvre tout seul.
+  const tiroir = (sujet: ReactNode, detail: ReactNode) => (
+    <div style={{ marginTop: 20 }}>
+      <GCard skin={skin} padding={15}>
+        {chapeau}
+        {sujet}
+        {score}
+        {arrete}
+        <div style={{ marginTop: 12 }}>
+          <GBtn skin={skin} variant="ghost" onClick={() => setOuvert(true)}>
+            {t("detailBouton")}
+          </GBtn>
+        </div>
+      </GCard>
+      {/* ⚠️ LE TIROIR NE REPREND PAS « cette journée est close » : la phrase
+          reste dans le RÉSUMÉ, qui est ce que tout le monde voit sans rien
+          ouvrir — c'est elle qui répond à « est-ce qu'on est prévenu une fois la
+          journée terminée ? ». Le tiroir porte le NUMÉRO, parce qu'il couvre la
+          page et doit donc tenir tout seul : il ne peut pas compter sur ce
+          qu'il cache. */}
+      {ouvert ? (
+        <Modale
+          skin={skin}
+          titre={t("derniereTitre")}
+          texte={t("numero", { n: precedente })}
+          fermer={() => setOuvert(false)}
+          fermerLabel={t("qrFermer")}
+        >
+          {detail}
+        </Modale>
+      ) : null}
+    </div>
+  );
+
   if (prog.type === "mots") {
     // LA GRILLE ARRÊTÉE. ⚠️ ELLE A CHANGÉ DE MÉTIER LE JOUR OÙ LES PARTS ONT
     // CESSÉ D'ÊTRE SCELLÉES : ce n'est plus ici qu'on APPREND ce que la foule
-    // partageait — la grille du jour le dit maintenant dès le dépôt — c'est ici
-    // qu'on le lit ARRÊTÉ. Un joueur qui répond à 11 h 35 voit des parts
-    // calculées sur trente personnes ; le lendemain, les mêmes mots portent le
-    // chiffre de toute la journée, et son score n'est plus provisoire. C'est
-    // exactement ce que le format chiffré fait avec sa médiane.
-    //
-    // Le filtre sur `part !== null` reste : la base peut encore ne pas la
-    // rendre (aucun votant), et une ligne sans chiffre n'a rien à faire ici.
+    // partageait — la grille du jour le dit dès le dépôt — c'est ici qu'on le
+    // lit ARRÊTÉ. Le filtre sur `part !== null` reste : la base peut encore ne
+    // pas la rendre, et une ligne sans chiffre n'a rien à faire ici.
     const grille = (mots?.grille ?? []).filter((c): c is typeof c & { part: number } => c.part !== null);
-    return (
-      <div style={{ marginTop: 20 }}>
-        <GCard skin={skin} padding={18}>
-          {chapeau}
-          <p style={{ margin: "8px 0 0", fontFamily: skin.fontDisplay, fontWeight: 800, fontSize: 18 }}>
-            <span aria-hidden style={{ marginRight: 6 }}>
-              {prog.theme.emoji}
-            </span>
-            {themeLabel(prog.theme, locale)}
-          </p>
-          {grille.length > 0 ? (
-            <div style={{ display: "grid", gap: 6, margin: "12px 0 0" }}>
-              {grille.map((c, i) => (
-                <div
-                  key={`${c.mot}-${i}`}
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    gap: 12,
-                    alignItems: "baseline",
-                    opacity: c.joueurs === 1 ? 0.55 : 1,
-                  }}
-                >
-                  <span style={{ fontFamily: skin.fontDisplay, fontWeight: 800, fontSize: 15 }}>{c.mot}</span>
-                  {/* Les mêmes chiffres que sur l'écran du jour, arrêtés — et la
-                      même règle : un mot que personne d'autre n'a écrit ne
-                      rapporte rien, donc il le dit au lieu d'afficher « 1 ». */}
-                  <span style={{ display: "flex", gap: 7, alignItems: "baseline", flex: "none" }}>
-                    {c.joueurs === 1 ? (
-                      <span style={{ fontSize: 12, fontWeight: 700, color: skin.muted }}>
-                        {t("motsSeul")}
-                      </span>
-                    ) : (
-                      <>
-                        {c.joueurs !== null ? (
-                          <span
-                            style={{
-                              fontFamily: skin.fontDisplay,
-                              fontSize: 13.5,
-                              fontWeight: 800,
-                              fontVariantNumeric: "tabular-nums",
-                              color: teinteDe(c.part),
-                            }}
-                          >
-                            {t("motsJoueurs", { n: c.joueurs })}
+    return tiroir(
+      <p style={{ margin: "8px 0 0", fontFamily: skin.fontDisplay, fontWeight: 800, fontSize: 17 }}>
+        <span aria-hidden style={{ marginRight: 6 }}>
+          {prog.theme.emoji}
+        </span>
+        {themeLabel(prog.theme, locale)}
+      </p>,
+      <>
+              <p style={{ margin: "8px 0 0", fontFamily: skin.fontDisplay, fontWeight: 800, fontSize: 18 }}>
+                <span aria-hidden style={{ marginRight: 6 }}>
+                  {prog.theme.emoji}
+                </span>
+                {themeLabel(prog.theme, locale)}
+              </p>
+              {grille.length > 0 ? (
+                <div style={{ display: "grid", gap: 6, margin: "12px 0 0" }}>
+                  {grille.map((c, i) => (
+                    <div
+                      key={`${c.mot}-${i}`}
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        gap: 12,
+                        alignItems: "baseline",
+                        opacity: c.joueurs === 1 ? 0.55 : 1,
+                      }}
+                    >
+                      <span style={{ fontFamily: skin.fontDisplay, fontWeight: 800, fontSize: 15 }}>{c.mot}</span>
+                      {/* Les mêmes chiffres que sur l'écran du jour, arrêtés — et la
+                          même règle : un mot que personne d'autre n'a écrit ne
+                          rapporte rien, donc il le dit au lieu d'afficher « 1 ». */}
+                      <span style={{ display: "flex", gap: 7, alignItems: "baseline", flex: "none" }}>
+                        {c.joueurs === 1 ? (
+                          <span style={{ fontSize: 12, fontWeight: 700, color: skin.muted }}>
+                            {t("motsSeul")}
                           </span>
-                        ) : null}
-                        <span
-                          style={{
-                            fontSize: 12,
-                            fontWeight: 700,
-                            color: skin.muted,
-                            fontVariantNumeric: "tabular-nums",
-                          }}
-                        >
-                          {t("motsPart", { p: part.format(c.part) })}
-                        </span>
-                      </>
-                    )}
-                  </span>
+                        ) : (
+                          <>
+                            {c.joueurs !== null ? (
+                              <span
+                                style={{
+                                  fontFamily: skin.fontDisplay,
+                                  fontSize: 13.5,
+                                  fontWeight: 800,
+                                  fontVariantNumeric: "tabular-nums",
+                                  color: teinteDe(c.part),
+                                }}
+                              >
+                                {t("motsJoueurs", { n: c.joueurs })}
+                              </span>
+                            ) : null}
+                            <span
+                              style={{
+                                fontSize: 12,
+                                fontWeight: 700,
+                                color: skin.muted,
+                                fontVariantNumeric: "tabular-nums",
+                              }}
+                            >
+                              {t("motsPart", { p: part.format(c.part) })}
+                            </span>
+                          </>
+                        )}
+                      </span>
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
-          ) : null}
-          {score}
-          {arrete}
-          {/* LA COURBE DES SCORES, juste sous le chiffre qu'elle situe. ⚠️ ELLE
-              N'EXISTE QUE SUR LA JOURNÉE ARRÊTÉE, et c'est la raison d'être de
-              cet écran : en journée ouverte les sommes gonflent d'heure en
-              heure, donc deux lectures du même dépôt donneraient deux images.
-              Ici la foule est complète et le dessin ne bouge plus.
+              ) : null}
+              {/* LA COURBE DES SCORES, juste sous le chiffre qu'elle situe. ⚠️ ELLE
+                  N'EXISTE QUE SUR LA JOURNÉE ARRÊTÉE, et c'est la raison d'être de
+                  cet écran : en journée ouverte les sommes gonflent d'heure en
+                  heure, donc deux lectures du même dépôt donneraient deux images.
+                  Ici la foule est complète et le dessin ne bouge plus.
 
-              ⚠️ ET SEULEMENT AU-DELÀ DE `COURBE_MIN`, QUI N'EST PAS `assez`. La
-              première version se gardait sur `assez` (cinq votants) tout en
-              écrivant qu'à six votants « un dessin grossier ment » : elle se
-              contredisait elle-même. Un centile grossier reste VRAI ; un
-              histogramme grossier dessine une forme là où il n'y a que du bruit.
-              Ce plancher-là n'est donc pas un plancher sur le résultat du joueur
-              — celui-là est tombé le 22/08 et ne revient pas — c'est un plancher
-              sur ce qu'un DESSIN peut honnêtement porter.
+                  ⚠️ ET SEULEMENT AU-DELÀ DE `COURBE_MIN`, QUI N'EST PAS `assez`. La
+                  première version se gardait sur `assez` (cinq votants) tout en
+                  écrivant qu'à six votants « un dessin grossier ment » : elle se
+                  contredisait elle-même. Un centile grossier reste VRAI ; un
+                  histogramme grossier dessine une forme là où il n'y a que du bruit.
+                  Ce plancher-là n'est donc pas un plancher sur le résultat du joueur
+                  — celui-là est tombé le 22/08 et ne revient pas — c'est un plancher
+                  sur ce qu'un DESSIN peut honnêtement porter.
 
-              ⚠️ Et `seaux.length > 1` écarte le cas dégénéré : quand tout le
-              monde a le même score, la base rend UNE barre, et l'écran
-              dessinerait un bandeau plein largeur sous un axe imprimant deux
-              fois le même nombre. Ça se lit comme une panne, pas comme une
-              information. */}
-          {mots?.courbe && mots.votants >= COURBE_MIN && mots.courbe.seaux.length > 1 ? (
-            <CourbeDesScores courbe={mots.courbe} votants={mots.votants} />
-          ) : null}
-          {/* LA FORME DE LA JOURNÉE — le pendant, pour les mots, de la bande de
-              répartition des nombres. Elle vient APRÈS le score et après la
-              grille : le chiffre du joueur d'abord, le paysage ensuite. La
-              courbe distribue des JOUEURS, celle-ci distribue des MOTS. */}
-          {mots?.concentration ? <ConcentrationDuJour conc={mots.concentration} /> : null}
-        </GCard>
-      </div>
+                  ⚠️ Et `seaux.length > 1` écarte le cas dégénéré : quand tout le
+                  monde a le même score, la base rend UNE barre, et l'écran
+                  dessinerait un bandeau plein largeur sous un axe imprimant deux
+                  fois le même nombre. Ça se lit comme une panne, pas comme une
+                  information. */}
+              {mots?.courbe && mots.votants >= COURBE_MIN && mots.courbe.seaux.length > 1 ? (
+                <CourbeDesScores courbe={mots.courbe} votants={mots.votants} />
+              ) : null}
+              {/* LA FORME DE LA JOURNÉE — le pendant, pour les mots, de la bande de
+                  répartition des nombres. Elle vient APRÈS le score et après la
+                  grille : le chiffre du joueur d'abord, le paysage ensuite. La
+                  courbe distribue des JOUEURS, celle-ci distribue des MOTS. */}
+              {mots?.concentration ? <ConcentrationDuJour conc={mots.concentration} /> : null}
+      </>,
     );
   }
 
@@ -328,63 +371,61 @@ export default function JourneePrecedente({ jour }: { jour: number }) {
   const unite = enLangue(UNITES[prog.question.unite], locale);
   const ecart = e.facteur === null ? null : e.facteur < 10 ? ecartFin.format(e.facteur) : ecartGros.format(e.facteur);
 
-  return (
-    <div style={{ marginTop: 20 }}>
-      <GCard skin={skin} padding={18}>
-        {chapeau}
-        <p style={{ margin: "8px 0 0", fontSize: 13.5, color: skin.muted, lineHeight: 1.4 }}>
-          {enLangue(prog.question.texte, locale)}
-        </p>
-        {/* LA RÉVÉLATION. C'est le seul endroit du jeu où ce nombre s'affiche —
-            il porte donc la taille du chiffre qu'on est venu chercher. */}
-        <p
-          style={{
-            fontFamily: skin.fontDisplay,
-            fontWeight: 800,
-            fontSize: 30,
-            lineHeight: 1.1,
-            margin: "10px 0 0",
-            fontVariantNumeric: "tabular-nums",
-          }}
-        >
-          {format.format(e.mediane)}{" "}
-          <span style={{ fontSize: 14, fontWeight: 700, color: skin.muted }}>{unite}</span>
-        </p>
-        <p style={{ margin: "2px 0 0", fontSize: 12.5, color: skin.muted }}>
-          {t("precedenteFoule", { n: e.votants })}
-        </p>
-        {/* ⚠️ LES CHIFFRES PRENNENT LA POLICE DE TITRE, ET C'EST UNE CORRECTION
-            VUE À L'ÉCRAN. `Intl` groupe les milliers avec une espace fine
-            insécable ; à 13,5 px dans la police de texte elle disparaît, et
-            « 900 000 » se lit « 900000 » — un blob de six chiffres qu'on ne
-            compare plus à la médiane juste au-dessus. La police de titre en
-            gras rouvre l'espace. Même raison que le composant `Ligne` de
-            l'écran du jour, qui met déjà toutes ses valeurs en display.
-            L'unité, elle, ne se répète pas : elle est écrite deux lignes plus
-            haut, sur le même nombre. */}
-        <p style={{ margin: "12px 0 0", fontSize: 13.5, color: skin.muted }}>
-          {t("mienne")} :{" "}
-          <strong
-            style={{
-              fontFamily: skin.fontDisplay,
-              fontWeight: 800,
-              fontSize: 15,
-              color: skin.ink,
-              fontVariantNumeric: "tabular-nums",
-            }}
-          >
-            {format.format(e.mienne)}
-          </strong>
-          {ecart !== null ? ` · ${t("facteur", { f: ecart })}` : ""}
-        </p>
-        {score}
-        {arrete}
-        {/* LA BANDE. Elle vient APRÈS le score : le chiffre du joueur d'abord,
-            le paysage ensuite. Elle se tait si la base ne l'a pas rendue — une
-            journée trop maigre pour valoir un histogramme, ou une horloge qui
-            ne la déclare pas encore close. */}
-        {e.repartition ? <RepartitionDuJour rep={e.repartition} votants={e.votants} /> : null}
-      </GCard>
-    </div>
+  return tiroir(
+    <p style={{ margin: "8px 0 0", fontSize: 13.5, color: skin.muted, lineHeight: 1.4 }}>
+      {enLangue(prog.question.texte, locale)}
+    </p>,
+    <>
+            <p style={{ margin: "8px 0 0", fontSize: 13.5, color: skin.muted, lineHeight: 1.4 }}>
+              {enLangue(prog.question.texte, locale)}
+            </p>
+            {/* LA RÉVÉLATION. C'est le seul endroit du jeu où ce nombre s'affiche —
+                il porte donc la taille du chiffre qu'on est venu chercher. */}
+            <p
+              style={{
+                fontFamily: skin.fontDisplay,
+                fontWeight: 800,
+                fontSize: 30,
+                lineHeight: 1.1,
+                margin: "10px 0 0",
+                fontVariantNumeric: "tabular-nums",
+              }}
+            >
+              {format.format(e.mediane)}{" "}
+              <span style={{ fontSize: 14, fontWeight: 700, color: skin.muted }}>{unite}</span>
+            </p>
+            <p style={{ margin: "2px 0 0", fontSize: 12.5, color: skin.muted }}>
+              {t("precedenteFoule", { n: e.votants })}
+            </p>
+            {/* ⚠️ LES CHIFFRES PRENNENT LA POLICE DE TITRE, ET C'EST UNE CORRECTION
+                VUE À L'ÉCRAN. `Intl` groupe les milliers avec une espace fine
+                insécable ; à 13,5 px dans la police de texte elle disparaît, et
+                « 900 000 » se lit « 900000 » — un blob de six chiffres qu'on ne
+                compare plus à la médiane juste au-dessus. La police de titre en
+                gras rouvre l'espace. Même raison que le composant `Ligne` de
+                l'écran du jour, qui met déjà toutes ses valeurs en display.
+                L'unité, elle, ne se répète pas : elle est écrite deux lignes plus
+                haut, sur le même nombre. */}
+            <p style={{ margin: "12px 0 0", fontSize: 13.5, color: skin.muted }}>
+              {t("mienne")} :{" "}
+              <strong
+                style={{
+                  fontFamily: skin.fontDisplay,
+                  fontWeight: 800,
+                  fontSize: 15,
+                  color: skin.ink,
+                  fontVariantNumeric: "tabular-nums",
+                }}
+              >
+                {format.format(e.mienne)}
+              </strong>
+              {ecart !== null ? ` · ${t("facteur", { f: ecart })}` : ""}
+            </p>
+            {/* LA BANDE. Elle vient APRÈS le score : le chiffre du joueur d'abord,
+                le paysage ensuite. Elle se tait si la base ne l'a pas rendue — une
+                journée trop maigre pour valoir un histogramme, ou une horloge qui
+                ne la déclare pas encore close. */}
+            {e.repartition ? <RepartitionDuJour rep={e.repartition} votants={e.votants} /> : null}
+    </>,
   );
 }

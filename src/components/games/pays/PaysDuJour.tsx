@@ -35,7 +35,7 @@ import { lienDefi, litDefi, type Defi } from "@/lib/games/comparaison";
 import InstallJeu from "@/components/games/InstallJeu";
 import Recherche from "./Recherche";
 import Revelation from "./Revelation";
-import AideModale from "./AideModale";
+import AideModale from "@/components/games/Modale";
 
 interface Sauvegarde {
   essais: Essai[];

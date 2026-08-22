@@ -977,11 +977,20 @@ contrôle de parité ne voyant que `messages/*.json`, ce sont les **tests** de
 le signalement, indispensable seulement dans cette forme-là : il n'existe pas
 encore, et la prise pour agir est le compte exigé derrière le texte libre.
 
-**LA TABLÉE est en prod** (`MaTablee.tsx`, `RejoindrePage.tsx`,
+**LE GROUPE D'AMIS est en prod** (`MaTablee.tsx`, `RejoindrePage.tsx`,
 `20260824-banalo-tablee.sql`) — la couche sociale, **sans graphe d'amis**. On
-n'est pas ami AVEC quelqu'un, on est DANS une tablée : on rejoint par lien, on
+n'est pas ami AVEC quelqu'un, on est DANS un groupe : on rejoint par lien, on
 voit qui a joué aujourd'hui, et il n'y a ni demande, ni acceptation, ni blocage,
 ni annuaire.
+
+⚠️ **LE MOT VISIBLE EST « GROUPE », LES IDENTIFIANTS DISENT « tablée ».** Le
+produit s'est appelé tablée pendant une journée. Les tables, les fonctions
+`scrutin_banalo_tablee_*`, les composants et les clés i18n gardent ce nom — même
+règle que `scrutin_game_unanimo_*` après le passage à Banalo : ce sont des
+identifiants, et les migrations appliquées ne se réécrivent pas. **L'URL, elle, a
+bougé** (`/games/banalo-jour/groupe/[code]`) parce qu'elle est visible et qu'il y
+avait zéro groupe en base au moment du changement — donc aucun lien partagé à
+casser. Le jour où il y en aura, ce ne sera plus gratuit.
 
 ⚠️ **C'EST CE QUI ÉVITE LES CINQ COÛTS DU §5** : le nom vit dans la TABLÉE et
 meurt avec elle, exactement comme le nom du tableau vit dans la JOURNÉE. Les
@@ -1028,6 +1037,29 @@ trente jours » — sans écrire une cinquième copie du 30.
 `noindex`, et elle ne montre RIEN de la tablée avant d'y être entré — ni les
 membres, ni leur nombre. Un lien qui circule ne doit pas exposer un groupe à qui
 le trouve.
+
+⚠️ **DEUX CHOSES SONT PARTIES DANS DES TIROIRS, ET C'EST DE LA PLACE MESURÉE.**
+Le détail de la dernière journée (353 px pour un résultat qu'on ne relit pas tous
+les jours) et le formulaire de création d'un groupe (~200 px pour une demande
+qu'on accepte une fois dans sa vie) s'ouvrent maintenant à la demande. L'écran
+d'après-partie passe de **2 551 à 2 195 px** sans groupe, 2 429 avec.
+
+⚠️ **UNE MODALE QUE LE JOUEUR OUVRE N'EST PAS UNE MODALE QUI SURGIT.** La règle
+« une fois par aide et par partie » appartient à Cinq sur cinq, dont les aides
+apparaissaient EN SILENCE ; elle ne s'applique pas à un tiroir. `Modale` (sortie
+de `games/pays/` vers `games/`) porte le comportement, chaque appelant porte sa
+politique.
+
+⚠️ **ET « FERMER » S'EFFACE QUAND LE TIROIR PORTE UNE ACTION** (`fermerDiscret`).
+Le composant venait d'un écran où fermer était le SEUL geste : son bouton était
+plein, grand, pleine largeur. Dans le tiroir de création, il devenait le bouton
+le plus fort de la boîte et l'œil allait vers la sortie plutôt que vers ce qu'on
+était venu faire. Vu à l'écran.
+
+⚠️ **LE RÉSUMÉ DE LA VEILLE GARDE « cette journée est close », LE TIROIR NON.**
+C'est cette phrase qui tient lieu de notification : elle doit se lire sans rien
+ouvrir. Le tiroir, lui, porte le NUMÉRO de la journée — il couvre la page, donc
+il ne peut pas compter sur ce qu'il cache.
 
 ⚠️ **L'ORDRE DE L'APRÈS-PARTIE EST MESURÉ, PAS CHOISI.** Posées au-dessus du
 partage, les deux listes le repoussaient à **1 465 px** — 1,7 écran de

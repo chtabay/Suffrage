@@ -28,7 +28,8 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { useAuth } from "@/lib/auth/useAuth";
 import { UNANIMO_SKIN as skin } from "@/lib/games/skin";
-import { GBtn, GCard, GLabel } from "@/components/games/ui";
+import { GBtn, GCard } from "@/components/games/ui";
+import Modale from "@/components/games/Modale";
 import { monJeton } from "@/lib/games/banalo/jeton";
 import { nomDe } from "@/content/banalo/noms";
 import { QR_URL } from "@/content/banalo/qr";
@@ -43,8 +44,17 @@ import {
 
 const bcp = (locale: string) => (locale === "pcm" ? "en" : locale);
 
-/** Le lien d'une tablée, construit sur l'URL GRAVÉE du jeu. */
-export const lienTablee = (code: string) => `${QR_URL}/tablee/${code}`;
+/**
+ * Le lien d'un groupe, construit sur l'URL GRAVÉE du jeu.
+ *
+ * ⚠️ LE MOT VISIBLE EST « GROUPE », LES IDENTIFIANTS RESTENT « tablée ». Le
+ * produit dit groupe d'amis ; les tables, les fonctions et les clés i18n gardent
+ * leur nom, comme `scrutin_game_unanimo_*` l'a gardé après le passage à Banalo —
+ * ce sont des identifiants, et les migrations appliquées ne se réécrivent pas.
+ * L'URL, elle, a bougé : elle est visible, et aucun lien n'avait encore été
+ * partagé (zéro groupe en base au moment du changement).
+ */
+export const lienTablee = (code: string) => `${QR_URL}/groupe/${code}`;
 
 export default function MaTablee({
   jour,
@@ -76,6 +86,8 @@ export default function MaTablee({
   const [nom, setNom] = useState<EtatNom>(NOM_VIERGE);
   const [envoi, setEnvoi] = useState(false);
   const [souci, setSouci] = useState<"trop" | "panne" | null>(null);
+  /** Le tiroir de création. Fermé au départ : rien ne s'ouvre tout seul. */
+  const [creation, setCreation] = useState(false);
   const [copie, setCopie] = useState(false);
 
   const relis = useCallback(async () => {
@@ -131,6 +143,7 @@ export default function MaTablee({
     const r = await creerTablee(jeton, choix);
     setEnvoi(false);
     if (r.status === "ok") {
+      setCreation(false);
       const ts = await relis();
       if (ts) setTablees(ts);
       void partage(r.code);
@@ -257,60 +270,58 @@ export default function MaTablee({
   // une demande ignorée coûte la crédibilité des suivantes.
   if (!ancien || bloque) return null;
 
-  // ⚠️ L'OFFRE EST DISCRÈTE, ET C'EST LA RÈGLE D'`InviterBanalo` REPRISE TELLE
-  // QUELLE. Vu à l'écran : en carte à l'accent, elle se retrouvait empilée avec
-  // l'offre de compte, elle aussi à l'accent — deux demandes qui crient pareil,
-  // c'est-à-dire exactement ce que §0 appelle se cannibaliser. `InviterBanalo`
-  // avait déjà tranché pour son bouton : même forme, même famille, mais `ghost`
-  // et pas `accent`, parce qu'il cohabite avec une demande plus forte. Le bloc
-  // du compte garde donc l'accent — il l'a reçu après un retour de vrais joueurs
-  // qui le trouvaient trop discret, et on ne le lui reprend pas.
+  // ⚠️ L'OFFRE TIENT EN UN BOUTON, PLUS EN UNE CARTE. Mesuré : la carte pesait
+  // ~200 px sur un écran d'après-partie qui en fait déjà 2 500, pour une demande
+  // qu'un joueur n'accepte qu'une fois dans sa vie. Le formulaire de nom part
+  // dans un tiroir qu'on ouvre ; ce qui reste dans la page est une ligne.
   //
-  // ⚠️ Si la mesure montre un jour que personne ne crée de tablée, c'est LÀ que
-  // ça se corrige — en la promouvant dans l'échelle du §0, sur des chiffres, pas
-  // en lui redonnant l'accent au jugé.
+  // ⚠️ ET LE BOUTON EST `ghost`, PAS `accent` — la règle d'`InviterBanalo`. Il
+  // cohabite avec l'offre de compte, qui porte l'accent depuis qu'un retour de
+  // vrais joueurs l'a trouvée trop discrète ; deux demandes qui crient pareil se
+  // cannibalisent (§0).
   return (
-    <GCard skin={skin} padding={18}>
-      <p
-        style={{
-          fontFamily: skin.fontDisplay,
-          fontWeight: 800,
-          fontSize: 18,
-          lineHeight: 1.25,
-          margin: 0,
-          textWrap: "balance",
-        }}
-      >
-        {t("tablee.creerTitre")}
-      </p>
-      <p style={{ margin: "7px 0 0", fontSize: 14, lineHeight: 1.5, color: skin.muted, maxWidth: "46ch" }}>
-        {t("tablee.creerTexte")}
-      </p>
-      <ChoisirSonNom
-        jeton={monJeton()}
-        portee="tablee"
-        connecte={Boolean(user)}
-        etat={nom}
-        setEtat={(e) => {
-          setNom(e);
-          setSouci(null);
-        }}
-      />
-      {souci ? (
-        <p style={{ margin: "10px 0 0", fontSize: 13, fontWeight: 700, color: skin.ink }}>
-          {souci === "trop" ? t("tablee.trop") : t("tableau.panne")}
-        </p>
+    <>
+      <div style={{ marginTop: 12 }}>
+        <GBtn skin={skin} variant="ghost" onClick={() => setCreation(true)}>
+          {t("tablee.creerBouton")}
+        </GBtn>
+      </div>
+      {creation ? (
+        <Modale
+          skin={skin}
+          titre={t("tablee.creerTitre")}
+          texte={t("tablee.creerTexte")}
+          fermer={() => setCreation(false)}
+          fermerLabel={t("qrFermer")}
+          fermerDiscret
+        >
+          <ChoisirSonNom
+            jeton={monJeton()}
+            connecte={Boolean(user)}
+            portee="tablee"
+            etat={nom}
+            setEtat={(e) => {
+              setNom(e);
+              setSouci(null);
+            }}
+          />
+          {souci ? (
+            <p role="alert" style={{ margin: "10px 0 0", fontSize: 13, fontWeight: 700, color: skin.ink }}>
+              {souci === "trop" ? t("tablee.trop") : t("tableau.panne")}
+            </p>
+          ) : null}
+          <GBtn
+            skin={skin}
+            variant="accent"
+            full
+            style={{ marginTop: 12 }}
+            disabled={choixDeNom(nom) === null || envoi}
+            onClick={() => void cree()}
+          >
+            {t("tablee.creerBouton")}
+          </GBtn>
+        </Modale>
       ) : null}
-      <GBtn
-        skin={skin}
-        variant="ghost"
-        full
-        style={{ marginTop: 12 }}
-        disabled={choixDeNom(nom) === null || envoi}
-        onClick={() => void cree()}
-      >
-        {t("tablee.creerBouton")}
-      </GBtn>
-    </GCard>
+    </>
   );
 }

@@ -1,22 +1,21 @@
 "use client";
 
-// L'ANNONCE D'UNE AIDE QUI VIENT DE S'OUVRIR.
+// UNE MODALE POUR LES JEUX — le comportement, pas la politique.
 //
-// ⚠️ POURQUOI UNE MODALE, ALORS QU'ON EN MET NULLE PART AILLEURS. Les deux
-// aides du jeu apparaissaient EN SILENCE : une rangée d'étiquettes se posait
-// au-dessus d'une liste de quarante lignes, en gris, 12,5 px. Un joueur qui
-// vient de taper son quinzième pays regarde sa pastille de score, pas le haut de
-// l'historique — et il n'a aucune raison de soupçonner que l'écran vient de
-// changer. L'aide était donc là et n'aidait personne.
+// ⚠️ ELLE A ÉTÉ ÉCRITE POUR CINQ SUR CINQ ET ELLE SERT MAINTENANT AUX DEUX, d'où
+// son déplacement ici. Ce qu'elle porte est le COMPORTEMENT : Échap, le clic sur
+// le fond, la croix et le bouton ferment tous ; le focus entre dans la boîte ;
+// elle ne bloque rien.
 //
-// Une modale est le seul objet qui garantit d'être vu, et c'est acceptable ici
-// pour une raison précise : elle ne s'ouvre QU'UNE FOIS PAR AIDE ET PAR PARTIE.
-// Ce n'est pas une interruption récurrente, c'est un palier franchi — deux fois
-// dans une partie longue, jamais dans une partie courte.
-//
-// ⚠️ ELLE NE BLOQUE RIEN. Échap, le fond, la croix et le bouton la ferment tous ;
-// ce qu'elle montre reste ensuite affiché à demeure dans la page. Elle ne
-// remplace pas l'aide, elle la présente.
+// ⚠️ LA RÈGLE SUR L'USAGE, ELLE, APPARTIENT À CHAQUE APPELANT, et elle n'est pas
+// la même selon qui ouvre. Une modale qui s'ouvre TOUTE SEULE est une
+// interruption : Cinq sur cinq ne s'y autorise qu'une fois par aide et par
+// partie, parce que ses deux aides apparaissaient sinon EN SILENCE — une rangée
+// d'étiquettes en gris 12,5 px au-dessus de quarante lignes, que personne ne
+// regardait. Une modale que le JOUEUR ouvre, elle, n'interrompt rien : c'est un
+// tiroir, et le seuil est bien plus bas. Banalo s'en sert pour le détail de sa
+// dernière journée et pour la création d'un groupe — deux choses qu'on demande à
+// voir, jamais qu'on subit.
 import { useEffect, useRef, type ReactNode } from "react";
 import type { GameSkin } from "@/lib/games/skin";
 import { GBtn } from "@/components/games/ui";
@@ -27,6 +26,7 @@ export default function AideModale({
   texte,
   fermer,
   fermerLabel,
+  fermerDiscret = false,
   children,
 }: {
   skin: GameSkin;
@@ -34,6 +34,16 @@ export default function AideModale({
   texte: string;
   fermer: () => void;
   fermerLabel: string;
+  /**
+   * Le bouton de fermeture s'efface quand le tiroir porte une VRAIE action.
+   *
+   * ⚠️ VU À L'ÉCRAN. Le composant vient de Cinq sur cinq, où « Fermer » était le
+   * SEUL geste possible : il portait donc le bouton plein, grand, pleine
+   * largeur. Dès qu'un tiroir contient une action — « créer un groupe » — ce
+   * même bouton devient le plus fort de la boîte, et l'œil va vers la sortie
+   * plutôt que vers ce qu'on est venu faire.
+   */
+  fermerDiscret?: boolean;
   children?: ReactNode;
 }) {
   const boite = useRef<HTMLDivElement>(null);
@@ -105,7 +115,13 @@ export default function AideModale({
         <p style={{ margin: "8px 0 0", fontSize: 14, lineHeight: 1.5, color: skin.muted }}>{texte}</p>
         {children ? <div style={{ marginTop: 14 }}>{children}</div> : null}
         <div style={{ marginTop: 18 }}>
-          <GBtn skin={skin} size="lg" full onClick={fermer}>
+          <GBtn
+            skin={skin}
+            variant={fermerDiscret ? "ghost" : "primary"}
+            size={fermerDiscret ? "md" : "lg"}
+            full={!fermerDiscret}
+            onClick={fermer}
+          >
             {fermerLabel}
           </GBtn>
         </div>
