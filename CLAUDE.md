@@ -253,8 +253,8 @@ précisément de revenir.
 ⚠️ **IL REGARDE LA DERNIÈRE JOURNÉE CLOSE QUE CE JOUEUR A JOUÉE, PLUS `jour − 1`
 EN DUR** (`scrutin_banalo_derniere`, `20260824-banalo-derniere-journee.sql`).
 C'est la réponse à « est-ce qu'on est prévenu une fois la journée terminée ? » :
-non — `docs/regularite-des-joueurs.md` §6 a écarté les notifications par écrit —
-donc le jeu GARDE le résultat arrêté et le rend quand le joueur revient, le
+non, il n'y a AUCUNE notification aujourd'hui — donc le jeu GARDE le résultat
+arrêté et le rend quand le joueur revient, le
 lendemain ou trois semaines plus tard. Sur `jour − 1` en dur, celui qui jouait
 lundi et revenait jeudi ne voyait jamais comment lundi s'était terminé, alors que
 c'est **exactement lui** que la question vise : celui qui revient tous les jours
@@ -819,11 +819,16 @@ là.
 compte ; compte → l'installation. `CompteBanalo` arbitre, l'installation lui est
 passée en `children`. Empiler les deux les faisait se cannibaliser, et le bloc du
 compte — signalé trop discret sur de vrais joueurs — porte maintenant l'accent et
-un titre en police de titre. ⚠️ **Les notifications, elles, N'EXISTENT PAS sur
-les jeux quotidiens** : `docs/regularite-des-joueurs.md` §6 les a écartées par
-écrit (la permission ne se demande qu'une fois, un rappel quotidien est du bruit
-pour qui a déjà joué, et la charnière de 11 h 30 n'est pas l'horloge du joueur).
-Il n'y a donc rien à rendre plus visible de ce côté-là.
+un titre en police de titre. ⚠️ **Les notifications, elles, N'EXISTENT PAS
+ENCORE sur les jeux quotidiens**, et il n'y a donc rien à rendre plus visible de
+ce côté-là. ⚠️ **NE PAS RÉPÉTER MON ERREUR : c'est le §7 de
+`docs/regularite-des-joueurs.md` qui a écarté le RAPPEL QUOTIDIEN** (la
+permission ne se demande qu'une fois, un rappel est du bruit pour qui a déjà
+joué, et la charnière de 11 h 30 n'est pas l'horloge du joueur). Le §6, lui, dit
+l'INVERSE de ce que j'ai écrit ici pendant trois commits : il POSE le push, au
+service des amis — « la première notification qu'un joueur reçoit doit être
+*Chloé vient de jouer*, pas un rappel robotique ». L'étude est dans
+`docs/amis-et-notifications.md`.
 
 **L'après-partie des jeux quotidiens n'a QU'UNE place**, et plusieurs chantiers
 la veulent (installation, compte, pont vers Placet, plus tard les amis). Les
@@ -971,6 +976,37 @@ contrôle de parité ne voyant que `messages/*.json`, ce sont les **tests** de
 **Il est PUBLIC, pas borné à un groupe** — arbitré. Ce que ça laisse ouvert est
 le signalement, indispensable seulement dans cette forme-là : il n'existe pas
 encore, et la prise pour agir est le compte exigé derrière le texte libre.
+
+**LES AMIS ET LES NOTIFICATIONS SONT ÉTUDIÉS, RIEN N'EST DÉCIDÉ**
+(`docs/amis-et-notifications.md`, 2026-08-22). Trois conclusions à ne pas
+redécouvrir :
+
+⚠️ **Le coût que le §5 a refusé de payer vient de l'IDENTITÉ PERMANENTE et de
+l'ANNUAIRE, pas du lien social lui-même.** Or le tableau du jour vient de résoudre
+les deux : le nom vit dans la JOURNÉE, pas sur la personne. Une « tablée » qu'on
+rejoint par lien, avec un nom qui vit dans la tablée et meurt avec sa purge,
+n'ajoute donc aucun des cinq coûts — là où un vrai graphe d'amis les ajoute tous.
+NYT Games, le comparable le plus proche, s'ajoute d'ailleurs par **lien
+d'invitation à code**, pas par pseudo cherchable.
+
+⚠️ **Les espaces de Placet ne conviennent pas, et ce n'est pas une question de
+forme** : un espace sert à CONVOQUER (donc il porte un email et un animateur), une
+tablée sert à REGARDER. Réutiliser les espaces ferait entrer un email là où le jeu
+n'en demande aucun, sur une surface qui déclare une tranche d'âge « enfant ».
+
+⚠️ **Le push EXISTE DÉJÀ en production** — `web-push`, VAPID,
+`/api/notify/subscribe`, `scrutin_push_subscriptions` (qui porte déjà `user_id`),
+`/sw.js` — avec deux abonnements réels depuis juillet 2026, côté scrutins. Ce qui
+manque est le déclencheur et la décision, pas la plomberie. ⚠️ Mais **sur iOS le
+push web n'existe que pour une PWA installée à l'écran d'accueil** : notifier un
+iPhone suppose donc d'avoir fait installer le jeu, ce qui change le rang de
+`InstallJeu` dans l'échelle du §0. Une application des magasins n'est PAS
+nécessaire, et elle serait un mur devant un lien — or tout circule ici par lien.
+
+⚠️ **Et il n'y a pas encore de foule** : 11 jetons sur les mots, 7 sur le chiffré,
+3 comptes en tout. À cette échelle, la moitié « invitation » d'une tablée
+fabrique la foule et la moitié « classement » l'attend — c'est la première qu'il
+faut construire, pas la seconde.
 
 **La couche sociale des jeux quotidiens N'A PAS DE GRAPHE**, et c'est un choix.
 Le lien de partage porte la journée et le résultat (`?j=&r=`, jamais `s` — pris

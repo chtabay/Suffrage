@@ -624,8 +624,9 @@ export interface BilanBanalo {
  * `avant`, et d'où une fonction à part.
  *
  * ⚠️ ET C'EST CE QUI TIENT LIEU DE NOTIFICATION. Le jeu ne prévient personne —
- * `docs/regularite-des-joueurs.md` §6 a écarté les rappels par écrit — donc il
- * GARDE le résultat arrêté et le rend quand le joueur revient, le lendemain ou
+ * `docs/regularite-des-joueurs.md` §7 a écarté le RAPPEL quotidien par écrit, et
+ * rien n'a encore été construit du côté du §6 — donc le jeu GARDE le résultat
+ * arrêté et le rend quand le joueur revient, le lendemain ou
  * trois semaines plus tard. Le jour rendu a forcément encore ses réponses,
  * puisque la fonction lit les tables qui se purgent.
  */

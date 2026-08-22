@@ -4,9 +4,11 @@
 --
 -- Un joueur a demandé : « est-ce qu'on est prévenu une fois la journée
 -- terminée ? » La réponse est non, et c'est écrit :
--- `docs/regularite-des-joueurs.md` §6 a écarté les notifications par écrit — la
--- permission ne se demande qu'une fois, un rappel quotidien est du bruit pour
--- qui a déjà joué, et la charnière de 11 h 30 n'est pas l'horloge du joueur.
+-- il n'en existe aucune aujourd'hui. Le §7 de `docs/regularite-des-joueurs.md` a
+-- écarté le RAPPEL quotidien — la permission ne se demande qu'une fois, un rappel
+-- est du bruit pour qui a déjà joué, et la charnière de 11 h 30 n'est pas
+-- l'horloge du joueur. ⚠️ Le §6, lui, ne dit PAS cela : il garde le push pour
+-- les amis. Voir `docs/amis-et-notifications.md`.
 --
 -- Le jeu doit donc GARDER le résultat arrêté et le rendre quand le joueur
 -- revient, quel que soit le jour où il revient. `JourneePrecedente` le faisait

@@ -14,8 +14,10 @@
 //
 // ⚠️ IL REGARDE LA DERNIÈRE JOURNÉE CLOSE QUE CE JOUEUR A JOUÉE, PLUS `jour − 1`
 // EN DUR. C'est la réponse à « est-ce qu'on est prévenu une fois la journée
-// terminée ? » : non, et `docs/regularite-des-joueurs.md` §6 a écarté les
-// notifications par écrit. Le jeu GARDE donc le résultat arrêté et le rend quand
+// terminée ? » : non, il n'existe aucune notification aujourd'hui (le §7 de
+// `docs/regularite-des-joueurs.md` a écarté le RAPPEL quotidien ; le §6, lui,
+// garde le push pour les amis — voir `docs/amis-et-notifications.md`). Le jeu
+// GARDE donc le résultat arrêté et le rend quand
 // le joueur revient — le lendemain, ou trois semaines plus tard. Sur `jour − 1`
 // en dur, celui qui jouait lundi et revenait jeudi ne voyait jamais comment
 // lundi s'était terminé, alors que c'est exactement lui que la question vise :
