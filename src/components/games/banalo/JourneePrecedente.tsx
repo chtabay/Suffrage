@@ -12,12 +12,25 @@
 // charnière de 11 h 30 (« le résultat clos de la veille est prêt exactement
 // quand la nouvelle s'ouvre », en tête de `jour.ts`) n'était pas tenue.
 //
-// ⚠️ IL NE REGARDE QUE LA JOURNÉE `jour − 1`, JAMAIS AUJOURD'HUI. C'est ce qui
-// fait qu'il ne peut rien divulguer : ce qu'il montre appartient à une journée
-// déjà close, qui n'est plus jouable. Et il garde la ceinture avec les
-// bretelles — si la base refusait de rendre la médiane (journée pas encore
-// close de son point de vue), le bloc ne s'affiche pas du tout plutôt que de
-// montrer un résultat amputé.
+// ⚠️ IL REGARDE LA DERNIÈRE JOURNÉE CLOSE QUE CE JOUEUR A JOUÉE, PLUS `jour − 1`
+// EN DUR. C'est la réponse à « est-ce qu'on est prévenu une fois la journée
+// terminée ? » : non, et `docs/regularite-des-joueurs.md` §6 a écarté les
+// notifications par écrit. Le jeu GARDE donc le résultat arrêté et le rend quand
+// le joueur revient — le lendemain, ou trois semaines plus tard. Sur `jour − 1`
+// en dur, celui qui jouait lundi et revenait jeudi ne voyait jamais comment
+// lundi s'était terminé, alors que c'est exactement lui que la question vise :
+// celui qui revient tous les jours, lui, a déjà tout vu.
+//
+// ⚠️ « CLOSE », ET JAMAIS AUJOURD'HUI. C'est ce qui fait qu'il ne peut rien
+// divulguer : ce qu'il montre appartient à une journée qui n'est plus jouable.
+// Et il garde la ceinture avec les bretelles — si la base refusait de rendre la
+// médiane (journée pas encore close de son point de vue), le bloc ne s'affiche
+// pas du tout plutôt que de montrer un résultat amputé.
+//
+// ⚠️ ET LE TITRE NE DIT PLUS « LA JOURNÉE PRÉCÉDENTE », puisque ce n'est plus
+// forcément elle. Il dit « votre dernière journée », et le numéro à droite lève
+// l'ambiguïté — c'est la même règle qu'avant : on nomme une journée par son
+// numéro, jamais par une date.
 //
 // ⚠️ ET LE TITRE NE DIT PAS « HIER ». La journée n° N s'ouvre à 11 h 30 et se
 // ferme à 11 h 30 le lendemain : à 11 h 00, la journée précédente a commencé
@@ -25,10 +38,10 @@
 // exactement le piège que l'en-tête de `jour.ts` interdit — on nomme la
 // journée par son numéro, jamais par une date.
 //
-// ⚠️ IL SE TAIT AUSSI QUAND ON N'A PAS JOUÉ LA VEILLE. Un bloc « vous n'avez pas
-// joué » n'apporte rien : c'est un reproche à quelqu'un qui vient justement de
-// revenir. Le silence est le bon défaut ; la série, elle, est déjà comptée
-// ailleurs (`scrutin_banalo_serie`).
+// ⚠️ IL SE TAIT QUAND ON N'A ENCORE RIEN JOUÉ. Un bloc « vous n'avez pas joué »
+// n'apporte rien : c'est un reproche à quelqu'un qui vient justement de revenir.
+// Le silence est le bon défaut ; la série, elle, est déjà comptée ailleurs
+// (`scrutin_banalo_serie`).
 import { useEffect, useMemo, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { UNANIMO_SKIN as skin } from "@/lib/games/skin";
@@ -40,7 +53,13 @@ import { programmeDe } from "@/lib/games/banalo/programme";
 import { monJeton } from "@/lib/games/banalo/jeton";
 import { COURBE_MIN } from "@/lib/games/banalo/bareme";
 import { teinteDe } from "@/lib/games/banalo/chaleur";
-import { etat as litEtat, etatMots, type EtatBanalo, type EtatMots } from "@/lib/db/banalo";
+import {
+  derniereJourneeClose,
+  etat as litEtat,
+  etatMots,
+  type EtatBanalo,
+  type EtatMots,
+} from "@/lib/db/banalo";
 import RepartitionDuJour from "./RepartitionDuJour";
 import ConcentrationDuJour from "./ConcentrationDuJour";
 import CourbeDesScores from "./CourbeDesScores";
@@ -51,12 +70,29 @@ const bcp = (locale: string) => (locale === "pcm" ? "en" : locale);
 export default function JourneePrecedente({ jour }: { jour: number }) {
   const t = useTranslations("BanaloJour");
   const locale = useLocale();
-  const precedente = jour - 1;
+  // Quelle journée montrer : la base seule le sait, puisque c'est elle qui garde
+  // les réponses. `null` tant qu'on n'a pas demandé — le bloc reste muet.
+  const [precedente, setPrecedente] = useState<number | null>(null);
+
+  useEffect(() => {
+    let vivant = true;
+    const jeton = monJeton();
+    if (!jeton) return;
+    void derniereJourneeClose(jeton, jour).then((j) => {
+      if (vivant) setPrecedente(j);
+    });
+    return () => {
+      vivant = false;
+    };
+  }, [jour]);
 
   // ⚠️ MÉMORISÉ, parce que `programmeDe` rend un objet neuf à chaque rendu et
   // qu'il sert de dépendance à l'effet : sans ça, l'effet rappellerait la base
   // à chaque rendu du parent.
-  const prog = useMemo(() => (precedente >= 1 ? programmeDe(precedente) : null), [precedente]);
+  const prog = useMemo(
+    () => (precedente !== null && precedente >= 1 ? programmeDe(precedente) : null),
+    [precedente],
+  );
 
   const [nombre, setNombre] = useState<EtatBanalo | null>(null);
   const [mots, setMots] = useState<EtatMots | null>(null);
@@ -64,7 +100,7 @@ export default function JourneePrecedente({ jour }: { jour: number }) {
   // Le jeton ne se lit qu'après le montage — même leçon qu'ailleurs : le lire au
   // rendu en créerait un nouveau côté serveur, et l'hydratation le changerait.
   useEffect(() => {
-    if (!prog) return;
+    if (!prog || precedente === null) return;
     let vivant = true;
     const jeton = monJeton();
     if (!jeton) return;
@@ -103,7 +139,9 @@ export default function JourneePrecedente({ jour }: { jour: number }) {
     [locale],
   );
 
-  if (!prog) return null;
+  // `prog` n'existe pas sans `precedente` — mais TypeScript ne le sait pas, et
+  // ce garde vaut mieux qu'une assertion : c'est la même valeur qui décide.
+  if (!prog || precedente === null) return null;
 
   // ⚠️ LE SUR-100 SERT ENCORE — MAIS PLUS À S'AFFICHER, seulement à colorer et à
   // décider qu'une journée a été jouée. Le format « mots » montre sa SOMME.
@@ -118,9 +156,21 @@ export default function JourneePrecedente({ jour }: { jour: number }) {
 
   const chapeau = (
     <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 10 }}>
-      <GLabel skin={skin}>{t("precedenteTitre")}</GLabel>
+      <GLabel skin={skin}>{t("derniereTitre")}</GLabel>
       <span style={{ fontSize: 12, fontWeight: 700, color: skin.muted }}>{t("numero", { n: precedente })}</span>
     </div>
+  );
+
+  // ⚠️ ON DIT QUE C'EST ARRÊTÉ, ET C'EST LE CŒUR DU BLOC. Un joueur qui répond à
+  // 11 h 35 voit des chiffres calculés sur trente personnes ; rien ne lui disait
+  // que ceux-ci, eux, ne bougeront plus. Sans cette phrase, il ne peut pas
+  // distinguer « votre résultat » de « votre résultat provisoire », et il repart
+  // en croyant qu'il lui manque encore quelque chose — exactement ce qu'une
+  // notification aurait annoncé, et qu'on a refusé d'envoyer.
+  const arrete = (
+    <p style={{ margin: "10px 0 0", fontSize: 12.5, color: skin.muted, lineHeight: 1.45 }}>
+      {t("derniereClose")}
+    </p>
   );
 
   const score = (
@@ -233,6 +283,7 @@ export default function JourneePrecedente({ jour }: { jour: number }) {
             </div>
           ) : null}
           {score}
+          {arrete}
           {/* LA COURBE DES SCORES, juste sous le chiffre qu'elle situe. ⚠️ ELLE
               N'EXISTE QUE SUR LA JOURNÉE ARRÊTÉE, et c'est la raison d'être de
               cet écran : en journée ouverte les sommes gonflent d'heure en
@@ -325,6 +376,7 @@ export default function JourneePrecedente({ jour }: { jour: number }) {
           {ecart !== null ? ` · ${t("facteur", { f: ecart })}` : ""}
         </p>
         {score}
+        {arrete}
         {/* LA BANDE. Elle vient APRÈS le score : le chiffre du joueur d'abord,
             le paysage ensuite. Elle se tait si la base ne l'a pas rendue — une
             journée trop maigre pour valoir un histogramme, ou une horloge qui

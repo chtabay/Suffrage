@@ -2731,7 +2731,6 @@
     "mienne": "Votre réponse",
     "mediane": "La réponse médiane",
     "medianeScellee": "La réponse médiane reste cachée jusqu'à la clôture : affichée maintenant, il suffirait de la recopier pour marquer le maximum.",
-    "precedenteTitre": "La journée précédente",
     "precedenteFoule": "La réponse médiane des {n} joueurs.",
     "repartitionTitre": "Où tout le monde s'est posé",
     "repartitionFoule": "la foule",
@@ -2776,7 +2775,9 @@
       "versLeJeu": "Jouer la journée du jour",
       "sansCompteTitre": "Retrouvez toutes vos journées",
       "sansCompteTexte": "Vos réponses ne sont gardées qu'un temps. Un compte garde le résultat de chaque journée — et fait durer votre série au-delà."
-    }
+    },
+    "derniereTitre": "Votre dernière journée",
+    "derniereClose": "Cette journée est close : ces chiffres ne bougeront plus."
   },
   "Pays": {
     "pictosAide": "Chaque case dit maintenant de quoi parle son critère. La dernière garde son secret.",

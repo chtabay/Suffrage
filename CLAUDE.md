@@ -245,11 +245,41 @@ réponse jetable. `scrutin_banalo_etat` scelle donc `mediane` ET `facteur`
 manquait. À la clôture, la page bascule sur la journée suivante : l'écran qui
 aurait rendu la médiane n'existe plus, donc elle n'apparaissait sur AUCUNE
 journée. `JourneePrecedente` est la seule place où ce nombre
-s'affiche ; il n'interroge que `jour − 1`, il se tait si la base ne rend pas la médiane (journée
-pas encore close de son point de vue), et il se tait aussi quand on n'a pas joué
-la veille — un bloc « vous n'avez pas joué » est un reproche adressé à quelqu'un
-qui vient précisément de revenir. ⚠️ Son titre dit « la journée précédente », pas
-« hier » : à 11 h 00, la journée précédente a commencé **avant-hier**.
+s'affiche ; il se tait si la base ne rend pas la médiane (journée pas encore
+close de son point de vue), et il se tait quand on n'a encore rien joué — un bloc
+« vous n'avez pas joué » est un reproche adressé à quelqu'un qui vient
+précisément de revenir.
+
+⚠️ **IL REGARDE LA DERNIÈRE JOURNÉE CLOSE QUE CE JOUEUR A JOUÉE, PLUS `jour − 1`
+EN DUR** (`scrutin_banalo_derniere`, `20260824-banalo-derniere-journee.sql`).
+C'est la réponse à « est-ce qu'on est prévenu une fois la journée terminée ? » :
+non — `docs/regularite-des-joueurs.md` §6 a écarté les notifications par écrit —
+donc le jeu GARDE le résultat arrêté et le rend quand le joueur revient, le
+lendemain ou trois semaines plus tard. Sur `jour − 1` en dur, celui qui jouait
+lundi et revenait jeudi ne voyait jamais comment lundi s'était terminé, alors que
+c'est **exactement lui** que la question vise : celui qui revient tous les jours
+a déjà tout vu.
+
+⚠️ **« CLOSE » N'EST PAS « DERNIÈRE JOUÉE », ET `scrutin_banalo_serie` NE SUFFIT
+PAS.** Elle rend déjà `fin`, le plus grand jour joué — mais s'en servir ferait
+DISPARAÎTRE le bloc pour quelqu'un qui vient de jouer aujourd'hui alors qu'il
+avait joué la veille : `fin` vaudrait aujourd'hui, et il n'y a rien à montrer
+d'une journée encore ouverte. D'où le paramètre `p_avant`, et d'où une fonction à
+part. Elle ne peut pas désigner une journée purgée : elle lit les tables qui
+s'effacent, donc le jour qu'elle rend a forcément encore ses réponses — aucune
+borne d'âge à écrire, ce serait une quatrième copie du 30.
+
+⚠️ **ET LE BLOC DIT QUE C'EST ARRÊTÉ** (« cette journée est close : ces chiffres
+ne bougeront plus »). C'est cette phrase qui remplace la notification : un joueur
+qui répond à 11 h 35 voit des chiffres calculés sur trente personnes, et rien ne
+lui disait que ceux-là, eux, ne bougeront plus. Sans elle il ne peut pas
+distinguer « votre résultat » de « votre résultat provisoire ».
+
+⚠️ Son titre dit « votre dernière journée », plus « la journée précédente » —
+puisque ce n'est plus forcément elle — et surtout **jamais « hier »** : à
+11 h 00, la journée précédente a commencé **avant-hier**. Le numéro à droite lève
+l'ambiguïté, comme toujours ici : on nomme une journée par son numéro, jamais par
+une date.
 
 ⚠️ **Sa grille de mots, elle, n'est plus une RÉVÉLATION mais un ARRÊTÉ.** Depuis
 que les parts sortent dès le dépôt, ce n'est plus là qu'on apprend ce que la
@@ -966,6 +996,14 @@ silence** — on ne l'apprend qu'en regardant le tableau de bord Vercel. Le buil
 lance aussi le contrôle de parité i18n.
 ⚠️ Vérifie que **le port 3000 est libre** avant : un serveur de développement en
 cours fait échouer le build.
+⚠️ **ET LE BUILD DÉTRUIT LE SERVEUR DE DÉVELOPPEMENT QUI SURVIT, EN SILENCE** :
+les deux écrivent dans le même `.next`. Le serveur continue de répondre 200 mais
+sert un HTML qui pointe des morceaux disparus — 404 sur `main-app.js`, page
+blanche, **aucun appel RPC**, et ça se lit comme un défaut de l'écran qu'on vient
+d'écrire. Arrête le serveur AVANT de construire, et repars d'un `.next` vide
+ensuite. ⚠️ `ss -ltnp` ne montre pas toujours le processus : c'est `ps -eo
+pid,cmd | grep next` qui le trouve, et il faut tuer les quatre (npm, sh, next,
+next-server).
 
 **Jamais `git add -A`.** Le répertoire de travail contient presque toujours le
 chantier de quelqu'un d'autre. On ajoute les fichiers **un par un**, après avoir

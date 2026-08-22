@@ -2731,7 +2731,6 @@
     "mienne": "Tu respuesta",
     "mediane": "La respuesta mediana",
     "medianeScellee": "La respuesta mediana permanece oculta hasta el cierre: si se mostrara ahora, bastaría con copiarla para sacar la máxima puntuación.",
-    "precedenteTitre": "El día anterior",
     "precedenteFoule": "La respuesta mediana de {n} jugadores.",
     "repartitionTitre": "Dónde se situó todo el mundo",
     "repartitionFoule": "la gente",
@@ -2776,7 +2775,9 @@
       "versLeJeu": "Jugar el día de hoy",
       "sansCompteTitre": "Guarda todos tus días",
       "sansCompteTexte": "Tus respuestas solo se conservan un tiempo. Una cuenta guarda el resultado de cada día — y hace que tu racha dure más."
-    }
+    },
+    "derniereTitre": "Tu último día",
+    "derniereClose": "Ese día está cerrado: estas cifras ya no cambiarán."
   },
   "Pays": {
     "pictosAide": "Cada casilla dice ahora de qué habla su criterio. La última guarda su secreto.",

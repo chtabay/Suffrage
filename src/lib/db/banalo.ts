@@ -616,6 +616,31 @@ export interface BilanBanalo {
 }
 
 /**
+ * LA DERNIÈRE JOURNÉE CLOSE QUE CE NAVIGATEUR A JOUÉE, ou `null`.
+ *
+ * ⚠️ « CLOSE », PAS « DERNIÈRE JOUÉE » : `maSerie` rend déjà le plus grand jour
+ * joué, mais s'en servir ferait disparaître le résultat arrêté pour quelqu'un
+ * qui vient de jouer aujourd'hui alors qu'il avait joué la veille. D'où
+ * `avant`, et d'où une fonction à part.
+ *
+ * ⚠️ ET C'EST CE QUI TIENT LIEU DE NOTIFICATION. Le jeu ne prévient personne —
+ * `docs/regularite-des-joueurs.md` §6 a écarté les rappels par écrit — donc il
+ * GARDE le résultat arrêté et le rend quand le joueur revient, le lendemain ou
+ * trois semaines plus tard. Le jour rendu a forcément encore ses réponses,
+ * puisque la fonction lit les tables qui se purgent.
+ */
+export async function derniereJourneeClose(jeton: string, avant: number): Promise<number | null> {
+  const supabase = createClient();
+  const { data, error } = await supabase.rpc("scrutin_banalo_derniere", {
+    p_jeton: jeton,
+    p_avant: avant,
+  });
+  if (error) return null;
+  const j = (data as Record<string, unknown> | null)?.jour;
+  return typeof j === "number" && Number.isInteger(j) && j >= 1 ? j : null;
+}
+
+/**
  * La série d'un navigateur, SANS COMPTE.
  *
  * ⚠️ ELLE VIENT DU SERVEUR ICI, ALORS QUE CELLE DE CINQ SUR CINQ VIT DANS LE

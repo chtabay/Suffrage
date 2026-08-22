@@ -2731,7 +2731,6 @@
     "mienne": "Your answer",
     "mediane": "The median answer",
     "medianeScellee": "The median answer stays hidden until the day closes: shown now, anyone could simply copy it and score full marks.",
-    "precedenteTitre": "The previous day",
     "precedenteFoule": "The median answer of {n} players.",
     "repartitionTitre": "Where everyone landed",
     "repartitionFoule": "the crowd",
@@ -2776,7 +2775,9 @@
       "versLeJeu": "Play today's game",
       "sansCompteTitre": "Keep every day you play",
       "sansCompteTexte": "Your answers are only kept for a while. An account keeps the result of every day — and lets your streak outlast them."
-    }
+    },
+    "derniereTitre": "Your last day",
+    "derniereClose": "That day is closed: these numbers will not move again."
   },
   "Pays": {
     "pictosAide": "Each box now tells you what its criterion is about. The last one keeps its secret.",

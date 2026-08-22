@@ -2731,7 +2731,6 @@
     "mienne": "Your answer",
     "mediane": "Di median answer",
     "medianeScellee": "Di median answer go hide until di day close: if e show now, person fit just copy am and score di highest.",
-    "precedenteTitre": "Di day wey pass",
     "precedenteFoule": "Di median answer of {n} players.",
     "repartitionTitre": "Where everybody land",
     "repartitionFoule": "di crowd",
@@ -2776,7 +2775,9 @@
       "versLeJeu": "Play today game",
       "sansCompteTitre": "Keep every day wey you play",
       "sansCompteTexte": "Dem no dey keep your answers forever. Account dey keep result of every day — and e go make your streak last pass dem."
-    }
+    },
+    "derniereTitre": "Your last day",
+    "derniereClose": "Dat day don close: dis numbers no go change again."
   },
   "Pays": {
     "pictosAide": "Every box go now tell you wetin im criterion dey talk about. Di last one go keep im secret.",
