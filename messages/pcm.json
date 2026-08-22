@@ -2796,7 +2796,10 @@
       "rejoindreDuree": "Dis name na for dis table alone, and e go go wit am.",
       "inconnue": "Dis table no dey again.",
       "pleine": "Dis table don full.",
-      "pourquoi": "Di names dey come from one list. To write your own need Placet account: name wey every member of di table fit read need person wey go answer for am."
+      "pourquoi": "Di names dey come from one list. To write your own need Placet account: name wey every member of di table fit read need person wey go answer for am.",
+      "seulMembre": "Na only you dey dis table. Send di link give people wey you wan play with.",
+      "aJoue": "Na only you don play today, out of {total}.",
+      "ontJoue": "{n} players out of {total} don play today."
     }
   },
   "Pays": {

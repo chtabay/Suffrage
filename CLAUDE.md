@@ -1029,6 +1029,35 @@ trente jours » — sans écrire une cinquième copie du 30.
 membres, ni leur nombre. Un lien qui circule ne doit pas exposer un groupe à qui
 le trouve.
 
+⚠️ **L'ORDRE DE L'APRÈS-PARTIE EST MESURÉ, PAS CHOISI.** Posées au-dessus du
+partage, les deux listes le repoussaient à **1 465 px** — 1,7 écran de
+défilement avant d'atteindre le seul geste qui amène du monde, sur un jeu qui en
+compte onze. Elles sont descendues sous lui : le partage est revenu à **726 px**,
+dans le premier écran. ⚠️ Et **la tablée passe devant le tableau** : les deux
+répondent à « où je me situe », mais l'un parle de trente-quatre inconnus et
+l'autre des gens qu'on a invités, et l'attention décroît avec le défilement.
+
+⚠️ **L'OFFRE DE COMPTE RESTE SOUS LES DEUX LISTES, ET C'EST DÉLIBÉRÉ** (2,2
+écrans). Elle est STATIQUE — le même texte tous les jours — là où la tablée et le
+tableau CHANGENT chaque jour. C'est le même raisonnement que `rappelleLaMethode`
+chez Cinq sur cinq : servie tous les jours à un habitué, une annonce qui ne change
+pas devient une boîte qu'on ferme sans lire. Le contenu qui bouge monte, l'annonce
+qui se répète descend.
+
+⚠️ **LE TABLEAU ET LA TABLÉE SE RESSEMBLAIENT TROP** — deux listes de noms
+d'animaux avec des voix à droite, à vingt pixels l'une de l'autre, tirées du
+**même vocabulaire de 600** : le même nom pouvait figurer dans les deux, et un
+joueur ne les distinguait pas au coup d'œil. La tablée mène donc par un TITRE et
+une PHRASE D'ÉTAT (« 3 joueurs sur 4 ont joué aujourd'hui »), le tableau par sa
+liste et finit par son effectif : deux objets, deux lectures. Ça ne se voit qu'à
+l'écran.
+
+⚠️ **ET UNE TABLÉE D'UN SEUL MEMBRE N'AFFICHE PAS DE LISTE.** C'est le « 1er sur
+1 » que le jeu refuse partout ailleurs (`VOTANTS_MIN` 2, `INSCRITS_MIN` 2,
+`COURBE_MIN` 50) : une ligne unique avec son propre score se lit comme un tableau
+cassé. La carte dit « vous êtes seul à cette tablée » et montre le bouton
+d'invitation, rien d'autre.
+
 ⚠️ **UN APPEL QUI A UN EFFET NE SE MET PAS DANS UN `or` SQL.** Le bloc de
 vérification écrivait `if purge(30) < 1 or exists(...)` : SQL ne promet pas
 d'évaluer la gauche d'abord, l'`exists` court-circuitait l'appel, et le test

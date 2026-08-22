@@ -2796,7 +2796,10 @@
       "rejoindreDuree": "Este nombre solo vale en esta mesa, y desaparece con ella.",
       "inconnue": "Esta mesa ya no existe.",
       "pleine": "Esta mesa está completa.",
-      "pourquoi": "Los nombres vienen de una lista. Escribir el propio requiere una cuenta Placet: un nombre que pueden leer todos los miembros de la mesa necesita a alguien que responda por él."
+      "pourquoi": "Los nombres vienen de una lista. Escribir el propio requiere una cuenta Placet: un nombre que pueden leer todos los miembros de la mesa necesita a alguien que responda por él.",
+      "seulMembre": "Estás solo en esta mesa. Envía el enlace a quienes quieras que jueguen contigo.",
+      "aJoue": "Eres el único que ha jugado hoy, de {total}.",
+      "ontJoue": "{n} jugadores de {total} han jugado hoy."
     }
   },
   "Pays": {

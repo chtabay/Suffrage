@@ -2796,7 +2796,10 @@
       "rejoindreDuree": "Ce nom ne vaut que dans cette tablée, et il disparaît avec elle.",
       "inconnue": "Cette tablée n'existe plus.",
       "pleine": "Cette tablée est complète.",
-      "pourquoi": "Les noms viennent d'une liste. Écrire le sien demande un compte Placet : un nom que tous les membres de la tablée peuvent lire appelle quelqu'un pour en répondre."
+      "pourquoi": "Les noms viennent d'une liste. Écrire le sien demande un compte Placet : un nom que tous les membres de la tablée peuvent lire appelle quelqu'un pour en répondre.",
+      "seulMembre": "Vous êtes seul à cette tablée. Envoyez le lien à ceux avec qui vous voulez jouer.",
+      "aJoue": "Vous êtes le seul à avoir joué aujourd'hui, sur {total}.",
+      "ontJoue": "{n} joueurs sur {total} ont joué aujourd'hui."
     }
   },
   "Pays": {

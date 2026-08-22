@@ -456,21 +456,6 @@ export default function NombreDuJour({ jour }: { jour: number }) {
             </p>
           </GCard>
 
-          {/* LE TABLEAU DU JOUR, DERNIER BLOC DE RÉSULTAT — avant les offres, et
-              jamais parmi elles. Ce n'est pas une demande de quitter le jeu
-              (compte, installation, pont vers Placet) mais un geste DANS le
-              jeu : §0 de `docs/regularite-des-joueurs.md` ne compte donc pas ce
-              bloc dans la place unique de l'après-partie. ⚠️ `theme` vaut `null`
-              ici, et c'est ce qui dit à la base que la journée est chiffrée. */}
-          <TableauDuJour jour={jour} theme={null} onDemande={setNomDemande} />
-
-          {/* LA TABLÉE, JUSTE APRÈS LE TABLEAU PUBLIC — et c'est le bon ordre.
-              Le tableau du jour parle de la foule entière, la tablée de gens
-              qu'on connaît : on va du large au proche. ⚠️ Elle n'occupe pas la
-              place unique de l'après-partie tant qu'on en a une (c'est du
-              résultat, pas une demande) ; l'offre d'en créer une, elle, attend
-              deux journées jouées — voir `MaTablee`. */}
-          <MaTablee jour={jour} theme={null} bloque={nomDemande} />
 
           <div>
             {/* ⚠️ UNE SEULE OFFRE, ET LE PLANCHER CHOISIT LAQUELLE. Le score
@@ -505,6 +490,21 @@ export default function NombreDuJour({ jour }: { jour: number }) {
                 consigne={t("inviteNombre")}
               />
             )}
+
+            {/* LES GENS, APRÈS LE PARTAGE ET DANS CET ORDRE : LE PROCHE AVANT LE
+                LARGE. Mesuré à l'écran : posées au-dessus du partage, ces deux
+                listes le repoussaient à 1 465 px — 1,7 écran de défilement avant
+                d'atteindre le seul geste qui amène du monde, sur un jeu qui en
+                compte onze. Elles descendent donc sous lui.
+
+                ⚠️ ET LA TABLÉE PASSE DEVANT LE TABLEAU. Les deux répondent à « où
+                je me situe », mais l'un parle de trente-quatre inconnus et l'autre
+                des gens qu'on a invités. L'attention décroît avec le défilement :
+                c'est le proche qui doit être en haut. La justification inverse
+                (« du large au proche ») était une figure de style, pas un
+                argument. */}
+            <MaTablee jour={jour} theme={null} bloque={nomDemande} />
+            <TableauDuJour jour={jour} theme={null} onDemande={setNomDemande} />
             {defi && jeu.points !== null ? (
               <ComparaisonAmi
                 skin={skin}

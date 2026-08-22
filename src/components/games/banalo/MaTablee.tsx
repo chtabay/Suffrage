@@ -192,24 +192,62 @@ export default function MaTablee({
   if (tablees.length > 0) {
     return (
       <>
-        {tablees.map((tb) => (
-          <GCard key={tb.code} skin={skin} padding={18}>
-            <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 10 }}>
-              <GLabel skin={skin}>{t("tablee.titre")}</GLabel>
-              <span style={{ fontSize: 12, fontWeight: 700, color: skin.muted }}>
-                {t("tablee.membres", { n: tb.membres.length })}
-              </span>
-            </div>
-            <ul style={{ display: "grid", gap: 2, margin: "10px 0 0", padding: 0, listStyle: "none", minWidth: 0, fontSize: 14.5 }}>
-              {tb.membres.map((m, i) => membre(m, `${tb.code}-${i}`))}
-            </ul>
-            <div style={{ marginTop: 12 }}>
-              <GBtn skin={skin} variant="ghost" onClick={() => void partage(tb.code)}>
-                {copie ? t("copie") : t("tablee.inviter")}
-              </GBtn>
-            </div>
-          </GCard>
-        ))}
+        {tablees.map((tb) => {
+          const joueurs = tb.membres.filter((m) => m.joue).length;
+          // ⚠️ UNE TABLÉE D'UN SEUL MEMBRE N'EST PAS UN CLASSEMENT, c'est une
+          // invitation qui n'a pas encore abouti. Imprimer une liste d'une ligne
+          // avec son propre score, c'est le « 1er sur 1 » que le jeu refuse
+          // partout ailleurs — `VOTANTS_MIN` vaut 2, `INSCRITS_MIN` vaut 2, la
+          // courbe attend cinquante. Vu à l'écran juste après la création : la
+          // carte affichait « 1 joueur » et une seule ligne, ce qui se lit comme
+          // un tableau cassé.
+          const seul = tb.membres.length < 2;
+          return (
+            <GCard key={tb.code} skin={skin} padding={18}>
+              {/* ⚠️ UN TITRE ET UNE PHRASE D'ÉTAT, PAS UN EN-TÊTE DE TABLEAU —
+                  et c'est ce qui distingue cette carte de la précédente. Mesuré
+                  à l'écran : le tableau du jour et la tablée affichaient deux
+                  listes de noms d'animaux avec des voix à droite, à vingt pixels
+                  l'une de l'autre, tirées du MÊME vocabulaire de 600 — le même
+                  nom pouvait figurer dans les deux. Un joueur ne pouvait pas les
+                  distinguer au coup d'œil. La tablée dit d'abord l'état du
+                  groupe (« 3 sur 4 ont joué »), le tableau dit d'abord le
+                  classement : deux objets, deux lectures. */}
+              <p
+                style={{
+                  fontFamily: skin.fontDisplay,
+                  fontWeight: 800,
+                  fontSize: 17,
+                  lineHeight: 1.25,
+                  margin: 0,
+                }}
+              >
+                {t("tablee.titre")}
+              </p>
+              <p style={{ margin: "5px 0 0", fontSize: 13.5, color: skin.muted, lineHeight: 1.45 }}>
+                {/* Les trois clés sont écrites EN CLAIR : une clé choisie en
+                    variable échapperait au contrôle de parité i18n. Le cas
+                    « personne n'a joué » n'existe pas — cette carte ne s'affiche
+                    qu'après ma propre réponse, et j'en suis membre. */}
+                {seul
+                  ? t("tablee.seulMembre")
+                  : joueurs > 1
+                    ? t("tablee.ontJoue", { n: joueurs, total: tb.membres.length })
+                    : t("tablee.aJoue", { total: tb.membres.length })}
+              </p>
+              {!seul ? (
+                <ul style={{ display: "grid", gap: 2, margin: "12px 0 0", padding: 0, listStyle: "none", minWidth: 0, fontSize: 14.5 }}>
+                  {tb.membres.map((m, i) => membre(m, `${tb.code}-${i}`))}
+                </ul>
+              ) : null}
+              <div style={{ marginTop: 12 }}>
+                <GBtn skin={skin} variant="ghost" onClick={() => void partage(tb.code)}>
+                  {copie ? t("copie") : t("tablee.inviter")}
+                </GBtn>
+              </div>
+            </GCard>
+          );
+        })}
       </>
     );
   }

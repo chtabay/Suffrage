@@ -2796,7 +2796,10 @@
       "rejoindreDuree": "This name only holds in this table, and it goes away with it.",
       "inconnue": "This table no longer exists.",
       "pleine": "This table is full.",
-      "pourquoi": "The names come from a list. Writing your own needs a Placet account: a name every member of the table can read needs someone to answer for it."
+      "pourquoi": "The names come from a list. Writing your own needs a Placet account: a name every member of the table can read needs someone to answer for it.",
+      "seulMembre": "You're the only one at this table. Send the link to the people you want to play with.",
+      "aJoue": "You're the only one who has played today, out of {total}.",
+      "ontJoue": "{n} players out of {total} have played today."
     }
   },
   "Pays": {
