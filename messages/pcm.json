@@ -2815,28 +2815,10 @@
     "panne": "We no fit reach di counting. Reload di page make you see where your answer dey.",
     "demain": "New question by {heure}.",
     "tableau": {
-      "titre": "Today board",
-      "invite": "Drop one name make you show for today board.",
-      "deposer": "Drop dis name",
-      "autres": "Show me oda ones",
       "libre": "Or write your own",
-      "librePlace": "Your name",
       "pourquoi": "Di names dey come from one list. To write your own need Placet account: name wey every player of di day fit read need person wey go answer for am.",
-      "sousCeNom": "You go show as",
-      "pseudoOu": "Na your Placet name be dat, di one for di rankings. You fit change am for “Results and rankings”.",
-      "pseudoGarde": "Dis name go be your Placet name: we no go ask you again, here or for group.",
-      "pseudoRetire": "Moderator don remove your name. Put anoda one for “Results and rankings” make you show again.",
-      "court": "Dis name too short: two characters minimum.",
-      "long": "Dis name too long: twenty characters maximum.",
       "duree": "Dis name na for today alone: no profile dey, and nothing dey to find outside today board.",
-      "vous": "you",
-      "scoreNombre": "{n}/100",
-      "inscrits": "{n, plural, one {# player don drop im name today} other {# players don drop dem name today}}",
-      "seul": "Your name don enta. Di board go show once {n} names dey.",
-      "pris": "Person don carry dat name today. See oda ones.",
-      "deja": "You don already drop name for today.",
-      "panne": "Di name no go through. Try again.",
-      "libreSeul": "Your name"
+      "scoreNombre": "{n}/100"
     },
     "historique": {
       "metaTitle": "My days — Banalo of di Day",
@@ -2876,6 +2858,11 @@
     }
   },
   "Pays": {
+    "tableau": {
+      "essais": "{n, plural, one {# try} other {# tries}}",
+      "pourquoi": "Di names dey come from list. To write your own need Placet account: name wey every player of di day fit read need person wey go answer for am.",
+      "duree": "Dis name na for today only: no profile dey, and nothing to find outside di day board."
+    },
     "pictosAide": "Every box go now tell you wetin im criterion dey talk about. Di last one go keep im secret.",
     "pictosAidePremier": "Di first clue don open: di square wey common pass dey tell you wetin e be about. Di others go come as you dey play.",
     "pouceTitre": "Small help",
@@ -3001,5 +2988,25 @@
     "reinit": "We don send you link. E go open di Placet page wey you go pick new password.",
     "erreur": "E no work. Check di email and password, then try again.",
     "courtMotDePasse": "Six characters minimum."
+  },
+  "TableauJeux": {
+    "titre": "Today board",
+    "invite": "Drop one name make you show for today board.",
+    "vous": "you",
+    "inscrits": "{n, plural, one {# player don drop im name today} other {# players don drop dem name today}}",
+    "seul": "Your name don enta. Di board go show once {n} names dey.",
+    "deposer": "Drop dis name",
+    "sousCeNom": "You go show as",
+    "pseudoOu": "Na your Placet name be dat, di one for di rankings. You fit change am for “Results and rankings”.",
+    "pseudoGarde": "Dis name go be your Placet name: we no go ask you again, here or for group.",
+    "pseudoRetire": "Moderator don remove your name. Put anoda one for “Results and rankings” make you show again.",
+    "libreSeul": "Your name",
+    "librePlace": "Your name",
+    "autres": "Show me oda ones",
+    "pris": "Person don carry dat name today. See oda ones.",
+    "deja": "You don already drop name for today.",
+    "court": "Dis name too short: two characters minimum.",
+    "long": "Dis name too long: twenty characters maximum.",
+    "panne": "Di name no go through. Try again."
   }
 }

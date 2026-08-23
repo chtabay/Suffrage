@@ -33,7 +33,7 @@ import Modale from "@/components/games/Modale";
 import { monJeton } from "@/lib/games/banalo/jeton";
 import { nomDe } from "@/content/banalo/noms";
 import { QR_URL } from "@/content/banalo/qr";
-import ChoisirSonNom, { NOM_VIERGE, choixDeNom, type EtatNom } from "./ChoisirSonNom";
+import ChoisirSonNom, { NOM_VIERGE, choixDeNom, type EtatNom } from "@/components/games/ChoisirSonNom";
 import {
   creerTablee,
   derniereJourneeClose,
@@ -78,6 +78,11 @@ export default function MaTablee({
   bloque?: boolean;
 }) {
   const t = useTranslations("BanaloJour");
+  // ⚠️ LES REFUS DE NOM VIENNENT DU NAMESPACE PARTAGÉ depuis que le tableau du
+  // jour sert aussi Cinq sur cinq : « ce nom est déjà porté » se dit pareil
+  // partout, et la règle qui le produit vit dans `ChoisirSonNom`. Un alias, pas
+  // une clé en variable — le contrôle de parité ne voit que les clés en clair.
+  const tj = useTranslations("TableauJeux");
   const locale = useLocale();
   const { user, loading } = useAuth();
 
@@ -179,7 +184,7 @@ export default function MaTablee({
     >
       <span style={{ flex: "1 1 auto", minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
         {m.index !== null ? nomDe(m.index, locale) : (m.nom ?? "")}
-        {m.moi ? <span style={{ color: skin.accent, fontWeight: 800 }}> · {t("tableau.vous")}</span> : null}
+        {m.moi ? <span style={{ color: skin.accent, fontWeight: 800 }}> · {tj("vous")}</span> : null}
       </span>
       {/* TROIS ÉTATS, ET IL EN FAUT TROIS. Un score ; « a joué » sans chiffre
           pour qui a joué dans une AUTRE langue — sa foule n'est pas la mienne,
@@ -301,9 +306,10 @@ export default function MaTablee({
           fermerDiscret
         >
           <ChoisirSonNom
+            skin={skin}
             jeton={monJeton()}
             connecte={Boolean(user)}
-            portee="tablee"
+            explication={t("tablee.pourquoi")}
             etat={nom}
             setEtat={(e) => {
               setNom(e);
@@ -315,13 +321,13 @@ export default function MaTablee({
           {souci ? (
             <p role="alert" style={{ margin: "10px 0 0", fontSize: 13, fontWeight: 700, color: skin.ink }}>
               {souci === "trop" ? t("tablee.trop") : null}
-              {souci === "pris" ? t("tableau.pris") : null}
-              {souci === "court" ? t("tableau.court") : null}
-              {souci === "long" ? t("tableau.long") : null}
-              {souci === "bloque" ? t("tableau.pseudoRetire") : null}
+              {souci === "pris" ? tj("pris") : null}
+              {souci === "court" ? tj("court") : null}
+              {souci === "long" ? tj("long") : null}
+              {souci === "bloque" ? tj("pseudoRetire") : null}
               {souci === "ok" || souci === "compte" || souci === "pseudo" ||
               souci === "refus" || souci === "panne"
-                ? t("tableau.panne")
+                ? tj("panne")
                 : null}
             </p>
           ) : null}

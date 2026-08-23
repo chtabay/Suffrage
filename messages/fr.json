@@ -2815,28 +2815,10 @@
     "panne": "On n'a pas pu joindre le dépouillement. Rechargez la page pour voir où en est votre réponse.",
     "demain": "Nouvelle question à {heure}.",
     "tableau": {
-      "titre": "Le tableau du jour",
-      "invite": "Laissez un nom pour figurer au tableau de la journée.",
-      "deposer": "Déposer ce nom",
-      "autres": "En proposer d'autres",
       "libre": "Ou écrivez le vôtre",
-      "librePlace": "Votre nom",
       "pourquoi": "Les noms viennent d'une liste. Écrire le sien demande un compte Placet : un nom que tous les joueurs du jour peuvent lire appelle quelqu'un pour en répondre.",
-      "sousCeNom": "Vous figurerez sous",
-      "pseudoOu": "C'est votre pseudo Placet, celui des classements. Il se change dans « Résultats et classements ».",
-      "pseudoGarde": "Ce nom devient votre pseudo Placet : on ne vous le redemandera plus, ni ici ni dans un groupe.",
-      "pseudoRetire": "Votre pseudo a été retiré par un modérateur. Posez-en un autre dans « Résultats et classements » pour figurer à nouveau.",
-      "court": "Ce nom est trop court : deux caractères au minimum.",
-      "long": "Ce nom est trop long : vingt caractères au maximum.",
       "duree": "Ce nom ne vaut que pour aujourd'hui : il n'y a pas de profil, et rien à retrouver en dehors du tableau du jour.",
-      "vous": "vous",
-      "scoreNombre": "{n}/100",
-      "inscrits": "{n, plural, one {# joueur a laissé son nom aujourd'hui} other {# joueurs ont laissé leur nom aujourd'hui}}",
-      "seul": "Votre nom est déposé. Le tableau s'affiche à partir de {n} noms.",
-      "pris": "Ce nom est déjà porté aujourd'hui. En voici d'autres.",
-      "deja": "Vous avez déjà déposé un nom pour cette journée.",
-      "panne": "Le dépôt n'est pas parti. Réessayez.",
-      "libreSeul": "Votre nom"
+      "scoreNombre": "{n}/100"
     },
     "historique": {
       "metaTitle": "Mes journées — Banalo du jour",
@@ -2876,6 +2858,11 @@
     }
   },
   "Pays": {
+    "tableau": {
+      "essais": "{n, plural, one {# essai} other {# essais}}",
+      "pourquoi": "Les noms viennent d'une liste. Écrire le sien demande un compte Placet : un nom que tous les joueurs du jour peuvent lire appelle quelqu'un pour en répondre.",
+      "duree": "Ce nom ne vaut que pour aujourd'hui : il n'y a pas de profil, et rien à retrouver en dehors du tableau du jour."
+    },
     "pictosAide": "Chaque case dit maintenant de quoi parle son critère. La dernière garde son secret.",
     "pictosAidePremier": "Un premier repère est débloqué : la case la plus courante dit de quoi elle parle. Les autres viennent en jouant.",
     "pouceTitre": "Un coup de pouce",
@@ -3001,5 +2988,25 @@
     "reinit": "Un lien vous a été envoyé. Il ouvre la page Placet où choisir un nouveau mot de passe.",
     "erreur": "Ça n'a pas marché. Vérifiez l'email et le mot de passe, puis réessayez.",
     "courtMotDePasse": "Six caractères au minimum."
+  },
+  "TableauJeux": {
+    "titre": "Le tableau du jour",
+    "invite": "Laissez un nom pour figurer au tableau de la journée.",
+    "vous": "vous",
+    "inscrits": "{n, plural, one {# joueur a laissé son nom aujourd'hui} other {# joueurs ont laissé leur nom aujourd'hui}}",
+    "seul": "Votre nom est déposé. Le tableau s'affiche à partir de {n} noms.",
+    "deposer": "Déposer ce nom",
+    "sousCeNom": "Vous figurerez sous",
+    "pseudoOu": "C'est votre pseudo Placet, celui des classements. Il se change dans « Résultats et classements ».",
+    "pseudoGarde": "Ce nom devient votre pseudo Placet : on ne vous le redemandera plus, ni ici ni dans un groupe.",
+    "pseudoRetire": "Votre pseudo a été retiré par un modérateur. Posez-en un autre dans « Résultats et classements » pour figurer à nouveau.",
+    "libreSeul": "Votre nom",
+    "librePlace": "Votre nom",
+    "autres": "En proposer d'autres",
+    "pris": "Ce nom est déjà porté aujourd'hui. En voici d'autres.",
+    "deja": "Vous avez déjà déposé un nom pour cette journée.",
+    "court": "Ce nom est trop court : deux caractères au minimum.",
+    "long": "Ce nom est trop long : vingt caractères au maximum.",
+    "panne": "Le dépôt n'est pas parti. Réessayez."
   }
 }

@@ -35,11 +35,11 @@
 // son `localStorage` et on revient.
 import { useEffect, useMemo, useRef } from "react";
 import { useLocale, useTranslations } from "next-intl";
-import { UNANIMO_SKIN as skin } from "@/lib/games/skin";
+import type { GameSkin } from "@/lib/games/skin";
 import { GLabel } from "@/components/games/ui";
 import { graineDe, nomDe, nomsProposes } from "@/content/banalo/noms";
 import { monPseudo } from "@/lib/db/jeux";
-import type { ChoixDeNom } from "@/lib/db/banalo";
+import type { ChoixDeNom } from "@/lib/db/banalo";  // le type, pas le jeu : les deux jeux le partagent
 
 /** Combien de noms on propose d'un coup. Quatre tiennent sur deux lignes d'un téléphone. */
 const PROPOSES = 4;
@@ -92,28 +92,31 @@ export function choixDeNom(e: EtatNom): ChoixDeNom | null {
 }
 
 export default function ChoisirSonNom({
+  skin,
   jeton,
   connecte,
   etat,
   setEtat,
-  portee = "jour",
+  explication,
 }: {
+  skin: GameSkin;
   jeton: string | null;
   connecte: boolean;
   etat: EtatNom;
   setEtat: (e: EtatNom) => void;
   /**
-   * Qui lira ce nom : tous les joueurs de la journée, ou les seuls membres de la
-   * tablée.
+   * Ce qui explique la liste fermée, en une phrase.
    *
-   * ⚠️ LA PHRASE N'EST PAS LA MÊME, ET LA RECOPIER SERAIT FAUX. « un nom que
-   * tous les joueurs du jour peuvent lire » décrit le tableau public ; dans une
+   * ⚠️ ELLE ARRIVE DE L'APPELANT PARCE QU'ELLE N'EST PAS LA MÊME. « un nom que
+   * tous les joueurs du jour peuvent lire » décrit un tableau public ; dans une
    * tablée, seuls ses membres le lisent. Vu à l'écran : le composant partagé
-   * servait la phrase du tableau sur la page d'invitation.
+   * servait la phrase du tableau sur la page d'invitation. La choisir ICI
+   * demanderait une clé par appelant, et une clé prise en variable échappe au
+   * contrôle de parité i18n — donc c'est le texte qui voyage, pas la clé.
    */
-  portee?: "jour" | "tablee";
+  explication: string;
 }) {
-  const t = useTranslations("BanaloJour");
+  const t = useTranslations("TableauJeux");
   const locale = useLocale();
 
   // ⚠️ LES NOMS PROPOSÉS SONT TIRÉS D'UNE GRAINE, PAS DE `Math.random()`. Sans
@@ -171,7 +174,7 @@ export default function ChoisirSonNom({
     if (etat.bloque) {
       return (
         <p style={{ margin: "12px 0 0", fontSize: 13.5, lineHeight: 1.5, fontWeight: 700 }}>
-          {t("tableau.pseudoRetire")}
+          {t("pseudoRetire")}
         </p>
       );
     }
@@ -180,7 +183,7 @@ export default function ChoisirSonNom({
     if (etat.pseudo) {
       return (
         <div style={{ marginTop: 12 }}>
-          <GLabel skin={skin}>{t("tableau.sousCeNom")}</GLabel>
+          <GLabel skin={skin}>{t("sousCeNom")}</GLabel>
           <p style={{ margin: "4px 0 0", fontSize: 17, fontWeight: 800, fontFamily: skin.fontDisplay }}>
             {etat.pseudo}
           </p>
@@ -189,7 +192,7 @@ export default function ChoisirSonNom({
               une manche. Une phrase suffit à lever le « et si je veux en
               changer ? » sans ouvrir une sortie. */}
           <p style={{ margin: "6px 0 0", fontSize: 12.5, color: skin.muted, lineHeight: 1.45 }}>
-            {t("tableau.pseudoOu")}
+            {t("pseudoOu")}
           </p>
         </div>
       );
@@ -198,12 +201,12 @@ export default function ChoisirSonNom({
     // Le compte n'a pas encore de nom : on le demande UNE fois, et on le dit.
     return (
       <div style={{ marginTop: 12 }}>
-        <GLabel skin={skin}>{t("tableau.libreSeul")}</GLabel>
+        <GLabel skin={skin}>{t("libreSeul")}</GLabel>
         <input
           value={etat.libre}
           maxLength={20}
           onChange={(e) => setEtat({ ...etat, libre: e.target.value, index: null })}
-          placeholder={t("tableau.librePlace")}
+          placeholder={t("librePlace")}
           style={{
             width: "100%",
             marginTop: 6,
@@ -221,7 +224,7 @@ export default function ChoisirSonNom({
             qu'on ne le redemandera plus : un nom tapé « pour aujourd'hui » qui
             devient permanent en silence serait la même surprise, à l'envers. */}
         <p style={{ margin: "8px 0 0", fontSize: 12.5, color: skin.muted, lineHeight: 1.45 }}>
-          {t("tableau.pseudoGarde")}
+          {t("pseudoGarde")}
         </p>
       </div>
     );
@@ -268,7 +271,7 @@ export default function ChoisirSonNom({
             cursor: "pointer",
           }}
         >
-          {t("tableau.autres")}
+          {t("autres")}
         </button>
       </div>
 
@@ -280,9 +283,7 @@ export default function ChoisirSonNom({
           carte, et §0 interdit d'en empiler deux. Une phrase grise sans bouton
           ne concurrence rien. */}
       <p style={{ margin: "10px 0 0", fontSize: 12.5, color: skin.muted, lineHeight: 1.45 }}>
-          {/* ⚠️ LES DEUX CLÉS SONT ÉCRITES EN CLAIR : une clé choisie en
-              variable échapperait au contrôle de parité i18n. */}
-        {portee === "tablee" ? t("tablee.pourquoi") : t("tableau.pourquoi")}
+        {explication}
       </p>
     </>
   );

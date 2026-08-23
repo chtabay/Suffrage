@@ -19,11 +19,16 @@ import GameShell from "@/components/games/GameShell";
 import { UNANIMO_SKIN as skin } from "@/lib/games/skin";
 import { GBtn, GCard } from "@/components/games/ui";
 import { monJeton } from "@/lib/games/banalo/jeton";
-import ChoisirSonNom, { NOM_VIERGE, choixDeNom, type EtatNom } from "./ChoisirSonNom";
+import ChoisirSonNom, { NOM_VIERGE, choixDeNom, type EtatNom } from "@/components/games/ChoisirSonNom";
 import { rejoindreTablee, type EntreeTablee } from "@/lib/db/banalo";
 
 export default function RejoindrePage({ code }: { code: string }) {
   const t = useTranslations("BanaloJour");
+  // ⚠️ LES REFUS DE NOM VIENNENT DU NAMESPACE PARTAGÉ depuis que le tableau du
+  // jour sert aussi Cinq sur cinq : « ce nom est déjà porté » se dit pareil
+  // partout, et la règle qui le produit vit dans `ChoisirSonNom`. Un alias, pas
+  // une clé en variable — le contrôle de parité ne voit que les clés en clair.
+  const tj = useTranslations("TableauJeux");
   const router = useRouter();
   const { user, loading } = useAuth();
 
@@ -52,15 +57,15 @@ export default function RejoindrePage({ code }: { code: string }) {
   };
 
   const message = () => {
-    if (souci === "pris") return t("tableau.pris");
+    if (souci === "pris") return tj("pris");
     if (souci === "inconnue") return t("tablee.inconnue");
     if (souci === "pleine") return t("tablee.pleine");
-    if (souci === "court") return t("tableau.court");
-    if (souci === "long") return t("tableau.long");
+    if (souci === "court") return tj("court");
+    if (souci === "long") return tj("long");
     // ⚠️ UN PSEUDO RETIRÉ N'EST PAS UNE PANNE : le geste qui débloque est d'en
     // reposer un, pas de réessayer.
-    if (souci === "bloque") return t("tableau.pseudoRetire");
-    return t("tableau.panne");
+    if (souci === "bloque") return tj("pseudoRetire");
+    return tj("panne");
   };
 
   return (
@@ -97,9 +102,10 @@ export default function RejoindrePage({ code }: { code: string }) {
             compte est un manque de mémoire, et ça se voit. */}
         {!loading ? (
           <ChoisirSonNom
+            skin={skin}
             jeton={monJeton()}
-            portee="tablee"
             connecte={Boolean(user)}
+            explication={t("tablee.pourquoi")}
             etat={nom}
             setEtat={(e) => {
               setNom(e);

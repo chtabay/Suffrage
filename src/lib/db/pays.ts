@@ -121,3 +121,66 @@ export async function rattachePays(): Promise<number | null> {
   if (error) return null;
   return typeof data === "number" ? data : null;
 }
+
+// ──────────────────────────────────────────── le tableau du jour de Cinq sur cinq
+//
+// ⚠️ MÊMES TYPES QUE BANALO, ET C'EST VOULU : le composant est partagé, donc la
+// forme des données l'est aussi. Ce qui diffère est l'UNITÉ — un nombre
+// d'essais, où le meilleur est le plus PETIT — et c'est l'écran qui la met en
+// mots, pas la base.
+import type { ChoixDeNom, DepotNom, Tableau } from "@/lib/db/banalo";
+
+export async function litTableauPays(jeton: string, jour: number): Promise<Tableau | null> {
+  const supabase = createClient();
+  const { data, error } = await supabase.rpc("scrutin_game_pays_tableau", {
+    p_jour: jour,
+    p_jeton: jeton,
+  });
+  if (error) return null;
+  const d = data as Record<string, unknown> | null;
+  if (!d || d.status !== "ok") return null;
+  const brutes = Array.isArray(d.lignes) ? (d.lignes as Record<string, unknown>[]) : [];
+  const ligne = (l: Record<string, unknown>) => ({
+    index: typeof l.index === "number" ? l.index : null,
+    nom: typeof l.nom === "string" ? l.nom : null,
+    // ⚠️ LE CHAMP S'APPELLE `essais` EN BASE ET `score` DANS LE TYPE PARTAGÉ.
+    // Le renommer en base ferait un troisième vocabulaire ; le renommer ici
+    // ferait diverger le composant. On traduit au passage, une fois.
+    score: typeof l.essais === "number" ? l.essais : 0,
+    moi: l.moi === true,
+  });
+  const m = d.moi as Record<string, unknown> | null;
+  return {
+    inscrits: typeof d.inscrits === "number" ? d.inscrits : 0,
+    inscrit: d.inscrit === true,
+    bloque: d.bloque === true,
+    // Une ligne à moitié ne se dessine pas — même règle que chez Banalo.
+    lignes: brutes.filter((l) => typeof l.essais === "number").map(ligne),
+    moi:
+      m && typeof m.essais === "number" && typeof m.place === "number"
+        ? { ...ligne(m), place: m.place }
+        : null,
+  };
+}
+
+export async function deposerNomPays(
+  jeton: string,
+  jour: number,
+  choix: ChoixDeNom,
+): Promise<DepotNom> {
+  const supabase = createClient();
+  const { data, error } = await supabase.rpc("scrutin_game_pays_nom_deposer", {
+    p_jour: jour,
+    p_jeton: jeton,
+    p_index: "index" in choix ? choix.index : null,
+    p_nom: "nom" in choix ? choix.nom : null,
+  });
+  // ⚠️ UNE PANNE N'EST PAS UN REFUS : rien n'est parti, et le dire autrement
+  // ferait croire au joueur que son nom a été jugé.
+  if (error) return "panne";
+  const s = (data as Record<string, unknown> | null)?.status;
+  return s === "ok" || s === "pris" || s === "deja" || s === "compte" ||
+    s === "bloque" || s === "pseudo" || s === "court" || s === "long"
+    ? s
+    : "refus";
+}

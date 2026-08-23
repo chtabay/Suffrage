@@ -33,9 +33,17 @@ import { litDefi, type Defi } from "@/lib/games/comparaison";
 import { POINTS_MAX, VOTANTS_MIN } from "@/lib/games/banalo/bareme";
 import InstallJeu from "@/components/games/InstallJeu";
 import CompteBanalo from "./CompteBanalo";
-import TableauDuJour from "./TableauDuJour";
+import TableauDuJour from "@/components/games/TableauDuJour";
 import MaTablee from "./MaTablee";
-import { etat as litEtat, repond, type EtatBanalo } from "@/lib/db/banalo";
+import {
+  deposerNom,
+  etat as litEtat,
+  litTableauDuJour,
+  repond,
+  type ChoixDeNom,
+  type DepotNom,
+  type EtatBanalo,
+} from "@/lib/db/banalo";
 
 /**
  * ⚠️ `Intl` NE CONNAÎT PAS `pcm`. Lui passer la locale telle quelle rendrait un
@@ -149,6 +157,35 @@ export default function NombreDuJour({ jour }: { jour: number }) {
 
   const n = nombreDe(saisie);
   const unite = enLangue(UNITES[question.unite], locale);
+
+  /**
+   * Ce que le tableau du jour a besoin de savoir, et que lui seul ignore.
+   *
+   * ⚠️ LE TABLEAU EST PARTAGÉ AVEC CINQ SUR CINQ DEPUIS QU'IL A LE SIEN. Il ne
+   * connaît donc ni la clé du thème, ni la langue, ni l'unité du score : chaque
+   * jeu lui rend ses lignes et met son chiffre en mots. Une somme de voix, une
+   * note sur 100 et un nombre d'essais ne se formatent pas pareil — et chez Cinq
+   * sur cinq le MEILLEUR est le plus petit.
+   */
+  const lisLeTableau = useCallback(async () => {
+    const jeton = monJeton();
+    return jeton ? litTableauDuJour(jeton, jour, locale, null) : null;
+  }, [jour, locale]);
+  const deposeLeNom = useCallback(
+    async (choix: ChoixDeNom) => {
+      const jeton = monJeton();
+      return jeton ? deposerNom(jeton, jour, locale, choix) : ("panne" as DepotNom);
+    },
+    [jour, locale],
+  );
+  const nbTableau = useMemo(
+    () => new Intl.NumberFormat(bcp(locale), { maximumFractionDigits: 1 }),
+    [locale],
+  );
+  const scoreEnMots = useCallback(
+    (n: number) => t("tableau.scoreNombre", { n: nbTableau.format(n) }),
+    [t, nbTableau],
+  );
 
   return (
     <>
@@ -504,7 +541,16 @@ export default function NombreDuJour({ jour }: { jour: number }) {
                 (« du large au proche ») était une figure de style, pas un
                 argument. */}
             <MaTablee jour={jour} theme={null} bloque={nomDemande} />
-            <TableauDuJour jour={jour} theme={null} onDemande={setNomDemande} />
+            <TableauDuJour
+            skin={skin}
+            jeton={monJeton()}
+            lis={lisLeTableau}
+            depose={deposeLeNom}
+            score={scoreEnMots}
+            explication={t("tableau.pourquoi")}
+            duree={t("tableau.duree")}
+            onDemande={setNomDemande}
+          />
             {defi && jeu.points !== null ? (
               <ComparaisonAmi
                 skin={skin}

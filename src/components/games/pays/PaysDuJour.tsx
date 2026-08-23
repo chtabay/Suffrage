@@ -29,7 +29,10 @@ import GameShell from "@/components/games/GameShell";
 import { GCard, GLabel } from "@/components/games/ui";
 import Carte from "./Carte";
 import Compte from "./Compte";
-import { deposePartie } from "@/lib/db/pays";
+import { deposePartie, deposerNomPays, litTableauPays } from "@/lib/db/pays";
+import { monJetonPays } from "@/lib/games/pays/jeton";
+import type { ChoixDeNom, DepotNom } from "@/lib/db/banalo";
+import TableauDuJour from "@/components/games/TableauDuJour";
 import ComparaisonAmi from "@/components/games/ComparaisonAmi";
 import { lienDefi, litDefi, type Defi } from "@/lib/games/comparaison";
 import InstallJeu from "@/components/games/InstallJeu";
@@ -482,6 +485,27 @@ export default function PaysDuJour({ jour }: { jour: number }) {
   // structure du puzzle sans que le joueur l'ait sondée (§4.2).
   const scoresAffiches = carteComplete && revelation ? revelation.scores : scores;
 
+  /**
+   * Ce que le tableau du jour partagé ne peut pas savoir tout seul.
+   *
+   * ⚠️ IL EST PARTAGÉ AVEC BANALO, donc il ignore l'unité du chiffre. Ici c'est
+   * un NOMBRE D'ESSAIS et le meilleur est le plus PETIT — chez Banalo c'est une
+   * somme de voix et le meilleur est le plus grand. Le composant se contente
+   * d'afficher ce qu'on lui rend ; c'est la base qui trie, dans le bon sens.
+   */
+  const lisLeTableau = useCallback(async () => {
+    const jeton = monJetonPays();
+    return jeton ? litTableauPays(jeton, jour) : null;
+  }, [jour]);
+  const deposeLeNom = useCallback(
+    async (choix: ChoixDeNom) => {
+      const jeton = monJetonPays();
+      return jeton ? deposerNomPays(jeton, jour, choix) : ("panne" as DepotNom);
+    },
+    [jour],
+  );
+  const essaisEnMots = useCallback((n: number) => t("tableau.essais", { n }), [t]);
+
   return (
     <GameShell
       skin={skin}
@@ -617,6 +641,30 @@ export default function PaysDuJour({ jour }: { jour: number }) {
               passee: t("comparePassee"),
             }}
           />
+        )}
+
+        {/* LE TABLEAU DU JOUR — le même composant que Banalo, la même mécanique
+            de nom. Il passe AVANT l'offre de compte pour la raison déjà mesurée
+            chez Banalo : ce qui CHANGE tous les jours monte, l'annonce qui se
+            répète descend. Et il ne sort qu'une fois la partie gagnée — avant,
+            il n'y a rien à classer, et §16 interdit de toute façon la moindre
+            distraction pendant la manche.
+
+            ⚠️ SON CHIFFRE EST UN NOMBRE D'ESSAIS, DONC LE PLUS PETIT GAGNE —
+            l'inverse de Banalo. C'est la base qui trie ; l'écran ne fait que
+            mettre le nombre en mots. */}
+        {gagne && (
+          <div style={{ marginTop: 14 }}>
+            <TableauDuJour
+              skin={skin}
+              jeton={monJetonPays()}
+              lis={lisLeTableau}
+              depose={deposeLeNom}
+              score={essaisEnMots}
+              explication={t("tableau.pourquoi")}
+              duree={t("tableau.duree")}
+            />
+          </div>
         )}
 
         {/* LE COMPTE — après la révélation, jamais avant (§16). */}

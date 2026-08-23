@@ -2815,28 +2815,10 @@
     "panne": "We couldn't reach the count. Reload the page to see where your answer stands.",
     "demain": "New question at {heure}.",
     "tableau": {
-      "titre": "Today's board",
-      "invite": "Leave a name to appear on today's board.",
-      "deposer": "Leave this name",
-      "autres": "Show me others",
       "libre": "Or write your own",
-      "librePlace": "Your name",
       "pourquoi": "The names come from a list. Writing your own needs a Placet account: a name every player of the day can read needs someone to answer for it.",
-      "sousCeNom": "You'll appear as",
-      "pseudoOu": "That's your Placet name, the one on the leaderboards. You can change it under “Results and leaderboards”.",
-      "pseudoGarde": "This becomes your Placet name: we won't ask again, here or in a group.",
-      "pseudoRetire": "A moderator removed your name. Set another one under “Results and leaderboards” to appear again.",
-      "court": "That name is too short: two characters minimum.",
-      "long": "That name is too long: twenty characters maximum.",
       "duree": "This name is for today only: there is no profile, and nothing to find outside today's board.",
-      "vous": "you",
-      "scoreNombre": "{n}/100",
-      "inscrits": "{n, plural, one {# player has left a name today} other {# players have left a name today}}",
-      "seul": "Your name is in. The board shows from {n} names on.",
-      "pris": "That name is already taken today. Here are others.",
-      "deja": "You have already left a name for today.",
-      "panne": "The name did not go through. Try again.",
-      "libreSeul": "Your name"
+      "scoreNombre": "{n}/100"
     },
     "historique": {
       "metaTitle": "My days — Daily Banalo",
@@ -2876,6 +2858,11 @@
     }
   },
   "Pays": {
+    "tableau": {
+      "essais": "{n, plural, one {# guess} other {# guesses}}",
+      "pourquoi": "Names come from a list. Writing your own needs a Placet account: a name every player of the day can read calls for someone to answer for it.",
+      "duree": "This name is for today only: there is no profile, and nothing to find outside the day's board."
+    },
     "pictosAide": "Each box now tells you what its criterion is about. The last one keeps its secret.",
     "pictosAidePremier": "A first clue is unlocked: the most common square tells you what it is about. The others come as you play.",
     "pouceTitre": "A helping hand",
@@ -3001,5 +2988,25 @@
     "reinit": "We sent you a link. It opens the Placet page where you pick a new password.",
     "erreur": "That didn't work. Check the email and password, then try again.",
     "courtMotDePasse": "Six characters minimum."
+  },
+  "TableauJeux": {
+    "titre": "Today's board",
+    "invite": "Leave a name to appear on today's board.",
+    "vous": "you",
+    "inscrits": "{n, plural, one {# player has left a name today} other {# players have left a name today}}",
+    "seul": "Your name is in. The board shows from {n} names on.",
+    "deposer": "Leave this name",
+    "sousCeNom": "You'll appear as",
+    "pseudoOu": "That's your Placet name, the one on the leaderboards. You can change it under “Results and leaderboards”.",
+    "pseudoGarde": "This becomes your Placet name: we won't ask again, here or in a group.",
+    "pseudoRetire": "A moderator removed your name. Set another one under “Results and leaderboards” to appear again.",
+    "libreSeul": "Your name",
+    "librePlace": "Your name",
+    "autres": "Show me others",
+    "pris": "That name is already taken today. Here are others.",
+    "deja": "You have already left a name for today.",
+    "court": "That name is too short: two characters minimum.",
+    "long": "That name is too long: twenty characters maximum.",
+    "panne": "The name did not go through. Try again."
   }
 }

@@ -1179,6 +1179,52 @@ permanent »** — faux depuis le classement de saison du 25/08, et doublement f
 maintenant. Réécrite dans le même commit, en trois langues : la liste fermée vaut
 pour une journée, le pseudo de compte nomme partout et se garde.
 
+**CINQ SUR CINQ A SON TABLEAU DU JOUR** (`20260908-jeu-pays-tableau-du-jour.sql`,
+`components/games/TableauDuJour.tsx`) — demandé tel quel : « il faut que Cinq sur
+cinq demande le nom, même fonctionnement sur tous les jeux quotidiens ». Il ne
+demandait de nom NULLE PART, donc son joueur n'avait aucune raison d'en poser un
+et ne figurait nulle part avant les classements de saison.
+
+⚠️ **LE COMPOSANT EST SORTI DE `banalo/` VERS `games/`, PAS RECOPIÉ.**
+`TableauDuJour` et `ChoisirSonNom` reçoivent maintenant la matière, le jeton, la
+lecture, le dépôt et le FORMAT DU CHIFFRE en paramètre. Les recopier aurait
+produit deux tableaux qui dérivent — c'est ce qui venait d'arriver aux trois
+offres de compte, et avant elles à la règle du mot orphelin.
+
+⚠️ **SA TABLE NAÎT SANS COLONNE DE TEXTE LIBRE**, et c'est la leçon du 07
+appliquée d'emblée : chez Banalo il a fallu retirer `nom` après coup. Ici il n'y
+a que deux façons de se nommer — un INDEX dans la liste fermée, ou RIEN, ce qui
+veut dire « mon pseudo de compte », résolu à la lecture. La règle est la même
+fonction pour les deux jeux (`scrutin_jeux_pseudo_resoudre`).
+
+⚠️ **PAS DE COLONNE `langue`, CONTRAIREMENT À BANALO, et ce n'est pas un oubli.**
+Banalo classe par langue parce que sa foule EST par langue — on y marque en
+répondant comme les autres, et les autres ne répondent pas la même chose en
+espagnol. Cinq sur cinq cherche un PAYS : la réponse est la même partout, son
+classement du jour est déjà global, et le découper par langue le réduirait sans
+rien dire de vrai. La politique de confidentialité a dû être reprise pour ça :
+elle promettait « de la même journée ET DE LA MÊME LANGUE », désormais faux d'un
+tableau sur deux.
+
+⚠️ **LE MEILLEUR EST LE PLUS PETIT, ET LE COPIER-COLLER LE RETOURNE EN SILENCE.**
+Un nombre d'essais se classe croissant, une somme de voix décroissant. C'est la
+base qui trie ; l'écran ne fait que mettre le nombre en mots — et c'est pour ça
+que le format du chiffre est un paramètre du composant, pas une condition dedans.
+
+⚠️ **LA JOINTURE VERS LE RÉSULTAT PASSE PAR LE JETON *OU* PAR LE COMPTE**, et
+c'est le piège du fichier. `scrutin_game_pays_rattacher` EFFACE le jeton de la
+ligne de résultat quand un compte l'adopte : un joueur connecté a donc un
+résultat sans jeton et un nom avec. Joindre sur le seul jeton ferait disparaître
+du tableau exactement les joueurs qui ont un compte — ceux qui s'y inscrivent
+sous leur pseudo. Vérifié par assertion, pas déduit.
+
+⚠️ **LA PURGE SE GREFFE SUR `scrutin_game_pays_purge` PLUTÔT QUE D'EN CRÉER UNE.**
+Le 30 vit déjà dans cette fonction, son cron et la politique ; une fonction de
+plus avec son propre défaut et son propre cron en ferait deux copies de plus. Et
+les noms se purgent MÊME derrière un compte, contrairement aux résultats : un
+résultat de compte est un palmarès qu'on garde, un nom au tableau est une
+publication datée dont la promesse est qu'elle ne vaut que pour sa journée.
+
 **LA PAGE COMMUNE DES JEUX QUOTIDIENS est en prod** (`/games/quotidien`,
 `components/games/quotidien/`) — une carte par jeu, le chiffre du moment, la
 courbe dans le temps, les records, les cinq dernières journées.

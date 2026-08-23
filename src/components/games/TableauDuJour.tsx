@@ -36,28 +36,49 @@
 // « mots » — ne jamais rendre à un joueur le mot d'un autre — n'est pas entamée
 // d'un pouce, et le tableau n'est pas la porte dérobée par laquelle elle
 // tomberait.
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { useAuth } from "@/lib/auth/useAuth";
-import { UNANIMO_SKIN as skin } from "@/lib/games/skin";
+import type { GameSkin } from "@/lib/games/skin";
 import { GBtn, GCard, GLabel } from "@/components/games/ui";
-import { monJeton } from "@/lib/games/banalo/jeton";
 import { nomDe } from "@/content/banalo/noms";
 import ChoisirSonNom, { NOM_VIERGE, choixDeNom, type EtatNom } from "./ChoisirSonNom";
-import { deposerNom, litTableauDuJour, type DepotNom, type Tableau } from "@/lib/db/banalo";
+import type { ChoixDeNom, DepotNom, Tableau } from "@/lib/db/banalo";
 
-const bcp = (locale: string) => (locale === "pcm" ? "en" : locale);
 
 /** Le plancher d'affichage, celui de la base (`v_min`). Seul inscrit, on serait « premier sur un ». */
 const INSCRITS_MIN = 2;
 
 export default function TableauDuJour({
-  jour,
-  theme,
+  skin,
+  jeton,
+  lis,
+  depose: deposeChoix,
+  score: enMots,
+  explication,
+  duree,
   onDemande,
 }: {
-  jour: number;
-  theme: string | null;
+  skin: GameSkin;
+  /** Le jeton du jeu appelant. Chaque jeu a le sien, et ils sont distincts. */
+  jeton: string | null;
+  /** Relire le tableau. L'appelant sait quelles clés son jeu exige. */
+  lis: () => Promise<Tableau | null>;
+  /** Déposer un nom, et rendre le statut de la base. */
+  depose: (choix: ChoixDeNom) => Promise<DepotNom>;
+  /**
+   * Le chiffre d'une ligne, mis en mots.
+   *
+   * ⚠️ CHAQUE JEU A SON UNITÉ, ET ELLES NE SE COMPARENT PAS : une somme de voix
+   * chez Banalo, une note sur 100 sur son format chiffré, un NOMBRE D'ESSAIS
+   * chez Cinq sur cinq — où le meilleur est le plus PETIT. Le tableau ne
+   * formate donc rien lui-même : il affiche ce que l'appelant lui rend.
+   */
+  score: (n: number) => string;
+  /** Pourquoi la liste est fermée, en une phrase (voir `ChoisirSonNom`). */
+  explication: string;
+  /** Ce que devient ce nom, en une phrase — ou `null` si le joueur a un compte. */
+  duree: string;
   /**
    * Prévient le parent que CE bloc demande un nom au joueur.
    *
@@ -69,7 +90,7 @@ export default function TableauDuJour({
    */
   onDemande?: (demande: boolean) => void;
 }) {
-  const t = useTranslations("BanaloJour");
+  const t = useTranslations("TableauJeux");
   const locale = useLocale();
   // ⚠️ `loading` COMPTE : sans lui, le champ de nom libre clignoterait — absent
   // le temps que la session revienne, puis présent — devant quelqu'un qui a un
@@ -83,11 +104,7 @@ export default function TableauDuJour({
   const [envoi, setEnvoi] = useState(false);
   const [souci, setSouci] = useState<DepotNom | null>(null);
 
-  const relis = useCallback(async () => {
-    const jeton = monJeton();
-    if (!jeton) return null;
-    return litTableauDuJour(jeton, jour, locale, theme);
-  }, [jour, locale, theme]);
+  const relis = useCallback(async () => (jeton ? lis() : null), [jeton, lis]);
 
   useEffect(() => {
     let vivant = true;
@@ -107,23 +124,13 @@ export default function TableauDuJour({
     onDemande?.(demande);
   }, [demande, onDemande]);
 
-  // Le score du format « mots » est une somme de voix, celui du format chiffré
-  // une note sur 100 au dixième. Deux unités, deux formats de nombre.
-  const nb = useMemo(
-    () => new Intl.NumberFormat(bcp(locale), { maximumFractionDigits: theme === null ? 1 : 0 }),
-    [locale, theme],
-  );
-  const dis = (score: number) =>
-    theme === null ? t("tableau.scoreNombre", { n: nb.format(score) }) : t("motsScoreCourt", { n: nb.format(score) });
-
-  const depose = async () => {
-    const jeton = monJeton();
+  const deposeLeNom = async () => {
     if (!jeton || envoi) return;
     const choix = choixDeNom(nom);
     if (!choix) return;
     setEnvoi(true);
     setSouci(null);
-    const r = await deposerNom(jeton, jour, locale, choix);
+    const r = await deposeChoix(choix);
     setEnvoi(false);
     if (r === "ok") {
       const tb = await relis();
@@ -144,7 +151,7 @@ export default function TableauDuJour({
   };
 
   // ⚠️ LE GARDE DE RENDU VIENT APRÈS TOUS LES CROCHETS, jamais avant : un
-  // `return` placé plus haut sauterait `useEffect` et `useMemo` selon l'état,
+  // `return` placé plus haut sauterait `useEffect` selon l'état,
   // ce que React interdit.
   if (loading || !tableau) return null;
 
@@ -169,7 +176,7 @@ export default function TableauDuJour({
     >
       <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
         {nom}
-        {moi ? <span style={{ color: skin.accent, fontWeight: 800 }}> · {t("tableau.vous")}</span> : null}
+        {moi ? <span style={{ color: skin.accent, fontWeight: 800 }}> · {t("vous")}</span> : null}
       </span>
       <span
         style={{
@@ -179,14 +186,14 @@ export default function TableauDuJour({
           fontVariantNumeric: "tabular-nums",
         }}
       >
-        {dis(score)}
+        {enMots(score)}
       </span>
     </li>
   );
 
   return (
     <GCard skin={skin} padding={18}>
-      <GLabel skin={skin}>{t("tableau.titre")}</GLabel>
+      <GLabel skin={skin}>{t("titre")}</GLabel>
 
       {tableau.lignes.length > 0 ? (
         <>
@@ -234,7 +241,7 @@ export default function TableauDuJour({
               pourquoi il ne porte aucun numéro de rang : le vrai rang du joueur,
               parmi TOUS les joueurs du jour, est sur sa carte de score. */}
           <p style={{ margin: "10px 0 0", fontSize: 12.5, color: skin.muted, lineHeight: 1.45 }}>
-            {t("tableau.inscrits", { n: tableau.inscrits })}
+            {t("inscrits", { n: tableau.inscrits })}
           </p>
         </>
       ) : null}
@@ -244,7 +251,7 @@ export default function TableauDuJour({
         // cherche dans un tableau où il ne peut pas être, et rien ne lui dit
         // que le geste qui l'y remettrait est de reposer un pseudo.
         <p style={{ margin: "10px 0 0", fontSize: 13.5, lineHeight: 1.5, fontWeight: 700 }}>
-          {t("tableau.pseudoRetire")}
+          {t("pseudoRetire")}
         </p>
       ) : tableau.inscrit ? (
         tableau.lignes.length === 0 ? (
@@ -252,15 +259,17 @@ export default function TableauDuJour({
           // information absente sans un mot se lit comme une panne, et le joueur
           // part la chercher ailleurs.
           <p style={{ margin: "10px 0 0", fontSize: 13.5, color: skin.muted, lineHeight: 1.5 }}>
-            {t("tableau.seul", { n: INSCRITS_MIN })}
+            {t("seul", { n: INSCRITS_MIN })}
           </p>
         ) : null
       ) : (
         <div style={{ marginTop: tableau.lignes.length > 0 ? 16 : 10 }}>
-          <p style={{ margin: 0, fontSize: 13.5, lineHeight: 1.5 }}>{t("tableau.invite")}</p>
+          <p style={{ margin: 0, fontSize: 13.5, lineHeight: 1.5 }}>{t("invite")}</p>
 
           <ChoisirSonNom
-            jeton={monJeton()}
+            skin={skin}
+            jeton={jeton}
+            explication={explication}
             connecte={Boolean(user)}
             etat={nom}
             setEtat={(e) => {
@@ -277,13 +286,13 @@ export default function TableauDuJour({
               en variable échapperait au contrôle de parité i18n. */}
           {souci ? (
             <p style={{ margin: "10px 0 0", fontSize: 13, fontWeight: 700, color: skin.ink }}>
-              {souci === "pris" ? t("tableau.pris") : null}
-              {souci === "deja" ? t("tableau.deja") : null}
-              {souci === "court" ? t("tableau.court") : null}
-              {souci === "long" ? t("tableau.long") : null}
-              {souci === "bloque" ? t("tableau.pseudoRetire") : null}
+              {souci === "pris" ? t("pris") : null}
+              {souci === "deja" ? t("deja") : null}
+              {souci === "court" ? t("court") : null}
+              {souci === "long" ? t("long") : null}
+              {souci === "bloque" ? t("pseudoRetire") : null}
               {souci === "panne" || souci === "refus" || souci === "compte" || souci === "pseudo"
-                ? t("tableau.panne")
+                ? t("panne")
                 : null}
             </p>
           ) : null}
@@ -294,9 +303,9 @@ export default function TableauDuJour({
             full
             style={{ marginTop: 12 }}
             disabled={!pret || envoi}
-            onClick={() => void depose()}
+            onClick={() => void deposeLeNom()}
           >
-            {t("tableau.deposer")}
+            {t("deposer")}
           </GBtn>
 
           {/* ⚠️ CETTE PHRASE NE S'ADRESSE QU'À QUI N'A PAS DE COMPTE, pour deux
@@ -313,7 +322,7 @@ export default function TableauDuJour({
               donnait comme le vrai coût d'un système d'amis. */}
           {user ? null : (
             <p style={{ margin: "10px 0 0", fontSize: 12.5, color: skin.muted, lineHeight: 1.45 }}>
-              {t("tableau.duree")}
+              {duree}
             </p>
           )}
         </div>

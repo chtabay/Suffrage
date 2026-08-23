@@ -33,9 +33,17 @@ import ComparaisonAmi from "@/components/games/ComparaisonAmi";
 import { litDefi, type Defi } from "@/lib/games/comparaison";
 import InstallJeu from "@/components/games/InstallJeu";
 import CompteBanalo from "./CompteBanalo";
-import TableauDuJour from "./TableauDuJour";
+import TableauDuJour from "@/components/games/TableauDuJour";
 import MaTablee from "./MaTablee";
-import { etatMots, repondMots, type EtatMots } from "@/lib/db/banalo";
+import {
+  deposerNom,
+  etatMots,
+  litTableauDuJour,
+  repondMots,
+  type ChoixDeNom,
+  type DepotNom,
+  type EtatMots,
+} from "@/lib/db/banalo";
 
 const bcp = (locale: string) => (locale === "pcm" ? "en" : locale);
 
@@ -128,6 +136,35 @@ export default function GrilleDeMots({
 
   const change = (i: number, v: string) =>
     setSaisies((s) => s.map((x, k) => (k === i ? v : x)));
+
+  /**
+   * Ce que le tableau du jour a besoin de savoir, et que lui seul ignore.
+   *
+   * ⚠️ LE TABLEAU EST PARTAGÉ AVEC CINQ SUR CINQ DEPUIS QU'IL A LE SIEN. Il ne
+   * connaît donc ni la clé du thème, ni la langue, ni l'unité du score : chaque
+   * jeu lui rend ses lignes et met son chiffre en mots. Une somme de voix, une
+   * note sur 100 et un nombre d'essais ne se formatent pas pareil — et chez Cinq
+   * sur cinq le MEILLEUR est le plus petit.
+   */
+  const lisLeTableau = useCallback(async () => {
+    const jeton = monJeton();
+    return jeton ? litTableauDuJour(jeton, jour, locale, cle) : null;
+  }, [jour, locale, cle]);
+  const deposeLeNom = useCallback(
+    async (choix: ChoixDeNom) => {
+      const jeton = monJeton();
+      return jeton ? deposerNom(jeton, jour, locale, choix) : ("panne" as DepotNom);
+    },
+    [jour, locale],
+  );
+  const nbTableau = useMemo(
+    () => new Intl.NumberFormat(bcp(locale), { maximumFractionDigits: 0 }),
+    [locale],
+  );
+  const scoreEnMots = useCallback(
+    (n: number) => t("motsScoreCourt", { n: nbTableau.format(n) }),
+    [t, nbTableau],
+  );
 
   return (
     <>
@@ -467,7 +504,16 @@ export default function GrilleDeMots({
               (« du large au proche ») était une figure de style, pas un
               argument. */}
           <MaTablee jour={jour} theme={cle} bloque={nomDemande} />
-          <TableauDuJour jour={jour} theme={cle} onDemande={setNomDemande} />
+          <TableauDuJour
+            skin={skin}
+            jeton={monJeton()}
+            lis={lisLeTableau}
+            depose={deposeLeNom}
+            score={scoreEnMots}
+            explication={t("tableau.pourquoi")}
+            duree={t("tableau.duree")}
+            onDemande={setNomDemande}
+          />
           {defi && jeu.total !== null ? (
             <ComparaisonAmi
               skin={skin}
