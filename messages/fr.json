@@ -1703,10 +1703,10 @@
         "pitch": "Quelqu'un cache quelque chose et l'application est le seul meneur. Personne n'est éliminé, personne ne ferme les yeux."
       }
     },
-    "metaTitle": "Jouer ensemble — des jeux de groupe à partager d'un lien",
-    "metaDescription": "Des jeux à plusieurs sur vos téléphones, sans installation ni compte. Banalo : écrivez les mots que tout le monde a en tête.",
-    "title": "Jouer ensemble",
-    "subtitle": "Des jeux où le groupe réfléchit, se surprend et décide ensemble. Un lien, un pseudo, on joue — et un jeu chaque jour, à faire seul.",
+    "metaTitle": "Jouer — un jeu par jour, et des jeux à plusieurs",
+    "metaDescription": "Un jeu par jour à faire seul en deux minutes, et des jeux de groupe à partager d'un lien. Sans installation et sans compte.",
+    "title": "Un jeu par jour, et des jeux à plusieurs",
+    "subtitle": "Le jeu du jour se fait seul, en deux minutes, sans compte ni installation. Les autres attendent que vous soyez réunis.",
     "joinTitle": "On t'a donné un code ?",
     "joinPlaceholder": "ABC123",
     "joinCta": "Entrer",

@@ -21,7 +21,7 @@ corriger.
 | **Gestion de groupes** (`/espaces`) | en prod, 24 constats moyens/faibles en réserve | la session tableau de bord |
 | **Cinq sur cinq** (`games/pays`) | en prod le 2026-08-18 · pictos de catégorie et mise en avant des essais le 2026-08-19 | ouvert |
 | **La Nuit du Fantôme** (`games/fantome`) | en prod ; portraits SVG + murmures de borne posés le 2026-08-18 | l'agent des jeux |
-| **La porte `/games`** | rangée par familles le 2026-08-18 ; ajouter un jeu = lui donner une `famille` dans `catalog.ts` | l'agent des jeux |
+| **La porte `/games`** | rangée par familles le 2026-08-18 ; ajouter un jeu = lui donner une `famille` dans `catalog.ts`. Titre, place du champ de code et vignettes du jour repris le 2026-08-23, sur demande | l'agent des jeux |
 | **Fin de partie de salle** (`ApresLaSalle`, revanche des échecs) | posée le 2026-08-23 sur les cinq jeux de salle | ouvert |
 | **Aperçus d'écrans** (`components/games/Apercus.tsx`) | posés sur Rôdeurs et Banalo ; **reproduits, jamais capturés** — une capture ne parle qu'une langue sur quatre | l'agent des jeux |
 
@@ -1861,6 +1861,51 @@ Fantôme. ⚠️ La leçon vaut plus que la recommandation perdue : **un `count(
 une table de salles ne dit ni quel jeu, ni quand, ni qui** — une stratégie bâtie
 sur six lignes qu'on n'a pas regardées.
 
+**LA PORTE `/games` PARLE ENFIN DE CE QU'ON PEUT FAIRE TOUT DE SUITE**
+(2026-08-23) — les trois défauts de porte écrits dans `docs/experience-des-jeux.md`
+§1, corrigés **sur demande explicite** : cette page est la surface de l'agent des
+jeux, et on ne l'a pas prise de notre propre chef.
+
+⚠️ **LE CHAMP DE CODE ÉTAIT LE PREMIER GESTE OFFERT À QUELQU'UN QUI N'A
+PRÉCISÉMENT PAS DE CODE.** L'argument d'origine — « l'arrivant d'un salon a déjà
+son code, il n'a rien à choisir » — est juste sur lui et faux sur tous les
+autres. C'est le symétrique exact du défaut déjà corrigé sur le tableau du jour :
+une demande adressée à quelqu'un qui n'est pas en mesure d'y répondre. Il ferme
+maintenant le catalogue, sous les jeux de salle, parce qu'un code ouvre une
+SALLE, pas le produit. ⚠️ **Et l'arrivant n'a rien perdu** : le lien qu'on lui
+envoie mène DIRECTEMENT à la salle, sans passer par la porte. Le champ ne sert
+qu'à celui à qui on LIT le code à voix haute — qui est, par construction, dans la
+même pièce que l'hôte. C'est ce qui a fait écarter un raccourci « j'ai un code »
+en haut de page : il aurait recréé le défaut en miniature.
+
+⚠️ **LE TITRE PROMETTAIT LE CONTRAIRE DE CE QUI EST JOUABLE.** « Jouer ensemble »
+annonce du collectif, alors que les deux seuls jeux jouables tout de suite, seul,
+sans rien organiser, sont les quotidiens — le pitch de la famille le disait
+lui-même (« le seul rayon jouable tout de suite »), ce qui était l'aveu que le
+reste ne l'est pas.
+
+⚠️ **LES VIGNETTES QUOTIDIENNES MONTRENT LEUR JOURNÉE, ET BANALO SON SUJET.**
+« 🎪 Le cirque » est une raison de taper maintenant ; « Une question ou un thème,
+chaque jour » est vrai tous les jours, donc du mobilier au troisième passage. Le
+sujet REMPLACE la promesse, il ne s'y ajoute pas — une quatrième ligne ferait
+grandir la vignette sous ses voisines. ⚠️ **Cinq sur cinq ne porte que son
+numéro** : `games/pays/page.tsx` interdit toute métadonnée dérivée du puzzle, et
+les confondre ferait fuiter le jeu depuis la porte. Même règle que `JeuxDuJour`
+sur l'accueil, et **deux numéros de journée, jamais un** — les charnières
+diffèrent (11 h 30 et minuit).
+
+⚠️ **ET L'APERÇU DU LIEN PARTAGÉ SUIT LE TITRE.** `metaTitle` et
+`metaDescription` annonçaient « Jouer ensemble — des jeux de groupe à partager
+d'un lien » : le jour où le titre cesse de dire ça, c'est l'aperçu WhatsApp qui
+continue de le dire. Même défaut, même correction que pour la description de
+Banalo du jour quand le format chiffré est passé à une journée sur sept.
+
+⚠️ **UN QUATRIÈME DÉFAUT NE S'EST VU QU'À L'ÉCRAN** : l'index « Résultats et
+classements » était posé AU-DESSUS des deux vignettes, donc le premier geste
+offert dans la famille quotidienne menait à des tableaux au lieu d'un jeu. Il est
+passé dessous. Mesuré à 390 px : la vignette de Banalo tombe à **366 px** (premier
+écran, sans défiler), le champ de code à **1 666 px**, la page fait 2,3 écrans.
+
 **LA FIN D'UNE PARTIE DE SALLE N'EST PLUS UN CUL-DE-SAC**
 (`components/games/ApresLaSalle.tsx`, 2026-08-23) — et le défaut était pire que
 ce que l'étude décrivait. `hostBar` rend `null` pour un non-hôte : sur Alibi,
@@ -1940,6 +1985,13 @@ d'écrire. Arrête le serveur AVANT de construire, et repars d'un `.next` vide
 ensuite. ⚠️ `ss -ltnp` ne montre pas toujours le processus : c'est `ps -eo
 pid,cmd | grep next` qui le trouve, et il faut tuer les quatre (npm, sh, next,
 next-server).
+⚠️ **ET ÇA VAUT AUSSI POUR `npm run start`**, pas seulement pour le serveur de
+développement — payé le 23/08. Un `pkill` qui échoue en silence laisse l'ancien
+serveur en vie ; le `rm -rf .next` suivant lui retire ses morceaux, le nouveau
+`npm run start` meurt sur `EADDRINUSE` **dans son fichier de log**, et le
+navigateur reçoit un `ChunkLoadError` sur TOUTES les pages. Ça se lit comme un
+défaut du code qu'on vient d'écrire — ici, comme si la porte plantait dans les
+quatre langues. Le premier réflexe est de lire le log du serveur, pas le code.
 
 **Jamais `git add -A`.** Le répertoire de travail contient presque toujours le
 chantier de quelqu'un d'autre. On ajoute les fichiers **un par un**, après avoir

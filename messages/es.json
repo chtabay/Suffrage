@@ -1703,10 +1703,10 @@
         "pitch": "Alguien esconde algo y la aplicación es el único maestro de ceremonias. Nadie es eliminado, nadie cierra los ojos."
       }
     },
-    "metaTitle": "Jugar juntos — juegos de grupo que se comparten con un enlace",
-    "metaDescription": "Juegos para varias personas desde el móvil, sin instalar nada ni crear cuenta. Banalo: escribe las palabras que todos tienen en la cabeza.",
-    "title": "Jugar juntos",
-    "subtitle": "Juegos donde el grupo piensa, se sorprende y decide junto. Un enlace, un apodo, y ya se juega — y un juego cada día, para jugar solo.",
+    "metaTitle": "Jugar — un juego al día, y juegos en grupo",
+    "metaDescription": "Un juego al día para jugar en solitario en dos minutos, y juegos de grupo que se comparten con un enlace. Sin instalar nada ni crear cuenta.",
+    "title": "Un juego al día, y juegos en grupo",
+    "subtitle": "El juego del día se hace en solitario, en dos minutos, sin cuenta ni instalación. Los demás esperan a que estéis reunidos.",
     "joinTitle": "¿Te han dado un código?",
     "joinPlaceholder": "ABC123",
     "joinCta": "Entrar",

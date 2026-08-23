@@ -5,8 +5,27 @@
 // Ce n'est PAS une page de fonctionnalités. On n'y explique pas Condorcet, on
 // n'y vante pas le moteur de vote, on n'y demande pas de compte : on y choisit un
 // jeu, ou on tape un code parce que quelqu'un vient de le lire à voix haute.
-// C'est pour cette dernière raison que le champ de code est EN HAUT et non en
-// bas — l'arrivant d'un salon a déjà son code, il n'a rien à choisir.
+//
+// ⚠️ LE CHAMP DE CODE ÉTAIT EN HAUT, ET C'ÉTAIT LE PREMIER GESTE OFFERT À
+// QUELQU'UN QUI N'A PRÉCISÉMENT PAS DE CODE. L'argument d'origine — « l'arrivant
+// d'un salon a déjà son code, il n'a rien à choisir » — est juste sur lui et faux
+// sur tous les autres : un visiteur qui découvre le produit rencontrait, dans
+// l'ordre, un formulaire inutilisable puis des vignettes qui demandent du monde.
+// C'est le symétrique exact du défaut déjà corrigé sur le tableau du jour : une
+// demande adressée à quelqu'un qui n'est pas en mesure d'y répondre. Le champ est
+// descendu SOUS les jeux de salle, c'est-à-dire à l'endroit où « j'ai un code »
+// veut dire quelque chose : un code ouvre une SALLE, pas le produit.
+//
+// ⚠️ ET L'ARRIVANT N'A RIEN PERDU : le lien qu'on lui a envoyé mène directement
+// à la salle, sans passer par ici. Le champ ne sert qu'à celui à qui on LIT le
+// code à voix haute — qui est, par construction, dans la même pièce que l'hôte.
+//
+// ⚠️ LE TITRE PROMETTAIT L'INVERSE DE CE QUI EST JOUABLE. « Jouer ensemble »
+// annonce du collectif, alors que les deux seuls jeux jouables tout de suite,
+// seul, sans rien organiser, sont les quotidiens ; le pitch de la famille le
+// disait lui-même (« le seul rayon jouable tout de suite »), ce qui était l'aveu
+// que le reste ne l'est pas. Le titre dit maintenant les deux moitiés, dans
+// l'ordre de ce qui est faisable.
 //
 // Elle garde la nav de Placet, elle : c'est bien Placet qui fait découvrir les
 // jeux. Ce sont les pages de jeu qui la déposent.
@@ -22,6 +41,8 @@ import { PLACET_GAMES_SKIN as skin } from "@/lib/games/skin";
 import { GBtn, GCard, GLabel } from "./ui";
 import { numeroDuJour } from "@/lib/games/banalo/jour";
 import { programmeDe } from "@/lib/games/banalo/programme";
+import { enLangue } from "@/content/banalo/questions";
+import { themeLabel } from "@/lib/games/banalo/themes";
 import { monJeton as monJetonBanalo } from "@/lib/games/banalo/jeton";
 import { dateCivile, numeroDeJournee } from "@/lib/games/pays/calendrier";
 import { monJetonPays } from "@/lib/games/pays/jeton";
@@ -44,9 +65,32 @@ export default function GamesHome() {
    * l'endroit exact où l'œil se pose.
    */
   const [place, setPlace] = useState<PorteDesJeux | null>(null);
+  /**
+   * CE QUI SE JOUE AUJOURD'HUI, sur les deux vignettes quotidiennes.
+   *
+   * ⚠️ DEUX NUMÉROS, JAMAIS UN. Les deux jeux n'ont ni la même origine ni la
+   * même charnière — 11 h 30 pour Banalo, minuit pour Cinq sur cinq. La leçon
+   * est déjà payée sur `JeuxDuJour`, où une seule journée affichée sur les deux
+   * cartes annonçait « Cinq sur cinq — journée n° 2 » quand le jeu en était à sa
+   * quatrième.
+   *
+   * ⚠️ ET LE SUJET N'EXISTE QUE POUR BANALO. `games/pays/page.tsx` interdit
+   * « AUCUNE MÉTADONNÉE DÉRIVÉE DU PUZZLE » : Cinq sur cinq ne porte que son
+   * numéro. Les confondre ferait fuiter le jeu depuis la porte.
+   */
+  const [jours, setJours] = useState<{ banalo: number; pays: number; sujet: string } | null>(null);
   useEffect(() => {
     const jourBanalo = numeroDuJour();
     const prog = programmeDe(jourBanalo);
+    const jourPays = numeroDeJournee(dateCivile());
+    setJours({
+      banalo: jourBanalo,
+      pays: jourPays,
+      sujet:
+        prog.type === "mots"
+          ? `${prog.theme.emoji} ${themeLabel(prog.theme, locale)}`
+          : enLangue(prog.question.texte, locale),
+    });
     let vivant = true;
     void placeDuJour({
       jetonBanalo: monJetonBanalo(),
@@ -56,7 +100,7 @@ export default function GamesHome() {
       // `null` — exactement comme les fonctions d'état du jeu.
       theme: prog.type === "mots" ? prog.theme.fr : null,
       jetonPays: monJetonPays(),
-      jourPays: numeroDeJournee(dateCivile()),
+      jourPays,
     }).then((p) => {
       if (vivant) setPlace(p);
     });
@@ -100,6 +144,10 @@ export default function GamesHome() {
             lineHeight: 1.0,
             letterSpacing: "-0.035em",
             margin: 0,
+            // Le titre porte deux moitiés séparées par une virgule : sans
+            // équilibrage, la coupe tombe au hasard de la largeur et laisse
+            // « et des » seul en fin de ligne.
+            textWrap: "balance",
           }}
         >
           {t("title")}
@@ -107,48 +155,6 @@ export default function GamesHome() {
         <p style={{ fontSize: "clamp(16px,2.1vw,19px)", lineHeight: 1.5, color: skin.muted, maxWidth: "44ch", margin: "14px 0 0" }}>
           {t("subtitle")}
         </p>
-
-        {/* Le code d'abord : c'est le geste de celui qui vient d'être invité. */}
-        <GCard skin={skin} accent={skin.accent2} padding={14} style={{ marginTop: 22 }}>
-          <GLabel skin={skin}>{t("joinTitle")}</GLabel>
-          <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
-            <input
-              value={code}
-              onChange={(e) => setCode(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 6))}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") void join();
-              }}
-              placeholder={t("joinPlaceholder")}
-              aria-label={t("joinTitle")}
-              autoCapitalize="characters"
-              autoComplete="off"
-              spellCheck={false}
-              style={{
-                flex: 1,
-                minWidth: 0,
-                fontFamily: skin.fontDisplay,
-                fontWeight: 800,
-                fontSize: 20,
-                letterSpacing: "0.12em",
-                padding: "12px 14px",
-                border: `3px solid ${skin.ink}`,
-                borderRadius: 12,
-                background: "#fff",
-                color: skin.ink,
-                outline: "none",
-                boxSizing: "border-box",
-              }}
-            />
-            <GBtn skin={skin} onClick={join} disabled={code.trim().length < 4 || busy}>
-              {busy ? "…" : t("joinCta")}
-            </GBtn>
-          </div>
-          {err && (
-            <div role="alert" style={{ marginTop: 8, fontSize: 13, fontWeight: 700, color: "#C62828" }}>
-              {err}
-            </div>
-          )}
-        </GCard>
 
         {/* CE QU'ON A EN COURS, AVANT LE CATALOGUE. Quelqu'un qui revient ne
             vient pas choisir un jeu : il vient reprendre celui qu'il a laissé.
@@ -190,78 +196,6 @@ export default function GamesHome() {
                 {libelle.nom}
               </h2>
               <p style={{ margin: "3px 0 0", fontSize: 14, color: skin.muted, maxWidth: "56ch" }}>{libelle.pitch}</p>
-              {/* L'INDEX DE LA FAMILLE QUOTIDIENNE — mes résultats et les
-                  classements, pour les deux jeux à la fois.
-
-                  ⚠️ IL EST ICI ET PAS SUR UN ÉCRAN DE JEU. `GameShell` interdit
-                  la nav de Placet sur une partie (« on vient jouer ») ; la porte,
-                  elle, est exactement le lieu où l'on ne joue pas encore. Et les
-                  écrans d'après-partie n'y mènent que pour un joueur CONNECTÉ
-                  ayant deux journées : un habitué sans compte n'avait aucun
-                  chemin, alors que les classements se lisent sans compte.
-
-                  ⚠️ IL N'EST PAS SILENCIEUX POUR AUTANT, contrairement à
-                  `Reprendre` juste au-dessus. Celui-là montre ce qu'on a EN
-                  COURS — donc rien à montrer à qui n'a rien. Celui-ci mène à des
-                  classements PUBLICS : ils disent à quelqu'un qui découvre la
-                  famille qu'il y a du monde derrière, et c'est une information
-                  sur les jeux, ce que cette page est faite pour donner.
-
-                  ⚠️ ET SON LIBELLÉ NE DIT PAS « MES » : à quelqu'un qui n'a
-                  jamais joué, « mes résultats » promet une page vide. */}
-              {/* ⚠️ IL ÉTAIT UNE LIGNE DE 13,5 px SOUS UN PITCH, et il se
-                  sautait. C'est pourtant le SEUL chemin vers les classements qui
-                  vaut pour tout le monde : les écrans d'après-partie n'y mènent
-                  que pour un joueur connecté ayant deux journées. Il porte donc
-                  maintenant une bordure, une flèche et — quand le joueur a joué
-                  — SA place du jour, qui est la meilleure raison de l'ouvrir.
-
-                  ⚠️ MAIS IL RESTE EN `ghost`, PAS À L'ACCENT. Sur cette page le
-                  geste attendu est de choisir un jeu ; un bouton plein ici
-                  entrerait en concurrence avec les vignettes qu'il surplombe. */}
-              {cle === "quotidien" ? (
-                <Link
-                  href="/games/quotidien"
-                  className="dc-lift"
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 10,
-                    marginTop: 10,
-                    padding: "10px 13px",
-                    borderRadius: 12,
-                    border: `2.5px solid ${skin.ink}`,
-                    background: "#fff",
-                    boxShadow: `4px 4px 0 ${skin.ink}55`,
-                    textDecoration: "none",
-                    color: skin.ink,
-                    maxWidth: 430,
-                  }}
-                >
-                  <span aria-hidden style={{ fontSize: 19, flex: "none" }}>
-                    📈
-                  </span>
-                  <span style={{ minWidth: 0, flex: "1 1 auto" }}>
-                    <span
-                      style={{
-                        display: "block",
-                        fontFamily: skin.fontDisplay,
-                        fontWeight: 800,
-                        fontSize: 15,
-                        lineHeight: 1.2,
-                      }}
-                    >
-                      {t("resultatsLien")}
-                    </span>
-                    <span style={{ display: "block", fontSize: 12.5, color: skin.muted, marginTop: 2 }}>
-                      {t("resultatsPitch")}
-                    </span>
-                  </span>
-                  <span aria-hidden style={{ flex: "none", fontWeight: 800, color: skin.muted }}>
-                    →
-                  </span>
-                </Link>
-              ) : null}
 
               <div
                 // ⚠️ FLEX ET NON GRILLE, à cause des familles à un seul jeu. Avec
@@ -278,6 +212,13 @@ export default function GamesHome() {
                   // comparer ; leur carte garde ses pastilles.
                   const brut =
                     g.slug === "banalo-jour" ? place?.banalo : g.slug === "pays" ? place?.pays : null;
+                  // ⚠️ SEUL BANALO MONTRE SON SUJET, et c'est une règle, pas une
+                  // omission : `games/pays/page.tsx` interdit toute métadonnée
+                  // dérivée du puzzle. Cinq sur cinq garde sa promesse et son
+                  // numéro. Les confondre ferait fuiter le jeu depuis la porte.
+                  const journee =
+                    g.slug === "banalo-jour" ? (jours?.banalo ?? null) : g.slug === "pays" ? (jours?.pays ?? null) : null;
+                  const sujet = g.slug === "banalo-jour" ? (jours?.sujet ?? null) : null;
                   /**
                    * ⚠️ DEUX JOUEURS AU MINIMUM, ET C'EST LE « 1er SUR 1 » QUE CE
                    * PRODUIT REFUSE PARTOUT (`VOTANTS_MIN` 2, `INSCRITS_MIN` 2,
@@ -333,20 +274,52 @@ export default function GamesHome() {
                         {g.emoji}
                       </span>
                       <span style={{ minWidth: 0, flex: "1 1 auto" }}>
+                        {/* ⚠️ LE NUMÉRO DE JOURNÉE EST À DROITE DU NOM, PAS SOUS
+                            LUI. Une quatrième ligne sur une vignette qui en a
+                            trois la ferait grandir sous ses voisines, et le
+                            numéro n'est pas ce qu'on lit en premier : il dit que
+                            le jeu tourne, il ne le vend pas. Même place que sur
+                            les cartes de l'accueil (`JeuxDuJour`). */}
+                        <span style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
+                          <span
+                            style={{
+                              minWidth: 0,
+                              flex: "1 1 auto",
+                              fontFamily: skin.fontDisplay,
+                              fontWeight: 800,
+                              fontSize: 18.5,
+                              letterSpacing: "-0.02em",
+                              lineHeight: 1.15,
+                            }}
+                          >
+                            {t(`${g.slug}.name`)}
+                          </span>
+                          {journee !== null ? (
+                            <span style={{ flex: "none", fontSize: 11.5, color: skin.muted, fontWeight: 700 }}>
+                              {t("jourNumero", { n: journee })}
+                            </span>
+                          ) : null}
+                        </span>
+                        {/* ⚠️ LE SUJET DU JOUR REMPLACE LA PROMESSE, il ne s'y
+                            ajoute pas. « Une question ou un thème, chaque jour »
+                            est vrai tous les jours, donc c'est du mobilier au
+                            troisième passage ; « 🍅 les légumes » est une raison
+                            de taper maintenant. Et il se borne à deux lignes,
+                            comme sur l'accueil : une question chiffrée est
+                            longue et ferait grandir la vignette. */}
                         <span
                           style={{
-                            display: "block",
-                            fontFamily: skin.fontDisplay,
-                            fontWeight: 800,
-                            fontSize: 18.5,
-                            letterSpacing: "-0.02em",
-                            lineHeight: 1.15,
+                            display: "-webkit-box",
+                            WebkitLineClamp: 2,
+                            WebkitBoxOrient: "vertical",
+                            overflow: "hidden",
+                            fontSize: 13,
+                            color: skin.muted,
+                            lineHeight: 1.35,
+                            marginTop: 2,
                           }}
                         >
-                          {t(`${g.slug}.name`)}
-                        </span>
-                        <span style={{ display: "block", fontSize: 13, color: skin.muted, lineHeight: 1.35, marginTop: 2 }}>
-                          {t(`${g.slug}.tagline`)}
+                          {sujet ?? t(`${g.slug}.tagline`)}
                         </span>
                         {/* MA PLACE DU JOUR, sur les deux cartes quotidiennes.
                             
@@ -448,9 +421,104 @@ export default function GamesHome() {
                   );
                 })}
               </div>
+
+              {/* ⚠️ L'INDEX PASSE SOUS LES VIGNETTES, ET C'ÉTAIT UNE INVERSION.
+                  Posé au-dessus, il était le PREMIER élément tapable de la
+                  famille : sur une page dont tout le propos est « jouez
+                  maintenant », le premier geste offert menait à des tableaux de
+                  résultats. C'est le même défaut que le champ de code en tête de
+                  page, en plus petit. Il reste sur le premier écran d'un
+                  téléphone de 390, donc il ne se perd pas. */}
+              {cle === "quotidien" ? (
+                <Link
+                  href="/games/quotidien"
+                  className="dc-lift"
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 10,
+                    marginTop: 10,
+                    padding: "10px 13px",
+                    borderRadius: 12,
+                    border: `2.5px solid ${skin.ink}`,
+                    background: "#fff",
+                    boxShadow: `4px 4px 0 ${skin.ink}55`,
+                    textDecoration: "none",
+                    color: skin.ink,
+                    maxWidth: 430,
+                  }}
+                >
+                  <span aria-hidden style={{ fontSize: 19, flex: "none" }}>
+                    📈
+                  </span>
+                  <span style={{ minWidth: 0, flex: "1 1 auto" }}>
+                    <span
+                      style={{
+                        display: "block",
+                        fontFamily: skin.fontDisplay,
+                        fontWeight: 800,
+                        fontSize: 15,
+                        lineHeight: 1.2,
+                      }}
+                    >
+                      {t("resultatsLien")}
+                    </span>
+                    <span style={{ display: "block", fontSize: 12.5, color: skin.muted, marginTop: 2 }}>
+                      {t("resultatsPitch")}
+                    </span>
+                  </span>
+                  <span aria-hidden style={{ flex: "none", fontWeight: 800, color: skin.muted }}>
+                    →
+                  </span>
+                </Link>
+              ) : null}
             </section>
           );
         })}
+
+        {/* LE CODE, APRÈS LES SALLES — voir l'en-tête du fichier. Il ferme le
+            catalogue au lieu de l'ouvrir : on tape un code parce qu'on vient
+            d'être invité dans une SALLE, et les salles sont juste au-dessus. */}
+        <GCard skin={skin} accent={skin.accent2} padding={14} style={{ marginTop: 22 }}>
+          <GLabel skin={skin}>{t("joinTitle")}</GLabel>
+          <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
+            <input
+              value={code}
+              onChange={(e) => setCode(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 6))}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") void join();
+              }}
+              placeholder={t("joinPlaceholder")}
+              aria-label={t("joinTitle")}
+              autoCapitalize="characters"
+              autoComplete="off"
+              spellCheck={false}
+              style={{
+                flex: 1,
+                minWidth: 0,
+                fontFamily: skin.fontDisplay,
+                fontWeight: 800,
+                fontSize: 20,
+                letterSpacing: "0.12em",
+                padding: "12px 14px",
+                border: `3px solid ${skin.ink}`,
+                borderRadius: 12,
+                background: "#fff",
+                color: skin.ink,
+                outline: "none",
+                boxSizing: "border-box",
+              }}
+            />
+            <GBtn skin={skin} onClick={join} disabled={code.trim().length < 4 || busy}>
+              {busy ? "…" : t("joinCta")}
+            </GBtn>
+          </div>
+          {err && (
+            <div role="alert" style={{ marginTop: 8, fontSize: 13, fontWeight: 700, color: "#C62828" }}>
+              {err}
+            </div>
+          )}
+        </GCard>
 
         {/* La réciprocité, dans le sens jeux → Placet. Discrète : on est venu jouer. */}
         <div

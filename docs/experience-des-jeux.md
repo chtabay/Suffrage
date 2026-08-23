@@ -77,22 +77,44 @@ Toutes les vignettes mènent à un écran intermédiaire. Le jeu du jour ne comm
 jamais **sur** la porte. Wordle, la comparaison la plus proche, n'a pas de porte
 du tout : l'URL EST la grille.
 
-### Ce qu'il faut faire, dans cet ordre
+### Ce qu'il faut faire, dans cet ordre — **FAIT le 2026-08-23**
 
-1. **Retourner la page** : la famille « Un par jour » monte en tête, avec les
-   deux jeux du jour montrés par leur SUJET (Banalo peut afficher son thème,
-   Cinq sur cinq ne peut afficher que son numéro — `games/pays/page.tsx`
-   l'interdit formellement). Le rang du jour, posé aujourd'hui, y contribue déjà.
-2. **Descendre le champ de code** sous les jeux de salle, où il a un sens : c'est
-   l'entrée d'une salle, pas l'entrée du produit.
-3. **Changer le titre.** « Jouer ensemble » décrit la moitié du catalogue ;
-   quelque chose comme « Un jeu par jour, et des jeux à plusieurs » décrit les
-   deux, dans l'ordre de ce qui est faisable.
+1. ~~**Retourner la page**~~ **FAIT.** La famille « Un par jour » était déjà en
+   tête (`FAMILLES` la classe première depuis le rangement du 18/08) ; ce qui
+   manquait était devant elle. Les deux vignettes quotidiennes portent maintenant
+   leur NUMÉRO DE JOURNÉE, et Banalo son SUJET à la place de sa promesse — « 🎪 Le
+   cirque » est une raison de taper maintenant, « Une question ou un thème, chaque
+   jour » est du mobilier au troisième passage. ⚠️ Cinq sur cinq ne porte que son
+   numéro : `games/pays/page.tsx` interdit toute métadonnée dérivée du puzzle, et
+   les confondre ferait fuiter le jeu depuis la porte.
+2. ~~**Descendre le champ de code**~~ **FAIT.** Il ferme le catalogue, sous les
+   jeux de salle. ⚠️ Et l'arrivant n'a rien perdu : le lien qu'on lui envoie mène
+   DIRECTEMENT à la salle. Le champ ne sert qu'à celui à qui on LIT le code à voix
+   haute, qui est par construction dans la même pièce que l'hôte.
+3. ~~**Changer le titre**~~ **FAIT** — « Un jeu par jour, et des jeux à
+   plusieurs », et le sous-titre passe la moitié solo devant au lieu de la
+   raccrocher après un tiret.
 4. ⚠️ **Ne pas fusionner les deux moitiés.** Le rangement par OCCASION (§ familles)
-   est juste et mesuré ; le problème est l'ORDRE, pas la structure.
+   est juste et mesuré ; le problème était l'ORDRE, pas la structure. Rien n'a été
+   fusionné.
 
-⚠️ **CETTE PAGE EST LA SURFACE DE « l'agent des jeux »** (`CLAUDE.md`) : les
-points 1 à 3 se coordonnent avec lui plutôt que de se faire dans son dos.
+⚠️ **UN QUATRIÈME DÉFAUT S'EST VU À L'ÉCRAN, PAS DANS CE DOCUMENT.** L'index
+« Résultats et classements » était posé AU-DESSUS des deux vignettes : sur une
+page dont tout le propos est « jouez maintenant », le premier geste offert dans
+la famille quotidienne menait à des tableaux de résultats. Même défaut que le
+champ de code en tête de page, en plus petit. Il est passé sous les vignettes.
+
+**Mesuré sur un téléphone de 390 px**, la porte faisant 2,3 écrans : la vignette
+de Banalo du jour tombe à **366 px** — donc dans le premier écran, sans
+défiler — et le champ de code à **1 666 px**. Vérifié dans les quatre langues :
+titre sur deux lignes, aucun débordement horizontal. ⚠️ Et « jouable en un clic »
+est vérifié pour Cinq sur cinq — la vignette mène à la carte, au champ de
+recherche et à la partie du jour, sans écran intermédiaire. Banalo du jour appelle
+la base DEPUIS le navigateur, donc ce chemin-là n'est pas éprouvable dans ce
+conteneur.
+
+⚠️ **CETTE PAGE EST LA SURFACE DE « l'agent des jeux »** (`CLAUDE.md`) : ces
+points ont été faits **sur demande explicite**, pas de notre propre chef.
 
 ---
 
@@ -254,13 +276,15 @@ des comptes du même genre — ils disent une échelle, jamais un comportement.
 - l'offre de notification a quitté `/games/quotidien` pour le troisième barreau
   de l'échelle du §0, fusionnée à l'installation (voir §2) ;
 - la fin de partie de salle n'est plus un cul-de-sac, sur les CINQ jeux, et les
-  échecs ont gagné leur revanche (voir §3).
+  échecs ont gagné leur revanche (voir §3) ;
+- les trois défauts de la porte `/games` sont corrigés, plus un quatrième trouvé
+  à l'écran (voir §1).
 
-**Pas fait, et volontairement** : l'ordre de la porte `/games` — le titre, la
-place du champ de code, le jeu jouable en un clic. C'est la surface de « l'agent
-des jeux » (`CLAUDE.md`), et les trois points se coordonnent avec lui plutôt que
-de se faire dans son dos. Ce document est là pour que la décision se prenne, pas
-pour la prendre seul.
+**Il ne reste de ce document que ce qu'aucun écran ne peut résoudre** : il n'y a
+pas de présence là où sont les gens — pas de compte social, pas de lettre —, et
+douze joueurs ne sont pas un échantillon. Tout ce qui est écrit ici sur le
+COMPORTEMENT décrit une poignée de personnes, dont plusieurs sont des tests
+internes.
 
 ⚠️ **Et une limite de méthode, à dire** : douze joueurs ne sont pas un
 échantillon. Tout ce qui est écrit ici sur le COMPORTEMENT (3 retours sur 12,

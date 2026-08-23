@@ -1703,11 +1703,11 @@
         "pitch": "Someone is hiding something and the app is the only host. Nobody is eliminated, nobody closes their eyes."
       }
     },
-    "metaTitle": "Play together — group games you share with a link",
-    "metaDescription": "Games to play together on your phones, no install and no account. Banalo: write the words everyone else is thinking of.",
-    "title": "Play together",
-    "subtitle": "Games where the group thinks, surprises itself and decides together. One link, one nickname, and you're playing — plus one game a day, on your own.",
-    "joinTitle": "Got a code?",
+    "metaTitle": "Play — one game a day, and games for a group",
+    "metaDescription": "One game a day to play on your own in two minutes, and group games you share with a link. No install, no account.",
+    "title": "One game a day, and games for a group",
+    "subtitle": "Today's game takes two minutes on your own — no account, nothing to install. The others wait until you're together.",
+    "joinTitle": "Someone gave you a code?",
     "joinPlaceholder": "ABC123",
     "joinCta": "Enter",
     "joinError": "No game with that code.",
