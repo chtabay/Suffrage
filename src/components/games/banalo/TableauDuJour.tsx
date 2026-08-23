@@ -133,7 +133,7 @@ export default function TableauDuJour({
     setSouci(r);
     // ⚠️ UN NOM PRIS SE REMPLACE, IL NE SE REDEMANDE PAS. Laisser la même liste
     // sous un message d'erreur invite à recliquer le nom qui vient d'échouer.
-    if (r === "pris") setNom({ tour: nom.tour + 1, index: null, libre: "" });
+    if (r === "pris") setNom({ ...nom, tour: nom.tour + 1, index: null, libre: "" });
     // « deja » veut dire que ce joueur est inscrit — depuis un autre onglet, ou
     // parce que la réponse du premier dépôt s'est perdue en route. On relit
     // plutôt que de le laisser devant un formulaire qui ne marchera jamais.
@@ -239,7 +239,14 @@ export default function TableauDuJour({
         </>
       ) : null}
 
-      {tableau.inscrit ? (
+      {tableau.inscrit && tableau.bloque ? (
+        // ⚠️ INSCRIT, MAIS RETIRÉ DE LA LISTE. Sans cette phrase, le joueur se
+        // cherche dans un tableau où il ne peut pas être, et rien ne lui dit
+        // que le geste qui l'y remettrait est de reposer un pseudo.
+        <p style={{ margin: "10px 0 0", fontSize: 13.5, lineHeight: 1.5, fontWeight: 700 }}>
+          {t("tableau.pseudoRetire")}
+        </p>
+      ) : tableau.inscrit ? (
         tableau.lignes.length === 0 ? (
           // Inscrit, mais seul : le tableau n'existe pas encore. On le DIT — une
           // information absente sans un mot se lit comme une panne, et le joueur
@@ -266,11 +273,18 @@ export default function TableauDuJour({
               l'écran : plus bas, « ce nom est déjà porté » se lisait quatre
               lignes après la liste qu'il vient de renouveler, et le joueur ne
               faisait pas le lien entre les deux. */}
+          {/* ⚠️ LES CLÉS SONT ÉCRITES EN CLAIR, une par branche : une clé choisie
+              en variable échapperait au contrôle de parité i18n. */}
           {souci ? (
             <p style={{ margin: "10px 0 0", fontSize: 13, fontWeight: 700, color: skin.ink }}>
               {souci === "pris" ? t("tableau.pris") : null}
               {souci === "deja" ? t("tableau.deja") : null}
-              {souci === "panne" || souci === "refus" || souci === "compte" ? t("tableau.panne") : null}
+              {souci === "court" ? t("tableau.court") : null}
+              {souci === "long" ? t("tableau.long") : null}
+              {souci === "bloque" ? t("tableau.pseudoRetire") : null}
+              {souci === "panne" || souci === "refus" || souci === "compte" || souci === "pseudo"
+                ? t("tableau.panne")
+                : null}
             </p>
           ) : null}
           <GBtn
@@ -285,15 +299,23 @@ export default function TableauDuJour({
             {t("tableau.deposer")}
           </GBtn>
 
-          {/* ⚠️ ON DIT QUE LE NOM MEURT AVEC LA JOURNÉE. C'est la différence
-              entre ce tableau et le « nom permanent et découvrable » que
-              `docs/regularite-des-joueurs.md` §5 donnait comme le vrai coût d'un
-              système d'amis : il n'y a aucun profil, rien à chercher en dehors
-              d'une journée, et la table se purge à trente jours comme les
-              réponses. Le joueur a le droit de le savoir avant de déposer. */}
-          <p style={{ margin: "10px 0 0", fontSize: 12.5, color: skin.muted, lineHeight: 1.45 }}>
-            {t("tableau.duree")}
-          </p>
+          {/* ⚠️ CETTE PHRASE NE S'ADRESSE QU'À QUI N'A PAS DE COMPTE, pour deux
+              raisons. Elle serait FAUSSE pour les autres — derrière un compte le
+              nom est le pseudo Placet, permanent. Et elle serait REDONDANTE :
+              `ChoisirSonNom` vient de dire, deux lignes plus haut, soit « c'est
+              votre pseudo Placet », soit « ce nom devient votre pseudo Placet ».
+              Vu à l'écran : les deux phrases s'empilaient et disaient la même
+              chose deux fois.
+
+              Pour un anonyme elle reste nécessaire : « ce nom ne vaut que pour
+              aujourd'hui » est la différence entre ce tableau et le « nom
+              permanent et découvrable » que `docs/regularite-des-joueurs.md` §5
+              donnait comme le vrai coût d'un système d'amis. */}
+          {user ? null : (
+            <p style={{ margin: "10px 0 0", fontSize: 12.5, color: skin.muted, lineHeight: 1.45 }}>
+              {t("tableau.duree")}
+            </p>
+          )}
         </div>
       )}
     </GCard>

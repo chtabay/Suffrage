@@ -501,6 +501,15 @@ export interface Tableau {
    * n'a rien demandé.
    */
   inscrit: boolean;
+  /**
+   * Mon pseudo de compte a été retiré par un modérateur : je suis inscrit mais
+   * ma ligne n'apparaît plus.
+   *
+   * ⚠️ IL EST RENDU À PART POUR LA MÊME RAISON QUE `inscrit` : sans lui, le
+   * joueur se voit inscrit et absent de la liste, sans un mot — et une
+   * information absente sans phrase se lit comme une panne.
+   */
+  bloque: boolean;
   /** La tête de liste, ordonnée par score (dix lignes — voir la migration). */
   lignes: LigneTableau[];
   /**
@@ -536,6 +545,7 @@ export function litTableau(brut: unknown): Tableau | null {
   return {
     inscrits: typeof t.inscrits === "number" ? t.inscrits : 0,
     inscrit: t.inscrit === true,
+    bloque: t.bloque === true,
     lignes,
     moi:
       m && typeof place === "number" && Number.isInteger(place)
@@ -568,27 +578,46 @@ export async function litTableauDuJour(
  * déposé. `compte` : du texte libre sans compte — c'est LA règle, et elle est
  * tenue par une contrainte de table autant que par la fonction.
  */
-export type DepotNom = "ok" | "pris" | "deja" | "compte" | "refus" | "panne";
+/**
+ * ⚠️ LE VOCABULAIRE EST CELUI DU PSEUDO DE COMPTE, parce que le dépôt passe
+ * maintenant par lui. `bloque` : un modérateur a retiré ce pseudo. `pseudo` : le
+ * compte n'en a pas et rien n'a été proposé. `court`/`long`/`pris` : les bornes
+ * du pseudo, appliquées ici aussi — il n'y a plus deux règlements pour la même
+ * chose.
+ */
+export type DepotNom =
+  | "ok"
+  | "pris"
+  | "deja"
+  | "compte"
+  | "bloque"
+  | "pseudo"
+  | "court"
+  | "long"
+  | "refus"
+  | "panne";
 
 export async function deposerNom(
   jeton: string,
   jour: number,
   langue: string,
-  choix: { index: number } | { nom: string },
+  choix: ChoixDeNom,
 ): Promise<DepotNom> {
   const supabase = createClient();
   const { data, error } = await supabase.rpc("scrutin_banalo_nom_deposer", {
     p_jeton: jeton,
     p_jour: jour,
     p_langue: langue,
-    p_index: "index" in choix ? choix.index : null,
-    p_nom: "nom" in choix ? choix.nom : null,
+    ...nomEnArgs(choix),
   });
   // ⚠️ UNE PANNE N'EST PAS UN REFUS. Replier l'erreur réseau sur « refus »
   // ferait croire au joueur que son nom a été jugé, alors que rien n'est parti.
   if (error) return "panne";
   const s = (data as Record<string, unknown> | null)?.status;
-  return s === "ok" || s === "pris" || s === "deja" || s === "compte" ? s : "refus";
+  return s === "ok" || s === "pris" || s === "deja" || s === "compte" ||
+    s === "bloque" || s === "pseudo" || s === "court" || s === "long"
+    ? s
+    : "refus";
 }
 
 // ──────────────────────────────────────────────────────────── la tablée
@@ -676,17 +705,29 @@ export async function mesTablees(
   return litTablees(data);
 }
 
-/** Ce qu'un nom peut être : pris dans la liste fermée, ou libre derrière un compte. */
-export type ChoixDeNom = { index: number } | { nom: string };
+/**
+ * Ce qu'un nom peut être.
+ *
+ * `index` : pris dans la liste fermée — le seul chemin sans compte.
+ * `compte` : le pseudo du compte, que la base résout elle-même. AUCUN libellé ne
+ *   part d'ici, et c'est ce qui fait qu'un pseudo changé — ou retiré par la
+ *   Régie — se répercute sur toutes les journées sans réécrire une ligne.
+ * `nom` : le premier pseudo d'un compte qui n'en a pas encore. Il n'est pas
+ *   stocké avec la journée : il DEVIENT le pseudo du compte.
+ */
+export type ChoixDeNom = { index: number } | { compte: true } | { nom: string };
 
 const nomEnArgs = (choix: ChoixDeNom) => ({
   p_index: "index" in choix ? choix.index : null,
   p_nom: "nom" in choix ? choix.nom : null,
 });
 
+/** Même vocabulaire que `DepotNom` : le nom passe par le pseudo de compte. */
+export type SouciDeNom = "compte" | "bloque" | "pseudo" | "court" | "long" | "pris";
+
 export type CreationTablee =
   | { status: "ok"; code: string }
-  | { status: "compte" | "trop" | "refus" | "panne" };
+  | { status: SouciDeNom | "trop" | "refus" | "panne" };
 
 export async function creerTablee(jeton: string, choix: ChoixDeNom): Promise<CreationTablee> {
   const supabase = createClient();
@@ -700,18 +741,16 @@ export async function creerTablee(jeton: string, choix: ChoixDeNom): Promise<Cre
   const d = data as Record<string, unknown> | null;
   const s = d?.status;
   if (s === "ok" && typeof d?.code === "string") return { status: "ok", code: d.code };
-  return { status: s === "compte" || s === "trop" ? s : "refus" };
+  return {
+    status:
+      s === "compte" || s === "trop" || s === "bloque" || s === "pseudo" ||
+      s === "court" || s === "long" || s === "pris"
+        ? s
+        : "refus",
+  };
 }
 
-export type EntreeTablee =
-  | "ok"
-  | "pris"
-  | "deja"
-  | "compte"
-  | "inconnue"
-  | "pleine"
-  | "refus"
-  | "panne";
+export type EntreeTablee = "ok" | "deja" | SouciDeNom | "inconnue" | "pleine" | "refus" | "panne";
 
 export async function rejoindreTablee(
   jeton: string,
@@ -726,7 +765,8 @@ export async function rejoindreTablee(
   });
   if (error) return "panne";
   const s = (data as Record<string, unknown> | null)?.status;
-  return s === "ok" || s === "pris" || s === "deja" || s === "compte" || s === "inconnue" || s === "pleine"
+  return s === "ok" || s === "pris" || s === "deja" || s === "compte" || s === "inconnue" ||
+    s === "pleine" || s === "bloque" || s === "pseudo" || s === "court" || s === "long"
     ? s
     : "refus";
 }

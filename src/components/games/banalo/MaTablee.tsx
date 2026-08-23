@@ -38,6 +38,7 @@ import {
   creerTablee,
   derniereJourneeClose,
   mesTablees,
+  type CreationTablee,
   type MembreTablee,
   type Tablee,
 } from "@/lib/db/banalo";
@@ -85,7 +86,11 @@ export default function MaTablee({
   const [ancien, setAncien] = useState(false);
   const [nom, setNom] = useState<EtatNom>(NOM_VIERGE);
   const [envoi, setEnvoi] = useState(false);
-  const [souci, setSouci] = useState<"trop" | "panne" | null>(null);
+  // ⚠️ LE VOCABULAIRE SUIT CELUI DU PSEUDO DE COMPTE : depuis qu'une tablée se
+  // nomme par le pseudo, ses refus sont ceux du pseudo. Replier « votre pseudo a
+  // été retiré » sur « panne » enverrait le joueur réessayer un geste qui ne
+  // marchera jamais.
+  const [souci, setSouci] = useState<CreationTablee["status"] | null>(null);
   /** Le tiroir de création. Fermé au départ : rien ne s'ouvre tout seul. */
   const [creation, setCreation] = useState(false);
   const [copie, setCopie] = useState(false);
@@ -149,7 +154,7 @@ export default function MaTablee({
       void partage(r.code);
       return;
     }
-    setSouci(r.status === "trop" ? "trop" : "panne");
+    setSouci(r.status);
   };
 
   if (loading || tablees === null) return null;
@@ -305,9 +310,19 @@ export default function MaTablee({
               setSouci(null);
             }}
           />
+          {/* ⚠️ CLÉS EN CLAIR, une par branche — une clé en variable échapperait
+              au contrôle de parité i18n. */}
           {souci ? (
             <p role="alert" style={{ margin: "10px 0 0", fontSize: 13, fontWeight: 700, color: skin.ink }}>
-              {souci === "trop" ? t("tablee.trop") : t("tableau.panne")}
+              {souci === "trop" ? t("tablee.trop") : null}
+              {souci === "pris" ? t("tableau.pris") : null}
+              {souci === "court" ? t("tableau.court") : null}
+              {souci === "long" ? t("tableau.long") : null}
+              {souci === "bloque" ? t("tableau.pseudoRetire") : null}
+              {souci === "ok" || souci === "compte" || souci === "pseudo" ||
+              souci === "refus" || souci === "panne"
+                ? t("tableau.panne")
+                : null}
             </p>
           ) : null}
           <GBtn

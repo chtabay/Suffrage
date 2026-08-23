@@ -1077,6 +1077,71 @@ contrôle de parité ne voyant que `messages/*.json`, ce sont les **tests** de
 le signalement, indispensable seulement dans cette forme-là : il n'existe pas
 encore, et la prise pour agir est le compte exigé derrière le texte libre.
 
+**IL N'Y A PLUS QU'UN SEUL NOM PAR COMPTE**
+(`20260907-jeux-un-seul-pseudo.sql`), et c'est un joueur qui a vu le défaut :
+« j'ai associé un pseudo sur mon compte (« Le duc »), or après avoir renseigné le
+Banalo du jour il m'a été proposé de préciser un pseudo, au lieu de le
+reprendre ». Vérifié en base : son compte portait `Le duc` depuis le 22/08, et il
+avait RETAPÉ `Le duc` à la main pour la journée 3. Trois dépôts de nom
+coexistaient — `scrutin_jeux_pseudos` (le compte, permanent, prise Régie),
+`scrutin_banalo_noms` (une journée) et `scrutin_banalo_tablee_membres` (une
+tablée) — et rien ne les reliait.
+
+⚠️ **ET LE VRAI DÉFAUT N'ÉTAIT PAS LA FRICTION : LA PRISE DE LA RÉGIE NE COUVRAIT
+QU'UN DÉPÔT SUR TROIS.** `20260825` a franchi la ligne du nom permanent en
+écrivant noir sur blanc la contrepartie qu'elle réclamait — « un compte derrière
+chaque nom, ET UNE PRISE DANS LA RÉGIE pour le retirer ». Or
+`scrutin_banalo_nom_deposer` ne regardait jamais `bloque_le` : un pseudo retiré
+par un modérateur pouvait continuer à publier le même texte libre au tableau
+PUBLIC, tous les jours. La prise était un mur avec une porte à côté. C'est ça qui
+rendait la reprise nécessaire, pas le confort.
+
+**La règle est maintenant : avec un compte, le pseudo de compte EST le nom,
+partout.** Le tableau du jour et la tablée ne stockent plus aucun libellé pour un
+compte — ni `nom`, ni `nom_index` — et le nom se RÉSOUT à la lecture depuis
+`scrutin_jeux_pseudos`. Trois propriétés viennent avec, sans qu'on ait à les
+écrire : un seul endroit où en changer ; la prise de la Régie atteint tous les
+tableaux d'un coup ; et un nom retiré ne reste pas affiché sur les journées
+passées — exactement le raisonnement déjà écrit pour le podium des saisons (« le
+pseudo n'est pas gelé avec la médaille »).
+
+⚠️ **SANS COMPTE, RIEN NE CHANGE** : liste fermée de 600 noms, par journée, purgée
+à trente jours. C'est cette moitié-là qui porte la justification de l'absence de
+modération, et elle est intacte.
+
+⚠️ **UN PSEUDO EXISTANT N'EST JAMAIS ÉCRASÉ PAR CE QU'ON TAPE AUJOURD'HUI**, et
+c'est ce qui rend la bascule sûre : le client déployé envoie encore du texte
+libre, et `scrutin_jeux_pseudo_resoudre` le remplace par le pseudo du compte. Le
+vieux client obtient donc tout seul le comportement demandé. Ce n'est que pour un
+compte SANS pseudo que le texte est adopté — et il devient alors le pseudo
+permanent, ce que l'écran annonce avant le dépôt.
+
+⚠️ **LES BORNES DU PSEUDO S'APPLIQUENT PARTOUT MAINTENANT.** Il y avait deux
+règlements pour la même chose : `pseudo` faisait 2 à 20 caractères, espaces
+normalisés, caractères de contrôle refusés ; `nom` faisait 1 à 24, sans rien de
+tout ça. `scrutin_jeux_pseudo_net` est le seul endroit où la normalisation vit —
+elle était sur le point d'exister en quatre exemplaires, le chemin qu'avaient pris
+la règle du mot orphelin et le calcul des scores.
+
+⚠️ **LE `left join` SUR LES PSEUDOS NE FILTRE PAS SUR `bloque_le`, ET C'EST
+DÉLIBÉRÉ.** Écrit `join … and p.bloque_le is null`, un compte bloqué rend la
+jointure vide, donc `coalesce(p.pseudo, n.nom)` RETOMBE sur l'ancien texte libre
+d'une ligne historique — et la porte qu'on vient de fermer se rouvre en silence
+sur les seules lignes qui la connaissaient. On joint sans condition et on tranche
+ensuite, en trois cas nommés. L'index de la liste fermée l'emporte toujours.
+
+⚠️ **CINQ SUR CINQ N'AVAIT RIEN À CORRIGER, ET C'EST VÉRIFIÉ, PAS SUPPOSÉ.** Il ne
+demande de nom NULLE PART — pas de tableau du jour, pas de tablée — donc il
+n'existait pas de second champ pour diverger. Son seul nom est le pseudo de
+compte, lu en direct par `scrutin_jeux_saison_table` et `scrutin_jeux_trophees`,
+qui joignent tous deux `and p.bloque_le is null`. Les quatre surfaces lisent
+désormais la même ligne.
+
+⚠️ **LA POLITIQUE DE CONFIDENTIALITÉ DISAIT « il n'existe ni profil ni pseudo
+permanent »** — faux depuis le classement de saison du 25/08, et doublement faux
+maintenant. Réécrite dans le même commit, en trois langues : la liste fermée vaut
+pour une journée, le pseudo de compte nomme partout et se garde.
+
 **LA PAGE COMMUNE DES JEUX QUOTIDIENS est en prod** (`/games/quotidien`,
 `components/games/quotidien/`) — une carte par jeu, le chiffre du moment, la
 courbe dans le temps, les records, les cinq dernières journées.

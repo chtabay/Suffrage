@@ -47,7 +47,7 @@ export default function RejoindrePage({ code }: { code: string }) {
     }
     // Un nom pris renouvelle la liste : la laisser invite à recliquer celui qui
     // vient d'échouer.
-    if (r === "pris") setNom({ tour: nom.tour + 1, index: null, libre: "" });
+    if (r === "pris") setNom({ ...nom, tour: nom.tour + 1, index: null, libre: "" });
     setSouci(r);
   };
 
@@ -55,6 +55,11 @@ export default function RejoindrePage({ code }: { code: string }) {
     if (souci === "pris") return t("tableau.pris");
     if (souci === "inconnue") return t("tablee.inconnue");
     if (souci === "pleine") return t("tablee.pleine");
+    if (souci === "court") return t("tableau.court");
+    if (souci === "long") return t("tableau.long");
+    // ⚠️ UN PSEUDO RETIRÉ N'EST PAS UNE PANNE : le geste qui débloque est d'en
+    // reposer un, pas de réessayer.
+    if (souci === "bloque") return t("tableau.pseudoRetire");
     return t("tableau.panne");
   };
 
