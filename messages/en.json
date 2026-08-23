@@ -1669,6 +1669,7 @@
     "goSpaces": "My groups"
   },
   "Games": {
+    "installPourNotif": "On iPhone, Placet has to be on your home screen before it can tell you when your result is settled.",
     "resultatsPitch": "Your progress, this month's leaderboards and the trophies.",
     "placeRang": "{rang, selectordinal, one {#st} two {#nd} few {#rd} other {#th}}",
     "prepare": "needs setting up",
@@ -1736,8 +1737,8 @@
       "name": "Collaborative chess",
       "tagline": "Two teams, one move, one vote each"
     },
-    "installTexte": "One game a day is easier to keep up when it's on your home screen.",
-    "installCta": "Install the game",
+    "installTexte": "Placet on your home screen: the day's game is then one gesture away, with a long press on the icon.",
+    "installCta": "Install Placet",
     "installIos": "On iPhone: tap <b>Share</b>, then <b>“Add to Home Screen”</b>.",
     "banalo-jour": {
       "name": "Daily Banalo",

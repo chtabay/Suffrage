@@ -1669,6 +1669,7 @@
     "goSpaces": "My groups"
   },
   "Games": {
+    "installPourNotif": "For iPhone, Placet must dey your home screen before e fit tell you wen your result don settle.",
     "resultatsPitch": "How you dey go, di month rankings and di trophies.",
     "placeRang": "{rang, selectordinal, one {#st} two {#nd} few {#rd} other {#th}}",
     "prepare": "you go prepare am",
@@ -1736,8 +1737,8 @@
       "name": "Collabo chess",
       "tagline": "Two sides, one move, each pesin get one voice"
     },
-    "installTexte": "One game every day easy pass if e dey your home screen.",
-    "installCta": "Install di game",
+    "installTexte": "Placet for your home screen: di game of di day go dey one gesture away, if you press di icon long.",
+    "installCta": "Install Placet",
     "installIos": "For iPhone: press <b>Share</b>, then <b>“Add to Home Screen”</b>.",
     "banalo-jour": {
       "name": "Banalo of di Day",

@@ -1669,6 +1669,7 @@
     "goSpaces": "Mis grupos"
   },
   "Games": {
+    "installPourNotif": "En iPhone, Placet tiene que estar en tu pantalla de inicio para poder avisarte cuando tu resultado queda fijado.",
     "resultatsPitch": "Tu progreso, las clasificaciones del mes y los trofeos.",
     "placeRang": "{rang, selectordinal, other {#º}}",
     "prepare": "hay que prepararlo",
@@ -1736,8 +1737,8 @@
       "name": "Ajedrez colaborativo",
       "tagline": "Dos bandos, una jugada, un voto cada uno"
     },
-    "installTexte": "Un juego al día se lleva mejor cuando está en la pantalla de inicio.",
-    "installCta": "Instalar el juego",
+    "installTexte": "Placet en tu pantalla de inicio: el juego del día queda a un gesto, con una pulsación larga en el icono.",
+    "installCta": "Instalar Placet",
     "installIos": "En iPhone: toca <b>Compartir</b> y luego <b>«Añadir a pantalla de inicio»</b>.",
     "banalo-jour": {
       "name": "Banalo del día",

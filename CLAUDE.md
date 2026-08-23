@@ -845,12 +845,38 @@ là.
 compte ; compte → l'installation. `CompteBanalo` arbitre, l'installation lui est
 passée en `children`. Empiler les deux les faisait se cannibaliser, et le bloc du
 compte — signalé trop discret sur de vrais joueurs — porte maintenant l'accent et
-un titre en police de titre. ⚠️ **Les notifications, elles, NE SONT PAS DANS
-CETTE ÉCHELLE** — elles s'activent depuis `/games/quotidien`, pas après une
-partie, et c'est un choix : l'échelle du §0 est pleine, y glisser une quatrième
-demande en déplacerait une en silence. Le prix est réel — un habitué qui ne va
-jamais sur la page commune ne verra jamais l'offre — et le rouvrir voudra dire
-DÉPLACER quelque chose, pas ajouter. ⚠️ **NE PAS RÉPÉTER MON ERREUR : c'est le §7 de
+un titre en police de titre. ⚠️ **L'OFFRE DE NOTIFICATION EST FUSIONNÉE DANS `InstallJeu`, PAS AJOUTÉE À
+L'ÉCHELLE.** Elle ne vivait que sur `/games/quotidien`, la page que les joueurs
+ne visitent pas — donc le seul mécanisme du produit qui FABRIQUE un retour au
+lieu de l'espérer n'atteignait personne. La poser en quatrième barreau aurait
+déplacé quelqu'un ; elle occupe donc le TROISIÈME, avec l'installation, parce
+que **sur iOS les deux ne sont même pas deux gestes** : le push web n'y existe
+que pour une application posée sur l'écran d'accueil. Ça donne enfin une raison
+à une demande qui n'en avait pas.
+
+⚠️ **UNE SEULE DEMANDE À LA FOIS, ET DANS CET ORDRE** : la notification quand
+elle est possible (elle rapporte au joueur), l'installation sinon. Hors iOS le
+push marche SANS installer — offrir les deux ferait deux boutons dans un créneau
+qui n'en admet qu'un. ⚠️ Et **les notifications exigent un compte** (réglages et
+tournée sont indexés sur `user_id`), donc sans compte le bloc retombe sur
+l'installation seule — ce qui tombe bien, l'échelle plaçant déjà l'offre de
+compte avant.
+
+⚠️ **PAS D'ACCROCHE SANS BOUTON.** Après un refus de permission, quand il n'y a
+rien à installer, la carte ne garde QUE la phrase qui explique le refus. Vu à
+l'écran : la première version servait « Placet sur votre écran d'accueil » sous
+un refus de notification, sans le moindre geste à faire.
+
+⚠️ **ET LA PROMESSE D'INSTALLATION ÉTAIT FAUSSE.** Elle disait « installer LE
+JEU » et « l'avoir sur l'écran d'accueil » — or il n'y a qu'UNE application :
+`manifest.ts` porte `start_url: "/"` et le nom « Placet ». Le joueur obtenait une
+icône Placet ouvrant l'accueil de Placet. Le texte dit maintenant ce que
+l'installation fait vraiment, et le manifeste a gagné des **raccourcis** vers les
+deux jeux et les classements (appui long sur l'icône). ⚠️ Un SECOND manifeste
+servi sur `/games` (`start_url: "/games"`) donnerait une icône qui ouvre vraiment
+les jeux — écarté : deux applications installables pour un même site, avec un
+service worker et un push à revérifier sur un vrai téléphone. À douze joueurs ça
+coûte plus de confusion que ça n'en résout ; à rouvrir si l'icône déçoit. ⚠️ **NE PAS RÉPÉTER MON ERREUR : c'est le §7 de
 `docs/regularite-des-joueurs.md` qui a écarté le RAPPEL QUOTIDIEN** (la
 permission ne se demande qu'une fois, un rappel est du bruit pour qui a déjà
 joué, et la charnière de 11 h 30 n'est pas l'horloge du joueur). Le §6, lui, dit
