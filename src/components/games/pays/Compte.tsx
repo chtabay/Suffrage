@@ -26,7 +26,8 @@ import { useAuth } from "@/lib/auth/useAuth";
 import { enregistreResultats, maPosition, monBilan, rattachePays, type BilanPays, type RangPays } from "@/lib/db/pays";
 import { lisResultats, serieEnCours } from "@/lib/games/pays/local";
 import type { GameSkin } from "@/lib/games/skin";
-import { GBtn, GCard, GLabel } from "@/components/games/ui";
+import { GCard, GLabel } from "@/components/games/ui";
+import ConnexionJeux from "@/components/games/ConnexionJeux";
 import PontPlacet from "@/components/games/PontPlacet";
 
 // ⚠️ CE BLOC LIT SES TEXTES LUI-MÊME, contrairement à `Revelation` qui les
@@ -58,9 +59,7 @@ export default function Compte({
   essaisDuJour: number;
 }) {
   const t = useTranslations("Pays");
-  const { user, loading, signIn, signInWithEmail } = useAuth();
-  const [email, setEmail] = useState("");
-  const [etat, setEtat] = useState<"repos" | "envoi" | "envoye" | "erreur">("repos");
+  const { user, loading } = useAuth();
   const [bilan, setBilan] = useState<BilanPays | null>(null);
   const [rang, setRang] = useState<RangPays | null>(null);
   const rattachePour = useRef<string | null>(null);
@@ -98,11 +97,6 @@ export default function Compte({
     };
   }, [user, jour]);
 
-  const envoie = async () => {
-    if (!email.includes("@") || etat === "envoi") return;
-    setEtat("envoi");
-    setEtat((await signInWithEmail(email)) ? "envoye" : "erreur");
-  };
 
   // Tant qu'on ne sait pas s'il y a un compte, on n'affiche rien : faire
   // clignoter « créez un compte » devant quelqu'un qui en a un est un manque de
@@ -188,49 +182,7 @@ export default function Compte({
         {t("compte.texte")}
       </p>
 
-      {etat === "envoye" ? (
-        <p style={{ margin: "12px 0 0", fontWeight: 700, color: skin.good }}>{t("compte.envoye")}</p>
-      ) : (
-        <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 12 }}>
-          <GBtn skin={skin} variant="ghost" onClick={() => void signIn()}>
-            {t("compte.google")}
-          </GBtn>
-          <div style={{ display: "flex", gap: 8, flex: "1 1 240px", minWidth: 0 }}>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") void envoie();
-              }}
-              placeholder={t("compte.emailPlaceholder")}
-              aria-label={t("compte.emailPlaceholder")}
-              autoComplete="email"
-              style={{
-                flex: 1,
-                minWidth: 0,
-                fontFamily: skin.fontBody,
-                fontSize: 15,
-                padding: "10px 12px",
-                border: `${skin.border}px solid ${skin.ink}`,
-                borderRadius: 11,
-                background: "#fff",
-                color: skin.ink,
-                outline: "none",
-                boxSizing: "border-box",
-              }}
-            />
-            <GBtn skin={skin} onClick={envoie} disabled={!email.includes("@") || etat === "envoi"}>
-              {etat === "envoi" ? "…" : t("compte.envoyer")}
-            </GBtn>
-          </div>
-        </div>
-      )}
-      {etat === "erreur" && (
-        <p role="alert" style={{ margin: "8px 0 0", fontWeight: 700, color: "#B3261E", fontSize: 13.5 }}>
-          {t("compte.erreur")}
-        </p>
-      )}
+      <ConnexionJeux skin={skin} />
       <p style={{ margin: "10px 0 0", fontSize: 13, color: skin.muted, lineHeight: 1.5 }}>
         {t("compte.placet")}{" "}
         <Link href="/" style={{ color: skin.ink, fontWeight: 700 }}>

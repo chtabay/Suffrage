@@ -930,6 +930,43 @@ charge utile postée porte bien le fuseau IANA et la langue de l'interface,
 vérifié sur trois couples langue/fuseau, et l'offre cède la place aux trois
 interrupteurs. Le reste tient sur le bloc SQL à huit assertions.
 
+**LES QUATRE CHEMINS DE CONNEXION DE PLACET SONT ENFIN OFFERTS DANS LES JEUX**
+(`ConnexionJeux.tsx`), et c'est encore un joueur qui a vu ce qui manquait :
+« il n'est proposé que la méthode Google et le magic link, la version avec mot de
+passe — qui existe sur Placet — n'est pas proposée ». Exact. `useAuth` expose
+`signInPassword`, `signUpPassword` et `resetPassword` depuis toujours, et seul
+`SpacesHome` s'en servait.
+
+⚠️ **LA CAUSE EST LA COPIE, PAS L'OUBLI.** Les trois offres de compte des jeux —
+Banalo, Cinq sur cinq, la page commune — avaient chacune recopié les deux mêmes
+boutons, avec chacune ses propres clés i18n. Aucune n'a suivi quand Placet a
+gagné le mot de passe, et rien ne pouvait le signaler. Même chemin que la règle
+du mot orphelin et que le calcul des scores : on l'a sorti en UN exemplaire, et
+les **quinze clés devenues orphelines sont parties avec** — une clé qui reste
+est l'invitation à recopier le bouton qu'elle servait.
+
+⚠️ **LE COMPOSANT NE PORTE QUE LES MÉTHODES, PAS L'ARGUMENTAIRE.** Chaque écran
+garde son titre et sa promesse : « gardez votre série » ne se dit pas pareil
+après une partie de Banalo, après une partie de Cinq sur cinq et sur la page des
+classements. Ce qui se partage est la plomberie, pas la voix.
+
+⚠️ **LE LIEN MAGIQUE RESTE DEVANT, LE MOT DE PASSE EST À UN GESTE.** Après une
+partie, le joueur n'a pas demandé à s'inscrire : lui présenter d'emblée un mot de
+passe à inventer serait une demande de plus là où §0 dit qu'il n'y en a qu'une.
+Deux pastilles, et un seul champ email partagé — les montrer ensemble ferait deux
+champs email l'un sous l'autre.
+
+⚠️ **ON REVIENT SUR L'ÉCRAN DE JEU**, et c'est une correction : les appels
+d'origine passaient `signIn()` sans destination, donc le joueur qui se connectait
+depuis sa partie atterrissait sur l'accueil de Placet. On repart du CHEMIN NU,
+jamais de `href` — l'URL peut porter le résultat d'un ami.
+
+⚠️ **DEUX ÉTATS NE SONT PAS DES ERREURS, ET LES REPLIER SUR « ça n'a pas marché »
+FERAIT RECOMMENCER QUELQU'UN POUR RIEN** : `confirm` veut dire que le compte
+existe et attend un clic dans un email ; le lien de réinitialisation, lui, mène
+sur `/espaces?recovery=1` — la seule page qui porte le formulaire de nouveau mot
+de passe — et l'écran le DIT, sans quoi le joueur croit s'être trompé de site.
+
 **L'après-partie des jeux quotidiens n'a QU'UNE place**, et plusieurs chantiers
 la veulent (installation, compte, pont vers Placet, plus tard les amis). Les
 empiler les ferait se cannibaliser : l'échelle de priorité est écrite dans

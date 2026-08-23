@@ -23,8 +23,9 @@ import { Link } from "@/i18n/navigation";
 import { useAuth } from "@/lib/auth/useAuth";
 import GameShell from "@/components/games/GameShell";
 import { PLACET_GAMES_SKIN as skin, UNANIMO_SKIN, PAYS_SKIN } from "@/lib/games/skin";
-import { GBtn, GCard } from "@/components/games/ui";
+import { GCard } from "@/components/games/ui";
 import { mesJourneesBanalo, mesJourneesPays, type JourneeCommune } from "@/lib/db/jeux";
+import ConnexionJeux from "@/components/games/ConnexionJeux";
 import CarteJeu from "./CarteJeu";
 import Notifications from "./Notifications";
 import Classements from "./Classements";
@@ -32,14 +33,12 @@ import SalleDesTrophees from "./SalleDesTrophees";
 
 export default function Quotidien() {
   const t = useTranslations("JeuxQuotidiens");
-  const { user, loading, signIn, signInWithEmail } = useAuth();
+  const { user, loading } = useAuth();
 
   const [banalo, setBanalo] = useState<JourneeCommune[] | null>(null);
   const [pays, setPays] = useState<JourneeCommune[] | null>(null);
   const [panne, setPanne] = useState(false);
   const [onglet, setOnglet] = useState<"moi" | "classements" | "trophees">("moi");
-  const [email, setEmail] = useState("");
-  const [etat, setEtat] = useState<"repos" | "envoi" | "envoye" | "erreur">("repos");
 
   // ⚠️ ON DÉPEND DE `user?.id`, PAS DE `user`. `useAuth` rend un OBJET dont la
   // référence change à chaque relecture de session : un effet qui dépend de lui
@@ -63,11 +62,6 @@ export default function Quotidien() {
     };
   }, [uid]);
 
-  const envoie = async () => {
-    if (!email.includes("@") || etat === "envoi") return;
-    setEtat("envoi");
-    setEtat((await signInWithEmail(email)) ? "envoye" : "erreur");
-  };
 
   const cadre = (enfants: React.ReactNode) => (
     <GameShell
@@ -102,49 +96,7 @@ export default function Quotidien() {
         <p style={{ margin: "8px 0 0", fontSize: 14.5, lineHeight: 1.5, color: skin.muted, maxWidth: "46ch" }}>
           {t("sansCompteTexte")}
         </p>
-        {etat === "envoye" ? (
-          <p style={{ margin: "12px 0 0", fontWeight: 700, color: skin.good }}>{t("envoye")}</p>
-        ) : (
-          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 14 }}>
-            <GBtn skin={skin} variant="ghost" onClick={() => void signIn()}>
-              {t("google")}
-            </GBtn>
-            <div style={{ display: "flex", gap: 8, flex: "1 1 240px", minWidth: 0 }}>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") void envoie();
-                }}
-                placeholder={t("emailPlaceholder")}
-                aria-label={t("emailPlaceholder")}
-                autoComplete="email"
-                style={{
-                  flex: 1,
-                  minWidth: 0,
-                  fontFamily: skin.fontBody,
-                  fontSize: 15,
-                  padding: "10px 12px",
-                  border: `${skin.border}px solid ${skin.ink}`,
-                  borderRadius: 11,
-                  background: "#fff",
-                  color: skin.ink,
-                  outline: "none",
-                  boxSizing: "border-box",
-                }}
-              />
-              <GBtn skin={skin} onClick={envoie} disabled={!email.includes("@") || etat === "envoi"}>
-                {etat === "envoi" ? "…" : t("envoyer")}
-              </GBtn>
-            </div>
-          </div>
-        )}
-        {etat === "erreur" && (
-          <p role="alert" style={{ margin: "8px 0 0", fontWeight: 700, color: "#B3261E", fontSize: 13.5 }}>
-            {t("erreur")}
-          </p>
-        )}
+        <ConnexionJeux skin={skin} />
         <p style={{ margin: "14px 0 0", fontSize: 13.5 }}>
           <Link href="/games" style={{ color: skin.ink, fontWeight: 700 }}>
             {t("versLesJeux")}

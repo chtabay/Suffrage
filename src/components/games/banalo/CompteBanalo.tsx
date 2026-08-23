@@ -28,17 +28,16 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { useAuth } from "@/lib/auth/useAuth";
+import ConnexionJeux from "@/components/games/ConnexionJeux";
 import { UNANIMO_SKIN as skin } from "@/lib/games/skin";
-import { GBtn, GCard, GLabel } from "@/components/games/ui";
+import { GCard, GLabel } from "@/components/games/ui";
 import PontPlacet from "@/components/games/PontPlacet";
 import { monJeton } from "@/lib/games/banalo/jeton";
 import { maSerie, monBilanBanalo, rattache, serieVivante, type BilanBanalo } from "@/lib/db/banalo";
 
 export default function CompteBanalo({ jour, install }: { jour: number; install?: ReactNode }) {
   const t = useTranslations("BanaloJour");
-  const { user, loading, signIn, signInWithEmail } = useAuth();
-  const [email, setEmail] = useState("");
-  const [etat, setEtat] = useState<"repos" | "envoi" | "envoye" | "erreur">("repos");
+  const { user, loading } = useAuth();
   const [bilan, setBilan] = useState<BilanBanalo | null>(null);
   const [serie, setSerie] = useState(0);
   const rattachePour = useRef<string | null>(null);
@@ -79,11 +78,6 @@ export default function CompteBanalo({ jour, install }: { jour: number; install?
     };
   }, [user]);
 
-  const envoie = async () => {
-    if (!email.includes("@") || etat === "envoi") return;
-    setEtat("envoi");
-    setEtat((await signInWithEmail(email)) ? "envoye" : "erreur");
-  };
 
   // Tant qu'on ne sait pas s'il y a un compte, on n'affiche rien : faire
   // clignoter « créez un compte » devant quelqu'un qui en a un est un manque de
@@ -193,49 +187,7 @@ export default function CompteBanalo({ jour, install }: { jour: number; install?
         {t("compte.texte")}
       </p>
 
-      {etat === "envoye" ? (
-        <p style={{ margin: "12px 0 0", fontWeight: 700, color: skin.good }}>{t("compte.envoye")}</p>
-      ) : (
-        <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 12 }}>
-          <GBtn skin={skin} variant="ghost" onClick={() => void signIn()}>
-            {t("compte.google")}
-          </GBtn>
-          <div style={{ display: "flex", gap: 8, flex: "1 1 240px", minWidth: 0 }}>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") void envoie();
-              }}
-              placeholder={t("compte.emailPlaceholder")}
-              aria-label={t("compte.emailPlaceholder")}
-              autoComplete="email"
-              style={{
-                flex: 1,
-                minWidth: 0,
-                fontFamily: skin.fontBody,
-                fontSize: 15,
-                padding: "10px 12px",
-                border: `${skin.border}px solid ${skin.ink}`,
-                borderRadius: 11,
-                background: "#fff",
-                color: skin.ink,
-                outline: "none",
-                boxSizing: "border-box",
-              }}
-            />
-            <GBtn skin={skin} onClick={envoie} disabled={!email.includes("@") || etat === "envoi"}>
-              {etat === "envoi" ? "…" : t("compte.envoyer")}
-            </GBtn>
-          </div>
-        </div>
-      )}
-      {etat === "erreur" && (
-        <p role="alert" style={{ margin: "8px 0 0", fontWeight: 700, color: "#B3261E", fontSize: 13.5 }}>
-          {t("compte.erreur")}
-        </p>
-      )}
+      <ConnexionJeux skin={skin} />
       {lienPlacet}
       {/* ⚠️ LE PONT EST RENDU ICI, ET PAS DANS L'ÉCRAN DE RÉSULTAT, parce que
           c'est ce bloc qui détient l'état dont dépend l'échelle : y a-t-il un
