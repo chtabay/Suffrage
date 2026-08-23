@@ -830,8 +830,13 @@ appels, et son ménage (`vivant = false`) coupe la réponse précédente avant
 qu'elle n'arrive : **la page reste blanche pour toujours tout en martelant la
 base**. Trouvé au navigateur, invisible à tsc comme à la relecture. Une CHAÎNE
 est stable, et le montage double du mode strict retombe alors sur le cas normal.
-`CompteBanalo` s'en tire par un `ref` par identifiant de compte, ce qui marche
-aussi.
+⚠️ **ET LE `ref` PAR IDENTIFIANT DE COMPTE NE SUFFIT PAS — CETTE PAGE L'A
+AFFIRMÉ À TORT.** Il arrête la boucle, il n'empêche pas l'ANNULATION : le ménage
+du premier passage pose `vivant = false`, et le second repart aussitôt sur le
+`ref`, si bien que le résultat n'est JAMAIS posé. Mesuré le 23/08 sur
+`CompteBanalo` et sur `pays/Compte` : `scrutin_banalo_moi` ne partait jamais, le
+bilan restait `null`, et la carte n'affichait que la série — ni journées, ni
+centiles, ni lien vers l'historique. Les deux dépendent maintenant de `uid`.
 
 ⚠️ **UNE LIGNE EN `nowrap` DANS UNE GRILLE ÉLARGIT LA PAGE ENTIÈRE.** Les sujets
 de journée ne se coupent pas tout seuls : sans `minWidth: 0` sur le `ul` ET sur
@@ -1293,6 +1298,56 @@ désormais la même ligne.
 permanent »** — faux depuis le classement de saison du 25/08, et doublement faux
 maintenant. Réécrite dans le même commit, en trois langues : la liste fermée vaut
 pour une journée, le pseudo de compte nomme partout et se garde.
+
+**LE PONT VERS PLACET ÉTAIT DU CODE MORT, ET LA MENTION QUI RESTAIT ÉTAIT UNE
+PHRASE GRISE** (2026-08-23) — signalé ainsi : « la mention de Placet juste
+au-dessous de *Vos résultats* sur les pages de jeu est trop discrète ».
+
+⚠️ **ELLE ÉTAIT DISCRÈTE PARCE QU'ELLE N'AVAIT RIEN À DIRE, et grossir une
+phrase générique la rapproche de la publicité au lieu de l'en éloigner.** Ce qui
+fait qu'un lien se lit comme une réclame n'est pas sa taille : c'est de parler de
+l'annonceur, d'être identique tous les jours — donc du mobilier au troisième
+passage — et de demander sans rien donner. `PontPlacet` répondait déjà à ça
+(« montrer, pas expliquer » : un vrai scrutin public, votable en un tap).
+
+⚠️ **IL NE POUVAIT SIMPLEMENT PAS S'AFFICHER.** Il exige `connecte`, et les deux
+jeux le montaient APRÈS un `if (user) return …`, c'est-à-dire dans la seule
+branche où `user` est forcément absent. Sur Banalo du jour comme sur Cinq sur
+cinq, depuis le premier jour. Sa seconde garde, `!installPossible`, l'aurait de
+toute façon réservé à qui a déjà installé l'application, ou à Firefox :
+l'installation est possible sur Chrome Android, sur iOS et sur Chrome bureau.
+
+⚠️ **CE N'EST PAS UNE DEMANDE DE PLUS DANS L'ÉCHELLE DU §0**, et c'est ce qui
+autorise à le montrer à côté de l'installation. L'échelle arbitre des
+ENGAGEMENTS — compte, installation, notification. Un scrutin public est du
+CONTENU : il change tous les jours et se lit sans rien accepter. Il vit donc DANS
+la carte des résultats, **sans cadre pointillé** — cette matière est celle des
+offres (`InstallJeu`, `ApresLaSalle`) et l'emprunter le ferait lire comme une
+demande. La seule demande de l'écran reste le cadre en dessous.
+
+**LE PARTENARIAT GLOBÉNOSTRA A UN BLOC, PLUS UNE NOTE DE BAS DE PAGE.** Même
+diagnostic : on avait construit une VRAIE page (`/partenaires/globenostra`, ses
+démonstrations neutres du jugement majoritaire, de Condorcet et de
+l'approbation) et **rien sur placet.app n'y menait** — elle n'était servie que
+par la réécriture de `placet.globenostra.com`. Côté Placet il ne restait qu'une
+ligne de 12,5 px pointant vers l'extérieur.
+
+⚠️ **IL EMPRUNTE LA FORME DU BLOC SLACK**, juste au-dessus : c'est le registre
+que l'accueil réserve à ses entrées secondaires, donc ça se lit comme une section
+du site et pas comme un encart acheté. Il annonce CE QU'ON PEUT FAIRE, pas ce
+qu'est le partenaire. ⚠️ **Franc ne veut pas dire proéminent** : il reste en bas,
+après le pitch, les CTA et les jeux du jour — une carte partenaire qui
+concurrencerait « Créer » serait, elle, une vraie publicité. Et la mention
+réciproque reste une ligne, parce que c'est une mention et que son lien SORT.
+
+⚠️ **LA DÉMONSTRATION N'EST PROPOSÉE QU'EN FRANÇAIS** : la page est écrite en
+français et porte sur la présidentielle française. Les trois autres langues
+gardent la mention réciproque, qui est traduite. ⚠️ Et son lien est le `Link` de
+**next**, pas celui de `@/i18n/navigation` : `partenaires` est exclu du matcher
+du middleware, donc la page vit hors du segment de langue — un lien localisé
+viserait `/fr/partenaires/globenostra`, qui n'existe pas. Une ancre nue ne marche
+pas non plus : eslint refuse `<a>` vers une page interne, et ça casse le
+déploiement.
 
 **ON NE REDEMANDE PLUS SON PSEUDO À UN JOUEUR CONNECTÉ, ET IL PEUT LE RETIRER**
 (`20260912-jeux-retirer-son-pseudo.sql`, 2026-08-23) — signalé par un joueur :

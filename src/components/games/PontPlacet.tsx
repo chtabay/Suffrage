@@ -14,16 +14,31 @@
 // lui proposer une question où son avis DÉCIDE est une continuation, pas une
 // interruption.
 //
-// ⚠️ L'APRÈS-PARTIE N'A QU'UNE PLACE, ET CE BLOC EST LE DERNIER SERVI.
-// Il se tait tant qu'une demande plus utile a quelque chose à dire :
+// ⚠️ CE BLOC ÉTAIT DU CODE MORT, ET PERSONNE NE POUVAIT LE VOIR. Il exige
+// `connecte`, et les deux jeux le montaient APRÈS un `if (user) return …` —
+// c'est-à-dire dans la seule branche où `user` est forcément absent. Sur Banalo
+// du jour comme sur Cinq sur cinq, `ouvert` valait donc faux à tous les coups,
+// depuis le premier jour. La seule trace de Placet sur un écran de résultat
+// restait une phrase grise de 13 px, générique et identique tous les jours —
+// exactement ce que ce fichier existe pour remplacer.
+//
+// ⚠️ ET LA GARDE `!installPossible` EST TOMBÉE AVEC. Elle plaçait le pont
+// derrière l'installation, qui est possible sur Chrome Android, sur iOS et sur
+// Chrome bureau : même bien monté, il n'aurait paru que chez quelqu'un ayant
+// déjà installé l'application, ou sur Firefox. Deux verrous pour un bloc que
+// personne n'a jamais vu.
+//
+// ⚠️ CE N'EST PAS UNE DEMANDE DE PLUS DANS L'ÉCHELLE DU §0, et c'est ce qui
+// autorise à le montrer à côté de l'installation. L'échelle arbitre des
+// ENGAGEMENTS — créer un compte, installer, accepter d'être prévenu. Un scrutin
+// public est du CONTENU : il change tous les jours, il ne réclame aucun lien
+// durable, et il se lit sans rien accepter. Il vit donc DANS la carte des
+// résultats, dans la matière de cette carte, pendant que la seule demande de
+// l'écran reste le cadre pointillé en dessous.
 //
 //   moins de deux journées jouées  → rien (la première demande se mérite)
 //   pas de compte                  → rien, c'est l'offre de compte qui parle
-//   installation encore possible   → rien, c'est elle qui ramènera demain
-//   sinon                          → un scrutin public
-//
-// Empiler les blocs les ferait se cannibaliser ; l'échelle est écrite dans
-// `docs/regularite-des-joueurs.md` §0.
+//   sinon                          → un scrutin public, votable en un tap
 //
 // ⚠️ ET RIEN AVANT LA FIN DE LA PARTIE. L'écran d'avant-jeu a une tâche et une
 // seule — `GameShell` le dit déjà : « On vient jouer. » Ce composant n'est
@@ -31,7 +46,6 @@
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
-import { useInstall } from "@/lib/pwa/install";
 import { cardIsOpen, getPublicPolls, type PublicPollCard } from "@/lib/db/publicFeed";
 import { shareUrl } from "@/lib/db/track";
 import type { GameSkin } from "@/lib/games/skin";
@@ -51,12 +65,9 @@ export default function PontPlacet({
   journees: number;
 }) {
   const t = useTranslations("Games");
-  const { canPrompt, standalone, ios } = useInstall();
   const [carte, setCarte] = useState<PublicPollCard | null>(null);
 
-  // L'installation passe avant : c'est elle qui ramène demain.
-  const installPossible = !standalone && (canPrompt || ios);
-  const ouvert = connecte && journees >= JOURNEES_MIN && !installPossible;
+  const ouvert = connecte && journees >= JOURNEES_MIN;
 
   useEffect(() => {
     if (!ouvert) return;
@@ -87,23 +98,32 @@ export default function PontPlacet({
   const lien = shareUrl(`/v/${carte.token}`, "jeu");
 
   return (
+    // ⚠️ PLUS DE CADRE POINTILLÉ : c'est la matière des OFFRES du produit
+    // (`InstallJeu`, `ApresLaSalle`), et l'emprunter ferait lire ce bloc comme
+    // une demande de plus. Il vit dans la carte des résultats, séparé par un
+    // filet, dans la matière de cette carte — comme la légende ou le lien vers
+    // l'historique juste au-dessus.
     <div
       style={{
-        marginTop: 4,
-        padding: 14,
-        border: `2px dashed ${skin.ink}33`,
-        borderRadius: skin.radius,
+        marginTop: 12,
+        paddingTop: 12,
+        borderTop: `2px dashed ${skin.ink}22`,
         display: "grid",
-        gap: 8,
+        gap: 7,
       }}
     >
+      {/* ⚠️ L'INTRODUCTION PARLE DE CE QUE LE JOUEUR VIENT DE FAIRE, pas du
+          produit : « ce jeu vous note contre la foule, Placet sert à décider
+          avec elle ». C'est ce qui distingue une continuation d'une réclame — et
+          c'est la QUESTION, en dessous, qui porte la taille, parce que c'est
+          elle qui change tous les jours. */}
       <p style={{ margin: 0, fontSize: 12.5, color: skin.muted, lineHeight: 1.45 }}>{t("pontIntro")}</p>
       <Link
         href={lien}
         style={{
           fontFamily: skin.fontDisplay,
           fontWeight: 800,
-          fontSize: 16,
+          fontSize: 16.5,
           lineHeight: 1.3,
           color: skin.ink,
           textDecoration: "none",

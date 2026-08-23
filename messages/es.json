@@ -106,6 +106,9 @@
     "games": "Jugar"
   },
   "Home": {
+    "partnerTitle": "El método de votación cambia el resultado.",
+    "partnerLead": "Con GlobéNostra, compara el juicio mayoritario, Condorcet y la aprobación sobre los mismos ejemplos: neutrales y sin registro.",
+    "partnerCta": "Ver las demostraciones",
     "badge": "Decidir en grupo, fácilmente",
     "heroA": "La decisión correcta,",
     "heroB": "tomada juntos.",

@@ -106,6 +106,9 @@
     "games": "Jouer"
   },
   "Home": {
+    "partnerTitle": "Le mode de scrutin change le résultat.",
+    "partnerLead": "Avec GlobéNostra, comparez le jugement majoritaire, Condorcet et l'approbation sur les mêmes exemples — neutres, et sans inscription.",
+    "partnerCta": "Voir les démonstrations",
     "badge": "Décider à plusieurs, simplement",
     "heroA": "La bonne décision,",
     "heroB": "prise ensemble.",

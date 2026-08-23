@@ -61,9 +61,25 @@ export default function CompteBanalo({ jour, install }: { jour: number; install?
   // La fonction d'en face est idempotente : la répéter ne coûte qu'un
   // aller-retour, et évite d'avoir à retenir si ce navigateur a déjà été
   // rattaché. Un `ref` par identifiant de compte, comme `claimPolls`.
+  // ⚠️ `uid` ET PAS `user` : `useAuth` rend un OBJET, et sa référence change dès
+  // que la session est relue — `onAuthStateChange` émet `INITIAL_SESSION` juste
+  // après le `getUser` initial, donc AU MOINS UNE FOIS, toujours. L'effet se
+  // relançait alors, son ménage posait `vivant = false`, et la seconde exécution
+  // repartait aussitôt sur le `ref` : le résultat n'était JAMAIS posé.
+  //
+  // ⚠️ CE N'EST PAS UNE PRÉCAUTION THÉORIQUE, C'EST CE QUI SE PASSAIT. Le bilan
+  // restait `null` pour tout le monde : la carte n'affichait que la série, sans
+  // les journées, sans les centiles, sans le lien vers l'historique — et le pont
+  // vers Placet, qui dépend du nombre de journées, ne pouvait pas s'ouvrir. Vu
+  // au navigateur en listant les RPC appelées : `scrutin_banalo_moi` ne partait
+  // jamais. `CLAUDE.md` affirmait que « le `ref` par identifiant de compte
+  // marche aussi » — le `ref` arrête la boucle, il n'empêche pas l'annulation.
+  // Une CHAÎNE est stable, et le montage double du mode strict retombe alors sur
+  // le cas normal.
+  const uid = user?.id ?? null;
   useEffect(() => {
-    if (!user || rattachePour.current === user.id) return;
-    rattachePour.current = user.id;
+    if (!uid || rattachePour.current === uid) return;
+    rattachePour.current = uid;
     let vivant = true;
     void (async () => {
       const jeton = monJeton();
@@ -77,7 +93,7 @@ export default function CompteBanalo({ jour, install }: { jour: number; install?
     return () => {
       vivant = false;
     };
-  }, [user]);
+  }, [uid]);
 
 
   // Tant qu'on ne sait pas s'il y a un compte, on n'affiche rien : faire
@@ -150,7 +166,13 @@ export default function CompteBanalo({ jour, install }: { jour: number; install?
             </Link>
           </p>
         ) : null}
-        {lienPlacet}
+        {/* ⚠️ LE PONT VERS PLACET EST ICI, DANS LA CARTE DES RÉSULTATS — il
+            était monté plus bas, dans la branche SANS compte, où il exige
+            pourtant `connecte` : il ne pouvait donc jamais paraître. Ce qui
+            restait de Placet sur cet écran était une phrase grise, générique et
+            identique tous les jours ; elle est partie avec, puisque ce bloc dit
+            la même chose en montrant une vraie question au lieu de l'expliquer. */}
+        <PontPlacet skin={skin} connecte journees={b?.parties ?? 0} />
         {/* ⚠️ L'INSTALLATION NE SORT QUE POUR QUI A DÉJÀ UN COMPTE. §0 de
             `docs/regularite-des-joueurs.md` : l'après-partie n'a QU'UNE place, et
             deux demandes molles empilées valent moins qu'une nette. À qui n'a
@@ -186,12 +208,6 @@ export default function CompteBanalo({ jour, install }: { jour: number; install?
 
       <ConnexionJeux skin={skin} />
       {lienPlacet}
-      {/* ⚠️ LE PONT EST RENDU ICI, ET PAS DANS L'ÉCRAN DE RÉSULTAT, parce que
-          c'est ce bloc qui détient l'état dont dépend l'échelle : y a-t-il un
-          compte, et combien de journées. Le poser à côté demanderait de faire
-          redescendre l'authentification et le bilan dans deux écrans, et
-          rendrait possible d'afficher deux demandes en même temps. */}
-      <PontPlacet skin={skin} connecte={Boolean(user)} journees={bilan?.parties ?? 0} />
     </GCard>
   );
 }

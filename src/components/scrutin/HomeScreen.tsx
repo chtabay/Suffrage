@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { SYSTEMS } from "@/lib/voting/systems";
 import { systemToPublicMethod } from "@/lib/voting/methods";
 import { ASSIGN_METHODS, ASSIGN_METHOD_KEYS, type AssignMethodKey } from "@/lib/assign/methods";
@@ -10,6 +10,7 @@ import AiSideRail from "./AiSideRail";
 import AiHelper from "./AiHelper";
 import PublicFeedStrip from "./PublicFeedStrip";
 import SlackMark from "@/components/SlackMark";
+import NextLink from "next/link";
 import { Link } from "@/i18n/navigation";
 import { Btn } from "@/components/ui/kit";
 import { CORAL, FONT_DISPLAY, GREEN, INK, MUTED, PAPER, SUBINK, YELLOW, lift } from "./theme";
@@ -218,6 +219,7 @@ function MethodCard({
 export default function HomeScreen({ ctrl }: { ctrl: ScrutinController }) {
   const { go, selectSystemRecipe, setOptionKind, setAssignMethod, setQuestion, setSurvey } = ctrl;
   const t = useTranslations("Home");
+  const locale = useLocale();
   const tm = useTranslations("Methods");
   const ta = useTranslations("Assign");
   const td = useTranslations("Deep");
@@ -604,8 +606,90 @@ export default function HomeScreen({ ctrl }: { ctrl: ScrutinController }) {
         </Link>
       </div>
 
-      {/* Backlink partenaire — réciproque du lien GlobéNostra → Placet. */}
-      <p style={{ marginTop: 26, fontSize: 12.5, color: MUTED }}>
+      {/* LE PARTENARIAT GLOBÉNOSTRA — franc, et pas pour autant une réclame.
+      
+          ⚠️ IL ÉTAIT UNE LIGNE DE 12,5 px QUI NE MENAIT QU'AU DEHORS, alors
+          qu'on a une VRAIE page pour ce partenariat : `/partenaires/globenostra`
+          et ses démonstrations neutres du jugement majoritaire, de Condorcet et
+          de l'approbation. Rien sur placet.app n'y menait — elle n'était servie
+          que par la réécriture de `placet.globenostra.com`. On avait donc
+          construit la substance et gardé la note de bas de page.
+      
+          ⚠️ CE QUI FAIT QU'UN LIEN SE LIT COMME UNE PUB N'EST PAS SA TAILLE.
+          C'est de parler de l'annonceur, d'être identique tous les jours et de
+          demander sans rien donner. Grossir « Partenaire : outils d'exploration
+          citoyenne » l'aurait rapproché de la réclame, pas éloigné. Le bloc
+          annonce donc CE QU'ON PEUT FAIRE — comparer trois méthodes sur des
+          exemples neutres — et il emprunte la forme du bloc Slack juste
+          au-dessus : c'est le registre que cette page réserve à ses entrées
+          secondaires, et ça se lit comme une section du site, pas comme un
+          encart acheté.
+      
+          ⚠️ FRANC NE VEUT PAS DIRE PROÉMINENT. Il reste en bas, après le pitch,
+          les CTA et les jeux du jour : une carte partenaire qui concurrencerait
+          « Créer » serait, elle, une vraie publicité.
+      
+          ⚠️ ET LA DÉMONSTRATION N'EST PROPOSÉE QU'EN FRANÇAIS. La page partenaire
+          est écrite en français et porte sur la présidentielle française ; y
+          envoyer un lecteur hispanophone serait une porte qui ne s'ouvre pas
+          dans sa langue. Les autres langues gardent la mention réciproque, qui
+          est traduite, elle. */}
+      {locale === "fr" ? (
+        <div
+          style={{
+            marginTop: 40,
+            paddingTop: 22,
+            borderTop: `2px dashed ${INK}`,
+            display: "flex",
+            flexWrap: "wrap",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: 14,
+          }}
+        >
+          <div style={{ fontSize: 14, color: SUBINK, lineHeight: 1.5, maxWidth: "46ch" }}>
+            <strong style={{ color: INK }}>{t("partnerTitle")}</strong> {t("partnerLead")}
+          </div>
+          {/* ⚠️ LE `Link` DE NEXT, PAS CELUI DE `@/i18n/navigation` :
+              `partenaires` est exclu du matcher du middleware, donc la page vit
+              hors du segment de langue et un lien localisé viserait
+              `/fr/partenaires/globenostra`, qui n'existe pas. Et pas une ancre
+              nue non plus — eslint refuse `<a>` vers une page interne, ce qui
+              casse le déploiement. */}
+          <NextLink
+            href="/partenaires/globenostra"
+            className="dc-lift"
+            style={{
+              flex: "none",
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 9,
+              fontFamily: FONT_DISPLAY,
+              fontWeight: 700,
+              fontSize: 14.5,
+              textDecoration: "none",
+              border: `2.5px solid ${INK}`,
+              background: "#fff",
+              color: INK,
+              padding: "11px 18px",
+              borderRadius: 12,
+              ...lift(`4px 4px 0 ${INK}`, `6px 6px 0 ${INK}`),
+            }}
+          >
+            {/* ⚠️ PAS D'EMOJI ICI. 🗳️ rend un cube bleu illisible à cette
+                taille — la leçon déjà payée sur 🔢 dans le catalogue. Les deux
+                boutons voisins portent une vraie marque (Slack) ou un glyphe
+                qui tient (🧠) ; celui-ci se passe des deux, ce qui convient à un
+                bloc partenaire. */}
+            {t("partnerCta")}
+          </NextLink>
+        </div>
+      ) : null}
+
+      {/* Backlink partenaire — réciproque du lien GlobéNostra → Placet. Il reste
+          une ligne, et il le doit : c'est une mention, pas une offre, et le lien
+          SORT du site. */}
+      <p style={{ marginTop: locale === "fr" ? 14 : 26, fontSize: 12.5, color: MUTED }}>
         {t("partnerLabel")}{" "}
         <a
           href="https://www.globenostra.com"
