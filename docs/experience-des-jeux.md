@@ -1,4 +1,4 @@
-# L'EXPÉRIENCE DES JEUX — prise de recul, 2026-09-09
+# L'EXPÉRIENCE DES JEUX — prise de recul, 2026-08-23
 
 Demandé : « prends du recul sur l'expérience des jeux : est-ce qu'on a une page
 de jeux pertinente en l'état, est-ce que la gamification est bonne (engagement
@@ -12,7 +12,7 @@ de la base**, et c'est eux qui retournent le diagnostic.
 
 ## 0. Le chiffre qui commande tout le reste
 
-Relevé le 2026-09-09, en base de production :
+Relevé le 2026-08-23, en base de production :
 
 | | |
 |---|---|
@@ -24,7 +24,7 @@ Relevé le 2026-09-09, en base de production :
 | Noms déposés au tableau du jour | **1** |
 | Tablées créées | **0** |
 | Abonnements push (les deux datent de juillet, côté scrutins) | **2** |
-| Salles de jeu de groupe (fenêtre de 7 jours) | **6** |
+| Salles de jeu de groupe (fenêtre de 7 jours) | **6**, toutes des ÉCHECS, toutes du 20 août entre 19 h 46 et 21 h 27 |
 
 ⚠️ **CINQ SUR CINQ A DEUX JOUEURS.** Il est en production depuis le 18 août, il a
 51 journées de contenu, un moteur de score serveur, une carte, des pictos de
@@ -188,16 +188,39 @@ qui fait la différence n'est jamais la profondeur du classement — c'est :
 - une **présence là où sont les gens** (un compte social, une newsletter), qui
   n'existe pas ici.
 
-⚠️ **Placet a un atout qu'aucun d'eux n'a, et il n'est pas exploité** : les jeux
-de SALLE. Six salles ont été créées en sept jours — c'est-à-dire **plus de monde
-réuni autour d'une partie de groupe que de joueurs quotidiens**. Une soirée
-Alibi met 6 à 16 personnes devant le produit, en présence, au même moment. C'est
-le meilleur canal d'acquisition du produit, et rien, aujourd'hui, ne propose le
-jeu du jour à ces gens-là quand la partie de groupe se termine.
+⚠️ **CORRECTION — LA PREMIÈRE VERSION DE CE §3 SE TROMPAIT, ET IL FAUT LE DIRE.**
+Elle affirmait que « six salles de groupe ont vécu en sept jours, donc plus de
+monde réuni autour d'une partie de groupe que de joueurs quotidiens », et que
+« une soirée Alibi met 6 à 16 personnes devant le produit ». **C'est faux.** Le
+détail des six salles, vérifié en base :
 
-**C'est la recommandation la plus rentable de ce document :** à la fin d'une
-partie de salle, proposer le jeu du jour aux joueurs présents. Le trafic existe
-déjà, il ne coûte rien à acquérir, et il est captif au bon moment.
+| code | jeu | créée | joueurs | noms |
+|---|---|---|---|---|
+| J44UWW | échecs | 20/08 19 h 46 | 3 | Camille, Guillaume, Nour |
+| 63MMEP | échecs | 20/08 20 h 06 | 2 | Blanc, Noir |
+| D6Q6E6 | échecs | 20/08 20 h 10 | 2 | Blanc, Noir |
+| TTP6FR | échecs | 20/08 21 h 06 | 1 | Le duke |
+| M3V333 | échecs | 20/08 21 h 20 | 2 | Adverse, Hote |
+| AF3CYP | échecs | 20/08 21 h 27 | 2 | Le duke, Tom |
+
+Trois faits que le compte brut masquait : **les six sont des Échecs
+collaboratifs** — zéro Alibi, zéro Rôdeurs, zéro Fantôme, c'est-à-dire aucun des
+jeux dont je parlais ; **les six ont été créées le même soir en cent minutes**,
+pas étalées sur une semaine ; et les noms (« Blanc / Noir », « Adverse / Hote »,
+« Le duke ») sont ceux d'une **session de test**, pas d'une soirée entre amis.
+Au mieux une salle sur six (J44UWW, trois joueurs, cinq manches) ressemble à une
+vraie partie.
+
+**Il n'existe donc AUCUN flux de joueurs de salle à convertir.** La
+recommandation « proposer le jeu du jour à la fin d'une partie de groupe » reste
+juste comme geste de produit — c'est un cul-de-sac qu'il faut fermer — mais elle
+n'est PAS un canal d'acquisition, et la présenter comme « la recommandation la
+plus rentable de ce document » était une erreur de lecture d'un agrégat.
+
+⚠️ **LA LEÇON DE MÉTHODE VAUT PLUS QUE LA RECOMMANDATION PERDUE** : un `count(*)`
+sur une table de salles ne dit ni QUEL jeu, ni QUAND, ni QUI. J'ai construit une
+stratégie sur six lignes sans les regarder. Le reste de ce document repose sur
+des comptes du même genre — ils disent une échelle, jamais un comportement.
 
 ---
 

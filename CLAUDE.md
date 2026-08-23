@@ -968,14 +968,14 @@ sur `/espaces?recovery=1` — la seule page qui porte le formulaire de nouveau m
 de passe — et l'écran le DIT, sans quoi le joueur croit s'être trompé de site.
 
 **LE TROU DU JOUR 1 EST COMBLÉ, ET C'ÉTAIT UNE CONTRADICTION** (`SerieDuJour.tsx`,
-2026-09-09). Les deux jeux écrivaient `serie > 1` : un joueur qui venait de finir
+2026-08-23). Les deux jeux écrivaient `serie > 1` : un joueur qui venait de finir
 sa PREMIÈRE partie ne voyait aucune série — pendant que la carte juste en dessous
 lui disait « **gardez votre série** ». On lui demandait de conserver une chose
 qu'on ne lui avait jamais montrée.
 
 ⚠️ **CE BLOC NE CONTREDIT PAS L'ÉCHELLE DU §0, IL OCCUPE SON ANGLE MORT.**
 L'échelle commence à DEUX journées jouées ; en dessous elle prescrit « rien ». Or
-mesuré le 2026-09-09, **3 joueurs sur 12 reviennent une seconde journée** — donc
+mesuré le 2026-08-23, **3 joueurs sur 12 reviennent une seconde journée** — donc
 elle vaut « rien » pour les trois quarts des gens, exactement ceux qu'il faudrait
 convaincre. Le bloc ne DEMANDE rien (ni compte, ni installation, ni ami) : il
 RACONTE l'état du joueur, donc il ne consomme aucune des places que l'échelle
@@ -1716,7 +1716,7 @@ passait tous les contrôles de borne et affichait « votre ami : 0,0 ».
 
 
 **LA PORTE DES JEUX MONTRE LA PLACE DU JOUEUR, ET LA RÉGIE EST EN ONGLETS**
-(2026-09-09).
+(2026-08-23).
 
 `/games` ne parlait que des JEUX, jamais de qui la traverse. Le chemin vers les
 classements était une ligne de 13,5 px sous un pitch — et c'est pourtant le SEUL
@@ -1763,15 +1763,22 @@ vide est un produit peu utilisé.
 l'a vue rendue**. À regarder à l'écran avant de s'y fier.
 
 **L'EXPÉRIENCE DES JEUX A ÉTÉ REPRISE DE HAUT** (`docs/experience-des-jeux.md`,
-2026-09-09), et le diagnostic s'est retourné sur les chiffres réels : **12 jetons
+2026-08-23), et le diagnostic s'est retourné sur les chiffres réels : **12 jetons
 sur Banalo, 2 sur Cinq sur cinq, 3 joueurs revenus une seconde journée, 1 pseudo,
 0 tablée**. Le produit a plus de mécanique de classement que de joueurs à
 classer ; le goulot est le PREMIER ÉCRAN, pas la profondeur du jeu. Trois défauts
-de porte y sont écrits (le titre promet du collectif, le champ de code est le
-premier geste offert à qui n'a pas de code, rien n'est jouable en un clic) et une
-recommandation qui ne coûte rien : **six salles de groupe ont vécu en sept
-jours** — plus de monde que de joueurs quotidiens —, et rien ne leur propose le
-jeu du jour quand la partie se termine.
+de porte y sont écrits : le titre promet du collectif alors que les deux jeux
+jouables tout de suite sont solo, le champ de code est le premier geste offert à
+qui n'a précisément pas de code, et rien n'est jouable en un clic.
+
+⚠️ **ET UNE ERREUR DE LA PREMIÈRE VERSION EST CORRIGÉE DANS LE DOCUMENT, PAS
+EFFACÉE** : elle voyait dans « six salles de groupe en sept jours » un canal
+d'acquisition inexploité. Vérifié ligne à ligne, les six sont des **Échecs
+collaboratifs créés le même soir en cent minutes**, avec des noms de test
+(« Blanc / Noir », « Adverse / Hote »). Aucun Alibi, aucun Rôdeurs, aucun
+Fantôme. ⚠️ La leçon vaut plus que la recommandation perdue : **un `count(*)` sur
+une table de salles ne dit ni quel jeu, ni quand, ni qui** — une stratégie bâtie
+sur six lignes qu'on n'a pas regardées.
 
 ## Les règles qui coûtent cher
 
