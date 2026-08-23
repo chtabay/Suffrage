@@ -1670,7 +1670,7 @@
   },
   "Games": {
     "resultatsPitch": "Your progress, this month's leaderboards and the trophies.",
-    "placeDuJour": "{rang} of {sur} today",
+    "placeRang": "{rang, selectordinal, one {#st} two {#nd} few {#rd} other {#th}}",
     "prepare": "needs setting up",
     "reprendre": {
       "titre": "Pick up again",

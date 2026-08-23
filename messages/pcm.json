@@ -1670,7 +1670,7 @@
   },
   "Games": {
     "resultatsPitch": "How you dey go, di month rankings and di trophies.",
-    "placeDuJour": "{rang} out of {sur} today",
+    "placeRang": "{rang, selectordinal, one {#st} two {#nd} few {#rd} other {#th}}",
     "prepare": "you go prepare am",
     "reprendre": {
       "titre": "Continue",

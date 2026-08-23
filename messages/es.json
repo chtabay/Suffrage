@@ -1670,7 +1670,7 @@
   },
   "Games": {
     "resultatsPitch": "Tu progreso, las clasificaciones del mes y los trofeos.",
-    "placeDuJour": "{rang}º de {sur} hoy",
+    "placeRang": "{rang, selectordinal, other {#º}}",
     "prepare": "hay que prepararlo",
     "reprendre": {
       "titre": "Retomar",

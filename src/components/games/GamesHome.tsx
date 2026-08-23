@@ -278,10 +278,32 @@ export default function GamesHome() {
                   // comparer ; leur carte garde ses pastilles.
                   const brut =
                     g.slug === "banalo-jour" ? place?.banalo : g.slug === "pays" ? place?.pays : null;
+                  /**
+                   * ⚠️ DEUX JOUEURS AU MINIMUM, ET C'EST LE « 1er SUR 1 » QUE CE
+                   * PRODUIT REFUSE PARTOUT (`VOTANTS_MIN` 2, `INSCRITS_MIN` 2,
+                   * `minimumClasses` 2). Vu sur un vrai téléphone : la carte de
+                   * Cinq sur cinq annonçait « 1e sur 1 aujourd'hui », c'est-à-dire
+                   * une tautologie servie comme une récompense. Sous le plancher,
+                   * la vignette reprend ses pastilles.
+                   */
                   const maPlace =
-                    brut?.joue && brut.rang !== null && brut.sur !== null
+                    brut?.joue && brut.rang !== null && brut.sur !== null && brut.sur >= 2
                       ? { rang: brut.rang, sur: brut.sur }
                       : null;
+                  /**
+                   * Ce qui distingue une bonne place, et rien d'autre.
+                   *
+                   * ⚠️ LE PODIUM EST ABSOLU, LE RESTE EST RELATIF. « 3e » est une
+                   * belle place à trois mille joueurs comme à dix ; « 8e » ne veut
+                   * rien dire sans savoir sur combien. D'où une médaille pour les
+                   * trois premiers, une flamme pour le premier dixième, et un
+                   * badge muet pour tout le reste — un décor qui félicite tout le
+                   * monde ne félicite personne.
+                   */
+                  const medaille =
+                    maPlace?.rang === 1 ? "🥇" : maPlace?.rang === 2 ? "🥈" : maPlace?.rang === 3 ? "🥉" : null;
+                  const chaud = !medaille && maPlace !== null && maPlace.rang <= Math.ceil(maPlace.sur / 10);
+                  const bienClasse = medaille !== null || chaud;
                   const chips = [
                     // Le seul jeu SOLO du catalogue casse le gabarit : « 1
                     // joueurs » est faux, et un pluriel ICU ne s'applique pas à
@@ -342,15 +364,37 @@ export default function GamesHome() {
                         {maPlace ? (
                           <span
                             style={{
-                              display: "block",
+                              display: "inline-flex",
+                              alignItems: "baseline",
+                              gap: 4,
                               marginTop: 7,
+                              padding: "3px 9px",
+                              borderRadius: 999,
                               fontFamily: skin.fontDisplay,
                               fontWeight: 800,
                               fontSize: 13,
-                              color: g.skin.accent,
+                              // ⚠️ LA COULEUR NE PORTE JAMAIS SEULE : la médaille
+                              // ou la flamme disent la même chose que le fond, et
+                              // c'est la règle déjà écrite pour la chaleur des
+                              // scores de Banalo.
+                              border: `2px solid ${bienClasse ? g.skin.accent : `${skin.ink}22`}`,
+                              background: bienClasse ? `${g.skin.accent}1A` : "transparent",
+                              color: bienClasse ? g.skin.accent : skin.muted,
                             }}
                           >
-                            {t("placeDuJour", { rang: maPlace.rang, sur: maPlace.sur })}
+                            {medaille ? <span aria-hidden>{medaille}</span> : chaud ? <span aria-hidden>🔥</span> : null}
+                            {/* Le CHIFFRE porte le badge, pas une phrase : sur une
+                                vignette de trois lignes, « 12e sur 83 aujourd'hui »
+                                se lisait comme une quatrième ligne de texte. */}
+                            <span>{t("placeRang", { rang: maPlace.rang })}</span>
+                            {/* ⚠️ L'EFFECTIF RESTE, EN PETIT ET EN GRIS. « 3e » ne
+                                veut pas dire la même chose sur six joueurs et sur
+                                trois mille, et le produit refuse partout un rang
+                                sans son échelle. Deux caractères suffisent à ne
+                                pas mentir. */}
+                            <span style={{ fontSize: 11, fontWeight: 700, opacity: 0.7 }}>
+                              /{maPlace.sur}
+                            </span>
                           </span>
                         ) : (
                         <span style={{ display: "flex", gap: 5, flexWrap: "wrap", marginTop: 7 }}>

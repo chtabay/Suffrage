@@ -1694,6 +1694,17 @@ contenu. Et chaque carte quotidienne montre la place du jour.
 2 minutes » dit à un inconnu ce qu'est le jeu ; à qui vient d'y jouer, ça
 n'apprend rien. Empilées, la ligne neuve se lirait en second.
 
+⚠️ **ET C'EST UN BADGE, PAS UNE PHRASE — avec un PLANCHER DE DEUX.** La première
+version écrivait « 1e sur 1 aujourd'hui » sur un vrai téléphone : le « 1er sur
+1 » que ce produit refuse partout (`VOTANTS_MIN` 2, `INSCRITS_MIN` 2,
+`minimumClasses` 2), servi comme une récompense — et « 1e », qui n'est pas un
+ordinal français. Le badge porte donc `selectordinal` et non `{n}e`, il se tait
+sous deux joueurs, et **l'effectif reste en petit** : « 3e » ne veut pas dire la
+même chose sur six joueurs et sur trois mille. ⚠️ Le podium vaut une médaille et
+le premier dixième une flamme — **absolu pour les trois premiers, relatif
+ensuite** —, jamais la couleur seule : un décor qui félicite tout le monde ne
+félicite personne.
+
 ⚠️ **UNE SEULE RPC POUR LES DEUX JEUX** (`scrutin_jeux_porte`) : la porte ne
 faisait AUCUN aller-retour, lui en faire faire deux la ralentirait là où l'on
 veut entrer vite. Elle marche **sans compte**, par les jetons — c'est l'habitué
