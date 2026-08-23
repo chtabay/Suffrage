@@ -2667,6 +2667,11 @@
     }
   },
   "JeuxQuotidiens": {
+    "retraitLien": "Retirar mi alias",
+    "retraitQuoi": "Desaparecerás de las clasificaciones y de las tablas del día, y tu nombre se retirará de los podios anteriores. Tus resultados, tu racha y tu historial se mantienen.",
+    "retraitConfirmer": "Retirar mi alias",
+    "retraitAnnuler": "Cancelar",
+    "retraitFait": "Tu alias está retirado. Puedes poner otro cuando quieras.",
     "metaTitle": "Juegos diarios — mis resultados y clasificaciones",
     "titre": "Juegos diarios",
     "retour": "Todos los juegos",
@@ -3005,6 +3010,8 @@
     "courtMotDePasse": "Seis caracteres como mínimo."
   },
   "TableauJeux": {
+    "figureSous": "Apareces aquí como «{nom}». Es tu alias de Placet: se cambia y se retira en «Resultados y clasificaciones».",
+    "sansNom": "Sin nombre",
     "titre": "La tabla de hoy",
     "invite": "Deja un nombre para aparecer en la tabla del día.",
     "vous": "tú",

@@ -2667,6 +2667,11 @@
     }
   },
   "JeuxQuotidiens": {
+    "retraitLien": "Retirer mon pseudo",
+    "retraitQuoi": "Vous disparaîtrez des classements et des tableaux du jour, et votre nom sera retiré des podiums passés. Vos résultats, votre série et votre historique restent.",
+    "retraitConfirmer": "Retirer mon pseudo",
+    "retraitAnnuler": "Annuler",
+    "retraitFait": "Votre pseudo est retiré. Vous pouvez en poser un autre quand vous voulez.",
     "metaTitle": "Jeux quotidiens — mes résultats et classements",
     "titre": "Jeux quotidiens",
     "retour": "Tous les jeux",
@@ -3005,6 +3010,8 @@
     "courtMotDePasse": "Six caractères au minimum."
   },
   "TableauJeux": {
+    "figureSous": "Vous y figurez sous « {nom} ». C'est votre pseudo Placet : il se change et se retire dans « Résultats et classements ».",
+    "sansNom": "Sans nom",
     "titre": "Le tableau du jour",
     "invite": "Laissez un nom pour figurer au tableau de la journée.",
     "vous": "vous",

@@ -2667,6 +2667,11 @@
     }
   },
   "JeuxQuotidiens": {
+    "retraitLien": "Comot my name",
+    "retraitQuoi": "You go comot from di rankings and di day tables, and dem go remove your name from old podiums. Your results, your streak and your history go remain.",
+    "retraitConfirmer": "Comot my name",
+    "retraitAnnuler": "Cancel",
+    "retraitFait": "Dem don comot your name. You fit put anoda one anytime.",
     "metaTitle": "Daily games — my results and rankings",
     "titre": "Daily games",
     "retour": "All di games",
@@ -3005,6 +3010,8 @@
     "courtMotDePasse": "Six characters minimum."
   },
   "TableauJeux": {
+    "figureSous": "You dey show here as “{nom}”. Na your Placet name: you fit change am or comot am for “Results and rankings”.",
+    "sansNom": "No name",
     "titre": "Today board",
     "invite": "Drop one name make you show for today board.",
     "vous": "you",

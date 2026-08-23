@@ -99,6 +99,28 @@ export async function poserPseudo(pseudo: string): Promise<DepotPseudo> {
   return s === "ok" || s === "pris" || s === "court" || s === "long" ? s : "refus";
 }
 
+export type RetraitPseudo = "ok" | "aucun" | "compte" | "panne";
+
+/**
+ * RETIRER SON PSEUDO — la sortie, symétrique du dépôt.
+ *
+ * ⚠️ ELLE N'EXISTAIT PAS : `pseudo_poser` refuse moins de deux caractères, donc
+ * on ne pouvait pas l'effacer, et seule la Régie savait le retirer. C'était la
+ * contrepartie manquante du seul nom du produit qui survit à une journée.
+ *
+ * ⚠️ CE N'EST PAS UNE SUPPRESSION DE COMPTE : les résultats, la série et
+ * l'historique restent. Ce qui part est le NOM PUBLIC — classement de saison,
+ * palmarès, tableaux du jour. La base emporte les lignes de tableau avec le
+ * pseudo, sans quoi la résolution retomberait sur un ancien texte libre.
+ */
+export async function retirerPseudo(): Promise<RetraitPseudo> {
+  const supabase = createClient();
+  const { data, error } = await supabase.rpc("scrutin_jeux_pseudo_retirer");
+  if (error) return "panne";
+  const s = (data as Record<string, unknown> | null)?.status;
+  return s === "ok" || s === "aucun" || s === "compte" ? s : "panne";
+}
+
 /** Une ligne du classement sur la durée. Un pseudo, une moyenne, un effectif. */
 export interface LigneCumul {
   place: number;

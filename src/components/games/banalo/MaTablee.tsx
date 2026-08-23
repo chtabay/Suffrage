@@ -183,7 +183,12 @@ export default function MaTablee({
       }}
     >
       <span style={{ flex: "1 1 auto", minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-        {m.index !== null ? nomDe(m.index, locale) : (m.nom ?? "")}
+        {/* ⚠️ UN MEMBRE PEUT N'AVOIR PLUS DE NOM, et une chaîne vide se lit
+            comme une panne. La base rend `null` quand le pseudo du compte a été
+            bloqué par la Régie — ou, depuis qu'elle existe, RETIRÉ par le joueur
+            lui-même. On reste dans la tablée sans y être nommé : l'appartenance
+            à un groupe et la publication d'un nom sont deux choses. */}
+        {m.index !== null ? nomDe(m.index, locale) : (m.nom ?? tj("sansNom"))}
         {m.moi ? <span style={{ color: skin.accent, fontWeight: 800 }}> · {tj("vous")}</span> : null}
       </span>
       {/* TROIS ÉTATS, ET IL EN FAUT TROIS. Un score ; « a joué » sans chiffre

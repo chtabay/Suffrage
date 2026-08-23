@@ -2667,6 +2667,11 @@
     }
   },
   "JeuxQuotidiens": {
+    "retraitLien": "Remove my nickname",
+    "retraitQuoi": "You'll disappear from the rankings and the daily boards, and your name will be taken off past podiums. Your results, your streak and your history stay.",
+    "retraitConfirmer": "Remove my nickname",
+    "retraitAnnuler": "Cancel",
+    "retraitFait": "Your nickname has been removed. You can set a new one whenever you like.",
     "metaTitle": "Daily games — my results and rankings",
     "titre": "Daily games",
     "retour": "All games",
@@ -3005,6 +3010,8 @@
     "courtMotDePasse": "Six characters minimum."
   },
   "TableauJeux": {
+    "figureSous": "You appear here as “{nom}”. That's your Placet nickname: change it or remove it in “Results and rankings”.",
+    "sansNom": "No name",
     "titre": "Today's board",
     "invite": "Leave a name to appear on today's board.",
     "vous": "you",

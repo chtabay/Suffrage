@@ -36,7 +36,7 @@
 // « mots » — ne jamais rendre à un joueur le mot d'un autre — n'est pas entamée
 // d'un pouce, et le tableau n'est pas la porte dérobée par laquelle elle
 // tomberait.
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { useAuth } from "@/lib/auth/useAuth";
 import type { GameSkin } from "@/lib/games/skin";
@@ -119,10 +119,65 @@ export default function TableauDuJour({
   // ⚠️ DANS UN EFFET, PAS PENDANT LE RENDU : appeler `onDemande` au fil du rendu
   // ferait un `setState` du parent pendant le rendu de l'enfant, ce que React
   // refuse.
-  const demande = tableau !== null && !tableau.inscrit;
+  /**
+   * LE JOUEUR CONNECTÉ QUI A DÉJÀ UN PSEUDO N'A RIEN À DÉPOSER.
+   *
+   * ⚠️ SIGNALÉ PAR UN JOUEUR : « en tant que joueur connecté, il m'est demandé
+   * après avoir joué de déposer son pseudo qu'on a enregistré ». Il a raison, et
+   * `choixDeNom` le prouve — il rend `{ compte: true }`, une charge utile SANS
+   * libellé, parce que la base résout le nom elle-même. Le bouton n'apprenait
+   * rien à personne.
+   *
+   * ⚠️ CE N'ÉTAIT POURTANT PAS UN DÉPÔT DE NOM, MAIS UN CONSENTEMENT À
+   * PUBLICATION — « on n'y entre que par un geste », en tête de ce fichier.
+   * L'argument tombe pour un COMPTE, et c'est vérifiable :
+   * `scrutin_jeux_saison_table` joint UNIQUEMENT `scrutin_jeux_pseudos`, donc
+   * tout compte qui a posé un pseudo figure déjà au classement de saison,
+   * publiquement, sous ce même nom, sans aucun geste quotidien — et ce
+   * tableau-là est permanent, quand celui du jour se purge à trente jours. On
+   * demandait tous les jours l'autorisation d'une exposition PLUS FAIBLE que
+   * celle qu'on avait accordée une fois. Le jeu allait jusqu'à écrire, le jour
+   * où le pseudo se crée, « on ne vous le redemandera plus ».
+   *
+   * ⚠️ SANS COMPTE, RIEN NE CHANGE : la liste fermée et le consentement unique
+   * y font tout le travail, et c'est cette moitié-là qui porte la justification
+   * de l'absence de modération.
+   *
+   * ⚠️ ET LA SORTIE EXISTE DÉSORMAIS : `scrutin_jeux_pseudo_retirer`, dans
+   * « Résultats et classements ». Une décision, au lieu d'une par jour.
+   */
+  const inscritDOffice = Boolean(user) && nom.lu && nom.pseudo !== null && !nom.bloque;
+  // ⚠️ TANT QU'ON NE SAIT PAS, ON NE DEMANDE PAS. Sans cette attente, un
+  // connecté verrait `demande` passer à vrai puis à faux le temps de la lecture
+  // du pseudo — et la tablée, qui s'efface quand ce bloc demande, clignoterait.
+  const enAttente = Boolean(user) && !nom.lu;
+  const demande = tableau !== null && !tableau.inscrit && !inscritDOffice && !enAttente;
   useEffect(() => {
     onDemande?.(demande);
   }, [demande, onDemande]);
+
+  /**
+   * L'INSCRIPTION D'OFFICE, une seule fois par écran.
+   *
+   * ⚠️ LE `ref` N'EST PAS UNE PRÉCAUTION DE STYLE. `depose` et `lis` arrivent en
+   * fonctions fléchées, donc leur référence change à chaque rendu : sans lui,
+   * l'effet rejouerait son écriture à chaque battement. C'est le même garde que
+   * `ChoisirSonNom` pose sur la lecture du pseudo.
+   */
+  const posee = useRef(false);
+  useEffect(() => {
+    if (posee.current || !jeton || !tableau || tableau.inscrit || !inscritDOffice) return;
+    posee.current = true;
+    void (async () => {
+      const r = await deposeChoix({ compte: true });
+      // « deja » veut dire qu'un autre onglet a été plus rapide : dans les deux
+      // cas la vérité est en base, on relit plutôt que de la supposer.
+      if (r === "ok" || r === "deja") {
+        const tb = await relis();
+        if (tb) setTableau(tb);
+      }
+    })();
+  }, [jeton, tableau, inscritDOffice, deposeChoix, relis]);
 
   const deposeLeNom = async () => {
     if (!jeton || envoi) return;
@@ -254,14 +309,28 @@ export default function TableauDuJour({
           {t("pseudoRetire")}
         </p>
       ) : tableau.inscrit ? (
-        tableau.lignes.length === 0 ? (
-          // Inscrit, mais seul : le tableau n'existe pas encore. On le DIT — une
-          // information absente sans un mot se lit comme une panne, et le joueur
-          // part la chercher ailleurs.
-          <p style={{ margin: "10px 0 0", fontSize: 13.5, color: skin.muted, lineHeight: 1.5 }}>
-            {t("seul", { n: INSCRITS_MIN })}
-          </p>
-        ) : null
+        <>
+          {tableau.lignes.length === 0 ? (
+            // Inscrit, mais seul : le tableau n'existe pas encore. On le DIT — une
+            // information absente sans un mot se lit comme une panne, et le joueur
+            // part la chercher ailleurs.
+            <p style={{ margin: "10px 0 0", fontSize: 13.5, color: skin.muted, lineHeight: 1.5 }}>
+              {t("seul", { n: INSCRITS_MIN })}
+            </p>
+          ) : null}
+          {/* ⚠️ ON DIT SOUS QUEL NOM ON PUBLIE, PUISQU'ON NE LE DEMANDE PLUS.
+              Retirer le geste sans dire le nom publierait quelqu'un sans qu'il
+              puisse le lire — et le premier jour, quand le tableau est encore
+              sous son plancher de deux inscrits, il ne verrait même pas sa
+              propre ligne. La phrase dit aussi où ce nom se change ET se
+              retire : sans lien, `GameShell` interdisant la nav de Placet
+              pendant une partie. */}
+          {inscritDOffice && nom.pseudo ? (
+            <p style={{ margin: "10px 0 0", fontSize: 12.5, color: skin.muted, lineHeight: 1.45 }}>
+              {t("figureSous", { nom: nom.pseudo })}
+            </p>
+          ) : null}
+        </>
       ) : (
         <div style={{ marginTop: tableau.lignes.length > 0 ? 16 : 10 }}>
           <p style={{ margin: 0, fontSize: 13.5, lineHeight: 1.5 }}>{t("invite")}</p>

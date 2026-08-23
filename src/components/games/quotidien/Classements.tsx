@@ -38,6 +38,7 @@ import { GBtn, GCard, GLabel } from "@/components/games/ui";
 import {
   monPseudo,
   poserPseudo,
+  retirerPseudo,
   saison as litSaison,
   type DepotPseudo,
   type LangueJouee,
@@ -86,6 +87,18 @@ export default function Classements({ user }: { user: User | null }) {
   // d'un champ qui contenait déjà le texte tapé. Rien ne bougeait là où l'œil
   // était — sur le bouton qu'on vient de presser.
   const [confirme, setConfirme] = useState(false);
+  /**
+   * LA SORTIE, EN DEUX APPUIS.
+   *
+   * ⚠️ UN RETRAIT NE SE FAIT PAS D'UN CLIC. Il fait disparaître le joueur du
+   * classement de saison, de son palmarès et des tableaux du jour — c'est le
+   * geste le plus destructeur de cet écran, et il est irréversible au sens où
+   * les lignes de tableau déjà déposées ne reviennent pas. Le produit connaît
+   * déjà l'idiome : la saisie de Banalo en groupe arme puis retire, parce qu'un
+   * raccourci destructeur muet finit toujours par mordre.
+   */
+  const [armeRetrait, setArmeRetrait] = useState(false);
+  const [retire, setRetire] = useState(false);
 
   const relis = useCallback(
     async () => litSaison(portee, portee === "banalo" ? langue : null),
@@ -172,6 +185,29 @@ export default function Classements({ user }: { user: User | null }) {
     setConfirme(true);
     const c = await relis();
     if (c) setTable(c);
+  };
+
+  const retire_ = async () => {
+    if (envoi) return;
+    setEnvoi(true);
+    setSouci(null);
+    setConfirme(false);
+    const r = await retirerPseudo();
+    setEnvoi(false);
+    setArmeRetrait(false);
+    // ⚠️ « aucun » COMPTE COMME UNE RÉUSSITE À L'ÉCRAN : le joueur voulait ne
+    // plus figurer, et il ne figure plus. Le distinguer ici lui ferait lire une
+    // panne pour un état qui est exactement celui qu'il demandait.
+    if (r === "ok" || r === "aucun") {
+      setPseudo(null);
+      setBloque(false);
+      setSaisie("");
+      setRetire(true);
+      const c = await relis();
+      if (c) setTable(c);
+      return;
+    }
+    setSouci("panne");
   };
 
   const message = () => {
@@ -458,6 +494,96 @@ export default function Classements({ user }: { user: User | null }) {
             // toute seule ici : c'est la phrase qui dit ce qui s'est passé.
             <p role="status" style={{ margin: "8px 0 0", fontSize: 13, fontWeight: 700, color: skin.good }}>
               {t("pseudoEnregistre")}
+            </p>
+          ) : null}
+
+          {/* ── LA SORTIE ────────────────────────────────────────────────────
+              ⚠️ ELLE N'EXISTAIT PAS, ET C'ÉTAIT LA CONTREPARTIE MANQUANTE. Le
+              pseudo est le seul nom du produit qui survit à une journée ; on ne
+              pouvait que le POSER — `pseudo_poser` refuse moins de deux
+              caractères — et seule la Régie savait le retirer, en le BLOQUANT.
+              Un joueur qui ne voulait plus figurer aux classements publics
+              n'avait aucun geste.
+
+              ⚠️ EN DEUX APPUIS, PARCE QUE C'EST LE GESTE LE PLUS DESTRUCTEUR DE
+              CET ÉCRAN : les lignes de tableau du jour partent avec le pseudo et
+              ne reviennent pas. Le produit connaît déjà l'idiome — la saisie de
+              Banalo en groupe arme puis retire, parce qu'un raccourci
+              destructeur muet finit toujours par mordre.
+
+              ⚠️ ET ON DIT CE QUI PART ET CE QUI RESTE. « Retirer mon pseudo »
+              tout seul laisse croire à une suppression de compte ; les
+              résultats, la série et l'historique ne bougent pas. */}
+          {pseudo && !bloque ? (
+            <div style={{ marginTop: 14, paddingTop: 12, borderTop: `2px dashed ${skin.ink}22` }}>
+              {armeRetrait ? (
+                <>
+                  <p style={{ margin: 0, fontSize: 13, lineHeight: 1.5 }}>{t("retraitQuoi")}</p>
+                  {/* ⚠️ LE BOUTON QUI SUPPRIME N'A PAS LE ROUGE DE CELUI QUI
+                      ENREGISTRE, et ça ne se voyait qu'au rendu : en `primary`,
+                      « Retirer mon pseudo » prenait le MÊME rouge que
+                      « Valider » à quarante pixels de lui, et devenait l'élément
+                      le plus fort d'une carte dont le métier est de POSER un
+                      nom. Le geste destructeur se confirme en `ghost`, et
+                      « Annuler » redevient un simple lien : le rouge reste à
+                      l'action que la carte sert. */}
+                  <div style={{ display: "flex", alignItems: "center", gap: 12, marginTop: 10, flexWrap: "wrap" }}>
+                    <GBtn skin={skin} variant="ghost" onClick={() => void retire_()} disabled={envoi}>
+                      {t("retraitConfirmer")}
+                    </GBtn>
+                    <button
+                      type="button"
+                      onClick={() => setArmeRetrait(false)}
+                      disabled={envoi}
+                      style={{
+                        border: "none",
+                        background: "none",
+                        padding: 0,
+                        fontSize: 13,
+                        fontWeight: 700,
+                        color: skin.muted,
+                        textDecoration: "underline",
+                        cursor: "pointer",
+                      }}
+                    >
+                      {t("retraitAnnuler")}
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setArmeRetrait(true);
+                    setConfirme(false);
+                    setSouci(null);
+                  }}
+                  style={{
+                    border: "none",
+                    background: "none",
+                    padding: 0,
+                    fontSize: 13,
+                    fontWeight: 700,
+                    color: skin.muted,
+                    textDecoration: "underline",
+                    cursor: "pointer",
+                  }}
+                >
+                  {t("retraitLien")}
+                </button>
+              )}
+            </div>
+          ) : null}
+
+          {/* ⚠️ `role="status"` ET `skin.good`, comme la confirmation du dépôt :
+              une réussite ne coupe pas la lecture d'un lecteur d'écran, et le
+              rouge du produit ne tient que 4,21:1 sur le papier blanc — sous les
+              4,5 exigés à 13 px, quand le vert en tient 5,03. La phrase dit
+              aussi qu'on peut en reposer un : un retrait n'est pas un
+              bannissement. */}
+          {retire ? (
+            <p role="status" style={{ margin: "10px 0 0", fontSize: 13, fontWeight: 700, color: skin.good }}>
+              {t("retraitFait")}
             </p>
           ) : null}
         </GCard>

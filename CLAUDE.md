@@ -1294,6 +1294,72 @@ permanent »** — faux depuis le classement de saison du 25/08, et doublement f
 maintenant. Réécrite dans le même commit, en trois langues : la liste fermée vaut
 pour une journée, le pseudo de compte nomme partout et se garde.
 
+**ON NE REDEMANDE PLUS SON PSEUDO À UN JOUEUR CONNECTÉ, ET IL PEUT LE RETIRER**
+(`20260912-jeux-retirer-son-pseudo.sql`, 2026-08-23) — signalé par un joueur :
+« en tant que joueur connecté, il m'est demandé après avoir joué de déposer son
+pseudo qu'on a enregistré ». Il a raison, et `choixDeNom` le prouve : il rend
+`{ compte: true }`, une charge utile SANS libellé, parce que la base résout le
+nom elle-même. Le bouton n'apprenait rien à personne.
+
+⚠️ **CE N'ÉTAIT POURTANT PAS UN DÉPÔT DE NOM, MAIS UN CONSENTEMENT À
+PUBLICATION** — « on n'y entre que par un geste », en tête de `TableauDuJour`,
+et c'est ce qui rend acceptable d'y afficher le dernier autant que le premier.
+⚠️ **L'argument tombe pour un COMPTE, et c'est vérifiable** :
+`scrutin_jeux_saison_table` joint UNIQUEMENT `scrutin_jeux_pseudos`, donc tout
+compte qui a posé un pseudo figure déjà au classement de saison, publiquement,
+sous ce même nom, **sans aucun geste quotidien** — et ce tableau-là est
+permanent, quand celui du jour se purge à trente jours. On demandait tous les
+jours l'autorisation d'une exposition PLUS FAIBLE que celle qu'on avait accordée
+une fois. Le jeu allait jusqu'à écrire, le jour où le pseudo se crée, « on ne
+vous le redemandera plus ».
+
+⚠️ **SANS COMPTE, RIEN NE CHANGE** : liste fermée, un geste, par journée. C'est
+cette moitié-là qui porte la justification de l'absence de modération, et elle
+est intacte.
+
+⚠️ **L'INSCRIPTION D'OFFICE EST UNE ÉCRITURE DÉCLENCHÉE PAR UN RENDU, DONC ELLE
+A UN `ref`.** `depose` et `lis` arrivent en fonctions fléchées : leur référence
+change à chaque rendu, et sans garde l'effet réécrirait à chaque battement.
+Vérifié au navigateur en laissant tourner six secondes — **un seul appel**.
+
+**ET LA SORTIE EXISTE ENFIN** (`scrutin_jeux_pseudo_retirer`). Le pseudo de
+compte est le seul nom du produit qui survit à une journée, et on ne pouvait que
+le POSER : `pseudo_poser` refuse moins de deux caractères, seule la Régie savait
+le retirer en posant `bloque_le`. C'était la contrepartie manquante de la ligne
+franchie le 25/08.
+
+⚠️ **ON SUPPRIME LA LIGNE, ON NE POSE PAS `bloque_le`** : ce champ dit « un
+modérateur a retiré ce nom », l'écran le raconte dans cette voix-là, et reposer
+un pseudo lève le blocage. Confondre « je me retire » et « on m'a retiré » ferait
+lire une sanction à quelqu'un qui vient de cliquer.
+
+⚠️ **ET LES LIGNES DE TABLEAU DU JOUR PARTENT AVEC, CE N'EST PAS DU ZÈLE.** La
+résolution du nom est `coalesce(p.pseudo, n.nom)` avec une **jointure sans
+condition** — c'est écrit, et c'est ce qui empêche un compte bloqué de retomber
+sur son ancien texte libre. Supprimer la ligne de pseudo rend cette jointure
+vide : sans le ménage, une ligne héritée republierait le texte qu'on vient de
+retirer. Mesuré avant d'écrire : `scrutin_banalo_noms` porte **0 ligne de texte
+libre** et plus rien ne peut en créer (le dépôt insère `nom = null` depuis le
+07/09) — la garde est théorique, mais la colonne existe et le prochain agent ne
+doit pas avoir à refaire ce calcul.
+
+⚠️ **ON NE TOUCHE PAS AUX TABLÉES** : un groupe est une appartenance, pas une
+publication. Le membre y reste **sans libellé** — et l'écran a maintenant un mot
+pour ça (`sansNom`), faute de quoi il imprimait une ligne vide, exactement comme
+il le faisait déjà pour un pseudo bloqué.
+
+⚠️ **EN DEUX APPUIS, ET LE BOUTON QUI SUPPRIME N'A PAS LE ROUGE DE CELUI QUI
+ENREGISTRE.** Vu à l'écran : en `primary`, « Retirer mon pseudo » prenait le MÊME
+rouge que « Valider » à quarante pixels de lui et devenait l'élément le plus fort
+d'une carte dont le métier est de POSER un nom. Le geste destructeur se confirme
+en `ghost`, « Annuler » est un lien. ⚠️ Et la phrase dit **ce qui part et ce qui
+reste** : « Retirer mon pseudo » tout seul se lit comme une suppression de
+compte, alors que les résultats, la série et l'historique ne bougent pas.
+
+⚠️ **LA POLITIQUE DE CONFIDENTIALITÉ EST REPRISE DANS LE MÊME COMMIT**, en trois
+langues : elle promettait que le pseudo est gardé « tant que vous ne le changez
+pas et que vous ne supprimez pas le compte », ce qui est devenu faux.
+
 **CINQ SUR CINQ A SON TABLEAU DU JOUR** (`20260908-jeu-pays-tableau-du-jour.sql`,
 `components/games/TableauDuJour.tsx`) — demandé tel quel : « il faut que Cinq sur
 cinq demande le nom, même fonctionnement sur tous les jeux quotidiens ». Il ne
