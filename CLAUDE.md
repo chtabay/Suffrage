@@ -1363,8 +1363,18 @@ relèvent du projet GlobéNostra ») devient l'introduction du bloc. La page ava
 prévu ce cas dès son écriture.
 
 ⚠️ **ON NE LE PRÉSENTE JAMAIS COMME LE NÔTRE** : c'est leur jeu, sur leur
-domaine, et ce partage est ce qui rend le lien tenable. Ici on regarde COMMENT ON
-COMPTE les voix, là-bas CE QU'ON VOTE.
+domaine, et ce partage est ce qui rend le lien tenable.
+
+⚠️ **ET CE N'EST PAS « L'AUTRE MOITIÉ D'UNE MÊME QUESTION » — J'AI ÉCRIT ÇA ET
+C'ÉTAIT FAUX.** La formule installait un programme commun en deux moitiés, donc
+elle faisait des modes de scrutin un sujet PARTAGÉ. Or **les modes de scrutin ne
+sont pas le centre de gravité de GlobéNostra** : leur sujet est le positionnement
+politique. La thèse des méthodes est celle de PLACET SEUL — l'accueil la porte
+déjà en propre (« chaque décision a sa méthode »). La page dit maintenant
+« Placet ne fait pas ce travail-là : il compte des voix, il n'analyse pas de
+positions », et la formule est partie de l'écran ET du code : la laisser en
+commentaire après l'avoir retirée de l'écran, c'est le mécanisme par lequel une
+prémisse fausse se transmet d'agent en agent comme un fait.
 
 ⚠️ **ET IL N'ENTRE PAS DANS LE CATALOGUE `/games`** — trois raisons, dont une
 seule suffirait : `GameEntry.slug` est la valeur d'aiguillage de

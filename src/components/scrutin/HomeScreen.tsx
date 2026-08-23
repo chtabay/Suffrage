@@ -609,11 +609,17 @@ export default function HomeScreen({ ctrl }: { ctrl: ScrutinController }) {
       {/* LE PARTENARIAT GLOBÉNOSTRA — franc, et pas pour autant une réclame.
       
           ⚠️ IL ÉTAIT UNE LIGNE DE 12,5 px QUI NE MENAIT QU'AU DEHORS, alors
-          qu'on a une VRAIE page pour ce partenariat : `/partenaires/globenostra`
-          et ses démonstrations neutres du jugement majoritaire, de Condorcet et
-          de l'approbation. Rien sur placet.app n'y menait — elle n'était servie
-          que par la réécriture de `placet.globenostra.com`. On avait donc
-          construit la substance et gardé la note de bas de page.
+          qu'on a une VRAIE page co-marquée : `/partenaires/globenostra`, et nos
+          démonstrations neutres du jugement majoritaire, de Condorcet et de
+          l'approbation. Rien sur placet.app n'y menait — elle n'était servie que
+          par la réécriture de `placet.globenostra.com`. On avait donc construit
+          la substance et gardé la note de bas de page.
+
+          ⚠️ CES DÉMONSTRATIONS SONT LES NÔTRES, PAS « LE CONTENU DU
+          PARTENARIAT ». Les modes de scrutin ne sont pas le centre de gravité de
+          GlobéNostra — leur sujet est le positionnement politique. Ce bloc
+          présente donc une page de Placet ; la ligne en dessous nomme le
+          partenaire, et c'est là que son nom appartient.
       
           ⚠️ CE QUI FAIT QU'UN LIEN SE LIT COMME UNE PUB N'EST PAS SA TAILLE.
           C'est de parler de l'annonceur, d'être identique tous les jours et de
