@@ -704,9 +704,15 @@ export default function HomeScreen({ ctrl }: { ctrl: ScrutinController }) {
         </div>
       ) : null}
 
-      {/* Backlink partenaire — réciproque du lien GlobéNostra → Placet. Il reste
-          une ligne, et il le doit : c'est une mention, pas une offre, et le lien
-          SORT du site. */}
+      {/* La mention du partenaire. Elle reste une ligne, et elle le doit : c'est
+          une mention, pas une offre, et le lien SORT du site.
+
+          ⚠️ ELLE NE SE DIT PLUS « RÉCIPROQUE » D'UN LIEN GLOBÉNOSTRA → PLACET.
+          Personne ici ne peut le constater — `globenostra.com` est hors de portée
+          du conteneur (proxy 403) — et une réciprocité affirmée sans preuve est
+          exactement le genre de phrase qui se transmet d'agent en agent comme un
+          fait. Ce qui EST vérifiable tient dans `src/middleware.ts` : leur
+          sous-domaine `placet.globenostra.com` sert notre page partenaire. */}
       <p style={{ marginTop: locale === "fr" ? 14 : 26, fontSize: 12.5, color: MUTED }}>
         {t("partnerLabel")}{" "}
         <a

@@ -4,9 +4,13 @@ import { APP_URL } from "@/lib/voting/aiPrompt";
 
 // Page partenaire GlobéNostra — servie sur placet.app/partenaires/globenostra
 // ET sous placet.globenostra.com (rewrite par host du middleware). Code piloté ici.
-// DA alignée sur le SITE GlobéNostra (fond clair, cartes douces arrondies, accent
-// sarcelle, soulignés colorés par rubrique — violet/sarcelle/bleu), logo et corail
-// Placet conservés pour le CTA principal.
+// ⚠️ LA PALETTE A ÉTÉ CHOISIE LE 31/07/2026 POUR VOISINER AVEC LE SITE DU
+// PARTENAIRE — fond clair, cartes douces arrondies, accent sarcelle, soulignés
+// colorés ; logo et corail Placet gardés pour l'appel principal. Ce qu'elle
+// imitait alors n'est pas vérifiable d'ici : `globenostra.com` et ses
+// sous-domaines sont hors de portée du conteneur, le proxy de sortie répond 403
+// au CONNECT. Les commentaires de couleur ci-dessous ne décrivent donc PAS l'état
+// actuel de leur site : ce sont les intentions du jour où la page a été écrite.
 // NEUTRALITÉ : les exemples portent sur des thèmes et des méthodes, jamais sur
 // des personnes ou des partis — le contenu de positionnement relève de GlobéNostra.
 const BG = "#F1F3F7"; // fond clair GlobéNostra
@@ -15,9 +19,9 @@ const EDGE = "#E3E6EE"; // bordures douces
 const TITLE = "#1A2233"; // titres quasi noirs
 const BODY = "#4A5468"; // texte courant
 const MUTEDT = "#7A8399";
-const TEAL = "#2A9D8F"; // accent sarcelle (bouton Login GlobéNostra)
-const PURPLE = "#8B6FE8"; // souligné « Art »
-const BLUE = "#3D8BFD"; // souligné « Science »
+const TEAL = "#2A9D8F"; // accent sarcelle
+const PURPLE = "#8B6FE8"; // second souligné
+const BLUE = "#3D8BFD"; // troisième souligné
 const CORAL = "#E23E3B"; // accent Placet
 const display = "var(--font-display), 'Bricolage Grotesque', sans-serif";
 
@@ -184,9 +188,10 @@ export default function GlobenostraPartner() {
             suffirait : `GameEntry.slug` est la valeur d'aiguillage de
             `scrutin_game_rooms.game` et toutes les vignettes pointent une
             `route` de notre domaine ; nos jeux déclarent une tranche d'âge
-            « enfant » dans la politique de confidentialité ; et un jeu sur les
-            votes de partis n'a rien à faire entre « Un par jour » et « Les
-            enquêtes ». La porte des jeux est apolitique par construction. */}
+            « enfant » dans la politique de confidentialité ; et un jeu qui fait
+            trancher sur des lois votées à l'Assemblée n'a rien à faire entre
+            « Un par jour » et « Les enquêtes ». La porte des jeux est
+            apolitique par construction. */}
         <div
           style={{
             marginTop: 22,

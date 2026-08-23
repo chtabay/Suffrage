@@ -1370,8 +1370,8 @@ COMPTE les voix, là-bas CE QU'ON VOTE.
 seule suffirait : `GameEntry.slug` est la valeur d'aiguillage de
 `scrutin_game_rooms.game` et toutes les vignettes pointent une `route` de notre
 domaine ; nos jeux déclarent une tranche d'âge « enfant » dans la politique de
-confidentialité ; et un jeu sur les votes de partis n'a rien à faire entre « Un
-par jour » et « Les enquêtes ». La porte des jeux est apolitique par
+confidentialité ; et un jeu qui fait trancher sur des lois votées à l'Assemblée
+n'a rien à faire entre « Un par jour » et « Les enquêtes ». La porte des jeux est apolitique par
 construction.
 
 ⚠️ **`globenostra.com` ET SES SOUS-DOMAINES SONT HORS DE PORTÉE DEPUIS LE
