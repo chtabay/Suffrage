@@ -222,10 +222,51 @@ export async function repond(
  * — et à la relecture de la veille : la note d'un joueur bouge encore tant que
  * la journée est ouverte, puisque la médiane bouge.
  */
+
+/**
+ * LE JETON SOUS LEQUEL CE JOUEUR A JOUÉ CETTE JOURNÉE — pas forcément celui de
+ * ce navigateur.
+ *
+ * ⚠️ SANS ÇA, UN SECOND APPAREIL ANNONCE « vous n'avez pas encore joué ».
+ * Signalé par un joueur qui s'était connecté ailleurs avec le même compte : les
+ * fonctions d'état ne connaissent que le jeton, qui est propre au navigateur.
+ * La base sait résoudre (`scrutin_banalo_mon_jeton`) ; encore faut-il le lui
+ * demander.
+ *
+ * ⚠️ ON NE LA DEMANDE QUE S'IL Y A UNE SESSION, et la lecture est LOCALE
+ * (`getSession` lit le cookie, sans réseau) : un joueur sans compte ne paie
+ * donc aucun aller-retour de plus, et c'est l'immense majorité.
+ *
+ * ⚠️ ET LE RÉSULTAT EST GARDÉ POUR LA VIE DE LA PAGE. `etat` est rappelée après
+ * chaque dépôt et à chaque relecture de la veille ; résoudre à chaque fois
+ * doublerait le trafic de l'écran pour une réponse qui ne change pas.
+ */
+const jetonsResolus = new Map<string, string>();
+
+async function jetonDeLaJournee(jeton: string, jour: number, langue: string): Promise<string> {
+  const cle = `${jeton}|${jour}|${langue}`;
+  const garde = jetonsResolus.get(cle);
+  if (garde) return garde;
+  const supabase = createClient();
+  const { data: session } = await supabase.auth.getSession();
+  if (!session.session) return jeton;
+  const { data, error } = await supabase.rpc("scrutin_banalo_mon_jeton", {
+    p_jeton: jeton,
+    p_jour: jour,
+    p_langue: langue,
+  });
+  // ⚠️ UNE PANNE RETOMBE SUR LE JETON LOCAL. Rendre `null` ferait disparaître
+  // la partie de quelqu'un qui joue ici et maintenant, pour réparer le cas d'un
+  // second appareil — on casserait le cas courant pour soigner le rare.
+  const resolu = !error && typeof data === "string" && data.length > 0 ? data : jeton;
+  jetonsResolus.set(cle, resolu);
+  return resolu;
+}
+
 export async function etat(jeton: string, jour: number, langue: string): Promise<EtatBanalo | null> {
   const supabase = createClient();
   const { data, error } = await supabase.rpc("scrutin_banalo_etat", {
-    p_jeton: jeton,
+    p_jeton: await jetonDeLaJournee(jeton, jour, langue),
     p_jour: jour,
     p_langue: langue,
   });
@@ -460,7 +501,7 @@ export async function etatMots(
 ): Promise<EtatMots | null> {
   const supabase = createClient();
   const { data, error } = await supabase.rpc("scrutin_banalo_mots_etat", {
-    p_jeton: jeton,
+    p_jeton: await jetonDeLaJournee(jeton, jour, langue),
     p_jour: jour,
     p_langue: langue,
     p_theme: theme,
@@ -865,6 +906,12 @@ export function serieVivante(serie: { jours: number; fin: number | null } | null
  */
 export async function rattache(jeton: string): Promise<number | null> {
   const supabase = createClient();
+  // ⚠️ ON MARQUE LES RÉPONSES AVANT DE LES RÉSUMER. `rattacher` lit le jeton
+  // pour écrire un résumé de compte, mais ne touchait jamais les lignes de
+  // réponse : elles restaient anonymes, donc invisibles depuis un autre
+  // appareil. `adopter` leur pose le compte — c'est exact, pas déduit, puisque
+  // c'est le navigateur qui a joué qui le demande.
+  await supabase.rpc("scrutin_banalo_adopter", { p_jeton: jeton });
   const { data, error } = await supabase.rpc("scrutin_banalo_rattacher", { p_jeton: jeton });
   if (error) return null;
   return typeof data === "number" ? data : null;

@@ -726,6 +726,60 @@ journée à l'instant de la connexion. (Chez Cinq sur cinq, « meilleur » est u
 MINIMUM d'essais ; ici un MAXIMUM de points. Le copier-coller inverse ça en
 silence.)
 
+**UNE JOURNÉE DE BANALO SUIT LE COMPTE DEPUIS LE 23/08**
+(`20260910-banalo-journee-suit-le-compte.sql`) — signalé par un joueur : « je me
+suis connecté sur un autre appareil avec le même compte, je n'ai pas retrouvé ce
+que j'avais joué ». Vérifié : son compte portait bien tout, mais
+`scrutin_banalo_etat` et `_mots_etat` ne regardent JAMAIS `auth.uid()` — elles ne
+connaissent que le JETON, qui est propre au navigateur.
+
+⚠️ **ET CE N'ÉTAIT PAS QU'UN DÉFAUT D'AFFICHAGE : LE JEU LAISSAIT RÉPONDRE UNE
+SECONDE FOIS.** Les deux réponses comptaient dans la foule — la médiane du format
+chiffré et les parts des mots se calculent sur les LIGNES, pas sur les comptes.
+Un joueur à deux appareils pesait double. La journée 4 portait trois jetons pour
+des dépôts à 11 h 55, 14 h 19 et 14 h 33.
+
+**La réparation tient en une idée : le jeton se RÉSOUT avant tout le reste.** Les
+deux tables de réponses gagnent un `user_id`, et `scrutin_banalo_mon_jeton` rend
+« le jeton sous lequel CE joueur a joué cette journée » — celui du navigateur
+s'il a déjà répondu, sinon celui que son compte a utilisé ailleurs.
+
+⚠️ **LES DEUX GROSSES FONCTIONS D'ÉTAT NE SONT PAS TOUCHÉES** (133 et 195 lignes
+de médiane, de rangs, de bandes et de scellement) : elles reçoivent le jeton
+résolu depuis l'extérieur et ne savent même pas que quelque chose a changé. Les
+réécrire pour y insérer une ligne aurait été prendre un risque de dérive
+silencieuse sur du code qu'aucun test ne couvre.
+
+⚠️ **LE NAVIGATEUR L'EMPORTE QUAND IL A DÉJÀ RÉPONDU.** Sans cette priorité, un
+joueur qui a joué anonymement ici puis s'est connecté verrait sa réponse locale
+remplacée par celle d'un autre appareil — on lui prendrait la partie qu'il vient
+de faire.
+
+⚠️ **LA GARDE EST UN INDEX, PAS UNE CONDITION D'ÉCRAN.** Résoudre le jeton côté
+client répare l'affichage, pas la foule : un client modifié garderait son jeton
+et répondrait deux fois. D'où `banalo_reponse_par_compte` et
+`banalo_mots_par_compte` — ce dernier porte le RANG, sans quoi il n'autoriserait
+qu'un seul mot par journée.
+
+⚠️ **ON NE DEVINE AUCUNE LIGNE ANCIENNE.** `rattacher` lisait le jeton pour écrire
+un résumé sans jamais marquer les réponses ; `scrutin_banalo_adopter` les marque
+quand le joueur revient avec SON jeton — exact, pas déduit — et **saute les
+journées déjà jouées par ce compte ailleurs**, sinon l'index unique emporterait
+toute l'adoption.
+
+⚠️ **CINQ SUR CINQ N'AVAIT PAS LE MÊME PROBLÈME, ET C'EST VÉRIFIÉ.**
+`scrutin_game_pays_jouer` garde `least(r.essais, p_essais)` : rejouer ne peut
+rien abîmer. Il restait un mensonge d'écran — une grille vierge pour une journée
+déjà gagnée — comblé par une phrase, pas par une restitution : la révélation
+n'est stockée nulle part. ⚠️ Elle ne sort **que si rien n'a été joué ici** :
+interrompre quelqu'un qui cherche pour lui dire qu'il a déjà trouvé serait la
+pire des annonces.
+
+⚠️ **ET `revoke ... from public` NE RETIRE PAS LE DROIT DE `anon`** : Supabase
+pose des privilèges PAR DÉFAUT sur les fonctions du schéma public. Il faut le
+NOMMER. Vu à l'application : `anon=X` restait sur `scrutin_banalo_adopter` après
+le `revoke from public`.
+
 **L'HISTORIQUE PERSONNEL est en prod** (`/games/banalo-jour/historique`,
 `MonHistorique.tsx`, `scrutin_banalo_historique`) — c'est la réponse à la
 question d'un joueur : « est-ce qu'on peut créer un compte pour ça ? si oui,

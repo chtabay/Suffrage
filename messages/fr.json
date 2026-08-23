@@ -2866,6 +2866,7 @@
     }
   },
   "Pays": {
+    "dejaAilleurs": "Vous avez déjà trouvé le pays du jour, en {n, plural, one {# essai} other {# essais}}, depuis un autre appareil. Rejouer ici ne changera pas votre résultat.",
     "demainPays": "Un nouveau pays demain.",
     "tableau": {
       "essais": "{n, plural, one {# essai} other {# essais}}",

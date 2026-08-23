@@ -2866,6 +2866,7 @@
     }
   },
   "Pays": {
+    "dejaAilleurs": "You don already find di country of di day, for {n, plural, one {# try} other {# tries}}, for anoda device. To play again here no go change your result.",
     "demainPays": "New country tomorrow.",
     "tableau": {
       "essais": "{n, plural, one {# try} other {# tries}}",

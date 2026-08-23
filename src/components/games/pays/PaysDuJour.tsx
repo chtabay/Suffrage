@@ -29,7 +29,7 @@ import GameShell from "@/components/games/GameShell";
 import { GCard, GLabel } from "@/components/games/ui";
 import Carte from "./Carte";
 import Compte from "./Compte";
-import { deposePartie, deposerNomPays, litTableauPays } from "@/lib/db/pays";
+import { deposePartie, deposerNomPays, litTableauPays, maPosition } from "@/lib/db/pays";
 import { monJetonPays } from "@/lib/games/pays/jeton";
 import type { ChoixDeNom, DepotNom } from "@/lib/db/banalo";
 import TableauDuJour from "@/components/games/TableauDuJour";
@@ -141,6 +141,41 @@ export default function PaysDuJour({ jour }: { jour: number }) {
   // les deux ou trois comptes qui s'étaient inscrits. On ne le cherche qu'une
   // fois la partie finie — avant, il n'y a rien à classer.
   const [rang, setRang] = useState<{ rang: number; joueurs: number } | null>(null);
+
+  /**
+   * Ce que le COMPTE sait de cette journée, quand ce navigateur n'en sait rien.
+   *
+   * ⚠️ LA PARTIE VIT DANS `localStorage`, DONC ELLE NE SUIT PAS LE COMPTE.
+   * Signalé par un joueur connecté sur un second appareil : le jeu lui offrait
+   * une grille vierge pour une journée qu'il avait déjà gagnée. Contrairement à
+   * Banalo, ce n'est PAS un problème de données — `scrutin_game_pays_jouer`
+   * garde `least(r.essais, p_essais)`, donc rejouer ne peut rien abîmer — mais
+   * c'est un mensonge d'écran, et le joueur refait une énigme pour rien.
+   *
+   * ⚠️ ON NE RESTITUE PAS LA PARTIE, ON LA DIT. La révélation (les cinq critères,
+   * la carte complète) n'est pas stockée : la rendre demanderait de la garder en
+   * base pour chaque joueur et chaque journée. Le dire coûte une phrase et
+   * suffit à ne plus tromper.
+   */
+  const [ailleurs, setAilleurs] = useState<number | null>(null);
+
+  // ⚠️ ON NE DEMANDE RIEN SI LE JOUEUR A COMMENCÉ ICI. Interrompre quelqu'un qui
+  // est en train de chercher pour lui dire qu'il a déjà trouvé ailleurs serait
+  // la pire des annonces — et `maPosition` rend le résultat du COMPTE, donc
+  // elle répondrait « oui » à qui vient de gagner sur cet écran-ci.
+  const demandeAilleurs = useRef(false);
+  useEffect(() => {
+    if (demandeAilleurs.current || essais.length > 0 || gagne) return;
+    demandeAilleurs.current = true;
+    let vivant = true;
+    void maPosition(jour).then((r) => {
+      if (vivant && r && typeof r.essais === "number") setAilleurs(r.essais);
+    });
+    return () => {
+      vivant = false;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [jour]);
 
   // Le défi d'un ami, lu après le montage (voir `NombreDuJour` pour pourquoi
   // pas `useSearchParams`).
@@ -555,6 +590,23 @@ export default function PaysDuJour({ jour }: { jour: number }) {
       </p>
 
       <div style={{ marginTop: 14, display: "grid", gap: 12 }}>
+        {/* ⚠️ ELLE NE DIT RIEN DU PAYS. `games/pays/page.tsx` interdit toute
+            métadonnée dérivée du puzzle ; un nombre d'essais n'en est pas une —
+            il ne réduit aucune recherche. */}
+        {!gagne && ailleurs !== null && essais.length === 0 && (
+          <div
+            style={{
+              padding: "11px 13px",
+              borderRadius: 12,
+              border: `2px solid ${skin.ink}33`,
+              fontSize: 13.5,
+              lineHeight: 1.5,
+              color: skin.muted,
+            }}
+          >
+            {t("dejaAilleurs", { n: ailleurs })}
+          </div>
+        )}
         {!gagne && (
           <Recherche
             skin={skin}

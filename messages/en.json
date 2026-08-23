@@ -2866,6 +2866,7 @@
     }
   },
   "Pays": {
+    "dejaAilleurs": "You already found today's country, in {n, plural, one {# guess} other {# guesses}}, on another device. Playing again here won't change your result.",
     "demainPays": "A new country tomorrow.",
     "tableau": {
       "essais": "{n, plural, one {# guess} other {# guesses}}",
