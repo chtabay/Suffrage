@@ -11,6 +11,7 @@ import AiHelper from "./AiHelper";
 import PublicFeedStrip from "./PublicFeedStrip";
 import SlackMark from "@/components/SlackMark";
 import NextLink from "next/link";
+import GlobeNostraMark from "@/components/scrutin/GlobeNostraMark";
 import { Link } from "@/i18n/navigation";
 import { Btn } from "@/components/ui/kit";
 import { CORAL, FONT_DISPLAY, GREEN, INK, MUTED, PAPER, SUBINK, YELLOW, lift } from "./theme";
@@ -719,7 +720,20 @@ export default function HomeScreen({ ctrl }: { ctrl: ScrutinController }) {
           exactement le genre de phrase qui se transmet d'agent en agent comme un
           fait. Ce qui EST vérifiable tient dans `src/middleware.ts` : leur
           sous-domaine `placet.globenostra.com` sert notre page partenaire. */}
-      <p style={{ marginTop: locale === "fr" ? 14 : 26, fontSize: 12.5, color: MUTED }}>
+      {/* ⚠️ LA MARQUE VA AVEC LE NOM, PAS AVEC L'OFFRE. Elle est dans la ligne
+          qui nomme le partenaire, jamais dans le bouton au-dessus : celui-là
+          mène à NOS démonstrations, et y poser leur marque referait l'erreur
+          d'attribution qu'on vient de corriger. À 17 px elle reste une mention —
+          la rendre grosse la transformerait en encart. */}
+      {/* ⚠️ LA MARQUE EST DANS LE FLUX DU TEXTE, PAS DANS UNE BOÎTE FLEX. En
+          `display: flex` avec `wrap`, la phrase est trop large pour tenir à côté
+          d'elle : elle passe entière à la ligne suivante et la marque reste
+          seule au-dessus, comme une icône orpheline. Vu à l'écran. En ligne, elle
+          ouvre la phrase et la mention reste une mention. */}
+      <p style={{ marginTop: locale === "fr" ? 14 : 26, fontSize: 12.5, color: MUTED, lineHeight: 1.6 }}>
+        <span style={{ display: "inline-block", verticalAlign: "-4px", marginRight: 7 }}>
+          <GlobeNostraMark size={17} />
+        </span>
         {t("partnerLabel")}{" "}
         <a
           href="https://www.globenostra.com"

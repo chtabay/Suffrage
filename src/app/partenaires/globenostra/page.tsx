@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import GlobeNostraMark from "@/components/scrutin/GlobeNostraMark";
 import PlacetMark from "@/components/scrutin/PlacetMark";
 import { APP_URL } from "@/lib/voting/aiPrompt";
 
@@ -116,7 +117,28 @@ export default function GlobenostraPartner() {
             <PlacetMark size={38} />
             <span style={{ fontFamily: display, fontWeight: 800, fontSize: 22 }}>Placet</span>
           </a>
-          <span style={{ fontFamily: display, fontWeight: 800, fontSize: 17, color: TEAL }}>× GlobéNostra</span>
+          {/* ⚠️ LE LOCKUP PORTE MAINTENANT LEUR MARQUE, plus seulement son nom en
+              sarcelle. Sur une page co-marquée servie aussi sous LEUR
+              sous-domaine, une moitié dessinée face à une moitié écrite se lit
+              comme un hôte et une mention ; deux marques se lisent comme deux
+              projets. ⚠️ Elle est à 30 px quand la nôtre est à 38 : la leur est
+              pleine et presque carrée, la nôtre est un bloc à coins arrondis
+              avec du blanc autour — à hauteur égale, la leur pèse plus lourd.
+              Réglé à l'œil, pas au calcul. */}
+          <span style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
+            <span style={{ fontFamily: display, fontWeight: 800, fontSize: 17, color: MUTEDT }}>×</span>
+            <GlobeNostraMark size={30} />
+            {/* ⚠️ LE NOM EN ENCRE, PLUS EN SARCELLE — et c'est leur marque qui
+                l'a tranché. Le sarcelle avait été choisi en juillet comme « leur
+                accent », sur une description de leur site que personne ici n'a
+                jamais pu vérifier ; leur logo, lui, va du bleu au violet. Peindre
+                leur nom d'une couleur qu'on leur a inventée, juste à côté de
+                leurs vraies couleurs, se voit. En encre, le lockup devient
+                symétrique — une marque et un nom de chaque côté du « × » — et
+                Placet cesse d'attribuer une identité au partenaire. Le sarcelle
+                reste l'accent de CETTE page, ce qu'il a toujours été. */}
+            <span style={{ fontFamily: display, fontWeight: 800, fontSize: 17, color: TITLE }}>GlobéNostra</span>
+          </span>
         </div>
 
         {/* QUI FAIT QUOI, AVANT LA THÈSE.

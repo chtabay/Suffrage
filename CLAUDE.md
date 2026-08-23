@@ -1389,6 +1389,35 @@ CONTENEUR** : le proxy de sortie répond 403 au CONNECT, comme pour Supabase, et
 rien n'est indexé côté recherche. Tout ce qui est écrit ici sur le Votinator
 vient de la description du propriétaire du dépôt, pas d'une lecture de la page.
 
+⚠️ **LA MARQUE DU PARTENAIRE EST UN FICHIER, PAS UN DESSIN DE NOUS**
+(`GlobeNostraMark.tsx`, `public/partenaires/globenostra.png`). Les deux autres
+marques du dépôt sont des SVG écrits à la main — `PlacetMark` dessine la nôtre,
+`SlackMark` reproduit le trèfle officiel chemin par chemin — mais **on ne
+redessine pas la marque d'un partenaire** : une approximation tracée à la main
+est une contrefaçon approximative de son bien. On sert le fichier qu'il a donné,
+comme `BrandIcon` sert les logos d'assistants de `public/brands/`.
+⚠️ Le fichier est **recadré sur la marque, pas retouché** : l'original portait
+25 px de vide transparent de chaque côté, donc à hauteur égale la marque
+paraissait plus petite que la nôtre et décalée dans le lockup (153×102 → 103×94).
+⚠️ Et **sa hauteur est 30 quand la nôtre est 38** : la leur est pleine et presque
+carrée, la nôtre est un bloc à coins arrondis avec du blanc autour. Réglé à
+l'œil.
+
+⚠️ **LE NOM DU PARTENAIRE EST PASSÉ EN ENCRE, ET C'EST SA MARQUE QUI L'A
+TRANCHÉ.** Le sarcelle avait été choisi en juillet comme « son accent », sur une
+description de son site que personne ici n'a jamais pu vérifier — le conteneur
+n'a **aucune sortie web**, `example.com` lui-même est refusé. Son logo va du bleu
+au violet : peindre son nom d'une couleur qu'on lui a inventée, juste à côté de
+ses vraies couleurs, se voit. Le lockup est maintenant symétrique — une marque et
+un nom de chaque côté du « × » — et le sarcelle redevient ce qu'il a toujours
+été, l'accent de CETTE page.
+
+⚠️ **ET `public/partenaires/globenostra.jpg` EST UNE ORPHELINE** : 400×194,
+ajoutée le 31/07 dans le même commit fourre-tout que la page, référencée nulle
+part, et **ce n'est pas leur marque** — c'est une illustration décorative
+abstraite, de provenance et de licence inconnues. Elle voisine désormais le
+`.png` qui, lui, sert : ne pas les confondre, et ne pas publier la première.
+
 ⚠️ **LA DÉMONSTRATION N'EST PROPOSÉE QU'EN FRANÇAIS** : la page est écrite en
 français et porte sur la présidentielle française. Les trois autres langues
 gardent la mention réciproque, qui est traduite. ⚠️ Et son lien est le `Link` de
