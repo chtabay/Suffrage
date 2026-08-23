@@ -1,5 +1,11 @@
 {
   "Admin": {
+    "ongletApercu": "Resumen",
+    "ongletScrutins": "Votaciones",
+    "ongletJeux": "Juegos",
+    "ongletPersonnes": "Personas",
+    "jeuxTitre": "Los juegos aún no se miden aquí",
+    "jeuxManque": "La consola cuenta votaciones, papeletas y comparticiones; de los juegos no cuenta nada: ni jornadas jugadas, ni jugadores, ni salas abiertas. La única acción disponible aquí es retirar un nombre de las clasificaciones.",
     "title": "Cabina Placet",
     "subtitle": "Moderación, participación y compartidos — vista de plataforma",
     "refresh": "Actualizar",

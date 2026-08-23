@@ -112,6 +112,23 @@ export default function AdminScreen() {
   // LES PSEUDOS DES JEUX QUOTIDIENS — la prise pour agir sur le seul nom du
   // produit qui survive à une journée.
   const [pseudos, setPseudos] = useState<AdminPseudo[]>([]);
+  /**
+   * QUATRE ONGLETS, QUATRE MÉTIERS.
+   *
+   * ⚠️ LA RÉGIE ÉTAIT UN SEUL ROULEAU DE SIX BLOCS EMPILÉS : indicateurs,
+   * activité, file de modération, registre des scrutins, comptes, pseudos de
+   * jeux. Trois métiers différents à la suite, sans rupture — on descendait à
+   * travers la modération des scrutins pour atteindre la gestion des comptes, et
+   * les pseudos des jeux se retrouvaient tout en bas d'une page qui parlait de
+   * votes. Séparer, c'est rendre chaque question atteignable en un geste.
+   *
+   * ⚠️ ET « JEUX » EST UN ONGLET PRESQUE VIDE, VOLONTAIREMENT. Il ne porte
+   * aujourd'hui que le blocage des pseudos : la Régie ne sait RIEN des jeux —
+   * ni combien de journées jouées, ni combien de joueurs, ni combien de salles
+   * ouvertes — alors qu'ils sont la moitié du produit. L'onglet le montre au
+   * lieu de le cacher au fond d'un rouleau.
+   */
+  const [onglet, setOnglet] = useState<"apercu" | "scrutins" | "jeux" | "personnes">("apercu");
 
   const basculePseudo = async (p: AdminPseudo) => {
     setBusy(p.userId);
@@ -414,8 +431,66 @@ export default function AdminScreen() {
     </div>
   );
 
+  const ONGLETS = [
+    { cle: "apercu" as const, texte: `📊 ${t("ongletApercu")}`, alerte: 0 },
+    // ⚠️ LA FILE DE MODÉRATION PORTE SON COMPTE SUR L'ONGLET. Un signalement en
+    // attente est la seule chose urgente de cette page ; le ranger derrière un
+    // onglet muet le rendrait invisible jusqu'à ce qu'on pense à cliquer. Le
+    // chiffre reste aussi en indicateur sur l'aperçu, à l'accent, comme avant.
+    { cle: "scrutins" as const, texte: `🗳️ ${t("ongletScrutins")}`, alerte: reportsPending },
+    { cle: "jeux" as const, texte: `🎮 ${t("ongletJeux")}`, alerte: 0 },
+    { cle: "personnes" as const, texte: `👤 ${t("ongletPersonnes")}`, alerte: 0 },
+  ];
+
   return shell(
     <>
+      <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 18 }}>
+        {ONGLETS.map((o) => (
+          <button
+            key={o.cle}
+            type="button"
+            onClick={() => setOnglet(o.cle)}
+            aria-pressed={onglet === o.cle}
+            className="dc-lift"
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 7,
+              fontFamily: FONT_DISPLAY,
+              fontWeight: 800,
+              fontSize: 14,
+              padding: "9px 15px",
+              borderRadius: 999,
+              cursor: "pointer",
+              border: `2.5px solid ${INK}`,
+              background: onglet === o.cle ? INK : PAPER,
+              color: onglet === o.cle ? CREAM : INK,
+              ...lift("3px 3px 0 rgba(22,33,58,0.14)", "5px 5px 0 rgba(22,33,58,0.2)"),
+            }}
+          >
+            {o.texte}
+            {o.alerte > 0 && (
+              <span
+                style={{
+                  fontSize: 11,
+                  fontWeight: 800,
+                  minWidth: 19,
+                  padding: "1px 6px",
+                  borderRadius: 999,
+                  background: CORAL,
+                  color: INK,
+                  border: `1.5px solid ${INK}`,
+                }}
+              >
+                {o.alerte}
+              </span>
+            )}
+          </button>
+        ))}
+      </div>
+
+      {onglet === "apercu" && (
+        <>
       {/* ── KPIs ─────────────────────────────────────────────── */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: 12 }}>
         <Kpi label={t("kpiPolls")} value={totals.polls} sub={`+${totals.polls7d} ${t("last7")}`} />
@@ -430,7 +505,11 @@ export default function AdminScreen() {
           sub={reportsPending > 0 ? t("kpiReportsAction") : "✓"}
         />
       </div>
+        </>
+      )}
 
+      {onglet === "apercu" && (
+        <>
       {/* ── Activité 30 jours + canaux ───────────────────────── */}
       <div style={{ ...card, marginTop: 16 }}>
         <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 15, marginBottom: 12 }}>
@@ -465,7 +544,11 @@ export default function AdminScreen() {
           )}
         </div>
       </div>
+        </>
+      )}
 
+      {onglet === "scrutins" && (
+        <>
       {/* ── File de modération ───────────────────────────────── */}
       {moderationQueue.length > 0 && (
         <div style={{ ...card, marginTop: 16, borderColor: CORAL }}>
@@ -499,7 +582,11 @@ export default function AdminScreen() {
           </div>
         </div>
       )}
+        </>
+      )}
 
+      {onglet === "scrutins" && (
+        <>
       {/* ── Registre complet ─────────────────────────────────── */}
       <div style={{ ...card, marginTop: 16 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap", marginBottom: 12 }}>
@@ -588,7 +675,11 @@ export default function AdminScreen() {
           </div>
         )}
       </div>
+        </>
+      )}
 
+      {onglet === "personnes" && (
+        <>
       {/* ── Comptes : gestion des utilisateurs connus de Placet ─ */}
       <div style={{ ...card, marginTop: 16 }}>
         <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 15, marginBottom: 12 }}>
@@ -662,6 +753,26 @@ export default function AdminScreen() {
           </table>
         </div>
       </div>
+        </>
+      )}
+
+      {onglet === "jeux" && (
+        <>
+      {/* ⚠️ CET ONGLET DIT CE QU'IL NE SAIT PAS, ET C'EST LE POINT. La Régie
+          mesure les scrutins — bulletins, partages, canaux, signalements — et
+          ne mesure RIEN des jeux : ni les journées jouées, ni les joueurs, ni
+          les salles ouvertes, alors que six salles ont vécu sur les sept
+          derniers jours. Le seul geste qu'elle y offre est de retirer un
+          pseudo. Écrire l'absence vaut mieux que de laisser croire qu'un onglet
+          presque vide est un produit peu utilisé. */}
+      <div style={{ ...card, marginBottom: 16, borderStyle: "dashed" }}>
+        <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 15, marginBottom: 6 }}>
+          {t("jeuxTitre")}
+        </div>
+        <p style={{ fontSize: 13, fontWeight: 600, color: MUTED, margin: 0, lineHeight: 1.5 }}>
+          {t("jeuxManque")}
+        </p>
+      </div>
 
       {/* ══ LES PSEUDOS DES JEUX QUOTIDIENS ═══════════════════════════════════
           ⚠️ ON BLOQUE UN NOM, PAS UN JOUEUR. Le compte continue de jouer, de
@@ -709,6 +820,9 @@ export default function AdminScreen() {
           </div>
         )}
       </div>
+        </>
+      )}
+
     </>,
   );
 }

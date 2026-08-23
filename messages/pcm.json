@@ -1,5 +1,11 @@
 {
   "Admin": {
+    "ongletApercu": "Overview",
+    "ongletScrutins": "Polls",
+    "ongletJeux": "Games",
+    "ongletPersonnes": "People",
+    "jeuxTitre": "We never dey measure di games here yet",
+    "jeuxManque": "Di control room dey count polls, ballots and shares; e no dey count anything about di games — no days play, no players, no open rooms. Di only action here na to remove name from di rankings.",
     "title": "Placet Control Room",
     "subtitle": "Moderation, participation and shares — platform view",
     "refresh": "Refresh",

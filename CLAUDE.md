@@ -1681,6 +1681,53 @@ du chemin nu. Et ⚠️ `Number(null)` vaut **zéro**, pas `NaN` — un paramèt
 passait tous les contrôles de borne et affichait « votre ami : 0,0 ».
 
 
+**LA PORTE DES JEUX MONTRE LA PLACE DU JOUEUR, ET LA RÉGIE EST EN ONGLETS**
+(2026-09-09).
+
+`/games` ne parlait que des JEUX, jamais de qui la traverse. Le chemin vers les
+classements était une ligne de 13,5 px sous un pitch — et c'est pourtant le SEUL
+qui vaut pour tout le monde, les écrans d'après-partie n'y menant que pour un
+connecté ayant deux journées. Il porte maintenant une carte, une flèche et son
+contenu. Et chaque carte quotidienne montre la place du jour.
+
+⚠️ **LA PLACE REMPLACE LES PASTILLES, ELLE NE S'Y AJOUTE PAS.** « 3–12 joueurs ·
+2 minutes » dit à un inconnu ce qu'est le jeu ; à qui vient d'y jouer, ça
+n'apprend rien. Empilées, la ligne neuve se lirait en second.
+
+⚠️ **UNE SEULE RPC POUR LES DEUX JEUX** (`scrutin_jeux_porte`) : la porte ne
+faisait AUCUN aller-retour, lui en faire faire deux la ralentirait là où l'on
+veut entrer vite. Elle marche **sans compte**, par les jetons — c'est l'habitué
+sans compte à qui cette page n'avait rien à dire. Le classement de SAISON, lui,
+exige un compte et un pseudo et reste dans la barre (`RangJeux`). Cache de
+module, une lecture par session.
+
+⚠️ **LA RÉGIE ÉTAIT UN ROULEAU DE SIX BLOCS, TROIS MÉTIERS À LA SUITE.** On
+descendait à travers la modération des scrutins pour atteindre les comptes, et
+les pseudos des jeux finissaient au fond d'une page qui parlait de votes. Quatre
+onglets : Aperçu, Scrutins, Jeux, Personnes. ⚠️ **La file de modération porte son
+compte SUR l'onglet** — un signalement en attente est la seule chose urgente de
+cette page, et le ranger derrière un onglet muet le rendrait invisible.
+
+⚠️ **ET L'ONGLET « JEUX » DIT CE QU'IL NE SAIT PAS.** La Régie mesure les
+scrutins et ne mesure RIEN des jeux : ni journées jouées, ni joueurs, ni salles
+ouvertes. Écrire l'absence vaut mieux que de laisser croire qu'un onglet presque
+vide est un produit peu utilisé.
+
+⚠️ **CETTE PAGE N'EST PAS VÉRIFIABLE ICI** : elle exige une session ET l'allowlist
+`scrutin_admins`. tsc, eslint, le build et la parité l'ont vue ; **aucun œil ne
+l'a vue rendue**. À regarder à l'écran avant de s'y fier.
+
+**L'EXPÉRIENCE DES JEUX A ÉTÉ REPRISE DE HAUT** (`docs/experience-des-jeux.md`,
+2026-09-09), et le diagnostic s'est retourné sur les chiffres réels : **12 jetons
+sur Banalo, 2 sur Cinq sur cinq, 3 joueurs revenus une seconde journée, 1 pseudo,
+0 tablée**. Le produit a plus de mécanique de classement que de joueurs à
+classer ; le goulot est le PREMIER ÉCRAN, pas la profondeur du jeu. Trois défauts
+de porte y sont écrits (le titre promet du collectif, le champ de code est le
+premier geste offert à qui n'a pas de code, rien n'est jouable en un clic) et une
+recommandation qui ne coûte rien : **six salles de groupe ont vécu en sept
+jours** — plus de monde que de joueurs quotidiens —, et rien ne leur propose le
+jeu du jour quand la partie se termine.
+
 ## Les règles qui coûtent cher
 
 **`npm run build` AVANT de pousser.** `tsc --noEmit` ne lint pas. Un

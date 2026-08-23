@@ -1,5 +1,11 @@
 {
   "Admin": {
+    "ongletApercu": "Aperçu",
+    "ongletScrutins": "Scrutins",
+    "ongletJeux": "Jeux",
+    "ongletPersonnes": "Personnes",
+    "jeuxTitre": "Les jeux ne sont pas encore mesurés ici",
+    "jeuxManque": "La Régie compte les scrutins, les bulletins et les partages ; elle ne compte rien des jeux — ni journées jouées, ni joueurs, ni salles ouvertes. Le seul geste disponible ici est de retirer un pseudo des classements.",
     "title": "Régie Placet",
     "subtitle": "Modération, participation et partages — vue plateforme",
     "refresh": "Rafraîchir",
