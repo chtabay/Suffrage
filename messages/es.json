@@ -106,6 +106,7 @@
     "games": "Jugar"
   },
   "Home": {
+    "partnerSite": "Su sitio",
     "partnerTitle": "El método de votación cambia el resultado.",
     "partnerLead": "Prueba el juicio mayoritario, Condorcet y el voto por aprobación en tres preguntas de campaña: sin registro y sin una palabra sobre los candidatos.",
     "partnerCta": "Ver las demostraciones",
@@ -157,8 +158,8 @@
     "slackTitle": "También en Slack.",
     "slackText": "Lanza una votación sin salir de tus canales — /placet, todos votan en la web y el resultado vuelve al canal.",
     "slackCta": "Añadir a Slack",
-    "partnerLabel": "Socio:",
-    "partnerText": "herramientas de exploración ciudadana en torno a las elecciones.",
+    "partnerLabel": "Socio",
+    "partnerText": "Herramientas de exploración ciudadana en torno a las elecciones.",
     "steps": {
       "s1Label": "PASO 1",
       "s1Title": "Plantea la pregunta",

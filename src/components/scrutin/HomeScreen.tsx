@@ -217,6 +217,10 @@ function MethodCard({
   );
 }
 
+// Le bleu de GlobéNostra, ÉCHANTILLONNÉ sur le fichier de leur marque (bout
+// gauche du dégradé) et pas choisi pour eux — voir la carte partenaire plus bas.
+const GN_BLEU = "#0133A5";
+
 export default function HomeScreen({ ctrl }: { ctrl: ScrutinController }) {
   const { go, selectSystemRecipe, setOptionKind, setAssignMethod, setQuestion, setSurvey } = ctrl;
   const t = useTranslations("Home");
@@ -607,88 +611,77 @@ export default function HomeScreen({ ctrl }: { ctrl: ScrutinController }) {
         </Link>
       </div>
 
-      {/* LE PARTENARIAT GLOBÉNOSTRA — franc, et pas pour autant une réclame.
-      
-          ⚠️ IL ÉTAIT UNE LIGNE DE 12,5 px QUI NE MENAIT QU'AU DEHORS, alors
-          qu'on a une VRAIE page co-marquée : `/partenaires/globenostra`, et nos
-          démonstrations neutres du jugement majoritaire, de Condorcet et de
-          l'approbation. Rien sur placet.app n'y menait — elle n'était servie que
-          par la réécriture de `placet.globenostra.com`. On avait donc construit
-          la substance et gardé la note de bas de page.
+      {/* LE PARTENARIAT GLOBÉNOSTRA — une CARTE, et un lien qui va dans les
+          deux sens.
 
-          ⚠️ CES DÉMONSTRATIONS SONT LES NÔTRES, PAS « LE CONTENU DU
-          PARTENARIAT ». Les modes de scrutin ne sont pas le centre de gravité de
-          GlobéNostra — leur sujet est le positionnement politique. Ce bloc
-          présente donc une page de Placet ; la ligne en dessous nomme le
-          partenaire, et c'est là que son nom appartient.
-      
-          ⚠️ CE QUI FAIT QU'UN LIEN SE LIT COMME UNE PUB N'EST PAS SA TAILLE.
-          C'est de parler de l'annonceur, d'être identique tous les jours et de
-          demander sans rien donner. Grossir « Partenaire : outils d'exploration
-          citoyenne » l'aurait rapproché de la réclame, pas éloigné. Le bloc
-          annonce donc CE QU'ON PEUT FAIRE — comparer trois méthodes sur des
-          exemples neutres — et il emprunte la forme du bloc Slack juste
-          au-dessus : c'est le registre que cette page réserve à ses entrées
-          secondaires, et ça se lit comme une section du site, pas comme un
-          encart acheté.
-      
-          ⚠️ ET LA PHRASE DIT CE QUE LA PAGE FAIT, PAS CE QU'ON AIMERAIT QU'ELLE
-          FASSE. La première rédaction annonçait « comparez les trois méthodes
-          SUR LES MÊMES EXEMPLES » : faux, et faux au pire endroit. La page porte
-          TROIS questions différentes, une par méthode — les priorités du
-          quinquennat en jugement majoritaire, les modes de scrutin eux-mêmes en
-          Condorcet, les formats de débat en approbation. Elle AFFIRME que les
-          méthodes divergent « avec les mêmes votants et les mêmes options » ;
-          elle ne le DÉMONTRE pas, et promettre la démonstration à sa place
-          envoyait le lecteur chercher ce qui n'y est pas. On dit donc
-          « essayez », pas « comparez ».
+          ⚠️ J'AI DÉFENDU DEUX FOIS UNE RETENUE QU'ON M'A DEMANDÉ DEUX FOIS DE
+          LEVER, ET C'EST LA RETENUE QUI AVAIT TORT. Le bloc précédent était du
+          texte gris posé sur le crème, notre porte en bouton et la leur en mot de
+          12,5 px : « ridiculement discret pour être appelé un lien croisé ». Un
+          lien croisé où une seule des deux portes se voit n'est pas croisé. Il a
+          maintenant une carte, leur marque à une taille lisible, et DEUX sorties.
 
-      ⚠️ ET ON N'ATTRIBUE PAS LES DÉMONSTRATIONS AU PARTENAIRE. « Avec
-          GlobéNostra, comparez… » brouillait exactement la ligne que la page
-          trace dans son encadré : « Placet est un outil… les contenus d'analyse
-          des positionnements relèvent du projet GlobéNostra. » Le bloc présente
-          donc NOTRE démonstration ; la ligne en dessous crédite le partenaire,
-          et c'est là que son nom appartient.
+          ⚠️ CE QUI L'EMPÊCHE DE SE LIRE COMME UNE PUB N'EST PAS SA TAILLE, c'est
+          l'ordre : leur marque et ce qu'ILS font viennent en premier, ce que NOUS
+          proposons ensuite, séparés par un filet. Une réclame parle de
+          l'annonceur puis demande ; ici chaque moitié est attribuée, et la
+          moitié du partenaire ne demande rien — elle donne son adresse.
 
-      ⚠️ FRANC NE VEUT PAS DIRE PROÉMINENT. Il reste en bas, après le pitch,
-          les CTA et les jeux du jour : une carte partenaire qui concurrencerait
-          « Créer » serait, elle, une vraie publicité.
-      
-          ⚠️ ET LA DÉMONSTRATION N'EST PROPOSÉE QU'EN FRANÇAIS. La page partenaire
-          est écrite en français et porte sur la présidentielle française ; y
-          envoyer un lecteur hispanophone serait une porte qui ne s'ouvre pas
-          dans sa langue. Les autres langues gardent la mention réciproque, qui
-          est traduite, elle. */}
-      {locale === "fr" ? (
-        <div
-          style={{
-            marginTop: 40,
-            paddingTop: 22,
-            borderTop: `2px dashed ${INK}`,
-            display: "flex",
-            flexWrap: "wrap",
-            alignItems: "center",
-            justifyContent: "space-between",
-            gap: 14,
-          }}
-        >
-          <div style={{ fontSize: 14, color: SUBINK, lineHeight: 1.5, maxWidth: "46ch" }}>
-            <strong style={{ color: INK }}>{t("partnerTitle")}</strong> {t("partnerLead")}
-          </div>
-          {/* ⚠️ LE `Link` DE NEXT, PAS CELUI DE `@/i18n/navigation` :
-              `partenaires` est exclu du matcher du middleware, donc la page vit
-              hors du segment de langue et un lien localisé viserait
-              `/fr/partenaires/globenostra`, qui n'existe pas. Et pas une ancre
-              nue non plus — eslint refuse `<a>` vers une page interne, ce qui
-              casse le déploiement. */}
+          ⚠️ ET LA THÈSE RESTE DE CE CÔTÉ-CI DU FILET. « Le mode de scrutin change
+          le résultat » posée juste sous leur nom la leur attribuerait — l'erreur
+          qu'on vient de corriger sur la page co-marquée. Le filet n'est pas un
+          ornement : c'est la frontière.
+
+          ⚠️ L'OMBRE PORTE LEUR BLEU, ÉCHANTILLONNÉ SUR LEUR LOGO (#0133A5, le
+          bout gauche du dégradé), pas une couleur choisie pour eux — la leçon du
+          sarcelle inventé en juillet. Même dispositif que les vignettes de jeu :
+          l'accent annonce la destination.
+
+          ⚠️ ET ELLE RESTE EN BAS, après le pitch, les CTA, les jeux du jour et
+          Slack. « Franc » se joue sur la matière et sur la réciprocité, pas sur
+          la place : une carte partenaire qui monterait au-dessus de « Créer »
+          serait, elle, une vraie publicité. */}
+      <div
+        style={{
+          marginTop: 40,
+          background: "#fff",
+          border: `2.5px solid ${INK}`,
+          borderRadius: 16,
+          padding: "18px 20px",
+          boxShadow: `5px 5px 0 ${GN_BLEU}`,
+          maxWidth: 560,
+        }}
+      >
+        <div style={{ fontSize: 11.5, fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", color: MUTED }}>
+          {t("partnerLabel")}
+        </div>
+
+        <div style={{ display: "flex", alignItems: "center", gap: 11, marginTop: 9 }}>
+          <GlobeNostraMark size={34} />
+          <span style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 20, color: INK }}>GlobéNostra</span>
+        </div>
+        <p style={{ margin: "8px 0 0", fontSize: 14, lineHeight: 1.55, color: SUBINK }}>{t("partnerText")}</p>
+
+        <div style={{ borderTop: `2px dashed ${INK}22`, margin: "16px 0 0" }} />
+
+        <p style={{ margin: "14px 0 0", fontSize: 14, lineHeight: 1.55, color: SUBINK }}>
+          <strong style={{ color: INK }}>{t("partnerTitle")}</strong> {t("partnerLead")}
+        </p>
+
+        <div style={{ display: "flex", alignItems: "center", gap: 16, marginTop: 14, flexWrap: "wrap" }}>
+          {/* ⚠️ NOTRE PORTE N'EXISTE QU'EN FRANÇAIS, LA CARTE EXISTE PARTOUT.
+              La page co-marquée est écrite en français et porte sur la
+              présidentielle française : y envoyer un lecteur hispanophone serait
+              une porte qui ne s'ouvre pas dans sa langue. Le reste de la carte —
+              leur marque, ce qu'ils font, leur site — est traduit et reste
+              servi dans les quatre langues. */}
+          {locale === "fr" ? (
           <NextLink
             href="/partenaires/globenostra"
             className="dc-lift"
             style={{
-              flex: "none",
               display: "inline-flex",
               alignItems: "center",
-              gap: 9,
               fontFamily: FONT_DISPLAY,
               fontWeight: 700,
               fontSize: 14.5,
@@ -696,55 +689,25 @@ export default function HomeScreen({ ctrl }: { ctrl: ScrutinController }) {
               border: `2.5px solid ${INK}`,
               background: "#fff",
               color: INK,
-              padding: "11px 18px",
+              padding: "10px 17px",
               borderRadius: 12,
               ...lift(`4px 4px 0 ${INK}`, `6px 6px 0 ${INK}`),
             }}
           >
-            {/* ⚠️ PAS D'EMOJI ICI. 🗳️ rend un cube bleu illisible à cette
-                taille — la leçon déjà payée sur 🔢 dans le catalogue. Les deux
-                boutons voisins portent une vraie marque (Slack) ou un glyphe
-                qui tient (🧠) ; celui-ci se passe des deux, ce qui convient à un
-                bloc partenaire. */}
             {t("partnerCta")}
           </NextLink>
+          ) : null}
+          {/* La leur : leur site, et le lien SORT — c'est ce qui fait le croisement. */}
+          <a
+            href="https://www.globenostra.com"
+            target="_blank"
+            rel="noopener"
+            style={{ fontSize: 14, fontWeight: 700, color: SUBINK, textDecoration: "underline", textUnderlineOffset: 3 }}
+          >
+            {t("partnerSite")} ↗
+          </a>
         </div>
-      ) : null}
-
-      {/* La mention du partenaire. Elle reste une ligne, et elle le doit : c'est
-          une mention, pas une offre, et le lien SORT du site.
-
-          ⚠️ ELLE NE SE DIT PLUS « RÉCIPROQUE » D'UN LIEN GLOBÉNOSTRA → PLACET.
-          Personne ici ne peut le constater — `globenostra.com` est hors de portée
-          du conteneur (proxy 403) — et une réciprocité affirmée sans preuve est
-          exactement le genre de phrase qui se transmet d'agent en agent comme un
-          fait. Ce qui EST vérifiable tient dans `src/middleware.ts` : leur
-          sous-domaine `placet.globenostra.com` sert notre page partenaire. */}
-      {/* ⚠️ LA MARQUE VA AVEC LE NOM, PAS AVEC L'OFFRE. Elle est dans la ligne
-          qui nomme le partenaire, jamais dans le bouton au-dessus : celui-là
-          mène à NOS démonstrations, et y poser leur marque referait l'erreur
-          d'attribution qu'on vient de corriger. À 17 px elle reste une mention —
-          la rendre grosse la transformerait en encart. */}
-      {/* ⚠️ LA MARQUE EST DANS LE FLUX DU TEXTE, PAS DANS UNE BOÎTE FLEX. En
-          `display: flex` avec `wrap`, la phrase est trop large pour tenir à côté
-          d'elle : elle passe entière à la ligne suivante et la marque reste
-          seule au-dessus, comme une icône orpheline. Vu à l'écran. En ligne, elle
-          ouvre la phrase et la mention reste une mention. */}
-      <p style={{ marginTop: locale === "fr" ? 14 : 26, fontSize: 12.5, color: MUTED, lineHeight: 1.6 }}>
-        <span style={{ display: "inline-block", verticalAlign: "-4px", marginRight: 7 }}>
-          <GlobeNostraMark size={17} />
-        </span>
-        {t("partnerLabel")}{" "}
-        <a
-          href="https://www.globenostra.com"
-          target="_blank"
-          rel="noopener"
-          style={{ color: SUBINK, fontWeight: 700 }}
-        >
-          GlobéNostra
-        </a>{" "}
-        — {t("partnerText")}
-      </p>
+      </div>
     </div>
   );
 }

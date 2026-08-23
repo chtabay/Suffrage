@@ -106,6 +106,7 @@
     "games": "Play"
   },
   "Home": {
+    "partnerSite": "Their site",
     "partnerTitle": "The voting method changes the outcome.",
     "partnerLead": "Try majority judgement, Condorcet and approval voting on three campaign questions — no sign-up, and not a word about candidates.",
     "partnerCta": "See the demos",
@@ -157,8 +158,8 @@
     "slackTitle": "Also in Slack.",
     "slackText": "Launch a vote without leaving your channels — /placet, everyone votes on the web, the result comes back to the channel.",
     "slackCta": "Add to Slack",
-    "partnerLabel": "Partner:",
-    "partnerText": "civic exploration tools around elections.",
+    "partnerLabel": "Partner",
+    "partnerText": "Civic exploration tools around elections.",
     "steps": {
       "s1Label": "STEP 1",
       "s1Title": "Ask the question",

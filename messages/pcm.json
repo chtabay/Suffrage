@@ -106,6 +106,7 @@
     "games": "Play"
   },
   "Home": {
+    "partnerSite": "Dem site",
     "partnerTitle": "Di way wey dem take vote dey change di result.",
     "partnerLead": "Try majority judgement, Condorcet and approval voting on three campaign questions — no account, and nothing about any candidate.",
     "partnerCta": "See di demos",
@@ -157,8 +158,8 @@
     "slackTitle": "For Slack too.",
     "slackText": "Launch vote without comot from your channel — /placet, everybody go vote for web, di result go come back for di channel.",
     "slackCta": "Add to Slack",
-    "partnerLabel": "Partner:",
-    "partnerText": "tools wey ordinary people fit use check wetin dey happen for election.",
+    "partnerLabel": "Partner",
+    "partnerText": "Tools wey ordinary people fit use check wetin dey happen for election.",
     "steps": {
       "s1Label": "STEP 1",
       "s1Title": "Ask di question",

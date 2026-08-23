@@ -1332,13 +1332,30 @@ l'approbation) et **rien sur placet.app n'y menait** — elle n'était servie qu
 par la réécriture de `placet.globenostra.com`. Côté Placet il ne restait qu'une
 ligne de 12,5 px pointant vers l'extérieur.
 
-⚠️ **IL EMPRUNTE LA FORME DU BLOC SLACK**, juste au-dessus : c'est le registre
-que l'accueil réserve à ses entrées secondaires, donc ça se lit comme une section
-du site et pas comme un encart acheté. Il annonce CE QU'ON PEUT FAIRE, pas ce
-qu'est le partenaire. ⚠️ **Franc ne veut pas dire proéminent** : il reste en bas,
-après le pitch, les CTA et les jeux du jour — une carte partenaire qui
-concurrencerait « Créer » serait, elle, une vraie publicité. Et la mention
-réciproque reste une ligne, parce que c'est une mention et que son lien SORT.
+⚠️ **IL A LA FORME DU BLOC SLACK PENDANT UNE HEURE, ET C'ÉTAIT ENCORE TROP
+PEU** — « ridiculement discret pour être appelé un lien croisé ou une mise en
+avant ». Deux fois j'ai défendu la retenue, deux fois on m'a demandé de la lever :
+c'est la retenue qui avait tort. Du texte gris sur le crème, notre porte en bouton
+et la leur en mot de 12,5 px — **un lien croisé où une seule des deux portes se
+voit n'est pas croisé.** C'est une CARTE : leur marque à 34 px, leur nom en police
+de titre, ce qu'ils font, un filet, puis notre moitié, puis DEUX sorties.
+
+⚠️ **CE QUI L'EMPÊCHE DE SE LIRE COMME UNE PUB N'EST PAS SA TAILLE, C'EST
+L'ORDRE.** Leur marque et ce qu'ILS font viennent en premier, ce que NOUS
+proposons ensuite. Une réclame parle de l'annonceur puis demande ; ici chaque
+moitié est attribuée, et la moitié du partenaire ne demande rien — elle donne son
+adresse. ⚠️ **Le filet n'est pas un ornement, c'est la frontière** : la thèse des
+méthodes posée juste sous leur nom la leur attribuerait.
+
+⚠️ **L'OMBRE PORTE LEUR BLEU ÉCHANTILLONNÉ SUR LEUR LOGO** (`#0133A5`, le bout
+gauche du dégradé), pas une couleur choisie pour eux — la leçon du sarcelle
+inventé en juillet. Même dispositif que les vignettes de jeu : l'accent annonce
+la destination.
+
+⚠️ **Franc ne veut toujours pas dire proéminent** : la carte reste en bas, après
+le pitch, les CTA, les jeux du jour et Slack. Ce qui a changé est la MATIÈRE et la
+RÉCIPROCITÉ, pas la place — une carte partenaire qui monterait au-dessus de
+« Créer » serait, elle, une vraie publicité.
 
 ⚠️ **ET LA PHRASE DU BLOC A DÛ ÊTRE CORRIGÉE : elle promettait une comparaison
 que la page ne fait pas.** Elle annonçait « comparez les trois méthodes SUR LES
@@ -1412,11 +1429,11 @@ ses vraies couleurs, se voit. Le lockup est maintenant symétrique — une marqu
 un nom de chaque côté du « × » — et le sarcelle redevient ce qu'il a toujours
 été, l'accent de CETTE page.
 
-⚠️ **ET `public/partenaires/globenostra.jpg` EST UNE ORPHELINE** : 400×194,
+⚠️ **ET `public/partenaires/globenostra.jpg` A ÉTÉ SUPPRIMÉE** : 400×194,
 ajoutée le 31/07 dans le même commit fourre-tout que la page, référencée nulle
-part, et **ce n'est pas leur marque** — c'est une illustration décorative
-abstraite, de provenance et de licence inconnues. Elle voisine désormais le
-`.png` qui, lui, sert : ne pas les confondre, et ne pas publier la première.
+part, et **ce n'était pas leur marque** — une illustration décorative abstraite,
+de provenance et de licence inconnues. Elle voisinait le `.png` qui, lui, sert :
+deux fichiers `globenostra.*` dans un même dossier finissent par être confondus.
 
 ⚠️ **LA DÉMONSTRATION N'EST PROPOSÉE QU'EN FRANÇAIS** : la page est écrite en
 français et porte sur la présidentielle française. Les trois autres langues

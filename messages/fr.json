@@ -106,6 +106,7 @@
     "games": "Jouer"
   },
   "Home": {
+    "partnerSite": "Leur site",
     "partnerTitle": "Le mode de scrutin change le résultat.",
     "partnerLead": "Essayez le jugement majoritaire, Condorcet et le vote par approbation sur trois questions de campagne — sans inscription, et sans un mot sur les candidats.",
     "partnerCta": "Voir les démonstrations",
@@ -157,8 +158,8 @@
     "slackTitle": "Aussi dans Slack.",
     "slackText": "Lancez un vote sans quitter vos canaux — /placet, on vote sur le web, le résultat revient dans le canal.",
     "slackCta": "Ajouter à Slack",
-    "partnerLabel": "Partenaire :",
-    "partnerText": "outils d'exploration citoyenne autour des élections.",
+    "partnerLabel": "Partenaire",
+    "partnerText": "Outils d'exploration citoyenne autour des élections.",
     "steps": {
       "s1Label": "ÉTAPE 1",
       "s1Title": "Posez la question",
