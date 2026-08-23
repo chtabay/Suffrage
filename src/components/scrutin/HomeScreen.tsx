@@ -625,7 +625,25 @@ export default function HomeScreen({ ctrl }: { ctrl: ScrutinController }) {
           secondaires, et ça se lit comme une section du site, pas comme un
           encart acheté.
       
-          ⚠️ FRANC NE VEUT PAS DIRE PROÉMINENT. Il reste en bas, après le pitch,
+          ⚠️ ET LA PHRASE DIT CE QUE LA PAGE FAIT, PAS CE QU'ON AIMERAIT QU'ELLE
+          FASSE. La première rédaction annonçait « comparez les trois méthodes
+          SUR LES MÊMES EXEMPLES » : faux, et faux au pire endroit. La page porte
+          TROIS questions différentes, une par méthode — les priorités du
+          quinquennat en jugement majoritaire, les modes de scrutin eux-mêmes en
+          Condorcet, les formats de débat en approbation. Elle AFFIRME que les
+          méthodes divergent « avec les mêmes votants et les mêmes options » ;
+          elle ne le DÉMONTRE pas, et promettre la démonstration à sa place
+          envoyait le lecteur chercher ce qui n'y est pas. On dit donc
+          « essayez », pas « comparez ».
+
+      ⚠️ ET ON N'ATTRIBUE PAS LES DÉMONSTRATIONS AU PARTENAIRE. « Avec
+          GlobéNostra, comparez… » brouillait exactement la ligne que la page
+          trace dans son encadré : « Placet est un outil… les contenus d'analyse
+          des positionnements relèvent du projet GlobéNostra. » Le bloc présente
+          donc NOTRE démonstration ; la ligne en dessous crédite le partenaire,
+          et c'est là que son nom appartient.
+
+      ⚠️ FRANC NE VEUT PAS DIRE PROÉMINENT. Il reste en bas, après le pitch,
           les CTA et les jeux du jour : une carte partenaire qui concurrencerait
           « Créer » serait, elle, une vraie publicité.
       
