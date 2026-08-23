@@ -1340,6 +1340,45 @@ après le pitch, les CTA et les jeux du jour — une carte partenaire qui
 concurrencerait « Créer » serait, elle, une vraie publicité. Et la mention
 réciproque reste une ligne, parce que c'est une mention et que son lien SORT.
 
+⚠️ **ET LA PHRASE DU BLOC A DÛ ÊTRE CORRIGÉE : elle promettait une comparaison
+que la page ne fait pas.** Elle annonçait « comparez les trois méthodes SUR LES
+MÊMES EXEMPLES ». La page porte **trois questions différentes**, une par méthode ;
+elle AFFIRME que les méthodes divergent « avec les mêmes votants et les mêmes
+options », elle ne le DÉMONTRE pas. On dit donc « essayez ». ⚠️ Et on n'attribue
+pas les démonstrations au partenaire : la page trace la ligne elle-même — Placet
+est l'outil, l'analyse des positionnements est à GlobéNostra.
+
+**LE VOTINATOR EST SUR LA PAGE PARTENAIRE, ET SA PLACE Y EST CONTRAINTE.** C'est
+le jeu de GlobéNostra : dix lois réellement votées à l'Assemblée pendant la
+législature en cours, un résumé et les arguments pour et contre pour chacune,
+puis la série du joueur mise en regard des votes de chaque parti.
+
+⚠️ **IL EST APRÈS L'ENCADRÉ DE NEUTRALITÉ, ET CE N'EST PAS UNE QUESTION DE MISE
+EN PAGE.** L'encadré dit « les exemples **CI-DESSUS** portent sur des thèmes et
+des méthodes, jamais sur des candidats ou des partis » : le mot borne la promesse
+à NOS trois démonstrations. Poser le Votinator au-dessus la ferait couvrir un jeu
+qui montre le vote de chaque parti — donc la rendrait fausse. En dessous, elle
+reste vraie, et sa dernière ligne (« les contenus d'analyse des positionnements
+relèvent du projet GlobéNostra ») devient l'introduction du bloc. La page avait
+prévu ce cas dès son écriture.
+
+⚠️ **ON NE LE PRÉSENTE JAMAIS COMME LE NÔTRE** : c'est leur jeu, sur leur
+domaine, et ce partage est ce qui rend le lien tenable. Ici on regarde COMMENT ON
+COMPTE les voix, là-bas CE QU'ON VOTE.
+
+⚠️ **ET IL N'ENTRE PAS DANS LE CATALOGUE `/games`** — trois raisons, dont une
+seule suffirait : `GameEntry.slug` est la valeur d'aiguillage de
+`scrutin_game_rooms.game` et toutes les vignettes pointent une `route` de notre
+domaine ; nos jeux déclarent une tranche d'âge « enfant » dans la politique de
+confidentialité ; et un jeu sur les votes de partis n'a rien à faire entre « Un
+par jour » et « Les enquêtes ». La porte des jeux est apolitique par
+construction.
+
+⚠️ **`globenostra.com` ET SES SOUS-DOMAINES SONT HORS DE PORTÉE DEPUIS LE
+CONTENEUR** : le proxy de sortie répond 403 au CONNECT, comme pour Supabase, et
+rien n'est indexé côté recherche. Tout ce qui est écrit ici sur le Votinator
+vient de la description du propriétaire du dépôt, pas d'une lecture de la page.
+
 ⚠️ **LA DÉMONSTRATION N'EST PROPOSÉE QU'EN FRANÇAIS** : la page est écrite en
 français et porte sur la présidentielle française. Les trois autres langues
 gardent la mention réciproque, qui est traduite. ⚠️ Et son lien est le `Link` de

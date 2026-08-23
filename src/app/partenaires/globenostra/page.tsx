@@ -161,6 +161,79 @@ export default function GlobenostraPartner() {
           partis. Les contenus d'analyse des positionnements relèvent du projet GlobéNostra.
         </div>
 
+        {/* LE VOTINATOR — le jeu de GlobéNostra, et l'autre moitié de la question.
+        
+            ⚠️ IL EST APRÈS L'ENCADRÉ DE NEUTRALITÉ, ET ÇA N'EST PAS UN DÉTAIL DE
+            MISE EN PAGE. Cet encadré dit « les exemples CI-DESSUS portent sur des
+            thèmes et des méthodes, jamais sur des candidats ou des partis » : le
+            mot « ci-dessus » borne la promesse à NOS trois démonstrations. Poser
+            le Votinator au-dessus la ferait couvrir un jeu qui montre, lui, le
+            vote de chaque parti — et rendrait la phrase fausse. En dessous, elle
+            reste vraie, et sa dernière ligne — « les contenus d'analyse des
+            positionnements relèvent du projet GlobéNostra » — devient
+            exactement l'introduction de ce bloc. La page avait prévu ce cas.
+        
+            ⚠️ ET ON NE LE PRÉSENTE JAMAIS COMME LE NÔTRE. C'est leur jeu, sur
+            leur domaine, et c'est ce partage qui rend le lien tenable : Placet
+            reste l'outil qui n'exprime aucune préférence, GlobéNostra porte
+            l'analyse des positions. Le libellé le dit avant de dire quoi que ce
+            soit d'autre.
+        
+            ⚠️ CE BLOC N'A PAS SA PLACE DANS LE CATALOGUE `/games`, et il ne
+            faudra pas y revenir par confort. Trois raisons, dont une seule
+            suffirait : `GameEntry.slug` est la valeur d'aiguillage de
+            `scrutin_game_rooms.game` et toutes les vignettes pointent une
+            `route` de notre domaine ; nos jeux déclarent une tranche d'âge
+            « enfant » dans la politique de confidentialité ; et un jeu sur les
+            votes de partis n'a rien à faire entre « Un par jour » et « Les
+            enquêtes ». La porte des jeux est apolitique par construction. */}
+        <div
+          style={{
+            marginTop: 22,
+            background: CARD,
+            border: `1px solid ${EDGE}`,
+            borderRadius: 14,
+            padding: "20px 22px",
+            boxShadow: "0 2px 10px rgba(26,34,51,0.06)",
+          }}
+        >
+          <span style={{ display: "block", fontSize: 12.5, fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", color: TEAL }}>
+            Chez GlobéNostra
+          </span>
+          <span style={{ display: "block", fontFamily: display, fontWeight: 800, fontSize: 20, color: TITLE, marginTop: 9 }}>
+            <span style={underline(PURPLE)}>Et vous, comment auriez-vous voté ?</span>
+          </span>
+          <p style={{ fontSize: 14.5, lineHeight: 1.6, margin: "16px 0 0" }}>
+            Le <strong style={{ color: TITLE }}>Votinator</strong> vous soumet dix lois réellement votées à l'Assemblée
+            pendant la législature en cours. Pour chacune : un résumé, les arguments pour, les arguments contre — et
+            vous tranchez. À la fin, votre série est mise en regard de ce qu'ont voté les partis.
+          </p>
+          <p style={{ fontSize: 13.5, lineHeight: 1.6, margin: "12px 0 0", color: MUTEDT }}>
+            C'est l'autre moitié de cette page : ici, on regarde <strong style={{ color: BODY }}>comment on compte</strong>{" "}
+            les voix ; là-bas, <strong style={{ color: BODY }}>ce qu'on vote</strong>.
+          </p>
+          <a
+            href="https://votinator.globenostra.com/"
+            target="_blank"
+            rel="noopener"
+            style={{
+              display: "inline-block",
+              marginTop: 16,
+              textDecoration: "none",
+              fontFamily: display,
+              fontWeight: 700,
+              fontSize: 14.5,
+              color: "#fff",
+              background: PURPLE,
+              padding: "11px 20px",
+              borderRadius: 999,
+              boxShadow: "0 3px 12px rgba(139,111,232,0.30)",
+            }}
+          >
+            Ouvrir le Votinator →
+          </a>
+        </div>
+
         <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginTop: 30 }}>
           <a
             href={APP_URL}
