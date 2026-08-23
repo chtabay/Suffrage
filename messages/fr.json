@@ -1669,6 +1669,11 @@
     "goSpaces": "Mes groupes"
   },
   "Games": {
+    "apresSalleAttente": "L'hôte peut relancer une partie.",
+    "apresSalleLabel": "Le jeu du jour",
+    "apresSalleBanalo": "Le même jeu de l'accord, seul et en deux minutes. Un nouveau chaque jour.",
+    "apresSallePays": "Un pays à trouver seul, avec cinq indices. Un nouveau chaque jour.",
+    "apresSalleCta": "Jouer {jeu}",
     "installPourNotif": "Sur iPhone, Placet doit être sur votre écran d'accueil pour pouvoir vous prévenir quand votre résultat est arrêté.",
     "resultatsPitch": "Votre progression, les classements du mois et les trophées.",
     "placeRang": "{rang, selectordinal, one {#er} other {#e}}",
@@ -2030,8 +2035,7 @@
       "ranking": "Classement",
       "carnet": "carnet",
       "replay": "Rejouer",
-      "joinNew": "La nouvelle partie est ouverte",
-      "waitHost": "On attend l'hôte."
+      "joinNew": "La nouvelle partie est ouverte"
     },
     "host": {
       "reveal": "Dépouiller",
@@ -2651,6 +2655,8 @@
       "approval": "Second tour à l'approbation : chacun pouvait cocher plusieurs coups."
     },
     "end": {
+      "replay": "Rejouer",
+      "joinNew": "La nouvelle partie est ouverte",
       "whiteWins": "Échec et mat — les blancs gagnent",
       "blackWins": "Échec et mat — les noirs gagnent",
       "stalemate": "Pat — partie nulle",

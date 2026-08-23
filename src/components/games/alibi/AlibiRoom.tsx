@@ -22,6 +22,7 @@ import GameShell from "@/components/games/GameShell";
 import JoinGate from "@/components/games/JoinGate";
 import PlayerBoard from "@/components/games/PlayerBoard";
 import ShareRoom from "@/components/games/ShareRoom";
+import ApresLaSalle from "@/components/games/ApresLaSalle";
 import { GBtn, GCard, GLabel } from "@/components/games/ui";
 import MaCarte from "./MaCarte";
 import LesComptes from "./LesComptes";
@@ -354,6 +355,12 @@ export default function AlibiRoom({ code }: { code: string }) {
             {t("final.joinNew")}
           </GBtn>
         ) : null}
+
+        {/* La partie est finie : `hostBar` ne rend rien à un non-hôte, et la
+            salle neuve n'existe que si l'hôte l'a déjà ouverte. Sans ce bloc,
+            tout le monde sauf l'hôte restait devant un podium et un pied de
+            page. */}
+        <ApresLaSalle skin={skin} jeu="alibi" attenteHote={!isHost && !room.nextCode} />
       </div>,
       asideRound,
     );

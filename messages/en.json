@@ -1669,6 +1669,11 @@
     "goSpaces": "My groups"
   },
   "Games": {
+    "apresSalleAttente": "The host can start another game.",
+    "apresSalleLabel": "Today's game",
+    "apresSalleBanalo": "The same game of agreement, on your own, in two minutes. A new one every day.",
+    "apresSallePays": "One country to find on your own, from five clues. A new one every day.",
+    "apresSalleCta": "Play {jeu}",
     "installPourNotif": "On iPhone, Placet has to be on your home screen before it can tell you when your result is settled.",
     "resultatsPitch": "Your progress, this month's leaderboards and the trophies.",
     "placeRang": "{rang, selectordinal, one {#st} two {#nd} few {#rd} other {#th}}",
@@ -2030,8 +2035,7 @@
       "ranking": "Ranking",
       "carnet": "notebook",
       "replay": "Play again",
-      "joinNew": "The new game is open",
-      "waitHost": "Waiting for the host."
+      "joinNew": "The new game is open"
     },
     "host": {
       "reveal": "Count the ballots",
@@ -2651,6 +2655,8 @@
       "approval": "Second round by approval voting: everyone could tick more than one move."
     },
     "end": {
+      "replay": "Play again",
+      "joinNew": "The new game is open",
       "whiteWins": "Checkmate — White wins",
       "blackWins": "Checkmate — Black wins",
       "stalemate": "Stalemate — draw",

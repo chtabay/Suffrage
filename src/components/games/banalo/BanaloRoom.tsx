@@ -21,6 +21,7 @@ import GameShell from "@/components/games/GameShell";
 import JoinGate from "@/components/games/JoinGate";
 import PlayerBoard from "@/components/games/PlayerBoard";
 import ShareRoom from "@/components/games/ShareRoom";
+import ApresLaSalle from "@/components/games/ApresLaSalle";
 import { GBtn, GCard, GLabel } from "@/components/games/ui";
 import RevealBoard, { type BanaloResult } from "./RevealBoard";
 import WordsInput from "./WordsInput";
@@ -369,6 +370,12 @@ export default function BanaloRoom({ code }: { code: string }) {
           <GLabel skin={skin}>{t("lobby.invite")}</GLabel>
           <div style={{ marginTop: 10 }}>{shareBlock(true)}</div>
         </GCard>
+
+        {/* ⚠️ `attenteHote` FAUX ICI, ET C'EST LE SEUL DES QUATRE. Banalo dit
+            déjà « l'hôte peut relancer une partie » juste sous ses boutons,
+            c'est-à-dire à l'endroit où l'action aurait été ; la redire ici
+            imprimerait deux fois la même phrase sur un seul écran. */}
+        <ApresLaSalle skin={skin} jeu="banalo" attenteHote={false} />
       </div>,
       counter,
     );

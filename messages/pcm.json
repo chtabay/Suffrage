@@ -1669,6 +1669,11 @@
     "goSpaces": "My groups"
   },
   "Games": {
+    "apresSalleAttente": "Di host fit start anoda game.",
+    "apresSalleLabel": "Today game",
+    "apresSalleBanalo": "Na di same agreement game, you alone, for two minutes. New one dey come every day.",
+    "apresSallePays": "One country wey you go find you alone, with five clues. New one dey come every day.",
+    "apresSalleCta": "Play {jeu}",
     "installPourNotif": "For iPhone, Placet must dey your home screen before e fit tell you wen your result don settle.",
     "resultatsPitch": "How you dey go, di month rankings and di trophies.",
     "placeRang": "{rang, selectordinal, one {#st} two {#nd} few {#rd} other {#th}}",
@@ -2030,8 +2035,7 @@
       "ranking": "Ranking",
       "carnet": "notebook",
       "replay": "Play again",
-      "joinNew": "Di new game don open",
-      "waitHost": "We dey wait di host."
+      "joinNew": "Di new game don open"
     },
     "host": {
       "reveal": "Count di papers",
@@ -2651,6 +2655,8 @@
       "approval": "Second round na approval: everybody fit tick more dan one move."
     },
     "end": {
+      "replay": "Play again",
+      "joinNew": "Di new game don open",
       "whiteWins": "Checkmate — di white side win",
       "blackWins": "Checkmate — di black side win",
       "stalemate": "Stalemate — di game end for draw",

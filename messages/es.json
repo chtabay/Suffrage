@@ -1669,6 +1669,11 @@
     "goSpaces": "Mis grupos"
   },
   "Games": {
+    "apresSalleAttente": "El anfitrión puede lanzar otra partida.",
+    "apresSalleLabel": "El juego del día",
+    "apresSalleBanalo": "El mismo juego del acuerdo, en solitario y en dos minutos. Uno nuevo cada día.",
+    "apresSallePays": "Un país que adivinar en solitario, con cinco pistas. Uno nuevo cada día.",
+    "apresSalleCta": "Jugar a {jeu}",
     "installPourNotif": "En iPhone, Placet tiene que estar en tu pantalla de inicio para poder avisarte cuando tu resultado queda fijado.",
     "resultatsPitch": "Tu progreso, las clasificaciones del mes y los trofeos.",
     "placeRang": "{rang, selectordinal, other {#º}}",
@@ -2030,8 +2035,7 @@
       "ranking": "Clasificación",
       "carnet": "cuaderno",
       "replay": "Volver a jugar",
-      "joinNew": "La nueva partida está abierta",
-      "waitHost": "Esperamos al anfitrión."
+      "joinNew": "La nueva partida está abierta"
     },
     "host": {
       "reveal": "Hacer el recuento",
@@ -2651,6 +2655,8 @@
       "approval": "Segunda vuelta por aprobación: cada uno podía marcar varias jugadas."
     },
     "end": {
+      "replay": "Volver a jugar",
+      "joinNew": "La nueva partida está abierta",
       "whiteWins": "Jaque mate — ganan las blancas",
       "blackWins": "Jaque mate — ganan las negras",
       "stalemate": "Rey ahogado — tablas",

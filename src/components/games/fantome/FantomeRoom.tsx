@@ -33,6 +33,7 @@ import { packBeat } from "@/content/packs";
 import FantomeAlbum from "@/components/games/fantome/FantomeAlbum";
 import FantomeCamera from "@/components/games/fantome/FantomeCamera";
 import GameShell from "@/components/games/GameShell";
+import ApresLaSalle from "@/components/games/ApresLaSalle";
 import JoinGate from "@/components/games/JoinGate";
 import PlayerBoard from "@/components/games/PlayerBoard";
 import ShareRoom from "@/components/games/ShareRoom";
@@ -458,6 +459,8 @@ export default function FantomeRoom({ code }: { code: string }) {
             {t("final.joinNew")}
           </GBtn>
         ) : null}
+
+        <ApresLaSalle skin={skin} jeu="fantome" attenteHote={!me.isHost && !room.nextCode} />
       </div>,
       aside,
     );

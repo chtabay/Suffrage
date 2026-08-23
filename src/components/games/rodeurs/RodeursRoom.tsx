@@ -41,6 +41,7 @@ import GameShell from "@/components/games/GameShell";
 import JoinGate from "@/components/games/JoinGate";
 import PlayerBoard from "@/components/games/PlayerBoard";
 import ShareRoom from "@/components/games/ShareRoom";
+import ApresLaSalle from "@/components/games/ApresLaSalle";
 import { GBtn, GCard, GLabel } from "@/components/games/ui";
 
 const skin = RODEURS_SKIN;
@@ -385,6 +386,8 @@ export default function RodeursRoom({ code }: { code: string }) {
             {t("final.joinNew")}
           </GBtn>
         ) : null}
+
+        <ApresLaSalle skin={skin} jeu="rodeurs" attenteHote={!me.isHost && !room.nextCode} />
       </div>,
       aside,
     );
