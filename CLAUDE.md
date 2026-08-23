@@ -845,9 +845,12 @@ là.
 compte ; compte → l'installation. `CompteBanalo` arbitre, l'installation lui est
 passée en `children`. Empiler les deux les faisait se cannibaliser, et le bloc du
 compte — signalé trop discret sur de vrais joueurs — porte maintenant l'accent et
-un titre en police de titre. ⚠️ **Les notifications, elles, N'EXISTENT PAS
-ENCORE sur les jeux quotidiens**, et il n'y a donc rien à rendre plus visible de
-ce côté-là. ⚠️ **NE PAS RÉPÉTER MON ERREUR : c'est le §7 de
+un titre en police de titre. ⚠️ **Les notifications, elles, NE SONT PAS DANS
+CETTE ÉCHELLE** — elles s'activent depuis `/games/quotidien`, pas après une
+partie, et c'est un choix : l'échelle du §0 est pleine, y glisser une quatrième
+demande en déplacerait une en silence. Le prix est réel — un habitué qui ne va
+jamais sur la page commune ne verra jamais l'offre — et le rouvrir voudra dire
+DÉPLACER quelque chose, pas ajouter. ⚠️ **NE PAS RÉPÉTER MON ERREUR : c'est le §7 de
 `docs/regularite-des-joueurs.md` qui a écarté le RAPPEL QUOTIDIEN** (la
 permission ne se demande qu'une fois, un rappel est du bruit pour qui a déjà
 joué, et la charnière de 11 h 30 n'est pas l'horloge du joueur). Le §6, lui, dit
@@ -855,6 +858,77 @@ l'INVERSE de ce que j'ai écrit ici pendant trois commits : il POSE le push, au
 service des amis — « la première notification qu'un joueur reçoit doit être
 *Chloé vient de jouer*, pas un rappel robotique ». L'étude est dans
 `docs/amis-et-notifications.md`.
+
+**LES NOTIFICATIONS PEUVENT ENFIN S'ACTIVER** (`Notifications.tsx`,
+`20260906-push-fuseau-et-langue.sql`) — les trois genres, par compte, depuis
+l'onglet « mes résultats ».
+
+⚠️ **LE SOCLE AVAIT DEUX COLONNES QUE PERSONNE NE REMPLISSAIT.**
+`scrutin_push_subscriptions.fuseau` et `.langue` existaient depuis le 31/08 et
+`scrutin_jeux_notifs_a_envoyer` les LIT pour décider l'heure d'envoi et la langue
+du texte — mais `add_push_subscription` ne les connaissait pas. Tout abonnement
+de jeu serait donc arrivé avec deux `null`, c'est-à-dire replié sur Paris et sur
+le français, pour tout le monde. ⚠️ Et **ajouter deux paramètres CRÉE une
+fonction, ça n'en remplace pas une** : sans le `drop` de la version à six
+arguments, PostgREST se retrouvait devant deux candidates et rendait une erreur
+d'ambiguïté — plus personne ne s'abonne, scrutins compris.
+
+⚠️ **UN FUSEAU INVENTÉ EST REFUSÉ À L'ENTRÉE, PLUS SEULEMENT À LA LECTURE.** La
+contrainte de colonne ne valide que des caractères : « Europe/Atlantide » la
+passe, et c'est `at time zone` qui lève, plus tard, au milieu de la tournée —
+donc un seul abonnement bancal privait tous les autres de leur notification. La
+parade au moment de la lecture existait déjà ; la porte d'entrée compare
+maintenant à `pg_timezone_names`. Même geste pour la langue, et pour la même
+raison : une valeur douteuse ne doit pas coûter l'ABONNEMENT, que le joueur a
+payé d'une permission qui ne se redemande pas.
+
+⚠️ **`coalesce` DANS LES DEUX SENS SUR LE `on conflict`.** Un rappel de scrutin
+qui se ré-enregistre n'envoie ni fuseau ni langue et écraserait ceux qu'un
+abonnement de jeu vient de poser — c'est le même navigateur, donc la même ligne.
+À l'inverse une valeur fournie gagne toujours : c'est ainsi qu'un joueur qui
+change de langue, ou qui voyage, met sa ligne à jour sans rien demander.
+
+⚠️ **L'ÉCRAN REGARDE DEUX CHOSES QUI NE SE CONFONDENT PAS** : `appareils`, que la
+base compte pour le COMPTE, et l'abonnement de CE navigateur, lu sur
+`pushManager.getSubscription()`. Quelqu'un d'abonné sur son ordinateur a bien
+« un appareil abonné » sans que le téléphone qu'il tient reçoive quoi que ce
+soit : lui cacher l'offre au motif que le compte est couvert lui promettrait des
+notifications qui n'arriveraient jamais ici. D'où deux phrases distinctes, dont
+une qui dit « mais pas celui-ci ».
+
+⚠️ **`navigator.serviceWorker.ready` PEUT NE JAMAIS SE RÉSOUDRE — LE BOUTON
+RESTAIT MORT.** Ce n'est pas une promesse qui échoue : quand aucun service worker
+ne s'active (fichier introuvable, navigation privée, navigateur qui les bloque),
+elle reste EN ATTENTE pour toujours. Le `await` ne rend jamais la main, aucun
+`catch` ne part, et le bouton garde ses trois points sans un mot. **Trouvé en
+cliquant**, invisible à tsc comme à la relecture. La course est bornée à dix
+secondes, et l'échec DIT quelque chose : un refus de permission (qui ne se
+redemande pas depuis la page) et un échec (qui se réessaie) n'appellent pas le
+même geste.
+
+⚠️ **SANS CLÉ VAPID, LE BLOC NE S'AFFICHE PAS DU TOUT.** `notifySupported()`
+repliait l'absence de clé sur les capacités du navigateur : sur un déploiement où
+la clé manque, TOUS les joueurs s'entendaient dire que leur navigateur ne sait
+pas recevoir de notifications — faux, et ça les envoie chercher le défaut chez
+eux. `notifyDeployed()` sépare les deux. C'est aussi ce qui rend ce bloc
+invisible dans le conteneur de développement, dont le `.env.local` n'a pas la
+clé publique.
+
+⚠️ **LES TROIS GENRES SONT VRAIS PAR DÉFAUT ET LES INTERRUPTEURS NE SORTENT QU'À
+PARTIR D'UN APPAREIL.** S'abonner EST le consentement ; les réglages servent à en
+RETIRER. Et zéro appareil, ce sont trois interrupteurs qui ne commandent rien —
+allumés, ils promettraient des notifications que personne ne recevra.
+
+⚠️ **UN INTERRUPTEUR SE PEINT AVANT LA RÉPONSE, ET SE REMET SI ELLE ÉCHOUE.**
+Une seconde d'attente se lit comme un bouton mort, et on presse deux fois : c'est
+mot pour mot le défaut qu'un vrai joueur a signalé sur le dépôt du pseudo.
+
+⚠️ **CE QUI RESTE INVÉRIFIABLE ICI, ET IL FAUT LE DIRE** : ni la permission du
+navigateur, ni l'envoi, ni le rendu par le système d'exploitation. Le chemin qui
+RÉUSSIT a pu être éprouvé en remplaçant le service de push (`charge.cjs`) : la
+charge utile postée porte bien le fuseau IANA et la langue de l'interface,
+vérifié sur trois couples langue/fuseau, et l'offre cède la place aux trois
+interrupteurs. Le reste tient sur le bloc SQL à huit assertions.
 
 **L'après-partie des jeux quotidiens n'a QU'UNE place**, et plusieurs chantiers
 la veulent (installation, compte, pont vers Placet, plus tard les amis). Les

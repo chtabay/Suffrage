@@ -38,7 +38,7 @@ export default async function PrivacyPage({ params }: { params: Promise<{ locale
   const c = pickLocale<Content>(locale, {
     fr: {
       title: "Politique de confidentialité",
-      updated: "Dernière mise à jour : 22 août 2026",
+      updated: "Dernière mise à jour : 23 août 2026",
       intro:
         "Placet (placet.app) permet à un groupe d'organiser de vrais votes. Cette page explique ce que nous collectons et pourquoi. Nous gardons le strict minimum.",
       sections: [
@@ -53,6 +53,10 @@ export default async function PrivacyPage({ params }: { params: Promise<{ locale
         {
           h: "Ce que nous collectons — dans les jeux",
           p: "Une partie n'exige aucun compte. Chaque joueur choisit un prénom ou un pseudo, puis saisit ce que le jeu lui demande : des mots, ou — dans un jeu d'enquête — la pièce où il se trouvait, un soupçon et une accusation, qui DÉSIGNENT NOMMÉMENT un autre joueur de la même partie. Ces éléments sont montrés aux autres joueurs de la salle : le prénom et les réponses à chaque manche, les soupçons et les accusations à la fin de la partie. N'y mettez que ce que vous acceptez de montrer au groupe. Certains jeux demandent aussi une tranche d'âge (enfant, ado, adulte), déclarée librement et sans vérification — elle sert à calibrer les consignes, jamais à autre chose. Rien de tout cela n'est rattaché à un compte ni réutilisé ailleurs dans Placet. Les jeux quotidiens, eux, se jouent seul et ne montrent jamais la réponse d'un autre joueur. Un tableau public existe pour chaque journée, et on n'y figure que si on l'a demandé : soit en déposant un nom pris dans une liste fermée fournie par le jeu, soit — si vous avez un compte Placet — en écrivant le nom de votre choix. Ce nom et votre score du jour sont alors montrés aux autres joueurs de la même journée et de la même langue ; vos mots ou votre réponse, jamais. Il n'y a pas de champ de nom libre sans compte, parce qu'un nom que tous les joueurs du jour peuvent lire appelle quelqu'un pour en répondre. Vous pouvez aussi rejoindre une « tablée » en ouvrant le lien que quelqu'un vous envoie : vous y déposez un nom selon les mêmes règles, et les autres membres de cette tablée voient, chaque jour, qui a joué et son résultat — jamais vos mots ni votre réponse. Une tablée n'a ni annuaire ni profil : on n'y entre que par son lien, et on n'y est visible que de ses membres.",
+        },
+        {
+          h: "Notifications",
+          p: "Elles sont facultatives et ne partent qu'après votre accord explicite, donné dans le navigateur. Si vous les activez, nous enregistrons l'adresse d'abonnement que votre navigateur fabrique — elle désigne cet appareil auprès du service de son éditeur (Apple, Google, Mozilla ou Microsoft selon le navigateur) —, les deux clés qui permettent de chiffrer le message, votre fuseau horaire et la langue de l'interface. Le fuseau sert à ne pas vous écrire au milieu de la nuit, la langue à vous écrire dans la vôtre. Les notifications des jeux quotidiens sont rattachées à votre compte : le résultat d'une journée une fois close, un récapitulatif de la semaine, les médailles de fin de mois — au plus une par jour et par jeu. Vous pouvez couper chacun de ces trois envois depuis la page des jeux quotidiens, et retirer l'autorisation à tout moment dans les réglages de votre navigateur ; l'abonnement est alors supprimé dès le premier envoi qui échoue. Nous gardons trente jours la trace de ce qui vous a été envoyé, uniquement pour ne pas vous l'envoyer deux fois.",
         },
         {
           h: "Pourquoi",
@@ -87,7 +91,7 @@ export default async function PrivacyPage({ params }: { params: Promise<{ locale
     },
     en: {
       title: "Privacy policy",
-      updated: "Last updated: 22 August 2026",
+      updated: "Last updated: 23 August 2026",
       intro:
         "Placet (placet.app) lets a group run proper votes. This page explains what we collect and why. We keep it to a minimum.",
       sections: [
@@ -102,6 +106,10 @@ export default async function PrivacyPage({ params }: { params: Promise<{ locale
         {
           h: "What we collect — in games",
           p: "A game needs no account. Each player picks a first name or nickname, then enters whatever the game asks for: words, or — in a detective game — the room they were in, a suspicion and an accusation, which NAME another player in the same game. These are shown to the other players in the room: the name and each round's answers as you go, the suspicions and accusations at the end. Only put in what you're happy to show the group. Some games also ask for an age band (child, teen, adult), freely declared and unverified — it only calibrates the instructions, nothing else. None of it is attached to an account or reused elsewhere in Placet. Daily games, by contrast, are played alone and never show you another player's answer. Each day does have a public board, and you only appear on it if you asked to: either by leaving a name taken from a closed list the game provides, or — if you have a Placet account — by writing the name of your choice. That name and your score for the day are then shown to the other players of the same day and the same language; your words or your answer, never. There is no free name field without an account, because a name every player of the day can read needs someone to answer for it. You can also join a \"table\" by opening a link someone sends you: you leave a name there under the same rules, and the other members of that table see, each day, who played and how they did — never your words or your answer. A table has no directory and no profile: you only get in through its link, and you are only visible to its members.",
+        },
+        {
+          h: "Notifications",
+          p: "They are optional and only go out after you explicitly agree, in your browser. If you turn them on, we store the subscription address your browser creates — it identifies this device to its vendor's service (Apple, Google, Mozilla or Microsoft, depending on the browser) —, the two keys used to encrypt the message, your time zone and your interface language. The time zone is there so we don't write to you in the middle of the night, the language so we write in yours. Daily-game notifications are attached to your account: a day's result once it closes, a weekly recap, end-of-month medals — at most one per day and per game. You can switch off each of those three from the daily-games page, and withdraw permission at any time in your browser's settings; the subscription is then deleted at the first delivery that fails. We keep a record of what was sent to you for thirty days, solely so we don't send it twice.",
         },
         {
           h: "Why",
@@ -136,7 +144,7 @@ export default async function PrivacyPage({ params }: { params: Promise<{ locale
     },
     es: {
       title: "Política de privacidad",
-      updated: "Última actualización: 22 de agosto de 2026",
+      updated: "Última actualización: 23 de agosto de 2026",
       intro:
         "Placet (placet.app) permite a un grupo organizar votaciones de verdad. Esta página explica qué recopilamos y por qué. Lo mantenemos al mínimo.",
       sections: [
@@ -151,6 +159,10 @@ export default async function PrivacyPage({ params }: { params: Promise<{ locale
         {
           h: "Qué recopilamos — en los juegos",
           p: "Una partida no requiere cuenta. Cada jugador elige un nombre o apodo y luego escribe lo que el juego le pide: palabras o —en un juego de detectives— la habitación donde estaba, una sospecha y una acusación, que SEÑALAN POR SU NOMBRE a otro jugador de la misma partida. Todo ello se muestra a los demás jugadores de la sala: el nombre y las respuestas de cada ronda sobre la marcha, las sospechas y acusaciones al final. Pon solo lo que aceptes mostrar al grupo. Algunos juegos piden también una franja de edad (peque, adolescente, adulto), declarada libremente y sin verificación — solo calibra las consignas, nada más. Nada de esto se vincula a una cuenta ni se reutiliza en otro lugar de Placet. Los juegos diarios, en cambio, se juegan en solitario y nunca muestran la respuesta de otro jugador. Cada día tiene sin embargo una tabla pública, y solo apareces en ella si lo has pedido: o bien dejando un nombre tomado de una lista cerrada que ofrece el juego, o bien —si tienes una cuenta Placet— escribiendo el nombre que quieras. Ese nombre y tu puntuación del día se muestran entonces a los demás jugadores del mismo día y del mismo idioma; tus palabras o tu respuesta, nunca. No hay campo de nombre libre sin cuenta, porque un nombre que pueden leer todos los jugadores del día necesita a alguien que responda por él. También puedes unirte a una «mesa» abriendo el enlace que alguien te envíe: dejas un nombre con las mismas reglas, y los demás miembros de esa mesa ven, cada día, quién ha jugado y qué tal le ha ido — nunca tus palabras ni tu respuesta. Una mesa no tiene directorio ni perfil: solo se entra por su enlace, y solo eres visible para sus miembros.",
+        },
+        {
+          h: "Notificaciones",
+          p: "Son opcionales y solo se envían tras tu consentimiento explícito, dado en el navegador. Si las activas, guardamos la dirección de suscripción que crea tu navegador — identifica este aparato ante el servicio de su editor (Apple, Google, Mozilla o Microsoft, según el navegador) —, las dos claves que permiten cifrar el mensaje, tu zona horaria y el idioma de la interfaz. La zona horaria sirve para no escribirte en mitad de la noche, y el idioma para escribirte en el tuyo. Las notificaciones de los juegos diarios van ligadas a tu cuenta: el resultado de una jornada una vez cerrada, un resumen de la semana y las medallas de fin de mes — como mucho una al día y por juego. Puedes desactivar cada uno de esos tres envíos desde la página de juegos diarios, y retirar el permiso cuando quieras en los ajustes de tu navegador; la suscripción se borra entonces en el primer envío que falle. Guardamos treinta días el registro de lo que se te ha enviado, únicamente para no enviártelo dos veces.",
         },
         {
           h: "Por qué",

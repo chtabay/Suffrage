@@ -2974,5 +2974,23 @@
       "demain": "New country tomorrow.",
       "source": "Source:"
     }
+  },
+  "NotifsJeux": {
+    "titre": "Notifications",
+    "offreTexte": "Di day go end, your result go set, and nothing go tell you. Notifications go bring am give you — for dis device, wen e don final.",
+    "ailleursTexte": "{n, plural, one {# device for your account don subscribe} other {# devices for your account don subscribe}}, but no be dis one.",
+    "activer": "Put am on for dis device",
+    "iosInstaller": "For iPhone and iPad, notifications dey work only for game wey you put for home screen. Add am first — Share, then “Add to Home Screen” — then come back here.",
+    "refusee": "Dis browser don refuse notifications, and e no go ask again. You fit change am for im settings, for dis site line.",
+    "nonSupporte": "Dis browser no sabi receive notifications.",
+    "journeeTitre": "Your result, wen di day close",
+    "journeeTexte": "Di ranking of day wey don finish no dey move again: na di only time wey we fit give you number wey no go change.",
+    "hebdoTitre": "Di week recap",
+    "hebdoTexte": "Wetin you play and how e go. E no be ranking.",
+    "saisonTitre": "End-of-month medals",
+    "saisonTexte": "Di season dey start from zero on di 1st. E rare, and na di only way to hear am.",
+    "plafond": "Na one notification per day per game max. Dis three settings dey work for all your devices.",
+    "echec": "Di subscription no fit set for dis device. Try again small — if e continue, reload di page.",
+    "panne": "We no fit read your settings now."
   }
 }

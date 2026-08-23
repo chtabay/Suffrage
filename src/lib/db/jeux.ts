@@ -406,3 +406,66 @@ export async function trophees(saisons = 6): Promise<Trophees | null> {
     .filter((s): s is SaisonClose => s !== null);
   return { saisons: saisonsLues };
 }
+
+// ═══════════════════════════════════════ les réglages de notification
+//
+// ⚠️ ILS SONT PAR COMPTE, PAS PAR APPAREIL, et c'est délibéré : un joueur qui
+// coupe le récapitulatif hebdomadaire le coupe partout. Un réglage par appareil
+// obligerait à le refaire sur chaque téléphone, et le premier oubli produirait
+// exactement la notification qu'on vient de refuser.
+
+/** Ce que le compte a choisi de recevoir, et sur combien d'appareils. */
+export interface ReglagesNotifs {
+  journee: boolean;
+  hebdo: boolean;
+  saison: boolean;
+  /**
+   * Combien d'appareils de ce compte sont abonnés.
+   *
+   * ⚠️ ZÉRO NE VEUT PAS DIRE « TOUT EST COUPÉ », il veut dire « la permission
+   * n'a jamais été accordée ». Les trois interrupteurs sont alors sans effet, et
+   * l'écran doit proposer de s'abonner plutôt que de faire mine de régler
+   * quelque chose.
+   */
+  appareils: number;
+}
+
+export type GenreNotif = "journee" | "hebdo" | "saison";
+
+/**
+ * ⚠️ REND `null` SUR UN REFUS, ET IL NE FAUT PAS LE REPLIER SUR DES DÉFAUTS. La
+ * fonction exige `auth.uid()` ; rendre « les trois activés, zéro appareil » à un
+ * appel non authentifié afficherait à un visiteur trois interrupteurs qui ne
+ * commandent rien.
+ */
+export async function reglagesNotifs(): Promise<ReglagesNotifs | null> {
+  const supabase = createClient();
+  const { data, error } = await supabase.rpc("scrutin_jeux_notifs_reglages_lire");
+  if (error) return null;
+  const d = data as Record<string, unknown> | null;
+  if (!d || d.status !== "ok") return null;
+  return {
+    journee: d.journee !== false,
+    hebdo: d.hebdo !== false,
+    saison: d.saison !== false,
+    appareils: nombre(d.appareils, 0),
+  };
+}
+
+/** Écrit un réglage et rend l'état complet qui en résulte — jamais un booléen. */
+export async function reglerNotif(genre: GenreNotif, actif: boolean): Promise<ReglagesNotifs | null> {
+  const supabase = createClient();
+  const { data, error } = await supabase.rpc("scrutin_jeux_notifs_regler", {
+    p_genre: genre,
+    p_actif: actif,
+  });
+  if (error) return null;
+  const d = data as Record<string, unknown> | null;
+  if (!d || d.status !== "ok") return null;
+  return {
+    journee: d.journee !== false,
+    hebdo: d.hebdo !== false,
+    saison: d.saison !== false,
+    appareils: nombre(d.appareils, 0),
+  };
+}

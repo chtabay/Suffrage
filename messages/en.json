@@ -2974,5 +2974,23 @@
       "demain": "A new country tomorrow.",
       "source": "Source:"
     }
+  },
+  "NotifsJeux": {
+    "titre": "Notifications",
+    "offreTexte": "A day ends, your result is settled, and nothing tells you. Notifications bring it to you — on this device, once it's final.",
+    "ailleursTexte": "{n, plural, one {# device on your account is subscribed} other {# devices on your account are subscribed}}, but not this one.",
+    "activer": "Turn on for this device",
+    "iosInstaller": "On iPhone and iPad, notifications only exist for a game added to the home screen. Add it first — Share, then “Add to Home Screen” — then come back here.",
+    "refusee": "This browser refused notifications, and it won't ask again. You can lift it in its settings, on this site's entry.",
+    "nonSupporte": "This browser can't receive notifications.",
+    "journeeTitre": "Your result, when the day closes",
+    "journeeTexte": "A finished day's ranking no longer moves: it's the only moment we can hand you a final number.",
+    "hebdoTitre": "The week's recap",
+    "hebdoTexte": "What you played and how it went. It isn't a ranking.",
+    "saisonTitre": "End-of-month medals",
+    "saisonTexte": "The season resets on the 1st. It's rare, and it's the only way to hear about it.",
+    "plafond": "At most one notification per day and per game. These three settings apply to all your devices.",
+    "echec": "The subscription couldn't be set up on this device. Try again in a moment — if it keeps happening, reload the page.",
+    "panne": "Can't read your settings right now."
   }
 }

@@ -28,6 +28,7 @@ import { numeroDuJour } from "@/lib/games/banalo/jour";
 import { numeroDeJournee } from "@/lib/games/pays/calendrier";
 import { mesJourneesBanalo, mesJourneesPays, type JourneeCommune } from "@/lib/db/jeux";
 import CarteJeu from "./CarteJeu";
+import Notifications from "./Notifications";
 import Classements from "./Classements";
 import SalleDesTrophees from "./SalleDesTrophees";
 
@@ -245,6 +246,13 @@ export default function Quotidien() {
         jouer={t("jouer")}
         journees={pays}
       />
+      {/* ⚠️ LES RÉGLAGES SONT SOUS LES DEUX CARTES, PAS AU-DESSUS. Le joueur
+          vient lire ses résultats ; une demande posée avant eux ferait passer
+          l'outil pour un formulaire. Même raison que l'offre de compte, qui
+          descend sous ce qui change tous les jours. */}
+      <div style={{ marginTop: 12 }}>
+        <Notifications uid={uid} />
+      </div>
         </>
       )}
     </>,

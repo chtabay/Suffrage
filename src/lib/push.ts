@@ -94,13 +94,25 @@ export async function notifyPoll(token: string, kind: string, payload: PushPaylo
   return subs.length;
 }
 
-/** Enregistre un abonnement push (organisateur via userId, ou votant via pollToken). */
+/**
+ * Enregistre un abonnement push (organisateur via userId, ou votant via
+ * pollToken).
+ *
+ * ⚠️ `fuseau` ET `langue` SONT FACULTATIFS ET LE RESTENT : la table est partagée
+ * avec les scrutins, dont les abonnements n'ont jamais déclaré ni l'un ni
+ * l'autre. Les envoyer à `null` depuis ce chemin-là n'efface rien — la RPC
+ * garde ce qui est déjà posé sur le même point d'abonnement, sinon un rappel de
+ * scrutin ferait perdre à un joueur son heure et sa langue, sur le même
+ * navigateur.
+ */
 export async function addSubscription(args: {
   endpoint: string;
   p256dh: string;
   auth: string;
   userId?: string | null;
   pollToken?: string | null;
+  fuseau?: string | null;
+  langue?: string | null;
 }): Promise<boolean> {
   if (!ready()) return false;
   await rpc("add_push_subscription", {
@@ -110,6 +122,8 @@ export async function addSubscription(args: {
     p_auth: args.auth,
     p_user_id: args.userId ?? null,
     p_poll_token: args.pollToken ?? null,
+    p_fuseau: args.fuseau ?? null,
+    p_langue: args.langue ?? null,
   });
   return true;
 }

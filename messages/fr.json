@@ -2974,5 +2974,23 @@
       "demain": "Un nouveau pays demain.",
       "source": "Source :"
     }
+  },
+  "NotifsJeux": {
+    "titre": "Notifications",
+    "offreTexte": "Une journée se termine, votre résultat se fige, et rien ne vient vous le dire. Les notifications vous le rendent — sur cet appareil, quand c'est arrêté.",
+    "ailleursTexte": "{n, plural, one {# appareil de votre compte est abonné} other {# appareils de votre compte sont abonnés}}, mais pas celui-ci.",
+    "activer": "Activer sur cet appareil",
+    "iosInstaller": "Sur iPhone et iPad, les notifications n'existent que pour un jeu posé sur l'écran d'accueil. Ajoutez-le d'abord — Partager, puis « Sur l'écran d'accueil » — et revenez ici.",
+    "refusee": "Ce navigateur a refusé les notifications, et il ne le redemandera pas. Ça se relève dans ses réglages, à la ligne de ce site.",
+    "nonSupporte": "Ce navigateur ne sait pas recevoir de notifications.",
+    "journeeTitre": "Votre résultat, quand la journée se ferme",
+    "journeeTexte": "Le classement d'une journée finie ne bouge plus : c'est le seul moment où l'on peut vous rendre un chiffre définitif.",
+    "hebdoTitre": "Le récapitulatif de la semaine",
+    "hebdoTexte": "Ce que vous avez joué et comment ça s'est passé. Ce n'est pas un classement.",
+    "saisonTitre": "Les médailles de fin de mois",
+    "saisonTexte": "La saison se remet à zéro le 1er. C'est rare, et c'est la seule façon de l'apprendre.",
+    "plafond": "Au plus une notification par jour et par jeu. Ces trois réglages valent pour tous vos appareils.",
+    "echec": "L'abonnement n'a pas pu se poser sur cet appareil. Réessayez dans un moment — si ça se répète, rechargez la page.",
+    "panne": "Impossible de lire vos réglages pour l'instant."
   }
 }
