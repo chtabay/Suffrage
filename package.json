@@ -6,7 +6,7 @@
     "dev": "next dev",
     "build": "node scripts/i18n-parity.mjs && next build",
     "i18n:check": "node scripts/i18n-parity.mjs",
-    "test": "tsx --test src/content/banalo/noms.test.ts src/content/packs/packs.test.ts src/content/pays/pays.test.ts src/lib/assign/engine.test.ts src/lib/games/alibi/lieux.test.ts src/lib/games/banalo/banalo-jour.test.ts src/lib/games/banalo/scoring.test.ts src/lib/games/echecs/echiquier.test.ts",
+    "test": "tsx --test src/content/banalo/noms.test.ts src/content/jeux/notifs.test.ts src/content/packs/packs.test.ts src/content/pays/pays.test.ts src/lib/assign/engine.test.ts src/lib/games/alibi/lieux.test.ts src/lib/games/banalo/banalo-jour.test.ts src/lib/games/banalo/scoring.test.ts src/lib/games/echecs/echiquier.test.ts",
     "start": "next start",
     "lint": "eslint"
   },

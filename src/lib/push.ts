@@ -21,7 +21,14 @@ function ready(): boolean {
   return true;
 }
 
-async function rpc<T>(fn: string, args: Record<string, unknown>): Promise<T | null> {
+/**
+ * Appel d'une RPC gardée par `NOTIFY_SECRET`, avec la clé anonyme.
+ *
+ * ⚠️ EXPORTÉE POUR LES JEUX QUOTIDIENS, qui décident leurs destinataires en base
+ * (`scrutin_jeux_notifs_a_envoyer`). La recopier là-bas ferait deux passe-plats
+ * à maintenir, et surtout deux endroits où oublier de traiter un échec.
+ */
+export async function rpcNotify<T>(fn: string, args: Record<string, unknown>): Promise<T | null> {
   if (!BASE || !KEY) return null;
   try {
     const res = await fetch(`${BASE}/rest/v1/rpc/${fn}`, {
@@ -35,6 +42,8 @@ async function rpc<T>(fn: string, args: Record<string, unknown>): Promise<T | nu
     return null;
   }
 }
+
+const rpc = rpcNotify;
 
 interface Sub {
   endpoint: string;
@@ -58,6 +67,21 @@ async function sendOne(sub: Sub, payload: PushPayload) {
     // 404/410 : abonnement périmé → on le retire.
     if (code === 404 || code === 410) await rpc("delete_push_subscription", { p_secret: SECRET, p_endpoint: sub.endpoint });
   }
+}
+
+/**
+ * Pousse UNE notification vers UN abonnement. Rend `false` si la plomberie n'est
+ * pas configurée (clés VAPID absentes), et jamais une exception.
+ *
+ * ⚠️ ELLE PASSE PAR `sendOne`, DONC PAR SON MÉNAGE : un point d'abonnement mort
+ * répond 404 ou 410 et se fait retirer de la table. Écrire un second envoi qui
+ * l'ignorerait laisserait les abonnements périmés s'accumuler pour toujours —
+ * et ce sont eux qui font grossir une tournée sans que personne ne la reçoive.
+ */
+export async function pousser(sub: Sub, payload: PushPayload): Promise<boolean> {
+  if (!ready()) return false;
+  await sendOne(sub, payload);
+  return true;
 }
 
 /** Notifie les abonnés d'un scrutin, une seule fois par (token, kind). Renvoie le nb d'abonnés ciblés. */
