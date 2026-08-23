@@ -15,12 +15,14 @@
 // et elle est agrégée.
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
-import { getSeat, joinRoom, lastNick, saveSeat, type Seat } from "@/lib/games/room";
+import { useRouter } from "@/i18n/navigation";
+import { getSeat, host as hostVerbs, joinRoom, lastNick, saveSeat, type Seat } from "@/lib/games/room";
 import { ECHECS_SKIN, ECHIQUIER } from "@/lib/games/skin";
 import { libelleCoup, sanLocal } from "@/lib/games/echecs/echiquier";
 import { campKey, valveRestante, type EchecsPrev, type EchecsState, type Uci } from "@/lib/games/echecs/regles";
 import { useEchecs } from "@/lib/games/echecs/useEchecs";
 import { close as clore, start as demarrer, team as choisirCamp, vote as voter } from "@/lib/games/echecs/verbes";
+import ApresLaSalle from "@/components/games/ApresLaSalle";
 import GameShell from "@/components/games/GameShell";
 import ShareRoom from "@/components/games/ShareRoom";
 import { GBtn, GCard, GLabel } from "@/components/games/ui";
@@ -381,7 +383,7 @@ function Partie({
     }
   };
 
-  if (etat.roomStatus === "ended") return <Fin etat={etat} locale={locale} />;
+  if (etat.roomStatus === "ended") return <Fin etat={etat} seat={seat} locale={locale} />;
 
   return (
     <>
@@ -706,8 +708,11 @@ function Attente({ etat, camp, seat }: { etat: EchecsState; camp: "w" | "b" | nu
 // vient de clore, donc `prev` (à `round_no - 1`) pointe un cran trop tôt :
 // l'écran affichait « les blancs ont joué g4 » sous « échec et mat, les noirs
 // gagnent ». Au moment le plus fort du jeu, le mauvais coup.
-function Fin({ etat, locale }: { etat: EchecsState; locale: string }) {
+function Fin({ etat, seat, locale }: { etat: EchecsState; seat: Seat; locale: string }) {
   const t = useTranslations("Echecs");
+  const router = useRouter();
+  const [busy, setBusy] = useState(false);
+  const isHost = etat.me?.isHost ?? false;
   const r = etat.result;
   const gagnant = r?.winner ?? null;
   const mien = etat.me?.team ?? null;
@@ -758,6 +763,46 @@ function Fin({ etat, locale }: { etat: EchecsState; locale: string }) {
           ) : null}
         </div>
       </GCard>
+
+      {/* ⚠️ CET ÉCRAN N'AVAIT AUCUNE SORTIE, POUR PERSONNE — l'hôte compris.
+          Les quatre autres jeux de salle offrent « Rejouer » depuis le premier
+          jour ; les échecs affichaient le mat, deux statistiques, et laissaient
+          la table devant un mur. `game_replay` est générique : il rouvre un
+          salon d'échecs avec les mêmes réglages, et le chaînage `nextCode`
+          amène les autres sans qu'on refasse le tour de la table. */}
+      {etat.nextCode ? (
+        <GBtn skin={skin} variant="accent" size="lg" full onClick={() => router.push(`/games/echecs/${etat.nextCode}`)}>
+          {t("end.joinNew")}
+        </GBtn>
+      ) : isHost ? (
+        <GBtn
+          skin={skin}
+          size="lg"
+          full
+          disabled={busy}
+          onClick={async () => {
+            setBusy(true);
+            try {
+              const a = await hostVerbs.replay(seat.token);
+              // ⚠️ LE SIÈGE NEUF SE GARDE AVANT DE NAVIGUER. Sans ça, l'hôte
+              // arrive dans son propre salon en inconnu et doit se rasseoir —
+              // c'est le geste que `game_replay` existe pour éviter.
+              if (typeof a.code === "string") {
+                if (typeof a.token === "string") {
+                  saveSeat({ code: a.code, token: a.token, name: seat.name, isHost: true });
+                }
+                router.push(`/games/echecs/${a.code}`);
+              }
+            } finally {
+              setBusy(false);
+            }
+          }}
+        >
+          {t("end.replay")}
+        </GBtn>
+      ) : null}
+
+      <ApresLaSalle skin={skin} jeu="echecs" attenteHote={!isHost && !etat.nextCode} />
     </>
   );
 }

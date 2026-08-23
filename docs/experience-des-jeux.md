@@ -146,9 +146,16 @@ une série à construire, donc il n'en construit pas.
 1. **Donner quelque chose au jour 1** : à la fin de la première partie, dire ce
    qui revient demain (« demain : un thème » / « demain : un nouveau pays ») et
    montrer la série à 1, pas à 0. C'est gratuit et ça ne demande rien.
-2. **Sortir l'offre de notification de `/games/quotidien`.** Elle est aujourd'hui
-   au seul endroit que les joueurs ne visitent pas. La poser dans l'échelle du §0
-   suppose d'en DÉPLACER une autre — c'est le prix, et il est écrit.
+2. ~~**Sortir l'offre de notification de `/games/quotidien`.**~~ **FAIT.** Elle
+   n'a pas déplacé l'installation : elle a FUSIONNÉ avec elle dans `InstallJeu`,
+   au troisième barreau de l'échelle. ⚠️ Ce qui a rendu la fusion possible plutôt
+   que l'arbitrage annoncé, c'est iOS : le push web n'y existe que pour une
+   application posée sur l'écran d'accueil, donc « installer » et « être
+   prévenu » n'y sont pas deux gestes mais un seul — et l'installation, qui
+   n'avait aucune contrepartie à offrir, en a enfin une. Ailleurs, le push marche
+   sans installer et c'est lui qu'on propose ; une seule demande dans les deux
+   cas. Les RÉGLAGES, eux, restent sur `/games/quotidien` : une offre se présente
+   là où le joueur est, un réglage se retrouve là où on le cherche.
 3. **Ne pas ajouter un niveau de gamification de plus.** Il y en a déjà quatre
    (score, rang du jour, série, saison + trophées) pour douze joueurs.
 
@@ -217,6 +224,19 @@ juste comme geste de produit — c'est un cul-de-sac qu'il faut fermer — mais 
 n'est PAS un canal d'acquisition, et la présenter comme « la recommandation la
 plus rentable de ce document » était une erreur de lecture d'un agrégat.
 
+⚠️ **LE CUL-DE-SAC A ÉTÉ FERMÉ LE 2026-08-23, ET IL ÉTAIT PIRE QUE DÉCRIT.** En
+allant le regarder ligne à ligne : `hostBar` rend `null` pour un non-hôte, donc
+sur Alibi, Rôdeurs et le Fantôme, **tout le monde sauf l'hôte** finissait la
+partie devant un podium et un pied de page en 12,5 px — sans une phrase, sans un
+bouton, sans même savoir qu'une revanche était possible. Alibi avait pourtant sa
+phrase (`final.waitHost`) écrite **dans les quatre langues et jamais appelée**.
+Et **les échecs n'avaient aucune sortie du tout, l'hôte compris** : le seul jeu
+de salle sans « Rejouer », alors que `game_replay` est générique depuis le
+socle — il ne manquait que `nextCode` et `isHost` dans `echecs_state`, qui est
+une fonction à part. Le bloc partagé est `ApresLaSalle` ; il dit d'abord ce qui
+se passe dans la salle, ensuite ce qu'on peut faire seul, et il ne prend jamais
+l'accent : les gens sont encore dans la même pièce.
+
 ⚠️ **LA LEÇON DE MÉTHODE VAUT PLUS QUE LA RECOMMANDATION PERDUE** : un `count(*)`
 sur une table de salles ne dit ni QUEL jeu, ni QUAND, ni QUI. J'ai construit une
 stratégie sur six lignes sans les regarder. Le reste de ce document repose sur
@@ -230,10 +250,17 @@ des comptes du même genre — ils disent une échelle, jamais un comportement.
 - le chemin vers les résultats et classements devient une carte, pas une ligne ;
 - chaque carte quotidienne porte la place du jour du joueur, sans compte.
 
-**Pas fait, et volontairement** : tout ce qui précède touche l'ordre de la porte
-`/games`, l'échelle du §0 et les écrans de fin de partie de salle — trois
-surfaces qui appartiennent à d'autres chantiers. Ce document est là pour que la
-décision se prenne, pas pour la prendre seul.
+**Fait depuis** (mêmes journées) :
+- l'offre de notification a quitté `/games/quotidien` pour le troisième barreau
+  de l'échelle du §0, fusionnée à l'installation (voir §2) ;
+- la fin de partie de salle n'est plus un cul-de-sac, sur les CINQ jeux, et les
+  échecs ont gagné leur revanche (voir §3).
+
+**Pas fait, et volontairement** : l'ordre de la porte `/games` — le titre, la
+place du champ de code, le jeu jouable en un clic. C'est la surface de « l'agent
+des jeux » (`CLAUDE.md`), et les trois points se coordonnent avec lui plutôt que
+de se faire dans son dos. Ce document est là pour que la décision se prenne, pas
+pour la prendre seul.
 
 ⚠️ **Et une limite de méthode, à dire** : douze joueurs ne sont pas un
 échantillon. Tout ce qui est écrit ici sur le COMPORTEMENT (3 retours sur 12,

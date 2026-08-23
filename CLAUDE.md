@@ -22,6 +22,7 @@ corriger.
 | **Cinq sur cinq** (`games/pays`) | en prod le 2026-08-18 · pictos de catégorie et mise en avant des essais le 2026-08-19 | ouvert |
 | **La Nuit du Fantôme** (`games/fantome`) | en prod ; portraits SVG + murmures de borne posés le 2026-08-18 | l'agent des jeux |
 | **La porte `/games`** | rangée par familles le 2026-08-18 ; ajouter un jeu = lui donner une `famille` dans `catalog.ts` | l'agent des jeux |
+| **Fin de partie de salle** (`ApresLaSalle`, revanche des échecs) | posée le 2026-08-23 sur les cinq jeux de salle | ouvert |
 | **Aperçus d'écrans** (`components/games/Apercus.tsx`) | posés sur Rôdeurs et Banalo ; **reproduits, jamais capturés** — une capture ne parle qu'une langue sur quatre | l'agent des jeux |
 
 **Alibi est clos.** Sa relecture indépendante a produit 53 constats ; les deux
@@ -1860,6 +1861,69 @@ Fantôme. ⚠️ La leçon vaut plus que la recommandation perdue : **un `count(
 une table de salles ne dit ni quel jeu, ni quand, ni qui** — une stratégie bâtie
 sur six lignes qu'on n'a pas regardées.
 
+**LA FIN D'UNE PARTIE DE SALLE N'EST PLUS UN CUL-DE-SAC**
+(`components/games/ApresLaSalle.tsx`, 2026-08-23) — et le défaut était pire que
+ce que l'étude décrivait. `hostBar` rend `null` pour un non-hôte : sur Alibi,
+Rôdeurs et le Fantôme, **tout le monde sauf l'hôte** finissait la partie devant
+un podium et un pied de page en 12,5 px, sans une phrase, sans un bouton, sans
+même savoir qu'une revanche était possible. `GameShell` écrit pourtant la règle
+depuis le premier jour : « MAIS PAS UN CUL-DE-SAC ».
+
+⚠️ **LE BLOC DIT D'ABORD CE QUI SE PASSE DANS LA SALLE, ENSUITE CE QU'ON PEUT
+FAIRE SEUL.** Deux questions, et la première a priorité — une absence sans un mot
+se lit comme une panne. ⚠️ Alibi avait sa phrase (`final.waitHost`) **écrite dans
+les quatre langues et jamais appelée** ; elle est partie avec le bloc, qui la
+sert en un seul exemplaire pour les cinq jeux. Banalo en groupe garde la sienne
+et reçoit donc `attenteHote={false}` : elle est déjà à l'endroit où le bouton
+serait, et la redire imprimerait deux fois la même phrase sur un écran.
+
+⚠️ **IL NE PREND JAMAIS L'ACCENT, ET C'EST LE POINT.** Les gens sont encore dans
+la même pièce : l'action de la soirée est de rejouer ENSEMBLE. Le bloc se pose
+SOUS les boutons du groupe, en cadre pointillé — la matière que le produit
+réserve à ses offres discrètes (`InstallJeu`, `PontPlacet`). Un jeu solo servi en
+gros sous un podium disperserait une table qui vient de jouer.
+
+⚠️ **ET LA PHRASE D'ATTENTE EST DEHORS DU CADRE POINTILLÉ.** Posée dedans, elle
+empruntait la matière des offres — donc elle se lisait comme le TITRE de l'offre
+qui suit, alors qu'elle parle de la SALLE. Elle occupe la place exacte où
+« Rejouer » se trouve pour l'hôte. **Ça ne se voit qu'à l'écran** : ni tsc, ni la
+parité, ni la relecture ne lisent une hiérarchie visuelle.
+
+⚠️ **LE JEU PROPOSÉ CONTINUE CELUI QU'ON VIENT DE FINIR**, il n'est pas tiré au
+sort : la `famille` du catalogue décide. « accord » → Banalo du jour, c'est-à-dire
+le MÊME jeu, seul, tous les jours ; enquêtes et stratégie → Cinq sur cinq, la
+déduction. On ne pose pas une deuxième table de vérité à côté de celle qui
+existe. ⚠️ Et **on ne cherche pas à savoir si le joueur a déjà joué sa journée** :
+Cinq sur cinq le garde dans le navigateur, Banalo du jour ne garde RIEN en local
+(tout est en base sous le jeton). Le savoir pour un jeu sur deux produirait une
+règle que le joueur ne peut pas comprendre.
+
+⚠️ **CE BLOC N'EST PAS INSTRUMENTÉ, ET C'EST ÉCRIT.** `PontPlacet` compte ses
+visites parce qu'il traverse l'entonnoir de Placet, qui existe ; une navigation
+d'un jeu vers un autre n'a aucun compteur, et en fabriquer un pour douze joueurs
+coûterait plus que le bloc.
+
+**LES ÉCHECS ONT ENFIN LEUR REVANCHE** (`20260911-jeu-echecs-rejouer.sql`) — le
+SEUL jeu de salle qui n'avait aucune sortie, **l'hôte compris** : le mat, deux
+statistiques, et un mur. ⚠️ **AUCUN VERBE NOUVEAU N'A ÉTÉ NÉCESSAIRE** :
+`game_replay` est générique depuis le socle du 10/08 — il rouvre une salle du
+même jeu avec les mêmes réglages et chaîne l'ancienne vers la neuve. Ce qui
+manquait était dans l'ÉTAT : `echecs_state` est une fonction à part (les échecs
+ne passent pas par `get_game_room`, qui rend une ligne par joueur) et ne rendait
+ni `next_code` ni `is_host`. Sans le premier, l'hôte ouvrait une salle que
+personne ne pouvait trouver.
+
+⚠️ **LE CORPS A ÉTÉ REPRIS TEL QUEL, PAS RÉÉCRIT DE MÉMOIRE** — md5 vérifié avant
+(le déployé était à l'octet près celui du fichier du 20/08) et après. C'est la
+leçon de `20260820-entonnoir-canal-jeu.sql`. ⚠️ Et le siège neuf **se garde avant
+de naviguer** : sans ça l'hôte arrive dans son propre salon en inconnu et doit se
+rasseoir, c'est-à-dire exactement le tour de table que `game_replay` existe pour
+éviter.
+
+⚠️ **UN NON-HÔTE NE PEUT TOUJOURS PAS RELANCER**, contrairement à chess.com où
+chacun propose sa revanche : `game_replay` exige `is_host`. C'est une règle de
+propriété de la salle, pas un oubli — celui qui a monté la soirée la remonte.
+
 ## Les règles qui coûtent cher
 
 **`npm run build` AVANT de pousser.** `tsc --noEmit` ne lint pas. Un
@@ -1938,6 +2002,14 @@ vérifiable au navigateur (`preview_start`, puis on joue). Sers-t'en : sur
 Banalo, deux défauts sur cinq n'étaient visibles qu'en jouant — un bouton mort
 au deuxième passage et un emoji jeté en silence — et ni `tsc`, ni eslint, ni les
 tests, ni la parité ne les voyaient.
+
+⚠️ **PLAYWRIGHT ESSAIE LA DERNIÈRE ROUTE POSÉE EN PREMIER.** Un fourre-tout
+`**/rest/v1/rpc/**` enregistré APRÈS la route précise l'avale : tous les écrans
+répondaient « cette partie n'existe plus », et ça se lit exactement comme un
+défaut du code qu'on vient d'écrire. On pose le fourre-tout D'ABORD. (Et le
+contexte a besoin de `locale: "fr-FR"` avec l'en-tête `Accept-Language` : sinon
+`next-intl` négocie l'anglais et les assertions écrites en français échouent
+toutes, pour rien.)
 
 ⚠️ **ET IL FAUT BLOQUER LE SERVICE WORKER, sinon `page.route` ne tient qu'une
 navigation.** Le jeu en installe un (PWA) : dès la deuxième page, les appels RPC

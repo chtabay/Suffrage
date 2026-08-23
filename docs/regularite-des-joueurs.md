@@ -29,9 +29,22 @@ priorité**, dans un seul composant :
 |---|---|
 | moins de 2 journées jouées | **rien** — son résultat et le partage, c'est tout |
 | pas de compte | l'offre de compte (« gardez votre série ») |
-| compte, pas installé | l'offre d'installation |
+| compte, pas installé ou pas abonné | **être prévenu** — ou installer, quand c'en est le prix |
 | compte, installé, ne connaît pas Placet | **un vrai scrutin public, votable sur place** |
 | au-delà | rien — puis, plus tard, l'activité de ses amis |
+
+⚠️ **LE TROISIÈME BARREAU A CHANGÉ DE MÉTIER, ET C'EST MESURÉ.** Il ne demandait
+que l'installation — un engagement sans contrepartie visible, sur une icône qui
+ouvrait l'accueil de Placet. La NOTIFICATION est le seul mécanisme du produit qui
+FABRIQUE un retour au lieu de l'espérer, et elle ne vivait que sur
+`/games/quotidien`, la page que les joueurs ne visitent pas : elle n'atteignait
+donc personne. Les deux sont FUSIONNÉES dans `InstallJeu`, jamais empilées — ce
+créneau n'admet qu'une demande. ⚠️ Sur iOS elles n'en font qu'une : le push web
+n'y existe que pour une application posée sur l'écran d'accueil, donc
+« installer » EST « être prévenu », ce qui donne enfin une raison à une demande
+qui n'en avait pas. Ailleurs, le push marche sans installer, et c'est lui qu'on
+propose. ⚠️ Les réglages, eux, RESTENT sur `/games/quotidien` : une offre se
+présente là où le joueur est, un réglage se retrouve là où on le cherche.
 
 ⚠️ **LA PREMIÈRE DEMANDE SE MÉRITE.** Un joueur qui découvre le jeu ne doit rien
 se voir demander : il n'a pas encore de série à garder, donc l'offre de compte

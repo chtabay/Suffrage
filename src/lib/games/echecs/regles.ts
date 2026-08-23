@@ -69,6 +69,13 @@ export interface EchecsState {
   status: "ok" | "not_found";
   code: string;
   roomStatus: "lobby" | "playing" | "ended";
+  /**
+   * La salle neuve ouverte par l'hôte, quand il a rejoué — et le SEUL canal par
+   * lequel les autres l'apprennent. Les quatre autres jeux de salle lisent ce
+   * chaînage depuis le premier jour ; les échecs, dont l'état est une fonction
+   * à part, ne le rendaient pas, ce qui rendait la revanche invisible.
+   */
+  nextCode: string | null;
   roundNo: number;
   locale: string;
   /** Le demi-coup, à partir de 1. `null` tant que la partie n'a pas commencé. */
@@ -93,6 +100,8 @@ export interface EchecsState {
   result: EchecsResult | null;
   me: {
     name: string;
+    /** Le seul qui puisse rejouer. La vérité est en base, pas dans le siège. */
+    isHost: boolean;
     team: "w" | "b" | null;
     /** MON choix, jamais celui d'un autre. */
     mine: Uci[];
