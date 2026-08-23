@@ -24,8 +24,6 @@ import { useAuth } from "@/lib/auth/useAuth";
 import GameShell from "@/components/games/GameShell";
 import { PLACET_GAMES_SKIN as skin, UNANIMO_SKIN, PAYS_SKIN } from "@/lib/games/skin";
 import { GBtn, GCard } from "@/components/games/ui";
-import { numeroDuJour } from "@/lib/games/banalo/jour";
-import { numeroDeJournee } from "@/lib/games/pays/calendrier";
 import { mesJourneesBanalo, mesJourneesPays, type JourneeCommune } from "@/lib/db/jeux";
 import CarteJeu from "./CarteJeu";
 import Notifications from "./Notifications";
@@ -40,19 +38,6 @@ export default function Quotidien() {
   const [pays, setPays] = useState<JourneeCommune[] | null>(null);
   const [panne, setPanne] = useState(false);
   const [onglet, setOnglet] = useState<"moi" | "classements" | "trophees">("moi");
-  /**
-   * Les deux numéros de journée.
-   *
-   * ⚠️ IL EN FAUT DEUX, ET ILS SE CALCULENT APRÈS LE MONTAGE. Les deux jeux
-   * n'ont ni la même origine ni la même charnière — 11 h 30 pour Banalo, minuit
-   * pour Cinq sur cinq — donc un seul numéro pour les deux serait faux pour
-   * l'un. Et les calculer au rendu serveur les figerait dans le HTML, en faisant
-   * diverger l'hydratation autour de la charnière. Même leçon que `JeuxDuJour`.
-   */
-  const [jours, setJours] = useState<{ banalo: number; pays: number } | null>(null);
-  useEffect(() => {
-    setJours({ banalo: numeroDuJour(), pays: numeroDeJournee(new Date().toISOString()) });
-  }, []);
   const [email, setEmail] = useState("");
   const [etat, setEtat] = useState<"repos" | "envoi" | "envoye" | "erreur">("repos");
 
