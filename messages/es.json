@@ -2786,7 +2786,6 @@
       "bilanTitre": "Tus resultados",
       "parties": "Días",
       "serieLabel": "Racha",
-      "serie": "{n} días seguidos",
       "placet": "La misma cuenta sirve para organizar votaciones reales en Placet:",
       "placetLien": "ver para qué sirve",
       "devant": "Por delante",
@@ -2866,6 +2865,7 @@
     }
   },
   "Pays": {
+    "demainPays": "Un país nuevo mañana.",
     "tableau": {
       "essais": "{n, plural, one {# intento} other {# intentos}}",
       "pourquoi": "Los nombres vienen de una lista. Escribir el tuyo requiere una cuenta Placet: un nombre que pueden leer todos los jugadores del día exige que alguien responda por él.",
@@ -2911,7 +2911,6 @@
       "jourTitre": "Tu partida",
       "essaisJour": "Intentos",
       "medianeJour": "Mediana de hoy",
-      "serie": "{n} días seguidos",
       "titre": "Guardar tus resultados",
       "texte": "Sin cuenta, tu racha vive en este navegador: desaparece si cambias de teléfono o borras tus datos. Una cuenta la conserva y te muestra dónde te sitúas cada día.",
       "bilanTitre": "Tus resultados",
@@ -3016,5 +3015,10 @@
     "court": "Ese nombre es muy corto: dos caracteres como mínimo.",
     "long": "Ese nombre es muy largo: veinte caracteres como máximo.",
     "panne": "El nombre no se ha enviado. Inténtalo de nuevo."
+  },
+  "SerieJeux": {
+    "jourUn": "Día 1 de tu racha",
+    "jours": "{n} días seguidos",
+    "demain": "Vuelve mañana y pasará a 2."
   }
 }

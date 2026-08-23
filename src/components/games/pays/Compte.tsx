@@ -28,6 +28,7 @@ import { lisResultats, serieEnCours } from "@/lib/games/pays/local";
 import type { GameSkin } from "@/lib/games/skin";
 import { GCard, GLabel } from "@/components/games/ui";
 import ConnexionJeux from "@/components/games/ConnexionJeux";
+import SerieDuJour from "@/components/games/SerieDuJour";
 import PontPlacet from "@/components/games/PontPlacet";
 
 // ⚠️ CE BLOC LIT SES TEXTES LUI-MÊME, contrairement à `Revelation` qui les
@@ -172,11 +173,7 @@ export default function Compte({
   return (
     <GCard skin={skin} padding={15} style={{ marginTop: 12 }}>
       {/* Ce qu'il a DÉJÀ, avant qu'on lui demande quoi que ce soit. */}
-      {serieLocale > 1 && (
-        <div style={{ fontFamily: skin.fontDisplay, fontWeight: 800, fontSize: 19, marginBottom: 6 }}>
-          🔥 {t("compte.serie", { n: serieLocale })}
-        </div>
-      )}
+      <SerieDuJour skin={skin} serie={serieLocale} />
       <GLabel skin={skin}>{t("compte.titre")}</GLabel>
       <p style={{ margin: "7px 0 0", fontSize: 14.5, lineHeight: 1.5, color: skin.muted, maxWidth: "46ch" }}>
         {t("compte.texte")}

@@ -2786,7 +2786,6 @@
       "bilanTitre": "Your results",
       "parties": "Days",
       "serieLabel": "Streak",
-      "serie": "{n} days back to back",
       "placet": "Di same account dey run real votes for Placet:",
       "placetLien": "see wetin e dey do",
       "devant": "Dey front you",
@@ -2866,6 +2865,7 @@
     }
   },
   "Pays": {
+    "demainPays": "New country tomorrow.",
     "tableau": {
       "essais": "{n, plural, one {# try} other {# tries}}",
       "pourquoi": "Di names dey come from list. To write your own need Placet account: name wey every player of di day fit read need person wey go answer for am.",
@@ -2911,7 +2911,6 @@
       "jourTitre": "Your round",
       "essaisJour": "Try",
       "medianeJour": "Today median",
-      "serie": "{n} days back to back",
       "titre": "Keep your results",
       "texte": "If you no get account, na dis browser dey hold your streak: e go vanish if you change phone or clear your data. Account go keep am, and e go show you where you stand every day.",
       "bilanTitre": "Your results",
@@ -3016,5 +3015,10 @@
     "court": "Dis name too short: two characters minimum.",
     "long": "Dis name too long: twenty characters maximum.",
     "panne": "Di name no go through. Try again."
+  },
+  "SerieJeux": {
+    "jourUn": "Day 1 of your streak",
+    "jours": "{n} days back to back",
+    "demain": "Come back tomorrow and e go be 2."
   }
 }

@@ -29,6 +29,7 @@ import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { useAuth } from "@/lib/auth/useAuth";
 import ConnexionJeux from "@/components/games/ConnexionJeux";
+import SerieDuJour from "@/components/games/SerieDuJour";
 import { UNANIMO_SKIN as skin } from "@/lib/games/skin";
 import { GCard, GLabel } from "@/components/games/ui";
 import PontPlacet from "@/components/games/PontPlacet";
@@ -166,11 +167,7 @@ export default function CompteBanalo({ jour, install }: { jour: number; install?
   return (
     <GCard skin={skin} padding={17} style={{ marginTop: 12 }} accent={skin.accent}>
       {/* Ce qu'il a DÉJÀ, avant qu'on lui demande quoi que ce soit. */}
-      {serie > 1 && (
-        <div style={{ fontFamily: skin.fontDisplay, fontWeight: 800, fontSize: 19, marginBottom: 6 }}>
-          🔥 {t("compte.serie", { n: serie })}
-        </div>
-      )}
+      <SerieDuJour skin={skin} serie={serie} />
       <p
         style={{
           fontFamily: skin.fontDisplay,

@@ -967,6 +967,40 @@ existe et attend un clic dans un email ; le lien de réinitialisation, lui, mèn
 sur `/espaces?recovery=1` — la seule page qui porte le formulaire de nouveau mot
 de passe — et l'écran le DIT, sans quoi le joueur croit s'être trompé de site.
 
+**LE TROU DU JOUR 1 EST COMBLÉ, ET C'ÉTAIT UNE CONTRADICTION** (`SerieDuJour.tsx`,
+2026-09-09). Les deux jeux écrivaient `serie > 1` : un joueur qui venait de finir
+sa PREMIÈRE partie ne voyait aucune série — pendant que la carte juste en dessous
+lui disait « **gardez votre série** ». On lui demandait de conserver une chose
+qu'on ne lui avait jamais montrée.
+
+⚠️ **CE BLOC NE CONTREDIT PAS L'ÉCHELLE DU §0, IL OCCUPE SON ANGLE MORT.**
+L'échelle commence à DEUX journées jouées ; en dessous elle prescrit « rien ». Or
+mesuré le 2026-09-09, **3 joueurs sur 12 reviennent une seconde journée** — donc
+elle vaut « rien » pour les trois quarts des gens, exactement ceux qu'il faudrait
+convaincre. Le bloc ne DEMANDE rien (ni compte, ni installation, ni ami) : il
+RACONTE l'état du joueur, donc il ne consomme aucune des places que l'échelle
+arbitre.
+
+⚠️ **LA RELANCE NE SORT QU'À 1.** Servie tous les jours à un habitué, « revenez
+demain » deviendrait la boîte qu'on ferme sans lire — le défaut que
+`rappelleLaMethode` évite chez Cinq sur cinq. À partir de 2, le chiffre est à
+lui seul la raison de revenir.
+
+⚠️ **ET ELLE S'ARRÊTE APRÈS « elle passera à 2 ».** La première rédaction ajoutait
+« c'est la seule chose que ce jeu vous demande » : vrai sur le papier, contredit
+à l'écran par l'offre de compte qui suit dans la MÊME carte, trois lignes plus
+bas. Ça ne se voit qu'en regardant le rendu.
+
+⚠️ **LE BLOC EST SORTI EN UN SEUL EXEMPLAIRE** plutôt que corrigé deux fois, et
+les deux clés `compte.serie` devenues orphelines sont parties avec — même règle
+que les quinze clés d'authentification la veille.
+
+**Cinq sur cinq dit enfin ce qui revient demain**, comme Banalo le fait depuis
+toujours. ⚠️ **Sans heure**, contrairement à lui : sa charnière est minuit, ce que
+personne n'a besoin qu'on lui explique, là où 11 h 30 demandait un chiffre. Et
+seulement une fois la partie GAGNÉE — annoncer le pays de demain à quelqu'un qui
+cherche encore celui d'aujourd'hui lui dirait de laisser tomber.
+
 **L'après-partie des jeux quotidiens n'a QU'UNE place**, et plusieurs chantiers
 la veulent (installation, compte, pont vers Placet, plus tard les amis). Les
 empiler les ferait se cannibaliser : l'échelle de priorité est écrite dans

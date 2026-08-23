@@ -2786,7 +2786,6 @@
       "bilanTitre": "Your results",
       "parties": "Days",
       "serieLabel": "Streak",
-      "serie": "{n} days in a row",
       "placet": "The same account runs real votes on Placet:",
       "placetLien": "see what it's for",
       "devant": "Ahead of you",
@@ -2866,6 +2865,7 @@
     }
   },
   "Pays": {
+    "demainPays": "A new country tomorrow.",
     "tableau": {
       "essais": "{n, plural, one {# guess} other {# guesses}}",
       "pourquoi": "Names come from a list. Writing your own needs a Placet account: a name every player of the day can read calls for someone to answer for it.",
@@ -2911,7 +2911,6 @@
       "jourTitre": "Your round",
       "essaisJour": "Guesses",
       "medianeJour": "Median today",
-      "serie": "{n} days in a row",
       "titre": "Keep your results",
       "texte": "Without an account, your streak lives in this browser: it disappears if you switch phones or clear your data. An account keeps it, and shows you where you stand each day.",
       "bilanTitre": "Your results",
@@ -3016,5 +3015,10 @@
     "court": "That name is too short: two characters minimum.",
     "long": "That name is too long: twenty characters maximum.",
     "panne": "The name did not go through. Try again."
+  },
+  "SerieJeux": {
+    "jourUn": "Day 1 of your streak",
+    "jours": "{n} days in a row",
+    "demain": "Come back tomorrow and it becomes 2."
   }
 }

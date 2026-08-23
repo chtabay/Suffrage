@@ -672,6 +672,25 @@ export default function PaysDuJour({ jour }: { jour: number }) {
           <Compte skin={skin} jour={jour} serieLocale={serie} essaisDuJour={essais.length} />
         )}
 
+        {/* CE QUI REVIENT DEMAIN — la plus petite raison de revenir, et la
+            seule que ce jeu n'avait pas. Banalo la dit depuis toujours
+            (« nouveau thème à 09 h 30 ») ; Cinq sur cinq ne disait rien du
+            lendemain, alors que c'est exactement le moment où le joueur décide
+            s'il reviendra.
+
+            ⚠️ SANS HEURE, CONTRAIREMENT À BANALO. Sa charnière est minuit, ce
+            que personne n'a besoin qu'on lui explique ; celle de Banalo est
+            11 h 30, et c'est ÇA qui demandait un chiffre.
+
+            ⚠️ ET SEULEMENT UNE FOIS LA PARTIE GAGNÉE : annoncer le pays de
+            demain à quelqu'un qui cherche encore celui d'aujourd'hui lui dirait
+            de laisser tomber. */}
+        {gagne && (
+          <p style={{ marginTop: 18, fontSize: 13, color: skin.muted, textAlign: "center" }}>
+            {t("demainPays")}
+          </p>
+        )}
+
         {/* L'INSTALLATION — même règle que le compte : après la partie. Avant,
             elle demande un engagement à quelqu'un à qui le jeu n'a encore rien
             donné. Le FAB de Placet ne flotte plus ici : c'est le jeu qui

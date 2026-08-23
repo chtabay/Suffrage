@@ -2786,7 +2786,6 @@
       "bilanTitre": "Vos résultats",
       "parties": "Journées",
       "serieLabel": "Série",
-      "serie": "{n} jours d'affilée",
       "placet": "Le même compte sert à organiser de vrais votes sur Placet :",
       "placetLien": "voir à quoi ça sert",
       "devant": "Devant vous",
@@ -2866,6 +2865,7 @@
     }
   },
   "Pays": {
+    "demainPays": "Un nouveau pays demain.",
     "tableau": {
       "essais": "{n, plural, one {# essai} other {# essais}}",
       "pourquoi": "Les noms viennent d'une liste. Écrire le sien demande un compte Placet : un nom que tous les joueurs du jour peuvent lire appelle quelqu'un pour en répondre.",
@@ -2911,7 +2911,6 @@
       "jourTitre": "Votre journée",
       "essaisJour": "Essais",
       "medianeJour": "Médiane du jour",
-      "serie": "{n} jours d'affilée",
       "titre": "Garder vos résultats",
       "texte": "Sans compte, votre série vit dans ce navigateur : elle disparaît si vous changez de téléphone ou effacez vos données. Un compte la garde, et vous montre où vous vous situez chaque jour.",
       "bilanTitre": "Vos résultats",
@@ -3016,5 +3015,10 @@
     "court": "Ce nom est trop court : deux caractères au minimum.",
     "long": "Ce nom est trop long : vingt caractères au maximum.",
     "panne": "Le dépôt n'est pas parti. Réessayez."
+  },
+  "SerieJeux": {
+    "jourUn": "Jour 1 de votre série",
+    "jours": "{n} jours d'affilée",
+    "demain": "Revenez demain : elle passera à 2."
   }
 }
