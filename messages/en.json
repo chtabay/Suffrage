@@ -1663,6 +1663,8 @@
     "goSpaces": "My groups"
   },
   "Games": {
+    "resultatsPitch": "Your progress, this month's leaderboards and the trophies.",
+    "placeDuJour": "{rang} of {sur} today",
     "prepare": "needs setting up",
     "reprendre": {
       "titre": "Pick up again",

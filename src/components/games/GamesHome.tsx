@@ -10,8 +10,8 @@
 //
 // Elle garde la nav de Placet, elle : c'est bien Placet qui fait découvrir les
 // jeux. Ce sont les pages de jeu qui la déposent.
-import { useState } from "react";
-import { useTranslations } from "next-intl";
+import { useEffect, useState } from "react";
+import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { Link } from "@/i18n/navigation";
 import Nav from "@/components/scrutin/Nav";
@@ -20,9 +20,50 @@ import { getRoom } from "@/lib/games/room";
 import Reprendre from "@/components/games/Reprendre";
 import { PLACET_GAMES_SKIN as skin } from "@/lib/games/skin";
 import { GBtn, GCard, GLabel } from "./ui";
+import { numeroDuJour } from "@/lib/games/banalo/jour";
+import { programmeDe } from "@/lib/games/banalo/programme";
+import { monJeton as monJetonBanalo } from "@/lib/games/banalo/jeton";
+import { dateCivile, numeroDeJournee } from "@/lib/games/pays/calendrier";
+import { monJetonPays } from "@/lib/games/pays/jeton";
+import { placeDuJour, type PorteDesJeux } from "@/lib/db/jeux";
 
 export default function GamesHome() {
   const t = useTranslations("Games");
+  const locale = useLocale();
+
+  /**
+   * La place du joueur dans les deux journées en cours.
+   *
+   * ⚠️ APRÈS LE MONTAGE, JAMAIS AU RENDU SERVEUR. Les deux numéros de journée
+   * dépendent de l'heure — 11 h 30 pour Banalo, minuit pour Cinq sur cinq —, et
+   * les calculer au rendu les figerait dans le HTML mis en cache, en faisant
+   * diverger l'hydratation autour de la charnière. Même leçon que `JeuxDuJour`.
+   *
+   * ⚠️ ET RIEN NE S'AFFICHE TANT QUE ÇA N'EST PAS REVENU. Une porte qui montre
+   * « pas encore joué » une demi-seconde avant d'afficher un rang clignote à
+   * l'endroit exact où l'œil se pose.
+   */
+  const [place, setPlace] = useState<PorteDesJeux | null>(null);
+  useEffect(() => {
+    const jourBanalo = numeroDuJour();
+    const prog = programmeDe(jourBanalo);
+    let vivant = true;
+    void placeDuJour({
+      jetonBanalo: monJetonBanalo(),
+      jourBanalo,
+      langue: locale,
+      // Le format chiffré n'a pas de thème, et la base le distingue par ce
+      // `null` — exactement comme les fonctions d'état du jeu.
+      theme: prog.type === "mots" ? prog.theme.fr : null,
+      jetonPays: monJetonPays(),
+      jourPays: numeroDeJournee(dateCivile()),
+    }).then((p) => {
+      if (vivant) setPlace(p);
+    });
+    return () => {
+      vivant = false;
+    };
+  }, [locale]);
   const router = useRouter();
   const [code, setCode] = useState("");
   const [busy, setBusy] = useState(false);
@@ -168,12 +209,58 @@ export default function GamesHome() {
 
                   ⚠️ ET SON LIBELLÉ NE DIT PAS « MES » : à quelqu'un qui n'a
                   jamais joué, « mes résultats » promet une page vide. */}
+              {/* ⚠️ IL ÉTAIT UNE LIGNE DE 13,5 px SOUS UN PITCH, et il se
+                  sautait. C'est pourtant le SEUL chemin vers les classements qui
+                  vaut pour tout le monde : les écrans d'après-partie n'y mènent
+                  que pour un joueur connecté ayant deux journées. Il porte donc
+                  maintenant une bordure, une flèche et — quand le joueur a joué
+                  — SA place du jour, qui est la meilleure raison de l'ouvrir.
+
+                  ⚠️ MAIS IL RESTE EN `ghost`, PAS À L'ACCENT. Sur cette page le
+                  geste attendu est de choisir un jeu ; un bouton plein ici
+                  entrerait en concurrence avec les vignettes qu'il surplombe. */}
               {cle === "quotidien" ? (
-                <p style={{ margin: "7px 0 0", fontSize: 13.5 }}>
-                  <Link href="/games/quotidien" style={{ color: skin.ink, fontWeight: 700 }}>
-                    {t("resultatsLien")}
-                  </Link>
-                </p>
+                <Link
+                  href="/games/quotidien"
+                  className="dc-lift"
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 10,
+                    marginTop: 10,
+                    padding: "10px 13px",
+                    borderRadius: 12,
+                    border: `2.5px solid ${skin.ink}`,
+                    background: "#fff",
+                    boxShadow: `4px 4px 0 ${skin.ink}55`,
+                    textDecoration: "none",
+                    color: skin.ink,
+                    maxWidth: 430,
+                  }}
+                >
+                  <span aria-hidden style={{ fontSize: 19, flex: "none" }}>
+                    📈
+                  </span>
+                  <span style={{ minWidth: 0, flex: "1 1 auto" }}>
+                    <span
+                      style={{
+                        display: "block",
+                        fontFamily: skin.fontDisplay,
+                        fontWeight: 800,
+                        fontSize: 15,
+                        lineHeight: 1.2,
+                      }}
+                    >
+                      {t("resultatsLien")}
+                    </span>
+                    <span style={{ display: "block", fontSize: 12.5, color: skin.muted, marginTop: 2 }}>
+                      {t("resultatsPitch")}
+                    </span>
+                  </span>
+                  <span aria-hidden style={{ flex: "none", fontWeight: 800, color: skin.muted }}>
+                    →
+                  </span>
+                </Link>
               ) : null}
 
               <div
@@ -186,6 +273,15 @@ export default function GamesHome() {
               >
                 {jeux.map((g) => {
                   const live = g.status === "live";
+                  // ⚠️ SEULS LES DEUX JEUX QUOTIDIENS ONT UNE PLACE DU JOUR. Les
+                  // jeux de salle se jouent en présence et n'ont pas de foule à
+                  // comparer ; leur carte garde ses pastilles.
+                  const brut =
+                    g.slug === "banalo-jour" ? place?.banalo : g.slug === "pays" ? place?.pays : null;
+                  const maPlace =
+                    brut?.joue && brut.rang !== null && brut.sur !== null
+                      ? { rang: brut.rang, sur: brut.sur }
+                      : null;
                   const chips = [
                     // Le seul jeu SOLO du catalogue casse le gabarit : « 1
                     // joueurs » est faux, et un pluriel ICU ne s'applique pas à
@@ -230,6 +326,33 @@ export default function GamesHome() {
                         <span style={{ display: "block", fontSize: 13, color: skin.muted, lineHeight: 1.35, marginTop: 2 }}>
                           {t(`${g.slug}.tagline`)}
                         </span>
+                        {/* MA PLACE DU JOUR, sur les deux cartes quotidiennes.
+                            
+                            ⚠️ ELLE REMPLACE LES PASTILLES PLUTÔT QUE DE S'Y
+                            AJOUTER. « 3–12 joueurs · 2 minutes » dit à un
+                            inconnu ce qu'est le jeu ; à quelqu'un qui vient de
+                            le jouer, ça ne dit plus rien qu'il ignore. Empiler
+                            les deux ferait deux lignes là où la vignette en a
+                            une, et l'information neuve se lirait en second.
+
+                            ⚠️ ET ELLE PORTE SON EFFECTIF. « 3e » ne veut pas
+                            dire la même chose sur six joueurs et sur trois
+                            mille — c'est la règle déjà écrite pour le tableau
+                            du jour et pour le classement de saison. */}
+                        {maPlace ? (
+                          <span
+                            style={{
+                              display: "block",
+                              marginTop: 7,
+                              fontFamily: skin.fontDisplay,
+                              fontWeight: 800,
+                              fontSize: 13,
+                              color: g.skin.accent,
+                            }}
+                          >
+                            {t("placeDuJour", { rang: maPlace.rang, sur: maPlace.sur })}
+                          </span>
+                        ) : (
                         <span style={{ display: "flex", gap: 5, flexWrap: "wrap", marginTop: 7 }}>
                           {chips.map((chip) => (
                             <span
@@ -247,6 +370,7 @@ export default function GamesHome() {
                             </span>
                           ))}
                         </span>
+                        )}
                       </span>
                     </>
                   );

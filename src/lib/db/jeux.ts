@@ -469,3 +469,74 @@ export async function reglerNotif(genre: GenreNotif, actif: boolean): Promise<Re
     appareils: nombre(d.appareils, 0),
   };
 }
+
+// ═══════════════════════════════ la place du joueur, vue depuis la porte
+//
+// ⚠️ UN SEUL APPEL POUR LES DEUX JEUX, et c'est le sujet. La porte `/games` ne
+// faisait AUCUN aller-retour ; lui en faire faire deux au chargement la
+// ralentirait à l'endroit où l'on veut justement entrer vite.
+//
+// ⚠️ ET ÇA MARCHE SANS COMPTE. C'est la moitié qui compte : un habitué sans
+// compte est exactement celui à qui la porte n'avait rien à dire, et « 12e sur
+// 83 aujourd'hui » est un chiffre à lui, vrai, qui change tous les jours. Le
+// classement de SAISON, lui, exige un compte et un pseudo — il reste dans la
+// barre de Placet (`RangJeux`).
+
+/** La place d'un joueur dans la journée en cours d'un jeu. */
+export interface PlaceDuJour {
+  joue: boolean;
+  rang: number | null;
+  sur: number | null;
+}
+
+export interface PorteDesJeux {
+  banalo: PlaceDuJour;
+  pays: PlaceDuJour;
+}
+
+const PAS_JOUE: PlaceDuJour = { joue: false, rang: null, sur: null };
+
+function litPlace(v: unknown): PlaceDuJour {
+  const d = v as Record<string, unknown> | null;
+  if (!d || d.joue !== true) return PAS_JOUE;
+  // ⚠️ UN RANG SANS SON EFFECTIF NE S'AFFICHE PAS. « 3e » ne veut pas dire la
+  // même chose sur six joueurs et sur trois mille, et c'est la règle déjà écrite
+  // pour le tableau du jour comme pour le classement de saison.
+  if (typeof d.rang !== "number" || typeof d.sur !== "number") return PAS_JOUE;
+  return { joue: true, rang: d.rang, sur: d.sur };
+}
+
+/**
+ * ⚠️ UNE LECTURE PAR SESSION, comme `RangJeux` et `useIsAdmin` : un cache de
+ * module. La porte se traverse plusieurs fois par visite — on y revient entre
+ * deux jeux — et recalculer deux classements à chaque passage coûterait sans
+ * rien apprendre de neuf.
+ */
+let cachePorte: { cle: string; valeur: PorteDesJeux } | null = null;
+
+export async function placeDuJour(args: {
+  jetonBanalo: string | null;
+  jourBanalo: number;
+  langue: string;
+  theme: string | null;
+  jetonPays: string | null;
+  jourPays: number;
+}): Promise<PorteDesJeux | null> {
+  const cle = [args.jetonBanalo, args.jourBanalo, args.langue, args.theme, args.jetonPays, args.jourPays].join("|");
+  if (cachePorte?.cle === cle) return cachePorte.valeur;
+  const supabase = createClient();
+  const { data, error } = await supabase.rpc("scrutin_jeux_porte", {
+    p_jeton_banalo: args.jetonBanalo,
+    p_jour_banalo: args.jourBanalo,
+    p_langue: args.langue,
+    p_theme: args.theme,
+    p_jeton_pays: args.jetonPays,
+    p_jour_pays: args.jourPays,
+  });
+  if (error) return null;
+  const d = data as Record<string, unknown> | null;
+  if (!d || d.status !== "ok") return null;
+  const valeur = { banalo: litPlace(d.banalo), pays: litPlace(d.pays) };
+  cachePorte = { cle, valeur };
+  return valeur;
+}

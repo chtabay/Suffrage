@@ -1663,6 +1663,8 @@
     "goSpaces": "Mes groupes"
   },
   "Games": {
+    "resultatsPitch": "Votre progression, les classements du mois et les trophées.",
+    "placeDuJour": "{rang}e sur {sur} aujourd'hui",
     "prepare": "ça se prépare",
     "reprendre": {
       "titre": "Reprendre",
