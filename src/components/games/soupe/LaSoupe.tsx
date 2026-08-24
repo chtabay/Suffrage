@@ -44,6 +44,21 @@
 // joueur. C'est le dispositif le moins cher qui réponde à « je ne sais pas ce
 // qui est attendu » : une phrase, dérivée de l'état, jamais une aide générale
 // qu'on saute.
+//
+// ⚠️ 4. ET CETTE LIGNE-LÀ A ELLE-MÊME MENTI, AU PASSAGE SUIVANT. Capture à
+//    l'appui : une copie, 189 d'énergie, « +9 par tour », et pourtant « azote 0
+//    sur 3 » en rouge sous « L'atelier est à court d'atomes, il repartira au
+//    tour suivant ». Question du testeur : pourquoi j'arrive à produire alors
+//    qu'il me manque des atomes ?
+//
+//    Parce que PRODUIRE N'EST PAS GRANDIR, et que l'écran confondait les deux.
+//    Une copie déjà bâtie verse son rendement à chaque tour SANS RIEN
+//    CONSOMMER ; les atomes ne servent qu'à en bâtir de NOUVELLES. L'atelier
+//    n'avait donc jamais cessé, « il repartira » était faux, et le rouge —
+//    réservé aux pannes partout ailleurs dans Placet — annonçait un arrêt qui
+//    n'existait pas. Le rouge ne sert plus qu'à l'arrêt réel (zéro copie) ; en
+//    dessous c'est l'ambre d'une croissance en attente, le conseil nomme les
+//    deux régimes, et une phrase à demeure sous le magasin porte la distinction.
 // ─────────────────────────────────────────────────────────────────────────────
 //
 // LE PARI STRUCTUREL, ET CE QU'IL DEVIENT SUR UN TÉLÉPHONE
@@ -264,8 +279,19 @@ export default function LaSoupe() {
       }
       return t("conseilChercher");
     }
-    if (manques.length === 0) return t("conseilTourne");
-    return manques.some((m) => m.abordable) ? t("conseilRacheter") : t("conseilAttendre");
+    // ⚠️ PRODUIRE N'EST PAS GRANDIR, et l'ancien message confondait les deux.
+    // Il annonçait « l'atelier est à court d'atomes, il repartira au tour
+    // suivant » alors que l'atelier n'avait jamais cessé : une copie déjà bâtie
+    // verse son rendement à chaque tour SANS RIEN CONSOMMER. Les atomes ne
+    // servent qu'à en bâtir de nouvelles. Le joueur voyait donc « +9 par tour »
+    // et « il manque de l'azote » côte à côte, et demandait — à juste titre —
+    // pourquoi il arrivait à produire.
+    if (manques.length === 0) return t("conseilGrandit");
+    if (partie!.atelier.copies === 0) return t("conseilArrete");
+    const gain = signe(partie!.atelier.copies * (gabarit?.rendement ?? 0));
+    return manques.some((m) => m.abordable)
+      ? t("conseilProduitEtManque", { gain })
+      : t("conseilProduitEtAttend", { gain });
   }
 
   // ── Le milieu, en en-tête ────────────────────────────────────────────────
@@ -628,12 +654,17 @@ export default function LaSoupe() {
       {gabarit ? (
         <div>
           <GLabel skin={skin} style={{ fontSize: 11 }}>
-            {t("ilFaut")}
+            {t("pourGrandir")}
           </GLabel>
           <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 7 }}>
             {(Object.entries(cout) as [Code, number][]).map(([code, requis]) => {
               const possede = partie.atelier.atomes[code] ?? 0;
               const suffit = possede >= requis;
+              // ⚠️ LE ROUGE EST RÉSERVÉ À L'ARRÊT RÉEL. Tant qu'une copie tourne,
+              // un atome qui manque n'est pas une panne : c'est une croissance
+              // en attente. Le rouge disait « cassé » d'un atelier qui produisait
+              // +9 par tour, et c'est ce qui a rendu l'écran incompréhensible.
+              const teinteManque = partie.atelier.copies === 0 ? ROUGE : skin.accent2;
               return (
                 <span
                   key={code}
@@ -646,9 +677,9 @@ export default function LaSoupe() {
                     fontSize: 12.5,
                     fontWeight: 700,
                     fontVariantNumeric: "tabular-nums",
-                    border: `2px solid ${suffit ? `${skin.ink}22` : ROUGE}`,
-                    background: suffit ? "transparent" : `${ROUGE}12`,
-                    color: suffit ? skin.ink : ROUGE,
+                    border: `2px solid ${suffit ? `${skin.ink}22` : teinteManque}`,
+                    background: suffit ? "transparent" : `${teinteManque}1A`,
+                    color: skin.ink,
                   }}
                 >
                   <span style={{ width: 11, height: 11, borderRadius: 2, background: TEINTE[code] }} />
@@ -657,6 +688,10 @@ export default function LaSoupe() {
               );
             })}
           </div>
+          {/* La distinction en une phrase, sous les chiffres qui la posent. */}
+          <p style={{ margin: "8px 0 0", fontSize: 12.5, color: skin.muted, lineHeight: 1.45 }}>
+            {t("magasinNote")}
+          </p>
         </div>
       ) : null}
 
@@ -692,17 +727,23 @@ export default function LaSoupe() {
               {t("acheter", { atome: nomAtome(m.code), prix: m.prix })}
             </GBtn>
           ))}
-          {manques.filter((m) => m.abordable).length > 1 ? (
+          {manques.some((m) => m.abordable) && manques.reduce((s, m) => s + m.manque, 0) > 1 ? (
             <GBtn
               skin={skin}
               size="sm"
               variant="primary"
+              // ⚠️ IL EN ACHETAIT UN DE CHAQUE, PAS DE QUOI COMBLER. Avec
+              // « azote 0 sur 3 » et 189 d'énergie, un clic n'apportait qu'un
+              // seul azote : le bouton promettait « tout » et rendait un tiers.
+              // On rachète donc tant qu'il manque quelque chose d'abordable.
               onClick={() =>
                 setPartie((p) => {
                   if (!p) return p;
                   let suite = p;
-                  for (const m of cequiManque(suite)) {
-                    if (m.abordable) suite = acheter(suite, m.code);
+                  for (let garde = 0; garde < 200; garde++) {
+                    const encore = cequiManque(suite).find((m) => m.abordable);
+                    if (!encore) break;
+                    suite = acheter(suite, encore.code);
                   }
                   return suite;
                 })

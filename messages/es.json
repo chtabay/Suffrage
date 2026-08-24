@@ -3080,9 +3080,6 @@
     "conseilChercher": "Sigue sacudiendo hasta ver una molécula con cerco verde: es una que el agua paga.",
     "conseilGarder": "Toca una molécula verde para guardarla.",
     "conseilLancer": "Ya puedes lanzar el taller. Sin prisa: las mejores moléculas aparecen hacia la sacudida cuarenta, y pagan seis veces más.",
-    "conseilRacheter": "El taller se ha quedado sin átomos. Compra los que faltan y volverá a arrancar al turno siguiente.",
-    "conseilAttendre": "Faltan átomos y la energía aún no alcanza para comprar. Déjalo correr: tus copias producen en cada turno.",
-    "conseilTourne": "El taller funciona solo. Se parará cuando falte un átomo.",
     "panneauSoupe": "La sopa",
     "panneauCollection": "Tus moléculas",
     "panneauAtelier": "El taller",
@@ -3121,7 +3118,6 @@
     "casse": "una copia de cada {n} se deshace por turno",
     "casseRare": "las copias casi nunca se deshacen",
     "gainReel": "{n} de energía por turno una vez pagadas las roturas",
-    "ilFaut": "Lo que hace falta para una copia más",
     "stockOk": "el taller tiene todo lo que necesita",
     "stockManque": "faltan {liste}",
     "surTotal": "{a} de {b}",
@@ -3141,6 +3137,12 @@
     "journalPreleve": "Guardada una molécula de {n} de energía/turno",
     "journalRejete": "Descartada una molécula — sus átomos vuelven a la sopa",
     "journalFonde": "La sopa se cierra. Modelo elegido: {n} de energía/turno",
-    "journalGabarit": "Modelo sustituido — {perdues, plural, =0 {ninguna copia perdida} one {# copia perdida} other {# copias perdidas}}"
+    "journalGabarit": "Modelo sustituido — {perdues, plural, =0 {ninguna copia perdida} one {# copia perdida} other {# copias perdidas}}",
+    "conseilGrandit": "El taller construye copias. Dejará de crecer cuando falte un átomo, pero las copias existentes seguirán produciendo.",
+    "conseilProduitEtManque": "Tus copias producen {gain} de energía por turno, y seguirán haciéndolo pase lo que pase. Los átomos solo sirven para construir NUEVAS: compra lo que falta para ir más rápido.",
+    "conseilProduitEtAttend": "Tus copias producen {gain} de energía por turno, y seguirán haciéndolo pase lo que pase. Construir una más necesita átomos: deja que suba la energía.",
+    "conseilArrete": "Ninguna copia funciona, así que no se produce nada. Hacen falta átomos para construir una.",
+    "magasinNote": "Una copia ya construida produce en cada turno sin consumir nada. Los átomos solo sirven para construir nuevas.",
+    "pourGrandir": "Para construir una copia más"
   }
 }

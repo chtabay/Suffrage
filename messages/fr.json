@@ -3080,9 +3080,6 @@
     "conseilChercher": "Continuez à secouer jusqu'à voir une molécule cerclée de vert : c'est une molécule que l'eau paie.",
     "conseilGarder": "Touchez une molécule verte pour la garder.",
     "conseilLancer": "Vous pouvez lancer l'atelier. Rien ne presse : les meilleures molécules apparaissent vers la quarantième secousse, et elles rapportent six fois plus.",
-    "conseilRacheter": "L'atelier est à court d'atomes. Achetez ceux qui manquent : il repartira au tour suivant.",
-    "conseilAttendre": "Il manque des atomes, et l'énergie ne suffit pas encore à en acheter. Laissez tourner : vos copies en produisent à chaque tour.",
-    "conseilTourne": "L'atelier tourne tout seul. Il s'arrêtera quand un atome viendra à manquer.",
     "panneauSoupe": "La soupe",
     "panneauCollection": "Vos molécules",
     "panneauAtelier": "L'atelier",
@@ -3121,7 +3118,6 @@
     "casse": "une copie sur {n} se défait par tour",
     "casseRare": "les copies ne se défont presque jamais",
     "gainReel": "{n} d'énergie par tour une fois la casse payée",
-    "ilFaut": "Ce qu'il faut pour une copie de plus",
     "stockOk": "l'atelier a tout ce qu'il faut",
     "stockManque": "il manque {liste}",
     "surTotal": "{a} sur {b}",
@@ -3141,6 +3137,12 @@
     "journalPreleve": "Gardé une molécule à {n} d'énergie/tour",
     "journalRejete": "Rejeté une molécule — ses atomes retournent à la soupe",
     "journalFonde": "La soupe se referme. Modèle choisi : {n} d'énergie/tour",
-    "journalGabarit": "Modèle remplacé — {perdues, plural, =0 {aucune copie perdue} one {# copie perdue} other {# copies perdues}}"
+    "journalGabarit": "Modèle remplacé — {perdues, plural, =0 {aucune copie perdue} one {# copie perdue} other {# copies perdues}}",
+    "conseilGrandit": "L'atelier bâtit des copies. Il cessera de grandir quand un atome viendra à manquer — mais celles qui existent continueront de produire.",
+    "conseilProduitEtManque": "Vos copies produisent {gain} d'énergie par tour, et continueront quoi qu'il arrive. Les atomes ne servent qu'à en bâtir de NOUVELLES : achetez ce qui manque pour aller plus vite.",
+    "conseilProduitEtAttend": "Vos copies produisent {gain} d'énergie par tour, et continueront quoi qu'il arrive. Pour en bâtir une de plus il manque des atomes — laissez l'énergie monter.",
+    "conseilArrete": "Aucune copie ne tourne, donc rien ne se produit. Il faut des atomes pour en bâtir une.",
+    "magasinNote": "Une copie déjà bâtie produit à chaque tour sans rien consommer. Les atomes ne servent qu'à en bâtir de nouvelles.",
+    "pourGrandir": "Pour bâtir une copie de plus"
   }
 }

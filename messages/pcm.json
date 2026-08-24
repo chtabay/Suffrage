@@ -3080,9 +3080,6 @@
     "conseilChercher": "Continue to shake until you see molecule wey get green ring: na dat one di water dey pay for.",
     "conseilGarder": "Touch one green molecule make you keep am.",
     "conseilLancer": "You fit start di workshop now. No rush: di best molecule dem dey show around di fortieth shake, and dem dey pay six times pass.",
-    "conseilRacheter": "Atom don finish for di workshop. Buy di ones wey remain and e go start again next turn.",
-    "conseilAttendre": "Atom dey miss, and energy never reach to buy. Leave am make e run: your copy dem dey produce every turn.",
-    "conseilTourne": "Di workshop dey run by imsef. E go stop when one atom finish.",
     "panneauSoupe": "Di soup",
     "panneauCollection": "Your molecule dem",
     "panneauAtelier": "Di workshop",
@@ -3121,7 +3118,6 @@
     "casse": "one copy out of {n} dey scatter every turn",
     "casseRare": "di copy dem almost never dey scatter",
     "gainReel": "{n} energy every turn after you pay for wetin scatter",
-    "ilFaut": "Wetin one more copy need",
     "stockOk": "di workshop get everything wey e need",
     "stockManque": "{liste} dey miss",
     "surTotal": "{a} out of {b}",
@@ -3141,6 +3137,12 @@
     "journalPreleve": "Keep one molecule wey dey give {n} energy/turn",
     "journalRejete": "Throway one molecule — im atom dem don go back inside di soup",
     "journalFonde": "Di soup don close. Model wey you choose: {n} energy/turn",
-    "journalGabarit": "Dem change di model — {perdues, plural, =0 {no copy lost} one {# copy lost} other {# copies lost}}"
+    "journalGabarit": "Dem change di model — {perdues, plural, =0 {no copy lost} one {# copy lost} other {# copies lost}}",
+    "conseilGrandit": "Di workshop dey build copy. E go stop to grow when one atom finish — but di copy wey don dey go continue to produce.",
+    "conseilProduitEtManque": "Your copy dem dey produce {gain} energy every turn, and dem go continue no matter wetin. Atom na only to build NEW ones: buy wetin dey miss make e fast.",
+    "conseilProduitEtAttend": "Your copy dem dey produce {gain} energy every turn, and dem go continue no matter wetin. To build one more need atom — allow di energy climb.",
+    "conseilArrete": "No copy dey run, so nothing dey produce. You need atom to build one.",
+    "magasinNote": "Copy wey dem don build dey produce every turn without chopping anything. Atom na only to build new ones.",
+    "pourGrandir": "To build one more copy"
   }
 }

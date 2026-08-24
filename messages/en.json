@@ -3080,9 +3080,6 @@
     "conseilChercher": "Keep shaking until you see a molecule ringed in green: that is one the water pays for.",
     "conseilGarder": "Tap a green molecule to keep it.",
     "conseilLancer": "You can start the workshop. No rush: the best molecules appear around the fortieth shake, and they pay six times more.",
-    "conseilRacheter": "The workshop has run out of atoms. Buy the missing ones and it will restart next turn.",
-    "conseilAttendre": "Atoms are missing, and there is not enough energy to buy any yet. Let it run: your copies produce energy every turn.",
-    "conseilTourne": "The workshop runs on its own. It will stop when an atom runs out.",
     "panneauSoupe": "The soup",
     "panneauCollection": "Your molecules",
     "panneauAtelier": "The workshop",
@@ -3121,7 +3118,6 @@
     "casse": "one copy in {n} falls apart each turn",
     "casseRare": "copies almost never fall apart",
     "gainReel": "{n} energy per turn once breakage is paid for",
-    "ilFaut": "What one more copy needs",
     "stockOk": "the workshop has everything it needs",
     "stockManque": "missing {liste}",
     "surTotal": "{a} of {b}",
@@ -3141,6 +3137,12 @@
     "journalPreleve": "Kept a molecule at {n} energy/turn",
     "journalRejete": "Discarded a molecule — its atoms return to the soup",
     "journalFonde": "The soup closes. Model chosen: {n} energy/turn",
-    "journalGabarit": "Model replaced — {perdues, plural, =0 {no copy lost} one {# copy lost} other {# copies lost}}"
+    "journalGabarit": "Model replaced — {perdues, plural, =0 {no copy lost} one {# copy lost} other {# copies lost}}",
+    "conseilGrandit": "The workshop is building copies. It will stop growing when an atom runs out — but the copies that exist will keep producing.",
+    "conseilProduitEtManque": "Your copies produce {gain} energy a turn, and will keep doing so whatever happens. Atoms only serve to build NEW ones: buy what is missing to go faster.",
+    "conseilProduitEtAttend": "Your copies produce {gain} energy a turn, and will keep doing so whatever happens. Building one more needs atoms — let the energy build up.",
+    "conseilArrete": "No copy is running, so nothing is produced. Atoms are needed to build one.",
+    "magasinNote": "A copy already built produces every turn without consuming anything. Atoms only serve to build new ones.",
+    "pourGrandir": "To build one more copy"
   }
 }
