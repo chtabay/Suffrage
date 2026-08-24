@@ -643,6 +643,16 @@ export default function LaSoupe() {
             {surN ? t("casse", { n: surN }) : t("casseRare")}
           </Chiffre>
           <Chiffre teinte={vue.net > 0 ? skin.good : ROUGE}>{t("gainReel", { n: signe(vue.net) })}</Chiffre>
+          {/* ⚠️ CE QUE COÛTE UNE COPIE, ET EN COMBIEN DE TOURS ELLE SE REMBOURSE.
+              La tension du deuxième acte tient dans ce seul rapport et n'était
+              écrite nulle part : l'azote est ce que l'eau paie ET l'atome le
+              plus cher. Mesuré sur quatre modèles, la chaîne C-N-C-N se
+              rembourse en 5 tours quand la double chaîne, plus rentable en
+              brut, en demande 7. Sans ce chiffre, l'arbitrage est invisible. */}
+          <Chiffre>{t("coutCopie", { n: vue.coutEnergie })}</Chiffre>
+          <Chiffre teinte={vue.amortissement === null ? ROUGE : skin.accent}>
+            {vue.amortissement === null ? t("jamaisAmortie") : t("amortie", { n: vue.amortissement })}
+          </Chiffre>
         </div>
       ) : null}
 

@@ -211,11 +211,23 @@ export function acheterAtome(etat: EtatAtelier, code: Code): EtatAtelier {
  */
 export function rendementNet(gabarit: Gabarit, milieu: Milieu): number {
   const risque = chanceDeSeDefaire(gabarit, milieu);
-  const coutTotal = (Object.entries(coutEnAtomes(gabarit)) as [Code, number][]).reduce(
+  return (gabarit.rendement ?? 0) - risque * coutEnEnergie(gabarit);
+}
+
+/**
+ * CE QU'UNE COPIE COÛTE EN ÉNERGIE, au prix du marché.
+ *
+ * ⚠️ LA TENSION DU DEUXIÈME ACTE TIENT DANS CE SEUL NOMBRE, et il n'était écrit
+ * nulle part. L'azote est à la fois ce que le milieu paie ET l'atome le plus
+ * cher (14 contre 6 pour le carbone) : la molécule la plus rentable est donc
+ * aussi la plus chère à répliquer. Le joueur voyait « +9 par copie » d'un côté
+ * et « acheter azote — 14 » de l'autre, sans que rien ne relie les deux.
+ */
+export function coutEnEnergie(gabarit: Gabarit): number {
+  return (Object.entries(coutEnAtomes(gabarit)) as [Code, number][]).reduce(
     (s, [code, n]) => s + n * PRIX[code],
     0,
   );
-  return (gabarit.rendement ?? 0) - risque * coutTotal;
 }
 
 /** Description lisible d'un gabarit, pour l'écran. */
@@ -224,6 +236,10 @@ export function presenter(gabarit: Gabarit, milieu: Milieu) {
   return {
     visage: gabarit.visage,
     taille: gabarit.taille,
+    coutEnergie: coutEnEnergie(gabarit),
+    /** En combien de tours une copie se rembourse-t-elle ? `null` si jamais. */
+    amortissement:
+      (gabarit.rendement ?? 0) > 0 ? Math.ceil(coutEnEnergie(gabarit) / (gabarit.rendement as number)) : null,
     composition: (Object.entries(cout) as [Code, number][])
       .map(([code, n]) => `${n} ${ATOMES[code].code}`)
       .join(" · "),

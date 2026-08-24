@@ -3074,8 +3074,8 @@
     "regle2": "Ici, +3 d'énergie chaque fois qu'un carbone (gris) touche un azote (bleu) sur le BORD d'une molécule. Deux molécules faites des mêmes atomes ne valent donc pas la même chose. Les molécules qui paient sont cerclées de vert.",
     "regle3Titre": "3. Gardez-en une, l'atelier la copie",
     "regle3": "L'atelier fabrique des copies de votre modèle sans vous, et chaque copie produit son énergie à chaque tour. Attention : lancer l'atelier ferme la soupe pour de bon, vous ne pêcherez plus. Les meilleures molécules mettent une quarantaine de secousses à apparaître.",
-    "regle4Titre": "4. Ensuite, tout se joue sur les atomes",
-    "regle4": "La soupe étant fermée, l'atelier ne trouve plus d'atomes tout seul : il consomme son stock, et vous le remplissez en achetant des atomes avec l'énergie produite. Quand un atome manque, l'atelier s'arrête — c'est le seul moment où vous avez quelque chose à faire.",
+    "regle4Titre": "4. Ensuite, vous tenez la paillasse",
+    "regle4": "La soupe étant fermée, l'atelier ne trouve plus d'atomes tout seul : il consomme son stock, et c'est vous qui l'alimentez en achetant des atomes avec l'énergie produite. Regardez « remboursée en N tours » : l'azote est ce que l'eau paie ET l'atome le plus cher, si bien que la molécule la plus rentable n'est pas toujours celle qui se rembourse le plus vite.",
     "conseilDebut": "Secouez la soupe. Les atomes vont s'assembler tout seuls.",
     "conseilChercher": "Continuez à secouer jusqu'à voir une molécule cerclée de vert : c'est une molécule que l'eau paie.",
     "conseilGarder": "Touchez une molécule verte pour la garder.",
@@ -3128,7 +3128,7 @@
     "rienFauteAtomes": "rien, faute d'atomes",
     "acheter": "Acheter {atome} — {prix}",
     "toutAcheter": "Tout acheter",
-    "atelierAide": "L'atelier bâtit jusqu'à deux copies par tour, tant qu'il lui reste des atomes. La soupe étant fermée, il ne s'en procure plus tout seul : c'est à vous de les acheter avec l'énergie.",
+    "atelierAide": "Vous tenez une paillasse : la cuve est fermée, et c'est vous qui y injectez les réactifs. L'atelier bâtit jusqu'à deux copies par tour tant qu'il a les atomes ; à vous de les racheter avec l'énergie produite.",
     "arretRecours": "L'atelier est arrêté : plus aucune copie, plus assez d'énergie pour acheter un atome. Ce modèle coûtait plus qu'il ne rapportait. Choisissez-en un autre parmi vos molécules.",
     "arretFin": "L'atelier est arrêté, et il ne vous reste aucune autre molécule à essayer. La partie est perdue — c'était le prix du modèle choisi.",
     "recommencer": "Recommencer une partie",
@@ -3143,6 +3143,9 @@
     "conseilProduitEtAttend": "Vos copies produisent {gain} d'énergie par tour, et continueront quoi qu'il arrive. Pour en bâtir une de plus il manque des atomes — laissez l'énergie monter.",
     "conseilArrete": "Aucune copie ne tourne, donc rien ne se produit. Il faut des atomes pour en bâtir une.",
     "magasinNote": "Une copie déjà bâtie produit à chaque tour sans rien consommer. Les atomes ne servent qu'à en bâtir de nouvelles.",
-    "pourGrandir": "Pour bâtir une copie de plus"
+    "pourGrandir": "Pour bâtir une copie de plus",
+    "coutCopie": "une copie coûte {n} d'énergie en atomes",
+    "amortie": "remboursée en {n, plural, one {# tour} other {# tours}}",
+    "jamaisAmortie": "elle ne se remboursera jamais"
   }
 }

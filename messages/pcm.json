@@ -3074,8 +3074,8 @@
     "regle2": "For here, +3 energy any time carbon (grey) touch nitrogen (blue) for di EDGE of one molecule. So two molecule wey get di same atom no dey worth di same thing. Di ones wey dey pay get green ring.",
     "regle3Titre": "3. Keep one, di workshop go copy am",
     "regle3": "Di workshop dey make copy of your model without you, and every copy dey produce im energy every turn. Take note: if you start di workshop, di soup go close forever, you no go fish again. Di best molecule dey take like forty shake before e show.",
-    "regle4Titre": "4. After dat, na atom be di whole game",
-    "regle4": "Since di soup don close, di workshop no fit find atom by imsef again: e dey chop im store, and na you dey fill am back by buying atom with di energy wey e produce. When one atom finish, di workshop go stop — na di only time wey you get something to do.",
+    "regle4Titre": "4. After dat, na you dey run di bench",
+    "regle4": "Since di soup don close, di workshop no fit find atom by imsef again: e dey chop im store, and na you dey fill am by buying atom with di energy wey e produce. Look «e go pay imsef back for N turns»: nitrogen na wetin di water dey pay for AND na di most expensive atom, so di molecule wey pay pass no be always di one wey pay imsef back fastest.",
     "conseilDebut": "Shake di soup. Di atom dem go join demsef.",
     "conseilChercher": "Continue to shake until you see molecule wey get green ring: na dat one di water dey pay for.",
     "conseilGarder": "Touch one green molecule make you keep am.",
@@ -3128,7 +3128,7 @@
     "rienFauteAtomes": "nothing, atom no dey",
     "acheter": "Buy {atome} — {prix}",
     "toutAcheter": "Buy everything",
-    "atelierAide": "Di workshop dey build up to two copy every turn, as long as atom dey. Since di soup don close, e no dey find atom by imsef again: na you go buy dem with energy.",
+    "atelierAide": "Na you dey run di bench: di vessel don close, and na you dey inject di reagent. Di workshop dey build up to two copy every turn as long as atom dey; to buy dem with di energy wey e produce na your own work.",
     "arretRecours": "Di workshop don stop: no copy remain, energy no reach to buy atom. Dat model dey cost pass wetin e dey bring. Pick another one from your molecule dem.",
     "arretFin": "Di workshop don stop, and no molecule remain wey you fit try. Di game don lost — na di price of di model wey you choose.",
     "recommencer": "Start new game",
@@ -3143,6 +3143,9 @@
     "conseilProduitEtAttend": "Your copy dem dey produce {gain} energy every turn, and dem go continue no matter wetin. To build one more need atom — allow di energy climb.",
     "conseilArrete": "No copy dey run, so nothing dey produce. You need atom to build one.",
     "magasinNote": "Copy wey dem don build dey produce every turn without chopping anything. Atom na only to build new ones.",
-    "pourGrandir": "To build one more copy"
+    "pourGrandir": "To build one more copy",
+    "coutCopie": "one copy dey cost {n} energy for atom",
+    "amortie": "e go pay imsef back for {n, plural, one {# turn} other {# turns}}",
+    "jamaisAmortie": "e no go ever pay imsef back"
   }
 }

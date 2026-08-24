@@ -3074,8 +3074,8 @@
     "regle2": "Here, +3 energy every time a carbon (grey) touches a nitrogen (blue) on the EDGE of a molecule. So two molecules made of the same atoms are not worth the same. Molecules that pay are ringed in green.",
     "regle3Titre": "3. Keep one, the workshop copies it",
     "regle3": "The workshop makes copies of your model without you, and each copy produces its energy every turn. Careful: starting the workshop closes the soup for good, you will fish no more. The best molecules take about forty shakes to appear.",
-    "regle4Titre": "4. After that, it is all about atoms",
-    "regle4": "With the soup closed, the workshop can no longer find atoms on its own: it consumes its stock, and you refill it by buying atoms with the energy produced. When an atom runs out, the workshop stops — that is the only moment you have something to do.",
+    "regle4Titre": "4. After that, you run the bench",
+    "regle4": "With the soup closed, the workshop can no longer find atoms on its own: it consumes its stock, and you refill it by buying atoms with the energy produced. Watch “pays for itself in N turns”: nitrogen is both what the water pays for AND the most expensive atom, so the most profitable molecule is not always the one that pays for itself fastest.",
     "conseilDebut": "Shake the soup. The atoms will assemble on their own.",
     "conseilChercher": "Keep shaking until you see a molecule ringed in green: that is one the water pays for.",
     "conseilGarder": "Tap a green molecule to keep it.",
@@ -3128,7 +3128,7 @@
     "rienFauteAtomes": "nothing, for want of atoms",
     "acheter": "Buy {atome} — {prix}",
     "toutAcheter": "Buy everything",
-    "atelierAide": "The workshop builds up to two copies a turn, as long as it has atoms left. With the soup closed it no longer gets any on its own: it is up to you to buy them with energy.",
+    "atelierAide": "You are running a bench: the vessel is closed, and you are the one injecting the reagents. The workshop builds up to two copies a turn as long as it has atoms; buying them with the energy produced is your job.",
     "arretRecours": "The workshop has stopped: no copies left, not enough energy to buy an atom. That model cost more than it earned. Pick another one from your molecules.",
     "arretFin": "The workshop has stopped, and you have no other molecule left to try. The game is lost — that was the price of the model you chose.",
     "recommencer": "Start a new game",
@@ -3143,6 +3143,9 @@
     "conseilProduitEtAttend": "Your copies produce {gain} energy a turn, and will keep doing so whatever happens. Building one more needs atoms — let the energy build up.",
     "conseilArrete": "No copy is running, so nothing is produced. Atoms are needed to build one.",
     "magasinNote": "A copy already built produces every turn without consuming anything. Atoms only serve to build new ones.",
-    "pourGrandir": "To build one more copy"
+    "pourGrandir": "To build one more copy",
+    "coutCopie": "one copy costs {n} energy in atoms",
+    "amortie": "pays for itself in {n, plural, one {# turn} other {# turns}}",
+    "jamaisAmortie": "it will never pay for itself"
   }
 }
