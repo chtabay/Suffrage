@@ -606,6 +606,17 @@ export async function litTableauDuJour(
   jour: number,
   langue: string,
   theme: string | null,
+  /**
+   * À partir de combien d'inscrits la base rend ses lignes.
+   *
+   * ⚠️ DEUX PAR DÉFAUT, ET UN SEUL POUR UNE JOURNÉE CLOSE. Sur la journée en
+   * cours, une liste d'une ligne est une RÉCOMPENSE servie à quelqu'un qui n'a
+   * battu personne — le « 1er sur 1 » que le produit refuse partout. Sur une
+   * journée arrêtée c'est un RELEVÉ : « voilà qui figurait ce jour-là ». Un
+   * relevé d'une ligne est court, il n'est pas faux, et le taire laisse un
+   * silence que le joueur lit comme une panne.
+   */
+  min?: number,
 ): Promise<Tableau | null> {
   const supabase = createClient();
   const { data, error } = await supabase.rpc("scrutin_banalo_tableau", {
@@ -618,6 +629,7 @@ export async function litTableauDuJour(
     p_jour: jour,
     p_langue: langue,
     p_theme: theme,
+    p_min: min,
   });
   if (error) return null;
   return litTableau(data);

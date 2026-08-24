@@ -136,7 +136,12 @@ export default function JourneePrecedente({ jour }: { jour: number }) {
     // langue, et le tableau classe parmi ceux qui ont répondu dans la même. Un
     // tableau lu dans une autre langue que sa partie montrerait des gens que ce
     // joueur n'a jamais affrontés.
-    void litTableauDuJour(jeton, precedente, locale, cle).then((tb) => {
+    // ⚠️ UN SEUL INSCRIT SUFFIT ICI. Signalé : « je ne vois pas le classement des
+    // joueurs de la veille (même s'il n'y en a qu'un) ». La journée est CLOSE :
+    // ce qu'on montre n'est plus une récompense mais un relevé, et un relevé
+    // d'une ligne vaut mieux qu'un silence. L'écran du jour, lui, garde son
+    // plancher de deux — voir `litTableauDuJour`.
+    void litTableauDuJour(jeton, precedente, locale, cle, 1).then((tb) => {
       if (vivant) setTableau(tb);
     });
     return () => {

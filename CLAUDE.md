@@ -1438,6 +1438,30 @@ pour cette règle-là que la liste est sortie en UN exemplaire plutôt que
 recopiée — le chemin qu'avaient pris les trois offres de compte et la règle du
 mot orphelin.
 
+⚠️ **ET IL SORT DÈS UN SEUL NOM** (`20260915-banalo-tableau-arrete-des-un-nom.sql`) —
+signalé : « je ne vois pas le classement des joueurs de la veille (même s'il n'y
+en a qu'un) ». La journée 4 ne portait plus qu'un inscrit après le ménage du 14,
+et le plancher de deux retenait sa ligne : ni résumé, ni tiroir, ni un mot pour
+le dire. ⚠️ **C'EST LE « 1er SUR 1 » QUE LE PRODUIT REFUSE PARTOUT, ET ON NE LE
+RETIRE QUE DE LA JOURNÉE CLOSE.** Sur la journée en cours, une liste d'une ligne
+est une RÉCOMPENSE servie à quelqu'un qui n'a battu personne — une tautologie.
+Sur une journée arrêtée, c'est un RELEVÉ : « voilà qui figurait ce jour-là ».
+Court, mais pas faux, et infiniment mieux qu'un silence.
+
+⚠️ **LE PLANCHER EST DONC UN PARAMÈTRE (`p_min`), PAS UNE CONSTANTE RETIRÉE** :
+l'écran du jour appelle sans rien et garde 2, seule la relecture demande 1. Une
+fonction sans plancher du tout laisserait le prochain écran le refabriquer à sa
+façon. ⚠️ Et **ajouter un paramètre CRÉE une fonction** : sans le `drop` de la
+version à quatre arguments, PostgREST se retrouve devant deux candidates et rend
+une ambiguïté — plus personne ne lit de tableau. Le client déployé, lui, ne casse
+pas : il poste quatre clés et PostgREST les fait correspondre à la nouvelle, dont
+le cinquième argument a un défaut.
+
+⚠️ **CINQ SUR CINQ N'A AUCUN BLOC « JOURNÉE PRÉCÉDENTE »**, et c'est pourquoi il
+n'y a rien à y corriger : ses modales sont la méthode, l'intro de la journée et
+les pictos. Lui en donner un est une fonctionnalité à construire, pas un défaut
+à réparer.
+
 ⚠️ **DANS LE RÉSUMÉ, PAS DANS LE TIROIR**, contre la règle de hauteur qui y a
 envoyé le reste du détail. Le contenu qui CHANGE monte ; et surtout, deux
 retours de terrain de la même semaine reprochaient des blocs « trop discrets » —
