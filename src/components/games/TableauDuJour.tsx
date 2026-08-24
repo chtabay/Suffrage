@@ -43,15 +43,15 @@
 // d'un pouce, et le tableau n'est pas la porte dérobée par laquelle elle
 // tomberait.
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useLocale, useTranslations } from "next-intl";
+import { useTranslations } from "next-intl";
 import { useAuth } from "@/lib/auth/useAuth";
 import type { GameSkin } from "@/lib/games/skin";
 import { GBtn, GCard, GLabel } from "@/components/games/ui";
-import { nomDe } from "@/content/banalo/noms";
 import ChoisirSonNom, { NOM_VIERGE, choixDeNom, type EtatNom } from "./ChoisirSonNom";
 import ListeDuTableau from "./ListeDuTableau";
 import ConnexionJeux from "./ConnexionJeux";
 import Modale from "./Modale";
+import OffreNotifs from "./OffreNotifs";
 import type { ChoixDeNom, DepotNom, Tableau } from "@/lib/db/banalo";
 
 
@@ -111,7 +111,6 @@ export default function TableauDuJour({
   onDemande?: (demande: boolean) => void;
 }) {
   const t = useTranslations("TableauJeux");
-  const locale = useLocale();
   // ⚠️ `loading` COMPTE : sans lui, le champ de nom libre clignoterait — absent
   // le temps que la session revienne, puis présent — devant quelqu'un qui a un
   // compte. Le même défaut que `CompteBanalo` évite en ne rendant rien.
@@ -428,6 +427,26 @@ export default function TableauDuJour({
         fermerDiscret
       >
         {formulaire}
+        {/* ⚠️ LES NOTIFICATIONS NE SE PROPOSENT QU'À UN COMPTE — réglages et
+            tournée sont indexés sur `user_id`. C'est aussi pourquoi elles
+            prennent EXACTEMENT la place que l'offre de compte laisse vide :
+            un connecté ne voit pas l'une, un anonyme ne voit pas l'autre, et la
+            boîte garde ses deux portes au lieu d'en ouvrir trois. §0 arbitre des
+            demandes, pas des écrans.
+
+            ⚠️ ET C'EST LA SEULE CHOSE QUE LE JEU N'AVAIT PAS. `JourneePrecedente`
+            existe précisément parce qu'aucune notification n'annonce la clôture :
+            il GARDE le résultat arrêté et le rend quand le joueur revient. Le
+            genre `journee` existe en base depuis le 01/09 et n'était offert que
+            sur `/games/quotidien`, la page que les joueurs ne visitent pas. */}
+        {user ? (
+          <div style={{ marginTop: 22, borderTop: `1px dashed ${skin.muted}55`, paddingTop: 16 }}>
+            <GLabel skin={skin}>{t("modaleNotifs")}</GLabel>
+            <div style={{ marginTop: 8 }}>
+              <OffreNotifs skin={skin} uid={user.id} texte={t("modaleNotifsTexte")} />
+            </div>
+          </div>
+        ) : null}
         {/* ⚠️ LE COMPTE N'EST PROPOSÉ QU'À QUI N'EN A PAS. Servi à un connecté
             sans pseudo, ce bloc lui offrirait de se connecter alors qu'il l'est
             déjà — et `ChoisirSonNom` vient précisément de lui dire que le nom

@@ -1344,6 +1344,37 @@ d'invite reste dans la CARTE : la boîte a déjà un titre et une phrase qui dis
 la même chose, empilées on lisait deux fois « laissez un nom ». Ça ne se voit
 qu'à l'écran.
 
+⚠️ **ELLE PORTE AUSSI L'OFFRE DE NOTIFICATION, ET ÇA RENVERSE UNE DÉCISION
+ÉCRITE.** L'en-tête de `Notifications.tsx` disait « elle est ICI et pas après
+une partie, et c'est un choix » — l'après-partie n'a qu'une place et son échelle
+est pleine. Demandé quand même : « proposer les notifs pour être prévenu des
+résultats de la journée ». Ce qui le rend tenable, c'est que la notification
+prend **exactement la place que l'offre de compte laisse vide** : un connecté ne
+voit pas l'une, un anonyme ne voit pas l'autre. La boîte garde ses DEUX portes,
+elle n'en ouvre pas trois. Et le genre `journee` existe en base depuis le 01/09,
+offert seulement sur `/games/quotidien` — la page que les joueurs ne visitent
+pas.
+
+⚠️ **L'OFFRE EST SORTIE DANS `OffreNotifs`, PAS RECOPIÉE.** Elle vit désormais à
+deux endroits ; `Notifications` garde ses interrupteurs et lui passe `appareils`
+pour lui éviter de relire ce qu'elle a déjà lu. La PHRASE voyage en paramètre :
+l'onglet des réglages explique le dispositif, la modale répond à la question que
+le joueur vient de se poser.
+
+⚠️ **ET SANS COMPTE, C'EST IMPOSSIBLE — pas par choix d'écran.** Tout le
+dispositif est indexé sur `user_id` : la ligne d'abonnement, la clé anti-doublon
+`(user_id, jeu, genre, repere)`, le plafond d'une par jour
+`(user_id, jeu, jour_civil)` et les trois réglages. Le porter sur le jeton
+anonyme demanderait de re-clefer quatre choses **plus la tournée d'envoi**, puis
+de trancher la purge (le jeton s'efface à 30 jours, un compte non) et de
+réécrire la politique. L'anonyme se voit donc offrir le COMPTE, dont la phrase
+nomme la notification qu'il ouvre — la seule façon honnête de répondre à « je
+veux être prévenu » sans poser un bouton que la base ne saurait pas servir.
+
+⚠️ **RIEN DE TOUT ÇA N'EST VÉRIFIABLE ICI** : sans clé VAPID dans le conteneur,
+`notifyDeployed()` est faux et le bloc est INVISIBLE en développement. Ce qui a
+été éprouvé au navigateur, c'est qu'il ne s'affiche pas — pas qu'il marche.
+
 ⚠️ **METTRE LE CHAMP EN PREMIER NE SUFFIT PAS : IL FAUT AUSSI QU'IL PÈSE.**
 Signalé après coup — « je ne vois pas dans la modale l'option de déposer un
 pseudo libre ». Il y était, en tête. Mais un champ VIDE ne pèse rien à côté de

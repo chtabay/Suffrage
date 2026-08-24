@@ -17,30 +17,19 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { PLACET_GAMES_SKIN as skin } from "@/lib/games/skin";
-import { GBtn, GCard, GLabel } from "@/components/games/ui";
-import { useInstall } from "@/lib/pwa/install";
-import { abonnementDIci, notifyDeployed, subscribeNotifications, useNotify } from "@/lib/pwa/notify";
+import { GCard, GLabel } from "@/components/games/ui";
+import { abonnementDIci, notifyDeployed } from "@/lib/pwa/notify";
+import OffreNotifs from "@/components/games/OffreNotifs";
 import { reglagesNotifs, reglerNotif, type GenreNotif, type ReglagesNotifs } from "@/lib/db/jeux";
 
 type Etat = "charge" | "prete" | "envoi" | "panne";
 
 export default function Notifications({ uid }: { uid: string | null }) {
   const t = useTranslations("NotifsJeux");
-  const { supported, permission } = useNotify();
-  const { ios } = useInstall();
 
   const [reglages, setReglages] = useState<ReglagesNotifs | null>(null);
   const [etat, setEtat] = useState<Etat>("charge");
   const [ici, setIci] = useState<boolean | null>(null);
-  /**
-   * Ce que la dernière tentative d'abonnement a donné.
-   *
-   * ⚠️ UNE TENTATIVE QUI ÉCHOUE DOIT LE DIRE. Sans ça, le bouton revient à son
-   * libellé et l'écran est exactement dans l'état d'avant : le joueur a pressé,
-   * rien n'a bougé, il presse encore. C'est mot pour mot le défaut qu'un vrai
-   * joueur a signalé sur le dépôt du pseudo — « rien ne semble se passer ».
-   */
-  const [rate, setRate] = useState<"denied" | "erreur" | null>(null);
 
   // ⚠️ ON DÉPEND DE L'IDENTIFIANT, PAS DE L'OBJET `user`. `useAuth` rend un objet
   // dont la référence change à chaque relecture de session : un effet qui en
@@ -61,6 +50,9 @@ export default function Notifications({ uid }: { uid: string | null }) {
     };
   }, [uid]);
 
+  // ⚠️ CET APPAREIL EST-IL ABONNÉ ? `OffreNotifs` le sait pour elle-même ; cette
+  // carte en a besoin pour l'ESPACE au-dessus des interrupteurs — l'offre
+  // au-dessus d'eux est présente ou non, et la marge suit.
   useEffect(() => {
     let vivant = true;
     void abonnementDIci().then((a) => {
@@ -69,26 +61,6 @@ export default function Notifications({ uid }: { uid: string | null }) {
     return () => {
       vivant = false;
     };
-  }, [permission]);
-
-  const abonne = useCallback(async () => {
-    setEtat("envoi");
-    setRate(null);
-    const r = await subscribeNotifications();
-    if (r !== "ok") {
-      // ⚠️ UN REFUS DE PERMISSION N'EST PAS UNE PANNE, et les deux n'appellent
-      // pas le même geste : un refus ne se redemande pas depuis la page — il se
-      // lève dans les réglages du navigateur — là où un échec se réessaie.
-      setEtat("prete");
-      setIci(false);
-      setRate(r === "denied" ? "denied" : "erreur");
-      return;
-    }
-    setRate(null);
-    setIci(true);
-    const frais = await reglagesNotifs();
-    if (frais) setReglages(frais);
-    setEtat("prete");
   }, []);
 
   const bascule = useCallback(
@@ -130,52 +102,25 @@ export default function Notifications({ uid }: { uid: string | null }) {
     { cle: "saison", titre: t("saisonTitre"), texte: t("saisonTexte") },
   ];
 
-  /**
-   * Ce qui manque à CET appareil, dit en une phrase — jamais un silence.
-   *
-   * ⚠️ TROIS EMPÊCHEMENTS, TROIS PHRASES, parce qu'ils appellent trois gestes
-   * différents : sur iPhone il faut d'abord installer le jeu (le push web n'y
-   * existe que pour une application posée sur l'écran d'accueil) ; un refus déjà
-   * donné ne se redemande pas depuis la page, il se lève dans les réglages du
-   * navigateur ; et un navigateur qui ne sait pas faire ne saura pas mieux en
-   * réessayant. Un bouton servi dans l'un de ces trois cas serait un bouton
-   * mort.
-   */
-  const empechement =
-    ios ? t("iosInstaller") : permission === "denied" ? t("refusee") : !supported ? t("nonSupporte") : null;
-
   return (
     <GCard skin={skin} padding={16}>
       <GLabel skin={skin}>{t("titre")}</GLabel>
 
-      {ici === false && (
-        <div style={{ marginTop: 10 }}>
-          <p style={{ margin: 0, fontSize: 14.5, lineHeight: 1.5, color: skin.muted, maxWidth: "48ch" }}>
-            {/* ⚠️ « CET APPAREIL », PAS « VOUS ». Les réglages sont par compte,
-                l'abonnement est par navigateur : quelqu'un d'abonné sur son
-                ordinateur lirait « vous n'êtes pas abonné » comme un
-                effacement de ce qu'il vient de faire ailleurs. */}
-            {reglages.appareils > 0 ? t("ailleursTexte", { n: reglages.appareils }) : t("offreTexte")}
-          </p>
-          {empechement ? (
-            <p style={{ margin: "10px 0 0", fontSize: 13.5, lineHeight: 1.5, fontWeight: 700 }}>{empechement}</p>
-          ) : (
-            <div style={{ marginTop: 12 }}>
-              <GBtn skin={skin} onClick={() => void abonne()} disabled={etat === "envoi"}>
-                {etat === "envoi" ? "…" : t("activer")}
-              </GBtn>
-              {rate && (
-                <p
-                  role="alert"
-                  style={{ margin: "10px 0 0", fontSize: 13.5, lineHeight: 1.5, fontWeight: 700, maxWidth: "44ch" }}
-                >
-                  {rate === "denied" ? t("refusee") : t("echec")}
-                </p>
-              )}
-            </div>
-          )}
-        </div>
-      )}
+      {/* ⚠️ L'OFFRE EST SORTIE D'ICI, elle vit aussi dans la modale de fin de
+          partie. On lui passe `appareils` pour lui éviter de relire ce que
+          cette carte a déjà lu, et `onAbonne` pour rafraîchir les
+          interrupteurs, qui n'apparaissent qu'à partir d'un appareil. */}
+      <OffreNotifs
+        skin={skin}
+        uid={uid}
+        appareils={reglages.appareils}
+        onAbonne={() => {
+          setIci(true);
+          void reglagesNotifs().then((r) => {
+            if (r) setReglages(r);
+          });
+        }}
+      />
 
       {/* ⚠️ LES INTERRUPTEURS NE SORTENT QUE SI QUELQUE CHOSE PEUT ARRIVER. Zéro
           appareil abonné, ce sont trois réglages qui ne commandent rien — et
