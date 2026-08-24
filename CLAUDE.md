@@ -1344,6 +1344,24 @@ d'invite reste dans la CARTE : la boîte a déjà un titre et une phrase qui dis
 la même chose, empilées on lisait deux fois « laissez un nom ». Ça ne se voit
 qu'à l'écran.
 
+⚠️ **METTRE LE CHAMP EN PREMIER NE SUFFIT PAS : IL FAUT AUSSI QU'IL PÈSE.**
+Signalé après coup — « je ne vois pas dans la modale l'option de déposer un
+pseudo libre ». Il y était, en tête. Mais un champ VIDE ne pèse rien à côté de
+trois pastilles pleines de mots cerclées d'encre à 2 px, puis de deux boutons de
+connexion : la boîte se lisait « créez un compte ». C'est le défaut d'ORDRE
+corrigé la veille, revenu par le POIDS. Le champ prend donc l'encre et l'ombre
+du produit, les pastilles perdent leur trait (1,5 px en `muted`) — elles gardent
+leur forme et leur état plein quand on en choisit une. Ça ne se voit qu'à
+l'écran.
+
+⚠️ **ET L'ARGUMENT DU COMPTE ÉTAIT EN DOUBLE.** La modale disait « garde votre
+série et vos résultats d'un appareil à l'autre » ; `CompteBanalo`, deux cartes
+plus bas sur le même écran, dit « sans compte, votre série vit dans ce
+navigateur ». Deux fois le même argument pour la même demande. La modale ne
+parle plus que de NOMMER (« un compte vous nomme partout, et vous n'aurez plus à
+redéposer un nom chaque jour ») ; garder la série reste le métier de
+`CompteBanalo`. Les deux portes subsistent, l'argument ne se répète plus.
+
 ⚠️ **LE COMPTE N'EST OFFERT QU'À QUI N'EN A PAS**, et « Plus tard » est en
 `ghost` : le geste de la boîte est de se nommer, un bouton de sortie plein
 deviendrait l'élément le plus fort de la carte. Mesuré : 914 px de contenu dans

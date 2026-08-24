@@ -269,11 +269,15 @@ export default function ChoisirSonNom({
           style={{
             width: "100%",
             marginTop: 6,
-            padding: "9px 11px",
-            fontSize: 15,
+            padding: "11px 12px",
+            fontSize: 16,
             fontWeight: 700,
             borderRadius: 8,
+            // ⚠️ C'EST LUI LE GESTE ATTENDU, donc c'est lui qui porte l'encre et
+            // l'ombre du produit. Sans ça, un champ vide ne pèse rien à côté de
+            // trois pastilles pleines de mots.
             border: `2px solid ${skin.ink}`,
+            boxShadow: `2px 2px 0 ${skin.ink}`,
             background: skin.paper,
             color: skin.ink,
             boxSizing: "border-box",
@@ -295,17 +299,24 @@ export default function ChoisirSonNom({
             onClick={() => setEtat({ ...etat, index: i, libre: "" })}
             style={{
               fontFamily: skin.fontDisplay,
-              fontWeight: 800,
-              fontSize: 13.5,
-              padding: "7px 11px",
+              fontWeight: etat.index === i ? 800 : 700,
+              fontSize: 13,
+              padding: "6px 10px",
               borderRadius: 999,
               cursor: "pointer",
               // Le nom retenu est PLEIN, les autres sont des contours : la même
               // règle que les pastilles de Cinq sur cinq, où une pastille qui
               // parle n'a pas l'air d'une pastille qui se tait.
-              border: `2px solid ${skin.ink}`,
+              //
+              // ⚠️ MAIS UNE PASTILLE QUI SE TAIT NE DOIT PAS PESER PLUS QUE LE
+              // CHAMP. Vu à l'écran : trois pastilles cerclées d'encre à 2 px
+              // écrasaient un champ vide, et la boîte se lisait « choisissez
+              // parmi ceci » alors que le geste attendu est d'écrire. Elles
+              // gardent leur forme, elles perdent leur trait — c'est le champ
+              // qui porte l'encre maintenant.
+              border: etat.index === i ? `2px solid ${skin.ink}` : `1.5px solid ${skin.muted}88`,
               background: etat.index === i ? skin.accent : skin.paper,
-              color: etat.index === i ? "#fff" : skin.ink,
+              color: etat.index === i ? "#fff" : skin.muted,
             }}
             aria-pressed={etat.index === i}
           >
