@@ -59,10 +59,13 @@ import {
   derniereJourneeClose,
   etat as litEtat,
   etatMots,
+  litTableauDuJour,
   type EtatBanalo,
   type EtatMots,
+  type Tableau,
 } from "@/lib/db/banalo";
 import Modale from "@/components/games/Modale";
+import ListeDuTableau from "@/components/games/ListeDuTableau";
 import RepartitionDuJour from "./RepartitionDuJour";
 import ConcentrationDuJour from "./ConcentrationDuJour";
 import CourbeDesScores from "./CourbeDesScores";
@@ -101,6 +104,16 @@ export default function JourneePrecedente({ jour }: { jour: number }) {
   const [ouvert, setOuvert] = useState(false);
   const [nombre, setNombre] = useState<EtatBanalo | null>(null);
   const [mots, setMots] = useState<EtatMots | null>(null);
+  /**
+   * Le tableau ARRÊTÉ de cette journée-là.
+   *
+   * ⚠️ C'EST LA MÊME FONCTION QUE LE TABLEAU DU JOUR, appelée sur une autre
+   * journée : `scrutin_banalo_tableau` prend son jour en paramètre et n'a jamais
+   * su qu'il était « aujourd'hui ». Rien à ajouter en base — et surtout rien à
+   * ajouter qui puisse ÉCRIRE : sur une journée close, inscrire quelqu'un serait
+   * le poser sur une partie qu'il ne peut plus jouer.
+   */
+  const [tableau, setTableau] = useState<Tableau | null>(null);
 
   // Le jeton ne se lit qu'après le montage — même leçon qu'ailleurs : le lire au
   // rendu en créerait un nouveau côté serveur, et l'hydratation le changerait.
@@ -109,6 +122,7 @@ export default function JourneePrecedente({ jour }: { jour: number }) {
     let vivant = true;
     const jeton = monJeton();
     if (!jeton) return;
+    const cle = prog.type === "mots" ? cleTheme(prog.theme) : null;
     if (prog.type === "mots") {
       void etatMots(jeton, precedente, locale, cleTheme(prog.theme)).then((e) => {
         if (vivant) setMots(e);
@@ -118,6 +132,13 @@ export default function JourneePrecedente({ jour }: { jour: number }) {
         if (vivant) setNombre(e);
       });
     }
+    // ⚠️ LA MÊME LANGUE QUE L'ÉTAT, forcément : chez Banalo la foule EST par
+    // langue, et le tableau classe parmi ceux qui ont répondu dans la même. Un
+    // tableau lu dans une autre langue que sa partie montrerait des gens que ce
+    // joueur n'a jamais affrontés.
+    void litTableauDuJour(jeton, precedente, locale, cle).then((tb) => {
+      if (vivant) setTableau(tb);
+    });
     return () => {
       vivant = false;
     };
@@ -211,6 +232,52 @@ export default function JourneePrecedente({ jour }: { jour: number }) {
     </p>
   );
 
+  // LE TABLEAU ARRÊTÉ DE CETTE JOURNÉE-LÀ.
+  //
+  // ⚠️ IL EST DANS LE RÉSUMÉ ET PAS DANS LE TIROIR, contre la règle de hauteur
+  // qui a envoyé le reste du détail derrière un bouton. Deux raisons, et la
+  // seconde décide. La première : c'est du contenu qui CHANGE tous les jours,
+  // et l'écran range le contenu qui bouge en haut, l'annonce qui se répète en
+  // bas. La seconde : demandé explicitement, après deux reproches de terrain
+  // sur des blocs « trop discrets » — mettre derrière un tap ce qu'on vient de
+  // réclamer de voir serait la troisième fois.
+  //
+  // ⚠️ CINQ LIGNES, PAS DIX. La base en rend dix ; celle-ci est une carte de
+  // RELECTURE posée tout en bas d'un écran d'après-partie qui pesait déjà
+  // 2 195 px, et le tableau du JOUR — dix lignes — est six cents pixels plus
+  // haut sur la même page. La coupe et le repêchage de ma ligne vivent dans
+  // `ListeDuTableau`.
+  //
+  // ⚠️ ET C'EST LA TROISIÈME LISTE DE NOMS DE L'ÉCRAN (tablée, tableau du jour,
+  // celle-ci). Ce qui les sépare n'est pas la forme, c'est le CADRE : cette
+  // carte porte un numéro de journée et la phrase « close » juste au-dessus, et
+  // sa liste porte l'effectif de CE jour-là — jamais « aujourd'hui », qui serait
+  // faux ici. Sans ça, deux listes identiques à six cents pixels d'écart se
+  // lisent comme un doublon, exactement ce qui est arrivé au tableau et à la
+  // tablée.
+  const classement =
+    tableau && tableau.lignes.length > 0 ? (
+      <div style={{ marginTop: 14 }}>
+        <GLabel skin={skin}>{t("derniereClassement")}</GLabel>
+        <ListeDuTableau
+          skin={skin}
+          lignes={tableau.lignes}
+          moi={tableau.moi}
+          /* ⚠️ LES DEUX CLÉS SONT ÉCRITES EN CLAIR, une par branche : `t(cle)`
+             échapperait au contrôle de parité i18n. Et les deux formats ne se
+             comptent PAS pareil — une somme de voix d'un côté, une note sur 100
+             de l'autre — donc le tableau ne formate rien lui-même. */
+          score={(n) =>
+            prog.type === "mots"
+              ? t("motsScoreCourt", { n: entier.format(n) })
+              : t("tableau.scoreNombre", { n: note.format(n) })
+          }
+          max={5}
+          effectif={t("derniereInscrits", { n: tableau.inscrits })}
+        />
+      </div>
+    ) : null;
+
   // ⚠️ LE DÉTAIL EST DANS UN TIROIR, PLUS DANS LA PAGE — et c'est une mesure
   // d'écran. L'après-partie faisait 2 551 px, trois écrans de téléphone, sept
   // cartes ; celle-ci en pesait 353 pour un résultat qu'on ne relit pas tous les
@@ -229,6 +296,7 @@ export default function JourneePrecedente({ jour }: { jour: number }) {
         {sujet}
         {score}
         {arrete}
+        {classement}
         <div style={{ marginTop: 12 }}>
           <GBtn skin={skin} variant="ghost" onClick={() => setOuvert(true)}>
             {t("detailBouton")}

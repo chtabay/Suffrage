@@ -1288,6 +1288,34 @@ inscrit de la journée était indiscernable de quelqu'un qui n'a rien déposé,
 l'écran lui reproposait le formulaire et la base répondait « deja » à un joueur
 qui n'avait rien demandé. Trouvé en jouant, pas à la relecture.
 
+**LA JOURNÉE ARRÊTÉE MONTRE SON TABLEAU** (`ListeDuTableau.tsx`, 2026-08-24) —
+demandé tel quel : « quand on affiche l'aperçu de la journée précédente, il
+faudrait y voir le classement des premiers dans la veille, avec sa position
+aussi si on n'est pas dans les 5 premiers ». ⚠️ **AUCUNE MIGRATION** :
+`scrutin_banalo_tableau` prend son jour en paramètre et n'a jamais su qu'il
+était « aujourd'hui ».
+
+⚠️ **CINQ LIGNES ICI, DIX SUR L'ÉCRAN DU JOUR — ET C'EST LA COUPE QUI ÉTAIT LE
+PIÈGE.** La base ne met dans `moi` que le joueur hors de SA tête de dix : à
+cinq, le 7ᵉ est dans `lignes` et disparaîtrait en silence de son propre tableau.
+`ListeDuTableau` le repêche (`lignes.slice(max).find(l => l.moi)`), et c'est
+pour cette règle-là que la liste est sortie en UN exemplaire plutôt que
+recopiée — le chemin qu'avaient pris les trois offres de compte et la règle du
+mot orphelin.
+
+⚠️ **DANS LE RÉSUMÉ, PAS DANS LE TIROIR**, contre la règle de hauteur qui y a
+envoyé le reste du détail. Le contenu qui CHANGE monte ; et surtout, deux
+retours de terrain de la même semaine reprochaient des blocs « trop discrets » —
+mettre derrière un tap ce qu'on vient de réclamer de voir aurait été la
+troisième fois. Mesuré : la page passe de ~2 270 à **2 440 px**.
+
+⚠️ **ET C'EST LA TROISIÈME LISTE DE NOMS DE L'ÉCRAN** (tablée, tableau du jour,
+celle-ci) — le doublon visuel déjà payé entre le tableau et la tablée. Mesuré :
+**1 017 px** séparent les deux tableaux, soit plus d'un écran de téléphone, donc
+ils ne cohabitent jamais dans un même coup d'œil. Ce qui les sépare pour de bon
+est le CADRE : numéro de journée, « cette journée est close », et un effectif au
+PASSÉ (« 23 joueurs avaient laissé leur nom ») — « aujourd'hui » y serait faux.
+
 ⚠️ **LE TABLEAU NE PORTE AUCUN NUMÉRO DE RANG, et il ne montre que DIX lignes.**
 Le rang affiché serait soit celui parmi les INSCRITS — « 1er » alors que trente
 joueurs ont fait mieux sans s'inscrire, c'est-à-dire un mensonge —, soit le rang

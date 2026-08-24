@@ -2855,6 +2855,8 @@
     },
     "derniereTitre": "Votre dernière journée",
     "derniereClose": "Cette journée est close : ces chiffres ne bougeront plus.",
+    "derniereClassement": "Le tableau de cette journée",
+    "derniereInscrits": "{n, plural, one {# joueur avait laissé son nom} other {# joueurs avaient laissé leur nom}}",
     "tablee": {
       "metaTitle": "Rejoindre un groupe — Banalo du jour",
       "titre": "Votre groupe",

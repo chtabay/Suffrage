@@ -2855,6 +2855,8 @@
     },
     "derniereTitre": "Your last day",
     "derniereClose": "That day is closed: these numbers will not move again.",
+    "derniereClassement": "That day's board",
+    "derniereInscrits": "{n, plural, one {# player had left their name} other {# players had left their names}}",
     "tablee": {
       "metaTitle": "Join a group — Daily Banalo",
       "titre": "Your group",

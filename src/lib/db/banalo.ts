@@ -515,15 +515,21 @@ export async function etatMots(
 /**
  * Une ligne du tableau : un nom et un score, jamais un mot.
  *
- * ⚠️ `index` ET `nom` SONT EXCLUSIFS, et c'est la règle du jeu : un nom PRIS DANS
- * LA LISTE FERMÉE se stocke par son index (`index`), un nom LIBRE n'existe que
- * derrière un compte (`nom`). La base le tient par une contrainte, pas par du
- * code d'écran — voir `20260823-banalo-noms-et-tableau.sql`.
+ * ⚠️ `index` ET `nom` SONT EXCLUSIFS, et c'est la règle du jeu : un nom pris dans
+ * la liste PROPOSÉE se stocke par son index — c'est ce qui le garde TRADUIT pour
+ * les autres lecteurs du tableau — là où un nom écrit est figé dans sa langue
+ * (`nom`). La base le tient par une contrainte, pas par du code d'écran.
+ *
+ * ⚠️ LE TEXTE LIBRE N'EXIGE PLUS DE COMPTE depuis le 24/08
+ * (`20260913-jeux-nom-libre-sans-compte.sql`) : les joueurs refusaient les noms
+ * tout faits et ne figuraient nulle part. Un nom écrit sans compte ne vaut que
+ * pour sa journée ; avec un compte, c'est le pseudo du compte qui nomme, résolu
+ * à la lecture, et `nom` reste vide.
  */
 export interface LigneTableau {
-  /** Le rang du nom dans le vocabulaire fermé, ou `null` si le nom est libre. */
+  /** Le rang du nom dans la liste proposée, ou `null` si le nom a été écrit. */
   index: number | null;
-  /** Le nom libre d'un joueur connecté, ou `null` si le nom vient de la liste. */
+  /** Le nom écrit, ou `null` si le nom vient de la liste — ou d'un pseudo de compte. */
   nom: string | null;
   score: number;
   moi: boolean;
@@ -616,8 +622,12 @@ export async function litTableauDuJour(
  * Le résultat d'un dépôt de nom, tel que la base le rend.
  *
  * `pris` : quelqu'un porte déjà ce nom aujourd'hui. `deja` : ce joueur a déjà
- * déposé. `compte` : du texte libre sans compte — c'est LA règle, et elle est
- * tenue par une contrainte de table autant que par la fonction.
+ * déposé.
+ *
+ * ⚠️ `compte` NE PEUT PLUS ARRIVER SUR CES CHEMINS depuis le 24/08 : il disait
+ * « du texte libre sans compte », qui était LA règle et ne l'est plus. Le
+ * vocabulaire est gardé — la base peut encore le rendre ailleurs — et l'écran le
+ * replie sur « panne », faute d'avoir quoi que ce soit d'utile à en dire.
  */
 /**
  * ⚠️ LE VOCABULAIRE EST CELUI DU PSEUDO DE COMPTE, parce que le dépôt passe

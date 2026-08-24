@@ -4,23 +4,29 @@
 //
 // ══ LA RÈGLE ═══════════════════════════════════════════════════════════════
 //
-// Pour figurer au tableau il faut SOIT un compte Placet — et alors on écrit son
-// nom librement — SOIT déposer un nom PRIS DANS LA LISTE FERMÉE
-// (`src/content/banalo/noms.ts`, 600 noms par langue). Qui ne fait ni l'un ni
-// l'autre joue normalement, voit son rang et son centile sur sa carte de score,
-// et n'apparaît pas ici.
+// Pour figurer au tableau il faut DÉPOSER UN NOM : le pseudo de son compte
+// Placet si on en a un, sinon un nom qu'on ÉCRIT — ou qu'on prend dans la liste
+// que le jeu propose (`src/content/banalo/noms.ts`, 600 noms par langue). Qui ne
+// dépose rien joue normalement, voit son rang et son centile sur sa carte de
+// score, et n'apparaît pas ici.
 //
-// ⚠️ CE N'EST PAS UNE PRÉCAUTION DE FAÇADE, C'EST CE QUI REND LE TABLEAU
-// POSSIBLE. Un champ de pseudo sur un classement public n'est pas un champ
-// d'identité : c'est un canal de publication d'une ligne, adressé à tous les
-// joueurs du jour. Par gravité réelle : du harcèlement visant quelqu'un de
-// précis (« Marie du CM2 pue ») ; des données personnelles déposées sans malice
-// par un enfant, sur un jeu dont la politique déclare une tranche d'âge
-// « enfant » ; puis seulement les insultes. ⚠️ Un filtre de gros mots ne règle
-// que le troisième. La sortie n'est donc pas de filtrer le texte libre, c'est de
-// ne pas en ouvrir — sauf là où quelqu'un en répond, c'est-à-dire derrière un
-// compte : un jeton anonyme ne se bannit pas, on efface son `localStorage` et on
-// revient.
+// ⚠️ LE TEXTE LIBRE SANS COMPTE A ÉTÉ FERMÉ, PUIS ROUVERT LE 24/08. Le
+// raisonnement qui le fermait n'est pas réfuté — un champ de pseudo public est
+// un canal de publication, un filtre de gros mots n'attrape pas « Marie du CM2
+// pue », un jeton anonyme ne se bannit pas — il est SURCLASSÉ : la liste fermée
+// n'était pas une friction, c'était un refus, et le tableau restait vide. Tout
+// est écrit dans `ChoisirSonNom` et dans
+// `20260913-jeux-nom-libre-sans-compte.sql`, avec la prise de Régie qui permet
+// d'en retirer un. La politique de modération est REPORTÉE, pas décidée.
+//
+// ⚠️ ON N'Y ENTRE QUE PAR UN GESTE. Personne n'est inscrit sans l'avoir voulu :
+// c'est ce qui rend acceptable d'afficher le dernier autant que le premier,
+// puisque le dernier n'y est que s'il a choisi d'y être.
+//
+// ⚠️ ET IL NE MONTRE JAMAIS LES MOTS. Un nom et un score. La garde du format
+// « mots » — ne jamais rendre à un joueur le mot d'un autre — n'est pas entamée
+// d'un pouce, et le tableau n'est pas la porte dérobée par laquelle elle
+// tomberait.
 //
 // ⚠️ ET LE COMPTE CONDITIONNE LE NOM, JAMAIS LA PRÉSENCE, parce que c'est
 // mesuré : la base compte 2 comptes rattachés contre 11 joueurs sur la
@@ -43,6 +49,7 @@ import type { GameSkin } from "@/lib/games/skin";
 import { GBtn, GCard, GLabel } from "@/components/games/ui";
 import { nomDe } from "@/content/banalo/noms";
 import ChoisirSonNom, { NOM_VIERGE, choixDeNom, type EtatNom } from "./ChoisirSonNom";
+import ListeDuTableau from "./ListeDuTableau";
 import type { ChoixDeNom, DepotNom, Tableau } from "@/lib/db/banalo";
 
 
@@ -212,94 +219,24 @@ export default function TableauDuJour({
 
   const pret = choixDeNom(nom) !== null;
 
-  const ligne = (nom: string, score: number, moi: boolean, cle: string) => (
-    <li
-      key={cle}
-      style={{
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "baseline",
-        gap: 12,
-        padding: "5px 8px",
-        borderRadius: 6,
-        // ⚠️ MA LIGNE EST TEINTÉE, PAS ENCADRÉE. Un cadre au milieu d'une liste
-        // fait un trou rectangulaire — la même leçon que les barres des deux
-        // bandes, où le repère est une barre pleine et jamais un contour.
-        background: moi ? `${skin.accent}1A` : "transparent",
-        fontWeight: moi ? 800 : 600,
-      }}
-    >
-      <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-        {nom}
-        {moi ? <span style={{ color: skin.accent, fontWeight: 800 }}> · {t("vous")}</span> : null}
-      </span>
-      <span
-        style={{
-          flex: "none",
-          fontFamily: skin.fontDisplay,
-          fontWeight: 800,
-          fontVariantNumeric: "tabular-nums",
-        }}
-      >
-        {enMots(score)}
-      </span>
-    </li>
-  );
-
   return (
     <GCard skin={skin} padding={18}>
       <GLabel skin={skin}>{t("titre")}</GLabel>
 
-      {tableau.lignes.length > 0 ? (
-        <>
-          {/* ⚠️ UNE VRAIE LISTE ORDONNÉE, et ma ligne lointaine est DEHORS. Un
-              lecteur d'écran annonce le numéro de chaque élément : dans la tête
-              de liste, « 3ᵉ élément » est vrai. Ma ligne, elle, peut être la
-              34ᵉ du classement — la laisser dans le même `ol` la ferait
-              annoncer « 12ᵉ élément », c'est-à-dire un rang faux, exactement le
-              chiffre que ce tableau refuse d'imprimer. */}
-          <ol
-            style={{
-              display: "grid",
-              gap: 2,
-              margin: "10px 0 0",
-              padding: 0,
-              listStyle: "none",
-              fontSize: 14.5,
-            }}
-          >
-            {tableau.lignes.map((l, i) =>
-              ligne(l.index !== null ? nomDe(l.index, locale) : (l.nom ?? ""), l.score, l.moi, `l${i}`),
-            )}
-          </ol>
-          {/* ⚠️ MA LIGNE SORT MÊME HORS DE LA TÊTE DE LISTE, précédée de trois
-              points : un tableau où l'on ne se trouve pas est un tableau qui
-              parle des autres. Les points disent qu'il manque des lignes entre
-              les deux, sinon la mienne se lirait comme la suivante. */}
-          {tableau.moi ? (
-            <ul style={{ display: "grid", gap: 2, margin: 0, padding: 0, listStyle: "none", fontSize: 14.5 }}>
-              <li aria-hidden style={{ color: skin.muted, padding: "2px 8px", letterSpacing: "0.2em" }}>
-                ···
-              </li>
-              {ligne(
-                tableau.moi.index !== null ? nomDe(tableau.moi.index, locale) : (tableau.moi.nom ?? ""),
-                tableau.moi.score,
-                true,
-                "moi",
-              )}
-            </ul>
-          ) : null}
-          {/* ⚠️ L'EFFECTIF PORTE L'ÉCHELLE, comme sous les deux bandes. « 1er »
-              d'une liste de vingt ne veut pas dire la même chose selon que trois
-              joueurs ou trois mille ont déposé un nom. Et il dit du même coup
-              que le tableau ne compte QUE les inscrits — ce qui explique
-              pourquoi il ne porte aucun numéro de rang : le vrai rang du joueur,
-              parmi TOUS les joueurs du jour, est sur sa carte de score. */}
-          <p style={{ margin: "10px 0 0", fontSize: 12.5, color: skin.muted, lineHeight: 1.45 }}>
-            {t("inscrits", { n: tableau.inscrits })}
-          </p>
-        </>
-      ) : null}
+      {/* ⚠️ DIX LIGNES ICI, CINQ SUR LA JOURNÉE ARRÊTÉE. C'est l'écran de la
+          partie : le joueur vient d'y jouer, la liste est ce qu'il est venu
+          voir. `JourneePrecedente` est une carte de relecture, elle en montre
+          moins. La règle de coupe — et le repêchage de ma ligne quand elle
+          tombe hors de la tête coupée — vit dans `ListeDuTableau`, en un seul
+          endroit. */}
+      <ListeDuTableau
+        skin={skin}
+        lignes={tableau.lignes}
+        moi={tableau.moi}
+        score={enMots}
+        max={10}
+        effectif={t("inscrits", { n: tableau.inscrits })}
+      />
 
       {tableau.inscrit && tableau.bloque ? (
         // ⚠️ INSCRIT, MAIS RETIRÉ DE LA LISTE. Sans cette phrase, le joueur se

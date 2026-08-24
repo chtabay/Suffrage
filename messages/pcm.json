@@ -2855,6 +2855,8 @@
     },
     "derniereTitre": "Your last day",
     "derniereClose": "Dat day don close: dis numbers no go change again.",
+    "derniereClassement": "Di board of dat day",
+    "derniereInscrits": "{n, plural, one {# player don leave im name} other {# players don leave dem name}}",
     "tablee": {
       "metaTitle": "Join group — Banalo of di Day",
       "titre": "Your group",
