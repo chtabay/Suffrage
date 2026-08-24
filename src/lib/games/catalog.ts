@@ -11,6 +11,7 @@ import {
   FANTOME_SKIN,
   PAYS_SKIN,
   RODEURS_SKIN,
+  SOUPE_SKIN,
   UNANIMO_SKIN,
   type GameSkin,
 } from "./skin";
@@ -141,6 +142,30 @@ export const GAMES: GameEntry[] = [
     route: "/games/pays",
     bestWith: "1",
     minutes: "3",
+  },
+  {
+    // LE SEUL JEU DU CATALOGUE QUI NE S'ARRÊTE PAS TOUT SEUL, et il est rangé
+    // au quotidien malgré son nom de rayon. La `famille` classe par OCCASION,
+    // pas par cadence — « seul, tout de suite, sans réunir personne » — et
+    // c'est exactement la sienne. Il n'a en revanche PAS de journée : aucun
+    // puzzle du jour, aucune foule à comparer, donc pas de place du jour sur sa
+    // vignette (`GamesHome` ne l'accorde qu'à `banalo-jour` et `pays`).
+    //
+    // ⚠️ `minutes` EST UNE MISE, PAS UNE DURÉE. Un incrémental ne finit pas : le
+    // chiffre annonce ce qu'il faut y mettre pour voir la deuxième moitié du jeu
+    // — mesuré, une quarantaine d'agitations pour que la meilleure molécule
+    // paraisse, puis l'atelier. Annoncer « ∞ » serait honnête et inutilisable.
+    slug: "soupe",
+    famille: "quotidien",
+    status: "live",
+    // 🧫 la boîte de culture : un rond dans un cercle, lisible à 16 px, et c'est
+    // littéralement le récipient du jeu. 🧪 a été écarté — l'éprouvette est un
+    // trait fin qui disparaît en vignette, et elle dit « chimie scolaire ».
+    emoji: "🧫",
+    skin: SOUPE_SKIN,
+    route: "/games/soupe",
+    bestWith: "1",
+    minutes: "10",
   },
   {
     // ⚠️ LE SEUL JEU DU CATALOGUE SANS PLAFOND DE JOUEURS, et `bestWith` doit
