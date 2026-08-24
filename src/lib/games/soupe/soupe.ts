@@ -221,6 +221,24 @@ export function agiter(
     const morceaux = fragments(grille);
     if (morceaux.length > 1) bilan.ruptures += morceaux.length - 1;
 
+    /**
+     * ⚠️ UNE MOLÉCULE ROMPUE DONNE DES MOLÉCULES NEUVES, PAS DES JUMELLES.
+     *
+     * Tous les morceaux héritaient de l'identifiant de leur mère. Deux objets
+     * distincts portaient donc le même nom, et les conséquences n'étaient pas
+     * cosmétiques : `prelever` filtre par identifiant, si bien que garder l'une
+     * SUPPRIMAIT SILENCIEUSEMENT l'autre ; et l'écran, qui liste les molécules
+     * par identifiant, se retrouvait avec des clés en double — plus rien ne se
+     * gardait passé une vingtaine de secousses, sans la moindre erreur.
+     *
+     * Trouvé en jouant au navigateur, pas en testant. Mesuré ensuite : le
+     * premier doublon apparaît vers la seizième secousse, c'est-à-dire en plein
+     * dans la partie.
+     *
+     * Le premier morceau garde l'identifiant de sa mère — c'est le même objet
+     * qui continue, amputé — et les suivants sont de nouvelles molécules.
+     */
+    let premier = true;
     for (const morceau of morceaux) {
       if (morceau.length === 1) {
         // Un atome seul n'est plus une molécule : il retourne au sac.
@@ -228,7 +246,8 @@ export function agiter(
         continue;
       }
       const avecCode = morceau.map(({ r, c }) => ({ r, c, code: caseA(grille, r, c) as Code }));
-      survivantes.push(molecule(mol.id, avecCode));
+      survivantes.push(molecule(premier ? mol.id : prochainId++, avecCode));
+      premier = false;
     }
   }
 

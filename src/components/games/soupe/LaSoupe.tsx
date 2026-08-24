@@ -2,14 +2,49 @@
 
 // L'ÉCRAN DE LA SOUPE — le seul, pour toute la partie.
 //
-// LA BOUCLE, et rien d'autre : j'agite → quelque chose se forme → je garde ce
+// LA BOUCLE, et rien d'autre : je secoue → quelque chose se forme → je garde ce
 // qui me plaît → j'en fais un atelier. Le joueur ne pose jamais un atome à la
 // main ; il choisit AVEC QUELLE FORCE il secoue, et le monde s'assemble seul.
 //
 // ⚠️ CE COMPOSANT NE DÉCIDE RIEN DE LA RÈGLE. Il lit `ecran(partie)` pour savoir
 // quels panneaux existent, appelle les gestes de `lib/games/soupe/partie`, et
-// redessine. Toute règle écrite ici serait une règle que les 73 tests du dépôt
+// redessine. Toute règle écrite ici serait une règle que les tests du dépôt
 // d'origine ne verraient pas.
+//
+// ─────────────────────────────────────────────────────────────────────────────
+// CE QUE LE PREMIER PASSAGE DE TEST A RENVOYÉ, ET CE QUI EN DÉCOULE
+//
+// « C'est assez fascinant à voir, mais les explications sont nébuleuses. J'ai du
+// mal à savoir ce qui est attendu, ce qui va être pertinent. Certains mots ne
+// sont pas directs (ex : gabarit). Je n'ai pas vu où les atomes étaient pris
+// pour la production de la machine 2, ni pourquoi on est bloqué ou pas, ni quel
+// est l'objectif. »
+//
+// Trois défauts distincts, et le deuxième était le plus grave :
+//
+// 1. LE VOCABULAIRE ÉTAIT CELUI DU CODE. « gabarit », « rendement », « réserve »,
+//    « cohésion », « C / N / S » : des mots justes pour qui a écrit la règle, et
+//    opaques pour qui joue. L'écran dit désormais modèle, énergie, solidité,
+//    carbone / azote / soufre. Les noms internes n'ont pas bougé — c'est la
+//    traduction qui change, pas la règle.
+//
+// 2. ⚠️ LE STOCK D'ATOMES N'ÉTAIT AFFICHÉ NULLE PART AU DEUXIÈME ACTE. Le
+//    panneau de la soupe montrait « Libres — C 5 · N 0 · S 5 » ; il se referme à
+//    l'ouverture de l'atelier, et la seule ressource qui décide si la production
+//    tourne ou s'arrête disparaissait avec lui. « Il manque 2 N » annonçait un
+//    DÉFICIT sans jamais montrer le SOLDE : impossible de savoir d'où sortent
+//    les atomes, ni pourquoi on est bloqué. D'où le magasin ci-dessous, qui
+//    montre possédé/requis pour chaque atome du modèle.
+//
+// 3. AUCUN OBJECTIF N'ÉTAIT ÉCRIT. Un incrémental qui ne dit pas où il va est
+//    une machine à regarder, pas un jeu. L'objectif est chiffré (400 d'énergie),
+//    affiché avec sa progression, et il coïncide avec la fin de ce qui est écrit.
+//
+// S'y ajoute une LIGNE DE CONSEIL, qui dit à chaque instant ce qu'on attend du
+// joueur. C'est le dispositif le moins cher qui réponde à « je ne sais pas ce
+// qui est attendu » : une phrase, dérivée de l'état, jamais une aide générale
+// qu'on saute.
+// ─────────────────────────────────────────────────────────────────────────────
 //
 // LE PARI STRUCTUREL, ET CE QU'IL DEVIENT SUR UN TÉLÉPHONE
 //
@@ -22,17 +57,18 @@
 // (`overflow: hidden`, deux colonnes, tout tient dans un `100dvh`). Sur un
 // téléphone, ça se retourne contre elle : deux panneaux empilés à 50 % de
 // hauteur chacun donnent deux fenêtres de trois centimètres qui défilent
-// séparément — c'est exactement le défaut qui a motivé ce portage. Ici la page
-// défile comme toutes les pages de Placet, et c'est le BUDGET DE PANNEAUX qui
-// porte la thèse. Il n'a jamais eu besoin du `100dvh` : ce qui garde l'écran
-// lisible, c'est que rien ne s'ajoute sans que quelque chose parte.
+// séparément. Ici la page défile comme toutes les pages de Placet, et c'est le
+// BUDGET DE PANNEAUX qui porte la thèse. Il n'a jamais eu besoin du `100dvh` :
+// ce qui garde l'écran lisible, c'est que rien ne s'ajoute sans que quelque
+// chose parte.
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import GameShell from "@/components/games/GameShell";
+import AideModale from "@/components/games/Modale";
 import { GBtn, GCard, GLabel } from "@/components/games/ui";
 import { SOUPE_SKIN as skin } from "@/lib/games/skin";
 import { CODES, caseA } from "@/lib/games/soupe/grille";
-import { presenter } from "@/lib/games/soupe/atelier";
+import { coutEnAtomes, peutBatir, presenter } from "@/lib/games/soupe/atelier";
 import { FORCES, cellulesDe } from "@/lib/games/soupe/soupe";
 import {
   PLACES_COLLECTION,
@@ -50,14 +86,13 @@ import {
   rejeterPiece,
   ticLatelier,
 } from "@/lib/games/soupe/partie";
-import { peutBatir } from "@/lib/games/soupe/atelier";
 import type { Code, EvenementJournal, Grille, Partie, Piece } from "@/lib/games/soupe/types";
 
 /**
  * LES COULEURS DE LA MATIÈRE — le seul endroit du jeu où la couleur porte du sens.
  *
  * Le joueur n'a aucun code à retenir : le milieu affiche ce qu'il paie avec ces
- * mêmes carrés, en haut de l'écran. Il voit du cyan sur une molécule, il sait.
+ * mêmes carrés, en haut de l'écran. Il voit du bleu sur une molécule, il sait.
  */
 const TEINTE: Record<Code, string> = {
   C: "#33454B",
@@ -65,8 +100,8 @@ const TEINTE: Record<Code, string> = {
   S: "#D2921F",
 };
 
-/** Le produit total au-delà duquel le deuxième acte n'a plus rien à dire. */
-const HORIZON = 400;
+/** L'objectif, et la fin de ce qui est écrit. Les deux coïncident, et c'est dit. */
+const OBJECTIF = 400;
 
 /** Un tour d'atelier par seconde. Estimation honnête, jamais mesurée. */
 const BATTEMENT = 1000;
@@ -81,11 +116,25 @@ function signe(x: number): string {
 }
 
 /**
+ * LA SOLIDITÉ EN MOTS, parce qu'un nombre nu ne dit rien.
+ *
+ * « tient 1,8 » n'apprend rien à personne : 1,8 par rapport à quoi ? Les valeurs
+ * observées vont de 0,8 (un dimère de soufre) à 2,9 (un bloc de carbone), et
+ * c'est cette échelle-là qu'il faut donner. Le nombre reste dans l'infobulle
+ * pour qui veut comparer finement.
+ */
+function solidite(cohesion: number): "fragile" | "moyenne" | "solide" {
+  if (cohesion < 1.5) return "fragile";
+  if (cohesion < 2.2) return "moyenne";
+  return "solide";
+}
+
+/**
  * LA FORME D'UNE MOLÉCULE, recadrée sur ce qu'elle occupe.
  *
  * ⚠️ `aria-label` PORTE LE VISAGE, pas la forme. Un lecteur d'écran ne peut rien
- * faire d'une grille de carrés ; le visage — « CCN » — est justement le nom que
- * le jeu donne à cette forme-là, et c'est sur lui que porte tout le reste.
+ * faire d'une grille de carrés ; le visage — « CCN » — est le nom que la règle
+ * donne à cette forme-là.
  */
 function Forme({ grille, cote = 13, titre }: { grille: Grille; cote?: number; titre?: string }) {
   const cellules = cellulesDe(grille);
@@ -102,12 +151,7 @@ function Forme({ grille, cote = 13, titre }: { grille: Grille; cote?: number; ti
       cases.push(
         <div
           key={`${r}-${c}`}
-          style={{
-            width: cote,
-            height: cote,
-            borderRadius: 2,
-            background: code ? TEINTE[code] : "transparent",
-          }}
+          style={{ width: cote, height: cote, borderRadius: 2, background: code ? TEINTE[code] : "transparent" }}
         />,
       );
     }
@@ -128,10 +172,7 @@ function Chaine({ motif, cote = 11 }: { motif: string; cote?: number }) {
   return (
     <span style={{ display: "inline-grid", gridTemplateColumns: `repeat(${motif.length}, ${cote}px)`, gap: 2 }}>
       {[...motif].map((code, i) => (
-        <span
-          key={i}
-          style={{ width: cote, height: cote, borderRadius: 2, background: TEINTE[code as Code] }}
-        />
+        <span key={i} style={{ width: cote, height: cote, borderRadius: 2, background: TEINTE[code as Code] }} />
       ))}
     </span>
   );
@@ -154,13 +195,15 @@ function Chiffre({ children, teinte }: { children: React.ReactNode; teinte?: str
   );
 }
 
+const ROUGE = "#A2402F";
+
 export default function LaSoupe() {
   const t = useTranslations("Soupe");
+  const [regles, setRegles] = useState(false);
 
   // ⚠️ LA GRAINE EST TIRÉE APRÈS LE MONTAGE, jamais au premier rendu. Un
   // `Math.random()` dans l'état initial donne une valeur au serveur et une autre
-  // au navigateur : React signale l'écart en hydratation, et la partie affichée
-  // n'est pas celle que le serveur a rendue.
+  // au navigateur : React signale l'écart en hydratation.
   const [partie, setPartie] = useState<Partie | null>(null);
   const [derniereForce, setDerniereForce] = useState<number | null>(null);
   useEffect(() => {
@@ -169,7 +212,7 @@ export default function LaSoupe() {
 
   // L'ATELIER BAT TOUT SEUL. C'est ce qui distingue le deuxième acte du premier :
   // au premier, rien n'arrive sans le joueur ; au second, tout arrive sans lui,
-  // et il ne lui reste qu'à alimenter et à juger.
+  // et il ne lui reste qu'à l'alimenter et à juger.
   const ouvert = partie?.panneaux.includes("atelier") ?? false;
   const battement = useRef<ReturnType<typeof setInterval> | null>(null);
   useEffect(() => {
@@ -187,9 +230,9 @@ export default function LaSoupe() {
 
   const molecules = useMemo(() => {
     if (!partie) return [];
-    // Triées par ce qu'elles rapportent : l'œil compare au lieu de chercher.
-    // La soupe rebat ses molécules à chaque agitation, et un ordre qui saute
-    // rendrait la comparaison impossible.
+    // Triées par ce qu'elles rapportent : l'œil compare au lieu de chercher. La
+    // soupe rebat ses molécules à chaque secousse, et un ordre qui saute rendrait
+    // la comparaison impossible.
     return [...moleculesVisibles(partie)].sort(
       (a, b) => (b.rendement ?? 0) - (a.rendement ?? 0) || b.taille - a.taille,
     );
@@ -201,12 +244,33 @@ export default function LaSoupe() {
   const manques = cequiManque(partie);
   const places = PLACES_COLLECTION - partie.collection.length;
   const pleine = collectionPleine(partie);
+  const gabarit = partie.atelier.gabarit;
+  const vue = gabarit ? presenter(gabarit, partie.milieu) : null;
+  const nomAtome = (code: Code) => (code === "C" ? t("atomeC") : code === "N" ? t("atomeN") : t("atomeS"));
+
+  /**
+   * CE QU'ON ATTEND DU JOUEUR, MAINTENANT.
+   *
+   * Une seule phrase, dérivée de l'état. Répond au reproche le plus direct du
+   * premier test — « j'ai du mal à savoir ce qui est attendu » — là où une aide
+   * générale ne répond à rien, puisqu'on la saute.
+   */
+  function conseil(): string {
+    if (partie!.acte === 1) {
+      if (partie!.soupe.agitations === 0) return t("conseilDebut");
+      if (peutOuvrirLatelier(partie!)) return t("conseilLancer");
+      if (partie!.collection.length === 0 && molecules.some((m) => (m.rendement ?? 0) > 0)) {
+        return t("conseilGarder");
+      }
+      return t("conseilChercher");
+    }
+    if (manques.length === 0) return t("conseilTourne");
+    return manques.some((m) => m.abordable) ? t("conseilRacheter") : t("conseilAttendre");
+  }
 
   // ── Le milieu, en en-tête ────────────────────────────────────────────────
-  // Il tient en une ligne — ce que le monde paie — et reste visible quel que
-  // soit l'acte, puisque c'est lui qui donne leur valeur à toutes les molécules.
   const enTeteMilieu = (
-    <GCard skin={skin} padding={13} style={{ marginBottom: 14 }}>
+    <GCard skin={skin} padding={13} style={{ marginBottom: 12 }}>
       <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
         <span style={{ fontFamily: skin.fontDisplay, fontWeight: 800, fontSize: 16 }}>{t("milieuNom")}</span>
         <span style={{ fontSize: 13, color: skin.muted }}>{t("recherche")}</span>
@@ -224,14 +288,44 @@ export default function LaSoupe() {
             }}
           >
             <Chaine motif={m.motif} />
-            <span style={{ fontSize: 13, fontWeight: 800, color: m.valeur > 0 ? skin.good : "#A2402F" }}>
+            <span style={{ fontSize: 13, fontWeight: 800, color: m.valeur > 0 ? skin.good : ROUGE }}>
               {signe(m.valeur)}
             </span>
           </span>
         ))}
       </div>
-      <p style={{ margin: "8px 0 0", fontSize: 13, color: skin.muted, maxWidth: "60ch" }}>{t("milieuQuoi")}</p>
+      <p style={{ margin: "8px 0 0", fontSize: 13, color: skin.muted, maxWidth: "62ch", lineHeight: 1.45 }}>
+        {t("milieuQuoi")}
+      </p>
+      <div style={{ marginTop: 10 }}>
+        <GBtn skin={skin} size="sm" variant="ghost" onClick={() => setRegles(true)}>
+          {t("commentJouer")}
+        </GBtn>
+      </div>
     </GCard>
+  );
+
+  // LA LIGNE DE CONSEIL. Pleine largeur, au-dessus des panneaux : c'est la
+  // première chose qu'on lit en arrivant et après chaque geste.
+  const ligneConseil = (
+    <div
+      role="status"
+      style={{
+        display: "flex",
+        alignItems: "flex-start",
+        gap: 9,
+        marginBottom: 14,
+        padding: "10px 13px",
+        borderRadius: skin.radius,
+        border: `2px solid ${skin.accent}`,
+        background: `${skin.accent}12`,
+        fontSize: 14,
+        lineHeight: 1.45,
+      }}
+    >
+      <span aria-hidden style={{ fontWeight: 800, color: skin.accent }}>→</span>
+      <span>{conseil()}</span>
+    </div>
   );
 
   // ── Le panneau de la soupe ───────────────────────────────────────────────
@@ -249,8 +343,11 @@ export default function LaSoupe() {
         ))}
       </div>
 
-      {/* LES TROIS FORCES. Chaque bouton EST une agitation : le geste du premier
-          acte tient dans le choix de l'intensité, rien d'autre. */}
+      {/* LES TROIS FORCES. Chaque bouton EST une secousse : le geste du premier
+          acte tient dans le choix de l'intensité, rien d'autre.
+          ⚠️ `1 1 0` ET `minWidth: 0`, PAS `1 1 30%`. Vu sur un téléphone de
+          390 px : à 30 % de base, « Battre » passait à la ligne et la commande du
+          premier acte se lisait comme deux commandes. */}
       <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 12 }}>
         {FORCES.map((f) => (
           <GBtn
@@ -259,11 +356,6 @@ export default function LaSoupe() {
             size="lg"
             variant={derniereForce === f.force ? "primary" : "ghost"}
             onClick={() => agiter(f.force)}
-            // ⚠️ `1 1 0` ET `minWidth: 0`, PAS `1 1 30%`. Vu sur un téléphone de
-            // 390 px : à 30 % de base, « Battre » passait à la ligne et la
-            // commande du premier acte se lisait comme deux commandes — deux
-            // forces d'un côté, une orpheline en dessous. À base zéro, les trois
-            // se partagent la largeur à égalité, ce qu'elles sont.
             style={{ flex: "1 1 0", minWidth: 0, padding: "15px 6px" }}
           >
             {f.force === 1 ? t("forceRemuer") : f.force === 2.5 ? t("forceSecouer") : t("forceBattre")}
@@ -322,6 +414,14 @@ export default function LaSoupe() {
     </GCard>
   );
 
+  /** Met un événement du journal en mots — à chaque rendu, donc dans la langue du moment. */
+  function raconter(e: EvenementJournal): string {
+    if (e.quoi === "preleve") return t("journalPreleve", { n: e.rendement });
+    if (e.quoi === "rejete") return t("journalRejete");
+    if (e.quoi === "fonde") return t("journalFonde", { n: e.rendement });
+    return t("journalGabarit", { perdues: e.perdues });
+  }
+
   // ── Le panneau de la collection ──────────────────────────────────────────
   const panneauCollection = (
     <GCard skin={skin} key="collection">
@@ -351,7 +451,8 @@ export default function LaSoupe() {
 
       <div style={{ display: "flex", flexWrap: "wrap", gap: 9, marginTop: 12 }}>
         {partie.collection.map((piece: Piece) => {
-          const estGabarit = partie.atelier.gabarit?.visage === piece.visage;
+          const estGabarit = gabarit?.visage === piece.visage;
+          const paie = (piece.rendement ?? 0) > 0;
           return (
             <div
               key={piece.piece}
@@ -361,39 +462,42 @@ export default function LaSoupe() {
                 alignItems: "center",
                 gap: 6,
                 padding: "10px 11px",
-                minWidth: 108,
+                minWidth: 124,
                 background: skin.paper,
-                border: `2px solid ${(piece.rendement ?? 0) > 0 ? skin.good : `${skin.ink}22`}`,
+                border: `2px solid ${paie ? skin.good : `${skin.ink}22`}`,
                 borderRadius: 10,
               }}
+              title={`${piece.taille} atomes · ${t("solidite")} ${nb(piece.cohesion)}`}
             >
               <Forme grille={piece.grille} titre={piece.visage} />
-              <Chiffre teinte={(piece.rendement ?? 0) > 0 ? skin.good : undefined}>
-                {piece.rendement ? t("parTour", { n: signe(piece.rendement) }) : t("sterile")}
+              <Chiffre teinte={paie ? skin.good : undefined}>
+                {paie ? t("parTour", { n: signe(piece.rendement ?? 0) }) : t("sterile")}
               </Chiffre>
-              <Chiffre>{t("tient", { n: nb(piece.cohesion) })}</Chiffre>
+              <Chiffre>
+                {t("solidite")} : {t(solidite(piece.cohesion))}
+              </Chiffre>
 
-              {partie.acte === 1 && (piece.rendement ?? 0) > 0 ? (
+              {partie.acte === 1 && paie ? (
                 <GBtn
                   skin={skin}
                   size="sm"
                   variant="accent"
                   onClick={() => setPartie((p) => (p ? ouvrirLatelier(p, piece.piece) : p))}
                 >
-                  {t("fonderIci")}
+                  {t("produireCelleCi")}
                 </GBtn>
               ) : null}
-              {partie.acte === 2 && (piece.rendement ?? 0) > 0 && !estGabarit ? (
+              {partie.acte === 2 && paie && !estGabarit ? (
                 <GBtn
                   skin={skin}
                   size="sm"
                   variant="ghost"
                   onClick={() => setPartie((p) => (p ? changerGabarit(p, piece.piece) : p))}
                 >
-                  {t("gabarit")}
+                  {t("produireALaPlace")}
                 </GBtn>
               ) : null}
-              {estGabarit ? <Chiffre teinte={skin.accent}>{t("enProduction")}</Chiffre> : null}
+              {estGabarit ? <Chiffre teinte={skin.accent}>— {t("enProduction")} —</Chiffre> : null}
 
               <button
                 type="button"
@@ -419,14 +523,7 @@ export default function LaSoupe() {
 
       {partie.journal.length > 0 ? (
         <ul
-          style={{
-            listStyle: "none",
-            padding: 0,
-            margin: "14px 0 0",
-            fontSize: 12,
-            color: skin.muted,
-            lineHeight: 1.6,
-          }}
+          style={{ listStyle: "none", padding: 0, margin: "14px 0 0", fontSize: 12, color: skin.muted, lineHeight: 1.6 }}
         >
           {partie.journal.slice(-4).map((e: EvenementJournal, i) => (
             <li key={i}>{raconter(e)}</li>
@@ -436,26 +533,15 @@ export default function LaSoupe() {
     </GCard>
   );
 
-  /** Met un événement du journal en mots — à chaque rendu, donc dans la langue du moment. */
-  function raconter(e: EvenementJournal): string {
-    if (e.quoi === "preleve") return t("journalPreleve", { visage: e.visage, n: e.rendement });
-    if (e.quoi === "rejete") return t("journalRejete", { visage: e.visage });
-    if (e.quoi === "fonde") return t("journalFonde", { visage: e.visage, n: e.rendement });
-    return t("journalGabarit", { visage: e.visage, perdues: e.perdues });
-  }
-
   // ── Le panneau de l'atelier ──────────────────────────────────────────────
-  const gabarit = partie.atelier.gabarit;
-  const vue = gabarit ? presenter(gabarit, partie.milieu) : null;
   const bilan = partie.bilanAtelier;
-  // L'ARRÊT COMPLET : plus de copies, plus de quoi en bâtir, plus de quoi
-  // acheter. Une machine morte doit le dire, et dire ce qui reste à faire.
+  const cout = gabarit ? coutEnAtomes(gabarit) : {};
   const bloque =
-    !!gabarit &&
-    partie.atelier.copies === 0 &&
-    !peutBatir(partie.atelier) &&
-    manques.every((m) => !m.abordable);
+    !!gabarit && partie.atelier.copies === 0 && !peutBatir(partie.atelier) && manques.every((m) => !m.abordable);
   const recours = partie.collection.some((p) => (p.rendement ?? 0) > 0 && p.visage !== gabarit?.visage);
+  // « se défait 5 % du temps » demandait une conversion mentale. « une copie sur
+  // vingt » se lit sans calcul. Sous 2 %, le rapport ne veut plus rien dire.
+  const surN = vue && vue.fragilite >= 2 ? Math.round(100 / vue.fragilite) : null;
 
   const panneauAtelier = (
     <GCard skin={skin} key="atelier">
@@ -463,16 +549,16 @@ export default function LaSoupe() {
 
       <div style={{ display: "flex", gap: 22, flexWrap: "wrap", marginTop: 10 }}>
         {[
-          { v: partie.atelier.copies, n: t("copies") },
-          { v: partie.atelier.reserve, n: t("reserve") },
-          { v: partie.atelier.produitTotal, n: t("produit") },
+          { v: String(partie.atelier.copies), n: t("copies") },
+          { v: String(partie.atelier.reserve), n: t("energie") },
+          { v: `${partie.atelier.produitTotal} / ${OBJECTIF}`, n: t("energieProduite") },
         ].map((c) => (
           <div key={c.n} style={{ display: "flex", flexDirection: "column", gap: 2 }}>
             <span
               style={{
                 fontFamily: skin.fontDisplay,
                 fontWeight: 800,
-                fontSize: 28,
+                fontSize: 26,
                 lineHeight: 1,
                 fontVariantNumeric: "tabular-nums",
               }}
@@ -486,6 +572,24 @@ export default function LaSoupe() {
         ))}
       </div>
 
+      {/* LA PROGRESSION VERS L'OBJECTIF. Un chiffre sur un total se lit ; une
+          barre se voit du coin de l'œil pendant que l'atelier tourne. */}
+      <div
+        role="progressbar"
+        aria-valuemin={0}
+        aria-valuemax={OBJECTIF}
+        aria-valuenow={Math.min(partie.atelier.produitTotal, OBJECTIF)}
+        style={{ height: 7, borderRadius: 999, background: `${skin.ink}18`, overflow: "hidden" }}
+      >
+        <div
+          style={{
+            width: `${Math.min(100, (100 * partie.atelier.produitTotal) / OBJECTIF)}%`,
+            height: "100%",
+            background: skin.good,
+          }}
+        />
+      </div>
+
       {vue && gabarit ? (
         <div
           style={{
@@ -493,21 +597,66 @@ export default function LaSoupe() {
             flexDirection: "column",
             alignItems: "center",
             gap: 6,
-            marginTop: 14,
             padding: "12px 14px",
             border: `2px solid ${skin.ink}22`,
             borderRadius: 10,
+            alignSelf: "flex-start",
           }}
         >
+          <GLabel skin={skin} style={{ fontSize: 10 }}>
+            {t("leModele")}
+          </GLabel>
           <Forme grille={gabarit.grille} cote={16} titre={vue.visage} />
-          <Chiffre>{vue.composition}</Chiffre>
           <Chiffre teinte={(vue.rendement ?? 0) > 0 ? skin.good : undefined}>
             {t("parCopie", { n: signe(vue.rendement ?? 0) })}
           </Chiffre>
-          <Chiffre teinte={vue.fragilite > 20 ? "#A2402F" : undefined}>
-            {t("seDefait", { p: nb(vue.fragilite, 1) })}
+          <Chiffre>
+            {t("solidite")} : {t(solidite(gabarit.cohesion))}
           </Chiffre>
-          <Chiffre teinte={vue.net > 0 ? skin.good : "#A2402F"}>{t("net", { n: signe(vue.net) })}</Chiffre>
+          <Chiffre teinte={vue.fragilite > 20 ? ROUGE : undefined}>
+            {surN ? t("casse", { n: surN }) : t("casseRare")}
+          </Chiffre>
+          <Chiffre teinte={vue.net > 0 ? skin.good : ROUGE}>{t("gainReel", { n: signe(vue.net) })}</Chiffre>
+        </div>
+      ) : null}
+
+      {/* ⚠️ LE MAGASIN — L'AJOUT QUI RÉPOND AU TEST. Sans lui, la ressource qui
+          décide de tout n'était affichée nulle part : le panneau de la soupe,
+          qui montrait les atomes libres, s'est refermé en ouvrant l'atelier.
+          Possédé SUR requis, atome par atome : d'où ils viennent, ce qu'il en
+          reste, et pourquoi ça bloque. */}
+      {gabarit ? (
+        <div>
+          <GLabel skin={skin} style={{ fontSize: 11 }}>
+            {t("ilFaut")}
+          </GLabel>
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 7 }}>
+            {(Object.entries(cout) as [Code, number][]).map(([code, requis]) => {
+              const possede = partie.atelier.atomes[code] ?? 0;
+              const suffit = possede >= requis;
+              return (
+                <span
+                  key={code}
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 6,
+                    padding: "5px 10px",
+                    borderRadius: 999,
+                    fontSize: 12.5,
+                    fontWeight: 700,
+                    fontVariantNumeric: "tabular-nums",
+                    border: `2px solid ${suffit ? `${skin.ink}22` : ROUGE}`,
+                    background: suffit ? "transparent" : `${ROUGE}12`,
+                    color: suffit ? skin.ink : ROUGE,
+                  }}
+                >
+                  <span style={{ width: 11, height: 11, borderRadius: 2, background: TEINTE[code] }} />
+                  {nomAtome(code)} {t("surTotal", { a: possede, b: requis })}
+                </span>
+              );
+            })}
+          </div>
         </div>
       ) : null}
 
@@ -515,7 +664,7 @@ export default function LaSoupe() {
           compteurs bouger sans pouvoir attribuer leur mouvement — et surtout
           sans distinguer « je manque d'atomes » de « mes copies se défont ». */}
       {bilan ? (
-        <p style={{ margin: "12px 0 0", fontSize: 12, color: skin.muted }}>
+        <p style={{ margin: 0, fontSize: 12, color: skin.muted }}>
           {t("dernierTour")} —{" "}
           {bilan.baties === 0 && bilan.perdues === 0 && bilan.produit === 0
             ? t("rienFauteAtomes")
@@ -530,63 +679,48 @@ export default function LaSoupe() {
       ) : null}
 
       {manques.length > 0 ? (
-        <>
-          <div
-            style={{
-              marginTop: 12,
-              padding: "9px 12px",
-              borderRadius: 10,
-              borderLeft: `3px solid ${skin.accent2}`,
-              background: `${skin.accent2}14`,
-              fontSize: 13,
-            }}
-          >
-            {t("manque", { liste: manques.map((m) => `${m.manque} ${m.code}`).join(", ") })}
-          </div>
-          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 10 }}>
-            {manques.map((m) => (
-              <GBtn
-                key={m.code}
-                skin={skin}
-                size="sm"
-                variant="ghost"
-                disabled={!m.abordable}
-                onClick={() => setPartie((p) => (p ? acheter(p, m.code) : p))}
-              >
-                {t("acheter", { code: m.code, prix: m.prix })}
-              </GBtn>
-            ))}
-            {manques.some((m) => m.abordable) ? (
-              <GBtn
-                skin={skin}
-                size="sm"
-                variant="primary"
-                onClick={() =>
-                  setPartie((p) => {
-                    if (!p) return p;
-                    let suite = p;
-                    for (const m of cequiManque(suite)) {
-                      if (m.abordable) suite = acheter(suite, m.code);
-                    }
-                    return suite;
-                  })
-                }
-              >
-                {t("combler")}
-              </GBtn>
-            ) : null}
-          </div>
-        </>
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+          {manques.map((m) => (
+            <GBtn
+              key={m.code}
+              skin={skin}
+              size="sm"
+              variant="ghost"
+              disabled={!m.abordable}
+              onClick={() => setPartie((p) => (p ? acheter(p, m.code) : p))}
+            >
+              {t("acheter", { atome: nomAtome(m.code), prix: m.prix })}
+            </GBtn>
+          ))}
+          {manques.filter((m) => m.abordable).length > 1 ? (
+            <GBtn
+              skin={skin}
+              size="sm"
+              variant="primary"
+              onClick={() =>
+                setPartie((p) => {
+                  if (!p) return p;
+                  let suite = p;
+                  for (const m of cequiManque(suite)) {
+                    if (m.abordable) suite = acheter(suite, m.code);
+                  }
+                  return suite;
+                })
+              }
+            >
+              {t("toutAcheter")}
+            </GBtn>
+          ) : null}
+        </div>
       ) : null}
 
       {bloque ? (
         <div
           style={{
-            marginTop: 12,
             padding: "10px 12px",
             borderRadius: 10,
-            border: `2px solid #A2402F`,
-            background: "#A2402F14",
+            border: `2px solid ${ROUGE}`,
+            background: `${ROUGE}14`,
             fontSize: 13,
             lineHeight: 1.45,
           }}
@@ -610,14 +744,13 @@ export default function LaSoupe() {
         </div>
       ) : null}
 
-      <p style={{ margin: "12px 0 0", fontSize: 13, color: skin.muted, lineHeight: 1.45 }}>{t("atelierAide")}</p>
+      <p style={{ margin: 0, fontSize: 13, color: skin.muted, lineHeight: 1.45 }}>{t("atelierAide")}</p>
 
       {/* LA FIN DE CE QUI EST ÉCRIT. On le dit franchement plutôt que de laisser
           le joueur chercher une suite qui n'existe pas encore. */}
-      {partie.atelier.produitTotal >= HORIZON ? (
+      {partie.atelier.produitTotal >= OBJECTIF ? (
         <div
           style={{
-            marginTop: 12,
             padding: "11px 13px",
             borderRadius: 10,
             border: `2px solid ${skin.accent}`,
@@ -645,6 +778,7 @@ export default function LaSoupe() {
       maxWidth={980}
     >
       {enTeteMilieu}
+      {ligneConseil}
       {/* ⚠️ `auto-fit` ET NON DEUX COLONNES FIXES. Sur un téléphone les panneaux
           s'empilent et la page défile ; à partir de 700 px ils se rangent côte à
           côte. La thèse — l'écran ne grandit jamais — tient au budget de
@@ -658,6 +792,30 @@ export default function LaSoupe() {
           .sort((a, b) => rang(a) - rang(b))
           .map((nom) => rendu[nom as "soupe" | "collection" | "atelier"])}
       </div>
+
+      {regles ? (
+        <AideModale
+          skin={skin}
+          titre={t("reglesTitre")}
+          texte={t("objectif")}
+          fermer={() => setRegles(false)}
+          fermerLabel={t("fermer")}
+        >
+          <div style={{ display: "flex", flexDirection: "column", gap: 13, marginTop: 4 }}>
+            {[
+              [t("regle1Titre"), t("regle1")],
+              [t("regle2Titre"), t("regle2")],
+              [t("regle3Titre"), t("regle3")],
+              [t("regle4Titre"), t("regle4")],
+            ].map(([titre, corps]) => (
+              <div key={titre}>
+                <div style={{ fontFamily: skin.fontDisplay, fontWeight: 800, fontSize: 14.5 }}>{titre}</div>
+                <p style={{ margin: "3px 0 0", fontSize: 13.5, lineHeight: 1.5, color: skin.muted }}>{corps}</p>
+              </div>
+            ))}
+          </div>
+        </AideModale>
+      ) : null}
     </GameShell>
   );
 }
