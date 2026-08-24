@@ -3146,6 +3146,7 @@
     "pourGrandir": "Pour bâtir une copie de plus",
     "coutCopie": "une copie coûte {n} d'énergie en atomes",
     "amortie": "remboursée en {n, plural, one {# tour} other {# tours}}",
-    "jamaisAmortie": "elle ne se remboursera jamais"
+    "jamaisAmortie": "elle ne se remboursera jamais",
+    "paillasseNote": "Rien ici ne se reproduit tout seul : c'est vous qui recopiez, à la main, sur votre paillasse. Une molécule capable de se refaire sans vous, ça ne s'achète pas — ça se trouve."
   }
 }

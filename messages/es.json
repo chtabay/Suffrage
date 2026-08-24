@@ -3146,6 +3146,7 @@
     "pourGrandir": "Para construir una copia más",
     "coutCopie": "una copia cuesta {n} de energía en átomos",
     "amortie": "se amortiza en {n, plural, one {# turno} other {# turnos}}",
-    "jamaisAmortie": "nunca se amortizará"
+    "jamaisAmortie": "nunca se amortizará",
+    "paillasseNote": "Aquí nada se reproduce solo: eres tú quien copia, a mano, en tu banco de trabajo. Una molécula capaz de rehacerse sin ti no se compra: se encuentra."
   }
 }

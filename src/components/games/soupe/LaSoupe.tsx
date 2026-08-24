@@ -797,6 +797,17 @@ export default function LaSoupe() {
 
       <p style={{ margin: 0, fontSize: 13, color: skin.muted, lineHeight: 1.45 }}>{t("atelierAide")}</p>
 
+      {/* ⚠️ CE QUE L'ATELIER N'EST PAS, ET IL FAUT LE DIRE.
+          Chimiquement, une molécule ne se recopie pas toute seule : c'est LE
+          problème difficile de l'origine de la vie, et l'atelier l'escamotait en
+          l'offrant au deuxième acte. Le corriger ne demande pas de casser une
+          mécanique qui fonctionne — il suffit de nommer ce qu'elle est. Ici,
+          c'est VOUS qui recopiez, à la main. Rien n'est vivant.
+          Et ça pose les enjeux de la suite : trouver ce qui se refait sans vous. */}
+      <p style={{ margin: 0, fontSize: 13, color: skin.muted, lineHeight: 1.45, fontStyle: "italic" }}>
+        {t("paillasseNote")}
+      </p>
+
       {/* LA FIN DE CE QUI EST ÉCRIT. On le dit franchement plutôt que de laisser
           le joueur chercher une suite qui n'existe pas encore. */}
       {partie.atelier.produitTotal >= OBJECTIF ? (

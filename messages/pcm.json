@@ -3146,6 +3146,7 @@
     "pourGrandir": "To build one more copy",
     "coutCopie": "one copy dey cost {n} energy for atom",
     "amortie": "e go pay imsef back for {n, plural, one {# turn} other {# turns}}",
-    "jamaisAmortie": "e no go ever pay imsef back"
+    "jamaisAmortie": "e no go ever pay imsef back",
+    "paillasseNote": "Nothing here dey reproduce by imsef: na you dey copy am, with hand, for your bench. Molecule wey fit remake imsef without you, you no fit buy am — you go find am."
   }
 }

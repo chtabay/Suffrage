@@ -3146,6 +3146,7 @@
     "pourGrandir": "To build one more copy",
     "coutCopie": "one copy costs {n} energy in atoms",
     "amortie": "pays for itself in {n, plural, one {# turn} other {# turns}}",
-    "jamaisAmortie": "it will never pay for itself"
+    "jamaisAmortie": "it will never pay for itself",
+    "paillasseNote": "Nothing here reproduces on its own: you are the one copying, by hand, at your bench. A molecule able to remake itself without you cannot be bought — it has to be found."
   }
 }
