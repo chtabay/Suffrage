@@ -8,31 +8,43 @@
 // scores d'une journée a fini par exister en trois exemplaires avant qu'on ne le
 // sorte en base. Le nom suit le même chemin, et on le coupe avant.
 //
-// LA RÈGLE : sans compte, un nom PRIS DANS LA LISTE FERMÉE (600 par langue).
-// Avec un compte, LE PSEUDO DU COMPTE, et rien à retaper.
+// LA RÈGLE : sans compte, ON ÉCRIT SON NOM, et la liste fermée de 600 noms
+// n'est plus qu'une suggestion pour qui n'a pas d'idée. Avec un compte, LE
+// PSEUDO DU COMPTE, et rien à retaper.
 //
-// ⚠️ IL Y AVAIT DEUX DÉPÔTS DE PSEUDO INDÉPENDANTS, ET UN JOUEUR L'A VU AVANT
-// NOUS : « j'ai associé un pseudo sur mon compte, or après avoir renseigné le
-// Banalo du jour il m'a été proposé de préciser un pseudo, au lieu de le
-// reprendre ». Vérifié en base : son compte portait `Le duc` depuis deux jours,
-// et il avait retapé `Le duc` à la main pour la journée 3. Le champ libre de cet
-// écran écrivait dans `scrutin_banalo_noms`, celui des classements dans
-// `scrutin_jeux_pseudos`, et rien ne les reliait.
+// ⚠️ C'EST UN RENVERSEMENT, ET IL EST DATÉ DU 2026-08-24. Retour de terrain,
+// urgent : « la proposition de pseudo prégénéré en cas d'absence de compte ne
+// fonctionne pas et les joueurs refusent ». La liste n'était pas une friction
+// qu'on absorbe, c'était un REFUS — on offrait « Renard de minuit » à quelqu'un
+// qui voulait figurer sous son nom, et il ne figurait pas du tout. Mesuré au
+// moment du changement : 3 noms déposés sur Banalo, 1 sur Cinq sur cinq, pour
+// 12 joueurs.
 //
-// ⚠️ CE N'ÉTAIT PAS QU'UNE FRICTION : LA PRISE DE LA RÉGIE NE COUVRAIT QU'UN DES
-// DEUX. Un pseudo retiré par un modérateur pouvait continuer à publier le même
-// texte au tableau public tous les jours. Or c'est cette prise qui payait le
-// droit d'avoir du texte libre — voir `20260907-jeux-un-seul-pseudo.sql`.
+// ⚠️ CE QUE ÇA COÛTE EST ÉCRIT, PAS EFFACÉ. L'argument d'origine reste vrai mot
+// pour mot : un champ de pseudo sur un classement public n'est pas un champ
+// d'identité, c'est un canal de publication d'une ligne vers tous les autres —
+// du harcèlement visant quelqu'un de précis (« Marie du CM2 pue »), des données
+// personnelles déposées sans malice par un enfant, puis seulement les insultes ;
+// et un filtre de gros mots ne règle que le troisième. Rien de tout ça n'est
+// réfuté. Ce qui a changé est l'autre plateau : la règle avait un coût qu'on
+// croyait payable et qui ne l'était pas. La politique de modération est
+// REPORTÉE, pas décidée — et `20260913-jeux-nom-libre-sans-compte.sql` pose la
+// plus petite prise qui rende un retrait possible.
 //
-// ⚠️ UN CHAMP DE PSEUDO LIBRE N'EST PAS UN CHAMP D'IDENTITÉ, c'est un canal de
-// publication d'une ligne vers tous les autres. Par gravité réelle : du
-// harcèlement visant quelqu'un de précis (« Marie du CM2 pue ») ; des données
-// personnelles déposées sans malice par un enfant, sur un jeu dont la politique
-// déclare une tranche d'âge « enfant » ; puis seulement les insultes. Un filtre
-// de gros mots ne règle que le troisième. La sortie n'est donc pas de filtrer le
-// texte libre, c'est de ne pas en ouvrir — sauf là où quelqu'un en répond,
-// c'est-à-dire derrière un compte : un jeton anonyme ne se bannit pas, on efface
-// son `localStorage` et on revient.
+// ⚠️ LA LISTE N'EST PAS PARTIE, ET ELLE NE DOIT PAS PARTIR. Elle sert deux
+// choses qu'un champ vide ne sert pas : elle donne un nom à qui n'en cherche
+// pas, et surtout **elle est traduite** — c'est un INDEX qu'on stocke, donc
+// « Renard de minuit » s'affiche « Midnight Fox » à l'anglophone du même
+// tableau. Un nom écrit, lui, est figé dans la langue où on l'a tapé. C'est
+// pourquoi une suggestion CHOISIE reste un index tant qu'on n'y touche pas : le
+// champ montre son libellé, la ligne stocke son rang.
+//
+// ⚠️ ET LE CHAMP MONTRE TOUJOURS CE QUI SERA PUBLIÉ. Un champ vide sous une
+// pastille allumée poserait la question que l'écran doit justement fermer —
+// « je figure sous quoi, au juste ? » — juste avant d'appuyer sur un bouton qui
+// dit « Déposer ce nom ». Dès la première frappe la pastille s'éteint et le
+// texte devient le nom : c'est le même geste, il n'y a rien à comprendre.
+
 import { useEffect, useMemo, useRef } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import type { GameSkin } from "@/lib/games/skin";
@@ -41,8 +53,17 @@ import { graineDe, nomDe, nomsProposes } from "@/content/banalo/noms";
 import { monPseudo } from "@/lib/db/jeux";
 import type { ChoixDeNom } from "@/lib/db/banalo";  // le type, pas le jeu : les deux jeux le partagent
 
-/** Combien de noms on propose d'un coup. Quatre tiennent sur deux lignes d'un téléphone. */
-const PROPOSES = 4;
+/**
+ * Combien de noms on propose d'un coup.
+ *
+ * ⚠️ TROIS, ET LE COMMENTAIRE D'AVANT ÉTAIT FAUX : il disait « quatre tiennent
+ * sur deux lignes d'un téléphone ». Mesuré à 390 px, quatre en prennent TROIS —
+ * les noms font jusqu'à vingt caractères — soit ~130 px de pastilles sous un
+ * champ de 40. Depuis que la liste n'est qu'une SUGGESTION, l'aide pesait plus
+ * lourd que ce qu'elle aide. Trois tiennent sur deux lignes, « en proposer
+ * d'autres » compris. Ça ne se voit qu'à l'écran.
+ */
+const PROPOSES = 3;
 
 /**
  * L'état du choix, tenu par l'appelant.
@@ -105,11 +126,12 @@ export default function ChoisirSonNom({
   etat: EtatNom;
   setEtat: (e: EtatNom) => void;
   /**
-   * Ce qui explique la liste fermée, en une phrase.
+   * Qui lira ce nom, en une phrase.
    *
-   * ⚠️ ELLE ARRIVE DE L'APPELANT PARCE QU'ELLE N'EST PAS LA MÊME. « un nom que
-   * tous les joueurs du jour peuvent lire » décrit un tableau public ; dans une
-   * tablée, seuls ses membres le lisent. Vu à l'écran : le composant partagé
+   * ⚠️ ELLE ARRIVE DE L'APPELANT PARCE QU'ELLE N'EST PAS LA MÊME, et c'est
+   * précisément ce qui la rend utile depuis que le champ est ouvert : un
+   * tableau du jour est lu par des inconnus, une tablée par les gens qui vous
+   * ont invité. Vu à l'écran du temps de la liste fermée : le composant partagé
    * servait la phrase du tableau sur la page d'invitation. La choisir ICI
    * demanderait une clé par appelant, et une clé prise en variable échappe au
    * contrôle de parité i18n — donc c'est le texte qui voyage, pas la clé.
@@ -230,9 +252,42 @@ export default function ChoisirSonNom({
     );
   }
 
+  // ⚠️ LE CHAMP D'ABORD, LES SUGGESTIONS ENSUITE, et l'ordre EST la correction.
+  // Quatre pastilles en tête de carte se lisent « choisissez parmi ceci » ; le
+  // champ posé dessous passait pour l'exception réservée aux comptes — ce qu'il
+  // était, d'ailleurs. On inverse : on demande son nom, et on aide qui n'en a
+  // pas.
   return (
     <>
-      <div style={{ display: "flex", flexWrap: "wrap", gap: 8, margin: "10px 0 0" }}>
+      <div style={{ marginTop: 10 }}>
+        <GLabel skin={skin}>{t("libreSeul")}</GLabel>
+        <input
+          value={etat.libre || (etat.index !== null ? nomDe(etat.index, locale) : "")}
+          maxLength={20}
+          onChange={(e) => setEtat({ ...etat, libre: e.target.value, index: null })}
+          placeholder={t("librePlace")}
+          style={{
+            width: "100%",
+            marginTop: 6,
+            padding: "9px 11px",
+            fontSize: 15,
+            fontWeight: 700,
+            borderRadius: 8,
+            border: `2px solid ${skin.ink}`,
+            background: skin.paper,
+            color: skin.ink,
+            boxSizing: "border-box",
+          }}
+        />
+      </div>
+
+      {/* ⚠️ LES SUGGESTIONS SONT UNE AIDE, PLUS UN MENU — d'où l'amorce qui les
+          introduit. Sans elle, quatre pastilles sous un champ rempli se lisent
+          comme quatre autres champs, ou comme une question qu'on n'a pas posée. */}
+      <p style={{ margin: "12px 0 0", fontSize: 12.5, color: skin.muted, lineHeight: 1.45 }}>
+        {t("suggestions")}
+      </p>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 8, margin: "6px 0 0" }}>
         {propositions.map((i) => (
           <button
             key={i}
@@ -275,13 +330,13 @@ export default function ChoisirSonNom({
         </button>
       </div>
 
-      {/* ⚠️ SANS COMPTE, IL N'Y A QUE LA LISTE — et la phrase qui dit pourquoi.
-          La règle est tenue par une CONTRAINTE DE TABLE, pas par cette
-          condition d'écran : une erreur ici ne peut pas ouvrir le texte libre. */}
-      {/* Factuel, et à sa place : ça explique pourquoi la liste est fermée.
-          ⚠️ Ce n'est PAS l'offre de compte de l'après-partie — celle-là a sa
-          carte, et §0 interdit d'en empiler deux. Une phrase grise sans bouton
-          ne concurrence rien. */}
+      {/* ⚠️ CETTE PHRASE A CHANGÉ DE MÉTIER LE JOUR OÙ LE CHAMP S'EST OUVERT.
+          Elle expliquait pourquoi la liste était FERMÉE ; la liste ne l'est
+          plus. Elle dit maintenant QUI VA LIRE ce nom — la seule information
+          qui compte au moment de l'écrire, et la seule qui fasse réfléchir
+          quelqu'un avant de taper. Elle reste passée par l'appelant : le public
+          d'un tableau du jour et celui d'un groupe ne sont pas le même, et une
+          clé choisie en variable échapperait au contrôle de parité i18n. */}
       <p style={{ margin: "10px 0 0", fontSize: 12.5, color: skin.muted, lineHeight: 1.45 }}>
         {explication}
       </p>

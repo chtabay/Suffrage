@@ -2838,8 +2838,7 @@
     "panne": "We no fit reach di counting. Reload di page make you see where your answer dey.",
     "demain": "New question by {heure}.",
     "tableau": {
-      "libre": "Or write your own",
-      "pourquoi": "Di names dey come from one list. To write your own need Placet account: name wey every player of di day fit read need person wey go answer for am.",
+      "pourquoi": "Every player of di day go read dis name.",
       "duree": "Dis name na for today alone: no profile dey, and nothing dey to find outside today board.",
       "scoreNombre": "{n}/100"
     },
@@ -2874,7 +2873,7 @@
       "rejoindreDuree": "Dis name na for dis group alone, and e go go wit am.",
       "inconnue": "Dis group no dey again.",
       "pleine": "Dis group don full.",
-      "pourquoi": "Di names dey come from one list. To write your own need Placet account: name wey every member of di group fit read need person wey go answer for am.",
+      "pourquoi": "Di members of di group go read dis name.",
       "seulMembre": "Na only you dey dis group. Send di link give people wey you wan play with.",
       "aJoue": "Na only you don play today, out of {total}.",
       "ontJoue": "{n} players out of {total} don play today."
@@ -2885,7 +2884,7 @@
     "demainPays": "New country tomorrow.",
     "tableau": {
       "essais": "{n, plural, one {# try} other {# tries}}",
-      "pourquoi": "Di names dey come from list. To write your own need Placet account: name wey every player of di day fit read need person wey go answer for am.",
+      "pourquoi": "Every player of di day go read dis name.",
       "duree": "Dis name na for today only: no profile dey, and nothing to find outside di day board."
     },
     "pictosAide": "Every box go now tell you wetin im criterion dey talk about. Di last one go keep im secret.",
@@ -3027,7 +3026,8 @@
     "pseudoGarde": "Dis name go be your Placet name: we no go ask you again, here or for group.",
     "pseudoRetire": "Moderator don remove your name. Put anoda one for “Results and rankings” make you show again.",
     "libreSeul": "Your name",
-    "librePlace": "Your name",
+    "librePlace": "Type am here",
+    "suggestions": "Or pick one:",
     "autres": "Show me oda ones",
     "pris": "Person don carry dat name today. See oda ones.",
     "deja": "You don already drop name for today.",

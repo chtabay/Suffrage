@@ -2838,8 +2838,7 @@
     "panne": "We couldn't reach the count. Reload the page to see where your answer stands.",
     "demain": "New question at {heure}.",
     "tableau": {
-      "libre": "Or write your own",
-      "pourquoi": "The names come from a list. Writing your own needs a Placet account: a name every player of the day can read needs someone to answer for it.",
+      "pourquoi": "Every player of the day will read this name.",
       "duree": "This name is for today only: there is no profile, and nothing to find outside today's board.",
       "scoreNombre": "{n}/100"
     },
@@ -2874,7 +2873,7 @@
       "rejoindreDuree": "This name only holds in this group, and it goes away with it.",
       "inconnue": "This group no longer exists.",
       "pleine": "This group is full.",
-      "pourquoi": "The names come from a list. Writing your own needs a Placet account: a name every member of the group can read needs someone to answer for it.",
+      "pourquoi": "The members of the group will read this name.",
       "seulMembre": "You're the only one in this group. Send the link to the people you want to play with.",
       "aJoue": "You're the only one who has played today, out of {total}.",
       "ontJoue": "{n} players out of {total} have played today."
@@ -2885,7 +2884,7 @@
     "demainPays": "A new country tomorrow.",
     "tableau": {
       "essais": "{n, plural, one {# guess} other {# guesses}}",
-      "pourquoi": "Names come from a list. Writing your own needs a Placet account: a name every player of the day can read calls for someone to answer for it.",
+      "pourquoi": "Every player of the day will read this name.",
       "duree": "This name is for today only: there is no profile, and nothing to find outside the day's board."
     },
     "pictosAide": "Each box now tells you what its criterion is about. The last one keeps its secret.",
@@ -3027,7 +3026,8 @@
     "pseudoGarde": "This becomes your Placet name: we won't ask again, here or in a group.",
     "pseudoRetire": "A moderator removed your name. Set another one under “Results and leaderboards” to appear again.",
     "libreSeul": "Your name",
-    "librePlace": "Your name",
+    "librePlace": "Type it here",
+    "suggestions": "Or pick one:",
     "autres": "Show me others",
     "pris": "That name is already taken today. Here are others.",
     "deja": "You have already left a name for today.",

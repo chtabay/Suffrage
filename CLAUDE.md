@@ -1158,12 +1158,18 @@ laisser sortir de la salle ».
 
 **LE TABLEAU DU JOUR est en prod (`TableauDuJour.tsx`), PUBLIC, sur les deux
 formats.**
-Pour figurer au tableau d'une journée, il faut **soit un compte Placet** — et
-alors on choisit son nom librement — **soit déposer un nom PRIS DANS UNE LISTE
-FERMÉE** (`src/content/banalo/noms.ts`, 30 animaux × 20 compléments = 600 noms
-par langue). Qui ne fait ni l'un ni l'autre joue normalement, voit son rang et
-son centile, et **n'apparaît pas au tableau** : on n'y entre que par un geste,
-donc personne n'y est inscrit sans l'avoir voulu.
+Pour figurer au tableau d'une journée, il faut **déposer un nom** : le pseudo de
+son compte Placet si on en a un, sinon **un nom qu'on écrit** — ou qu'on prend
+dans la liste que le jeu propose (`src/content/banalo/noms.ts`, 30 animaux ×
+20 compléments = 600 noms par langue). Qui ne dépose rien joue normalement, voit
+son rang et son centile, et **n'apparaît pas au tableau** : on n'y entre que par
+un geste, donc personne n'y est inscrit sans l'avoir voulu.
+
+⚠️ **LE TEXTE LIBRE SANS COMPTE A ÉTÉ FERMÉ, PUIS ROUVERT LE 24/08** — tout ce
+qui suit jusqu'à « LE COMPTE CONDITIONNE LE NOM » décrit la règle FERMÉE, et
+elle ne s'applique plus. Le raisonnement, lui, n'a pas été réfuté : il est gardé
+mot pour mot parce que c'est lui qu'il faudra relire le jour où la modération se
+décidera. Ce qui l'a emporté est un retour de terrain, et il est plus bas.
 
 ⚠️ **CE N'EST PAS UNE PRÉCAUTION DE FAÇADE, C'EST CE QUI REND LE TABLEAU
 POSSIBLE.** Un champ de pseudo sur un classement public n'est pas un champ
@@ -1184,6 +1190,84 @@ où quelqu'un en répond.
 base compte **2 comptes rattachés** contre **11 joueurs** sur la journée 2 et 7
 jetons sur le format chiffré. Exiger un compte pour figurer au tableau le
 réduirait à deux lignes sur onze.
+
+**ON ÉCRIT SON NOM SANS COMPTE DEPUIS LE 24/08, ET C'EST UN RENVERSEMENT**
+(`20260913-jeux-nom-libre-sans-compte.sql`). Signalé en urgence : « la
+proposition de pseudo prégénéré en cas d'absence de compte ne fonctionne pas et
+les joueurs refusent ». La liste fermée n'était pas une friction qu'on absorbe,
+c'était un **REFUS** — on offrait « Renard de minuit » à quelqu'un qui voulait
+figurer sous son nom, et il ne figurait pas du tout. Mesuré au moment du
+changement : **3 noms déposés sur Banalo, 1 sur Cinq sur cinq, pour 12 joueurs**.
+Un tableau dont personne ne veut est un tableau vide.
+
+⚠️ **L'ARGUMENT D'EN FACE N'EST PAS RÉFUTÉ, IL EST SURCLASSÉ — et il faut le
+savoir avant d'y revenir.** Tout ce qui est écrit plus haut reste vrai : un champ
+de pseudo public est un canal de publication, un filtre de gros mots n'attrape
+pas « Marie du CM2 pue », et un jeton anonyme ne se bannit pas. Ce qui a changé
+est l'autre plateau de la balance, pas celui-là. Le propriétaire du dépôt a
+tranché explicitement : « pouvoir laisser un pseudo libre doit être possible,
+nous verrons comment cela doit être éventuellement modéré ». **La politique de
+modération est REPORTÉE, pas décidée** — ne pas la réinventer de son propre chef.
+
+⚠️ **MAIS « REPORTÉE » N'EST PAS « ABSENTE », ET LA PRISE EXISTE** :
+`scrutin_admin_noms_libres` liste les noms écrits des deux tableaux publics,
+`scrutin_admin_nom_libre_effacer` en retire un — **par son TEXTE**, sur les deux
+jeux à la fois, parce que ce qu'un modérateur juge est une chaîne publiée et
+qu'elle a pu être redéposée chaque jour. Ce ne sont **pas** un système de
+modération : ni signalement, ni file, ni notification. C'est le minimum sans
+lequel on ne pourrait rien retirer du tout, et **aucun écran ne les appelle
+encore** — l'onglet « Jeux » de la Régie est l'endroit prévu.
+
+⚠️ **ON RETIRE UN NOM, PAS UN JOUEUR**, et l'écart est réel : le résultat, le
+rang et la série restent (c'est vérifié par assertion), et l'intéressé peut en
+redéposer un cinq minutes plus tard en vidant son `localStorage`. Promettre
+autre chose au prochain agent serait un mensonge.
+
+⚠️ **ET LA TABLÉE N'A PAS DE PRISE, DÉLIBÉRÉMENT.** Elle ouvre le texte libre
+comme le tableau — l'écran est partagé, et un joueur ne comprendrait pas qu'on
+lui demande son nom ici et un animal là — mais l'effacement ne la vise pas. Un
+groupe s'entre **par code**, il est **jetable**, il **s'efface** avec ses
+membres : les trois propriétés du modèle de salle y sont intactes, et son nom
+n'est lu que par les gens qui vous ont invité. C'est le même raisonnement qui
+autorise Alibi à faire taper des accusations nommées sans bouton de signalement.
+Ce qu'on ouvre au PUBLIC est ce qu'on outille.
+
+⚠️ **LA LISTE FERMÉE N'EST PAS PARTIE, ET ELLE NE DOIT PAS PARTIR.** Elle sert
+deux choses qu'un champ vide ne sert pas : elle donne un nom à qui n'en cherche
+pas, et surtout **elle est traduite** — c'est un INDEX qu'on stocke, donc
+« Renard de minuit » s'affiche « Midnight Fox » à l'anglophone du même tableau,
+là où un nom écrit est figé dans la langue où on l'a tapé. D'où la mécanique de
+l'écran : une suggestion CHOISIE **reste un index tant qu'on n'y touche pas**,
+le champ affiche son libellé, et la première frappe éteint la pastille et bascule
+en texte. Un champ vide sous une pastille allumée poserait la question que
+l'écran doit fermer — « je figure sous quoi ? » — juste avant un bouton qui dit
+« Déposer ce nom ».
+
+⚠️ **ET LE CHAMP PASSE DEVANT LES SUGGESTIONS, L'ORDRE EST LA CORRECTION.**
+Quatre pastilles en tête de carte se lisent « choisissez parmi ceci », et le
+champ posé dessous passait pour l'exception réservée aux comptes — ce qu'il
+était. On demande son nom, on aide ensuite qui n'en a pas.
+
+⚠️ **LA RÈGLE DU NOM VIT DÉSORMAIS DANS `scrutin_jeux_nom_resoudre`, ET ELLE
+SEULE.** Les trois dépôts (les deux tableaux, la tablée) appelaient
+`scrutin_jeux_pseudo_resoudre` et refusaient sur son statut `compte` ; écrire le
+`if auth.uid() is null then … else …` dans les trois aurait produit trois règles
+qui dérivent — le défaut que `20260907` venait de corriger. Les BORNES, elles,
+étaient déjà recopiées deux fois (`_resoudre`, `_poser`) : elles sont sorties
+dans `scrutin_jeux_nom_valide`, 2 à 20 caractères, espaces normalisés,
+caractères de contrôle refusés. ⚠️ **Un retour à la ligne n'est PAS un refus** —
+`pseudo_net` plie tout blanc en une espace AVANT de tester, donc « ab⏎cd »
+devient « ab cd » ; le test des caractères de contrôle vise ce qui RESTE.
+⚠️ Et **les bornes de colonne disaient 1 à 24 quand la règle dit 2 à 20** :
+alignées, parce qu'un filet ne doit pas être plus large que le sol.
+
+⚠️ **LE PIÈGE DU FICHIER ÉTAIT DANS LA LECTURE, PAS DANS LE DÉPÔT.**
+`scrutin_game_pays_tableau` résolvait `else p.pseudo` — juste tant que sa table
+n'avait pas de colonne `nom`. Sans le passage à `coalesce(p.pseudo, n.nom)`, un
+joueur sans compte déposait son nom, **la base répondait `ok`**, et il
+n'apparaissait NULLE PART : `libelle` valant `null`, il était compté hors des
+inscrits et absent de la liste. Banalo, lui, faisait déjà le `coalesce` depuis le
+07. Trouvé par assertion, pas à la relecture.
 
 ⚠️ **ET LE NOM SE DÉPOSE PAR JOURNÉE, PAS UNE FOIS POUR LE COMPTE — c'est ce qui
 ÉVITE la ligne du §5.** L'étude posait comme vrai coût d'un système d'amis un nom
@@ -1262,9 +1346,10 @@ tableaux d'un coup ; et un nom retiré ne reste pas affiché sur les journées
 passées — exactement le raisonnement déjà écrit pour le podium des saisons (« le
 pseudo n'est pas gelé avec la médaille »).
 
-⚠️ **SANS COMPTE, RIEN NE CHANGE** : liste fermée de 600 noms, par journée, purgée
-à trente jours. C'est cette moitié-là qui porte la justification de l'absence de
-modération, et elle est intacte.
+⚠️ **SANS COMPTE, LE NOM VIT UNE JOURNÉE** — et depuis le 24/08 on l'ÉCRIT, la
+liste de 600 n'étant plus qu'une suggestion (voir le renversement plus haut). Ce
+qui n'a pas bougé : par journée, purgé à trente jours, jamais recopié dans le
+résumé de compte.
 
 ⚠️ **UN PSEUDO EXISTANT N'EST JAMAIS ÉCRASÉ PAR CE QU'ON TAPE AUJOURD'HUI**, et
 c'est ce qui rend la bascule sûre : le client déployé envoie encore du texte
@@ -1463,9 +1548,9 @@ jours l'autorisation d'une exposition PLUS FAIBLE que celle qu'on avait accordé
 une fois. Le jeu allait jusqu'à écrire, le jour où le pseudo se crée, « on ne
 vous le redemandera plus ».
 
-⚠️ **SANS COMPTE, RIEN NE CHANGE** : liste fermée, un geste, par journée. C'est
-cette moitié-là qui porte la justification de l'absence de modération, et elle
-est intacte.
+⚠️ **SANS COMPTE, IL FAUT TOUJOURS LE GESTE** : un nom, par journée. Depuis le
+24/08 ce nom s'écrit — la liste fermée n'est plus qu'une suggestion — mais le
+geste, lui, reste ce qui fait qu'on n'y entre pas sans l'avoir voulu.
 
 ⚠️ **L'INSCRIPTION D'OFFICE EST UNE ÉCRITURE DÉCLENCHÉE PAR UN RENDU, DONC ELLE
 A UN `ref`.** `depose` et `lis` arrivent en fonctions fléchées : leur référence
@@ -1522,7 +1607,8 @@ lecture, le dépôt et le FORMAT DU CHIFFRE en paramètre. Les recopier aurait
 produit deux tableaux qui dérivent — c'est ce qui venait d'arriver aux trois
 offres de compte, et avant elles à la règle du mot orphelin.
 
-⚠️ **SA TABLE NAÎT SANS COLONNE DE TEXTE LIBRE**, et c'est la leçon du 07
+⚠️ **SA TABLE EST NÉE SANS COLONNE DE TEXTE LIBRE** — vrai jusqu'au 24/08, où
+`20260913` la lui a ajoutée avec son index d'unicité. C'était la leçon du 07
 appliquée d'emblée : chez Banalo il a fallu retirer `nom` après coup. Ici il n'y
 a que deux façons de se nommer — un INDEX dans la liste fermée, ou RIEN, ce qui
 veut dire « mon pseudo de compte », résolu à la lecture. La règle est la même

@@ -2838,8 +2838,7 @@
     "panne": "On n'a pas pu joindre le dépouillement. Rechargez la page pour voir où en est votre réponse.",
     "demain": "Nouvelle question à {heure}.",
     "tableau": {
-      "libre": "Ou écrivez le vôtre",
-      "pourquoi": "Les noms viennent d'une liste. Écrire le sien demande un compte Placet : un nom que tous les joueurs du jour peuvent lire appelle quelqu'un pour en répondre.",
+      "pourquoi": "Ce nom sera lu par tous les joueurs de la journée.",
       "duree": "Ce nom ne vaut que pour aujourd'hui : il n'y a pas de profil, et rien à retrouver en dehors du tableau du jour.",
       "scoreNombre": "{n}/100"
     },
@@ -2874,7 +2873,7 @@
       "rejoindreDuree": "Ce nom ne vaut que dans ce groupe, et il disparaît avec lui.",
       "inconnue": "Ce groupe n'existe plus.",
       "pleine": "Ce groupe est complet.",
-      "pourquoi": "Les noms viennent d'une liste. Écrire le sien demande un compte Placet : un nom que tous les membres du groupe peuvent lire appelle quelqu'un pour en répondre.",
+      "pourquoi": "Ce nom sera lu par les membres du groupe.",
       "seulMembre": "Vous êtes seul dans ce groupe. Envoyez le lien à ceux avec qui vous voulez jouer.",
       "aJoue": "Vous êtes le seul à avoir joué aujourd'hui, sur {total}.",
       "ontJoue": "{n} joueurs sur {total} ont joué aujourd'hui."
@@ -2885,7 +2884,7 @@
     "demainPays": "Un nouveau pays demain.",
     "tableau": {
       "essais": "{n, plural, one {# essai} other {# essais}}",
-      "pourquoi": "Les noms viennent d'une liste. Écrire le sien demande un compte Placet : un nom que tous les joueurs du jour peuvent lire appelle quelqu'un pour en répondre.",
+      "pourquoi": "Ce nom sera lu par tous les joueurs de la journée.",
       "duree": "Ce nom ne vaut que pour aujourd'hui : il n'y a pas de profil, et rien à retrouver en dehors du tableau du jour."
     },
     "pictosAide": "Chaque case dit maintenant de quoi parle son critère. La dernière garde son secret.",
@@ -3027,7 +3026,8 @@
     "pseudoGarde": "Ce nom devient votre pseudo Placet : on ne vous le redemandera plus, ni ici ni dans un groupe.",
     "pseudoRetire": "Votre pseudo a été retiré par un modérateur. Posez-en un autre dans « Résultats et classements » pour figurer à nouveau.",
     "libreSeul": "Votre nom",
-    "librePlace": "Votre nom",
+    "librePlace": "Écrivez-le ici",
+    "suggestions": "Ou piochez-en un :",
     "autres": "En proposer d'autres",
     "pris": "Ce nom est déjà porté aujourd'hui. En voici d'autres.",
     "deja": "Vous avez déjà déposé un nom pour cette journée.",

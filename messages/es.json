@@ -2838,8 +2838,7 @@
     "panne": "No hemos podido contactar con el recuento. Recarga la página para ver cómo está tu respuesta.",
     "demain": "Nueva pregunta a las {heure}.",
     "tableau": {
-      "libre": "O escribe el tuyo",
-      "pourquoi": "Los nombres vienen de una lista. Escribir el propio requiere una cuenta Placet: un nombre que pueden leer todos los jugadores del día necesita a alguien que responda por él.",
+      "pourquoi": "Todos los jugadores del día leerán este nombre.",
       "duree": "Este nombre solo vale para hoy: no hay perfil, ni nada que encontrar fuera de la tabla del día.",
       "scoreNombre": "{n}/100"
     },
@@ -2874,7 +2873,7 @@
       "rejoindreDuree": "Este nombre solo vale en este grupo, y desaparece con él.",
       "inconnue": "Este grupo ya no existe.",
       "pleine": "Este grupo está completo.",
-      "pourquoi": "Los nombres vienen de una lista. Escribir el propio requiere una cuenta Placet: un nombre que pueden leer todos los miembros del grupo necesita a alguien que responda por él.",
+      "pourquoi": "Los miembros del grupo leerán este nombre.",
       "seulMembre": "Estás solo en este grupo. Envía el enlace a quienes quieras que jueguen contigo.",
       "aJoue": "Eres el único que ha jugado hoy, de {total}.",
       "ontJoue": "{n} jugadores de {total} han jugado hoy."
@@ -2885,7 +2884,7 @@
     "demainPays": "Un país nuevo mañana.",
     "tableau": {
       "essais": "{n, plural, one {# intento} other {# intentos}}",
-      "pourquoi": "Los nombres vienen de una lista. Escribir el tuyo requiere una cuenta Placet: un nombre que pueden leer todos los jugadores del día exige que alguien responda por él.",
+      "pourquoi": "Todos los jugadores del día leerán este nombre.",
       "duree": "Este nombre vale solo para hoy: no hay perfil, ni nada que encontrar fuera de la tabla del día."
     },
     "pictosAide": "Cada casilla dice ahora de qué habla su criterio. La última guarda su secreto.",
@@ -3027,7 +3026,8 @@
     "pseudoGarde": "Este nombre pasa a ser tu nombre de Placet: no volveremos a pedírtelo, ni aquí ni en un grupo.",
     "pseudoRetire": "Un moderador retiró tu nombre. Pon otro en «Resultados y clasificaciones» para volver a aparecer.",
     "libreSeul": "Tu nombre",
-    "librePlace": "Tu nombre",
+    "librePlace": "Escríbelo aquí",
+    "suggestions": "O elige uno:",
     "autres": "Proponer otros",
     "pris": "Ese nombre ya está tomado hoy. Aquí tienes otros.",
     "deja": "Ya has dejado un nombre para hoy.",
