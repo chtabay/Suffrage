@@ -58,6 +58,16 @@ import type { ChoixDeNom, DepotNom, Tableau } from "@/lib/db/banalo";
 /** Le plancher d'affichage, celui de la base (`v_min`). Seul inscrit, on serait « premier sur un ». */
 const INSCRITS_MIN = 2;
 
+/**
+ * Où l'on se souvient d'avoir proposé les notifications.
+ *
+ * ⚠️ SANS NUMÉRO DE JOURNÉE NI NOM DE JEU, contrairement à `memoire`. Un
+ * abonnement vaut pour le navigateur, pour les deux jeux et pour toujours : le
+ * proposer une fois par jeu et par jour ferait quatorze boîtes par semaine pour
+ * une décision qui se prend une fois.
+ */
+const MEMOIRE_NOTIFS = "placet.jeux.notifs.propose";
+
 export default function TableauDuJour({
   skin,
   jeton,
@@ -133,7 +143,15 @@ export default function TableauDuJour({
    * par jeu et par journée, et jamais avant que la partie ne soit finie
    * (l'appelant ne monte ce bloc qu'à ce moment-là).
    */
-  const [modale, setModale] = useState(false);
+  const [modale, setModale] = useState<null | "nom" | "notifs">(null);
+  /**
+   * L'offre de notification a-t-elle un BOUTON à montrer ?
+   *
+   * ⚠️ SANS CETTE RÉPONSE ON OUVRIRAIT UNE BOÎTE VIDE. `OffreNotifs` se tait
+   * dans cinq cas et ne rend qu'une phrase dans trois autres ; ouvrir une modale
+   * pour annoncer « votre navigateur a refusé » serait du bruit.
+   */
+  const [notifsUtiles, setNotifsUtiles] = useState(false);
 
   const relis = useCallback(async () => (jeton ? lis() : null), [jeton, lis]);
 
@@ -210,7 +228,7 @@ export default function TableauDuJour({
       // Pas de mémoire : on propose quand même, une fois par chargement. Se
       // taire priverait de l'annonce ceux qui bloquent le stockage.
     }
-    setModale(true);
+    setModale("nom");
   }, [demande, memoire]);
 
   /**
@@ -236,6 +254,41 @@ export default function TableauDuJour({
     })();
   }, [jeton, tableau, inscritDOffice, deposeChoix, relis]);
 
+  /**
+   * L'OFFRE DE NOTIFICATION, PROPOSÉE UNE FOIS PAR NAVIGATEUR.
+   *
+   * ⚠️ C'EST LE TROU QU'UN JOUEUR A VU : « est-ce que la notif est demandée dès
+   * qu'on crée un compte ? ». Non — un connecté qui a un pseudo est INSCRIT
+   * D'OFFICE, donc `demande` est faux, donc la modale du nom ne s'ouvrait jamais
+   * pour lui. Il ne se voyait proposer les notifications nulle part, sauf sur
+   * `/games/quotidien` — la page que les joueurs ne visitent pas.
+   *
+   * ⚠️ UNE FOIS PAR NAVIGATEUR, PAS PAR JOURNÉE. Un nom se dépose chaque jour ;
+   * un abonnement se pose UNE fois et vaut pour toujours. Redemander chaque jour
+   * ferait la boîte qu'on ferme sans lire — le défaut que `rappelleLaMethode`
+   * évite chez Cinq sur cinq. Qui refuse garde le chemin des réglages.
+   *
+   * ⚠️ ET JAMAIS EN MÊME TEMPS QUE LA DEMANDE DE NOM : §0 n'admet qu'une
+   * demande. Celle du nom passe d'abord — elle ne vaut que pour aujourd'hui,
+   * l'autre attendra demain.
+   */
+  const offerte = useRef(false);
+  useEffect(() => {
+    if (offerte.current || demande || modale || !notifsUtiles) return;
+    offerte.current = true;
+    try {
+      if (window.localStorage.getItem(MEMOIRE_NOTIFS)) return;
+      window.localStorage.setItem(MEMOIRE_NOTIFS, "1");
+    } catch {
+      // Pas de mémoire : on propose une fois par chargement plutôt que jamais.
+    }
+    setModale("notifs");
+  }, [demande, modale, notifsUtiles]);
+
+  // ⚠️ MÉMORISÉ : passé en fonction fléchée, sa référence changerait à chaque
+  // rendu et l'effet de `OffreNotifs` rejouerait à chaque battement.
+  const ditSiUtile = useCallback((u: boolean) => setNotifsUtiles(u), []);
+
   const deposeLeNom = async () => {
     if (!jeton || envoi) return;
     const choix = choixDeNom(nom);
@@ -248,7 +301,7 @@ export default function TableauDuJour({
       const tb = await relis();
       if (tb) setTableau(tb);
       // Le nom est déposé : la boîte n'a plus rien à demander.
-      setModale(false);
+      setModale(null);
       return;
     }
     setSouci(r);
@@ -406,6 +459,25 @@ export default function TableauDuJour({
       ) : modale ? null : (
         formulaire
       )}
+
+      {/* ⚠️ L'OFFRE DE NOTIFICATION VIT DANS LA CARTE, la modale ne fait que la
+          MONTRER une fois. C'est elle qui dit au parent s'il y a un bouton, donc
+          elle doit être montée même quand la boîte est fermée — et c'est aussi
+          le lieu durable pour qui a fait « Plus tard » : sans ça, un refus la
+          ferait disparaître pour toujours.
+
+          ⚠️ ELLE SE TAIT PENDANT QU'ON DEMANDE UN NOM. §0 n'admet qu'une demande
+          à la fois, et le nom passe d'abord : il ne vaut que pour aujourd'hui. */}
+      {user && !demande ? (
+        <div style={{ marginTop: tableau.lignes.length > 0 ? 16 : 12 }}>
+          <OffreNotifs
+            skin={skin}
+            uid={user.id}
+            texte={t("modaleNotifsTexte")}
+            onUtile={ditSiUtile}
+          />
+        </div>
+      ) : null}
     </GCard>
 
     {/* ⚠️ LA MODALE PORTE LE MÊME FORMULAIRE, jamais une copie — voir sa
@@ -416,9 +488,11 @@ export default function TableauDuJour({
     {modale ? (
       <Modale
         skin={skin}
-        titre={t("modaleTitre")}
-        texte={t("modaleTexte")}
-        fermer={() => setModale(false)}
+        /* ⚠️ LES QUATRE CLÉS SONT ÉCRITES EN CLAIR, deux par branche : une clé
+           choisie en variable échapperait au contrôle de parité i18n. */
+        titre={modale === "notifs" ? t("modaleNotifsTitre") : t("modaleTitre")}
+        texte={modale === "notifs" ? t("modaleNotifsTexte") : t("modaleTexte")}
+        fermer={() => setModale(null)}
         fermerLabel={t("modalePlusTard")}
         /* ⚠️ « Plus tard » S'EFFACE : le geste de la boîte est de se nommer, et
            un bouton de sortie plein et pleine largeur devient l'élément le plus
@@ -426,7 +500,12 @@ export default function TableauDuJour({
            est venu faire. Même leçon que le tiroir de création d'un groupe. */
         fermerDiscret
       >
-        {formulaire}
+        {modale === "notifs" ? (
+          /* La boîte des notifications ne porte QUE le bouton : le joueur est
+             déjà nommé, il n'a rien d'autre à faire ici. */
+          <OffreNotifs skin={skin} uid={user?.id ?? null} texte={t("modaleNotifsPitch")} />
+        ) : null}
+        {modale === "nom" ? formulaire : null}
         {/* ⚠️ LES NOTIFICATIONS NE SE PROPOSENT QU'À UN COMPTE — réglages et
             tournée sont indexés sur `user_id`. C'est aussi pourquoi elles
             prennent EXACTEMENT la place que l'offre de compte laisse vide :
@@ -439,7 +518,7 @@ export default function TableauDuJour({
             il GARDE le résultat arrêté et le rend quand le joueur revient. Le
             genre `journee` existe en base depuis le 01/09 et n'était offert que
             sur `/games/quotidien`, la page que les joueurs ne visitent pas. */}
-        {user ? (
+        {user && modale === "nom" ? (
           <div style={{ marginTop: 22, borderTop: `1px dashed ${skin.muted}55`, paddingTop: 16 }}>
             <GLabel skin={skin}>{t("modaleNotifs")}</GLabel>
             <div style={{ marginTop: 8 }}>
@@ -451,7 +530,7 @@ export default function TableauDuJour({
             sans pseudo, ce bloc lui offrirait de se connecter alors qu'il l'est
             déjà — et `ChoisirSonNom` vient précisément de lui dire que le nom
             qu'il tape DEVIENDRA son pseudo Placet. */}
-        {user ? null : (
+        {!user && modale === "nom" ? (
           <div style={{ marginTop: 22, borderTop: `1px dashed ${skin.muted}55`, paddingTop: 16 }}>
             <GLabel skin={skin}>{t("modaleCompte")}</GLabel>
             <p style={{ margin: "6px 0 0", fontSize: 13, color: skin.muted, lineHeight: 1.5 }}>
@@ -461,7 +540,7 @@ export default function TableauDuJour({
               <ConnexionJeux skin={skin} />
             </div>
           </div>
-        )}
+        ) : null}
       </Modale>
     ) : null}
     </>

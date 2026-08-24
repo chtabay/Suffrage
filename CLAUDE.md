@@ -1355,6 +1355,31 @@ elle n'en ouvre pas trois. Et le genre `journee` existe en base depuis le 01/09,
 offert seulement sur `/games/quotidien` — la page que les joueurs ne visitent
 pas.
 
+⚠️ **ET LA MODALE A DEUX RAISONS DE S'OUVRIR, PARCE QU'UN JOUEUR A VU LE TROU** :
+« est-ce que la notif est demandée dès qu'on crée un compte ? ». Non — un
+connecté qui a un pseudo est **inscrit d'office**, donc `demande` est faux, donc
+la modale du nom ne s'ouvrait jamais pour lui. Celui qui vient précisément de
+créer un compte ne se voyait donc proposer les notifications **nulle part**. La
+seconde raison (`modale === "notifs"`) couvre exactement ce cas.
+
+⚠️ **UNE FOIS PAR NAVIGATEUR, PAS PAR JOURNÉE** (`MEMOIRE_NOTIFS`, sans numéro
+ni nom de jeu). Un nom se dépose chaque jour ; un abonnement se pose UNE fois et
+vaut pour les deux jeux et pour toujours. Le proposer par jeu et par jour ferait
+quatorze boîtes par semaine pour une décision qui se prend une fois.
+
+⚠️ **ET JAMAIS EN MÊME TEMPS QUE LA DEMANDE DE NOM** : §0 n'admet qu'une
+demande, et le nom passe d'abord — il ne vaut que pour aujourd'hui, l'autre
+attendra.
+
+⚠️ **`OffreNotifs` DIT À SON APPELANT S'IL Y A UN BOUTON (`onUtile`), ET SANS ÇA
+LA BOÎTE S'OUVRIRAIT VIDE.** Elle se tait dans cinq cas (pas de compte, pas de
+clé VAPID, déjà abonné ici, lecture en cours) et ne rend qu'une PHRASE dans
+trois autres (iPhone sans installation, permission refusée, navigateur
+incapable). Une modale qui surgit pour annoncer « votre navigateur a refusé »
+est du bruit : `PAS D'ACCROCHE SANS BOUTON`, la règle d'`InstallJeu`. Vérifié au
+navigateur dans les DEUX sens — avec une clé VAPID posée le temps d'un build,
+elle s'ouvre avec son bouton ; sans, elle ne s'ouvre pas du tout.
+
 ⚠️ **L'OFFRE EST SORTIE DANS `OffreNotifs`, PAS RECOPIÉE.** Elle vit désormais à
 deux endroits ; `Notifications` garde ses interrupteurs et lui passe `appareils`
 pour lui éviter de relire ce qu'elle a déjà lu. La PHRASE voyage en paramètre :

@@ -33,6 +33,7 @@ export default function OffreNotifs({
   appareils,
   texte,
   onAbonne,
+  onUtile,
 }: {
   skin: GameSkin;
   /**
@@ -63,6 +64,18 @@ export default function OffreNotifs({
   texte?: string;
   /** Prévient l'appelant qu'un abonnement vient d'être posé. */
   onAbonne?: () => void;
+  /**
+   * Prévient l'appelant qu'il y a un BOUTON à montrer, pas seulement un texte.
+   *
+   * ⚠️ C'EST CE QUI PERMET D'OUVRIR UNE MODALE SANS RISQUER QU'ELLE SOIT VIDE.
+   * Ce composant se tait dans cinq cas — pas de compte, pas de clé VAPID, déjà
+   * abonné ici, lecture en cours — et dans trois autres il ne rend qu'une
+   * phrase d'empêchement (iPhone sans installation, permission refusée,
+   * navigateur incapable). Une boîte qui surgit pour dire « votre navigateur a
+   * refusé » est du bruit ; l'appelant doit pouvoir le savoir AVANT d'ouvrir.
+   * `PAS D'ACCROCHE SANS BOUTON`, la même règle que `InstallJeu`.
+   */
+  onUtile?: (utile: boolean) => void;
 }) {
   const t = useTranslations("NotifsJeux");
   const { supported, permission } = useNotify();
@@ -116,13 +129,6 @@ export default function OffreNotifs({
     onAbonne?.();
   }, [onAbonne]);
 
-  if (!uid) return null;
-  // ⚠️ SANS CLÉ VAPID, RIEN. La plomberie n'est pas déployée, donc l'abonnement
-  // échouerait : un bloc qui s'excuse vaut moins qu'un bloc absent.
-  if (!notifyDeployed()) return null;
-  // Déjà abonné ICI, ou pas encore su : dans les deux cas on se tait.
-  if (ici !== false || combien === null) return null;
-
   /**
    * Ce qui manque à CET appareil, dit en une phrase — jamais un silence.
    *
@@ -135,6 +141,21 @@ export default function OffreNotifs({
    */
   const empechement =
     ios ? t("iosInstaller") : permission === "denied" ? t("refusee") : !supported ? t("nonSupporte") : null;
+
+  // ⚠️ SANS CLÉ VAPID, RIEN : la plomberie n'est pas déployée, donc l'abonnement
+  // échouerait. Un bloc qui s'excuse vaut moins qu'un bloc absent. Et déjà
+  // abonné ici — ou pas encore su — on se tait aussi.
+  const montre = Boolean(uid) && notifyDeployed() && ici === false && combien !== null;
+
+  // ⚠️ DANS UN EFFET, PAS PENDANT LE RENDU : prévenir l'appelant au fil du rendu
+  // ferait un `setState` du parent pendant le rendu de l'enfant, ce que React
+  // refuse. Même garde que `onDemande` dans `TableauDuJour`.
+  const utile = montre && !empechement;
+  useEffect(() => {
+    onUtile?.(utile);
+  }, [utile, onUtile]);
+
+  if (!montre) return null;
 
   return (
     <div>
