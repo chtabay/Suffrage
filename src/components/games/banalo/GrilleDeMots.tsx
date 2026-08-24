@@ -510,6 +510,7 @@ export default function GrilleDeMots({
             lis={lisLeTableau}
             depose={deposeLeNom}
             score={scoreEnMots}
+            memoire={`placet.banalo.nom.${jour}`}
             explication={t("tableau.pourquoi")}
             duree={t("tableau.duree")}
             onDemande={setNomDemande}

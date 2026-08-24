@@ -1288,6 +1288,67 @@ inscrit de la journée était indiscernable de quelqu'un qui n'a rien déposé,
 l'écran lui reproposait le formulaire et la base répondait « deja » à un joueur
 qui n'avait rien demandé. Trouvé en jouant, pas à la relecture.
 
+**L'EFFECTIF DU TABLEAU PROMETTAIT DES LIGNES QUI N'EXISTAIENT PAS**
+(`20260914-jeux-nom-suit-le-jeton-resolu.sql`) — signalé : « je ne vois pas la
+liste des classés de la veille alors qu'il est précisé que 2 personnes avaient
+laissé un pseudo ». Vérifié : la base rendait `inscrits: 2` et **une seule
+ligne**.
+
+⚠️ **LA CAUSE N'EST PAS DANS LE TABLEAU, C'EST LA MOITIÉ OUBLIÉE DE `20260910`.**
+Cette migration-là avait posé « le jeton se RÉSOUT avant tout le reste » et ne
+l'avait appliquée qu'aux deux fonctions d'ÉTAT. Le NOM est resté sur le jeton
+BRUT du navigateur, au dépôt comme à la lecture. Sur un second appareil, l'état
+suit le compte — donc l'écran d'après-partie s'affiche — et **l'inscription
+d'office dépose un nom sous le jeton de cet appareil-là**, qui n'a aucune
+réponse. La journée 4 portait deux lignes « Le duc » pour un seul compte.
+
+⚠️ **ET LE COMPTE NE COMPTAIT PAS CE QUE LA LISTE MONTRE.** La liste joint
+`scrutin_banalo_scores` sur le jeton ; `v_inscrits` comptait SANS cette jointure.
+D'où « 2 inscrits, 1 ligne », et jusqu'à « 2 inscrits, 0 ligne » pour un compte
+dont la réponse vit sous un autre jeton. **C'est un invariant, pas un réglage :
+le nombre annoncé sous une liste doit être le nombre de lignes que cette liste
+aurait sans sa coupe** — écrits séparément, les deux dérivent, et c'est
+l'effectif qu'on croit puisqu'il est en toutes lettres. ⚠️ Cinq sur cinq n'avait
+pas le défaut, et c'est vérifié : `scrutin_game_pays_tableau` comptait déjà avec
+le filtre de sa liste.
+
+⚠️ **TROIS CORRECTIONS, ET IL FAUT LES TROIS** : le client résout le jeton sur
+les deux chemins du nom (`litTableauDuJour`, `deposeNom`) ; l'effectif joint les
+scores ; et **un INDEX** (`banalo_noms_par_compte`, `pays_noms_par_compte`)
+interdit à un compte de tenir deux lignes — la garde est un index, pas une
+condition d'écran, un vieux client déployé garderait son jeton brut.
+
+⚠️ **ET « déjà déposé » SE DIT AVANT L'INDEX.** Le gestionnaire
+d'`unique_violation` cherche une ligne pour CE jeton ; l'index porte sur le
+COMPTE, donc rien ne correspond et le dépôt retombait sur « ce nom est déjà
+porté » — un message qui envoie choisir un autre nom alors qu'aucun ne marchera.
+
+**ON PROPOSE DE SE NOMMER DANS UNE MODALE** (`TableauDuJour`), demandé tel quel :
+« pour un joueur sans pseudo il faudrait une modale qui propose de renseigner un
+pseudo ou se connecter/créer un compte ». ⚠️ **ELLE SURGIT, ET C'EST UNE
+EXCEPTION ASSUMÉE** à la règle « une modale que le joueur ouvre n'est pas une
+modale qui surgit » : le formulaire posé en bas d'un écran de 2 400 px ne se
+voyait pas — troisième reproche de terrain de la même semaine sur un bloc trop
+discret. Deux gardes la rendent tenable : **une fois par jeu et par journée**
+(`memoire`, une clé de `localStorage`) et jamais avant la fin de la partie.
+
+⚠️ **LA MARQUE S'ÉCRIT À L'OUVERTURE, PAS À LA FERMETURE** : écrite en fermant,
+elle manquerait à tous ceux qui rechargent ou quittent sans répondre, et la
+boîte reviendrait au chargement suivant — la boîte qu'on ferme sans lire.
+
+⚠️ **LE FORMULAIRE EXISTE EN UN SEUL EXEMPLAIRE**, et la carte s'en passe tant
+que la modale est ouverte. Rendus tous les deux, ils montreraient les MÊMES
+suggestions (même jeton, même graine, même tour) dans deux boîtes voulant dire
+deux choses — le défaut déjà payé entre le tableau et la tablée. ⚠️ Et la phrase
+d'invite reste dans la CARTE : la boîte a déjà un titre et une phrase qui disent
+la même chose, empilées on lisait deux fois « laissez un nom ». Ça ne se voit
+qu'à l'écran.
+
+⚠️ **LE COMPTE N'EST OFFERT QU'À QUI N'EN A PAS**, et « Plus tard » est en
+`ghost` : le geste de la boîte est de se nommer, un bouton de sortie plein
+deviendrait l'élément le plus fort de la carte. Mesuré : 914 px de contenu dans
+732 px visibles — elle défile, Échap et le fond ferment.
+
 **LA JOURNÉE ARRÊTÉE MONTRE SON TABLEAU** (`ListeDuTableau.tsx`, 2026-08-24) —
 demandé tel quel : « quand on affiche l'aperçu de la journée précédente, il
 faudrait y voir le classement des premiers dans la veille, avec sa position

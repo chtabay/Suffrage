@@ -713,6 +713,7 @@ export default function PaysDuJour({ jour }: { jour: number }) {
               lis={lisLeTableau}
               depose={deposeLeNom}
               score={essaisEnMots}
+              memoire={`placet.pays.nom.${jour}`}
               explication={t("tableau.pourquoi")}
               duree={t("tableau.duree")}
             />

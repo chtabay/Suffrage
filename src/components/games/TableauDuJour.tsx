@@ -50,6 +50,8 @@ import { GBtn, GCard, GLabel } from "@/components/games/ui";
 import { nomDe } from "@/content/banalo/noms";
 import ChoisirSonNom, { NOM_VIERGE, choixDeNom, type EtatNom } from "./ChoisirSonNom";
 import ListeDuTableau from "./ListeDuTableau";
+import ConnexionJeux from "./ConnexionJeux";
+import Modale from "./Modale";
 import type { ChoixDeNom, DepotNom, Tableau } from "@/lib/db/banalo";
 
 
@@ -64,6 +66,7 @@ export default function TableauDuJour({
   score: enMots,
   explication,
   duree,
+  memoire,
   onDemande,
 }: {
   skin: GameSkin;
@@ -86,6 +89,16 @@ export default function TableauDuJour({
   explication: string;
   /** Ce que devient ce nom, en une phrase — ou `null` si le joueur a un compte. */
   duree: string;
+  /**
+   * De quoi se souvenir qu'on a déjà proposé, pour CE jeu et CETTE journée.
+   *
+   * ⚠️ LA MODALE NE S'OUVRE QU'UNE FOIS PAR JOURNÉE, et c'est ce qui la rend
+   * acceptable. `AideModale` est la seule modale des jeux pour une raison
+   * précise — « une fois par aide et par partie » —, et une boîte qui surgit à
+   * chaque visite devient la boîte qu'on ferme sans lire, ce qui userait la
+   * seule forme d'annonce dont le jeu dispose.
+   */
+  memoire: string;
   /**
    * Prévient le parent que CE bloc demande un nom au joueur.
    *
@@ -110,6 +123,18 @@ export default function TableauDuJour({
   const [nom, setNom] = useState<EtatNom>(NOM_VIERGE);
   const [envoi, setEnvoi] = useState(false);
   const [souci, setSouci] = useState<DepotNom | null>(null);
+  /**
+   * LA MODALE QUI PROPOSE DE SE NOMMER.
+   *
+   * ⚠️ ELLE SURGIT, ET C'EST UNE EXCEPTION ASSUMÉE. La règle du dépôt est
+   * qu'« une modale que le joueur ouvre n'est pas une modale qui surgit » ;
+   * celle-ci surgit parce que le formulaire posé en bas d'un écran de 2 400 px
+   * ne se voyait pas — c'est le troisième reproche de terrain de la même
+   * semaine sur un bloc trop discret. Deux gardes la rendent tenable : UNE FOIS
+   * par jeu et par journée, et jamais avant que la partie ne soit finie
+   * (l'appelant ne monte ce bloc qu'à ce moment-là).
+   */
+  const [modale, setModale] = useState(false);
 
   const relis = useCallback(async () => (jeton ? lis() : null), [jeton, lis]);
 
@@ -164,6 +189,32 @@ export default function TableauDuJour({
   }, [demande, onDemande]);
 
   /**
+   * L'OUVERTURE, UNE SEULE FOIS.
+   *
+   * ⚠️ LA MARQUE S'ÉCRIT À L'OUVERTURE, PAS À LA FERMETURE. Écrite en fermant,
+   * elle manquerait à tous ceux qui rechargent la page ou la quittent sans
+   * répondre : la boîte reviendrait au chargement suivant, c'est-à-dire
+   * exactement la boîte qu'on ferme sans lire.
+   *
+   * ⚠️ ET LE `ref` NE SUFFIT PAS TOUT SEUL. Il empêche la boucle dans CETTE
+   * page ; c'est `localStorage` qui tient la promesse d'une seule fois par
+   * journée. Le `try` est nécessaire : en navigation privée, y écrire lève.
+   */
+  const proposee = useRef(false);
+  useEffect(() => {
+    if (proposee.current || !demande) return;
+    proposee.current = true;
+    try {
+      if (window.localStorage.getItem(memoire)) return;
+      window.localStorage.setItem(memoire, "1");
+    } catch {
+      // Pas de mémoire : on propose quand même, une fois par chargement. Se
+      // taire priverait de l'annonce ceux qui bloquent le stockage.
+    }
+    setModale(true);
+  }, [demande, memoire]);
+
+  /**
    * L'INSCRIPTION D'OFFICE, une seule fois par écran.
    *
    * ⚠️ LE `ref` N'EST PAS UNE PRÉCAUTION DE STYLE. `depose` et `lis` arrivent en
@@ -197,6 +248,8 @@ export default function TableauDuJour({
     if (r === "ok") {
       const tb = await relis();
       if (tb) setTableau(tb);
+      // Le nom est déposé : la boîte n'a plus rien à demander.
+      setModale(false);
       return;
     }
     setSouci(r);
@@ -219,7 +272,90 @@ export default function TableauDuJour({
 
   const pret = choixDeNom(nom) !== null;
 
+  /**
+   * LE FORMULAIRE, EN UN SEUL EXEMPLAIRE.
+   *
+   * ⚠️ IL NE PEUT PAS ÊTRE RENDU DEUX FOIS. La carte et la modale montreraient
+   * les MÊMES trois suggestions (même jeton, même graine, même tour) dans deux
+   * boîtes voulant dire deux choses — exactement le défaut déjà payé entre le
+   * tableau et la tablée, où le joueur voyait deux fois « Renard des sables ».
+   * Tant que la modale est ouverte, la carte s'en passe.
+   */
+  const formulaire = (
+      <div style={{ marginTop: tableau.lignes.length > 0 ? 16 : 10 }}>
+        {/* ⚠️ L'INVITE EST DANS LA CARTE, PAS DANS LA MODALE. La boîte a déjà un
+            TITRE et une phrase qui disent la même chose ; empilées, on lisait
+            « Laissez un nom : les autres joueurs verront votre résultat » puis
+            « Laissez un nom pour figurer au tableau de la journée ». Ça ne se
+            voit qu'à l'écran. */}
+        {modale ? null : (
+          <p style={{ margin: 0, fontSize: 13.5, lineHeight: 1.5 }}>{t("invite")}</p>
+        )}
+
+        <ChoisirSonNom
+          skin={skin}
+          jeton={jeton}
+          explication={explication}
+          connecte={Boolean(user)}
+          etat={nom}
+          setEtat={(e) => {
+            setNom(e);
+            setSouci(null);
+          }}
+        />
+
+        {/* ⚠️ LE MESSAGE SE POSE SOUS LES PASTILLES, PAS SOUS LE BOUTON. Vu à
+            l'écran : plus bas, « ce nom est déjà porté » se lisait quatre
+            lignes après la liste qu'il vient de renouveler, et le joueur ne
+            faisait pas le lien entre les deux. */}
+        {/* ⚠️ LES CLÉS SONT ÉCRITES EN CLAIR, une par branche : une clé choisie
+            en variable échapperait au contrôle de parité i18n. */}
+        {souci ? (
+          <p style={{ margin: "10px 0 0", fontSize: 13, fontWeight: 700, color: skin.ink }}>
+            {souci === "pris" ? t("pris") : null}
+            {souci === "deja" ? t("deja") : null}
+            {souci === "court" ? t("court") : null}
+            {souci === "long" ? t("long") : null}
+            {souci === "bloque" ? t("pseudoRetire") : null}
+            {souci === "panne" || souci === "refus" || souci === "compte" || souci === "pseudo"
+              ? t("panne")
+              : null}
+          </p>
+        ) : null}
+        <GBtn
+          skin={skin}
+          variant="accent"
+          size="md"
+          full
+          style={{ marginTop: 12 }}
+          disabled={!pret || envoi}
+          onClick={() => void deposeLeNom()}
+        >
+          {t("deposer")}
+        </GBtn>
+
+        {/* ⚠️ CETTE PHRASE NE S'ADRESSE QU'À QUI N'A PAS DE COMPTE, pour deux
+            raisons. Elle serait FAUSSE pour les autres — derrière un compte le
+            nom est le pseudo Placet, permanent. Et elle serait REDONDANTE :
+            `ChoisirSonNom` vient de dire, deux lignes plus haut, soit « c'est
+            votre pseudo Placet », soit « ce nom devient votre pseudo Placet ».
+            Vu à l'écran : les deux phrases s'empilaient et disaient la même
+            chose deux fois.
+
+            Pour un anonyme elle reste nécessaire : « ce nom ne vaut que pour
+            aujourd'hui » est la différence entre ce tableau et le « nom
+            permanent et découvrable » que `docs/regularite-des-joueurs.md` §5
+            donnait comme le vrai coût d'un système d'amis. */}
+        {user ? null : (
+          <p style={{ margin: "10px 0 0", fontSize: 12.5, color: skin.muted, lineHeight: 1.45 }}>
+            {duree}
+          </p>
+        )}
+      </div>
+  );
+
   return (
+    <>
     <GCard skin={skin} padding={18}>
       <GLabel skin={skin}>{t("titre")}</GLabel>
 
@@ -268,71 +404,47 @@ export default function TableauDuJour({
             </p>
           ) : null}
         </>
-      ) : (
-        <div style={{ marginTop: tableau.lignes.length > 0 ? 16 : 10 }}>
-          <p style={{ margin: 0, fontSize: 13.5, lineHeight: 1.5 }}>{t("invite")}</p>
-
-          <ChoisirSonNom
-            skin={skin}
-            jeton={jeton}
-            explication={explication}
-            connecte={Boolean(user)}
-            etat={nom}
-            setEtat={(e) => {
-              setNom(e);
-              setSouci(null);
-            }}
-          />
-
-          {/* ⚠️ LE MESSAGE SE POSE SOUS LES PASTILLES, PAS SOUS LE BOUTON. Vu à
-              l'écran : plus bas, « ce nom est déjà porté » se lisait quatre
-              lignes après la liste qu'il vient de renouveler, et le joueur ne
-              faisait pas le lien entre les deux. */}
-          {/* ⚠️ LES CLÉS SONT ÉCRITES EN CLAIR, une par branche : une clé choisie
-              en variable échapperait au contrôle de parité i18n. */}
-          {souci ? (
-            <p style={{ margin: "10px 0 0", fontSize: 13, fontWeight: 700, color: skin.ink }}>
-              {souci === "pris" ? t("pris") : null}
-              {souci === "deja" ? t("deja") : null}
-              {souci === "court" ? t("court") : null}
-              {souci === "long" ? t("long") : null}
-              {souci === "bloque" ? t("pseudoRetire") : null}
-              {souci === "panne" || souci === "refus" || souci === "compte" || souci === "pseudo"
-                ? t("panne")
-                : null}
-            </p>
-          ) : null}
-          <GBtn
-            skin={skin}
-            variant="accent"
-            size="md"
-            full
-            style={{ marginTop: 12 }}
-            disabled={!pret || envoi}
-            onClick={() => void deposeLeNom()}
-          >
-            {t("deposer")}
-          </GBtn>
-
-          {/* ⚠️ CETTE PHRASE NE S'ADRESSE QU'À QUI N'A PAS DE COMPTE, pour deux
-              raisons. Elle serait FAUSSE pour les autres — derrière un compte le
-              nom est le pseudo Placet, permanent. Et elle serait REDONDANTE :
-              `ChoisirSonNom` vient de dire, deux lignes plus haut, soit « c'est
-              votre pseudo Placet », soit « ce nom devient votre pseudo Placet ».
-              Vu à l'écran : les deux phrases s'empilaient et disaient la même
-              chose deux fois.
-
-              Pour un anonyme elle reste nécessaire : « ce nom ne vaut que pour
-              aujourd'hui » est la différence entre ce tableau et le « nom
-              permanent et découvrable » que `docs/regularite-des-joueurs.md` §5
-              donnait comme le vrai coût d'un système d'amis. */}
-          {user ? null : (
-            <p style={{ margin: "10px 0 0", fontSize: 12.5, color: skin.muted, lineHeight: 1.45 }}>
-              {duree}
-            </p>
-          )}
-        </div>
+      ) : modale ? null : (
+        formulaire
       )}
     </GCard>
+
+    {/* ⚠️ LA MODALE PORTE LE MÊME FORMULAIRE, jamais une copie — voir sa
+        déclaration. Elle y ajoute la SECONDE porte : un compte. Les deux
+        répondent à la même question (« sous quel nom ? »), mais l'une nomme
+        pour aujourd'hui et l'autre pour toujours, et c'est au joueur de
+        choisir. */}
+    {modale ? (
+      <Modale
+        skin={skin}
+        titre={t("modaleTitre")}
+        texte={t("modaleTexte")}
+        fermer={() => setModale(false)}
+        fermerLabel={t("modalePlusTard")}
+        /* ⚠️ « Plus tard » S'EFFACE : le geste de la boîte est de se nommer, et
+           un bouton de sortie plein et pleine largeur devient l'élément le plus
+           fort de la carte — l'œil va vers la sortie plutôt que vers ce qu'on
+           est venu faire. Même leçon que le tiroir de création d'un groupe. */
+        fermerDiscret
+      >
+        {formulaire}
+        {/* ⚠️ LE COMPTE N'EST PROPOSÉ QU'À QUI N'EN A PAS. Servi à un connecté
+            sans pseudo, ce bloc lui offrirait de se connecter alors qu'il l'est
+            déjà — et `ChoisirSonNom` vient précisément de lui dire que le nom
+            qu'il tape DEVIENDRA son pseudo Placet. */}
+        {user ? null : (
+          <div style={{ marginTop: 22, borderTop: `1px dashed ${skin.muted}55`, paddingTop: 16 }}>
+            <GLabel skin={skin}>{t("modaleCompte")}</GLabel>
+            <p style={{ margin: "6px 0 0", fontSize: 13, color: skin.muted, lineHeight: 1.5 }}>
+              {t("modaleComptePitch")}
+            </p>
+            <div style={{ marginTop: 12 }}>
+              <ConnexionJeux skin={skin} />
+            </div>
+          </div>
+        )}
+      </Modale>
+    ) : null}
+    </>
   );
 }

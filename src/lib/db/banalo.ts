@@ -609,7 +609,12 @@ export async function litTableauDuJour(
 ): Promise<Tableau | null> {
   const supabase = createClient();
   const { data, error } = await supabase.rpc("scrutin_banalo_tableau", {
-    p_jeton: jeton,
+    // ⚠️ LE JETON RÉSOLU, COMME POUR L'ÉTAT. `20260910` avait posé la règle « le
+    // jeton se résout avant tout le reste » et ne l'avait appliquée qu'aux deux
+    // fonctions d'état ; le NOM était resté sur le jeton brut. Sur un second
+    // appareil, ma ligne cessait donc d'être la mienne — `moi` comparait un
+    // jeton qui n'avait jamais répondu.
+    p_jeton: await jetonDeLaJournee(jeton, jour, langue),
     p_jour: jour,
     p_langue: langue,
     p_theme: theme,
@@ -656,7 +661,13 @@ export async function deposerNom(
 ): Promise<DepotNom> {
   const supabase = createClient();
   const { data, error } = await supabase.rpc("scrutin_banalo_nom_deposer", {
-    p_jeton: jeton,
+    // ⚠️ ET SURTOUT AU DÉPÔT : c'est lui qui FABRIQUAIT le défaut. L'inscription
+    // d'office se déclenche au rendu de l'après-partie ; sur un second appareil
+    // — où l'écran s'affiche parce que l'état suit le compte — elle déposait un
+    // nom sous le jeton BRUT de cet appareil, qui n'a aucune réponse. La journée
+    // portait alors deux lignes pour un compte, dont une invisible au tableau,
+    // et l'effectif comptait les deux.
+    p_jeton: await jetonDeLaJournee(jeton, jour, langue),
     p_jour: jour,
     p_langue: langue,
     ...nomEnArgs(choix),
