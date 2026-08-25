@@ -82,7 +82,6 @@
     "confirmDeleteUser": "Delete di account {email} forever? Dem groups go delete; dem polls go still dey reachable by link (detached from di account). E no fit undo.",
     "userLinkedElsewhere": "We no fit delete: dis account get data for di other application of di shared database.",
     "userActionFailed": "Action no work — try again.",
-    "pseudosTitle": "Names for daily games",
     "notifsTitre": "Di accounts wey dey play",
     "notifsHint": "Dem no dey show for “People”: dat tab dey list only accounts wey get poll, space or event. Row wey dem highlight na account wey subscribe but never collect anything.",
     "notifsVide": "No account never play yet.",
@@ -93,7 +92,6 @@
     "notifsSansHebdo": "no weekly",
     "notifsSansSaison": "no season",
     "pseudosHint": "You dey block NAME, no be player: di account go still play and still see im own progress, but im name go comot from di long-run rankings until e pick anoda one.",
-    "pseudosEmpty": "Nobody don set name yet.",
     "pseudoBlock": "Remove",
     "pseudoUnblock": "Restore"
   },

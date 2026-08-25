@@ -82,7 +82,6 @@
     "confirmDeleteUser": "Permanently delete the account {email}? Their groups will be deleted; their polls stay reachable by link (detached from the account). Irreversible.",
     "userLinkedElsewhere": "Deletion refused: this account has data in the other application of the shared database.",
     "userActionFailed": "Action failed — try again.",
-    "pseudosTitle": "Daily-game names",
     "notifsTitre": "The accounts that play",
     "notifsHint": "They do not show up under “People”: that tab only lists accounts with a poll, a space or an event. A highlighted row is a subscribed account that has never received anything.",
     "notifsVide": "No account has played yet.",
@@ -93,7 +92,6 @@
     "notifsSansHebdo": "no weekly",
     "notifsSansSaison": "no season",
     "pseudosHint": "You block a NAME, not a player: the account keeps playing and keeps seeing its own progress, but its name drops out of the long-run rankings until they pick another.",
-    "pseudosEmpty": "No name set yet.",
     "pseudoBlock": "Remove",
     "pseudoUnblock": "Restore"
   },

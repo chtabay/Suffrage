@@ -82,7 +82,6 @@
     "confirmDeleteUser": "Supprimer définitivement le compte {email} ? Ses groupes seront supprimés ; ses scrutins resteront accessibles par lien (détachés du compte). Irréversible.",
     "userLinkedElsewhere": "Suppression refusée : ce compte a des données dans l'autre application de la base partagée.",
     "userActionFailed": "Action impossible — réessayez.",
-    "pseudosTitle": "Pseudos des jeux quotidiens",
     "notifsTitre": "Les comptes qui jouent",
     "notifsHint": "Ils n'apparaissent pas dans « Personnes » : cet onglet-là ne liste que les comptes qui ont un scrutin, un espace ou un événement. Une ligne surlignée est un compte abonné qui n'a jamais rien reçu.",
     "notifsVide": "Aucun compte n'a encore joué.",
@@ -93,7 +92,6 @@
     "notifsSansHebdo": "sans hebdo",
     "notifsSansSaison": "sans saison",
     "pseudosHint": "On bloque un NOM, pas un joueur : le compte continue de jouer et de voir sa progression, mais son pseudo disparaît des classements sur la durée jusqu'à ce qu'il en pose un autre.",
-    "pseudosEmpty": "Aucun pseudo déposé pour l'instant.",
     "pseudoBlock": "Retirer",
     "pseudoUnblock": "Rétablir"
   },

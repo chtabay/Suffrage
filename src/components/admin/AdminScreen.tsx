@@ -18,10 +18,8 @@ import {
   type AdminPollRow,
   type AdminUser,
   adminNotifs,
-  adminPseudos,
   adminBloquerPseudo,
   type AdminNotif,
-  type AdminPseudo,
 } from "@/lib/db/admin";
 import { intlLocale } from "@/i18n/locales";
 import Nav from "@/components/scrutin/Nav";
@@ -111,9 +109,6 @@ export default function AdminScreen() {
   const [query, setQuery] = useState("");
   const [busy, setBusy] = useState<string | null>(null);
   const [usersNotice, setUsersNotice] = useState<string | null>(null);
-  // LES PSEUDOS DES JEUX QUOTIDIENS — la prise pour agir sur le seul nom du
-  // produit qui survive à une journée.
-  const [pseudos, setPseudos] = useState<AdminPseudo[]>([]);
   /**
    * QUATRE ONGLETS, QUATRE MÉTIERS.
    *
@@ -125,29 +120,28 @@ export default function AdminScreen() {
    * votes. Séparer, c'est rendre chaque question atteignable en un geste.
    *
    * ⚠️ ET « JEUX » EST UN ONGLET PRESQUE VIDE, VOLONTAIREMENT. Il ne porte
-   * aujourd'hui que le blocage des pseudos : la Régie ne sait RIEN des jeux —
-   * ni combien de journées jouées, ni combien de joueurs, ni combien de salles
-   * ouvertes — alors qu'ils sont la moitié du produit. L'onglet le montre au
-   * lieu de le cacher au fond d'un rouleau.
+   * aujourd'hui que les comptes qui jouent et la prise sur leur pseudo : la
+   * Régie ne sait RIEN des jeux — ni combien de journées jouées, ni combien de
+   * joueurs, ni combien de salles ouvertes — alors qu'ils sont la moitié du
+   * produit. L'onglet le montre au lieu de le cacher au fond d'un rouleau.
    */
   const [notifs, setNotifs] = useState<AdminNotif[]>([]);
   const [onglet, setOnglet] = useState<"apercu" | "scrutins" | "jeux" | "personnes">("apercu");
 
-  const basculePseudo = async (p: AdminPseudo) => {
-    setBusy(p.userId);
-    const ok = await adminBloquerPseudo(p.userId, !p.bloque);
+  const basculePseudo = async (c: AdminNotif) => {
+    setBusy(c.id);
+    const ok = await adminBloquerPseudo(c.id, !c.bloque);
     setBusy(null);
     // On relit plutôt que de deviner : un échec silencieux laisserait l'écran
     // afficher un blocage qui n'a pas eu lieu.
-    if (ok) setPseudos((await adminPseudos()) ?? []);
+    if (ok) setNotifs((await adminNotifs()) ?? []);
   };
 
   const load = useCallback(async () => {
     try {
-      const [overview, userList, noms, abonnes] = await Promise.all([
+      const [overview, userList, abonnes] = await Promise.all([
         adminOverview(),
         adminListUsers(),
-        adminPseudos(),
         adminNotifs(),
       ]);
       if (!overview) {
@@ -157,7 +151,6 @@ export default function AdminScreen() {
       }
       setData(overview);
       setUsers(userList ?? []);
-      setPseudos(noms ?? []);
       setNotifs(abonnes ?? []);
       setState("ready");
     } catch {
@@ -791,13 +784,38 @@ export default function AdminScreen() {
           ⚠️ LA COLONNE QUI COMPTE EST LA DERNIÈRE NOTIFICATION. Des appareils
           abonnés et « jamais » en face, c'est exactement le défaut qu'on vient
           de corriger : la tournée sortait en silence sur un numéro de journée
-          `NaN`. Sans cette colonne, rien ne le montrait nulle part. */}
+          `NaN`. Sans cette colonne, rien ne le montrait nulle part.
+
+          ⚠️ ET C'EST ICI QUE LE PSEUDO SE RETIRE, DEPUIS QUE LA SECONDE CARTE A
+          DISPARU. Il y avait deux listes de comptes l'une sous l'autre — celle-ci
+          nommait déjà le pseudo à côté de l'adresse, et la suivante ne portait
+          que ce même pseudo avec son bouton. Signalé comme un doublon, et c'en
+          était un : deux listes qui répondent à la même question finissent
+          toujours par diverger.
+
+          ⚠️ AUCUNE COUVERTURE PERDUE, ET C'EST VÉRIFIÉ DANS LA FONCTION :
+          `scrutin_admin_notifs` retient un compte dès qu'il a un abonnement, un
+          pseudo (`or p.user_id is not null`), une journée de Banalo OU une de
+          Cinq sur cinq. Tout porteur de pseudo est donc dans cette liste — la
+          prise de la Régie reste entière. Elle est bornée à 200 comptes, comme
+          l'était `scrutin_admin_pseudos`.
+
+          ⚠️ LE BOUTON NE SORT QUE POUR UN COMPTE QUI A UN PSEUDO : un compte qui
+          n'en a pas n'a rien à retirer, et un bouton mort se presse quand même.
+          `PAS D'ACCROCHE SANS BOUTON`, la règle d'`InstallJeu`, dans l'autre
+          sens. */}
       <div style={{ ...card, marginBottom: 16 }}>
         <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 15, marginBottom: 6 }}>
           {t("notifsTitre")}
         </div>
-        <p style={{ fontSize: 13, fontWeight: 600, color: MUTED, margin: "4px 0 12px", lineHeight: 1.5 }}>
+        <p style={{ fontSize: 13, fontWeight: 600, color: MUTED, margin: "4px 0 4px", lineHeight: 1.5 }}>
           {t("notifsHint")}
+        </p>
+        {/* ⚠️ LA RÈGLE DU BLOCAGE SUIT LE BOUTON. Elle vivait sous le titre de la
+            carte des pseudos ; sans elle, « Retirer » à côté d'une adresse
+            e-mail se lit comme « supprimer ce compte ». On bloque un NOM. */}
+        <p style={{ fontSize: 13, fontWeight: 600, color: MUTED, margin: "0 0 12px", lineHeight: 1.5 }}>
+          {t("pseudosHint")}
         </p>
         {notifs.length === 0 ? (
           <p style={{ fontSize: 13.5, fontWeight: 600, color: MUTED, margin: 0 }}>{t("notifsVide")}</p>
@@ -813,8 +831,16 @@ export default function AdminScreen() {
                   flexWrap: "wrap",
                   padding: "8px 10px",
                   borderRadius: 8,
-                  // Abonné mais jamais servi : c'est la ligne qu'on cherche.
-                  background: c.appareils > 0 && !c.derniereNotif ? "#fff4d6" : "transparent",
+                  // Deux états se peignent, et le BLOCAGE l'emporte : « abonné
+                  // mais jamais servi » est un défaut à surveiller, un pseudo
+                  // retiré est une décision prise. Sans priorité, un compte
+                  // bloqué et jamais notifié se serait affiché en jaune, donc
+                  // comme non bloqué.
+                  background: c.bloque
+                    ? "#ffe1e0"
+                    : c.appareils > 0 && !c.derniereNotif
+                      ? "#fff4d6"
+                      : "transparent",
                 }}
               >
                 <span style={{ fontWeight: 700, fontSize: 13.5, flex: "1 1 190px", minWidth: 0,
@@ -844,53 +870,14 @@ export default function AdminScreen() {
                                color: c.derniereNotif ? MUTED : "#8a6100" }}>
                   {c.derniereNotif ? c.derniereNotif.slice(0, 10) : t("notifsJamais")}
                 </span>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-
-      {/* ══ LES PSEUDOS DES JEUX QUOTIDIENS ═══════════════════════════════════
-          ⚠️ ON BLOQUE UN NOM, PAS UN JOUEUR. Le compte continue de jouer, de
-          garder ses résultats et de voir sa propre progression ; il disparaît
-          des classements sur la durée jusqu'à ce qu'il en pose un autre — et en
-          poser un autre lève le blocage. C'est la contrepartie qui rend tenable
-          le seul nom de ce produit qui survive à une journée. */}
-      <div style={card}>
-        <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 15, marginBottom: 6 }}>
-          {t("pseudosTitle")}
-        </div>
-        <p style={{ fontSize: 13, fontWeight: 600, color: MUTED, margin: "4px 0 12px", lineHeight: 1.5 }}>
-          {t("pseudosHint")}
-        </p>
-        {pseudos.length === 0 ? (
-          <p style={{ fontSize: 13.5, fontWeight: 600, color: MUTED, margin: 0 }}>{t("pseudosEmpty")}</p>
-        ) : (
-          <div style={{ display: "grid", gap: 6 }}>
-            {pseudos.map((p) => (
-              <div
-                key={p.userId}
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 10,
-                  flexWrap: "wrap",
-                  padding: "8px 10px",
-                  borderRadius: 8,
-                  background: p.bloque ? "#ffe1e0" : "transparent",
-                  border: `1px solid rgba(22,33,58,0.12)`,
-                }}
-              >
-                <span style={{ fontWeight: 800, flex: "1 1 140px", minWidth: 0 }}>{p.pseudo}</span>
-                <span style={{ fontSize: 11.5, fontWeight: 600, color: MUTED, whiteSpace: "nowrap" }}>
-                  {p.creeLe ? fmtDate(p.creeLe) : ""}
-                </span>
-                {actionBtn(
-                  p.bloque ? `↩ ${t("pseudoUnblock")}` : `🚫 ${t("pseudoBlock")}`,
-                  () => void basculePseudo(p),
-                  busy === p.userId,
-                  p.bloque ? undefined : "#ffe1e0",
-                )}
+                {c.pseudo
+                  ? actionBtn(
+                      c.bloque ? `↩ ${t("pseudoUnblock")}` : `🚫 ${t("pseudoBlock")}`,
+                      () => void basculePseudo(c),
+                      busy === c.id,
+                      c.bloque ? undefined : "#ffe1e0",
+                    )
+                  : null}
               </div>
             ))}
           </div>

@@ -82,7 +82,6 @@
     "confirmDeleteUser": "¿Eliminar definitivamente la cuenta {email}? Sus grupos se eliminarán; sus votaciones seguirán accesibles por enlace (desvinculadas de la cuenta). Irreversible.",
     "userLinkedElsewhere": "Eliminación rechazada: esta cuenta tiene datos en la otra aplicación de la base compartida.",
     "userActionFailed": "Acción imposible — inténtalo de nuevo.",
-    "pseudosTitle": "Apodos de los juegos diarios",
     "notifsTitre": "Las cuentas que juegan",
     "notifsHint": "No aparecen en «Personas»: esa pestaña solo lista las cuentas con una votación, un espacio o un evento. Una fila resaltada es una cuenta suscrita que nunca ha recibido nada.",
     "notifsVide": "Ninguna cuenta ha jugado todavía.",
@@ -93,7 +92,6 @@
     "notifsSansHebdo": "sin semanal",
     "notifsSansSaison": "sin temporada",
     "pseudosHint": "Se bloquea un NOMBRE, no a un jugador: la cuenta sigue jugando y viendo su progreso, pero su apodo desaparece de las clasificaciones hasta que elija otro.",
-    "pseudosEmpty": "Todavía no hay ningún apodo.",
     "pseudoBlock": "Retirar",
     "pseudoUnblock": "Restablecer"
   },

@@ -169,40 +169,25 @@ export function useIsAdmin(userId: string | null | undefined): boolean {
 // ───────────────────────────────────── les pseudos des jeux quotidiens
 
 /**
- * UN PSEUDO DE JEU, VU DE LA RÉGIE.
+ * ⚠️ LA LISTE DES PSEUDOS N'A PLUS DE PASSE-PLAT, ET C'EST VOULU.
+ * `adminPseudos()` servait une carte à elle, sous celle des comptes qui jouent
+ * — laquelle nomme déjà le pseudo à côté de l'adresse. Deux listes de comptes
+ * l'une sous l'autre : signalé comme un doublon, et c'en était un. Le bouton de
+ * blocage a rejoint la première ; le passe-plat est parti avec la seconde,
+ * parce qu'une fonction qui reste est l'invitation à recopier l'écran qu'elle
+ * servait.
  *
- * ⚠️ C'EST LA CONTREPARTIE D'UNE DÉCISION, pas un outil de confort. Le pseudo
- * des classements sur la durée est le SEUL nom de ce produit qui survit à une
- * journée : partout ailleurs (tableau du jour, groupe d'amis) le nom vit dans
- * son contexte et meurt avec lui. Un nom persistant, lisible par tous les
- * joueurs, n'est tenable que s'il existe quelqu'un pour agir — et c'est ici.
+ * La FONCTION `scrutin_admin_pseudos` reste en base : les migrations appliquées
+ * ne se réécrivent pas, et plus rien ne l'appelle. Ce qui la remplace est
+ * `scrutin_admin_notifs`, qui retient un compte dès qu'il porte un pseudo —
+ * donc aucune prise perdue.
+ *
+ * ⚠️ CETTE PRISE EST LA CONTREPARTIE D'UNE DÉCISION, pas un outil de confort.
+ * Le pseudo des classements sur la durée est le SEUL nom de ce produit qui
+ * survit à une journée : partout ailleurs (tableau du jour, groupe d'amis) le
+ * nom vit dans son contexte et meurt avec lui. Un nom persistant, lisible par
+ * tous les joueurs, n'est tenable que s'il existe quelqu'un pour agir.
  */
-export interface AdminPseudo {
-  userId: string;
-  pseudo: string;
-  creeLe: string;
-  bloque: boolean;
-}
-
-export async function adminPseudos(): Promise<AdminPseudo[] | null> {
-  const supabase = createClient();
-  const { data, error } = await supabase.rpc("scrutin_admin_pseudos");
-  if (error) return null;
-  const d = data as Record<string, unknown> | null;
-  if (!d || d.status !== "ok" || !Array.isArray(d.pseudos)) return null;
-  return (d.pseudos as Record<string, unknown>[])
-    .map((p) =>
-      typeof p.userId === "string" && typeof p.pseudo === "string"
-        ? {
-            userId: p.userId,
-            pseudo: p.pseudo,
-            creeLe: typeof p.creeLe === "string" ? p.creeLe : "",
-            bloque: p.bloque === true,
-          }
-        : null,
-    )
-    .filter((p): p is AdminPseudo => p !== null);
-}
 
 /**
  * Retire un pseudo des classements, ou l'y remet.
