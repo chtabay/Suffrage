@@ -179,6 +179,26 @@ export default function JourneePrecedente({ jour }: { jour: number }) {
   const points = prog.type === "mots" ? mots?.points : nombre?.points;
   const sommeMots = mots?.total ?? null;
   const partMieux = prog.type === "mots" ? mots?.partMieux : nombre?.partMieux;
+  /**
+   * MA PLACE CE JOUR-LÀ — ce que la ligne met en avant.
+   *
+   * ⚠️ ET ÇA CONTREDIT EN APPARENCE UNE RÈGLE ÉCRITE : « c'est la PART qu'on met
+   * devant, pas le rang ». Son motif est dans `db/banalo.ts` — « le rang
+   * PROVISOIRE empire mécaniquement quand la foule grandit, la part ne bouge
+   * pas ». Il vaut pour la journée EN COURS, où l'on recharge et où le chiffre
+   * se dégrade sous les yeux du joueur sans qu'il ait rien fait. Ici la journée
+   * est CLOSE : plus personne n'entre, le rang ne bougera plus jamais, et le
+   * seul argument qui le reléguait tombe avec.
+   *
+   * ⚠️ ET C'EST LE SCORE QUI LISAIT MAL, PAS LE RANG. Une somme de voix « ne se
+   * lit pas seule, puisqu'elle dépend du nombre de votants et de la nature du
+   * thème » (en-tête du barème) : « 84 voix » ne dit rien sans sa journée, et
+   * c'était le chiffre le moins autonome du jeu qu'on avait mis sur la ligne la
+   * plus courte. Vu à l'écran, il tombait en plus juste au-dessus du « 84 voix »
+   * d'AUJOURD'HUI. Un rang, lui, se lit seul.
+   */
+  const rang = prog.type === "mots" ? mots?.rang : nombre?.rang;
+  const votants = prog.type === "mots" ? mots?.votants : nombre?.votants;
   // Rien à raconter tant que la journée précédente n'a pas été jouée. Depuis que
   // le plancher de cinq votants est tombé, une note existe dès qu'on a répondu :
   // un score absent veut donc dire « pas joué », et un bloc « vous n'avez pas
@@ -310,14 +330,29 @@ export default function JourneePrecedente({ jour }: { jour: number }) {
               d'aujourd'hui. Le numéro n'est pas perdu — le tiroir le porte. */}
           <span style={{ color: skin.muted }}>{t("derniereTitre")}</span>
           {" · "}
-          {/* ⚠️ LES DEUX CLÉS SONT ÉCRITES EN CLAIR, une par branche : `t(cle)`
+          {/* ⚠️ LE RANG D'ABORD, LE SCORE EN SECOURS. Sous `VOTANTS_MIN` (2) la
+              base ne rend pas de position — « 1er sur 1 » est la tautologie que
+              ce produit refuse partout — et la ligne retombe alors sur le score,
+              exactement comme celle de Cinq sur cinq retombe sur le nombre
+              d'essais.
+
+              ⚠️ LES TROIS CLÉS SONT ÉCRITES EN CLAIR, une par branche : `t(cle)`
               échapperait au contrôle de parité i18n. Et les deux formats ne se
               comptent pas pareil — une somme de voix d'un côté, une note sur 100
-              de l'autre. */}
+              de l'autre.
+
+              ⚠️ « 7e sur 23 » ET PAS « 7e sur 23 joueurs » : la clé `rang` de
+              l'écran du jour tient une phrase, celle-ci tient dans une ligne qui
+              porte déjà une étiquette et un lien. Mesuré à 390 px, la forme
+              longue la faisait passer sur deux lignes. Le rang ne va jamais sans
+              sa foule pour autant — « 3e » ne veut pas dire la même chose sur
+              six joueurs et sur trois mille. */}
           <strong style={{ fontWeight: 800 }}>
-            {prog.type === "mots" && sommeMots !== null
-              ? t("motsScoreCourt", { n: entier.format(sommeMots) })
-              : t("tableau.scoreNombre", { n: note.format(points) })}
+            {rang != null && votants != null
+              ? t("dernierePlace", { rang, n: votants })
+              : prog.type === "mots" && sommeMots !== null
+                ? t("motsScoreCourt", { n: entier.format(sommeMots) })
+                : t("tableau.scoreNombre", { n: note.format(points) })}
           </strong>
           {" · "}
           <button

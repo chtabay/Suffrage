@@ -2827,6 +2827,7 @@
     "partMieux": "{n}% of players did better.",
     "positionPlusTard": "Your standing among players appears once there are {n} answers.",
     "rang": "Rank {rang} of {votants} players",
+    "dernierePlace": "{rang, selectordinal, one {#st} two {#nd} few {#rd} other {#th}} of {n}",
     "exAequo": "{n, plural, one {tied with # other} other {tied with # others}}",
     "mienne": "Your answer",
     "mediane": "The median answer",

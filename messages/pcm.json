@@ -2827,6 +2827,7 @@
     "partMieux": "{n}% of di players do pass you.",
     "positionPlusTard": "Your position among di players go show once {n} answers don land.",
     "rang": "Number {rang} out of {votants} players",
+    "dernierePlace": "{rang, selectordinal, one {#st} two {#nd} few {#rd} other {#th}} of {n}",
     "exAequo": "{n, plural, one {you tie with # other person} other {you tie with # other people}}",
     "mienne": "Your answer",
     "mediane": "Di median answer",
