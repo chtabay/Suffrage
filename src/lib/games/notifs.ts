@@ -13,7 +13,7 @@
 // La base ne porte le calendrier QUE là où un client menteur y gagnerait
 // quelque chose — la médiane scellée de Banalo — et ce n'est pas le cas ici.
 import { numeroDuJour } from "@/lib/games/banalo/jour";
-import { numeroDeJournee } from "@/lib/games/pays/calendrier";
+import { dateCivile, numeroDeJournee } from "@/lib/games/pays/calendrier";
 import { pousser, rpcNotify } from "@/lib/push";
 import {
   hebdoBanalo,
@@ -111,7 +111,14 @@ export async function envoyerNotifsJeux(): Promise<{ vises: number; envoyes: num
   const lignes = await rpcNotify<Ligne[]>("scrutin_jeux_notifs_a_envoyer", {
     p_secret: SECRET,
     p_jour_banalo: numeroDuJour(),
-    p_jour_pays: numeroDeJournee(new Date().toISOString()),
+    // ⚠️ UNE DATE CIVILE, JAMAIS UN HORODATAGE. `numeroDeJournee` concatène
+    // `T00:00:00Z` à ce qu'on lui donne : un ISO complet produisait
+    // « …183ZT00:00:00Z », donc `NaN`, donc `null` en JSON, donc le garde de la
+    // fonction SQL sortait EN SILENCE — pour les DEUX jeux, puisqu'il les teste
+    // ensemble. La tournée répondait `{"vises":0}` toutes les heures et personne
+    // n'a jamais rien reçu. Et trancher l'ISO à dix caractères ne marcherait pas
+    // non plus : il est en UTC, donc faux à Paris entre 22 h et minuit l'été.
+    p_jour_pays: numeroDeJournee(dateCivile()),
   });
   if (!lignes || !lignes.length) return { vises: 0, envoyes: 0, groupes: 0 };
 

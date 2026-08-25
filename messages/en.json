@@ -2993,6 +2993,7 @@
     "offreTexte": "A day ends, your result is settled, and nothing tells you. Notifications bring it to you — on this device, once it's final.",
     "ailleursTexte": "{n, plural, one {# device on your account is subscribed} other {# devices on your account are subscribed}}, but not this one.",
     "activer": "Turn on for this device",
+    "activee": "It is on for this device. You will get your result when the day closes.",
     "iosInstaller": "On iPhone and iPad, notifications only exist for a game added to the home screen. Add it first — Share, then “Add to Home Screen” — then come back here.",
     "refusee": "This browser refused notifications, and it won't ask again. You can lift it in its settings, on this site's entry.",
     "nonSupporte": "This browser can't receive notifications.",

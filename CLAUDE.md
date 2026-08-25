@@ -1409,6 +1409,34 @@ réécrire la politique. L'anonyme se voit donc offrir le COMPTE, dont la phrase
 nomme la notification qu'il ouvre — la seule façon honnête de répondre à « je
 veux être prévenu » sans poser un bouton que la base ne saurait pas servir.
 
+⚠️ **LA TOURNÉE N'A JAMAIS RIEN ENVOYÉ, ET LA CAUSE EST UN `NaN` SILENCIEUX.**
+Signalé : « j'ai validé les notifs sur plusieurs appareils, je n'en ai pas
+reçu ». Vérifié bout en bout : le cron part toutes les heures, atteint la prod,
+reçoit 200 — et rend `{"vises":0}`. `numeroDeJournee` CONCATÈNE `T00:00:00Z` à
+ce qu'on lui donne ; la tournée lui passait `new Date().toISOString()`, ce qui
+produit « …183ZT00:00:00Z », donc `Date.parse` → `NaN`, donc `null` en JSON,
+donc le garde `if p_jour_banalo is null or p_jour_pays is null then return` de
+`scrutin_jeux_notifs_a_envoyer` sortait sans un mot — **pour les DEUX jeux**,
+puisqu'il les teste ensemble. Un seul appelant sur onze était fautif ; tous les
+autres passent `dateCivile()`.
+
+⚠️ **TRANCHER L'ISO À DIX CARACTÈRES NE MARCHERAIT PAS NON PLUS** : il est en
+UTC, donc faux à Paris entre 22 h et minuit l'été. C'est `dateCivile()` qu'il
+faut, et elle existe pour ça.
+
+⚠️ **ET `numeroDeJournee` REFUSE MAINTENANT CE QUI N'EST PAS `AAAA-MM-JJ`.** Une
+entrée invalide doit CASSER — une exception remonte en 500 dans
+`net._http_response`, donc elle se voit — au lieu de rendre un nombre qui n'en
+est pas un. Mesuré après correction : la tournée vise **8 envois** là où elle en
+visait 0. Deux tests le tiennent.
+
+⚠️ **ET LE BOUTON D'ABONNEMENT CONFIRME, AU LIEU DE DISPARAÎTRE.** Signalé dans
+le même souffle : « le bouton se grise quand je clique dessus et ne semble pas
+avoir de conséquences ». Il marchait — les abonnements étaient bien en base —
+mais réussir rendait `montre` faux, donc le bloc s'effaçait : une réussite
+silencieuse est indiscernable d'une panne, et on represse. C'est mot pour mot le
+défaut déjà payé sur le dépôt du pseudo.
+
 ⚠️ **RIEN DE TOUT ÇA N'EST VÉRIFIABLE ICI** : sans clé VAPID dans le conteneur,
 `notifyDeployed()` est faux et le bloc est INVISIBLE en développement. Ce qui a
 été éprouvé au navigateur, c'est qu'il ne s'affiche pas — pas qu'il marche.

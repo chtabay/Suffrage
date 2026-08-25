@@ -85,6 +85,16 @@ export default function OffreNotifs({
   const [combien, setCombien] = useState<number | null>(appareils ?? null);
   const [envoi, setEnvoi] = useState(false);
   const [rate, setRate] = useState<"denied" | "erreur" | null>(null);
+  /**
+   * On vient de s'abonner, ICI, à l'instant.
+   *
+   * ⚠️ SANS ÇA, RÉUSSIR FAIT DISPARAÎTRE LE BLOC — et le joueur ne voit qu'un
+   * bouton qui grise puis un vide. Signalé : « le bouton se grise quand je
+   * clique dessus et ne semble pas avoir de conséquences ». C'est mot pour mot
+   * le défaut déjà payé sur le dépôt du pseudo (« rien ne semble se passer ») :
+   * une réussite silencieuse est indiscernable d'une panne, et on represse.
+   */
+  const [active, setActive] = useState(false);
 
   // ⚠️ ON DÉPEND DE L'IDENTIFIANT, PAS DE L'OBJET `user` : `useAuth` rend un
   // objet dont la référence change à chaque relecture de session, et un effet
@@ -126,6 +136,7 @@ export default function OffreNotifs({
       return;
     }
     setIci(true);
+    setActive(true);
     onAbonne?.();
   }, [onAbonne]);
 
@@ -154,6 +165,18 @@ export default function OffreNotifs({
   useEffect(() => {
     onUtile?.(utile);
   }, [utile, onUtile]);
+
+  // ⚠️ LA CONFIRMATION PASSE AVANT LE SILENCE. `montre` devient faux dès que
+  // l'abonnement est posé ; sans ce cas, la réussite serait un bloc qui s'efface.
+  if (active) {
+    return (
+      // `role="status"` : une réussite ne coupe pas la lecture d'un lecteur
+      // d'écran, contrairement à `alert`. Même choix que la ligne de pseudo.
+      <p role="status" style={{ margin: 0, fontSize: 14, lineHeight: 1.5, fontWeight: 700, color: skin.good }}>
+        {t("activee")}
+      </p>
+    );
+  }
 
   if (!montre) return null;
 

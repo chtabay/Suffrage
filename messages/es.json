@@ -2993,6 +2993,7 @@
     "offreTexte": "Una jornada termina, tu resultado queda fijado y nada te lo dice. Las notificaciones te lo traen — a este aparato, cuando ya es definitivo.",
     "ailleursTexte": "{n, plural, one {# aparato de tu cuenta está suscrito} other {# aparatos de tu cuenta están suscritos}}, pero este no.",
     "activer": "Activar en este aparato",
+    "activee": "Está activado en este dispositivo. Recibirás tu resultado cuando el día se cierre.",
     "iosInstaller": "En iPhone y iPad, las notificaciones solo existen para un juego colocado en la pantalla de inicio. Añádelo primero — Compartir y luego «Añadir a pantalla de inicio» — y vuelve aquí.",
     "refusee": "Este navegador rechazó las notificaciones y no volverá a preguntarlo. Se cambia en sus ajustes, en la línea de este sitio.",
     "nonSupporte": "Este navegador no sabe recibir notificaciones.",

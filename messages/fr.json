@@ -2993,6 +2993,7 @@
     "offreTexte": "Une journée se termine, votre résultat se fige, et rien ne vient vous le dire. Les notifications vous le rendent — sur cet appareil, quand c'est arrêté.",
     "ailleursTexte": "{n, plural, one {# appareil de votre compte est abonné} other {# appareils de votre compte sont abonnés}}, mais pas celui-ci.",
     "activer": "Activer sur cet appareil",
+    "activee": "C'est activé sur cet appareil. Vous recevrez votre résultat quand la journée se ferme.",
     "iosInstaller": "Sur iPhone et iPad, les notifications n'existent que pour un jeu posé sur l'écran d'accueil. Ajoutez-le d'abord — Partager, puis « Sur l'écran d'accueil » — et revenez ici.",
     "refusee": "Ce navigateur a refusé les notifications, et il ne le redemandera pas. Ça se relève dans ses réglages, à la ligne de ce site.",
     "nonSupporte": "Ce navigateur ne sait pas recevoir de notifications.",
