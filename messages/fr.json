@@ -3225,6 +3225,10 @@
     "regle7": "Un gabarit n'entre pas dans ce qu'il fabrique et ne lui donne aucun atome : il approche les deux morceaux, puis repart intact. Sert donc celle dont le contour sait tenir les deux briques de votre cible — l'écran vous le dit pour chacune. Les autres ne font que coûter des atomes et une place. Et le bassin ne sait pas refaire vos molécules : le courant les emporte, il faut en resemer.",
     "regle8Titre": "8. Les trois atomes n'ont pas le même métier",
     "regle8": "Le carbone lie le plus fort et accepte quatre voisins : c'est la charpente. L'azote est ce que cette eau paie, et l'atome le plus cher à racheter. Le soufre ne prend que deux voisins et lie le plus faiblement — c'est une charnière, pas une poutre : une molécule qui en porte deux se défait cinq fois plus vite, et le bassin ne la garde jamais.",
-    "gabaritsDejaLa": "Vos gabarits sont déjà dans le bassin ({quoi}). Il n'y a plus qu'à laisser faire — et à en resemer quand le courant les aura emportés."
+    "gabaritsDejaLa": "Vos gabarits sont déjà dans le bassin ({quoi}). Il n'y a plus qu'à laisser faire — et à en resemer quand le courant les aura emportés.",
+    "semerGabaritLot": "Semer {quoi} (×{n})",
+    "semerImpossible": "Pas assez d'atomes libres : il en faut {quoi} par exemplaire.",
+    "neServiraitARien": "— ne servirait à rien ici —",
+    "bassinConseilRienNenRend": "Rien dans le bassin n'en rend : le milieu en verse à chaque tour, laissez-le faire."
   }
 }

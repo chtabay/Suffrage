@@ -48,6 +48,7 @@ import {
   OBJECTIF,
   bassinVide,
   ciblesProposees,
+  combienPossible,
   ensemencer,
   espece,
   manquePour,
@@ -546,6 +547,12 @@ export function semerDansLeBassin(partie: Partie, grille: Grille, combien: numbe
   };
 }
 
+/** Combien d'exemplaires d'une pièce le bassin peut payer, pour l'annoncer au bouton. */
+export function lotPayable(partie: Partie, grille: Grille, combien: number = LOT_SEMIS): number {
+  if (partie.acte !== 3) return 0;
+  return combienPossible(partie.bassin, grille, partie.milieu, combien);
+}
+
 /** RETIRER une espèce du bassin pour libérer une place. Ses atomes y retournent. */
 export function retirerDuBassin(partie: Partie, empreinteCible: string): Partie {
   if (partie.acte !== 3) return partie;
@@ -597,6 +604,8 @@ export function conseilDuBassin(partie: Partie): ConseilBassin | null {
     restant,
     /** Le gabarit le plus utile que la collection offre, ou `null`. */
     renfort,
+    /** Combien d'exemplaires de ce gabarit le bassin peut réellement payer. */
+    payables: renfort ? combienPossible(partie.bassin, renfort.grille, partie.milieu, LOT_SEMIS) : 0,
     /** Les atomes qui empêchent de le semer. */
     manque,
     gagne: (partie.bassin.record ?? 0) >= OBJECTIF,
@@ -615,6 +624,9 @@ export function conseilDuBassin(partie: Partie): ConseilBassin | null {
       )
       .map((e: Espece): Retirable => {
         const rendu = rendrait(e);
+        // `utile` ne compte QUE les atomes qui manquent : une espèce qui rend six
+        // azotes quand c'est du soufre qu'on cherche ne vaut rien, et l'écran ne
+        // doit pas la recommander comme si elle valait quelque chose.
         return { ...e, rendu, utile: [...rares].reduce((n, code) => n + (rendu[code] ?? 0), 0) };
       })
       .sort((a, b) => b.utile - a.utile || b.effectif * b.taille - a.effectif * a.taille),

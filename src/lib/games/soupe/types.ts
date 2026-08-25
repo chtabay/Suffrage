@@ -228,6 +228,8 @@ export interface ConseilBassin extends Soutiens {
   restant: number;
   /** Le gabarit le plus utile que la collection offre, ou `null`. */
   renfort: Renfort | null;
+  /** Combien d'exemplaires de ce gabarit le bassin peut réellement payer. */
+  payables: number;
   gagne: boolean;
   manque: ManqueAtome[];
   inutiles: Retirable[];

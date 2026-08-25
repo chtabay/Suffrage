@@ -3225,6 +3225,10 @@
     "regle7": "A template does not enter what it makes and gives it no atoms: it brings the two pieces together, then leaves intact. So the useful one is whichever contour can hold your target's two bricks — the screen tells you for each. The others only cost atoms and a place. And the pool cannot remake your molecules: the current carries them off, and you must sow more.",
     "regle8Titre": "8. The three atoms do different jobs",
     "regle8": "Carbon binds strongest and takes four neighbours: it is the frame. Nitrogen is what this water pays for, and the priciest atom to buy back. Sulfur takes only two neighbours and binds weakest — a hinge, not a beam: a molecule carrying two of them comes apart five times faster, and the pool never keeps it.",
-    "gabaritsDejaLa": "Your templates are already in the pool ({quoi}). Nothing left but to let it run — and sow more once the current has carried them off."
+    "gabaritsDejaLa": "Your templates are already in the pool ({quoi}). Nothing left but to let it run — and sow more once the current has carried them off.",
+    "semerGabaritLot": "Sow {quoi} (×{n})",
+    "semerImpossible": "Not enough free atoms: {quoi} needed per copy.",
+    "neServiraitARien": "— would serve nothing here —",
+    "bassinConseilRienNenRend": "Nothing in the pool returns any: the environment pours some every turn, let it."
   }
 }

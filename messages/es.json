@@ -3225,6 +3225,10 @@
     "regle7": "Un molde no entra en lo que fabrica y no le da ningún átomo: acerca las dos piezas y se retira intacto. Sirve, pues, aquella cuyo contorno sabe sujetar los dos ladrillos de tu diana — la pantalla te lo dice para cada una. Las demás solo cuestan átomos y una plaza. Y la charca no sabe rehacer tus moléculas: la corriente se las lleva, y hay que sembrar más.",
     "regle8Titre": "8. Los tres átomos no tienen el mismo oficio",
     "regle8": "El carbono liga con más fuerza y acepta cuatro vecinos: es la armazón. El nitrógeno es lo que paga esta agua, y el átomo más caro de recomprar. El azufre solo admite dos vecinos y liga más débilmente — una bisagra, no una viga: una molécula con dos se deshace cinco veces más rápido, y la charca nunca la conserva.",
-    "gabaritsDejaLa": "Tus moldes ya están en la charca ({quoi}). Solo queda dejar hacer, y volver a sembrar cuando la corriente se los haya llevado."
+    "gabaritsDejaLa": "Tus moldes ya están en la charca ({quoi}). Solo queda dejar hacer, y volver a sembrar cuando la corriente se los haya llevado.",
+    "semerGabaritLot": "Sembrar {quoi} (×{n})",
+    "semerImpossible": "No hay bastantes átomos libres: hacen falta {quoi} por ejemplar.",
+    "neServiraitARien": "— aquí no serviría de nada —",
+    "bassinConseilRienNenRend": "Nada en la charca los devuelve: el medio vierte algo cada turno, déjalo hacer."
   }
 }

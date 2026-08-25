@@ -3225,6 +3225,10 @@
     "regle7": "Template no dey enter wetin e dey make and e no dey give am atom: e bring di two pieces near, then e comot intact. So na di one wey im contour fit hold your target two bricks dey useful — di screen dey tell you for each one. Di odas just dey cost atoms and one place. And di pool no sabi remake your molecules: di current dey carry dem, so you go sow more.",
     "regle8Titre": "8. Di three atoms no get di same work",
     "regle8": "Carbon dey bind pass and e fit take four neighbours: na di frame. Nitrogen na wetin dis water dey pay for, and na di atom wey cost pass to buy back. Sulfur only fit take two neighbours and e dey bind weakest — hinge, no be beam: molecule wey carry two dey scatter five times faster, and di pool no dey keep am at all.",
-    "gabaritsDejaLa": "Your templates don dey inside di pool ({quoi}). Nothing remain except make you allow am run — and sow more once di current don carry dem."
+    "gabaritsDejaLa": "Your templates don dey inside di pool ({quoi}). Nothing remain except make you allow am run — and sow more once di current don carry dem.",
+    "semerGabaritLot": "Sow {quoi} (×{n})",
+    "semerImpossible": "Free atoms no reach: you need {quoi} for each copy.",
+    "neServiraitARien": "— e no go do anything here —",
+    "bassinConseilRienNenRend": "Nothing inside di pool dey return am: di environment dey pour small every turn, allow am."
   }
 }

@@ -392,11 +392,25 @@ function souduresDe(a: Espece, b: Espece): Produit[] {
   if (!memoire.has(cle)) {
     memoire.set(
       cle,
-      [...souder(a.grille, b.grille, TAILLE_MAX).values()].map((grille) => ({
-        grille,
-        empreinte: empreinte(grille),
-        visage: visageDe(grille),
-      })),
+      [...souder(a.grille, b.grille, TAILLE_MAX).values()]
+        .map((grille) => ({
+          grille,
+          empreinte: empreinte(grille),
+          visage: visageDe(grille),
+        }))
+        /**
+         * ⚠️ ON TRIE, ET C'EST L'INVARIANT DU PROJET QUI EN DÉPEND : une graine,
+         * une partie. La clé du cache est faite de deux EMPREINTES, mais la valeur
+         * dépend de l'orientation des GRILLES reçues — or l'empreinte est
+         * canonique à la rotation près, la grille non. Deux exemplaires d'une même
+         * espèce, l'un né par nucléation et l'autre sorti d'une soudure, peuvent
+         * donc porter la même empreinte et des grilles tournées différemment, et
+         * remplir le cache dans deux ordres différents. Comme le tour tire son
+         * produit AU HASARD dans cette liste, la même graine ne rejouerait plus la
+         * même partie selon ce qui a tourné avant elle. Trier rend la clé
+         * suffisante, et l'invariant vrai par construction plutôt que par chance.
+         */
+        .sort((x, y) => (x.empreinte < y.empreinte ? -1 : x.empreinte > y.empreinte ? 1 : 0)),
     );
   }
   return memoire.get(cle) as Produit[];
@@ -893,6 +907,30 @@ export function rendrait(esp: Espece): Compte {
   const out: Compte = {};
   for (const [code, n] of Object.entries(esp.composition) as [Code, number][]) out[code] = n * esp.effectif;
   return out;
+}
+
+/**
+ * COMBIEN D'EXEMPLAIRES LE BASSIN PEUT RÉELLEMENT EN PAYER, MAINTENANT.
+ *
+ * ⚠️ LE BOUTON ANNONÇAIT « ×10 » ET DÉPOSAIT 1,7 EXEMPLAIRE EN MOYENNE, sans rien
+ * dire. Mesuré sur vingt-quatre parties : 63 % des semis conseillés étaient
+ * refusés faute d'atomes, et les autres tronqués en silence. Le joueur cliquait,
+ * voyait le bassin ne presque pas bouger, et n'avait aucun moyen de comprendre
+ * que la matière — et non son idée — venait de lui être refusée. Un écran qui
+ * promet dix et en donne deux est pire qu'un écran qui annonce deux.
+ */
+export function combienPossible(
+  etat: EtatBassin,
+  grille: Grille,
+  milieu: Milieu,
+  combien = 1,
+): number {
+  const { composition } = espece(grille, milieu);
+  let possible = combien;
+  for (const [code, n] of Object.entries(composition) as [Code, number][]) {
+    possible = Math.min(possible, Math.floor((etat.libres[code] ?? 0) / n));
+  }
+  return Math.max(0, possible);
 }
 
 /** La population totale du bassin, toutes espèces confondues. */

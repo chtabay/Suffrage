@@ -87,7 +87,7 @@ import { coutEnAtomes, peutBatir, presenter } from "@/lib/games/soupe/atelier";
 import { FORCES, cellulesDe } from "@/lib/games/soupe/soupe";
 import {
   HORIZON_ATELIER,
-  LOT_SEMIS,
+  lotPayable,
   PLACES_COLLECTION,
   acheter,
   agiterLaSoupe,
@@ -358,14 +358,18 @@ export default function LaSoupe() {
       // que le bouton est grisé, c'est l'écran qui contredit l'écran.
       if (c.renfort && c.manque.length > 0) {
         const quoi = c.manque.map((m) => `${m.manque} ${nomAtome(m.code)}`).join(" + ");
+        // ⚠️ ON NE NOMME QUE CE QU'ELLE REND VRAIMENT. Le conseil annonçait
+        // « Retirez CCCNN : elle rendra 0 soufre et 6 azote » alors que c'était le
+        // soufre qui manquait : il listait les atomes manquants, pas les rendus.
         const source = c.inutiles.find((e) => e.utile > 0);
+        const rendus = source ? c.manque.filter((m) => (source.rendu[m.code] ?? 0) > 0) : [];
         const tete = t("bassinConseilManque", { quoi, gabarit: c.renfort.visage });
-        return source
+        return rendus.length > 0 && source
           ? `${tete} ${t("bassinConseilRetirer", {
               quoi: source.visage,
-              rendu: c.manque.map((m) => `${source.rendu[m.code] ?? 0} ${nomAtome(m.code)}`).join(" + "),
+              rendu: rendus.map((m) => `${source.rendu[m.code]} ${nomAtome(m.code)}`).join(" + "),
             })}`
-          : `${tete} ${t("bassinConseilAttendre")}`;
+          : `${tete} ${t("bassinConseilRienNenRend")}`;
       }
       if (meilleure.gabarits === 0) {
         return c.renfort
@@ -669,15 +673,31 @@ export default function LaSoupe() {
                     {t("solidite")} : {t(solidite(piece.cohesion))}
                   </Chiffre>
                   <Chiffre>{t("atomesASemer", { n: piece.taille })}</Chiffre>
-                  <GBtn
-                    skin={skin}
-                    size="sm"
-                    variant={outil ? "accent" : "ghost"}
-                    onClick={() => setPartie((p) => (p ? semerDansLeBassin(p, piece.grille) : p))}
-                    title={t("semerPieceAide")}
-                  >
-                    {t("semerPiece", { n: LOT_SEMIS })}
-                  </GBtn>
+                  {/* ⚠️ PAS DE BOUTON SUR CE QUI NE TIENT RIEN : 43 % d'entre eux
+                      étaient posés sur des pièces étiquetées « ne tient pas ces
+                      morceaux » deux lignes plus haut. */}
+                  {outil || dansLeBassin ? (
+                    <GBtn
+                      skin={skin}
+                      size="sm"
+                      variant={outil && lotPayable(partie, piece.grille) > 0 ? "accent" : "ghost"}
+                      disabled={lotPayable(partie, piece.grille) === 0}
+                      onClick={() => setPartie((p) => (p ? semerDansLeBassin(p, piece.grille) : p))}
+                      title={
+                        lotPayable(partie, piece.grille) === 0
+                          ? t("semerImpossible", {
+                              quoi: (Object.entries(piece.composition) as [Code, number][])
+                                .map(([c, n]) => `${n} ${nomAtome(c)}`)
+                                .join(" · "),
+                            })
+                          : t("semerPieceAide")
+                      }
+                    >
+                      {t("semerPiece", { n: lotPayable(partie, piece.grille) })}
+                    </GBtn>
+                  ) : (
+                    <Chiffre>{t("neServiraitARien")}</Chiffre>
+                  )}
                 </>
               ) : (
                 <>
@@ -1217,20 +1237,34 @@ export default function LaSoupe() {
         </div>
 
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+          {/* ⚠️ LE BOUTON DIT CE QU'IL FERA, PAS CE QU'ON AURAIT VOULU. Il
+              annonçait « ×10 » et déposait 1,7 exemplaire en moyenne : 63 % des
+              semis conseillés étaient refusés faute d'atomes, les autres tronqués
+              en silence, et le joueur ne pouvait pas savoir que c'était la matière
+              qu'on lui refusait. */}
           {conseilBassin.aider.slice(0, 3).map((aide) => {
             const piece = partie.collection.find((x) => x.visage === aide.visage);
             if (!piece) return null;
+            const lot = lotPayable(partie, piece.grille);
             return (
               <GBtn
                 key={aide.visage}
                 skin={skin}
                 size="sm"
-                variant={aide === conseilBassin.aider[0] ? "accent" : "ghost"}
-                disabled={aide === conseilBassin.aider[0] && conseilBassin.manque.length > 0}
+                variant={aide === conseilBassin.aider[0] && lot > 0 ? "accent" : "ghost"}
+                disabled={lot === 0}
                 onClick={() => setPartie((p) => (p ? semerDansLeBassin(p, piece.grille) : p))}
-                title={t("semerGabaritAide")}
+                title={
+                  lot === 0
+                    ? t("semerImpossible", {
+                        quoi: (Object.entries(piece.composition) as [Code, number][])
+                          .map(([c, n]) => `${n} ${nomAtome(c)}`)
+                          .join(" · "),
+                      })
+                    : t("semerGabaritAide")
+                }
               >
-                {t("semerGabarit", { quoi: aide.visage })}
+                {lot > 0 ? t("semerGabaritLot", { quoi: aide.visage, n: lot }) : t("semerGabarit", { quoi: aide.visage })}
               </GBtn>
             );
           })}
