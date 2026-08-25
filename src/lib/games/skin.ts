@@ -313,6 +313,54 @@ export const ECHIQUIER = {
  * Skin de la porte « Jouer » : celle-ci appartient encore à Placet (c'est une
  * page de Placet qui présente les jeux), d'où les tokens maison.
  */
+/**
+ * LA SOUPE — de l'eau claire, et toute la couleur dans la MATIÈRE.
+ *
+ * ⚠️ LE JEU AUTONOME EST SOMBRE, ET IL A FALLU Y RENONCER ICI. Sa version
+ * d'origine se joue dans une cuve noire où les atomes s'éclairent eux-mêmes ;
+ * c'était sa meilleure idée visuelle. Mais les primitives de Placet posent
+ * l'ombre portée ET la bordure en `ink` : sur un fond sombre, `ink` devient
+ * clair, et chaque carte se met à porter un halo pâle au lieu d'une ombre. La
+ * grammaire de la maison — trait épais, aplat franc, ombre portée — est
+ * précisément ce qui rend une carte lisible d'un coup d'œil sur un téléphone.
+ * On garde donc la grammaire et on déplace l'identité.
+ *
+ * ELLE SE DÉPLACE VERS LES MOLÉCULES, ce qui est sa vraie place : le sujet du
+ * jeu n'est pas le liquide, ce sont les formes qui s'y assemblent. Sur un
+ * papier presque blanc, le carbone est un graphite franc, l'azote un cyan
+ * profond — c'est LUI que le milieu paie, il doit se voir de loin — et le
+ * soufre son ambre. Les trois atomes se distinguent mieux ici que dans la cuve,
+ * mesuré au contraste : sur fond sombre, le carbone ivoire et le soufre jaune
+ * se rapprochaient à petite taille.
+ *
+ * Contrastes : blanc sur `accent` 6,3:1 ; `ink` sur `accent2` 8,1:1 ;
+ * `muted` sur `paper` 6,6:1 et sur `bg` 5,4:1.
+ */
+export const SOUPE_SKIN: GameSkin = {
+  ink: "#12262B",
+  bg: "#DCEAE6",
+  paper: "#FBFDFB",
+  accent: "#175C4E",
+  accent2: "#E8B33C",
+  good: "#17724B",
+  muted: "#4C6068",
+  // LA MATIÈRE EN SUSPENSION : des particules de tailles inégales, pas une
+  // trame. Un liquide où flotte quelque chose, c'est une foule de points — et
+  // une foule se lit comme voulue par quelqu'un, contrairement à un motif
+  // parfait qui se remarque comme « fait par ordinateur ».
+  sol: {
+    image: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='54' height='54'%3E%3Cg fill='%23b9d3cc'%3E%3Ccircle cx='9' cy='13' r='1.6'/%3E%3Ccircle cx='34' cy='6' r='1'/%3E%3Ccircle cx='45' cy='27' r='1.9'/%3E%3Ccircle cx='21' cy='33' r='1.2'/%3E%3Ccircle cx='7' cy='44' r='1'/%3E%3Ccircle cx='38' cy='47' r='1.5'/%3E%3C/g%3E%3C/svg%3E")`,
+    taille: "54px 54px",
+  },
+  // MATIÈRE « PAILLASSE » : trait franc et ombre courte, comme du matériel posé
+  // sur une table. Le jeu montre des mesures, pas un jouet.
+  ombre: 3,
+  border: 2.5,
+  radius: 14,
+  fontDisplay: FONT_DISPLAY,
+  fontBody: FONT_BODY,
+};
+
 export const PLACET_GAMES_SKIN: GameSkin = {
   ink: "#16213A",
   bg: "#FBF6EC",
