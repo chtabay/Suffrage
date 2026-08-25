@@ -113,6 +113,13 @@ export default function JourneePrecedente({ jour }: { jour: number }) {
           voyait pas, et il coûtait 11 px qui repoussaient la carte. Ce qui a
           rendu la ligne visible n'est pas un ornement, c'est son ENTRÉE. */}
       <p style={{ margin: "15px 0 0", fontSize: 13.5, lineHeight: 1.5, color: skin.ink }}>
+        {/* ⚠️ L'EMOJI EST LE MARQUEUR DE LA LIGNE, et il est le MÊME chez Banalo :
+            c'est le même objet dans les deux jeux, et deux glyphes différents en
+            feraient deux choses. Il est `aria-hidden` — un lecteur d'écran lit
+            déjà « votre dernière journée » juste après. */}
+        <span aria-hidden style={{ marginRight: 5 }}>
+          📅
+        </span>
         {/* ⚠️ ELLE S'ANNONCE, ELLE NE COMMENCE PLUS PAR UN NUMÉRO NU. « Journée
             n° 7 » en gris était le premier mot que l'œil rencontrait : une
             étiquette terne, et surtout AMBIGUË — un rang posé sous la consigne

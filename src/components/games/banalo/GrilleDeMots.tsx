@@ -17,7 +17,7 @@
 // posture que Cinq sur cinq, qui stocke `secondes` et classe sur les essais —
 // on saura sur des journées réelles si le temps sépare autre chose que le
 // téléphone de l'ordinateur.
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { UNANIMO_SKIN as skin } from "@/lib/games/skin";
 import { GBtn, GCard, GLabel } from "@/components/games/ui";
@@ -51,10 +51,21 @@ export default function GrilleDeMots({
   jour,
   theme,
   cases,
+  veille,
 }: {
   jour: number;
   theme: Theme;
   cases: number;
+  /**
+   * La relecture de la journée précédente, en une ligne.
+   *
+   * ⚠️ ELLE ARRIVE EN PROP PARCE QUE SA PLACE EST ICI ET SA MATIÈRE AILLEURS :
+   * elle vaut pour les deux formats (`BanaloDuJour` la construit une fois),
+   * mais elle doit se poser sous le thème — en bas de page elle était à
+   * y = 1 444, invisible, alors qu'elle porte la seule phrase qui dise au
+   * joueur que ses chiffres de la veille sont arrêtés.
+   */
+  veille?: ReactNode;
 }) {
   const t = useTranslations("BanaloJour");
   const locale = useLocale();
@@ -192,6 +203,11 @@ export default function GrilleDeMots({
           </p>
         )}
       </GCard>
+
+      {/* La veille se pose SOUS le thème, jamais dessus : la question du jour
+          passe d'abord. Elle ne demande rien et ne divulgue rien — c'est un
+          récit, pas une offre. */}
+      {veille}
 
       {!pret && !panne ? (
         <p style={{ marginTop: 18, color: skin.muted, fontSize: 14 }}>{t("chargement")}</p>

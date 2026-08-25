@@ -18,7 +18,7 @@
 // encore répondu ; répondu mais foule trop mince pour noter ; noté. Le régime du
 // milieu est celui qu'on oublie, et c'est le seul que verront les premiers
 // joueurs de la journée.
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { UNANIMO_SKIN as skin } from "@/lib/games/skin";
 import { GBtn, GCard, GLabel } from "@/components/games/ui";
@@ -52,7 +52,22 @@ import {
  */
 const bcp = (locale: string) => (locale === "pcm" ? "en" : locale);
 
-export default function NombreDuJour({ jour }: { jour: number }) {
+export default function NombreDuJour({
+  jour,
+  veille,
+}: {
+  jour: number;
+  /**
+   * La relecture de la journée précédente, en une ligne.
+   *
+   * ⚠️ ELLE ARRIVE EN PROP PARCE QUE SA PLACE EST ICI ET SA MATIÈRE AILLEURS :
+   * elle vaut pour les deux formats (`BanaloDuJour` la construit une fois),
+   * mais elle doit se poser sous l'énoncé — en bas de page elle était à
+   * y = 1 444, invisible, alors qu'elle porte la seule phrase qui dise au
+   * joueur que ses chiffres de la veille sont arrêtés.
+   */
+  veille?: ReactNode;
+}) {
   const t = useTranslations("BanaloJour");
   const locale = useLocale();
   const question = questionDe(jour);
@@ -213,6 +228,11 @@ export default function NombreDuJour({ jour }: { jour: number }) {
           </p>
         )}
       </GCard>
+
+      {/* La veille se pose SOUS l'énoncé, jamais dessus : la question du jour
+          passe d'abord. Elle ne demande rien et ne divulgue rien — c'est un
+          récit, pas une offre. */}
+      {veille}
 
       {!pret && !panne ? (
         <p style={{ marginTop: 18, color: skin.muted, fontSize: 14 }}>{t("chargement")}</p>
