@@ -22,13 +22,44 @@
  * et il le perd pour de bon, comme on ne revient pas acheter du fil quand il
  * n'y a plus de matière.
  */
-import type { Alea, Code, EvenementJournal, Manque, NomPanneau, Partie } from "./types";
+import type {
+  Alea,
+  CibleProposee,
+  Code,
+  Compte,
+  ConseilBassin,
+  EvenementJournal,
+  Espece,
+  Grille,
+  Manque,
+  NomPanneau,
+  Partie,
+  Retirable,
+} from "./types";
 
 
 import { alea, PREMIER_MILIEU } from "./milieu";
 import { decrire } from "./molecule";
 import { agiter, cellulesDe, prelever, soupeVide } from "./soupe";
-import { PRIX, acheterAtome, atelierVide, fixerGabarit, tic } from "./atelier";
+import { PRIX, acheterAtome, atelierVide, coutEnAtomes, fixerGabarit, tic } from "./atelier";
+import { empreinte, tientEnsemble, visageDe } from "./soudure";
+import {
+  BRIQUES,
+  OBJECTIF,
+  bassinVide,
+  ciblesProposees,
+  combienPossible,
+  ensemencer,
+  espece,
+  manquePour,
+  nourriture,
+  rendrait,
+  retirer,
+  soutiens,
+  tourDeBassin,
+  viser,
+  voiesVers,
+} from "./bassin";
 
 /** Le nombre d'emplacements de l'écran. Le chiffre est arbitraire ; la règle ne l'est pas. */
 export const EMPLACEMENTS = 4;
@@ -53,7 +84,29 @@ export const PANNEAUX: Readonly<Record<NomPanneau, string>> = Object.freeze({
   soupe: "La soupe",
   collection: "Ce que vous avez gardé",
   atelier: "L'atelier",
+  bassin: "Le bassin",
 });
+
+/**
+ * COMBIEN D'INDIVIDUS UN SEMIS DÉPOSE D'UN COUP, quand les atomes le permettent.
+ *
+ * ⚠️ DIX, ET C'EST CE QUI SÉPARE UN JEU D'UNE DÉCORATION. Semer un individu dans
+ * un bassin qui en porte deux cents ne change rien de mesurable : à ce régime, le
+ * joueur qui suivait le conseil passait de 7 réussites sur 72 à 9 — l'écart du
+ * bruit. Par lots de dix, il passe à 20 sur 72, et le séjour moyen d'une cible
+ * triple. Une intervention doit peser autant que ce contre quoi elle pèse.
+ */
+export const LOT_SEMIS = 10;
+
+/**
+ * L'ÉNERGIE AU-DELÀ DE LAQUELLE LE DEUXIÈME ACTE N'A PLUS RIEN À DIRE.
+ *
+ * C'est le seuil que l'écran annonce déjà comme objectif de l'atelier ; le
+ * troisième acte s'ouvre exactement là, et pas ailleurs. Un seuil affiché qui ne
+ * déclenche rien, et un passage qui s'ouvrirait à un autre moment, feraient deux
+ * objectifs pour un seul acte.
+ */
+export const HORIZON_ATELIER = 400;
 
 /** Une partie neuve : le premier acte, trois panneaux ouverts, un emplacement libre. */
 export function nouvellePartie(graine = 1): Partie {
@@ -64,16 +117,24 @@ export function nouvellePartie(graine = 1): Partie {
     soupe: soupeVide(),
     collection: [],
     atelier: atelierVide(),
+    bassin: bassinVide(),
+    cible: null,
     panneaux: ["milieu", "soupe", "collection"],
     journal: [],
     prochainePiece: 1,
     bilanAtelier: null,
+    bilanBassin: null,
   };
 }
 
 /** Un générateur dérivé de la graine et du nombre d'agitations : la partie se rejoue. */
 function rngDe(partie: Partie): Alea {
-  return alea(partie.graine * 7919 + partie.soupe.agitations * 104729 + partie.atelier.tics * 31);
+  return alea(
+    partie.graine * 7919 +
+      partie.soupe.agitations * 104729 +
+      partie.atelier.tics * 31 +
+      partie.bassin.tours * 7,
+  );
 }
 
 /**
@@ -292,6 +353,291 @@ export function cequiManque(partie: Partie): Manque[] {
       abordable: reserve >= PRIX[code],
     }))
     .filter((x) => x.manque > 0);
+}
+
+/* ═══════════════════════ LE TROISIÈME ACTE : LE BASSIN ═══════════════════════
+ *
+ * CE QU'IL RETIRE : LA COPIE OFFERTE. L'atelier accordait la réplication d'office
+ * — il suffisait d'avoir les atomes. Or se recopier soi-même est le problème
+ * difficile de l'origine de la vie, et un jeu qui le donne en cadeau a déjà
+ * raconté sa fin. Dans le bassin, personne ne se copie : une molécule est SOUDÉE
+ * à partir de deux autres, et la soudure va d'autant plus vite qu'une troisième
+ * tient les deux morceaux côte à côte.
+ *
+ * IL FAUT DONC UN COLLECTIF, et c'est tout le sujet. Le bassin laissé à lui-même
+ * en installe un : sur cent quatre molécules possibles, une douzaine s'y
+ * maintiennent, et lesquelles dépend du flux du milieu. Le joueur, lui, en
+ * désigne une AUTRE — une que le courant emporterait — et doit lui construire le
+ * soutien qui la fera rester.
+ */
+
+/**
+ * Peut-on ouvrir le bassin ?
+ *
+ * Il faut que l'atelier ait tourné pour de bon. Ouvrir le troisième acte sur un
+ * atelier qui n'a rien produit, ce serait retirer au joueur une mécanique qu'il
+ * n'a pas encore vue fonctionner — et le passage n'aurait plus rien à lui
+ * apprendre, puisqu'il est tout entier dans ce qu'il enlève.
+ */
+export function peutOuvrirLeBassin(partie: Partie): boolean {
+  return partie.acte === 2 && partie.atelier.produitTotal >= HORIZON_ATELIER;
+}
+
+/** Ce que le joueur perdra en ouvrant le bassin — à lui montrer AVANT qu'il choisisse. */
+export function cequeLeBassinFerme(): { ferme: NomPanneau; consequence: string; definitif: boolean } {
+  return {
+    ferme: "atelier",
+    consequence:
+      "L'atelier se referme et verse son stock dans le bassin. Plus rien ne se recopiera tout seul : " +
+      "une molécule ne s'obtient qu'en soudant deux autres, et il faut qu'une troisième les tienne.",
+    definitif: true,
+  };
+}
+
+/**
+ * LES TROIS CIBLES PROPOSÉES, avec de quoi choisir en connaissance de cause.
+ *
+ * On donne ce qui est calculable sans simuler : par combien de couples de briques
+ * la molécule peut se faire, et combien de pièces de la collection sauraient
+ * tenir ces couples. Une cible à une seule voie et sans outil est un pari ; une
+ * cible à trois voies dont deux sont outillées est un travail.
+ */
+export function ciblesDuBassin(partie: Partie): CibleProposee[] {
+  const rng = alea(partie.graine * 15485863 + 7);
+  const flux = partie.milieu.flux ?? {};
+  const juger = (grille: Grille): CibleProposee => {
+    const voies = voiesVers(grille);
+    // Une pièce sert d'outil si son contour sait tenir les deux briques d'une voie.
+    const outils = partie.collection.filter((piece) => {
+      const v = visageDe(piece.grille);
+      return voies.some((voie) => tientEnsemble(v, visageDe(voie.a), visageDe(voie.b)));
+    });
+
+    /**
+     * ⚠️ CE QUI FAIT VRAIMENT LA DIFFICULTÉ : L'ATOME RARE QU'ELLE RÉCLAME.
+     * On affichait « N voies pour la faire ». Mesuré sur l'univers entier : les
+     * CENT QUATRE tétramères ont exactement UNE voie, sans exception. Un chiffre
+     * constant occupe une ligne et n'apprend rien.
+     *
+     * Ce qui varie, c'est le rapport entre ce que la molécule réclame et ce que
+     * le milieu verse. Un bassin qui reçoit vingt-quatre carbones pour quatre
+     * soufres rend une molécule à deux soufres coûteuse à faire ET à semer — et
+     * c'est aussi la leçon qu'on veut faire passer sur le flux.
+     */
+    const composition = espece(grille, partie.milieu).composition;
+    let plusRare: CibleProposee["plusRare"] = null;
+    let tension = 0;
+    for (const [code, n] of Object.entries(composition) as [Code, number][]) {
+      const verse = flux[code] ?? 0;
+      const t = verse === 0 ? Infinity : n / verse;
+      if (t > tension) {
+        tension = t;
+        plusRare = { code, requis: n, verse };
+      }
+    }
+    return {
+      grille,
+      visage: visageDe(grille),
+      empreinte: empreinte(grille),
+      voies: voies.length,
+      outils: outils.length,
+      composition,
+      plusRare,
+      tension,
+    };
+  };
+
+  /**
+   * ⚠️ TROIS DIFFICULTÉS, PAS TROIS TIRAGES. Trois cibles tirées au hasard sont
+   * souvent trois fois la même épreuve, et un choix entre trois équivalents n'est
+   * pas un choix. On en juge une douzaine et on garde les extrêmes et le milieu :
+   * la mieux outillée, la plus nue, et une entre les deux. L'écran dit de chacune
+   * par combien de voies elle se fait et combien de vos molécules l'aident — de
+   * quoi décider entre un travail et un pari.
+   */
+  const juges = ciblesProposees(rng, 12, partie.milieu).map(juger);
+  juges.sort((a, b) => b.outils - a.outils || a.tension - b.tension);
+  if (juges.length <= 3) return juges;
+  return [juges[0], juges[Math.floor(juges.length / 2)], juges[juges.length - 1]];
+}
+
+/**
+ * OUVRIR LE BASSIN — le passage au troisième acte, et la fermeture du deuxième.
+ *
+ * ⚠️ L'ATELIER SE VIDE DANS LE BASSIN, il ne s'évapore pas. Ses atomes en réserve
+ * et ceux de ses copies deviennent la matière de départ. C'est la même exigence
+ * qu'au premier acte quand on rejette une pièce : la forme se perd, la matière
+ * reste. Un joueur qui voit disparaître son stock ne comprend pas ce qu'il gagne.
+ */
+export function ouvrirLeBassin(partie: Partie, cibleGrille: Grille): Partie {
+  if (!peutOuvrirLeBassin(partie)) return partie;
+  const proposees = ciblesDuBassin(partie);
+  const choisie = proposees.find((c) => c.empreinte === empreinte(cibleGrille));
+  if (!choisie) return partie;
+
+  const libres: Compte = { ...partie.atelier.atomes };
+  if (partie.atelier.gabarit) {
+    for (const [code, n] of Object.entries(coutEnAtomes(partie.atelier.gabarit)) as [Code, number][]) {
+      libres[code] = (libres[code] ?? 0) + n * partie.atelier.copies;
+    }
+  }
+
+  const panneaux: NomPanneau[] = [...partie.panneaux.filter((p) => p !== "atelier"), "bassin"];
+  if (panneaux.length > EMPLACEMENTS) {
+    throw new Error("Le budget d'emplacements est dépassé : un panneau aurait dû être fermé.");
+  }
+
+  // Les six briques amorcent le bassin : c'est ce que la chimie aveugle sait faire.
+  let bassin = viser(bassinVide(libres), choisie.grille);
+  for (const brique of BRIQUES) bassin = ensemencer(bassin, brique, partie.milieu);
+
+  return {
+    ...partie,
+    acte: 3,
+    atelier: { ...partie.atelier, copies: 0, atomes: { C: 0, N: 0, S: 0 } },
+    bassin,
+    cible: { grille: choisie.grille, visage: choisie.visage, empreinte: choisie.empreinte },
+    panneaux,
+    journal: noter(partie, { quoi: "bassin", visage: choisie.visage, objectif: OBJECTIF }),
+  };
+}
+
+/**
+ * SEMER un lot dans le bassin. C'est le geste du troisième acte.
+ *
+ * ⚠️ IL SE PAIE EN ATOMES DU BASSIN, et le lot s'arrête là où la matière s'arrête.
+ * Semer sans compter vide le sac qui nourrit tout le monde.
+ *
+ * ⚠️ ET LA CIBLE, ELLE, NE SE SÈME PAS. C'est la règle qui décide de tout l'acte,
+ * et il a fallu deux mesures pour la trouver. La première a montré qu'on gagnait
+ * en ressemant la cible sans arrêt ; on a donc remis son séjour à zéro à chaque
+ * semis. La seconde a montré que cela ne suffisait pas — il restait à la semer UNE
+ * SEULE FOIS au départ :
+ *
+ *      on sème la cible ×10                    89 % de réussite
+ *      on sème la cible ×10 ET un gabarit      89 %  ← le gabarit ne sert à rien
+ *      on ne sème rien                          9 %
+ *      on ne sème QU'UN GABARIT                32 %  ← une décision, enfin
+ *
+ * Tant qu'on pouvait poser la cible soi-même, la collection entière ne servait à
+ * rien, et le joueur le sentait sans pouvoir le nommer. On ne met donc plus la
+ * molécule dans le bassin : ON REND LE BASSIN CAPABLE DE LA FAIRE. Le seul levier
+ * qui reste est le gabarit — c'est-à-dire ce qu'on a pêché au premier acte.
+ */
+export function semerDansLeBassin(partie: Partie, grille: Grille, combien: number = LOT_SEMIS): Partie {
+  if (partie.acte !== 3) return partie;
+  if (partie.cible && empreinte(grille) === partie.cible.empreinte) {
+    return { ...partie, journal: noter(partie, { quoi: "cibleNonSemable" }) };
+  }
+  let bassin = partie.bassin;
+  let poses = 0;
+  for (let i = 0; i < combien; i++) {
+    const apres = ensemencer(bassin, grille, partie.milieu);
+    if (apres === bassin) break;
+    bassin = apres;
+    poses += 1;
+  }
+  if (poses === 0) {
+    return { ...partie, journal: noter(partie, { quoi: "sansAtomes" }) };
+  }
+  return {
+    ...partie,
+    bassin,
+    journal: noter(partie, { quoi: "seme", visage: visageDe(grille), combien: poses, remisAZero: false }),
+  };
+}
+
+/** Combien d'exemplaires d'une pièce le bassin peut payer, pour l'annoncer au bouton. */
+export function lotPayable(partie: Partie, grille: Grille, combien: number = LOT_SEMIS): number {
+  if (partie.acte !== 3) return 0;
+  return combienPossible(partie.bassin, grille, partie.milieu, combien);
+}
+
+/** RETIRER une espèce du bassin pour libérer une place. Ses atomes y retournent. */
+export function retirerDuBassin(partie: Partie, empreinteCible: string): Partie {
+  if (partie.acte !== 3) return partie;
+  const partante = partie.bassin.especes.find((e) => e.empreinte === empreinteCible);
+  if (!partante || nourriture(partante)) return partie;
+  return {
+    ...partie,
+    bassin: retirer(partie.bassin, empreinteCible),
+    journal: noter(partie, { quoi: "retire", visage: partante.visage }),
+  };
+}
+
+/** UN TOUR DE BASSIN : le temps qui passe au troisième acte. */
+export function ticDuBassin(partie: Partie): Partie {
+  if (!partie.panneaux.includes("bassin")) return partie;
+  const { etat, bilan } = tourDeBassin(partie.bassin, partie.milieu, rngDe(partie));
+  return { ...partie, bassin: etat, bilanBassin: bilan };
+}
+
+/**
+ * CE QUE L'ÉCRAN DU TROISIÈME ACTE A LE DROIT DE DIRE.
+ *
+ * ⚠️ LE MAILLON MANQUANT, PAS LES COMPTEURS. Le reproche revenu à chaque essai
+ * est qu'on ne sait pas ce qui est attendu ; une population qui monte et descend
+ * n'y répond pas. Ici la réponse tient en une ligne par voie : il faut telle
+ * brique et telle autre, telle molécule présente les tient — ou bien il en manque
+ * une, et on dit laquelle semer et ce qu'elle rapporterait.
+ */
+export function conseilDuBassin(partie: Partie): ConseilBassin | null {
+  if (partie.acte !== 3 || !partie.cible) return null;
+  const catalogue = partie.collection.map((p) => p.grille);
+  const cible = partie.cible;
+  const s = soutiens(partie.bassin, cible.grille, catalogue);
+  const restant = Math.max(0, OBJECTIF - (partie.bassin.tenue ?? 0));
+
+  /**
+   * ⚠️ CE QUI MANQUE, C'EST POUR SEMER L'OUTIL, PLUS POUR SEMER LA CIBLE. Tant
+   * que la cible pouvait être posée à la main, l'atome qui manquait était le sien.
+   * Maintenant qu'elle doit être FABRIQUÉE, le seul semis qui reste est celui du
+   * gabarit — et c'est donc son coût qu'il faut annoncer.
+   */
+  const renfort = s.aider[0] ?? null;
+  const composition = renfort ? espece(renfort.grille, partie.milieu).composition : {};
+  const manque = manquePour(partie.bassin, composition);
+  const rares = new Set<Code>(manque.map((m) => m.code));
+  return {
+    ...s,
+    objectif: OBJECTIF,
+    restant,
+    /** Le gabarit le plus utile que la collection offre, ou `null`. */
+    renfort,
+    /** Combien d'exemplaires de ce gabarit le bassin peut réellement payer. */
+    payables: renfort ? combienPossible(partie.bassin, renfort.grille, partie.milieu, LOT_SEMIS) : 0,
+    /** Les atomes qui empêchent de le semer. */
+    manque,
+    gagne: (partie.bassin.record ?? 0) >= OBJECTIF,
+    /**
+     * LES ESPÈCES QU'ON PEUT RETIRER SANS SE PRIVER : ni la cible, ni un gabarit
+     * qui sert. Chacune porte ce qu'elle RENDRAIT — c'est la seule réponse à un
+     * bassin qui manque d'un atome rare, et elle est invisible sans ce calcul.
+     * Celles qui rendent l'atome manquant passent devant.
+     */
+    inutiles: partie.bassin.especes
+      .filter(
+        (e) =>
+          !nourriture(e) &&
+          e.empreinte !== cible.empreinte &&
+          !s.voies.some((v) => v.tenants.some((t) => t.empreinte === e.empreinte)),
+      )
+      .map((e: Espece): Retirable => {
+        const rendu = rendrait(e);
+        // `utile` ne compte QUE les atomes qui manquent : une espèce qui rend six
+        // azotes quand c'est du soufre qu'on cherche ne vaut rien, et l'écran ne
+        // doit pas la recommander comme si elle valait quelque chose.
+        return { ...e, rendu, utile: [...rares].reduce((n, code) => n + (rendu[code] ?? 0), 0) };
+      })
+      .sort((a, b) => b.utile - a.utile || b.effectif * b.taille - a.effectif * a.taille),
+  };
+}
+
+
+
+/** Le troisième acte est-il gagné ? */
+export function bassinGagne(partie: Partie): boolean {
+  return partie.acte === 3 && (partie.bassin.record ?? 0) >= OBJECTIF;
 }
 
 /**

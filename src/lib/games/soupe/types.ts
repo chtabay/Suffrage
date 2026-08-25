@@ -56,6 +56,8 @@ export interface Milieu {
   description: string;
   motifs: readonly Motif[];
   agitation: number;
+  /** Ce que le milieu VERSE par tour dans le bassin du troisième acte. */
+  flux?: Compte;
 }
 
 /** Tout ce qu'on sait d'une molécule après une seule traversée. */
@@ -115,6 +117,141 @@ export interface BilanAtelier {
   perdues: number;
   baties: number;
   produit: number;
+  /** L'armoire s'est-elle rouverte faute de quoi bâtir ? */
+  reamorce: boolean;
+}
+
+/* ═══════════════════════ LE TROISIÈME ACTE : LE BASSIN ═══════════════════════ */
+
+/**
+ * Une espèce du bassin : une molécule, et combien il y en a.
+ *
+ * ⚠️ ELLE NE PORTE PAS UNE `Description` ENTIÈRE, et c'est délibéré. Le bassin
+ * n'a que faire du rendement, de l'exposition ou des atomes enfouis : ce sont
+ * les grandeurs des deux premiers actes, où le milieu PAIE. Ici rien n'est payé,
+ * et une espèce se réduit à ce qui décide de son sort — sa forme, sa matière,
+ * ce qui la fait tenir, et son nombre.
+ */
+export interface Espece {
+  empreinte: string;
+  grille: Grille;
+  visage: string;
+  taille: number;
+  composition: Compte;
+  cohesion: number;
+  effectif: number;
+}
+
+/** L'état du bassin. */
+export interface EtatBassin {
+  libres: Compte;
+  especes: Espece[];
+  tours: number;
+  nes: number;
+  morts: number;
+  soudures: number;
+  /** L'empreinte de la molécule qu'on cherche à faire tenir, ou `null`. */
+  cible: string | null;
+  /** Depuis combien de tours d'affilée elle est là. */
+  tenue: number;
+  /** Le plus long séjour qu'elle ait obtenu. */
+  record: number;
+}
+
+/** Ce qu'un tour de bassin a produit. */
+export interface BilanBassin {
+  verses: number;
+  morts: number;
+  nes: number;
+  soudures: number;
+  dissipes: number;
+  emportes: number;
+  exportes: number;
+}
+
+/** Une soudure possible, telle que l'écran doit la montrer. */
+export interface Fabrication {
+  a: Espece;
+  b: Espece;
+  produit: Grille;
+  empreinte: string;
+  visage: string;
+  gabarits: number;
+  rencontres: number;
+  chance: number;
+}
+
+/** Un chemin vers la cible : deux briques, et ce qui les tient. */
+export interface Voie {
+  a: Espece;
+  b: Espece;
+  gabarits: number;
+  chance: number;
+  tenants: Espece[];
+}
+
+/** Une molécule du catalogue qui accélérerait une voie. */
+export interface Renfort {
+  grille: Grille;
+  visage: string;
+  gain: number;
+}
+
+/** Ce que l'écran du troisième acte a le droit de dire. */
+export interface Soutiens {
+  present: number;
+  tenue: number;
+  voies: Voie[];
+  /** Les gabarits du catalogue qui manquent au bassin, le plus utile d'abord. */
+  aider: Renfort[];
+  /** Ceux qui y sont déjà : ils servent, mais il n'y a rien à faire pour eux. */
+  dejaLa: Renfort[];
+}
+
+/** Ce qui manque pour en déposer un de plus. */
+export interface ManqueAtome {
+  code: Code;
+  requis: number;
+  disponible: number;
+  manque: number;
+}
+
+/** Une espèce qu'on peut retirer, et ce qu'elle rendrait. */
+export interface Retirable extends Espece {
+  rendu: Compte;
+  utile: number;
+}
+
+/** Le conseil complet du troisième acte. */
+export interface ConseilBassin extends Soutiens {
+  objectif: number;
+  restant: number;
+  /** Le gabarit le plus utile que la collection offre, ou `null`. */
+  renfort: Renfort | null;
+  /** Combien d'exemplaires de ce gabarit le bassin peut réellement payer. */
+  payables: number;
+  gagne: boolean;
+  manque: ManqueAtome[];
+  inutiles: Retirable[];
+}
+
+/** Une cible proposée au joueur, avec de quoi choisir. */
+export interface CibleProposee {
+  grille: Grille;
+  visage: string;
+  empreinte: string;
+  voies: number;
+  outils: number;
+  composition: Compte;
+  plusRare: { code: Code; requis: number; verse: number } | null;
+  tension: number;
+}
+
+/** La molécule qu'on cherche à faire tenir. */
+export interface Cible {
+  grille: Grille;
+  visage: string;
+  empreinte: string;
 }
 
 /** Une molécule gardée par le joueur. */
@@ -134,7 +271,7 @@ export interface Manque {
 }
 
 /** Un panneau de l'écran. Ouvrir l'un en ferme un autre. */
-export type NomPanneau = "milieu" | "soupe" | "collection" | "atelier";
+export type NomPanneau = "milieu" | "soupe" | "collection" | "atelier" | "bassin";
 
 /**
  * L'état complet d'une partie.
@@ -146,15 +283,18 @@ export type NomPanneau = "milieu" | "soupe" | "collection" | "atelier";
  */
 export interface Partie {
   graine: number;
-  acte: 1 | 2;
+  acte: 1 | 2 | 3;
   milieu: Milieu;
   soupe: EtatSoupe;
   collection: Piece[];
   atelier: EtatAtelier;
+  bassin: EtatBassin;
+  cible: Cible | null;
   panneaux: NomPanneau[];
   journal: EvenementJournal[];
   prochainePiece: number;
   bilanAtelier: BilanAtelier | null;
+  bilanBassin: BilanBassin | null;
 }
 
 /** Ce qui s'est passé, sous une forme que l'écran traduira. */
@@ -162,4 +302,9 @@ export type EvenementJournal =
   | { quoi: "preleve"; visage: string; rendement: number }
   | { quoi: "rejete"; visage: string }
   | { quoi: "fonde"; visage: string; rendement: number }
-  | { quoi: "gabarit"; visage: string; perdues: number };
+  | { quoi: "gabarit"; visage: string; perdues: number }
+  | { quoi: "bassin"; visage: string; objectif: number }
+  | { quoi: "seme"; visage: string; combien: number; remisAZero: boolean }
+  | { quoi: "sansAtomes" }
+  | { quoi: "retire"; visage: string }
+  | { quoi: "cibleNonSemable" };

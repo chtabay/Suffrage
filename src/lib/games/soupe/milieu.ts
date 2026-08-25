@@ -17,7 +17,7 @@
  * partage et se retrouve.
  */
 
-import type { Alea, Milieu, Motif } from "./types";
+import type { Alea, Compte, Milieu, Motif } from "./types";
 
 
 import { CODES } from "./grille";
@@ -58,6 +58,9 @@ export const PREMIER_MILIEU: Milieu = Object.freeze({
   nom: "L'eau tiède",
   description: "Un milieu clément. Le carbone accolé à l'azote y rapporte, et rien n'y nuit.",
   motifs: Object.freeze([Object.freeze({ motif: "CN", valeur: 3 })]),
+  // Le flux ne sert qu'au troisième acte ; le premier milieu en porte un par
+  // uniformité, pour qu'aucun code n'ait à traiter son absence comme un cas.
+  flux: Object.freeze({ C: 24, N: 12, S: 8 }),
   // Agitation faible : dans un milieu d'apprentissage, un gabarit médiocre doit
   // rapporter peu, pas condamner la partie. Mesuré : à 0,8 le dimère CN avait un
   // rendement net négatif et l'atelier mourait en trois cents tours ; à 0,5 il
@@ -122,14 +125,61 @@ export function engendrerMilieu(graine: number, rang = 0): Milieu {
     graine,
     rang,
     nom: nommer(graine),
+    /**
+     * CE QUE LE MILIEU VERSE, par tour, dans le bassin du troisième acte.
+     *
+     * ⚠️ C'EST LE FLUX QUI FAIT LA DÉCISION, PAS LE TARIF. Deux milieux peuvent
+     * payer le même motif et n'appeler pas du tout le même assortiment : une eau
+     * qui déverse du carbone et peu d'azote rend les molécules riches en azote
+     * lentes à se faire, si rentables soient-elles. C'est le seul endroit du jeu
+     * où la RARETÉ existe, et elle est la matière première de la sélection.
+     */
+    flux: engendrerFlux(graine),
     description: decrireMilieu(motifs),
     motifs,
     // AGITATION DU MILIEU : ce qu'il fait subir aux molécules qui y vivent.
-    // C'est elle qui use les copies du deuxième acte, avec la loi du premier.
-    // Elle monte lentement : un monde plus riche est aussi un monde plus rude,
-    // et la cohésion, longtemps secondaire, finit par décider.
-    agitation: Number((0.8 + rang * 0.18).toFixed(2)),
+    // C'est elle qui use les copies du deuxième acte et les individus du
+    // troisième, toujours avec la loi du premier.
+    //
+    // ⚠️ LA PENTE A ÉTÉ RETENDUE APRÈS MESURE SUR LE BASSIN. À `0,8 + rang×0,18`
+    // elle atteignait 1,7 au cinquième rang, et là une seule espèce sur seize
+    // gardait une croissance positive : le bassin s'éteignait quoi qu'on y
+    // mette. Une usure qui tue tout ne sélectionne rien — elle ne laisse pas de
+    // choix, elle en supprime. La pente est donc plus douce, et c'est la
+    // difficulté du MOTIF, pas celle de l'usure, qui portera la montée.
+    agitation: Number((0.6 + rang * 0.1).toFixed(2)),
   };
+}
+
+/**
+ * Un flux déséquilibré, dérivé de la graine.
+ *
+ * Quarante atomes par tour, répartis inégalement : un atome abondant, un moyen,
+ * un rare. Un flux plat rendrait toutes les compositions équivalentes et il n'y
+ * aurait plus rien à arbitrer.
+ *
+ * ⚠️ LA QUANTITÉ EST UN PLAFOND DE VIVANT, PAS UN RÉGLAGE DE CONFORT. Le flux
+ * versait dix atomes ; toutes pertes faites, le bassin ne pouvait alors tenir
+ * qu'une quarantaine de dimères, donc au plus cinq soudures par tour, réparties
+ * sur cent produits possibles. Aucune molécule ne pouvait dépasser six individus
+ * et rien ne s'installait jamais : la matière, et non la chimie, était la limite.
+ * Le rapport 6:3:1 est inchangé — c'est lui qui porte la décision, et la rareté
+ * relative reste exactement la même.
+ */
+function engendrerFlux(graine: number): Compte {
+  const rng = alea(graine * 2246822519 + 101);
+  const parts = [24, 12, 4];
+  const ordre = [...CODES];
+  // Mélange : c'est le tirage qui décide quel atome est abondant ici.
+  for (let i = ordre.length - 1; i > 0; i--) {
+    const j = Math.floor(rng() * (i + 1));
+    [ordre[i], ordre[j]] = [ordre[j], ordre[i]];
+  }
+  const flux: Compte = {};
+  ordre.forEach((code, i) => {
+    flux[code] = parts[i];
+  });
+  return flux;
 }
 
 /**
