@@ -20,13 +20,22 @@
 // c'est-à-dire le chemin de Banalo — pour un bloc de relecture, le prix n'en
 // vaut pas la peine tant que personne ne l'a signalé.
 //
-// ⚠️ ET IL NE SORT QU'UNE FOIS LA PARTIE DU JOUR GAGNÉE, comme le tableau du
-// jour : §16 interdit la moindre distraction pendant la manche, et relire hier
-// pendant qu'on cherche aujourd'hui en est une.
+// ⚠️ IL EST SOUS LE TITRE DE LA PAGE, ET IL TIENT EN UNE LIGNE. Demandé deux
+// fois, la seconde en toutes lettres : « l'information de la journée précédente
+// est-elle bien en petit à côté du titre de la page ? ». Elle ne l'était pas —
+// mesuré, elle était 1 507 px plus bas, soit quatre écrans de téléphone. Je
+// l'avais posée dans une carte en comprenant « le titre de la CARTE ».
+//
+// ⚠️ ET IL N'ATTEND PLUS LA VICTOIRE, contrairement au tableau du jour. §16
+// range les OFFRES après la révélation — compte, installation, pont vers Placet
+// — parce qu'elles DEMANDENT quelque chose. Cette ligne ne demande rien : elle
+// RACONTE, comme `SerieDuJour`, dont l'en-tête dit exactement pourquoi ça ne
+// consomme aucune place de l'échelle. Et elle ne divulgue rien du jour : un rang
+// de la veille ne réduit aucune recherche d'aujourd'hui.
 import { useEffect, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { PAYS_SKIN as skin } from "@/lib/games/skin";
-import { GBtn, GCard, GLabel } from "@/components/games/ui";
+import { GLabel } from "@/components/games/ui";
 import Modale from "@/components/games/Modale";
 import ListeDuTableau from "@/components/games/ListeDuTableau";
 import { monJetonPays } from "@/lib/games/pays/jeton";
@@ -88,45 +97,45 @@ export default function JourneePrecedente({ jour }: { jour: number }) {
   if (!precedente) return null;
 
   return (
-    <div style={{ marginTop: 20 }}>
-      <GCard skin={skin} padding={15}>
-        <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 10 }}>
-          <GLabel skin={skin}>{t("derniereTitre")}</GLabel>
-          <span style={{ fontSize: 12, fontWeight: 700, color: skin.muted }}>
-            {t("numero", { n: precedente.jour })}
-          </span>
-        </div>
-        {/* ⚠️ UNE LIGNE, ET LA PLACE EN PREMIER. Demandé : « le classement de la
-            journée précédente devrait être proche du titre, très simple ». La
-            carte disait le nombre d'essais et cachait le classement derrière un
-            bouton — or ce que le joueur vient chercher est SA PLACE.
-
-            ⚠️ ET LE RANG NE VA JAMAIS SANS SA FOULE : « 3e » ne veut pas dire la
-            même chose sur six joueurs et sur trois mille. Les deux clés sont
-            écrites en clair, une par branche — une clé choisie en variable
-            échapperait au contrôle de parité i18n. */}
-        <p style={{ margin: "8px 0 0", fontSize: 17, fontWeight: 800, fontFamily: skin.fontDisplay }}>
+    <>
+      {/* ⚠️ EN PETIT ET EN GRIS, SOUS LA CONSIGNE. Elle ne doit pas concurrencer
+          le geste du jour : ce qu'on vient faire ici est chercher un pays, pas
+          relire hier. C'est une continuité, pas un titre. */}
+      <p style={{ margin: "10px 0 0", fontSize: 13, lineHeight: 1.5, color: skin.muted }}>
+        {t("numero", { n: precedente.jour })}
+        {" · "}
+        {/* ⚠️ LES DEUX CLÉS SONT ÉCRITES EN CLAIR, une par branche : une clé
+            choisie en variable échapperait au contrôle de parité i18n. Et le
+            rang ne va jamais sans sa foule — « 3e » ne veut pas dire la même
+            chose sur six joueurs et sur trois mille. */}
+        <strong style={{ color: skin.ink, fontWeight: 800 }}>
           {place && place.rang !== null
             ? t("dernierePlace", { rang: place.rang, n: place.joueurs })
             : t("tableau.essais", { n: precedente.essais })}
-          {place && place.rang !== null ? (
-            <span style={{ fontSize: 13, fontWeight: 700, color: skin.muted }}>
-              {" · "}
-              {t("tableau.essais", { n: precedente.essais })}
-            </span>
-          ) : null}
-        </p>
-        {/* ⚠️ LE BOUTON NE SORT QUE S'IL Y A QUELQUE CHOSE DERRIÈRE. Un tiroir
-            qui s'ouvre sur une carte vide est pire que pas de tiroir du tout :
-            `PAS D'ACCROCHE SANS BOUTON`, la règle d'`InstallJeu`. */}
+        </strong>
+        {/* ⚠️ LE LIEN NE SORT QUE S'IL Y A QUELQUE CHOSE DERRIÈRE : un tiroir
+            qui s'ouvre sur une carte vide est pire que pas de tiroir du tout. */}
         {tableau && tableau.lignes.length > 0 ? (
-          <div style={{ marginTop: 10 }}>
-            <GBtn skin={skin} variant="ghost" size="sm" onClick={() => setOuvert(true)}>
+          <>
+            {" · "}
+            <button
+              type="button"
+              onClick={() => setOuvert(true)}
+              style={{
+                border: "none",
+                background: "none",
+                padding: 0,
+                font: "inherit",
+                color: skin.muted,
+                textDecoration: "underline",
+                cursor: "pointer",
+              }}
+            >
               {t("derniereBouton")}
-            </GBtn>
-          </div>
+            </button>
+          </>
         ) : null}
-      </GCard>
+      </p>
 
       {ouvert && tableau ? (
         <Modale
@@ -156,6 +165,6 @@ export default function JourneePrecedente({ jour }: { jour: number }) {
           />
         </Modale>
       ) : null}
-    </div>
+    </>
   );
 }

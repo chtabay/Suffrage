@@ -1515,7 +1515,21 @@ pour un compte dont les parties sont rattachées. Le rendre exact partout
 demanderait une fonction « dernière journée jouée » côté base ; pour un bloc de
 relecture, le prix n'en vaut pas la peine tant que personne ne l'a signalé.
 
-⚠️ **SA CARTE TIENT EN UNE LIGNE, ET LA PLACE PASSE DEVANT** — demandé : « le
+⚠️ **ELLE EST SOUS LE TITRE DE LA PAGE, ET C'EST LA SECONDE CORRECTION DE
+PLACE.** Demandé deux fois — « proche du titre », puis « est-ce bien en petit à
+côté du titre de la page ? ». Non : mesuré, elle était à **y = 1 521** quand le
+titre est à **14**, soit quatre écrans de téléphone plus bas. J'avais compris
+« le titre de la CARTE ». Elle est maintenant à **y = 227**, en 13 px gris, sous
+la consigne et au-dessus de la carte.
+
+⚠️ **ET ELLE N'ATTEND PLUS LA VICTOIRE.** §16 range les OFFRES après la
+révélation — compte, installation, pont vers Placet — parce qu'elles DEMANDENT
+quelque chose. Cette ligne ne demande rien, elle RACONTE : même raisonnement que
+`SerieDuJour`, qui n'occupe aucune place de l'échelle du §0 pour cette raison
+exacte. Et elle ne divulgue rien du jour — un rang de la veille ne réduit aucune
+recherche d'aujourd'hui.
+
+⚠️ **LA PLACE PASSE DEVANT, ET LE TIROIR GARDE LE RESTE** — demandé : « le
 classement de la journée précédente devrait être proche du titre, très simple ».
 Elle annonçait le nombre d'essais et cachait le classement derrière un bouton,
 alors que ce que le joueur vient chercher est SA PLACE : « 5e sur 12 · 2 essais »,
