@@ -110,7 +110,7 @@ import {
   ticDuBassin,
   ticLatelier,
 } from "@/lib/games/soupe/partie";
-import { ESPECES_MAX, OBJECTIF as OBJECTIF_BASSIN, nourriture } from "@/lib/games/soupe/bassin";
+import { ESPECES_MAX, OBJECTIF as OBJECTIF_BASSIN, TAILLE_MAX, nourriture } from "@/lib/games/soupe/bassin";
 import type { Code, Espece, EvenementJournal, Grille, Partie, Piece, Voie } from "@/lib/games/soupe/types";
 
 /**
@@ -338,6 +338,26 @@ export default function LaSoupe() {
   const conseilBassin = partie.acte === 3 ? conseilDuBassin(partie) : null;
 
   /**
+   * LE NOM D'UNE MOLÉCULE, POUR UN JOUEUR.
+   *
+   * ⚠️ « SEMER CCCNS » N'EST PAS UN NOM, C'EST UN CODE — la lecture d'un contour,
+   * une notion interne que le joueur n'a aucun moyen de relier à la forme dessinée
+   * deux centimètres plus loin. La collection est donc étiquetée A, B, C…, la
+   * lettre est écrite sur la fiche comme dans le bouton, et le bouton porte en
+   * plus la forme, qui est ce que l'œil reconnaît.
+   *
+   * ⚠️ ON INDEXE PAR POSITION, PAS PAR VISAGE : deux pièces gardées peuvent
+   * partager un contour, et l'écran affichait alors deux fiches « C ». Une
+   * étiquette qui ne distingue pas ne nomme rien.
+   */
+  const lettreDe = (i: number) => String.fromCharCode(65 + i);
+  const etiquettes = new Map<string, string>();
+  partie.collection.forEach((piece, i) => {
+    if (!etiquettes.has(piece.visage)) etiquettes.set(piece.visage, lettreDe(i));
+  });
+  const nomLisible = (v: string) => etiquettes.get(v) ?? v;
+
+  /**
    * CE QU'ON ATTEND DU JOUEUR, MAINTENANT.
    *
    * Une seule phrase, dérivée de l'état. Répond au reproche le plus direct du
@@ -349,8 +369,7 @@ export default function LaSoupe() {
     // parce que rien n'y dépend d'un clic et que tout y dépend d'une lecture.
     if (partie!.acte === 3 && conseilBassin && partie!.cible) {
       const c = conseilBassin;
-      const cible = partie!.cible.visage;
-      if (c.gagne) return t("bassinConseilGagne", { cible });
+      if (c.gagne) return t("bassinConseilGagne");
       const meilleure = c.voies[0];
       if (!meilleure) return t("bassinConseilImpossible");
 
@@ -363,21 +382,20 @@ export default function LaSoupe() {
         // soufre qui manquait : il listait les atomes manquants, pas les rendus.
         const source = c.inutiles.find((e) => e.utile > 0);
         const rendus = source ? c.manque.filter((m) => (source.rendu[m.code] ?? 0) > 0) : [];
-        const tete = t("bassinConseilManque", { quoi, gabarit: c.renfort.visage });
+        const tete = t("bassinConseilManque", { quoi, gabarit: nomLisible(c.renfort.visage) });
         return rendus.length > 0 && source
           ? `${tete} ${t("bassinConseilRetirer", {
-              quoi: source.visage,
               rendu: rendus.map((m) => `${source.rendu[m.code]} ${nomAtome(m.code)}`).join(" + "),
             })}`
           : `${tete} ${t("bassinConseilRienNenRend")}`;
       }
       if (meilleure.gabarits === 0) {
         return c.renfort
-          ? t("bassinConseilSansGabarit", { cible, quoi: c.renfort.visage })
-          : t("bassinConseilSansOutil", { cible });
+          ? t("bassinConseilSansGabarit", { quoi: nomLisible(c.renfort.visage) })
+          : t("bassinConseilSansOutil");
       }
       if (c.present === 0) {
-        return t("bassinConseilVaParaitre", { n: meilleure.gabarits, cible });
+        return t("bassinConseilVaParaitre", { n: meilleure.gabarits });
       }
       return t("bassinConseilTient", {
         n: meilleure.gabarits,
@@ -591,11 +609,11 @@ export default function LaSoupe() {
     if (e.quoi === "rejete") return t("journalRejete");
     if (e.quoi === "fonde") return t("journalFonde", { n: e.rendement });
     if (e.quoi === "gabarit") return t("journalGabarit", { perdues: e.perdues });
-    if (e.quoi === "bassin") return t("journalBassin", { cible: e.visage, objectif: e.objectif });
+    if (e.quoi === "bassin") return t("journalBassin", { objectif: e.objectif });
     // `remisAZero` n'a plus d'emploi : la cible ne se sème plus du tout, donc
     // aucun semis ne remet le séjour à zéro.
-    if (e.quoi === "seme") return t("journalSeme", { n: e.combien, quoi: e.visage });
-    if (e.quoi === "retire") return t("journalRetire", { quoi: e.visage });
+    if (e.quoi === "seme") return t("journalSeme", { n: e.combien, quoi: nomLisible(e.visage) });
+    if (e.quoi === "retire") return t("journalRetire");
     if (e.quoi === "cibleNonSemable") return t("journalCibleNonSemable");
     return t("journalSansAtomes");
   }
@@ -660,12 +678,42 @@ export default function LaSoupe() {
               }}
               title={`${piece.taille} atomes · ${t("solidite")} ${nb(piece.cohesion)}`}
             >
+              {partie.acte === 3 ? (
+                <span
+                  style={{
+                    fontFamily: skin.fontDisplay,
+                    fontWeight: 800,
+                    fontSize: 17,
+                    lineHeight: 1,
+                    color: skin.accent,
+                  }}
+                >
+                  {lettreDe(partie.collection.indexOf(piece))}
+                </span>
+              ) : null}
               <Forme grille={piece.grille} titre={piece.visage} />
               {partie.acte === 3 ? (
                 <>
-                  <Chiffre teinte={utile ? skin.good : undefined}>
-                    {dansLeBassin ? t("dejaDansLeBassin") : outil ? t("tientLesDeux") : t("neTientPas")}
+                  {/* ⚠️ TROIS FAITS DISTINCTS, QUI SE CACHAIENT L'UN L'AUTRE. La
+                      fiche disait « déjà dans le bassin » À LA PLACE de « tient les
+                      deux morceaux », si bien qu'on ne savait plus si la pièce
+                      servait. Et « les deux morceaux » ne nommait rien : quels
+                      morceaux ? Ceux de la cible, dessinés juste au-dessus. */}
+                  <Chiffre teinte={outil ? skin.good : undefined}>
+                    {outil ? t("tientLesDeux") : t("neTientPas")}
                   </Chiffre>
+                  {dansLeBassin ? (
+                    <Chiffre teinte={skin.good}>
+                      {t("dejaDansLeBassin", {
+                        n: partie.bassin.especes.find((e) => e.visage === piece.visage)?.effectif ?? 0,
+                      })}
+                    </Chiffre>
+                  ) : null}
+                  {/* Au-delà du plafond de taille, le bassin ne sait pas la refaire :
+                      c'est un réactif qu'on dépense, pas un habitant. */}
+                  {piece.taille > TAILLE_MAX ? (
+                    <Chiffre teinte={ROUGE}>{t("jamaisRefaite")}</Chiffre>
+                  ) : null}
                   {/* La solidité avait disparu de la fiche au troisième acte,
                       alors que c'est elle qui décide combien de tours le gabarit
                       servira avant que le courant ne l'emporte. */}
@@ -676,7 +724,7 @@ export default function LaSoupe() {
                   {/* ⚠️ PAS DE BOUTON SUR CE QUI NE TIENT RIEN : 43 % d'entre eux
                       étaient posés sur des pièces étiquetées « ne tient pas ces
                       morceaux » deux lignes plus haut. */}
-                  {outil || dansLeBassin ? (
+                  {outil ? (
                     <GBtn
                       skin={skin}
                       size="sm"
@@ -693,7 +741,9 @@ export default function LaSoupe() {
                           : t("semerPieceAide")
                       }
                     >
-                      {t("semerPiece", { n: lotPayable(partie, piece.grille) })}
+                      {lotPayable(partie, piece.grille) > 0
+                        ? t("semerPiece", { n: lotPayable(partie, piece.grille) })
+                        : t("pasAssezDAtomes")}
                     </GBtn>
                   ) : (
                     <Chiffre>{t("neServiraitARien")}</Chiffre>
@@ -1220,7 +1270,7 @@ export default function LaSoupe() {
             }}
           >
             <b>{t("bassinGagneTitre")}</b>{" "}
-            {t("bassinGagneTexte", { cible: partie.cible.visage, objectif: conseilBassin.objectif })}
+            {t("bassinGagneTexte", { objectif: conseilBassin.objectif })}
           </div>
         ) : null}
 
@@ -1264,7 +1314,12 @@ export default function LaSoupe() {
                     : t("semerGabaritAide")
                 }
               >
-                {lot > 0 ? t("semerGabaritLot", { quoi: aide.visage, n: lot }) : t("semerGabarit", { quoi: aide.visage })}
+                <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+                  <Forme grille={piece.grille} cote={7} />
+                  {lot > 0
+                    ? t("semerGabaritLot", { quoi: nomLisible(aide.visage), n: lot })
+                    : t("semerImpossibleCourt", { quoi: nomLisible(aide.visage) })}
+                </span>
               </GBtn>
             );
           })}
@@ -1276,7 +1331,7 @@ export default function LaSoupe() {
         {conseilBassin.aider.length === 0 ? (
           <p style={{ margin: 0, fontSize: 13, color: skin.muted, lineHeight: 1.45 }}>
             {conseilBassin.dejaLa.length > 0
-              ? t("gabaritsDejaLa", { quoi: conseilBassin.dejaLa.map((x) => x.visage).join(", ") })
+              ? t("gabaritsDejaLa", { quoi: conseilBassin.dejaLa.map((x) => nomLisible(x.visage)).join(", ") })
               : t("aucunOutil")}
           </p>
         ) : null}
@@ -1284,7 +1339,7 @@ export default function LaSoupe() {
         {/* LE BASSIN LUI-MÊME : la nourriture d'un côté, ce qui est fabriqué de
             l'autre. Les briques ne disputent aucune place — elles sont le « food
             set », et les compter comme des espèces leur donnait six places sur huit. */}
-        <p style={{ margin: 0, fontSize: 13, color: skin.muted }}>{t("lesBriques")}</p>
+        <p style={{ margin: 0, fontSize: 13, color: skin.muted, lineHeight: 1.45 }}>{t("lesBriques")}</p>
         <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
           {partie.bassin.especes
             .filter((e) => nourriture(e))
