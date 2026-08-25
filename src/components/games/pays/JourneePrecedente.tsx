@@ -24,7 +24,9 @@
 // fois, la seconde en toutes lettres : « l'information de la journée précédente
 // est-elle bien en petit à côté du titre de la page ? ». Elle ne l'était pas —
 // mesuré, elle était 1 507 px plus bas, soit quatre écrans de téléphone. Je
-// l'avais posée dans une carte en comprenant « le titre de la CARTE ».
+// l'avais posée dans une carte en comprenant « le titre de la CARTE ». Reprise
+// une troisième fois sur « un peu plus visible » : le bon endroit était trouvé,
+// mais elle se fondait dans la consigne grise juste au-dessus.
 //
 // ⚠️ ET IL N'ATTEND PLUS LA VICTOIRE, contrairement au tableau du jour. §16
 // range les OFFRES après la révélation — compte, installation, pont vers Placet
@@ -98,11 +100,27 @@ export default function JourneePrecedente({ jour }: { jour: number }) {
 
   return (
     <>
-      {/* ⚠️ EN PETIT ET EN GRIS, SOUS LA CONSIGNE. Elle ne doit pas concurrencer
-          le geste du jour : ce qu'on vient faire ici est chercher un pays, pas
-          relire hier. C'est une continuité, pas un titre. */}
-      <p style={{ margin: "10px 0 0", fontSize: 13, lineHeight: 1.5, color: skin.muted }}>
-        {t("numero", { n: precedente.jour })}
+      {/* ⚠️ EN PETIT SOUS LA CONSIGNE, MAIS PAS DANS SA GRISAILLE. Première
+          version : 13 px en `muted`, posée à 10 px sous un paragraphe de 15,5 px
+          lui aussi en `muted`, au même bord gauche — vu à l'écran, elle se lisait
+          comme la QUATRIÈME LIGNE de la consigne, pas comme un objet à elle.
+          « Un peu plus visible », donc : un blanc qui la détache, l'encre du
+          produit sur la donnée, et l'accent sur le lien. Elle ne doit pour
+          autant pas concurrencer le geste du jour — on vient chercher un pays,
+          pas relire hier — d'où le petit corps conservé.
+
+          ⚠️ UN FILET AU-DESSUS A ÉTÉ ESSAYÉ ET RETIRÉ : à cette finesse il ne se
+          voyait pas, et il coûtait 11 px qui repoussaient la carte. Ce qui a
+          rendu la ligne visible n'est pas un ornement, c'est son ENTRÉE. */}
+      <p style={{ margin: "15px 0 0", fontSize: 13.5, lineHeight: 1.5, color: skin.ink }}>
+        {/* ⚠️ ELLE S'ANNONCE, ELLE NE COMMENCE PLUS PAR UN NUMÉRO NU. « Journée
+            n° 7 » en gris était le premier mot que l'œil rencontrait : une
+            étiquette terne, et surtout AMBIGUË — un rang posé sous la consigne
+            d'une partie en cours se lit d'abord comme celui d'aujourd'hui, et le
+            numéro ne lève cette ambiguïté que pour qui a lu celui de l'en-tête
+            (n° 8) juste au-dessus. Le libellé du tiroir dit ce que c'est en
+            trois mots, et le numéro n'est pas perdu : le tiroir le porte. */}
+        <span style={{ color: skin.muted }}>{t("derniereTitre")}</span>
         {" · "}
         {/* ⚠️ LES DEUX CLÉS SONT ÉCRITES EN CLAIR, une par branche : une clé
             choisie en variable échapperait au contrôle de parité i18n. Et le
@@ -126,7 +144,11 @@ export default function JourneePrecedente({ jour }: { jour: number }) {
                 background: "none",
                 padding: 0,
                 font: "inherit",
-                color: skin.muted,
+                // ⚠️ À L'ACCENT ET EN GRAS : c'est la seule chose actionnable
+                // de la ligne, et en `muted` souligné elle avait exactement le
+                // poids du numéro de journée qui la précède.
+                color: skin.accent,
+                fontWeight: 700,
                 textDecoration: "underline",
                 cursor: "pointer",
               }}
