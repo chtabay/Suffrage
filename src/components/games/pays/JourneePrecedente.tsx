@@ -31,7 +31,7 @@ import Modale from "@/components/games/Modale";
 import ListeDuTableau from "@/components/games/ListeDuTableau";
 import { monJetonPays } from "@/lib/games/pays/jeton";
 import { lisResultats } from "@/lib/games/pays/local";
-import { litTableauPays } from "@/lib/db/pays";
+import { litTableauPays, maPosition, type RangPays } from "@/lib/db/pays";
 import type { Tableau } from "@/lib/db/banalo";
 
 /** Cinq lignes, comme chez Banalo : c'est une carte de relecture, pas l'écran du jour. */
@@ -42,6 +42,17 @@ export default function JourneePrecedente({ jour }: { jour: number }) {
   const [precedente, setPrecedente] = useState<{ jour: number; essais: number } | null>(null);
   const [tableau, setTableau] = useState<Tableau | null>(null);
   const [ouvert, setOuvert] = useState(false);
+  /**
+   * Ma place CE jour-là, parmi TOUS les joueurs.
+   *
+   * ⚠️ CE N'EST PAS LE RANG DU TABLEAU, et la différence est celle que le
+   * produit refuse d'effacer : le tableau ne classe que les INSCRITS, donc y
+   * lire « 1er » quand trente joueurs ont fait mieux serait un mensonge — c'est
+   * pour ça qu'il n'imprime aucun numéro. `scrutin_game_pays_position` compte
+   * la foule entière, et elle marche AVEC OU SANS COMPTE puisqu'elle prend le
+   * jeton.
+   */
+  const [place, setPlace] = useState<RangPays | null>(null);
 
   // ⚠️ APRÈS LE MONTAGE. `lisResultats` touche le `localStorage` : le lire au
   // rendu serveur rendrait une liste vide, et l'hydratation la changerait.
@@ -61,6 +72,9 @@ export default function JourneePrecedente({ jour }: { jour: number }) {
     // de deux.
     void litTableauPays(jeton, precedente.jour, 1).then((tb) => {
       if (vivant) setTableau(tb);
+    });
+    void maPosition(precedente.jour).then((r) => {
+      if (vivant) setPlace(r);
     });
     return () => {
       vivant = false;
@@ -82,21 +96,32 @@ export default function JourneePrecedente({ jour }: { jour: number }) {
             {t("numero", { n: precedente.jour })}
           </span>
         </div>
+        {/* ⚠️ UNE LIGNE, ET LA PLACE EN PREMIER. Demandé : « le classement de la
+            journée précédente devrait être proche du titre, très simple ». La
+            carte disait le nombre d'essais et cachait le classement derrière un
+            bouton — or ce que le joueur vient chercher est SA PLACE.
+
+            ⚠️ ET LE RANG NE VA JAMAIS SANS SA FOULE : « 3e » ne veut pas dire la
+            même chose sur six joueurs et sur trois mille. Les deux clés sont
+            écrites en clair, une par branche — une clé choisie en variable
+            échapperait au contrôle de parité i18n. */}
         <p style={{ margin: "8px 0 0", fontSize: 17, fontWeight: 800, fontFamily: skin.fontDisplay }}>
-          {t("tableau.essais", { n: precedente.essais })}
-        </p>
-        {/* ⚠️ ON DIT QUE C'EST ARRÊTÉ. Sans cette phrase, le joueur ne peut pas
-            distinguer un classement définitif d'un classement provisoire — et
-            c'est elle qui tient lieu de notification, puisqu'il n'y en a pas. */}
-        <p style={{ margin: "10px 0 0", fontSize: 12.5, color: skin.muted, lineHeight: 1.45 }}>
-          {t("derniereClose")}
+          {place && place.rang !== null
+            ? t("dernierePlace", { rang: place.rang, n: place.joueurs })
+            : t("tableau.essais", { n: precedente.essais })}
+          {place && place.rang !== null ? (
+            <span style={{ fontSize: 13, fontWeight: 700, color: skin.muted }}>
+              {" · "}
+              {t("tableau.essais", { n: precedente.essais })}
+            </span>
+          ) : null}
         </p>
         {/* ⚠️ LE BOUTON NE SORT QUE S'IL Y A QUELQUE CHOSE DERRIÈRE. Un tiroir
             qui s'ouvre sur une carte vide est pire que pas de tiroir du tout :
             `PAS D'ACCROCHE SANS BOUTON`, la règle d'`InstallJeu`. */}
         {tableau && tableau.lignes.length > 0 ? (
-          <div style={{ marginTop: 12 }}>
-            <GBtn skin={skin} variant="ghost" onClick={() => setOuvert(true)}>
+          <div style={{ marginTop: 10 }}>
+            <GBtn skin={skin} variant="ghost" size="sm" onClick={() => setOuvert(true)}>
               {t("derniereBouton")}
             </GBtn>
           </div>
@@ -111,6 +136,15 @@ export default function JourneePrecedente({ jour }: { jour: number }) {
           fermer={() => setOuvert(false)}
           fermerLabel={t("derniereFermer")}
         >
+          {/* ⚠️ « CETTE JOURNÉE EST CLOSE » DESCEND ICI. Sur la carte elle
+              prenait deux lignes pour une information que le titre porte déjà
+              (« votre DERNIÈRE journée ») ; dans le tiroir, elle qualifie le
+              classement qu'on est en train de lire. Chez Banalo elle RESTE dans
+              le résumé : là-bas c'est elle qui tient lieu de notification, et
+              elle doit se lire sans rien ouvrir. */}
+          <p style={{ margin: "0 0 12px", fontSize: 12.5, color: skin.muted, lineHeight: 1.45 }}>
+            {t("derniereClose")}
+          </p>
           <GLabel skin={skin}>{t("derniereClassement")}</GLabel>
           <ListeDuTableau
             skin={skin}

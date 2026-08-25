@@ -1515,6 +1515,19 @@ pour un compte dont les parties sont rattachées. Le rendre exact partout
 demanderait une fonction « dernière journée jouée » côté base ; pour un bloc de
 relecture, le prix n'en vaut pas la peine tant que personne ne l'a signalé.
 
+⚠️ **SA CARTE TIENT EN UNE LIGNE, ET LA PLACE PASSE DEVANT** — demandé : « le
+classement de la journée précédente devrait être proche du titre, très simple ».
+Elle annonçait le nombre d'essais et cachait le classement derrière un bouton,
+alors que ce que le joueur vient chercher est SA PLACE : « 5e sur 12 · 2 essais »,
+puis « Détails ». ⚠️ Le rang vient de `scrutin_game_pays_position`, qui compte
+**toute la foule** et marche sans compte — jamais du tableau, qui ne classe que
+les inscrits et n'imprime pour cette raison aucun numéro. ⚠️ Et il ne va jamais
+sans son effectif : « 3e » ne veut pas dire la même chose sur six joueurs et sur
+trois mille. ⚠️ « Cette journée est close » descend dans le tiroir chez Cinq sur
+cinq — le titre dit déjà « votre DERNIÈRE journée » — mais **reste dans le résumé
+chez Banalo**, où c'est elle qui tient lieu de notification et doit se lire sans
+rien ouvrir.
+
 ⚠️ **ET LE BOUTON NE SORT QUE S'IL Y A QUELQUE CHOSE DERRIÈRE.** Un tiroir qui
 s'ouvre sur une carte vide est pire que pas de tiroir : `PAS D'ACCROCHE SANS
 BOUTON`, la règle d'`InstallJeu`. Il se gagne aussi sur `gagne` — §16 interdit la
@@ -1801,6 +1814,26 @@ vous le redemandera plus ».
 ⚠️ **SANS COMPTE, IL FAUT TOUJOURS LE GESTE** : un nom, par journée. Depuis le
 24/08 ce nom s'écrit — la liste fermée n'est plus qu'une suggestion — mais le
 geste, lui, reste ce qui fait qu'on n'y entre pas sans l'avoir voulu.
+
+⚠️ **ET C'EST `demande` QUI DÉCIDE DE LA CARTE, PAS `tableau.inscrit`.**
+Signalé avec une capture : « je vois "déposer ce nom" alors que je suis connecté
+et que le pseudo est déjà enregistré ; il n'y a plus rien à faire à ce stade ».
+Un connecté qui a un pseudo est inscrit d'office — `demande` est faux, la modale
+ne s'ouvre pas — mais la CARTE testait `tableau.inscrit`, donc tant que
+l'écriture de fond n'avait pas atterri elle retombait sur le formulaire et
+offrait un bouton qui n'apprend rien. Les trois branches lisent la même vérité.
+
+⚠️ **LE PSEUDO SE LIT DANS `TableauDuJour`, PLUS DANS `ChoisirSonNom` — SINON
+C'EST UN VERROU.** `demande` a besoin de `nom.lu` pour décider s'il faut monter
+le formulaire ; or c'est le formulaire qui lisait le pseudo. Tant que la carte
+l'affichait dans tous les cas, l'amorçage passait par hasard ; le jour où elle a
+cessé, `lu` n'est jamais devenu vrai et **la carte s'est effacée entièrement**.
+Vu à l'écran (70 px, un titre et rien), invisible à tsc. `ChoisirSonNom` garde sa
+lecture pour la tablée, et saute si l'appelant a déjà lu.
+
+⚠️ **ET PAS DE CARTE VIDE** : pendant la lecture du pseudo il n'y a ni liste, ni
+formulaire, ni phrase — le bloc ne sort donc pas du tout. `PAS D'ACCROCHE SANS
+BOUTON`, la règle d'`InstallJeu`, appliquée à un cadre entier.
 
 ⚠️ **L'INSCRIPTION D'OFFICE EST UNE ÉCRITURE DÉCLENCHÉE PAR UN RENDU, DONC ELLE
 A UN `ref`.** `depose` et `lis` arrivent en fonctions fléchées : leur référence

@@ -52,6 +52,7 @@ import ListeDuTableau from "./ListeDuTableau";
 import ConnexionJeux from "./ConnexionJeux";
 import Modale from "./Modale";
 import OffreNotifs from "./OffreNotifs";
+import { monPseudo } from "@/lib/db/jeux";
 import type { ChoixDeNom, DepotNom, Tableau } from "@/lib/db/banalo";
 
 
@@ -154,6 +155,37 @@ export default function TableauDuJour({
   const [notifsUtiles, setNotifsUtiles] = useState(false);
 
   const relis = useCallback(async () => (jeton ? lis() : null), [jeton, lis]);
+
+  /**
+   * LE PSEUDO DU COMPTE, LU ICI ET PAS DANS LE FORMULAIRE.
+   *
+   * ⚠️ IL ÉTAIT LU PAR `ChoisirSonNom`, ET ÇA FAISAIT UN VERROU. `demande` a
+   * besoin de `nom.lu` pour décider s'il faut demander quelque chose ; or
+   * `ChoisirSonNom` n'est monté QUE si `demande` est vrai. Tant que la carte
+   * montrait le formulaire dans tous les cas, l'amorçage passait par hasard ;
+   * le jour où elle a cessé de le faire, `lu` n'est jamais devenu vrai, et la
+   * carte s'est effacée entièrement. Vu à l'écran, invisible à tsc.
+   *
+   * ⚠️ ON DÉPEND DE L'IDENTIFIANT, PAS DE L'OBJET `user` : `useAuth` rend un
+   * objet dont la référence change à chaque relecture de session.
+   */
+  const uid = user?.id ?? null;
+  const luPseudo = useRef<string | null>(null);
+  useEffect(() => {
+    if (!uid || luPseudo.current === uid) return;
+    luPseudo.current = uid;
+    let vivant = true;
+    void monPseudo().then((p) => {
+      if (!vivant) return;
+      // ⚠️ UN REFUS (`null`) N'EST PAS « PAS DE PSEUDO » : on le traite comme une
+      // lecture finie sans nom, et la base tranchera au dépôt. Mentir dans
+      // l'autre sens afficherait un nom vide en gros caractères.
+      setNom((n) => ({ ...n, pseudo: p?.pseudo ?? null, bloque: p?.bloque === true, lu: true }));
+    });
+    return () => {
+      vivant = false;
+    };
+  }, [uid]);
 
   useEffect(() => {
     let vivant = true;
@@ -322,6 +354,15 @@ export default function TableauDuJour({
   // ce que React interdit.
   if (loading || !tableau) return null;
 
+  // ⚠️ PAS DE CARTE VIDE. `enAttente` dure le temps de lire le pseudo du compte,
+  // et pendant ce temps il n'y a ni liste, ni formulaire, ni phrase : la carte
+  // se réduisait à son titre — 70 px d'un cadre qui n'annonce rien, mesuré à
+  // l'écran. C'est la même règle que `ChoisirSonNom` s'applique déjà (« on
+  // n'affiche rien tant qu'on ne sait pas ») et que `InstallJeu` écrit en
+  // majuscules : PAS D'ACCROCHE SANS BOUTON. La liste, elle, vaut d'être
+  // montrée même pendant l'attente — c'est le reste qui n'existe pas encore.
+  if (enAttente && tableau.lignes.length === 0) return null;
+
   const pret = choixDeNom(nom) !== null;
 
   /**
@@ -426,6 +467,16 @@ export default function TableauDuJour({
         effectif={t("inscrits", { n: tableau.inscrits })}
       />
 
+      {/* ⚠️ C'EST `demande` QUI DÉCIDE, PAS `tableau.inscrit`, ET C'ÉTAIT LE
+          DÉFAUT. Signalé avec une capture : « je vois "déposer ce nom" alors
+          que je suis connecté et que le pseudo est déjà enregistré ; il n'y a
+          plus rien à faire à ce stade ». Un connecté qui a un pseudo est
+          INSCRIT D'OFFICE — `demande` est donc faux, la modale ne s'ouvre pas,
+          et le parent est prévenu — mais la CARTE, elle, testait
+          `tableau.inscrit`. Tant que l'écriture de fond n'avait pas atterri (ou
+          si elle échouait), elle retombait sur le formulaire et offrait un
+          bouton qui n'apprend rien à personne. Les trois branches lisent
+          maintenant la même vérité. */}
       {tableau.inscrit && tableau.bloque ? (
         // ⚠️ INSCRIT, MAIS RETIRÉ DE LA LISTE. Sans cette phrase, le joueur se
         // cherche dans un tableau où il ne peut pas être, et rien ne lui dit
@@ -433,7 +484,9 @@ export default function TableauDuJour({
         <p style={{ margin: "10px 0 0", fontSize: 13.5, lineHeight: 1.5, fontWeight: 700 }}>
           {t("pseudoRetire")}
         </p>
-      ) : tableau.inscrit ? (
+      ) : demande ? (
+        modale ? null : formulaire
+      ) : enAttente ? null : (
         <>
           {tableau.lignes.length === 0 ? (
             // Inscrit, mais seul : le tableau n'existe pas encore. On le DIT — une
@@ -456,8 +509,6 @@ export default function TableauDuJour({
             </p>
           ) : null}
         </>
-      ) : modale ? null : (
-        formulaire
       )}
 
       {/* ⚠️ L'OFFRE DE NOTIFICATION VIT DANS LA CARTE, la modale ne fait que la
