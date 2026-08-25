@@ -147,9 +147,9 @@ export function tic(
   milieu: Milieu,
   rng: Alea = Math.random,
 ): { etat: EtatAtelier; bilan: BilanAtelier } {
-  if (!etat.gabarit) return { etat: { ...etat, tics: etat.tics + 1 }, bilan: { perdues: 0, baties: 0, produit: 0 } };
+  if (!etat.gabarit) return { etat: { ...etat, tics: etat.tics + 1 }, bilan: { perdues: 0, baties: 0, produit: 0, reamorce: false } };
 
-  const bilan = { perdues: 0, baties: 0, produit: 0 };
+  const bilan = { perdues: 0, baties: 0, produit: 0, reamorce: false };
   const atomes = { ...etat.atomes };
   let copies = etat.copies;
 
@@ -168,6 +168,37 @@ export function tic(
   // 2. Production.
   bilan.produit = copies * (etat.gabarit.rendement ?? 0);
   const reserve = Math.max(0, etat.reserve + bilan.produit);
+
+  // 2 bis. LE RÉAMORÇAGE — la paillasse ne reste jamais vide pour toujours.
+  //
+  // ⚠️ SANS LUI, L'ATELIER A UN ÉTAT ABSORBANT, ET IL EST MORTEL. Sans copie, pas
+  // de production ; sans production, la réserve ne bouge plus ; sans réserve, on
+  // n'achète pas l'atome qui manque ; sans cet atome, pas de copie. Mesuré : sur
+  // douze parties menées jusqu'au deuxième acte, QUATRE finissaient ainsi —
+  // réserve figée à 12 quand l'azote en coûte 14, zéro copie, et plus rien ne
+  // pouvait arriver jusqu'à la fin des temps. Rien à l'écran ne pouvait
+  // l'expliquer, puisque la faute remontait à une série de jets d'attrition.
+  //
+  // C'est la même impasse que celle corrigée à la fondation, atteinte par un
+  // autre chemin : là, le gabarit était plus gros que l'avance ; ici, l'attrition
+  // a emporté la dernière copie pendant qu'il manquait l'atome le plus cher.
+  //
+  // La règle est donc la même, et c'est ce que fait un laboratoire : quand la
+  // paillasse est vide et qu'on ne peut plus rien acheter, on rouvre l'armoire.
+  // On complète jusqu'à UNE copie, jamais au-delà. Le joueur qui a tout laissé
+  // mourir repart d'une copie — c'est un revers, pas une fin.
+  if (copies === 0) {
+    const besoin = coutEnAtomes(etat.gabarit);
+    const inaccessible = (Object.entries(besoin) as [Code, number][]).some(
+      ([code, n]) => (atomes[code] ?? 0) < n && reserve < PRIX[code],
+    );
+    if (inaccessible) {
+      for (const [code, n] of Object.entries(besoin) as [Code, number][]) {
+        atomes[code] = Math.max(atomes[code] ?? 0, n);
+      }
+      bilan.reamorce = true;
+    }
+  }
 
   // 3. Réplication.
   const cout = coutEnAtomes(etat.gabarit);
