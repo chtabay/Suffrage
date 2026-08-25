@@ -454,7 +454,7 @@ export function ciblesDuBassin(partie: Partie): CibleProposee[] {
    * par combien de voies elle se fait et combien de vos molécules l'aident — de
    * quoi décider entre un travail et un pari.
    */
-  const juges = ciblesProposees(rng, 12).map(juger);
+  const juges = ciblesProposees(rng, 12, partie.milieu).map(juger);
   juges.sort((a, b) => b.outils - a.outils || a.tension - b.tension);
   if (juges.length <= 3) return juges;
   return [juges[0], juges[Math.floor(juges.length / 2)], juges[juges.length - 1]];
@@ -505,22 +505,29 @@ export function ouvrirLeBassin(partie: Partie, cibleGrille: Grille): Partie {
  * SEMER un lot dans le bassin. C'est le geste du troisième acte.
  *
  * ⚠️ IL SE PAIE EN ATOMES DU BASSIN, et le lot s'arrête là où la matière s'arrête.
- * Semer sans compter vide le sac qui nourrit tout le monde, y compris la cible.
+ * Semer sans compter vide le sac qui nourrit tout le monde.
  *
- * ⚠️ ET SEMER LA CIBLE REMET SON COMPTEUR À ZÉRO. C'est la règle qui décide de
- * tout l'acte, et elle a été trouvée en jouant, pas en testant : quatre parties
- * sur quatre étaient gagnées sans effort, cibles les plus nues comprises, parce
- * qu'il suffisait de ressemer la cible toutes les deux secondes. Elle était alors
- * présente parce qu'on la remettait, jamais parce que le bassin la refaisait — et
- * le compteur, qui prétendait mesurer l'auto-entretien, mesurait l'entêtement du
- * joueur.
+ * ⚠️ ET LA CIBLE, ELLE, NE SE SÈME PAS. C'est la règle qui décide de tout l'acte,
+ * et il a fallu deux mesures pour la trouver. La première a montré qu'on gagnait
+ * en ressemant la cible sans arrêt ; on a donc remis son séjour à zéro à chaque
+ * semis. La seconde a montré que cela ne suffisait pas — il restait à la semer UNE
+ * SEULE FOIS au départ :
  *
- * On ne peut pas tenir une molécule à bout de bras : il faut qu'elle tienne SANS
- * NOUS. Semer un gabarit, en revanche, ne remet rien à zéro — bâtir le soutien
- * est précisément ce qu'on demande.
+ *      on sème la cible ×10                    89 % de réussite
+ *      on sème la cible ×10 ET un gabarit      89 %  ← le gabarit ne sert à rien
+ *      on ne sème rien                          9 %
+ *      on ne sème QU'UN GABARIT                32 %  ← une décision, enfin
+ *
+ * Tant qu'on pouvait poser la cible soi-même, la collection entière ne servait à
+ * rien, et le joueur le sentait sans pouvoir le nommer. On ne met donc plus la
+ * molécule dans le bassin : ON REND LE BASSIN CAPABLE DE LA FAIRE. Le seul levier
+ * qui reste est le gabarit — c'est-à-dire ce qu'on a pêché au premier acte.
  */
 export function semerDansLeBassin(partie: Partie, grille: Grille, combien: number = LOT_SEMIS): Partie {
   if (partie.acte !== 3) return partie;
+  if (partie.cible && empreinte(grille) === partie.cible.empreinte) {
+    return { ...partie, journal: noter(partie, { quoi: "cibleNonSemable" }) };
+  }
   let bassin = partie.bassin;
   let poses = 0;
   for (let i = 0; i < combien; i++) {
@@ -532,16 +539,10 @@ export function semerDansLeBassin(partie: Partie, grille: Grille, combien: numbe
   if (poses === 0) {
     return { ...partie, journal: noter(partie, { quoi: "sansAtomes" }) };
   }
-  const estLaCible = partie.cible !== null && empreinte(grille) === partie.cible.empreinte;
   return {
     ...partie,
-    bassin: estLaCible ? { ...bassin, tenue: 0 } : bassin,
-    journal: noter(partie, {
-      quoi: "seme",
-      visage: visageDe(grille),
-      combien: poses,
-      remisAZero: Boolean(estLaCible) && (partie.bassin.tenue ?? 0) > 0,
-    }),
+    bassin,
+    journal: noter(partie, { quoi: "seme", visage: visageDe(grille), combien: poses, remisAZero: false }),
   };
 }
 
@@ -579,14 +580,24 @@ export function conseilDuBassin(partie: Partie): ConseilBassin | null {
   const cible = partie.cible;
   const s = soutiens(partie.bassin, cible.grille, catalogue);
   const restant = Math.max(0, OBJECTIF - (partie.bassin.tenue ?? 0));
-  const composition = s.voies.length > 0 ? cibleComposition(partie) : {};
+
+  /**
+   * ⚠️ CE QUI MANQUE, C'EST POUR SEMER L'OUTIL, PLUS POUR SEMER LA CIBLE. Tant
+   * que la cible pouvait être posée à la main, l'atome qui manquait était le sien.
+   * Maintenant qu'elle doit être FABRIQUÉE, le seul semis qui reste est celui du
+   * gabarit — et c'est donc son coût qu'il faut annoncer.
+   */
+  const renfort = s.aider[0] ?? null;
+  const composition = renfort ? espece(renfort.grille, partie.milieu).composition : {};
   const manque = manquePour(partie.bassin, composition);
   const rares = new Set<Code>(manque.map((m) => m.code));
   return {
     ...s,
     objectif: OBJECTIF,
     restant,
-    /** Les atomes qui empêchent d'en semer un de plus. */
+    /** Le gabarit le plus utile que la collection offre, ou `null`. */
+    renfort,
+    /** Les atomes qui empêchent de le semer. */
     manque,
     gagne: (partie.bassin.record ?? 0) >= OBJECTIF,
     /**
@@ -610,10 +621,7 @@ export function conseilDuBassin(partie: Partie): ConseilBassin | null {
   };
 }
 
-/** La composition de la cible, telle que le bassin la compte. */
-function cibleComposition(partie: Partie): Compte {
-  return espece((partie.cible as NonNullable<Partie["cible"]>).grille, partie.milieu).composition;
-}
+
 
 /** Le troisième acte est-il gagné ? */
 export function bassinGagne(partie: Partie): boolean {

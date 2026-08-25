@@ -202,7 +202,10 @@ export interface Soutiens {
   present: number;
   tenue: number;
   voies: Voie[];
+  /** Les gabarits du catalogue qui manquent au bassin, le plus utile d'abord. */
   aider: Renfort[];
+  /** Ceux qui y sont déjà : ils servent, mais il n'y a rien à faire pour eux. */
+  dejaLa: Renfort[];
 }
 
 /** Ce qui manque pour en déposer un de plus. */
@@ -223,6 +226,8 @@ export interface Retirable extends Espece {
 export interface ConseilBassin extends Soutiens {
   objectif: number;
   restant: number;
+  /** Le gabarit le plus utile que la collection offre, ou `null`. */
+  renfort: Renfort | null;
   gagne: boolean;
   manque: ManqueAtome[];
   inutiles: Retirable[];
@@ -299,4 +304,5 @@ export type EvenementJournal =
   | { quoi: "bassin"; visage: string; objectif: number }
   | { quoi: "seme"; visage: string; combien: number; remisAZero: boolean }
   | { quoi: "sansAtomes" }
-  | { quoi: "retire"; visage: string };
+  | { quoi: "retire"; visage: string }
+  | { quoi: "cibleNonSemable" };

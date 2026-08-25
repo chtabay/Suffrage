@@ -578,12 +578,22 @@ export function soutiens(etat: EtatBassin, grilleCible: Grille, catalogue: Grill
   });
   voies.sort((x, y) => y.chance - x.chance);
 
-  // CE QU'IL FAUDRAIT SEMER : parmi le catalogue, ce qui est absent du bassin et
-  // qui tiendrait les réactifs d'une voie. On chiffre le gain, pas l'intention.
+  /**
+   * CE QU'IL FAUDRAIT SEMER : parmi le catalogue, ce qui tiendrait les réactifs
+   * d'une voie. On chiffre le gain, pas l'intention.
+   *
+   * ⚠️ ON SÉPARE « AUCUNE NE SAIT » DE « ELLES Y SONT DÉJÀ », et la nuance n'est
+   * pas cosmétique : la première version écartait d'emblée les pièces présentes
+   * dans le bassin, si bien que l'écran annonçait « aucune de vos molécules ne
+   * sait tenir ces deux morceaux » au moment précis où le bon gabarit tournait
+   * dedans. Une explication fausse est pire qu'une explication absente — c'est
+   * exactement ce qu'on cherche à corriger ici.
+   */
   const aider: Renfort[] = [];
+  const dejaLa: Renfort[] = [];
   for (const grille of catalogue) {
     const cle = empreinte(grille);
-    if (cle === cible || dans.has(cle)) continue;
+    if (cle === cible) continue;
     const v = visageDe(grille);
     if (v === vCible) continue;
     let gain = 0;
@@ -591,16 +601,49 @@ export function soutiens(etat: EtatBassin, grilleCible: Grille, catalogue: Grill
       if (!tientEnsemble(v, voie.a.visage, voie.b.visage)) continue;
       gain = Math.max(gain, chanceDeSouder(voie.gabarits + 1) - voie.chance);
     }
-    if (gain > 0) aider.push({ grille, visage: v, gain });
+    if (gain <= 0) continue;
+    if (dans.has(cle)) dejaLa.push({ grille, visage: v, gain });
+    else aider.push({ grille, visage: v, gain });
   }
   aider.sort((x, y) => y.gain - x.gain);
+  dejaLa.sort((x, y) => y.gain - x.gain);
 
   return {
     present: dans.get(cible)?.effectif ?? 0,
     tenue: etat.tenue ?? 0,
     voies,
+    /** Les gabarits du catalogue qui manquent au bassin, le plus utile d'abord. */
     aider,
+    /** Ceux qui y sont déjà : ils servent, mais il n'y a rien à faire pour eux. */
+    dejaLa,
   };
+}
+
+/**
+ * UNE MOLÉCULE PEUT-ELLE TENIR DANS CE BASSIN ?
+ *
+ * ⚠️ RÈGLE TROUVÉE EN MESURANT UN PIÈGE, ET LE PIÈGE ÉTAIT GRAVE. Le tirage
+ * proposait au joueur, 44 % du temps, une cible que rien ne pouvait faire tenir :
+ * sur 44 cibles portant deux soufres ou plus, ZÉRO n'a jamais atteint l'objectif,
+ * contre 41 sur 46 pour les autres. Le joueur choisissait, jouait, échouait, et
+ * rien à l'écran ne pouvait le lui expliquer.
+ *
+ * Le seuil n'est pas un nombre magique : c'est LE LAVAGE lui-même. Une molécule
+ * qui se défait plus vite que le courant ne l'emporte ne peut jamais s'installer,
+ * quoi qu'on fasse — la refabriquer ne rattrape pas ce que l'agitation défait.
+ * Mesuré sur les 104 tétramères, semés puis laissés seuls trois cents tours :
+ *
+ *      casse ≤ 4 % par tour   60 cibles   49 atteignent l'objectif
+ *      casse >  4 % par tour   44 cibles    2 y arrivent
+ *
+ * ⚠️ ET LA CAUSE EST CHIMIQUE, PAS ARBITRAIRE. Le soufre ne prend que deux
+ * voisins et ne lie que faiblement : une molécule qui en porte deux ou plus a une
+ * cohésion de 1,27 contre 1,92 sans soufre, donc se défait 5,4 fois plus vite. Le
+ * soufre est un atome de charnière, pas de charpente — et l'écran doit le dire au
+ * lieu de laisser le joueur le découvrir par l'échec.
+ */
+export function tenable(grille: Grille, milieu: Milieu): boolean {
+  return fragilite(espece(grille, milieu), milieu) <= LAVAGE;
 }
 
 let universMemo: Map<string, Grille> | null = null;
@@ -644,10 +687,28 @@ export function universAtteignable(): Map<string, Grille> {
  * Un contour long fait un bon gabarit, et une molécule trop grosse pour être
  * refabriquée ici s'use et s'en va — un réactif qu'on dépense, pas un habitant.
  */
-export function ciblesProposees(rng: Alea, combien = 3): Grille[] {
-  const candidates = [...universAtteignable().values()].filter(
+export function ciblesProposees(rng: Alea, combien = 3, milieu?: Milieu): Grille[] {
+  const fabricables = [...universAtteignable().values()].filter(
     (g) => g.flat().filter(Boolean).length > 2 && voiesVers(g).length > 0,
   );
+  // On ne propose jamais ce que rien ne peut faire tenir : c'était 44 % du
+  // tirage, pour un taux de réussite de zéro sur quarante-quatre.
+  let candidates = milieu === undefined ? fabricables : fabricables.filter((g) => tenable(g, milieu));
+
+  /**
+   * ⚠️ FILET : DANS UNE EAU PLUS RUDE, LE FILTRE NE LAISSE PRESQUE RIEN PASSER.
+   * `tenable` se mesure contre l'agitation du milieu ; à 0,5 il garde 60 cibles
+   * sur 104, mais à 0,7 il n'en garde que DEUX, et le tirage n'aurait plus de quoi
+   * en proposer trois. Le jeu ne quitte jamais la première eau aujourd'hui, mais
+   * une règle qui s'effondre dès qu'on change un chiffre ailleurs n'est pas une
+   * règle. À défaut d'assez de tenables, on prend LES MOINS FRAGILES : elles
+   * restent le meilleur choix possible ici, et l'écran dira leur fragilité.
+   */
+  if (candidates.length < combien && milieu !== undefined) {
+    candidates = [...fabricables].sort(
+      (a, b) => fragilite(espece(a, milieu), milieu) - fragilite(espece(b, milieu), milieu),
+    );
+  }
   const tirees: Grille[] = [];
   const vus = new Set<string>();
   let garde = 0;

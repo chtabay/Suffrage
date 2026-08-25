@@ -110,7 +110,7 @@ import {
   ticDuBassin,
   ticLatelier,
 } from "@/lib/games/soupe/partie";
-import { ESPECES_MAX, nourriture } from "@/lib/games/soupe/bassin";
+import { ESPECES_MAX, OBJECTIF as OBJECTIF_BASSIN, nourriture } from "@/lib/games/soupe/bassin";
 import type { Code, Espece, EvenementJournal, Grille, Partie, Piece, Voie } from "@/lib/games/soupe/types";
 
 /**
@@ -351,27 +351,29 @@ export default function LaSoupe() {
       const c = conseilBassin;
       const cible = partie!.cible.visage;
       if (c.gagne) return t("bassinConseilGagne", { cible });
-      // L'ATOME QUI MANQUE PASSE AVANT TOUT LE RESTE : conseiller de semer
-      // pendant que le bouton est grisé, c'est l'écran qui contredit l'écran.
-      if (c.manque.length > 0) {
+      const meilleure = c.voies[0];
+      if (!meilleure) return t("bassinConseilImpossible");
+
+      // L'ATOME QUI MANQUE PASSE AVANT TOUT LE RESTE : conseiller de semer pendant
+      // que le bouton est grisé, c'est l'écran qui contredit l'écran.
+      if (c.renfort && c.manque.length > 0) {
         const quoi = c.manque.map((m) => `${m.manque} ${nomAtome(m.code)}`).join(" + ");
         const source = c.inutiles.find((e) => e.utile > 0);
-        const debut = c.present === 0
-          ? t("bassinConseilAbsenteEtManque", { cible, quoi })
-          : t("bassinConseilManque", { quoi });
+        const tete = t("bassinConseilManque", { quoi, gabarit: c.renfort.visage });
         return source
-          ? `${debut} ${t("bassinConseilRetirer", {
+          ? `${tete} ${t("bassinConseilRetirer", {
               quoi: source.visage,
               rendu: c.manque.map((m) => `${source.rendu[m.code] ?? 0} ${nomAtome(m.code)}`).join(" + "),
             })}`
-          : `${debut} ${t("bassinConseilAttendre")}`;
+          : `${tete} ${t("bassinConseilAttendre")}`;
       }
-      if (c.present === 0) return t("bassinConseilAbsente", { cible });
-      const meilleure = c.voies[0];
-      if (!meilleure) return t("bassinConseilImpossible");
       if (meilleure.gabarits === 0) {
-        const quoi = c.aider[0];
-        return quoi ? t("bassinConseilSansGabarit", { quoi: quoi.visage }) : t("bassinConseilSansOutil");
+        return c.renfort
+          ? t("bassinConseilSansGabarit", { cible, quoi: c.renfort.visage })
+          : t("bassinConseilSansOutil", { cible });
+      }
+      if (c.present === 0) {
+        return t("bassinConseilVaParaitre", { n: meilleure.gabarits, cible });
       }
       return t("bassinConseilTient", {
         n: meilleure.gabarits,
@@ -586,12 +588,11 @@ export default function LaSoupe() {
     if (e.quoi === "fonde") return t("journalFonde", { n: e.rendement });
     if (e.quoi === "gabarit") return t("journalGabarit", { perdues: e.perdues });
     if (e.quoi === "bassin") return t("journalBassin", { cible: e.visage, objectif: e.objectif });
-    if (e.quoi === "seme") {
-      return e.remisAZero
-        ? t("journalSemeRemis", { n: e.combien, quoi: e.visage })
-        : t("journalSeme", { n: e.combien, quoi: e.visage });
-    }
+    // `remisAZero` n'a plus d'emploi : la cible ne se sème plus du tout, donc
+    // aucun semis ne remet le séjour à zéro.
+    if (e.quoi === "seme") return t("journalSeme", { n: e.combien, quoi: e.visage });
     if (e.quoi === "retire") return t("journalRetire", { quoi: e.visage });
+    if (e.quoi === "cibleNonSemable") return t("journalCibleNonSemable");
     return t("journalSansAtomes");
   }
 
@@ -660,6 +661,12 @@ export default function LaSoupe() {
                 <>
                   <Chiffre teinte={utile ? skin.good : undefined}>
                     {dansLeBassin ? t("dejaDansLeBassin") : outil ? t("tientLesDeux") : t("neTientPas")}
+                  </Chiffre>
+                  {/* La solidité avait disparu de la fiche au troisième acte,
+                      alors que c'est elle qui décide combien de tours le gabarit
+                      servira avant que le courant ne l'emporte. */}
+                  <Chiffre>
+                    {t("solidite")} : {t(solidite(piece.cohesion))}
                   </Chiffre>
                   <Chiffre>{t("atomesASemer", { n: piece.taille })}</Chiffre>
                   <GBtn
@@ -1199,7 +1206,10 @@ export default function LaSoupe() {
 
         {/* ⚠️ LA RÈGLE QUI DÉCIDE DE TOUT L'ACTE DOIT ÊTRE ÉCRITE, pas devinée
             après coup en voyant un compteur retomber à zéro. */}
-        <p style={{ margin: 0, fontSize: 13, color: skin.muted, lineHeight: 1.45 }}>{t("semerRemetAZero")}</p>
+        {/* ⚠️ LA RÈGLE QUI DÉCIDE DE TOUT L'ACTE, ÉCRITE LÀ OÙ ON LA LIT — et la
+            seule réponse honnête à « qu'est-ce que je fais, au juste ? ». */}
+        <p style={{ margin: 0, fontSize: 13, color: skin.muted, lineHeight: 1.45 }}>{t("cibleNonSemable")}</p>
+        <p style={{ margin: 0, fontSize: 13, color: skin.muted, lineHeight: 1.45 }}>{t("ceQuFaitUnGabarit")}</p>
 
         <p style={{ margin: 0, fontSize: 13, color: skin.muted }}>{t("parQuoiElleSeFabrique")}</p>
         <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
@@ -1207,21 +1217,6 @@ export default function LaSoupe() {
         </div>
 
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-          <GBtn
-            skin={skin}
-            size="sm"
-            disabled={conseilBassin.manque.length > 0}
-            onClick={() => setPartie((p) => (p && p.cible ? semerDansLeBassin(p, p.cible.grille) : p))}
-            title={
-              conseilBassin.manque.length > 0
-                ? t("manquePour", {
-                    quoi: conseilBassin.manque.map((m) => `${m.manque} ${nomAtome(m.code)}`).join(" + "),
-                  })
-                : t("semerCibleAide")
-            }
-          >
-            {t("semerCible", { n: LOT_SEMIS })}
-          </GBtn>
           {conseilBassin.aider.slice(0, 3).map((aide) => {
             const piece = partie.collection.find((x) => x.visage === aide.visage);
             if (!piece) return null;
@@ -1230,7 +1225,8 @@ export default function LaSoupe() {
                 key={aide.visage}
                 skin={skin}
                 size="sm"
-                variant="ghost"
+                variant={aide === conseilBassin.aider[0] ? "accent" : "ghost"}
+                disabled={aide === conseilBassin.aider[0] && conseilBassin.manque.length > 0}
                 onClick={() => setPartie((p) => (p ? semerDansLeBassin(p, piece.grille) : p))}
                 title={t("semerGabaritAide")}
               >
@@ -1239,8 +1235,16 @@ export default function LaSoupe() {
             );
           })}
         </div>
+        {/* ⚠️ « AUCUNE NE SAIT » ET « ELLES Y SONT DÉJÀ » NE SONT PAS LA MÊME
+            PHRASE. L'écran annonçait la première au moment où le bon gabarit
+            tournait dans le bassin. Une explication fausse est pire qu'une
+            explication absente. */}
         {conseilBassin.aider.length === 0 ? (
-          <p style={{ margin: 0, fontSize: 13, color: skin.muted, lineHeight: 1.45 }}>{t("aucunOutil")}</p>
+          <p style={{ margin: 0, fontSize: 13, color: skin.muted, lineHeight: 1.45 }}>
+            {conseilBassin.dejaLa.length > 0
+              ? t("gabaritsDejaLa", { quoi: conseilBassin.dejaLa.map((x) => x.visage).join(", ") })
+              : t("aucunOutil")}
+          </p>
         ) : null}
 
         {/* LE BASSIN LUI-MÊME : la nourriture d'un côté, ce qui est fabriqué de
@@ -1293,7 +1297,7 @@ export default function LaSoupe() {
         {/* ⚠️ LE SOLDE, PAS LE DÉFICIT — la même correction qu'au deuxième acte.
             « Pas assez d'atomes » annonce un manque sans montrer ce qu'on a, et
             ici la ressource qui décide de tout est justement invisible. */}
-        <p style={{ margin: 0, fontSize: 13, color: skin.muted }}>{t("ceQuiFlotte")}</p>
+        <p style={{ margin: 0, fontSize: 13, color: skin.muted }}>{t("ceQuiFlottePourGabarit")}</p>
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
           {CODES.map((code) => {
             const manque = conseilBassin.manque.find((m) => m.code === code);
@@ -1332,6 +1336,15 @@ export default function LaSoupe() {
           </p>
         ) : null}
 
+        {/* ⚠️ LE MÉTIER DES TROIS ATOMES — la question posée après une partie :
+            « les molécules soufrées ne semblent pas favorisées ». Elle était juste
+            et mesurable : le soufre ne prend que deux voisins et lie le plus
+            faiblement, si bien qu'une molécule qui en porte deux se défait 5,4 fois
+            plus vite. On a cessé d'en proposer comme cible ; restait à le DIRE. */}
+        <p style={{ margin: 0, fontSize: 13, color: skin.muted, lineHeight: 1.45 }}>
+          <strong style={{ color: skin.ink, fontWeight: 700 }}>{t("metierDesAtomesTitre")}</strong>{" "}
+          {t("metierDesAtomes")}
+        </p>
         <p style={{ margin: 0, fontSize: 13, color: skin.muted, lineHeight: 1.45 }}>{t("bassinAide")}</p>
       </GCard>
     ) : null;
@@ -1368,16 +1381,28 @@ export default function LaSoupe() {
         <AideModale
           skin={skin}
           titre={t("reglesTitre")}
-          texte={t("objectif")}
+          texte={partie.acte === 3 ? t("objectifBassin", { n: OBJECTIF_BASSIN }) : t("objectif")}
           fermer={() => setRegles(false)}
           fermerLabel={t("fermer")}
         >
           <div style={{ display: "flex", flexDirection: "column", gap: 13, marginTop: 4 }}>
+            {/* ⚠️ LA MODALE S'ARRÊTAIT À L'ATELIER. Quatre règles, toutes pour les
+                deux premiers actes, et pas un mot du bassin — alors que c'est
+                l'acte où rien ne dépend d'un clic et où tout dépend d'une lecture.
+                D'où « je n'ai pas tout compris à ce que je faisais ». */}
             {[
               [t("regle1Titre"), t("regle1")],
               [t("regle2Titre"), t("regle2")],
               [t("regle3Titre"), t("regle3")],
               [t("regle4Titre"), t("regle4")],
+              ...(partie.acte === 3
+                ? [
+                    [t("regle5Titre"), t("regle5")],
+                    [t("regle6Titre"), t("regle6")],
+                    [t("regle7Titre"), t("regle7")],
+                    [t("regle8Titre"), t("regle8")],
+                  ]
+                : []),
             ].map(([titre, corps]) => (
               <div key={titre}>
                 <div style={{ fontFamily: skin.fontDisplay, fontWeight: 800, fontSize: 14.5 }}>{titre}</div>
