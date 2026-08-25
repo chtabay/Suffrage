@@ -1336,6 +1336,19 @@ discret. Deux gardes la rendent tenable : **une fois par jeu et par journée**
 elle manquerait à tous ceux qui rechargent ou quittent sans répondre, et la
 boîte reviendrait au chargement suivant — la boîte qu'on ferme sans lire.
 
+⚠️ **UN CHAMP DE SAISIE DANS `Modale` A EXIGÉ DE SÉPARER SON EFFET DE FOCUS.**
+Signalé par un joueur : « je peux ajouter un pseudo mais le clavier s'en va après
+avoir écrit un caractère ». `Modale` prenait le focus dans un effet qui portait
+AUSSI l'écouteur d'Échap, donc en `[fermer]` — et les appelants passent `fermer`
+en fonction fléchée, de référence neuve à chaque rendu. Taper une lettre re-rend
+le parent, l'effet rejoue, et `boite.focus()` ARRACHE le focus au champ : sur
+téléphone le clavier se referme, et la lettre suivante se perd. Tant que cette
+boîte ne portait que des annonces sans champ, le vol était invisible — c'est
+l'ajout du formulaire de nom qui l'a révélé. Le focus va donc dans un effet à
+dépendances VIDES, Échap garde le sien. ⚠️ Et le symptôme trompe : le nœud n'est
+PAS remonté (un témoin posé dessus survit), donc chercher un remontage de React
+mène à côté. C'est un vol de focus, pas un cycle de vie.
+
 ⚠️ **LE FORMULAIRE EXISTE EN UN SEUL EXEMPLAIRE**, et la carte s'en passe tant
 que la modale est ouverte. Rendus tous les deux, ils montreraient les MÊMES
 suggestions (même jeton, même graine, même tour) dans deux boîtes voulant dire
