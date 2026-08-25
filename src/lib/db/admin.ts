@@ -220,3 +220,66 @@ export async function adminBloquerPseudo(userId: string, bloque: boolean): Promi
   if (error) return false;
   return (data as Record<string, unknown> | null)?.status === "ok";
 }
+
+/**
+ * LES COMPTES QUI JOUENT, ET L'ÉTAT DE LEURS NOTIFICATIONS.
+ *
+ * ⚠️ CE N'EST PAS `adminListUsers`, ET C'EST UN CONSTAT. Celle-là filtre sur un
+ * scrutin, un espace, un événement, un rôle d'admin ou une méta `lang` : un
+ * compte créé DEPUIS UN JEU n'a rien de tout ça, donc l'onglet « Personnes » ne
+ * montrait pas les joueurs. Ici on liste par l'USAGE DES JEUX — un abonnement,
+ * un pseudo, une journée jouée.
+ */
+export interface AdminNotif {
+  id: string;
+  email: string;
+  creeLe: string;
+  pseudo: string | null;
+  bloque: boolean;
+  /** Combien d'appareils de ce compte sont abonnés. Zéro : jamais accordé, ou retiré. */
+  appareils: number;
+  journee: boolean;
+  hebdo: boolean;
+  saison: boolean;
+  /**
+   * La dernière notification RÉELLEMENT envoyée.
+   *
+   * ⚠️ `null` SUR UN COMPTE ABONNÉ EST LE SIGNAL QUI MANQUAIT. C'est ce qu'on
+   * n'avait aucun moyen de voir quand la tournée sortait en silence sur un
+   * numéro de journée `NaN` : trois appareils abonnés, quatorze journées jouées,
+   * et pas un envoi.
+   */
+  derniereNotif: string | null;
+  /** Journées jouées, les deux jeux réunis. */
+  journees: number;
+}
+
+export async function adminNotifs(): Promise<AdminNotif[] | null> {
+  const supabase = createClient();
+  const { data, error } = await supabase.rpc("scrutin_admin_notifs");
+  if (error) return null;
+  const d = data as Record<string, unknown> | null;
+  if (!d || d.status !== "ok" || !Array.isArray(d.comptes)) return null;
+  return (d.comptes as Record<string, unknown>[])
+    .map((c) =>
+      typeof c.id === "string"
+        ? {
+            id: c.id,
+            email: typeof c.email === "string" ? c.email : "",
+            creeLe: typeof c.creeLe === "string" ? c.creeLe : "",
+            pseudo: typeof c.pseudo === "string" ? c.pseudo : null,
+            bloque: c.bloque === true,
+            appareils: typeof c.appareils === "number" ? c.appareils : 0,
+            // ⚠️ VRAIS PAR DÉFAUT : s'abonner EST le consentement, et un compte
+            // sans ligne de réglages reçoit tout. Lire l'absence comme « éteint »
+            // ferait croire à un refus qui n'a pas eu lieu.
+            journee: c.journee !== false,
+            hebdo: c.hebdo !== false,
+            saison: c.saison !== false,
+            derniereNotif: typeof c.derniereNotif === "string" ? c.derniereNotif : null,
+            journees: typeof c.journees === "number" ? c.journees : 0,
+          }
+        : null,
+    )
+    .filter((c): c is AdminNotif => c !== null);
+}

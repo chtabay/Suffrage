@@ -17,8 +17,10 @@ import {
   type AdminOverview,
   type AdminPollRow,
   type AdminUser,
+  adminNotifs,
   adminPseudos,
   adminBloquerPseudo,
+  type AdminNotif,
   type AdminPseudo,
 } from "@/lib/db/admin";
 import { intlLocale } from "@/i18n/locales";
@@ -128,6 +130,7 @@ export default function AdminScreen() {
    * ouvertes — alors qu'ils sont la moitié du produit. L'onglet le montre au
    * lieu de le cacher au fond d'un rouleau.
    */
+  const [notifs, setNotifs] = useState<AdminNotif[]>([]);
   const [onglet, setOnglet] = useState<"apercu" | "scrutins" | "jeux" | "personnes">("apercu");
 
   const basculePseudo = async (p: AdminPseudo) => {
@@ -141,10 +144,11 @@ export default function AdminScreen() {
 
   const load = useCallback(async () => {
     try {
-      const [overview, userList, noms] = await Promise.all([
+      const [overview, userList, noms, abonnes] = await Promise.all([
         adminOverview(),
         adminListUsers(),
         adminPseudos(),
+        adminNotifs(),
       ]);
       if (!overview) {
         // null = la RPC a répondu « pas admin » ; les erreurs réseau lèvent.
@@ -154,6 +158,7 @@ export default function AdminScreen() {
       setData(overview);
       setUsers(userList ?? []);
       setPseudos(noms ?? []);
+      setNotifs(abonnes ?? []);
       setState("ready");
     } catch {
       setState("error");
@@ -772,6 +777,77 @@ export default function AdminScreen() {
         <p style={{ fontSize: 13, fontWeight: 600, color: MUTED, margin: 0, lineHeight: 1.5 }}>
           {t("jeuxManque")}
         </p>
+      </div>
+
+      {/* ══ LES COMPTES QUI JOUENT, ET LEURS NOTIFICATIONS ════════════════════
+          Demandé : « voir les comptes créés avec application des notifs ».
+
+          ⚠️ CES COMPTES-LÀ N'APPARAISSENT PAS DANS « PERSONNES », et c'est ce
+          que la question a révélé : `scrutin_admin_list_users` filtre sur un
+          scrutin, un espace, un événement ou un rôle d'admin. Un compte créé
+          depuis un jeu n'a rien de tout ça — la Régie ne voyait littéralement
+          pas ses joueurs.
+
+          ⚠️ LA COLONNE QUI COMPTE EST LA DERNIÈRE NOTIFICATION. Des appareils
+          abonnés et « jamais » en face, c'est exactement le défaut qu'on vient
+          de corriger : la tournée sortait en silence sur un numéro de journée
+          `NaN`. Sans cette colonne, rien ne le montrait nulle part. */}
+      <div style={{ ...card, marginBottom: 16 }}>
+        <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 15, marginBottom: 6 }}>
+          {t("notifsTitre")}
+        </div>
+        <p style={{ fontSize: 13, fontWeight: 600, color: MUTED, margin: "4px 0 12px", lineHeight: 1.5 }}>
+          {t("notifsHint")}
+        </p>
+        {notifs.length === 0 ? (
+          <p style={{ fontSize: 13.5, fontWeight: 600, color: MUTED, margin: 0 }}>{t("notifsVide")}</p>
+        ) : (
+          <div style={{ display: "grid", gap: 6 }}>
+            {notifs.map((c) => (
+              <div
+                key={c.id}
+                style={{
+                  display: "flex",
+                  alignItems: "baseline",
+                  gap: 10,
+                  flexWrap: "wrap",
+                  padding: "8px 10px",
+                  borderRadius: 8,
+                  // Abonné mais jamais servi : c'est la ligne qu'on cherche.
+                  background: c.appareils > 0 && !c.derniereNotif ? "#fff4d6" : "transparent",
+                }}
+              >
+                <span style={{ fontWeight: 700, fontSize: 13.5, flex: "1 1 190px", minWidth: 0,
+                               overflow: "hidden", textOverflow: "ellipsis" }}>
+                  {c.email || c.id}
+                  {c.pseudo ? (
+                    <span style={{ color: MUTED, fontWeight: 600 }}> · {c.pseudo}</span>
+                  ) : null}
+                </span>
+                <span style={{ fontSize: 12.5, fontWeight: 700, fontVariantNumeric: "tabular-nums" }}>
+                  {t("notifsAppareils", { n: c.appareils })}
+                </span>
+                <span style={{ fontSize: 12.5, fontWeight: 600, color: MUTED, fontVariantNumeric: "tabular-nums" }}>
+                  {t("notifsJournees", { n: c.journees })}
+                </span>
+                {/* ⚠️ LES TROIS GENRES NE S'AFFICHENT QUE QUAND L'UN EST COUPÉ.
+                    Vrais par défaut, les montrer toujours ferait trois pastilles
+                    identiques sur chaque ligne — du mobilier. */}
+                {c.journee && c.hebdo && c.saison ? null : (
+                  <span style={{ fontSize: 12, fontWeight: 700, color: MUTED }}>
+                    {[c.journee ? null : t("notifsSansJournee"),
+                      c.hebdo ? null : t("notifsSansHebdo"),
+                      c.saison ? null : t("notifsSansSaison")].filter(Boolean).join(" · ")}
+                  </span>
+                )}
+                <span style={{ fontSize: 12.5, fontWeight: 700,
+                               color: c.derniereNotif ? MUTED : "#8a6100" }}>
+                  {c.derniereNotif ? c.derniereNotif.slice(0, 10) : t("notifsJamais")}
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* ══ LES PSEUDOS DES JEUX QUOTIDIENS ═══════════════════════════════════

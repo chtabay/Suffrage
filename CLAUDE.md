@@ -2386,6 +2386,27 @@ onglets : Aperçu, Scrutins, Jeux, Personnes. ⚠️ **La file de modération po
 compte SUR l'onglet** — un signalement en attente est la seule chose urgente de
 cette page, et le ranger derrière un onglet muet le rendrait invisible.
 
+**LA RÉGIE VOIT ENFIN LES COMPTES QUI JOUENT** (`scrutin_admin_notifs`,
+`20260917-regie-comptes-et-notifs.sql`) — demandé après le défaut des
+notifications : « voir les comptes créés avec application des notifs ».
+
+⚠️ **ET LA QUESTION A RÉVÉLÉ PIRE : CES COMPTES N'APPARAISSAIENT NULLE PART.**
+`scrutin_admin_list_users` filtre sur `raw_user_meta_data ? 'lang'` ou
+l'existence d'un scrutin, d'un espace, d'un événement ou d'un rôle d'admin. Un
+compte créé DEPUIS UN JEU — la seule porte que les joueurs empruntent — n'a rien
+de tout ça : l'onglet « Personnes » ne montrait pas un seul joueur. Le nouveau
+panneau liste donc par l'USAGE DES JEUX (un abonnement, un pseudo, une journée
+jouée), pas par la table des comptes.
+
+⚠️ **LA COLONNE QUI COMPTE EST LA DERNIÈRE NOTIFICATION.** Des appareils abonnés
+et « jamais » en face, c'est exactement le défaut du `NaN` — et rien ne le
+montrait nulle part. Mesuré à la mise en place : 3 comptes, dont un à
+**3 appareils et 14 journées sans un seul envoi**. La ligne est surlignée.
+
+⚠️ **LES TROIS GENRES NE S'AFFICHENT QUE QUAND L'UN EST COUPÉ** : vrais par
+défaut, les montrer toujours ferait trois pastilles identiques sur chaque ligne,
+c'est-à-dire du mobilier.
+
 ⚠️ **ET L'ONGLET « JEUX » DIT CE QU'IL NE SAIT PAS.** La Régie mesure les
 scrutins et ne mesure RIEN des jeux : ni journées jouées, ni joueurs, ni salles
 ouvertes. Écrire l'absence vaut mieux que de laisser croire qu'un onglet presque
