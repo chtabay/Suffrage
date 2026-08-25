@@ -33,6 +33,8 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import type { User } from "@supabase/supabase-js";
 import { nomDeLangue } from "@/lib/games/langue";
+// ⚠️ EN UN SEUL EXEMPLAIRE : la porte `/games` nomme la même saison.
+import { moisLisible } from "@/lib/games/saison";
 import { PLACET_GAMES_SKIN as skin } from "@/lib/games/skin";
 import { GBtn, GCard, GLabel } from "@/components/games/ui";
 import {
@@ -49,22 +51,6 @@ import {
 
 const bcp = (locale: string) => (locale === "pcm" ? "en" : locale);
 const PORTEES: PorteeCumul[] = ["tout", "banalo", "pays"];
-
-/**
- * « 2026-08 » → « août 2026 », dans la langue du lecteur.
- *
- * ⚠️ PAS DE CLÉ i18n POUR LES DOUZE MOIS. `Intl` les connaît déjà dans les
- * quatre langues, et douze clés × quatre serait quarante-huit traductions à
- * tenir pour un mot que la plateforme donne. On construit la date au MILIEU du
- * mois : le 1er à minuit bascule d'un mois en arrière dans les fuseaux à l'ouest
- * de Paris.
- */
-function moisLisible(saison: string, locale: string): string {
-  const [a, m] = saison.split("-").map(Number);
-  if (!a || !m) return saison;
-  return new Intl.DateTimeFormat(bcp(locale), { month: "long", year: "numeric" })
-    .format(new Date(Date.UTC(a, m - 1, 15)));
-}
 
 export default function Classements({ user }: { user: User | null }) {
   const t = useTranslations("JeuxQuotidiens");

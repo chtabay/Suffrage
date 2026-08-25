@@ -511,9 +511,28 @@ export interface PlaceDuJour {
   sur: number | null;
 }
 
+/**
+ * LE HAUT DU CLASSEMENT DE LA SAISON, POUR LA PORTE.
+ *
+ * ⚠️ TROIS LIGNES, PAS DIX : c'est une vitrine, et le tableau complet est à un
+ * tap. `moi` sort même quand je suis dans la tête — c'est l'écran qui repêche
+ * ma ligne seulement si elle n'y est pas, exactement comme `ListeDuTableau`.
+ *
+ * ⚠️ `null` VEUT DIRE « MOINS DE DEUX CLASSÉS », pas « panne ». Le plancher de
+ * deux est celui de tout le produit : un aperçu d'une ligne serait le « 1er sur
+ * 1 » qu'on refuse partout.
+ */
+export interface ApercuSaison {
+  saison: string;
+  joueurs: number;
+  lignes: { place: number; pseudo: string; points: number; moi: boolean }[];
+  moi: { place: number; pseudo: string; points: number } | null;
+}
+
 export interface PorteDesJeux {
   banalo: PlaceDuJour;
   pays: PlaceDuJour;
+  saison: ApercuSaison | null;
 }
 
 const PAS_JOUE: PlaceDuJour = { joue: false, rang: null, sur: null };
@@ -526,6 +545,36 @@ function litPlace(v: unknown): PlaceDuJour {
   // pour le tableau du jour comme pour le classement de saison.
   if (typeof d.rang !== "number" || typeof d.sur !== "number") return PAS_JOUE;
   return { joue: true, rang: d.rang, sur: d.sur };
+}
+
+/**
+ * ⚠️ LES POINTS ARRIVENT EN CHAÎNE, PAS EN NOMBRE. `numeric` traverse le JSON de
+ * PostgREST sous forme de texte — « 294.0 » — pour ne pas perdre de précision.
+ * `litLigne` fait déjà le même `Number(...)` pour le tableau de saison ; sans
+ * ça, la carte afficherait « NaN pts ».
+ */
+function litApercu(v: unknown): ApercuSaison | null {
+  const d = v as Record<string, unknown> | null;
+  if (!d || typeof d.saison !== "string" || typeof d.joueurs !== "number") return null;
+  const ligne = (x: unknown) => {
+    const l = x as Record<string, unknown> | null;
+    if (!l || typeof l.place !== "number" || typeof l.pseudo !== "string") return null;
+    const points = typeof l.points === "number" ? l.points : Number(l.points);
+    if (!Number.isFinite(points)) return null;
+    return { place: l.place, pseudo: l.pseudo, points, moi: l.moi === true };
+  };
+  const lignes = (Array.isArray(d.lignes) ? d.lignes : []).map(ligne).filter((l) => l !== null);
+  // Une vitrine vide n'est pas une vitrine : si la base a rendu un aperçu dont
+  // aucune ligne ne tient debout, on rend `null` et la carte reste ce qu'elle
+  // était. `PAS D'ACCROCHE SANS BOUTON`, appliqué à un contenu.
+  if (lignes.length === 0) return null;
+  const m = ligne(d.moi);
+  return {
+    saison: d.saison,
+    joueurs: d.joueurs,
+    lignes,
+    moi: m ? { place: m.place, pseudo: m.pseudo, points: m.points } : null,
+  };
 }
 
 /**
@@ -558,7 +607,7 @@ export async function placeDuJour(args: {
   if (error) return null;
   const d = data as Record<string, unknown> | null;
   if (!d || d.status !== "ok") return null;
-  const valeur = { banalo: litPlace(d.banalo), pays: litPlace(d.pays) };
+  const valeur = { banalo: litPlace(d.banalo), pays: litPlace(d.pays), saison: litApercu(d.saison) };
   cachePorte = { cle, valeur };
   return valeur;
 }
