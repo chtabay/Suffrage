@@ -2888,6 +2888,12 @@
   "Pays": {
     "dejaAilleurs": "Vous avez déjà trouvé le pays du jour, en {n, plural, one {# essai} other {# essais}}, depuis un autre appareil. Rejouer ici ne changera pas votre résultat.",
     "demainPays": "Un nouveau pays demain.",
+    "derniereTitre": "Votre dernière journée",
+    "derniereClose": "Cette journée est close : ce classement ne bouge plus.",
+    "derniereBouton": "Voir le classement",
+    "derniereFermer": "Fermer",
+    "derniereClassement": "Le tableau de cette journée",
+    "derniereInscrits": "{n, plural, one {# joueur avait laissé son nom} other {# joueurs avaient laissé leur nom}}",
     "tableau": {
       "essais": "{n, plural, one {# essai} other {# essais}}",
       "pourquoi": "Ce nom sera lu par tous les joueurs de la journée.",

@@ -301,7 +301,6 @@ export default function JourneePrecedente({ jour }: { jour: number }) {
         {sujet}
         {score}
         {arrete}
-        {classement}
         <div style={{ marginTop: 12 }}>
           <GBtn skin={skin} variant="ghost" onClick={() => setOuvert(true)}>
             {t("detailBouton")}
@@ -323,6 +322,18 @@ export default function JourneePrecedente({ jour }: { jour: number }) {
           fermerLabel={t("qrFermer")}
         >
           {detail}
+          {/* ⚠️ LE CLASSEMENT EST DANS LE TIROIR, PAS DANS LE RÉSUMÉ, et c'est
+              une correction : je l'avais posé dans la carte en argumentant que
+              le contenu qui change doit monter. Ce n'était pas la demande —
+              « c'est dans la modale de la journée précédente que nous ajoutons
+              le classement de la journée précédente ». Le tiroir est d'ailleurs
+              son bon endroit : il porte la journée arrêtée EN ENTIER — la
+              grille, la forme du jour, et maintenant qui y figurait.
+
+              ⚠️ ET IL N'EST PLUS EN DOUBLE. Posé aux deux endroits, il faisait
+              deux listes de noms à deux cents pixels l'une de l'autre, dont
+              l'une visible DERRIÈRE la modale qui montrait l'autre. */}
+          {classement}
         </Modale>
       ) : null}
     </div>

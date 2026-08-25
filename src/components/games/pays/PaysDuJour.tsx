@@ -31,6 +31,7 @@ import Carte from "./Carte";
 import Compte from "./Compte";
 import { deposePartie, deposerNomPays, litTableauPays, maPosition } from "@/lib/db/pays";
 import { monJetonPays } from "@/lib/games/pays/jeton";
+import JourneePrecedente from "./JourneePrecedente";
 import type { ChoixDeNom, DepotNom } from "@/lib/db/banalo";
 import TableauDuJour from "@/components/games/TableauDuJour";
 import ComparaisonAmi from "@/components/games/ComparaisonAmi";
@@ -719,6 +720,11 @@ export default function PaysDuJour({ jour }: { jour: number }) {
             />
           </div>
         )}
+
+        {/* LA JOURNÉE PRÉCÉDENTE — en bas et après tout le reste, comme chez
+            Banalo : la partie du jour passe avant la relecture de la veille.
+            Et seulement une fois gagnée, comme le tableau du jour (§16). */}
+        {gagne && <JourneePrecedente jour={jour} />}
 
         {/* LE COMPTE — après la révélation, jamais avant (§16). */}
         {gagne && (
