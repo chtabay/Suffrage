@@ -2884,6 +2884,12 @@
   "Pays": {
     "dejaAilleurs": "Ya encontraste el país del día, en {n, plural, one {# intento} other {# intentos}}, desde otro aparato. Volver a jugar aquí no cambiará tu resultado.",
     "demainPays": "Un país nuevo mañana.",
+    "derniereTitre": "Tu última jornada",
+    "derniereClose": "Esa jornada está cerrada: esta clasificación ya no cambia.",
+    "derniereBouton": "Ver la clasificación",
+    "derniereFermer": "Cerrar",
+    "derniereClassement": "La tabla de ese día",
+    "derniereInscrits": "{n, plural, one {# jugador había dejado su nombre} other {# jugadores habían dejado su nombre}}",
     "tableau": {
       "essais": "{n, plural, one {# intento} other {# intentos}}",
       "pourquoi": "Todos los jugadores del día leerán este nombre.",

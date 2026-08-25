@@ -130,11 +130,24 @@ export async function rattachePays(): Promise<number | null> {
 // mots, pas la base.
 import type { ChoixDeNom, DepotNom, Tableau } from "@/lib/db/banalo";
 
-export async function litTableauPays(jeton: string, jour: number): Promise<Tableau | null> {
+export async function litTableauPays(
+  jeton: string,
+  jour: number,
+  /**
+   * À partir de combien d'inscrits la base rend ses lignes.
+   *
+   * ⚠️ DEUX PAR DÉFAUT, ET UN SEUL POUR UNE JOURNÉE CLOSE — la même règle que
+   * chez Banalo. Sur la journée en cours, une liste d'une ligne est une
+   * récompense servie à quelqu'un qui n'a battu personne ; sur une journée
+   * arrêtée, c'est un relevé de ce qui a eu lieu.
+   */
+  min?: number,
+): Promise<Tableau | null> {
   const supabase = createClient();
   const { data, error } = await supabase.rpc("scrutin_game_pays_tableau", {
     p_jour: jour,
     p_jeton: jeton,
+    p_min: min,
   });
   if (error) return null;
   const d = data as Record<string, unknown> | null;

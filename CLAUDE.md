@@ -1457,16 +1457,38 @@ une ambiguïté — plus personne ne lit de tableau. Le client déployé, lui, n
 pas : il poste quatre clés et PostgREST les fait correspondre à la nouvelle, dont
 le cinquième argument a un défaut.
 
-⚠️ **CINQ SUR CINQ N'A AUCUN BLOC « JOURNÉE PRÉCÉDENTE »**, et c'est pourquoi il
-n'y a rien à y corriger : ses modales sont la méthode, l'intro de la journée et
-les pictos. Lui en donner un est une fonctionnalité à construire, pas un défaut
-à réparer.
+**CINQ SUR CINQ A SA JOURNÉE PRÉCÉDENTE DEPUIS LE 26/08**
+(`pays/JourneePrecedente.tsx`, `20260916-jeu-pays-journee-precedente.sql`) —
+demandé : « même chose dans 5 sur 5, un bouton pour avoir les données de la
+journée précédente ». Il n'avait AUCUNE relecture : ses trois modales sont la
+méthode, l'intro du jour et les pictos, et une partie finie disparaissait avec sa
+journée.
 
-⚠️ **DANS LE RÉSUMÉ, PAS DANS LE TIROIR**, contre la règle de hauteur qui y a
-envoyé le reste du détail. Le contenu qui CHANGE monte ; et surtout, deux
-retours de terrain de la même semaine reprochaient des blocs « trop discrets » —
-mettre derrière un tap ce qu'on vient de réclamer de voir aurait été la
-troisième fois. Mesuré : la page passe de ~2 270 à **2 440 px**.
+⚠️ **IL NE DEMANDE PAS À LA BASE QUELLE JOURNÉE MONTRER**, contrairement à
+Banalo. Là-bas les réponses vivent en base, donc seule elle sait ce que ce joueur
+a joué (`scrutin_banalo_derniere`) ; ici le résumé des victoires vit dans le
+navigateur (`placet.pays.resultats`, la seule mémoire longue du jeu), et l'écran
+y lit la dernière journée gagnée avant aujourd'hui — sans un aller-retour de
+plus. ⚠️ Conséquence assumée : **sur un appareil neuf le bloc ne sort pas**, même
+pour un compte dont les parties sont rattachées. Le rendre exact partout
+demanderait une fonction « dernière journée jouée » côté base ; pour un bloc de
+relecture, le prix n'en vaut pas la peine tant que personne ne l'a signalé.
+
+⚠️ **ET LE BOUTON NE SORT QUE S'IL Y A QUELQUE CHOSE DERRIÈRE.** Un tiroir qui
+s'ouvre sur une carte vide est pire que pas de tiroir : `PAS D'ACCROCHE SANS
+BOUTON`, la règle d'`InstallJeu`. Il se gagne aussi sur `gagne` — §16 interdit la
+moindre distraction pendant la manche, et relire hier pendant qu'on cherche
+aujourd'hui en est une.
+
+⚠️ **DANS LE TIROIR, ET J'AVAIS COMPRIS L'INVERSE.** Je l'avais posé dans le
+RÉSUMÉ en argumentant que le contenu qui change doit monter, et en invoquant deux
+retours « trop discrets » de la même semaine. Ce n'était pas la demande :
+« c'est dans la modale de la journée précédente que nous ajoutons le classement
+de la journée précédente ». Le tiroir est d'ailleurs son bon endroit — il porte
+la journée arrêtée EN ENTIER, la grille, la forme du jour, et maintenant qui y
+figurait. ⚠️ Et il n'est **plus en double** : posé aux deux endroits, il faisait
+deux listes de noms visibles en même temps, l'une DERRIÈRE la modale qui montrait
+l'autre. Vu sur une vraie capture.
 
 ⚠️ **ET C'EST LA TROISIÈME LISTE DE NOMS DE L'ÉCRAN** (tablée, tableau du jour,
 celle-ci) — le doublon visuel déjà payé entre le tableau et la tablée. Mesuré :

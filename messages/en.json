@@ -2884,6 +2884,12 @@
   "Pays": {
     "dejaAilleurs": "You already found today's country, in {n, plural, one {# guess} other {# guesses}}, on another device. Playing again here won't change your result.",
     "demainPays": "A new country tomorrow.",
+    "derniereTitre": "Your last day",
+    "derniereClose": "That day is closed: this ranking no longer moves.",
+    "derniereBouton": "See the ranking",
+    "derniereFermer": "Close",
+    "derniereClassement": "That day's board",
+    "derniereInscrits": "{n, plural, one {# player had left their name} other {# players had left their names}}",
     "tableau": {
       "essais": "{n, plural, one {# guess} other {# guesses}}",
       "pourquoi": "Every player of the day will read this name.",

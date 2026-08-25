@@ -2884,6 +2884,12 @@
   "Pays": {
     "dejaAilleurs": "You don already find di country of di day, for {n, plural, one {# try} other {# tries}}, for anoda device. To play again here no go change your result.",
     "demainPays": "New country tomorrow.",
+    "derniereTitre": "Your last day",
+    "derniereClose": "Dat day don close: dis ranking no dey move again.",
+    "derniereBouton": "See di ranking",
+    "derniereFermer": "Close",
+    "derniereClassement": "Di board of dat day",
+    "derniereInscrits": "{n, plural, one {# player don leave im name} other {# players don leave dem name}}",
     "tableau": {
       "essais": "{n, plural, one {# try} other {# tries}}",
       "pourquoi": "Every player of di day go read dis name.",
