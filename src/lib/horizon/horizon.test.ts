@@ -6,6 +6,8 @@ import {
   encodeHorizonFragment,
   exactAgeAt,
   MAX_FRAGMENT_LENGTH,
+  nextHorizonReminderDate,
+  nextHorizonThreshold,
   parseHorizonFragment,
   preciseCalendarDuration,
   type HorizonPayload,
@@ -89,4 +91,19 @@ test("la durée précise compte d'abord les années calendaires, puis l'horloge"
     new Date(Date.UTC(2030, 8, 1, 12, 22, 35)),
   );
   assert.deepEqual(duration, { future: true, years: 4, days: 6, hours: 2, minutes: 2, seconds: 5 });
+});
+
+test("le prochain seuil ignore ceux déjà franchis", () => {
+  assert.equal(nextHorizonThreshold(39.4), 30);
+  assert.equal(nextHorizonThreshold(30), 20);
+  assert.equal(nextHorizonThreshold(0.8), null);
+});
+
+test("le prochain rappel retient la première échéance activée", () => {
+  const next = nextHorizonReminderDate(
+    CLAIRE,
+    { birthday: true, thresholds: true, retirement: true },
+    new Date(Date.UTC(2026, 7, 26)),
+  );
+  assert.equal(next?.toISOString(), "2027-05-12T00:00:00.000Z");
 });

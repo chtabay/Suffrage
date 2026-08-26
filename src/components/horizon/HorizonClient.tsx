@@ -2,12 +2,14 @@
 
 import type { CSSProperties, FormEvent, ReactNode } from "react";
 import { useEffect, useMemo, useState } from "react";
+import dynamic from "next/dynamic";
 import { useLocale, useTranslations } from "next-intl";
 import { QRCodeSVG } from "qrcode.react";
 import { Link } from "@/i18n/navigation";
 import PlacetMark from "@/components/scrutin/PlacetMark";
 import { CORAL, CREAM, FONT_DISPLAY, INK, MUTED, YELLOW } from "@/components/scrutin/theme";
 import { Btn, Card } from "@/components/ui/kit";
+import { restoreHorizonAfterAuth } from "@/lib/horizon/auth-restore";
 import {
   calculateHorizon,
   calculateMilestones,
@@ -23,6 +25,9 @@ import {
   type HorizonResult,
   type StatisticalSex,
 } from "@/lib/horizon/horizon";
+
+const HorizonReminders = dynamic(() => import("@/components/horizon/HorizonReminders"), { ssr: false });
+const HorizonPlacet = dynamic(() => import("@/components/horizon/HorizonPlacet"), { ssr: false });
 
 interface FormState {
   birthDate: string;
@@ -161,7 +166,11 @@ export default function HorizonClient() {
 
   useEffect(() => {
     const readHash = () => {
-      const raw = window.location.hash.slice(1);
+      let raw = window.location.hash.slice(1);
+      if (!raw && new URLSearchParams(window.location.search).get("restore") === "1") {
+        raw = restoreHorizonAfterAuth() ?? "";
+        window.history.replaceState(null, "", raw ? `${window.location.pathname}#${raw}` : window.location.pathname);
+      }
       if (!raw) {
         setMode("form");
         setError("");
@@ -462,6 +471,8 @@ function ResultView({
         </section>
       ) : null}
 
+      <HorizonReminders payload={payload} result={result} />
+
       <section aria-labelledby="share-title" style={{ marginTop: 34 }}>
         <h2 id="share-title" style={{ margin: "0 0 14px", fontFamily: FONT_DISPLAY, fontSize: 25 }}>{t("qrTitle")}</h2>
         <Card accent={YELLOW} padding="clamp(20px, 5vw, 30px)">
@@ -487,6 +498,8 @@ function ResultView({
         <Btn onClick={onEdit} variant="cream">{t("edit")}</Btn>
         <Btn onClick={onCreateAnother} variant="primary">{t("createAnother")}</Btn>
       </div>
+
+      <HorizonPlacet />
     </>
   );
 }

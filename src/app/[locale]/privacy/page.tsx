@@ -38,7 +38,7 @@ export default async function PrivacyPage({ params }: { params: Promise<{ locale
   const c = pickLocale<Content>(locale, {
     fr: {
       title: "Politique de confidentialité",
-      updated: "Dernière mise à jour : 23 août 2026",
+      updated: "Dernière mise à jour : 26 août 2026",
       intro:
         "Placet (placet.app) permet à un groupe d'organiser de vrais votes. Cette page explique ce que nous collectons et pourquoi. Nous gardons le strict minimum.",
       sections: [
@@ -56,7 +56,7 @@ export default async function PrivacyPage({ params }: { params: Promise<{ locale
         },
         {
           h: "Notifications",
-          p: "Elles sont facultatives et ne partent qu'après votre accord explicite, donné dans le navigateur. Si vous les activez, nous enregistrons l'adresse d'abonnement que votre navigateur fabrique — elle désigne cet appareil auprès du service de son éditeur (Apple, Google, Mozilla ou Microsoft selon le navigateur) —, les deux clés qui permettent de chiffrer le message, votre fuseau horaire et la langue de l'interface. Le fuseau sert à ne pas vous écrire au milieu de la nuit, la langue à vous écrire dans la vôtre. Les notifications des jeux quotidiens sont rattachées à votre compte : le résultat d'une journée une fois close, un récapitulatif de la semaine, les médailles de fin de mois — au plus une par jour et par jeu. Vous pouvez couper chacun de ces trois envois depuis la page des jeux quotidiens, et retirer l'autorisation à tout moment dans les réglages de votre navigateur ; l'abonnement est alors supprimé dès le premier envoi qui échoue. Nous gardons trente jours la trace de ce qui vous a été envoyé, uniquement pour ne pas vous l'envoyer deux fois.",
+          p: "Elles sont facultatives et ne partent qu'après votre accord explicite, donné dans le navigateur. Si vous les activez, nous enregistrons l'adresse d'abonnement que votre navigateur fabrique — elle désigne cet appareil auprès du service de son éditeur (Apple, Google, Mozilla ou Microsoft selon le navigateur) —, les deux clés qui permettent de chiffrer le message, votre fuseau horaire et la langue de l'interface. Le fuseau sert à ne pas vous écrire au milieu de la nuit, la langue à vous écrire dans la vôtre. Les notifications des jeux quotidiens sont rattachées à votre compte : le résultat d'une journée une fois close, un récapitulatif de la semaine, les médailles de fin de mois — au plus une par jour et par jeu. Les rappels Horizon sont eux aussi facultatifs : si vous les activez, nous rattachons à votre compte le prénom, la date de naissance, la référence statistique et les catégories choisies ; jamais le titre ni le commentaire du lien. Vous pouvez modifier ou supprimer ces rappels depuis l'horizon concerné. Vous pouvez aussi retirer l'autorisation à tout moment dans les réglages de votre navigateur ; l'abonnement est alors supprimé dès le premier envoi qui échoue. Nous gardons la trace des rappels Horizon déjà envoyés uniquement pour ne pas les envoyer deux fois.",
         },
         {
           h: "Pourquoi",
@@ -91,7 +91,7 @@ export default async function PrivacyPage({ params }: { params: Promise<{ locale
     },
     en: {
       title: "Privacy policy",
-      updated: "Last updated: 23 August 2026",
+      updated: "Last updated: 26 August 2026",
       intro:
         "Placet (placet.app) lets a group run proper votes. This page explains what we collect and why. We keep it to a minimum.",
       sections: [
@@ -109,7 +109,7 @@ export default async function PrivacyPage({ params }: { params: Promise<{ locale
         },
         {
           h: "Notifications",
-          p: "They are optional and only go out after you explicitly agree, in your browser. If you turn them on, we store the subscription address your browser creates — it identifies this device to its vendor's service (Apple, Google, Mozilla or Microsoft, depending on the browser) —, the two keys used to encrypt the message, your time zone and your interface language. The time zone is there so we don't write to you in the middle of the night, the language so we write in yours. Daily-game notifications are attached to your account: a day's result once it closes, a weekly recap, end-of-month medals — at most one per day and per game. You can switch off each of those three from the daily-games page, and withdraw permission at any time in your browser's settings; the subscription is then deleted at the first delivery that fails. We keep a record of what was sent to you for thirty days, solely so we don't send it twice.",
+          p: "They are optional and only go out after you explicitly agree, in your browser. If you turn them on, we store the subscription address your browser creates — it identifies this device to its vendor's service (Apple, Google, Mozilla or Microsoft, depending on the browser) —, the two keys used to encrypt the message, your time zone and your interface language. The time zone is there so we don't write to you in the middle of the night, the language so we write in yours. Daily-game notifications are attached to your account: a day's result once it closes, a weekly recap, end-of-month medals — at most one per day and per game. Horizon reminders are optional too: if you enable them, we attach the first name, birth date, statistical reference and selected categories to your account; never the link's title or comment. You can edit or delete those reminders from the relevant horizon. You can also withdraw permission at any time in your browser settings; the subscription is then deleted after the first failed delivery. We keep the record of Horizon reminders already sent solely to avoid sending them twice.",
         },
         {
           h: "Why",
@@ -144,7 +144,7 @@ export default async function PrivacyPage({ params }: { params: Promise<{ locale
     },
     es: {
       title: "Política de privacidad",
-      updated: "Última actualización: 23 de agosto de 2026",
+      updated: "Última actualización: 26 de agosto de 2026",
       intro:
         "Placet (placet.app) permite a un grupo organizar votaciones de verdad. Esta página explica qué recopilamos y por qué. Lo mantenemos al mínimo.",
       sections: [
@@ -162,7 +162,7 @@ export default async function PrivacyPage({ params }: { params: Promise<{ locale
         },
         {
           h: "Notificaciones",
-          p: "Son opcionales y solo se envían tras tu consentimiento explícito, dado en el navegador. Si las activas, guardamos la dirección de suscripción que crea tu navegador — identifica este aparato ante el servicio de su editor (Apple, Google, Mozilla o Microsoft, según el navegador) —, las dos claves que permiten cifrar el mensaje, tu zona horaria y el idioma de la interfaz. La zona horaria sirve para no escribirte en mitad de la noche, y el idioma para escribirte en el tuyo. Las notificaciones de los juegos diarios van ligadas a tu cuenta: el resultado de una jornada una vez cerrada, un resumen de la semana y las medallas de fin de mes — como mucho una al día y por juego. Puedes desactivar cada uno de esos tres envíos desde la página de juegos diarios, y retirar el permiso cuando quieras en los ajustes de tu navegador; la suscripción se borra entonces en el primer envío que falle. Guardamos treinta días el registro de lo que se te ha enviado, únicamente para no enviártelo dos veces.",
+          p: "Son opcionales y solo se envían tras tu consentimiento explícito, dado en el navegador. Si las activas, guardamos la dirección de suscripción que crea tu navegador — identifica este aparato ante el servicio de su editor (Apple, Google, Mozilla o Microsoft, según el navegador) —, las dos claves que permiten cifrar el mensaje, tu zona horaria y el idioma de la interfaz. La zona horaria sirve para no escribirte en mitad de la noche, y el idioma para escribirte en el tuyo. Las notificaciones de los juegos diarios van ligadas a tu cuenta: el resultado de una jornada una vez cerrada, un resumen de la semana y las medallas de fin de mes — como mucho una al día y por juego. Los avisos Horizon también son opcionales: si los activas, vinculamos a tu cuenta el nombre, la fecha de nacimiento, la referencia estadística y las categorías elegidas; nunca el título ni el comentario del enlace. Puedes modificarlos o borrarlos desde el horizonte correspondiente. También puedes retirar el permiso cuando quieras en los ajustes del navegador; la suscripción se elimina tras el primer envío fallido. Guardamos el registro de los avisos Horizon ya enviados únicamente para no enviarlos dos veces.",
         },
         {
           h: "Por qué",

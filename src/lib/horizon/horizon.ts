@@ -45,6 +45,14 @@ export interface PreciseCalendarDuration {
   seconds: number;
 }
 
+export interface HorizonReminderPreferences {
+  birthday: boolean;
+  thresholds: boolean;
+  retirement: boolean;
+}
+
+export const HORIZON_THRESHOLDS = [30, 20, 10, 5, 1] as const;
+
 export type HorizonCalculation =
   | { ok: true; value: HorizonResult }
   | { ok: false; error: HorizonError };
@@ -249,4 +257,56 @@ export function calculateHorizon(payload: HorizonPayload, at = new Date()): Hori
     ok: true,
     value: { exactAge, remainingYears, horizonAge, horizonDate: dateAtDecimalAge(birthDate, horizonAge) },
   };
+}
+
+/** Premier seuil qui n'a pas encore été franchi au moment de l'activation. */
+export function nextHorizonThreshold(remainingYears: number): number | null {
+  return HORIZON_THRESHOLDS.find((threshold) => remainingYears > threshold) ?? null;
+}
+
+/**
+ * Date du prochain rappel choisi. Le seuil est résolu au mois puis au jour :
+ * assez précis pour annoncer une date, sans parcourir quarante ans jour par jour.
+ */
+export function nextHorizonReminderDate(
+  payload: HorizonPayload,
+  preferences: HorizonReminderPreferences,
+  at = new Date(),
+): Date | null {
+  const birthDate = parseIsoDate(payload.birthDate);
+  const calculation = calculateHorizon(payload, at);
+  if (!birthDate || !calculation.ok) return null;
+  const candidates: Date[] = [];
+
+  if (preferences.birthday) {
+    let next = anniversary(birthDate, at.getUTCFullYear());
+    if (next.getTime() <= at.getTime()) next = anniversary(birthDate, at.getUTCFullYear() + 1);
+    candidates.push(next);
+  }
+
+  if (preferences.retirement) {
+    const retirement = calculateMilestones(payload, at, calculation.value.horizonDate)?.retirementDate;
+    if (retirement && retirement.getTime() > at.getTime()) candidates.push(retirement);
+  }
+
+  const threshold = preferences.thresholds ? nextHorizonThreshold(calculation.value.remainingYears) : null;
+  if (threshold !== null) {
+    let before = new Date(at);
+    let after = new Date(Date.UTC(at.getUTCFullYear(), at.getUTCMonth() + 1, at.getUTCDate()));
+    while (after.getTime() < calculation.value.horizonDate.getTime()) {
+      const probe = calculateHorizon(payload, after);
+      if (probe.ok && probe.value.remainingYears <= threshold) break;
+      before = after;
+      after = new Date(Date.UTC(after.getUTCFullYear(), after.getUTCMonth() + 1, after.getUTCDate()));
+    }
+    while (after.getTime() - before.getTime() > 86_400_000) {
+      const middle = new Date(Math.floor((before.getTime() + after.getTime()) / (2 * 86_400_000)) * 86_400_000);
+      const probe = calculateHorizon(payload, middle);
+      if (probe.ok && probe.value.remainingYears <= threshold) after = middle;
+      else before = middle;
+    }
+    candidates.push(after);
+  }
+
+  return candidates.sort((a, b) => a.getTime() - b.getTime())[0] ?? null;
 }
