@@ -3300,6 +3300,7 @@
     "calculatedOn": "Calcul effectué le {date}. Le référentiel statistique, lui, ne se met pas à jour.",
     "disclaimer": "Cet horizon décrit une moyenne de population, pas la durée de vie d'une personne. La santé, les conditions de vie et le hasard individuel ne sont pas pris en compte.",
     "privacyResult": "Le prénom, la naissance, le titre et le commentaire sont dans le fragment du lien après # : ils ne sont pas envoyés au serveur, mais restent visibles dans l'historique du navigateur et à toute personne qui reçoit le QR code ou le lien.",
-    "edit": "Modifier les informations"
+    "edit": "Modifier les informations",
+    "createAnother": "Créer un autre horizon"
   }
 }

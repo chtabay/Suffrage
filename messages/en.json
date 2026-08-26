@@ -3300,6 +3300,7 @@
     "calculatedOn": "Calculated on {date}. The statistical reference itself is not updated.",
     "disclaimer": "This horizon describes a population average, not one person's lifespan. Health, living conditions and individual chance are not taken into account.",
     "privacyResult": "The first name, birth date, title and comment are held in the link fragment after #: they are not sent to the server, but remain visible in browser history and to anyone who receives the QR code or link.",
-    "edit": "Edit information"
+    "edit": "Edit information",
+    "createAnother": "Create another horizon"
   }
 }

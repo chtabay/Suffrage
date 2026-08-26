@@ -3300,6 +3300,7 @@
     "calculatedOn": "Cálculo realizado el {date}. La referencia estadística no se actualiza.",
     "disclaimer": "Este horizonte describe una media de población, no la duración de la vida de una persona. No tiene en cuenta la salud, las condiciones de vida ni el azar individual.",
     "privacyResult": "El nombre, la fecha de nacimiento, el título y el comentario están en el fragmento del enlace después de #: no se envían al servidor, pero siguen visibles en el historial del navegador y para cualquiera que reciba el código QR o el enlace.",
-    "edit": "Modificar los datos"
+    "edit": "Modificar los datos",
+    "createAnother": "Crear otro horizonte"
   }
 }

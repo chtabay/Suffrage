@@ -277,6 +277,19 @@ export default function HorizonClient() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
+  const createAnother = () => {
+    setForm(EMPTY_FORM);
+    setPayload(null);
+    setCalculatedAt(null);
+    setNow(null);
+    setShareUrl("");
+    setMode("form");
+    setError("");
+    setShareStatus("");
+    window.history.pushState(null, "", window.location.pathname);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
   return (
     <div style={{ minHeight: "100vh" }}>
       <header style={{ position: "sticky", top: 0, zIndex: 20, background: "rgba(251,246,236,.94)", borderBottom: `2px solid ${INK}`, backdropFilter: "blur(8px)" }}>
@@ -344,6 +357,7 @@ export default function HorizonClient() {
             onCopy={copyLink}
             onShare={share}
             onEdit={edit}
+            onCreateAnother={createAnother}
             t={t}
           />
         ) : null}
@@ -362,6 +376,7 @@ function ResultView({
   onCopy,
   onShare,
   onEdit,
+  onCreateAnother,
   t,
 }: {
   payload: HorizonPayload;
@@ -373,6 +388,7 @@ function ResultView({
   onCopy: () => void;
   onShare: () => void;
   onEdit: () => void;
+  onCreateAnother: () => void;
   t: ReturnType<typeof useTranslations<"Horizon">>;
 }) {
   const remaining = remainingParts(result.remainingYears);
@@ -448,7 +464,10 @@ function ResultView({
 
       <p style={{ margin: "24px 4px 0", color: MUTED, fontSize: 13, lineHeight: 1.65 }}>{t("disclaimer")}</p>
       <p style={{ margin: "8px 4px 0", color: MUTED, fontSize: 13, lineHeight: 1.65 }}>{t("privacyResult")}</p>
-      <div style={{ marginTop: 26 }}><Btn onClick={onEdit} variant="cream">{t("edit")}</Btn></div>
+      <div className="horizon-actions" style={{ display: "flex", flexWrap: "wrap", gap: 10, marginTop: 26 }}>
+        <Btn onClick={onEdit} variant="cream">{t("edit")}</Btn>
+        <Btn onClick={onCreateAnother} variant="primary">{t("createAnother")}</Btn>
+      </div>
     </>
   );
 }

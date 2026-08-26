@@ -3300,6 +3300,7 @@
     "calculatedOn": "We calculate am on {date}. The statistics reference itself no dey update.",
     "disclaimer": "This horizon na average for plenty people, no be how long one person go live. E no calculate health, living condition or the luck wey follow individual person.",
     "privacyResult": "First name, birth date, title and comment dey inside the link after #: dem no send am go server, but e still dey show for browser history and anybody wey receive the QR code or link fit see am.",
-    "edit": "Change the information"
+    "edit": "Change the information",
+    "createAnother": "Make another horizon"
   }
 }
