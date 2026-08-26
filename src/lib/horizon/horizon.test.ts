@@ -2,10 +2,12 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import {
   calculateHorizon,
+  calculateMilestones,
   encodeHorizonFragment,
   exactAgeAt,
   MAX_FRAGMENT_LENGTH,
   parseHorizonFragment,
+  preciseCalendarDuration,
   type HorizonPayload,
 } from "./horizon";
 
@@ -66,4 +68,26 @@ test("une naissance future ou hors de la table est expliquée", () => {
     ok: false,
     error: "unsupportedGeneration",
   });
+});
+
+test("les repères figés donnent les échéances et les occurrences avant l'horizon", () => {
+  const at = new Date(Date.UTC(2026, 7, 26));
+  const horizon = calculateHorizon(CLAIRE, at);
+  assert.equal(horizon.ok, true);
+  if (!horizon.ok) return;
+  const milestones = calculateMilestones(CLAIRE, at, horizon.value.horizonDate);
+  assert.ok(milestones);
+  assert.equal(milestones.retirementDate.toISOString(), "2039-06-12T00:00:00.000Z");
+  assert.equal(milestones.ehpadDate.toISOString(), "2062-04-12T00:00:00.000Z");
+  assert.equal(milestones.summersRemaining, 39);
+  assert.equal(milestones.birthdaysRemaining, 39);
+  assert.equal(milestones.weekendsRemaining, 2047);
+});
+
+test("la durée précise compte d'abord les années calendaires, puis l'horloge", () => {
+  const duration = preciseCalendarDuration(
+    new Date(Date.UTC(2026, 7, 26, 10, 20, 30)),
+    new Date(Date.UTC(2030, 8, 1, 12, 22, 35)),
+  );
+  assert.deepEqual(duration, { future: true, years: 4, days: 6, hours: 2, minutes: 2, seconds: 5 });
 });

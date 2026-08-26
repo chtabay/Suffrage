@@ -57,6 +57,25 @@ pas à jour automatiquement.
 Pour une naissance un 29 février, l'anniversaire statistique tombe le 28 février
 les années non bissextiles.
 
+## Repères figés
+
+Cinq lignes matérialisent le temps restant : retraite, étés, anniversaires,
+week-ends et entrée en Ehpad.
+
+- retraite : DREES, données 2023 publiées en 2025 — 63 ans et 1 mois pour les
+  femmes, 62 ans et 5 mois pour les hommes ;
+- entrée en Ehpad : DREES, données 2023 publiées en 2025 — 85 ans et 11 mois,
+  tous sexes confondus ;
+- été : chaque 21 juin strictement postérieur à l'ouverture et antérieur à
+  l'horizon statistique ;
+- anniversaire : chaque date anniversaire strictement postérieure à l'ouverture
+  et antérieure à l'horizon ;
+- week-end : chaque samedi strictement postérieur à l'ouverture et antérieur à
+  l'horizon.
+
+Les deux durées sont décomposées en années calendaires, jours, heures, minutes et
+secondes. Ces valeurs restent figées comme la table de mortalité.
+
 ## Présentation et limites
 
 Le titre et le commentaire personnalisent uniquement l'affichage. Le résultat

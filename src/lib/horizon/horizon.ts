@@ -29,6 +29,23 @@ export interface HorizonResult {
   horizonDate: Date;
 }
 
+export interface HorizonMilestones {
+  retirementDate: Date;
+  ehpadDate: Date;
+  summersRemaining: number;
+  birthdaysRemaining: number;
+  weekendsRemaining: number;
+}
+
+export interface PreciseCalendarDuration {
+  future: boolean;
+  years: number;
+  days: number;
+  hours: number;
+  minutes: number;
+  seconds: number;
+}
+
 export type HorizonCalculation =
   | { ok: true; value: HorizonResult }
   | { ok: false; error: HorizonError };
@@ -120,6 +137,98 @@ function dateAtDecimalAge(birthDate: Date, age: number): Date {
   const before = anniversary(birthDate, birthDate.getUTCFullYear() + completedYears);
   const after = anniversary(birthDate, birthDate.getUTCFullYear() + completedYears + 1);
   return new Date(before.getTime() + fraction * (after.getTime() - before.getTime()));
+}
+
+function dateAtCalendarAge(birthDate: Date, years: number, months: number): Date {
+  const absoluteMonth = birthDate.getUTCMonth() + months;
+  const year = birthDate.getUTCFullYear() + years + Math.floor(absoluteMonth / 12);
+  const month = ((absoluteMonth % 12) + 12) % 12;
+  const day = Math.min(birthDate.getUTCDate(), daysInUtcMonth(year, month));
+  return new Date(Date.UTC(year, month, day));
+}
+
+function addUtcYears(date: Date, years: number): Date {
+  const year = date.getUTCFullYear() + years;
+  const month = date.getUTCMonth();
+  const day = Math.min(date.getUTCDate(), daysInUtcMonth(year, month));
+  return new Date(Date.UTC(
+    year,
+    month,
+    day,
+    date.getUTCHours(),
+    date.getUTCMinutes(),
+    date.getUTCSeconds(),
+    date.getUTCMilliseconds(),
+  ));
+}
+
+/** Décompose un écart en années calendaires puis en jours et unités d'horloge. */
+export function preciseCalendarDuration(from: Date, to: Date): PreciseCalendarDuration {
+  const future = to.getTime() >= from.getTime();
+  const start = future ? from : to;
+  const end = future ? to : from;
+  let years = end.getUTCFullYear() - start.getUTCFullYear();
+  let anchor = addUtcYears(start, years);
+  if (anchor.getTime() > end.getTime()) {
+    years -= 1;
+    anchor = addUtcYears(start, years);
+  }
+
+  let seconds = Math.floor((end.getTime() - anchor.getTime()) / 1_000);
+  const days = Math.floor(seconds / 86_400);
+  seconds -= days * 86_400;
+  const hours = Math.floor(seconds / 3_600);
+  seconds -= hours * 3_600;
+  const minutes = Math.floor(seconds / 60);
+  seconds -= minutes * 60;
+  return { future, years, days, hours, minutes, seconds };
+}
+
+/**
+ * Repères volontairement figés avec la page : retraite moyenne observée en 2023
+ * (femmes 63 ans 1 mois, hommes 62 ans 5 mois) et entrée moyenne en Ehpad en
+ * 2023 (85 ans 11 mois). Sources DREES, publications 2025.
+ */
+export function calculateMilestones(payload: HorizonPayload, at: Date, horizonDate: Date): HorizonMilestones | null {
+  const birthDate = parseIsoDate(payload.birthDate);
+  if (!birthDate) return null;
+  const retirementAge = payload.sex === "f"
+    ? { years: 63, months: 1 }
+    : { years: 62, months: 5 };
+
+  let summerYear = at.getUTCFullYear();
+  if (Date.UTC(summerYear, 5, 21) <= at.getTime()) summerYear += 1;
+  let summersRemaining = 0;
+  while (Date.UTC(summerYear, 5, 21) < horizonDate.getTime()) {
+    summersRemaining += 1;
+    summerYear += 1;
+  }
+
+  let birthdaysRemaining = 0;
+  for (let year = at.getUTCFullYear(); year <= horizonDate.getUTCFullYear(); year += 1) {
+    const age = year - birthDate.getUTCFullYear();
+    const birthday = addUtcYears(birthDate, age);
+    if (birthday.getTime() > at.getTime() && birthday.getTime() < horizonDate.getTime()) {
+      birthdaysRemaining += 1;
+    }
+  }
+
+  const firstWeekend = new Date(at);
+  firstWeekend.setUTCHours(0, 0, 0, 0);
+  const daysUntilSaturday = (6 - firstWeekend.getUTCDay() + 7) % 7;
+  firstWeekend.setUTCDate(firstWeekend.getUTCDate() + daysUntilSaturday);
+  if (firstWeekend.getTime() <= at.getTime()) firstWeekend.setUTCDate(firstWeekend.getUTCDate() + 7);
+  const weekendsRemaining = firstWeekend.getTime() < horizonDate.getTime()
+    ? Math.ceil((horizonDate.getTime() - firstWeekend.getTime()) / (7 * 86_400_000))
+    : 0;
+
+  return {
+    retirementDate: dateAtCalendarAge(birthDate, retirementAge.years, retirementAge.months),
+    ehpadDate: dateAtCalendarAge(birthDate, 85, 11),
+    summersRemaining,
+    birthdaysRemaining,
+    weekendsRemaining,
+  };
 }
 
 /**

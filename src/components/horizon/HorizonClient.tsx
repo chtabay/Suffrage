@@ -10,19 +10,19 @@ import { CORAL, CREAM, FONT_DISPLAY, INK, MUTED, YELLOW } from "@/components/scr
 import { Btn, Card } from "@/components/ui/kit";
 import {
   calculateHorizon,
+  calculateMilestones,
   COMMENT_MAX_LENGTH,
   encodeHorizonFragment,
   FIRST_NAME_MAX_LENGTH,
   MAX_FRAGMENT_LENGTH,
   parseHorizonFragment,
+  preciseCalendarDuration,
   TITLE_MAX_LENGTH,
   type HorizonError,
   type HorizonPayload,
   type HorizonResult,
   type StatisticalSex,
 } from "@/lib/horizon/horizon";
-
-const SOURCE_URL = "https://www.insee.fr/fr/statistiques/6543678";
 
 interface FormState {
   birthDate: string;
@@ -126,6 +126,15 @@ function CountdownCell({ value, label, tick = false }: { value: string; label: s
       <span style={{ display: "block", marginTop: 6, color: MUTED, fontSize: 11, fontWeight: 700, textTransform: "uppercase" }}>
         {label}
       </span>
+    </div>
+  );
+}
+
+function MilestoneRow({ label, value, last = false }: { label: string; value: string; last?: boolean }) {
+  return (
+    <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr) auto", alignItems: "baseline", gap: 8, padding: "13px 0", borderBottom: last ? "none" : `1px solid ${INK}22` }}>
+      <span style={{ color: MUTED, fontSize: "clamp(11px, 3.1vw, 14px)", fontWeight: 700, whiteSpace: "nowrap" }}>{label}</span>
+      <strong style={{ fontFamily: FONT_DISPLAY, fontSize: "clamp(11px, 3.1vw, 17px)", letterSpacing: "-.02em", whiteSpace: "nowrap" }}>{value}</strong>
     </div>
   );
 }
@@ -393,11 +402,19 @@ function ResultView({
 }) {
   const remaining = remainingParts(result.remainingYears);
   const countdown = countdownTo(result.horizonDate, now);
+  const milestones = calculateMilestones(payload, now, result.horizonDate);
+  const retirement = milestones ? preciseCalendarDuration(now, milestones.retirementDate) : null;
+  const ehpad = milestones ? preciseCalendarDuration(now, milestones.ehpadDate) : null;
   const integer = new Intl.NumberFormat(locale);
   const decimal = new Intl.NumberFormat(locale, { maximumFractionDigits: 1 });
   const longDate = new Intl.DateTimeFormat(locale, { month: "long", year: "numeric", timeZone: "UTC" });
-  const fullDate = new Intl.DateTimeFormat(locale, { dateStyle: "long", timeZone: "UTC" });
-  const statisticalReference = payload.sex === "f" ? t("referenceFemale") : t("referenceMale");
+  const precise = (duration: NonNullable<typeof retirement>) => t("milestoneDuration", {
+    years: duration.years,
+    days: duration.days,
+    hours: duration.hours,
+    minutes: duration.minutes,
+    seconds: duration.seconds,
+  });
 
   return (
     <>
@@ -433,6 +450,19 @@ function ResultView({
         </Card>
       </section>
 
+      {milestones && retirement && ehpad ? (
+        <section aria-labelledby="milestones-title" style={{ marginTop: 34 }}>
+          <h2 id="milestones-title" style={{ margin: "0 0 14px", fontFamily: FONT_DISPLAY, fontSize: 25 }}>{t("milestonesTitle")}</h2>
+          <Card padding="2px 18px">
+            <MilestoneRow label={retirement.future ? t("beforeRetirement") : t("sinceRetirement")} value={precise(retirement)} />
+            <MilestoneRow label={t("summersRemaining")} value={integer.format(milestones.summersRemaining)} />
+            <MilestoneRow label={t("birthdaysRemaining")} value={integer.format(milestones.birthdaysRemaining)} />
+            <MilestoneRow label={t("weekendsRemaining")} value={integer.format(milestones.weekendsRemaining)} />
+            <MilestoneRow label={ehpad.future ? t("beforeEhpad") : t("sinceEhpad")} value={precise(ehpad)} last />
+          </Card>
+        </section>
+      ) : null}
+
       <section aria-labelledby="share-title" style={{ marginTop: 34 }}>
         <h2 id="share-title" style={{ margin: "0 0 14px", fontFamily: FONT_DISPLAY, fontSize: 25 }}>{t("qrTitle")}</h2>
         <Card accent={YELLOW} padding="clamp(20px, 5vw, 30px)">
@@ -453,16 +483,6 @@ function ResultView({
         </Card>
       </section>
 
-      <Card padding={20} style={{ marginTop: 34, background: "#fff" }}>
-        <h2 style={{ margin: "0 0 8px", fontFamily: FONT_DISPLAY, fontSize: 20 }}>{t("methodTitle")}</h2>
-        <p style={{ margin: 0, color: MUTED, fontSize: 13.5, lineHeight: 1.65 }}>
-          {t("methodText", { age: decimal.format(result.exactAge), reference: statisticalReference })}{" "}
-          <a href={SOURCE_URL} target="_blank" rel="noreferrer" style={{ color: INK, fontWeight: 800 }}>{t("sourceLink")}</a>
-        </p>
-        <p style={{ margin: "10px 0 0", color: MUTED, fontSize: 12.5, lineHeight: 1.55 }}>{t("calculatedOn", { date: fullDate.format(now) })}</p>
-      </Card>
-
-      <p style={{ margin: "24px 4px 0", color: MUTED, fontSize: 13, lineHeight: 1.65 }}>{t("disclaimer")}</p>
       <p style={{ margin: "8px 4px 0", color: MUTED, fontSize: 13, lineHeight: 1.65 }}>{t("privacyResult")}</p>
       <div className="horizon-actions" style={{ display: "flex", flexWrap: "wrap", gap: 10, marginTop: 26 }}>
         <Btn onClick={onEdit} variant="cream">{t("edit")}</Btn>
