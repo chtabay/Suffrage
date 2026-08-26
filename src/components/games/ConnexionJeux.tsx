@@ -36,7 +36,17 @@ type Onglet = "lien" | "motDePasse";
 type EtatLien = "repos" | "envoi" | "envoye" | "erreur";
 type EtatMdp = "repos" | "envoi" | "erreur" | "confirme" | "reinit";
 
-export default function ConnexionJeux({ skin }: { skin: GameSkin }) {
+export default function ConnexionJeux({
+  skin,
+  next,
+  beforeAuth,
+}: {
+  skin: GameSkin;
+  /** Destination explicite après un OAuth/lien magique. Les jeux gardent le chemin courant par défaut. */
+  next?: string;
+  /** Permet à un écran de préserver un état local juste avant de quitter la page. */
+  beforeAuth?: () => void;
+}) {
   const t = useTranslations("ConnexionJeux");
   const { signIn, signInWithEmail, signInPassword, signUpPassword, resetPassword } = useAuth();
 
@@ -56,19 +66,21 @@ export default function ConnexionJeux({ skin }: { skin: GameSkin }) {
    * son jeu tout seul. On repart du CHEMIN NU — jamais `href` — pour la raison
    * déjà écrite ailleurs : l'URL peut porter le résultat d'un ami.
    */
-  const retour = () => (typeof window === "undefined" ? undefined : window.location.pathname);
+  const retour = () => next ?? (typeof window === "undefined" ? undefined : window.location.pathname);
 
   const emailOk = EMAIL_RE.test(email.trim());
   const mdpOk = emailOk && mdp.length >= MDP_MIN;
 
   const envoieLien = async () => {
     if (!emailOk || lien === "envoi") return;
+    beforeAuth?.();
     setLien("envoi");
     setLien((await signInWithEmail(email, retour())) ? "envoye" : "erreur");
   };
 
   const parMotDePasse = async () => {
     if (!mdpOk || etat === "envoi") return;
+    beforeAuth?.();
     setEtat("envoi");
     if (creation) {
       const r = await signUpPassword(email, mdp, retour());
@@ -111,7 +123,7 @@ export default function ConnexionJeux({ skin }: { skin: GameSkin }) {
 
   return (
     <div style={{ marginTop: 14 }}>
-      <GBtn skin={skin} variant="ghost" onClick={() => void signIn(retour())}>
+      <GBtn skin={skin} variant="ghost" onClick={() => { beforeAuth?.(); void signIn(retour()); }}>
         {t("google")}
       </GBtn>
 

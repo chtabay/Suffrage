@@ -22,6 +22,9 @@ export default function InstallFabHorsJeux() {
   // `usePathname` rend le chemin AVEC le préfixe de langue (`/es/games/…`) et
   // sans lui pour le français, qui est la langue par défaut. On teste donc le
   // segment, pas le début de la chaîne.
-  if (chemin.split("/").includes("games")) return null;
+  // Horizon est une page de lecture sobre ouverte depuis un QR personnalisé :
+  // le FAB flottant y masquerait le partage et donnerait l'impression d'une collecte.
+  const segments = chemin.split("/");
+  if (segments.includes("games") || segments.includes("horizon")) return null;
   return <InstallFab />;
 }
