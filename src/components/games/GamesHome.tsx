@@ -29,7 +29,7 @@
 //
 // Elle garde la nav de Placet, elle : c'est bien Placet qui fait découvrir les
 // jeux. Ce sont les pages de jeu qui la déposent.
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { Link } from "@/i18n/navigation";
@@ -47,9 +47,81 @@ import { monJeton as monJetonBanalo } from "@/lib/games/banalo/jeton";
 import { dateCivile, numeroDeJournee } from "@/lib/games/pays/calendrier";
 import { monJetonPays } from "@/lib/games/pays/jeton";
 import { placeDuJour, type PorteDesJeux } from "@/lib/db/jeux";
+import { moisLisible } from "@/lib/games/saison";
+
+/**
+ * UNE LIGNE DE L'APERÇU DU CLASSEMENT.
+ *
+ * ⚠️ ELLE N'IMPRIME PAS DE MÉDAILLE. Le podium se gèle à la CLÔTURE du mois, et
+ * `scrutin_jeux_saison` calcule combien de médailles seraient décernées
+ * aujourd'hui (« toujours une de moins qu'il n'y a de classés ») : peindre un
+ * or ici promettrait un trophée que le 1er du mois peut retirer. La place suffit.
+ *
+ * ⚠️ ET CE QUI PARLE DE MOI EST EN ENCRE ET EN GRAS, le reste en gris — la même
+ * règle que les trois états muets du classement : « vous y êtes » servi dans la
+ * même grisaille qu'un constat sur la foule cesse d'être une bonne nouvelle.
+ */
+function ApercuLigne({
+  skin: s,
+  ligne,
+  points,
+  nu,
+}: {
+  skin: typeof skin;
+  ligne: { place: number; pseudo: string; points: number; moi: boolean };
+  /** Déjà mis en mots par l'appelant : « 294 pts ». */
+  points: (n: number) => string;
+  /** Déjà dans un `li` à elle : ma ligne repêchée sort de la liste ordonnée. */
+  nu?: boolean;
+}) {
+  const corps = (
+    <span
+      style={{
+        display: "flex",
+        alignItems: "baseline",
+        gap: 8,
+        fontSize: 12.5,
+        lineHeight: 1.5,
+        color: ligne.moi ? s.ink : s.muted,
+        fontWeight: ligne.moi ? 800 : 600,
+      }}
+    >
+      <span style={{ flex: "none", width: 14, fontVariantNumeric: "tabular-nums" }}>{ligne.place}</span>
+      <span
+        style={{
+          flex: "1 1 auto",
+          minWidth: 0,
+          overflow: "hidden",
+          textOverflow: "ellipsis",
+          whiteSpace: "nowrap",
+        }}
+      >
+        {ligne.pseudo}
+      </span>
+      <span style={{ flex: "none", fontVariantNumeric: "tabular-nums" }}>
+        {points(ligne.points)}
+      </span>
+    </span>
+  );
+  return nu ? corps : <li>{corps}</li>;
+}
 
 export default function GamesHome() {
   const t = useTranslations("Games");
+  /**
+   * ⚠️ LE NAMESPACE DU CLASSEMENT, LU DEPUIS LA PORTE — et pas deux clés de plus
+   * dans `Games`. « 2 joueurs classés » et « 294 pts » existent déjà, mot pour
+   * mot, sur l'écran que cette vitrine annonce : les recopier ici ferait deux
+   * libellés pour une même chose, qui divergeraient à la première retouche. Le
+   * contrôle de parité lie chaque ALIAS au namespace de son hook, donc deux
+   * hooks dans un fichier ne le gênent pas.
+   *
+   * ⚠️ NE PAS ÉCRIRE ICI D'EXEMPLE D'APPEL À `useTranslations` : le contrôle de
+   * parité lit AUSSI les commentaires, et il a pris le namespace de démonstration
+   * pour un vrai — deux clés parfaitement présentes ont été signalées
+   * introuvables.
+   */
+  const tq = useTranslations("JeuxQuotidiens");
   const locale = useLocale();
 
   /**
@@ -108,6 +180,19 @@ export default function GamesHome() {
       vivant = false;
     };
   }, [locale]);
+  /**
+   * ⚠️ LES POINTS GARDENT LEUR DÉCIMALE, comme sur l'écran des classements. Les
+   * ex aequo se partagent les places qu'ils occupent — trois joueurs en tête
+   * touchent chacun (25+18+15)/3 — donc les totaux ne sont pas entiers, et
+   * arrondir ici ferait dire à la porte autre chose qu'au tableau qu'elle
+   * annonce.
+   */
+  const pts = useMemo(
+    () => new Intl.NumberFormat(locale === "pcm" ? "en" : locale, { maximumFractionDigits: 1 }),
+    [locale],
+  );
+  const pointsEnMots = useCallback((n: number) => tq("points", { n: pts.format(n) }), [tq, pts]);
+
   const router = useRouter();
   const [code, setCode] = useState("");
   const [busy, setBusy] = useState(false);
@@ -435,7 +520,12 @@ export default function GamesHome() {
                   className="dc-lift"
                   style={{
                     display: "flex",
-                    alignItems: "center",
+                    // ⚠️ EN HAUT, PLUS AU CENTRE : depuis que la carte porte le
+                    // haut du classement, elle fait trois fois sa hauteur, et un
+                    // pictogramme centré atterrissait sur le filet au lieu de
+                    // longer le titre. Les vignettes de jeu alignent déjà en
+                    // haut, pour la même raison.
+                    alignItems: "flex-start",
                     gap: 10,
                     marginTop: 10,
                     padding: "10px 13px",
@@ -464,14 +554,88 @@ export default function GamesHome() {
                       {t("resultatsLien")}
                     </span>
                     <span style={{ display: "block", fontSize: 12.5, color: skin.muted, marginTop: 2 }}>
-                      {t("resultatsPitch")}
+                      {/* ⚠️ LE PITCH CÈDE LA PLACE À LA SAISON QUAND ELLE EXISTE,
+                          il ne s'y ajoute pas. « Vos résultats et les
+                          classements » est vrai tous les jours, donc du mobilier
+                          au troisième passage — exactement ce qui est arrivé aux
+                          vignettes quotidiennes avant qu'elles ne portent le
+                          sujet du jour. Empilés, le mois se lirait en second. */}
+                      {place?.saison
+                        ? `${moisLisible(place.saison.saison, locale)} · ${tq("classes", { n: place.saison.joueurs })}`
+                        : t("resultatsPitch")}
                     </span>
+
+                    {/* ══ L'APERÇU DU CLASSEMENT ══════════════════════════════
+                        Demandé : « il manque un petit aperçu du classement
+                        général pour donner envie d'ouvrir les classements ».
+                        L'index n'était que deux lignes de texte identiques tous
+                        les jours : rien à y voir, donc aucune raison de le
+                        toucher — le diagnostic déjà porté sur la mention de
+                        Placet, « elle était discrète parce qu'elle n'avait rien
+                        à dire ».
+
+                        ⚠️ DANS LA CARTE, PAS SOUS ELLE. Posé dessous, sur le
+                        fond de la page, l'aperçu se lisait comme du texte
+                        orphelin coincé entre l'index et le titre de la famille
+                        suivante — vu à l'écran. Il est le CONTENU de ce lien,
+                        donc il vit dedans ; et c'est lui qui donne au lien sa
+                        raison d'être touché.
+
+                        ⚠️ IL RESTE SOUS LES VIGNETTES DE JEU. L'index a déjà été
+                        descendu une fois pour ça : sur une page dont tout le
+                        propos est « jouez maintenant », le premier geste offert
+                        ne doit pas mener à des tableaux de résultats. Le grossir
+                        ne le remonte pas.
+
+                        ⚠️ ET IL SE TAIT SOUS DEUX CLASSÉS — la base ne le rend
+                        même pas. C'est le « 1er sur 1 » que le produit refuse
+                        partout (`VOTANTS_MIN` 2, `INSCRITS_MIN` 2,
+                        `minimumClasses` 2). */}
+                    {place?.saison ? (
+                      <ol
+                        style={{
+                          listStyle: "none",
+                          margin: "7px 0 0",
+                          padding: "7px 0 0",
+                          borderTop: `1px solid ${skin.ink}1f`,
+                          display: "grid",
+                          gap: 2,
+                        }}
+                      >
+                        {place.saison.lignes.map((l) => (
+                          <ApercuLigne key={l.place} skin={skin} ligne={l} points={pointsEnMots} />
+                        ))}
+                        {/* ⚠️ MA LIGNE N'EST REPÊCHÉE QUE SI ELLE N'EST PAS DÉJÀ
+                            LÀ, et elle sort de la liste ordonnée : « 4e élément »
+                            serait faux pour une 17e place, et c'est exactement le
+                            défaut que `ListeDuTableau` corrige chez lui. Trois
+                            points la précèdent, sinon elle se lit comme la
+                            quatrième. */}
+                        {place.saison.moi && !place.saison.lignes.some((l) => l.moi) ? (
+                          <li style={{ listStyle: "none" }}>
+                            <span
+                              aria-hidden
+                              style={{ display: "block", fontSize: 11, color: skin.muted, lineHeight: 1 }}
+                            >
+                              ⋯
+                            </span>
+                            <ApercuLigne
+                              skin={skin}
+                              ligne={{ ...place.saison.moi, moi: true }}
+                              points={pointsEnMots}
+                              nu
+                            />
+                          </li>
+                        ) : null}
+                      </ol>
+                    ) : null}
                   </span>
                   <span aria-hidden style={{ flex: "none", fontWeight: 800, color: skin.muted }}>
                     →
                   </span>
                 </Link>
               ) : null}
+
             </section>
           );
         })}

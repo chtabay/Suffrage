@@ -48,12 +48,27 @@ export default function AideModale({
 }) {
   const boite = useRef<HTMLDivElement>(null);
 
-  // ⚠️ LE FOCUS ENTRE DANS LA BOÎTE, sinon il reste sur le champ de recherche
-  // DERRIÈRE la modale : au clavier, on taperait un pays dans un formulaire
-  // qu'on ne voit plus. Et Échap ferme, parce qu'une boîte qui ne se ferme qu'à
-  // la souris est un piège sur un jeu qui se joue au clavier.
+  // ⚠️ LE FOCUS ENTRE DANS LA BOÎTE UNE SEULE FOIS, AU MONTAGE — et la liste de
+  // dépendances VIDE est tout le correctif. Il vit ailleurs, sinon il reste sur
+  // le champ de recherche DERRIÈRE la modale : au clavier, on taperait un pays
+  // dans un formulaire qu'on ne voit plus.
+  //
+  // ⚠️ IL ÉTAIT DANS L'EFFET D'ÉCHAP, DONC EN `[fermer]`, ET ÇA A CASSÉ LE JOUR
+  // OÙ CETTE BOÎTE A REÇU UN CHAMP DE SAISIE. Signalé par un joueur : « je peux
+  // ajouter un pseudo mais le clavier s'en va après avoir écrit un caractère ».
+  // Les appelants passent `fermer` en fonction fléchée, donc sa référence change
+  // à CHAQUE rendu ; taper une lettre re-rend le parent, l'effet rejoue, et
+  // `boite.focus()` arrache le focus au champ — sur téléphone, le clavier se
+  // referme et la lettre suivante se perd. Tant que la modale ne portait que des
+  // annonces sans champ, le vol de focus était invisible.
   useEffect(() => {
     boite.current?.focus();
+  }, []);
+
+  // Échap ferme, parce qu'une boîte qui ne se ferme qu'à la souris est un piège
+  // sur un jeu qui se joue au clavier. Celui-ci SUIT `fermer`, lui : il n'a
+  // aucun effet de bord sur le focus.
+  useEffect(() => {
     const touche = (e: KeyboardEvent) => {
       if (e.key === "Escape") fermer();
     };

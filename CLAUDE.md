@@ -1336,6 +1336,19 @@ discret. Deux gardes la rendent tenable : **une fois par jeu et par journée**
 elle manquerait à tous ceux qui rechargent ou quittent sans répondre, et la
 boîte reviendrait au chargement suivant — la boîte qu'on ferme sans lire.
 
+⚠️ **UN CHAMP DE SAISIE DANS `Modale` A EXIGÉ DE SÉPARER SON EFFET DE FOCUS.**
+Signalé par un joueur : « je peux ajouter un pseudo mais le clavier s'en va après
+avoir écrit un caractère ». `Modale` prenait le focus dans un effet qui portait
+AUSSI l'écouteur d'Échap, donc en `[fermer]` — et les appelants passent `fermer`
+en fonction fléchée, de référence neuve à chaque rendu. Taper une lettre re-rend
+le parent, l'effet rejoue, et `boite.focus()` ARRACHE le focus au champ : sur
+téléphone le clavier se referme, et la lettre suivante se perd. Tant que cette
+boîte ne portait que des annonces sans champ, le vol était invisible — c'est
+l'ajout du formulaire de nom qui l'a révélé. Le focus va donc dans un effet à
+dépendances VIDES, Échap garde le sien. ⚠️ Et le symptôme trompe : le nœud n'est
+PAS remonté (un témoin posé dessus survit), donc chercher un remontage de React
+mène à côté. C'est un vol de focus, pas un cycle de vie.
+
 ⚠️ **LE FORMULAIRE EXISTE EN UN SEUL EXEMPLAIRE**, et la carte s'en passe tant
 que la modale est ouverte. Rendus tous les deux, ils montreraient les MÊMES
 suggestions (même jeton, même graine, même tour) dans deux boîtes voulant dire
@@ -1395,6 +1408,34 @@ de trancher la purge (le jeton s'efface à 30 jours, un compte non) et de
 réécrire la politique. L'anonyme se voit donc offrir le COMPTE, dont la phrase
 nomme la notification qu'il ouvre — la seule façon honnête de répondre à « je
 veux être prévenu » sans poser un bouton que la base ne saurait pas servir.
+
+⚠️ **LA TOURNÉE N'A JAMAIS RIEN ENVOYÉ, ET LA CAUSE EST UN `NaN` SILENCIEUX.**
+Signalé : « j'ai validé les notifs sur plusieurs appareils, je n'en ai pas
+reçu ». Vérifié bout en bout : le cron part toutes les heures, atteint la prod,
+reçoit 200 — et rend `{"vises":0}`. `numeroDeJournee` CONCATÈNE `T00:00:00Z` à
+ce qu'on lui donne ; la tournée lui passait `new Date().toISOString()`, ce qui
+produit « …183ZT00:00:00Z », donc `Date.parse` → `NaN`, donc `null` en JSON,
+donc le garde `if p_jour_banalo is null or p_jour_pays is null then return` de
+`scrutin_jeux_notifs_a_envoyer` sortait sans un mot — **pour les DEUX jeux**,
+puisqu'il les teste ensemble. Un seul appelant sur onze était fautif ; tous les
+autres passent `dateCivile()`.
+
+⚠️ **TRANCHER L'ISO À DIX CARACTÈRES NE MARCHERAIT PAS NON PLUS** : il est en
+UTC, donc faux à Paris entre 22 h et minuit l'été. C'est `dateCivile()` qu'il
+faut, et elle existe pour ça.
+
+⚠️ **ET `numeroDeJournee` REFUSE MAINTENANT CE QUI N'EST PAS `AAAA-MM-JJ`.** Une
+entrée invalide doit CASSER — une exception remonte en 500 dans
+`net._http_response`, donc elle se voit — au lieu de rendre un nombre qui n'en
+est pas un. Mesuré après correction : la tournée vise **8 envois** là où elle en
+visait 0. Deux tests le tiennent.
+
+⚠️ **ET LE BOUTON D'ABONNEMENT CONFIRME, AU LIEU DE DISPARAÎTRE.** Signalé dans
+le même souffle : « le bouton se grise quand je clique dessus et ne semble pas
+avoir de conséquences ». Il marchait — les abonnements étaient bien en base —
+mais réussir rendait `montre` faux, donc le bloc s'effaçait : une réussite
+silencieuse est indiscernable d'une panne, et on represse. C'est mot pour mot le
+défaut déjà payé sur le dépôt du pseudo.
 
 ⚠️ **RIEN DE TOUT ÇA N'EST VÉRIFIABLE ICI** : sans clé VAPID dans le conteneur,
 `notifyDeployed()` est faux et le bloc est INVISIBLE en développement. Ce qui a
@@ -1473,6 +1514,33 @@ plus. ⚠️ Conséquence assumée : **sur un appareil neuf le bloc ne sort pas*
 pour un compte dont les parties sont rattachées. Le rendre exact partout
 demanderait une fonction « dernière journée jouée » côté base ; pour un bloc de
 relecture, le prix n'en vaut pas la peine tant que personne ne l'a signalé.
+
+⚠️ **ELLE EST SOUS LE TITRE DE LA PAGE, ET C'EST LA SECONDE CORRECTION DE
+PLACE.** Demandé deux fois — « proche du titre », puis « est-ce bien en petit à
+côté du titre de la page ? ». Non : mesuré, elle était à **y = 1 521** quand le
+titre est à **14**, soit quatre écrans de téléphone plus bas. J'avais compris
+« le titre de la CARTE ». Elle est maintenant à **y = 227**, en 13 px gris, sous
+la consigne et au-dessus de la carte.
+
+⚠️ **ET ELLE N'ATTEND PLUS LA VICTOIRE.** §16 range les OFFRES après la
+révélation — compte, installation, pont vers Placet — parce qu'elles DEMANDENT
+quelque chose. Cette ligne ne demande rien, elle RACONTE : même raisonnement que
+`SerieDuJour`, qui n'occupe aucune place de l'échelle du §0 pour cette raison
+exacte. Et elle ne divulgue rien du jour — un rang de la veille ne réduit aucune
+recherche d'aujourd'hui.
+
+⚠️ **LA PLACE PASSE DEVANT, ET LE TIROIR GARDE LE RESTE** — demandé : « le
+classement de la journée précédente devrait être proche du titre, très simple ».
+Elle annonçait le nombre d'essais et cachait le classement derrière un bouton,
+alors que ce que le joueur vient chercher est SA PLACE : « 5e sur 12 · 2 essais »,
+puis « Détails ». ⚠️ Le rang vient de `scrutin_game_pays_position`, qui compte
+**toute la foule** et marche sans compte — jamais du tableau, qui ne classe que
+les inscrits et n'imprime pour cette raison aucun numéro. ⚠️ Et il ne va jamais
+sans son effectif : « 3e » ne veut pas dire la même chose sur six joueurs et sur
+trois mille. ⚠️ « Cette journée est close » descend dans le tiroir chez Cinq sur
+cinq — le titre dit déjà « votre DERNIÈRE journée » — mais **reste dans le résumé
+chez Banalo**, où c'est elle qui tient lieu de notification et doit se lire sans
+rien ouvrir.
 
 ⚠️ **ET LE BOUTON NE SORT QUE S'IL Y A QUELQUE CHOSE DERRIÈRE.** Un tiroir qui
 s'ouvre sur une carte vide est pire que pas de tiroir : `PAS D'ACCROCHE SANS
@@ -1760,6 +1828,26 @@ vous le redemandera plus ».
 ⚠️ **SANS COMPTE, IL FAUT TOUJOURS LE GESTE** : un nom, par journée. Depuis le
 24/08 ce nom s'écrit — la liste fermée n'est plus qu'une suggestion — mais le
 geste, lui, reste ce qui fait qu'on n'y entre pas sans l'avoir voulu.
+
+⚠️ **ET C'EST `demande` QUI DÉCIDE DE LA CARTE, PAS `tableau.inscrit`.**
+Signalé avec une capture : « je vois "déposer ce nom" alors que je suis connecté
+et que le pseudo est déjà enregistré ; il n'y a plus rien à faire à ce stade ».
+Un connecté qui a un pseudo est inscrit d'office — `demande` est faux, la modale
+ne s'ouvre pas — mais la CARTE testait `tableau.inscrit`, donc tant que
+l'écriture de fond n'avait pas atterri elle retombait sur le formulaire et
+offrait un bouton qui n'apprend rien. Les trois branches lisent la même vérité.
+
+⚠️ **LE PSEUDO SE LIT DANS `TableauDuJour`, PLUS DANS `ChoisirSonNom` — SINON
+C'EST UN VERROU.** `demande` a besoin de `nom.lu` pour décider s'il faut monter
+le formulaire ; or c'est le formulaire qui lisait le pseudo. Tant que la carte
+l'affichait dans tous les cas, l'amorçage passait par hasard ; le jour où elle a
+cessé, `lu` n'est jamais devenu vrai et **la carte s'est effacée entièrement**.
+Vu à l'écran (70 px, un titre et rien), invisible à tsc. `ChoisirSonNom` garde sa
+lecture pour la tablée, et saute si l'appelant a déjà lu.
+
+⚠️ **ET PAS DE CARTE VIDE** : pendant la lecture du pseudo il n'y a ni liste, ni
+formulaire, ni phrase — le bloc ne sort donc pas du tout. `PAS D'ACCROCHE SANS
+BOUTON`, la règle d'`InstallJeu`, appliquée à un cadre entier.
 
 ⚠️ **L'INSCRIPTION D'OFFICE EST UNE ÉCRITURE DÉCLENCHÉE PAR UN RENDU, DONC ELLE
 A UN `ref`.** `depose` et `lis` arrivent en fonctions fléchées : leur référence
@@ -2344,6 +2432,27 @@ les pseudos des jeux finissaient au fond d'une page qui parlait de votes. Quatre
 onglets : Aperçu, Scrutins, Jeux, Personnes. ⚠️ **La file de modération porte son
 compte SUR l'onglet** — un signalement en attente est la seule chose urgente de
 cette page, et le ranger derrière un onglet muet le rendrait invisible.
+
+**LA RÉGIE VOIT ENFIN LES COMPTES QUI JOUENT** (`scrutin_admin_notifs`,
+`20260917-regie-comptes-et-notifs.sql`) — demandé après le défaut des
+notifications : « voir les comptes créés avec application des notifs ».
+
+⚠️ **ET LA QUESTION A RÉVÉLÉ PIRE : CES COMPTES N'APPARAISSAIENT NULLE PART.**
+`scrutin_admin_list_users` filtre sur `raw_user_meta_data ? 'lang'` ou
+l'existence d'un scrutin, d'un espace, d'un événement ou d'un rôle d'admin. Un
+compte créé DEPUIS UN JEU — la seule porte que les joueurs empruntent — n'a rien
+de tout ça : l'onglet « Personnes » ne montrait pas un seul joueur. Le nouveau
+panneau liste donc par l'USAGE DES JEUX (un abonnement, un pseudo, une journée
+jouée), pas par la table des comptes.
+
+⚠️ **LA COLONNE QUI COMPTE EST LA DERNIÈRE NOTIFICATION.** Des appareils abonnés
+et « jamais » en face, c'est exactement le défaut du `NaN` — et rien ne le
+montrait nulle part. Mesuré à la mise en place : 3 comptes, dont un à
+**3 appareils et 14 journées sans un seul envoi**. La ligne est surlignée.
+
+⚠️ **LES TROIS GENRES NE S'AFFICHENT QUE QUAND L'UN EST COUPÉ** : vrais par
+défaut, les montrer toujours ferait trois pastilles identiques sur chaque ligne,
+c'est-à-dire du mobilier.
 
 ⚠️ **ET L'ONGLET « JEUX » DIT CE QU'IL NE SAIT PAS.** La Régie mesure les
 scrutins et ne mesure RIEN des jeux : ni journées jouées, ni joueurs, ni salles

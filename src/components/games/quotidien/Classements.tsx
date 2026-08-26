@@ -33,8 +33,11 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import type { User } from "@supabase/supabase-js";
 import { nomDeLangue } from "@/lib/games/langue";
+// ⚠️ EN UN SEUL EXEMPLAIRE : la porte `/games` nomme la même saison.
+import { moisLisible } from "@/lib/games/saison";
 import { PLACET_GAMES_SKIN as skin } from "@/lib/games/skin";
 import { GBtn, GCard, GLabel } from "@/components/games/ui";
+import Modale from "@/components/games/Modale";
 import {
   monPseudo,
   poserPseudo,
@@ -50,27 +53,13 @@ import {
 const bcp = (locale: string) => (locale === "pcm" ? "en" : locale);
 const PORTEES: PorteeCumul[] = ["tout", "banalo", "pays"];
 
-/**
- * « 2026-08 » → « août 2026 », dans la langue du lecteur.
- *
- * ⚠️ PAS DE CLÉ i18n POUR LES DOUZE MOIS. `Intl` les connaît déjà dans les
- * quatre langues, et douze clés × quatre serait quarante-huit traductions à
- * tenir pour un mot que la plateforme donne. On construit la date au MILIEU du
- * mois : le 1er à minuit bascule d'un mois en arrière dans les fuseaux à l'ouest
- * de Paris.
- */
-function moisLisible(saison: string, locale: string): string {
-  const [a, m] = saison.split("-").map(Number);
-  if (!a || !m) return saison;
-  return new Intl.DateTimeFormat(bcp(locale), { month: "long", year: "numeric" })
-    .format(new Date(Date.UTC(a, m - 1, 15)));
-}
-
 export default function Classements({ user }: { user: User | null }) {
   const t = useTranslations("JeuxQuotidiens");
   const locale = useLocale();
 
   const [portee, setPortee] = useState<PorteeCumul>("tout");
+  /** Le barème, à la demande — voir plus bas pourquoi il n'est plus à demeure. */
+  const [regle, setRegle] = useState(false);
   // ⚠️ LA LANGUE DU CLASSEMENT BANALO. `null` = « on n'a pas encore choisi »,
   // et l'effet ci-dessous la cale sur celle de l'interface dès que la base a dit
   // quelles langues existent — c'est la foule où le joueur a effectivement joué.
@@ -356,9 +345,24 @@ export default function Classements({ user }: { user: User | null }) {
           ) : null}
         </div>
 
-        {/* MES POINTS, MÊME QUAND JE NE SUIS PAS DANS LA LISTE. C'est le chiffre
-            qui bouge tous les jours, donc celui qui donne envie de revenir. */}
-        {uid && table && table.mesJournees > 0 ? (
+        {/* MES POINTS, QUAND JE NE SUIS PAS DANS LA LISTE. C'est le chiffre qui
+            bouge tous les jours, donc celui qui donne envie de revenir.
+
+            ⚠️ ET SEULEMENT DANS CE CAS-LÀ. Quand ma ligne est à l'écran, cette
+            phrase répétait mot pour mot ce qu'on lisait soixante pixels plus
+            bas : « Vous : 294 points sur 14 journées ce mois-ci », puis « Le duc
+            · vous — sur 14 — 294 pts ». Elle reste indispensable pour qui n'est
+            PAS dans le tableau — sans pseudo, ou sous le plancher de deux
+            classés — parce qu'un classement vide doit répondre « et moi ? », pas
+            « et tout le monde ? ». C'est la règle déjà écrite pour
+            `mesJournees` ; elle vaut aussi quand la liste est peuplée.
+
+            ⚠️ `moi` NON NUL IMPLIQUE UNE LISTE NON VIDE : la base ne le rend
+            qu'au-dessus du plancher, et au-dessus du plancher `lignes` est
+            servie. Tester les deux serait ceinture et bretelles ; tester `moi`
+            seul dit ce qu'on veut dire — « ma ligne est quelque part à
+            l'écran », dans la tête de liste ou repêchée dessous. */}
+        {uid && table && table.mesJournees > 0 && !table.moi ? (
           <p style={{ margin: "10px 0 0", fontSize: 13.5, fontWeight: 700, lineHeight: 1.5 }}>
             {t("mesPoints", { p: nb.format(table.mesPoints), n: table.mesJournees })}
           </p>
@@ -418,18 +422,78 @@ export default function Classements({ user }: { user: User | null }) {
           </>
         )}
 
-        <p style={{ margin: "12px 0 0", fontSize: 12.5, color: skin.muted, lineHeight: 1.45 }}>
-          {t("saisonRegle")}
-        </p>
         {/* ⚠️ CE QUI SERA DÉCERNÉ SE DIT AVANT LA CLÔTURE, et au chiffre du
             moment plutôt qu'en règle abstraite. Un joueur qui a passé le mois en
             tête a le droit de savoir combien de médailles il y aura — d'autant
             que ce nombre MONTE quand la foule grandit, ce qui est exactement le
             genre de chose qui donne envie d'inviter quelqu'un. */}
         {table ? (
-          <p style={{ margin: "6px 0 0", fontSize: 12.5, color: skin.muted, lineHeight: 1.45 }}>
+          <p style={{ margin: "12px 0 0", fontSize: 12.5, color: skin.muted, lineHeight: 1.45 }}>
             {t("saisonMedailles", { n: table.medailles })}
           </p>
+        ) : null}
+        {/* ⚠️ LE BARÈME EST DANS UN TIROIR, PLUS SOUS LE TABLEAU. Six lignes de
+            règlement sous une liste de deux : le texte pesait plus lourd que le
+            contenu qu'il explique. Et c'est un texte qu'on lit UNE FOIS, servi
+            tous les jours — exactement ce que `rappelleLaMethode` évite chez Cinq
+            sur cinq : « servie tous les jours à un habitué, une annonce qui ne
+            change pas devient une boîte qu'on ferme sans lire ».
+
+            ⚠️ ET IL PASSE SOUS LA LIGNE DES MÉDAILLES. Celle-ci est la seule du
+            bas de carte qui CHANGE — elle monte quand la foule grandit ; le
+            barème, lui, ne bougera pas. Le contenu qui bouge reste en haut,
+            l'annonce qui se répète descend : même partage que l'après-partie de
+            Banalo, où l'offre de compte passe sous les listes du jour.
+
+            ⚠️ MAIS LE NOMBRE DE MÉDAILLES RESTE DEHORS, et ce n'est pas une
+            inconséquence : c'est la seule ligne de ce bloc qui CHANGE — elle
+            monte quand la foule grandit. Le contenu qui bouge reste à demeure,
+            l'annonce qui se répète descend. Même partage que l'après-partie de
+            Banalo.
+
+            ⚠️ ET C'EST LE JOUEUR QUI L'OUVRE. La règle « une fois par aide et
+            par partie » appartient à Cinq sur cinq, dont les aides
+            apparaissaient EN SILENCE ; ici rien ne surgit. */}
+        {table ? (
+          <p style={{ margin: "8px 0 0", fontSize: 12.5, lineHeight: 1.45 }}>
+          <button
+            type="button"
+            onClick={() => setRegle(true)}
+            style={{
+              border: "none",
+              background: "none",
+              padding: 0,
+              font: "inherit",
+              // Même idiome que les deux jeux quotidiens : ce qui ouvre un tiroir
+              // porte l'accent et se souligne. En gris, le lien avait le poids
+              // de la phrase qui le suit.
+              color: skin.accent,
+              fontWeight: 700,
+              textDecoration: "underline",
+              cursor: "pointer",
+            }}
+          >
+            {t("saisonRegleBouton")}
+          </button>
+          </p>
+        ) : null}
+        {/* ⚠️ LE TIROIR PORTE LA SAISON EN SOUS-TITRE : il couvre la page, donc
+            il doit tenir tout seul — il ne peut pas compter sur l'en-tête qu'il
+            cache. Même règle que les tiroirs des deux jeux quotidiens. */}
+        {regle && table ? (
+          <Modale
+            skin={skin}
+            titre={t("saisonRegleBouton")}
+            texte={
+              table.langue
+                ? `${moisLisible(table.saison, locale)} · ${nomDeLangue(table.langue)}`
+                : moisLisible(table.saison, locale)
+            }
+            fermer={() => setRegle(false)}
+            fermerLabel={t("saisonRegleFermer")}
+          >
+            <p style={{ margin: 0, fontSize: 13.5, lineHeight: 1.55 }}>{t("saisonRegle")}</p>
+          </Modale>
         ) : null}
       </GCard>
 

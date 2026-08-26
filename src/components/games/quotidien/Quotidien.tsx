@@ -38,7 +38,26 @@ export default function Quotidien() {
   const [banalo, setBanalo] = useState<JourneeCommune[] | null>(null);
   const [pays, setPays] = useState<JourneeCommune[] | null>(null);
   const [panne, setPanne] = useState(false);
-  const [onglet, setOnglet] = useState<"moi" | "classements" | "trophees">("moi");
+  /**
+   * ⚠️ ON OUVRE SUR LES CLASSEMENTS, PLUS SUR « MES RÉSULTATS ».
+   *
+   * Demandé, et le code donnait raison à la demande pour une raison plus forte
+   * que le goût : sans compte, l'onglet « mes résultats » ne contient RIEN
+   * d'autre que l'offre de compte (`!user ? offre`). Un visiteur arrivant de la
+   * porte `/games` — le seul chemin qui vaille pour tout le monde, et il mène
+   * ici — tombait donc sur un mur qui demande une inscription, alors que
+   * l'en-tête de `Classements` écrit la règle inverse : « il faut un compte pour
+   * y FIGURER, pas pour le regarder ; un classement qu'on ne peut pas voir avant
+   * de s'inscrire ne donne aucune raison de s'inscrire ». Le défaut cachait
+   * l'argument.
+   *
+   * ⚠️ ET C'EST VRAI AUSSI POUR UN CONNECTÉ. Le classement de saison affiche sa
+   * ligne en tête (« Vous : 294 points sur 14 journées ce mois-ci »), donc il
+   * n'apprend pas moins sur lui-même ; il apprend en plus où il se situe. Un
+   * onglet par défaut qui dépendrait de la connexion ferait deux produits, et le
+   * joueur qui se connecte verrait la page changer sous lui.
+   */
+  const [onglet, setOnglet] = useState<"moi" | "classements" | "trophees">("classements");
 
   // ⚠️ ON DÉPEND DE `user?.id`, PAS DE `user`. `useAuth` rend un OBJET dont la
   // référence change à chaque relecture de session : un effet qui dépend de lui

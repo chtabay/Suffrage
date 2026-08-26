@@ -162,7 +162,10 @@ export default function ChoisirSonNom({
    */
   const demande = useRef(false);
   useEffect(() => {
-    if (!connecte || demande.current) return;
+    // ⚠️ NI SI L'APPELANT L'A DÉJÀ LU. `TableauDuJour` lit le pseudo lui-même,
+    // parce qu'il en a besoin pour décider s'il faut monter ce formulaire ;
+    // relire ferait un aller-retour pour une réponse identique.
+    if (!connecte || demande.current || etat.lu) return;
     demande.current = true;
     let vivant = true;
     void monPseudo().then((p) => {

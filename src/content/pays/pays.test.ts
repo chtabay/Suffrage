@@ -189,6 +189,11 @@ test("le numéro de journée avance d'un par jour, changement d'heure compris", 
   // calcul se trompe, pas quand une décision éditoriale change.
   const jourApres = (iso: string) => new Date(Date.parse(`${iso}T00:00:00Z`) + 86_400_000).toISOString().slice(0, 10);
   assert.equal(numeroDeJournee(ORIGINE), 1);
+  // ⚠️ UN HORODATAGE COMPLET EST REFUSÉ, et ce test est une cicatrice : la
+  // tournée des notifications lui passait `new Date().toISOString()`, ce qui
+  // rendait `NaN` en silence et tuait les notifications des DEUX jeux.
+  assert.throws(() => numeroDeJournee("2026-08-25T17:20:32.183Z"));
+  assert.throws(() => numeroDeJournee(""));
   assert.equal(numeroDeJournee(jourApres(ORIGINE)), 2);
   // Paris change d'heure ces deux nuits-là : l'écart doit rester d'un jour.
   assert.equal(numeroDeJournee("2026-03-28") + 1, numeroDeJournee("2026-03-29"));

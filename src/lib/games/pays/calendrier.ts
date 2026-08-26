@@ -55,6 +55,16 @@ export function dateCivile(quand: Date = new Date()): string {
 /** Numéro de journée depuis l'origine : 1 le premier jour. */
 export function numeroDeJournee(dateIso: string): number {
   const jour = 86_400_000;
+  // ⚠️ ELLE REFUSE CE QUI N'EST PAS UNE DATE CIVILE, ET C'EST UNE CICATRICE.
+  // La concaténation ci-dessous transforme un horodatage ISO complet en
+  // « 2026-08-25T17:20:32.183ZT00:00:00Z » : `Date.parse` rend `NaN`, le calcul
+  // rend `NaN`, JSON le sérialise en `null`, et la fonction SQL de la tournée
+  // sort sur son garde SANS RIEN DIRE. Les notifications des deux jeux sont
+  // restées mortes des semaines en répondant `{"vises":0}` toutes les heures.
+  // Une entrée invalide doit CASSER, pas rendre un nombre qui n'en est pas un.
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(dateIso)) {
+    throw new Error(`numeroDeJournee attend une date civile AAAA-MM-JJ, reçu : ${dateIso}`);
+  }
   // Minuit UTC des deux dates civiles : la soustraction ne traverse alors aucun
   // changement d'heure, puisqu'il n'y en a pas en UTC.
   const ms = Date.parse(`${dateIso}T00:00:00Z`) - Date.parse(`${ORIGINE}T00:00:00Z`);

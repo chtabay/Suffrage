@@ -590,6 +590,14 @@ export default function PaysDuJour({ jour }: { jour: number }) {
         {t("consigne")}
       </p>
 
+      {/* ⚠️ LA VEILLE EST ICI, SOUS LE TITRE, ET PAS EN BAS DE PAGE. Demandé :
+          « l'information de la journée précédente devrait être proche du titre,
+          très simple ». Mesurée à son ancienne place, elle était 1 507 px plus
+          bas — quatre écrans. Elle ne demande rien et ne divulgue rien du jour,
+          donc elle ne consomme aucune place de l'échelle du §0 : même
+          raisonnement que `SerieDuJour`. */}
+      <JourneePrecedente jour={jour} />
+
       <div style={{ marginTop: 14, display: "grid", gap: 12 }}>
         {/* ⚠️ ELLE NE DIT RIEN DU PAYS. `games/pays/page.tsx` interdit toute
             métadonnée dérivée du puzzle ; un nombre d'essais n'en est pas une —
@@ -720,11 +728,6 @@ export default function PaysDuJour({ jour }: { jour: number }) {
             />
           </div>
         )}
-
-        {/* LA JOURNÉE PRÉCÉDENTE — en bas et après tout le reste, comme chez
-            Banalo : la partie du jour passe avant la relecture de la veille.
-            Et seulement une fois gagnée, comme le tableau du jour (§16). */}
-        {gagne && <JourneePrecedente jour={jour} />}
 
         {/* LE COMPTE — après la révélation, jamais avant (§16). */}
         {gagne && (

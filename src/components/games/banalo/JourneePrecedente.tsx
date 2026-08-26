@@ -47,7 +47,7 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { UNANIMO_SKIN as skin } from "@/lib/games/skin";
-import { GBtn, GCard, GLabel } from "@/components/games/ui";
+import { GLabel } from "@/components/games/ui";
 import { UNITES, enLangue } from "@/content/banalo/questions";
 import { cleTheme } from "@/content/banalo/mots";
 import { themeLabel } from "@/lib/games/banalo/themes";
@@ -179,31 +179,38 @@ export default function JourneePrecedente({ jour }: { jour: number }) {
   const points = prog.type === "mots" ? mots?.points : nombre?.points;
   const sommeMots = mots?.total ?? null;
   const partMieux = prog.type === "mots" ? mots?.partMieux : nombre?.partMieux;
+  /**
+   * MA PLACE CE JOUR-LÀ — ce que la ligne met en avant.
+   *
+   * ⚠️ ET ÇA CONTREDIT EN APPARENCE UNE RÈGLE ÉCRITE : « c'est la PART qu'on met
+   * devant, pas le rang ». Son motif est dans `db/banalo.ts` — « le rang
+   * PROVISOIRE empire mécaniquement quand la foule grandit, la part ne bouge
+   * pas ». Il vaut pour la journée EN COURS, où l'on recharge et où le chiffre
+   * se dégrade sous les yeux du joueur sans qu'il ait rien fait. Ici la journée
+   * est CLOSE : plus personne n'entre, le rang ne bougera plus jamais, et le
+   * seul argument qui le reléguait tombe avec.
+   *
+   * ⚠️ ET C'EST LE SCORE QUI LISAIT MAL, PAS LE RANG. Une somme de voix « ne se
+   * lit pas seule, puisqu'elle dépend du nombre de votants et de la nature du
+   * thème » (en-tête du barème) : « 84 voix » ne dit rien sans sa journée, et
+   * c'était le chiffre le moins autonome du jeu qu'on avait mis sur la ligne la
+   * plus courte. Vu à l'écran, il tombait en plus juste au-dessus du « 84 voix »
+   * d'AUJOURD'HUI. Un rang, lui, se lit seul.
+   */
+  const rang = prog.type === "mots" ? mots?.rang : nombre?.rang;
+  const votants = prog.type === "mots" ? mots?.votants : nombre?.votants;
   // Rien à raconter tant que la journée précédente n'a pas été jouée. Depuis que
   // le plancher de cinq votants est tombé, une note existe dès qu'on a répondu :
   // un score absent veut donc dire « pas joué », et un bloc « vous n'avez pas
   // joué » est un reproche adressé à quelqu'un qui vient précisément de revenir.
   if (points === undefined || points === null) return null;
 
-  const chapeau = (
-    <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 10 }}>
-      <GLabel skin={skin}>{t("derniereTitre")}</GLabel>
-      <span style={{ fontSize: 12, fontWeight: 700, color: skin.muted }}>{t("numero", { n: precedente })}</span>
-    </div>
-  );
-
-  // ⚠️ ON DIT QUE C'EST ARRÊTÉ, ET C'EST LE CŒUR DU BLOC. Un joueur qui répond à
-  // 11 h 35 voit des chiffres calculés sur trente personnes ; rien ne lui disait
-  // que ceux-ci, eux, ne bougeront plus. Sans cette phrase, il ne peut pas
-  // distinguer « votre résultat » de « votre résultat provisoire », et il repart
-  // en croyant qu'il lui manque encore quelque chose — exactement ce qu'une
-  // notification aurait annoncé, et qu'on a refusé d'envoyer.
-  const arrete = (
-    <p style={{ margin: "10px 0 0", fontSize: 12.5, color: skin.muted, lineHeight: 1.45 }}>
-      {t("derniereClose")}
-    </p>
-  );
-
+  // LE SCORE — DANS LE TIROIR DEPUIS QUE LA CARTE EST DEVENUE UNE LIGNE.
+  //
+  // ⚠️ LA LIGNE PORTE LE MÊME CHIFFRE, EN PETIT ET EN ENCRE ; la CHALEUR reste
+  // ici, où le nombre est gros. Une teinte posée sur 13,5 px au milieu d'une
+  // ligne grise se lit comme un mot colorié au hasard, alors qu'elle est
+  // justement ce qui doit se comprendre sans légende.
   const score = (
     <p style={{ margin: "10px 0 0", fontSize: 14.5, lineHeight: 1.45, fontVariantNumeric: "tabular-nums" }}>
       {/* ⚠️ LA COULEUR NE SUIT QUE LE FORMAT CHIFFRÉ. Le format « mots » montre
@@ -283,36 +290,97 @@ export default function JourneePrecedente({ jour }: { jour: number }) {
       </div>
     ) : null;
 
-  // ⚠️ LE DÉTAIL EST DANS UN TIROIR, PLUS DANS LA PAGE — et c'est une mesure
-  // d'écran. L'après-partie faisait 2 551 px, trois écrans de téléphone, sept
-  // cartes ; celle-ci en pesait 353 pour un résultat qu'on ne relit pas tous les
-  // jours. Le résumé (le sujet, le score, la mention « close ») reste à demeure ;
-  // la grille arrêtée, la médiane, l'écart et les deux bandes s'ouvrent à la
-  // demande.
+  // ⚠️ LE RÉSUMÉ EST UNE LIGNE SOUS LA QUESTION DU JOUR, PLUS UNE CARTE EN BAS
+  // DE PAGE. Mesuré sur un vrai écran de 390 px : la carte était à y = 1 444 sur
+  // une page de 1 801 — presque quatre écrans de téléphone sous le thème, et
+  // c'est le défaut corrigé la veille sur Cinq sur cinq (elle y était à 1 521).
+  // Il était PIRE ici, parce que ce bloc-là porte quelque chose qui doit se lire
+  // sans rien ouvrir.
+  //
+  // ⚠️ ET « CETTE JOURNÉE EST CLOSE » RESTE DANS LE RÉSUMÉ, sur sa propre ligne.
+  // Chez Cinq sur cinq elle est descendue dans le tiroir : là-bas le titre de la
+  // boîte dit déjà « votre dernière journée » et il n'y a rien de provisoire à
+  // démentir. Ici c'est elle qui TIENT LIEU DE NOTIFICATION — un joueur qui a
+  // répondu à 11 h 35 a vu des chiffres calculés sur trente personnes, et rien
+  // d'autre ne lui dit que ceux-là, eux, ne bougeront plus. La cacher derrière
+  // un tap la rendrait exactement aussi muette qu'à y = 1 540.
+  //
+  // ⚠️ LE SUJET, LE SCORE ET LE CENTILE SONT DANS LE TIROIR — le sujet y était
+  // DÉJÀ : la carte et le détail imprimaient le même paragraphe, l'un derrière
+  // l'autre. Le doublon part avec la carte.
   //
   // ⚠️ ET C'EST LE JOUEUR QUI L'OUVRE, ce qui n'est pas la même chose qu'une
   // modale qui surgit. `Modale` porte le comportement ; la règle « une fois par
   // aide et par partie » appartient à Cinq sur cinq, dont les aides
   // apparaissaient en silence. Ici rien ne s'ouvre tout seul.
   const tiroir = (sujet: ReactNode, detail: ReactNode) => (
-    <div style={{ marginTop: 20 }}>
-      <GCard skin={skin} padding={15}>
-        {chapeau}
-        {sujet}
-        {score}
-        {arrete}
-        <div style={{ marginTop: 12 }}>
-          <GBtn skin={skin} variant="ghost" onClick={() => setOuvert(true)}>
+    <>
+      <div style={{ margin: "13px 0 0" }}>
+        <p style={{ margin: 0, fontSize: 13.5, lineHeight: 1.5, color: skin.ink }}>
+          {/* ⚠️ L'EMOJI EST LE MARQUEUR DE LA LIGNE, et il est le MÊME dans les
+              deux jeux : c'est le même objet, et deux glyphes différents en
+              feraient deux choses. Il est `aria-hidden` — un lecteur d'écran lit
+              déjà « votre dernière journée » juste après, et « calendrier
+              détachable votre dernière journée » n'apporte rien. */}
+          <span aria-hidden style={{ marginRight: 5 }}>
+            📅
+          </span>
+          {/* Elle s'annonce au lieu de commencer par un numéro nu : un chiffre
+              posé sous la question du jour se lirait d'abord comme celui
+              d'aujourd'hui. Le numéro n'est pas perdu — le tiroir le porte. */}
+          <span style={{ color: skin.muted }}>{t("derniereTitre")}</span>
+          {" · "}
+          {/* ⚠️ LE RANG D'ABORD, LE SCORE EN SECOURS. Sous `VOTANTS_MIN` (2) la
+              base ne rend pas de position — « 1er sur 1 » est la tautologie que
+              ce produit refuse partout — et la ligne retombe alors sur le score,
+              exactement comme celle de Cinq sur cinq retombe sur le nombre
+              d'essais.
+
+              ⚠️ LES TROIS CLÉS SONT ÉCRITES EN CLAIR, une par branche : `t(cle)`
+              échapperait au contrôle de parité i18n. Et les deux formats ne se
+              comptent pas pareil — une somme de voix d'un côté, une note sur 100
+              de l'autre.
+
+              ⚠️ « 7e sur 23 » ET PAS « 7e sur 23 joueurs » : la clé `rang` de
+              l'écran du jour tient une phrase, celle-ci tient dans une ligne qui
+              porte déjà une étiquette et un lien. Mesuré à 390 px, la forme
+              longue la faisait passer sur deux lignes. Le rang ne va jamais sans
+              sa foule pour autant — « 3e » ne veut pas dire la même chose sur
+              six joueurs et sur trois mille. */}
+          <strong style={{ fontWeight: 800 }}>
+            {rang != null && votants != null
+              ? t("dernierePlace", { rang, n: votants })
+              : prog.type === "mots" && sommeMots !== null
+                ? t("motsScoreCourt", { n: entier.format(sommeMots) })
+                : t("tableau.scoreNombre", { n: note.format(points) })}
+          </strong>
+          {" · "}
+          <button
+            type="button"
+            onClick={() => setOuvert(true)}
+            style={{
+              border: "none",
+              background: "none",
+              padding: 0,
+              font: "inherit",
+              // À l'accent et en gras : c'est la seule chose actionnable de la
+              // ligne, et en gris souligné elle avait le poids de son étiquette.
+              color: skin.accent,
+              fontWeight: 700,
+              textDecoration: "underline",
+              cursor: "pointer",
+            }}
+          >
             {t("detailBouton")}
-          </GBtn>
-        </div>
-      </GCard>
-      {/* ⚠️ LE TIROIR NE REPREND PAS « cette journée est close » : la phrase
-          reste dans le RÉSUMÉ, qui est ce que tout le monde voit sans rien
-          ouvrir — c'est elle qui répond à « est-ce qu'on est prévenu une fois la
-          journée terminée ? ». Le tiroir porte le NUMÉRO, parce qu'il couvre la
-          page et doit donc tenir tout seul : il ne peut pas compter sur ce
-          qu'il cache. */}
+          </button>
+        </p>
+        <p style={{ margin: "2px 0 0", fontSize: 12.5, color: skin.muted, lineHeight: 1.45 }}>
+          {t("derniereClose")}
+        </p>
+      </div>
+      {/* ⚠️ LE TIROIR PORTE LE NUMÉRO ET REPREND LE SUJET : il couvre la page,
+          donc il doit tenir tout seul — il ne peut pas compter sur ce qu'il
+          cache. */}
       {ouvert ? (
         <Modale
           skin={skin}
@@ -321,6 +389,8 @@ export default function JourneePrecedente({ jour }: { jour: number }) {
           fermer={() => setOuvert(false)}
           fermerLabel={t("qrFermer")}
         >
+          {sujet}
+          {score}
           {detail}
           {/* ⚠️ LE CLASSEMENT EST DANS LE TIROIR, PAS DANS LE RÉSUMÉ, et c'est
               une correction : je l'avais posé dans la carte en argumentant que
@@ -336,7 +406,7 @@ export default function JourneePrecedente({ jour }: { jour: number }) {
           {classement}
         </Modale>
       ) : null}
-    </div>
+    </>
   );
 
   if (prog.type === "mots") {
@@ -347,19 +417,13 @@ export default function JourneePrecedente({ jour }: { jour: number }) {
     // pas la rendre, et une ligne sans chiffre n'a rien à faire ici.
     const grille = (mots?.grille ?? []).filter((c): c is typeof c & { part: number } => c.part !== null);
     return tiroir(
-      <p style={{ margin: "8px 0 0", fontFamily: skin.fontDisplay, fontWeight: 800, fontSize: 17 }}>
+      <p style={{ margin: "8px 0 0", fontFamily: skin.fontDisplay, fontWeight: 800, fontSize: 18 }}>
         <span aria-hidden style={{ marginRight: 6 }}>
           {prog.theme.emoji}
         </span>
         {themeLabel(prog.theme, locale)}
       </p>,
       <>
-              <p style={{ margin: "8px 0 0", fontFamily: skin.fontDisplay, fontWeight: 800, fontSize: 18 }}>
-                <span aria-hidden style={{ marginRight: 6 }}>
-                  {prog.theme.emoji}
-                </span>
-                {themeLabel(prog.theme, locale)}
-              </p>
               {grille.length > 0 ? (
                 <div style={{ display: "grid", gap: 6, margin: "12px 0 0" }}>
                   {grille.map((c, i) => (
@@ -460,9 +524,6 @@ export default function JourneePrecedente({ jour }: { jour: number }) {
       {enLangue(prog.question.texte, locale)}
     </p>,
     <>
-            <p style={{ margin: "8px 0 0", fontSize: 13.5, color: skin.muted, lineHeight: 1.4 }}>
-              {enLangue(prog.question.texte, locale)}
-            </p>
             {/* LA RÉVÉLATION. C'est le seul endroit du jeu où ce nombre s'affiche —
                 il porte donc la taille du chiffre qu'on est venu chercher. */}
             <p
