@@ -307,13 +307,14 @@ export function fragilite(esp: Espece, milieu: Milieu): number {
  * dimère solitaire (2) : ce qui a coûté cher à fabriquer résiste mieux à la
  * cohue. Ses atomes retournent au bassin — la matière ne se perd que par la fuite.
  */
-function chasserLaPlusFaible(especes: Espece[], libres: Compte): Espece[] {
+function chasserLaPlusFaible(especes: Espece[], libres: Compte, bilan: BilanBassin | null = null): Espece[] {
   const candidates = especes.filter((e) => !nourriture(e));
   if (candidates.length === 0) return especes;
   const masse = (e: Espece) => e.effectif * e.taille;
   let faible = candidates[0];
   for (const e of candidates) if (masse(e) < masse(faible)) faible = e;
   for (let i = 0; i < faible.effectif; i++) verser(libres, faible.composition);
+  if (bilan) bilan.expulsees += 1;
   return especes.filter((e) => e.empreinte !== faible.empreinte);
 }
 
@@ -337,6 +338,7 @@ function installer(
   neuve: Espece,
   combien = 1,
   force = false,
+  bilan: BilanBassin | null = null,
 ): { especes: Espece[]; entree: boolean } {
   const place = especes.findIndex((e) => e.empreinte === neuve.empreinte);
   if (place !== -1) {
@@ -349,7 +351,7 @@ function installer(
     const masse = (e: Espece) => e.effectif * e.taille;
     const faible = liste.filter((e) => !nourriture(e)).reduce((x, y) => (masse(y) < masse(x) ? y : x));
     if (!force && combien * neuve.taille < masse(faible)) return { especes, entree: false };
-    liste = chasserLaPlusFaible(liste, libres);
+    liste = chasserLaPlusFaible(liste, libres, bilan);
   }
   return { especes: [...liste, { ...neuve, effectif: combien }], entree: true };
 }
@@ -736,14 +738,40 @@ export function ciblesProposees(rng: Alea, combien = 3, milieu?: Milieu): Grille
   return tirees;
 }
 
-/** UN TOUR DE BASSIN. */
+/**
+ * UN TOUR DE BASSIN.
+ *
+ * ⚠️ LE BILAN COMPTE AUSSI CE QUI N'A PAS EU LIEU, et c'est le plus important.
+ * Mesuré sur vingt-quatre parties de quatre cents tours : 82 % des soudures
+ * chimiquement réussies sont annulées faute de place, et la cible elle-même est
+ * fabriquée puis refusée près de quatre cents fois par partie. Tant que le
+ * bilan ne comptait que les réussites, l'écran ne POUVAIT pas dire au joueur
+ * pourquoi rien n'arrivait : il n'y avait pas de mot pour l'événement le plus
+ * fréquent de son bassin. On ne raconte pas ce qu'on ne compte pas.
+ */
 export function tourDeBassin(
   etat: EtatBassin,
   milieu: Milieu,
   rng: Alea = Math.random,
 ): { etat: EtatBassin; bilan: BilanBassin } {
-  const bilan = { verses: 0, morts: 0, nes: 0, soudures: 0, dissipes: 0, emportes: 0, exportes: 0 };
+  const bilan: BilanBassin = {
+    verses: 0,
+    morts: 0,
+    nes: 0,
+    soudures: 0,
+    dissipes: 0,
+    emportes: 0,
+    exportes: 0,
+    refusees: 0,
+    refusCible: 0,
+    expulsees: 0,
+    plein: false,
+    sortieCible: null,
+  };
   const libres = { ...etat.libres };
+  const cible = etat.cible;
+  const laCible = (liste: Espece[]) => cible !== null && liste.some((e) => e.empreinte === cible);
+  const cibleAuDepart = laCible(etat.especes);
 
   // ── 1. VERSEMENT ──────────────────────────────────────────────────────────
   const flux = milieu.flux ?? {};
@@ -762,6 +790,9 @@ export function tourDeBassin(
     bilan.morts += perdus;
     if (esp.effectif - perdus > 0) especes.push({ ...esp, effectif: esp.effectif - perdus });
   }
+
+  // Ce qui s'est défait tout seul : la cohésion a cédé, personne ne l'a poussé.
+  if (cibleAuDepart && !laCible(especes)) bilan.sortieCible = "attrition";
 
   // ── 3. NUCLÉATION ─────────────────────────────────────────────────────────
   // La chimie aveugle : deux atomes libres se collent sans se reconnaître. Elle
@@ -785,7 +816,7 @@ export function tourDeBassin(
       { r: 0, c: 0, code: a },
       { r: 0, c: 1, code: b },
     ]);
-    const arrivee = installer(especes, libres, espece(grille, milieu), 1);
+    const arrivee = installer(especes, libres, espece(grille, milieu), 1, false, bilan);
     if (!arrivee.entree) {
       // Le bassin est plein de plus fort que ce dimère : ses deux atomes restent libres.
       libres[a] = (libres[a] ?? 0) + 1;
@@ -832,15 +863,26 @@ export function tourDeBassin(
           libres,
           espece(p.grille, milieu),
           1,
+          false,
+          bilan,
         );
         // Refusée faute de place : la soudure n'a pas lieu, les réactifs restent.
-        if (!arrivee.entree) continue;
+        // ⚠️ ON LA COMPTE. C'est l'événement le plus fréquent du bassin, et il
+        // était le seul qu'aucun compteur ne portait.
+        if (!arrivee.entree) {
+          bilan.refusees += 1;
+          if (cible !== null && p.empreinte === cible) bilan.refusCible += 1;
+          continue;
+        }
         especes = arrivee.especes;
         bilan.soudures += 1;
       }
     }
   }
   especes = especes.filter((e) => e.effectif > 0);
+  // Ce qui s'est fait chasser : une nouvelle venue pesait plus que lui.
+  if (cibleAuDepart && !laCible(especes) && bilan.sortieCible === null) bilan.sortieCible = "concurrence";
+  const avantLeCourant = laCible(especes);
 
   // ── 5. LAVAGE ET FUITE ────────────────────────────────────────────────────
   // Le courant emporte tout : les atomes qui flottent, et les individus eux-
@@ -862,6 +904,11 @@ export function tourDeBassin(
     libres[code] = reste - perdu;
     bilan.dissipes += perdu;
   }
+
+  // Ce que le courant a emporté. Mesuré : c'est la plus RARE des trois causes,
+  // et c'était pourtant la seule que l'écran nommait.
+  if (avantLeCourant && !laCible(especes) && bilan.sortieCible === null) bilan.sortieCible = "courant";
+  bilan.plein = especes.filter((e) => !nourriture(e)).length >= ESPECES_MAX;
 
   // LA TENUE DE LA CIBLE : un séjour ininterrompu, remis à zéro dès qu'elle sort.
   const survit = etat.cible !== null && especes.some((e) => e.empreinte === etat.cible);

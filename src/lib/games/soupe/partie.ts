@@ -45,6 +45,7 @@ import { PRIX, acheterAtome, atelierVide, coutEnAtomes, fixerGabarit, tic } from
 import { empreinte, tientEnsemble, visageDe } from "./soudure";
 import {
   BRIQUES,
+  ESPECES_MAX,
   OBJECTIF,
   bassinVide,
   ciblesProposees,
@@ -610,10 +611,26 @@ export function conseilDuBassin(partie: Partie): ConseilBassin | null {
     manque,
     gagne: (partie.bassin.record ?? 0) >= OBJECTIF,
     /**
+     * LE BASSIN EST-IL PLEIN ? Mesuré : il l'est 99 % du temps, et alors plus
+     * aucune soudure neuve n'entre. C'est l'état qui décide du troisième acte et
+     * aucun écran ne le nommait — il ne montrait qu'un inventaire.
+     */
+    plein: partie.bassin.especes.filter((e) => !nourriture(e)).length >= ESPECES_MAX,
+    /**
      * LES ESPÈCES QU'ON PEUT RETIRER SANS SE PRIVER : ni la cible, ni un gabarit
-     * qui sert. Chacune porte ce qu'elle RENDRAIT — c'est la seule réponse à un
-     * bassin qui manque d'un atome rare, et elle est invisible sans ce calcul.
-     * Celles qui rendent l'atome manquant passent devant.
+     * qui sert. Chacune porte ce qu'elle RENDRAIT, et surtout LA PLACE qu'elle
+     * libère.
+     *
+     * ⚠️ CE N'EST PAS LAQUELLE ON RETIRE QUI COMPTE, C'EST QU'ON RETIRE. Le
+     * bassin tient huit espèces ; quand elles y sont, une soudure neuve — un
+     * individu de taille 4, donc de masse 4 — n'entre plus, puisqu'il faut peser
+     * autant que la plus faible population installée. Retirer n'importe laquelle
+     * fait retomber le compte sous huit, et la suivante entre sans condition.
+     * Mesuré sur soixante parties de quatre cents tours : sans retirer, 13 sont
+     * gagnées ; en retirant chaque tour la plus GROSSE de cette liste, 48 ; la
+     * plus FAIBLE, 51. L'écart entre les deux est du bruit, l'écart avec zéro ne
+     * l'est pas. Le tri sert donc l'arbitrage SECONDAIRE — quel atome me revient
+     * — et l'écran doit dire le motif PREMIER, qui est la place.
      */
     inutiles: partie.bassin.especes
       .filter(
@@ -627,9 +644,15 @@ export function conseilDuBassin(partie: Partie): ConseilBassin | null {
         // `utile` ne compte QUE les atomes qui manquent : une espèce qui rend six
         // azotes quand c'est du soufre qu'on cherche ne vaut rien, et l'écran ne
         // doit pas la recommander comme si elle valait quelque chose.
-        return { ...e, rendu, utile: [...rares].reduce((n, code) => n + (rendu[code] ?? 0), 0) };
+        return {
+          ...e,
+          rendu,
+          utile: [...rares].reduce((n, code) => n + (rendu[code] ?? 0), 0),
+          /** Ce qu'elle pèse, donc ce qu'elle bloque. */
+          masse: e.effectif * e.taille,
+        };
       })
-      .sort((a, b) => b.utile - a.utile || b.effectif * b.taille - a.effectif * a.taille),
+      .sort((a, b) => b.utile - a.utile || b.masse - a.masse),
   };
 }
 

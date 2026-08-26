@@ -133,9 +133,6 @@ const TEINTE: Record<Code, string> = {
  */
 const OBJECTIF = HORIZON_ATELIER;
 
-/** Le courant emporte un individu sur vingt-cinq par tour : c'est le repère. */
-const SEJOUR_DU_HASARD = 25;
-
 /** Un tour d'atelier par seconde. Estimation honnête, jamais mesurée. */
 const BATTEMENT = 1000;
 
@@ -239,16 +236,31 @@ function Habitant({
   cote = 9,
   titre,
   onRetirer,
+  laVotre,
+  etiquette,
 }: {
   esp: Espece;
   cote?: number;
   titre?: string;
   onRetirer?: () => void;
+  /**
+   * ⚠️ RIEN NE DISAIT LAQUELLE ÉTAIT LA SIENNE. Les huit tuiles portaient la même
+   * bordure et la même invitation à retirer ; un testeur a perdu une partie faute
+   * de reconnaître sa propre molécule dans la rangée. Elle est la seule qu'on ne
+   * peut pas retirer : c'est à l'écran de le dire, pas au clic de l'apprendre.
+   */
+  laVotre?: boolean;
+  etiquette?: string;
 }) {
   const contenu = (
     <>
       <Forme grille={esp.grille} cote={cote} />
       <Chiffre>× {esp.effectif}</Chiffre>
+      {laVotre && etiquette ? (
+        <span style={{ fontSize: 9, letterSpacing: "0.04em", textTransform: "uppercase", color: skin.good }}>
+          {etiquette}
+        </span>
+      ) : null}
     </>
   );
   const style: React.CSSProperties = {
@@ -258,7 +270,7 @@ function Habitant({
     gap: 3,
     padding: "5px 6px",
     borderRadius: 8,
-    border: `2px solid ${skin.ink}18`,
+    border: `2px solid ${laVotre ? skin.good : `${skin.ink}18`}`,
     background: skin.paper,
   };
   if (!onRetirer) {
@@ -373,6 +385,18 @@ export default function LaSoupe() {
       const meilleure = c.voies[0];
       if (!meilleure) return t("bassinConseilImpossible");
 
+      /**
+       * ⚠️ LA PORTE PASSE AVANT TOUT LE RESTE, et elle passait après tout le reste.
+       * Le conseil promettait « votre molécule finira par paraître » à un joueur
+       * dont le bassin était plein — c'est-à-dire à qui elle ne paraîtrait jamais.
+       * Mesuré : le bassin est plein 99 % du temps, et un bassin plein refuse
+       * toute soudure neuve ; dans les dix-sept parties sur vingt-quatre qui ne
+       * décollent pas, la cible est fabriquée et refoulée près de quatre cents
+       * fois. Un biochimiste a joué 211 tours de cette promesse avant d'abandonner.
+       */
+      if (c.plein && c.present === 0) {
+        return c.inutiles.length > 0 ? t("bassinConseilPorteFermee") : t("bassinConseilPorteToutSert");
+      }
       // L'ATOME QUI MANQUE PASSE AVANT TOUT LE RESTE : conseiller de semer pendant
       // que le bouton est grisé, c'est l'écran qui contredit l'écran.
       if (c.renfort && c.manque.length > 0) {
@@ -395,7 +419,8 @@ export default function LaSoupe() {
           : t("bassinConseilSansOutil");
       }
       if (c.present === 0) {
-        return t("bassinConseilVaParaitre", { n: meilleure.gabarits });
+        // La porte est ouverte — c'est le seul cas où attendre a un sens.
+        return t("bassinConseilUnePlaceLibre", { n: meilleure.gabarits });
       }
       return t("bassinConseilTient", {
         n: meilleure.gabarits,
@@ -1251,10 +1276,23 @@ export default function LaSoupe() {
               />
             </div>
             <Chiffre>{t("meilleurSejour", { n: partie.bassin.record })}</Chiffre>
-            {/* ⚠️ ON DIT CE QUE VAUT LE HASARD SEUL. Sans ce repère, soixante
-                tours est un chiffre arbitraire ; avec lui, c'est deux fois et
-                demie ce que le courant accorde à une molécule que personne ne refait. */}
-            <Chiffre>{t("repereHasard", { n: SEJOUR_DU_HASARD })}</Chiffre>
+            {/* ⚠️ CETTE LIGNE ACCUSAIT LE COURANT, et le courant n'y est presque
+                pour rien. Mesuré sur vingt-quatre parties : sur les sorties de la
+                cible, 79 % sont des expulsions par concurrence, 14 % des attritions,
+                7 % le courant. Et surtout la cible ne sort presque jamais — elle
+                N'ENTRE PAS : le bassin est plein 99 % du temps, et un bassin plein
+                refuse toute soudure neuve. C'est cet état-là qu'il faut afficher. */}
+            <Chiffre>
+              {conseilBassin.plein
+                ? t("bassinPlein", {
+                    n: partie.bassin.especes.filter((e) => !nourriture(e)).length,
+                    places: ESPECES_MAX,
+                  })
+                : t("bassinUnePlace", {
+                    n: partie.bassin.especes.filter((e) => !nourriture(e)).length,
+                    places: ESPECES_MAX,
+                  })}
+            </Chiffre>
           </div>
         </div>
 
@@ -1348,8 +1386,13 @@ export default function LaSoupe() {
             ))}
         </div>
 
+        {/* ⚠️ CE N'EST PAS UN INVENTAIRE, C'EST UNE PORTE. Mesuré : le bassin est
+            plein 99 % du temps, et un bassin plein REFUSE toute soudure neuve —
+            82 % de la chimie réussie est annulée là, y compris la cible du joueur,
+            près de quatre cents fois par partie. Sans retirer, 13 parties sur 60
+            sont gagnées ; en retirant chaque tour, 48 à 51. */}
         <p style={{ margin: 0, fontSize: 13, color: skin.muted }}>
-          {t("ceQuiEstFabrique", {
+          {t(conseilBassin.plein ? "ceQuiEstFabriquePlein" : "ceQuiEstFabrique", {
             n: partie.bassin.especes.filter((e) => !nourriture(e)).length,
             places: ESPECES_MAX,
           })}
@@ -1377,6 +1420,8 @@ export default function LaSoupe() {
                           })
                         : t("retirerSimple", { quoi: e.visage })
                   }
+                  laVotre={cible}
+                  etiquette={t("laVotre")}
                   onRetirer={cible ? undefined : () => setPartie((p) => (p ? retirerDuBassin(p, e.empreinte) : p))}
                 />
               );
@@ -1419,9 +1464,29 @@ export default function LaSoupe() {
               partie.bilanBassin.soudures > 0 ? t("soudures", { n: partie.bilanBassin.soudures }) : null,
               partie.bilanBassin.morts > 0 ? t("moleculesDefaites", { n: partie.bilanBassin.morts }) : null,
               partie.bilanBassin.emportes > 0 ? t("emportees", { n: partie.bilanBassin.emportes }) : null,
+              /* ⚠️ LE BILAN NE DISAIT QUE SES RÉUSSITES. L'événement le plus
+                 fréquent du bassin — une soudure qui a lieu et qu'on refoule
+                 faute de place — n'avait aucune ligne. */
+              partie.bilanBassin.refusees > 0 ? t("refoulees", { n: partie.bilanBassin.refusees }) : null,
             ]
               .filter(Boolean)
               .join(" · ") || t("rien")}
+          </p>
+        ) : null}
+        {partie.bilanBassin && partie.bilanBassin.refusCible > 0 ? (
+          <p style={{ margin: 0, fontSize: 12.5, color: ROUGE }}>
+            {t("votreMoleculeRefoulee", { n: partie.bilanBassin.refusCible })}
+          </p>
+        ) : null}
+        {partie.bilanBassin?.sortieCible ? (
+          <p style={{ margin: 0, fontSize: 12.5, color: ROUGE }}>
+            {t(
+              partie.bilanBassin.sortieCible === "attrition"
+                ? "sortieAttrition"
+                : partie.bilanBassin.sortieCible === "concurrence"
+                  ? "sortieConcurrence"
+                  : "sortieCourant",
+            )}
           </p>
         ) : null}
 

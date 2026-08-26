@@ -167,6 +167,16 @@ export interface BilanBassin {
   dissipes: number;
   emportes: number;
   exportes: number;
+  /** Des soudures qui ont eu lieu chimiquement et que la place a annulées. */
+  refusees: number;
+  /** Combien d'entre elles étaient la cible du joueur. */
+  refusCible: number;
+  /** Des espèces chassées pour faire de la place à une nouvelle venue. */
+  expulsees: number;
+  /** Le bassin est-il plein d'espèces établies à la fin du tour ? */
+  plein: boolean;
+  /** Pourquoi la cible a quitté le bassin ce tour-ci, ou `null`. */
+  sortieCible: "attrition" | "concurrence" | "courant" | null;
 }
 
 /** Une soudure possible, telle que l'écran doit la montrer. */
@@ -220,6 +230,8 @@ export interface ManqueAtome {
 export interface Retirable extends Espece {
   rendu: Compte;
   utile: number;
+  /** Ce qu'elle pèse, donc ce qu'elle bloque. */
+  masse: number;
 }
 
 /** Le conseil complet du troisième acte. */
@@ -231,6 +243,8 @@ export interface ConseilBassin extends Soutiens {
   /** Combien d'exemplaires de ce gabarit le bassin peut réellement payer. */
   payables: number;
   gagne: boolean;
+  /** Le bassin est-il plein ? Alors rien de neuf n'y entre. */
+  plein: boolean;
   manque: ManqueAtome[];
   inutiles: Retirable[];
 }
