@@ -152,6 +152,17 @@ input {
     font-size: 26px !important;
     word-break: break-word;
   }
+  .horizon-form-grid,
+  .horizon-share-grid {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+  .horizon-countdown {
+    grid-template-columns: repeat(2, 1fr) !important;
+    row-gap: 24px !important;
+  }
+  .horizon-actions > button {
+    flex: 1 1 auto;
+  }
 }
 
 /* Accessibilité : anneau de focus visible à la navigation clavier uniquement
