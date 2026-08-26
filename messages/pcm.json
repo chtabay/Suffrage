@@ -2727,6 +2727,8 @@
     "saisonMoiAucune": "You never get point dis month: every day wey you play dey worth at least one.",
     "saisonSansPseudo": "Your points dey count already — na only nickname you need make you show for di ranking.",
     "saisonRegle": "Every day wey you play dey give points according to your place: 25 for first, 18 for second, so-so reach twentieth — plus one point just for showing, even if you no rank. People wey tie dey share di places wey dem occupy. If points sem-sem, di one wey win pass go dey front. Everything go start from zero for di 1st of di month.",
+    "saisonRegleBouton": "How dem dey count di points",
+    "saisonRegleFermer": "Close",
     "saisonMedailles": "{n, plural, =0 {At least two players must dey ranked before dem go give medal for end of month.} one {One medal go comot for end of month — at least one person go still dey without.} other {# medals go comot for end of month — at least one person go still dey without.}}",
     "tropheesTitre": "Trophy room",
     "tropheesAide": "Di seasons wey don finish. Dis figures don set: dem no go move again.",

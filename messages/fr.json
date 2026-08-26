@@ -2727,6 +2727,8 @@
     "saisonMoiAucune": "Vous n'avez pas encore de point ce mois-ci : chaque journée jouée en rapporte au moins un.",
     "saisonSansPseudo": "Vos points comptent déjà — il ne vous manque qu'un pseudo pour figurer au classement.",
     "saisonRegle": "Chaque journée jouée rapporte des points selon votre place : 25 au premier, 18 au deuxième, et ainsi de suite jusqu'au vingtième — plus un point de présence, même sans classement. Les ex aequo se partagent les places qu'ils occupent. À points égaux, celui qui a gagné le plus de journées passe devant. Tout repart à zéro le 1er du mois.",
+    "saisonRegleBouton": "Comment les points se comptent",
+    "saisonRegleFermer": "Fermer",
     "saisonMedailles": "{n, plural, =0 {Il faut être au moins deux classés pour qu'une médaille soit décernée à la fin du mois.} one {Une médaille serait décernée à la fin du mois — il en reste toujours au moins un sans.} other {# médailles seraient décernées à la fin du mois — il en reste toujours au moins un sans.}}",
     "tropheesTitre": "Salle des trophées",
     "tropheesAide": "Les saisons terminées. Ces chiffres sont arrêtés : ils ne bougeront plus.",
