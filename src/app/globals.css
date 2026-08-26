@@ -153,15 +153,18 @@ input {
     word-break: break-word;
   }
   .horizon-form-grid,
-  .horizon-share-grid {
+  .horizon-share-grid,
+  .horizon-products-grid {
     grid-template-columns: minmax(0, 1fr) !important;
   }
   .horizon-countdown {
     grid-template-columns: repeat(2, 1fr) !important;
     row-gap: 24px !important;
   }
-  .horizon-actions > button {
+  .horizon-actions > button,
+  .horizon-actions > a {
     flex: 1 1 auto;
+    justify-content: center;
   }
 }
 
