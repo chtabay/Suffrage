@@ -456,7 +456,6 @@ function ResultView({
           <Card padding="2px 18px">
             <MilestoneRow label={retirement.future ? t("beforeRetirement") : t("sinceRetirement")} value={precise(retirement)} />
             <MilestoneRow label={t("summersRemaining")} value={integer.format(milestones.summersRemaining)} />
-            <MilestoneRow label={t("birthdaysRemaining")} value={integer.format(milestones.birthdaysRemaining)} />
             <MilestoneRow label={t("weekendsRemaining")} value={integer.format(milestones.weekendsRemaining)} />
             <MilestoneRow label={ehpad.future ? t("beforeEhpad") : t("sinceEhpad")} value={precise(ehpad)} last />
           </Card>

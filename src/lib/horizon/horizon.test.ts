@@ -80,7 +80,6 @@ test("les repères figés donnent les échéances et les occurrences avant l'hor
   assert.equal(milestones.retirementDate.toISOString(), "2039-06-12T00:00:00.000Z");
   assert.equal(milestones.ehpadDate.toISOString(), "2062-04-12T00:00:00.000Z");
   assert.equal(milestones.summersRemaining, 39);
-  assert.equal(milestones.birthdaysRemaining, 39);
   assert.equal(milestones.weekendsRemaining, 2047);
 });
 

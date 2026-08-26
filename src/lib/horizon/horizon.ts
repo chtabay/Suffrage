@@ -33,7 +33,6 @@ export interface HorizonMilestones {
   retirementDate: Date;
   ehpadDate: Date;
   summersRemaining: number;
-  birthdaysRemaining: number;
   weekendsRemaining: number;
 }
 
@@ -204,15 +203,6 @@ export function calculateMilestones(payload: HorizonPayload, at: Date, horizonDa
     summerYear += 1;
   }
 
-  let birthdaysRemaining = 0;
-  for (let year = at.getUTCFullYear(); year <= horizonDate.getUTCFullYear(); year += 1) {
-    const age = year - birthDate.getUTCFullYear();
-    const birthday = addUtcYears(birthDate, age);
-    if (birthday.getTime() > at.getTime() && birthday.getTime() < horizonDate.getTime()) {
-      birthdaysRemaining += 1;
-    }
-  }
-
   const firstWeekend = new Date(at);
   firstWeekend.setUTCHours(0, 0, 0, 0);
   const daysUntilSaturday = (6 - firstWeekend.getUTCDay() + 7) % 7;
@@ -226,7 +216,6 @@ export function calculateMilestones(payload: HorizonPayload, at: Date, horizonDa
     retirementDate: dateAtCalendarAge(birthDate, retirementAge.years, retirementAge.months),
     ehpadDate: dateAtCalendarAge(birthDate, 85, 11),
     summersRemaining,
-    birthdaysRemaining,
     weekendsRemaining,
   };
 }
