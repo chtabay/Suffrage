@@ -28,9 +28,12 @@ https://placet.app/horizon#v=1&d=1976-05-12&s=f&p=Claire&t=Mon+horizon&c=Un+peti
 | `c` | commentaire | facultatif, 250 caractères maximum |
 
 Les valeurs sont encodées avec `URLSearchParams`. Elles sont affichées comme du
-texte, jamais interprétées comme du HTML. Aucune de ces données n'est envoyée à
-une API, une base, un outil d'analytics ou `localStorage`. Le fragment reste en
-revanche visible dans l'historique du navigateur et pour le destinataire du lien.
+texte, jamais interprétées comme du HTML. Par défaut, aucune de ces données n'est
+envoyée à une API, une base, un outil d'analytics ou `localStorage`. Le fragment
+reste visible dans l'historique du navigateur et pour le destinataire du lien.
+Lors d'une connexion déclenchée depuis cette page, il peut être conservé au plus
+30 minutes dans `localStorage`, puis retiré dès le retour, afin de retrouver
+l'horizon après OAuth ou lien magique.
 Un fragment encodé de plus de 1 800 caractères est refusé avec une invitation à
 raccourcir le texte, afin que le QR reste techniquement lisible même lorsque des
 caractères prennent plusieurs octets.
@@ -74,9 +77,22 @@ entrée en Ehpad.
 Les deux durées sont décomposées en années calendaires, jours, heures, minutes et
 secondes. Ces valeurs restent figées comme la table de mortalité.
 
-## Présentation et limites
+## Rappels facultatifs
 
-Le titre et le commentaire personnalisent uniquement l'affichage. Le résultat
-indique explicitement qu'il s'agit d'une moyenne de population qui ne tient pas
-compte de la santé, des conditions de vie ni du hasard individuel. Le QR code
-encode exactement le lien affiché et ne passe par aucun raccourcisseur.
+Après connexion et consentement aux notifications, une personne peut rattacher
+un horizon à son compte. Seuls le prénom, la naissance, la référence statistique,
+le fuseau, la langue et les trois choix de rappel sont conservés. Le titre et le
+commentaire ne le sont jamais.
+
+Trois catégories sont proposées : anniversaire avec compte à rebours actualisé,
+passage sous 30, 20, 10, 5 et 1 an, et repère de retraite. Un cron horaire évalue
+les horizons à 9 heures dans leur fuseau. Chaque événement est réservé avant
+envoi et ne peut partir qu'une fois. Les réglages peuvent être modifiés ou
+supprimés depuis l'horizon concerné.
+
+## Présentation
+
+Le titre et le commentaire personnalisent uniquement l'affichage. Le QR code
+encode exactement le lien affiché et ne passe par aucun raccourcisseur. Sous les
+actions, « Aujourd'hui sur Placet » peut montrer un seul scrutin public encore
+ouvert ; ce bloc reste distinct de l'activation des rappels.
