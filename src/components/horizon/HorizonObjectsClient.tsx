@@ -1,7 +1,8 @@
 "use client";
 
-import type { CSSProperties, ReactNode } from "react";
+import type { CSSProperties } from "react";
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { QRCodeSVG } from "qrcode.react";
 import { Link } from "@/i18n/navigation";
@@ -23,46 +24,47 @@ function MiniQr({ value, size }: { value: string; size: number }) {
 }
 
 function ProductVisual({ kind, qr, name }: { kind: ProductKind; qr: string; name: string }) {
-  let object: ReactNode;
+  const src = `/horizon/objects/${kind === "card" ? "metal-card" : kind}.webp`;
+  const overlayBase: CSSProperties = { position: "absolute", zIndex: 2, display: "grid", placeItems: "center" };
+  let overlay: CSSProperties;
+  let qrSize: number;
+
   if (kind === "shirt") {
-    object = (
-      <div style={{ ...centered, position: "relative", width: 190, height: 175, background: "#fff", border: `2px solid ${INK}`, clipPath: "polygon(21% 0, 39% 0, 44% 10%, 56% 10%, 61% 0, 79% 0, 100% 22%, 83% 39%, 75% 31%, 75% 100%, 25% 100%, 25% 31%, 17% 39%, 0 22%)" }}>
-        <div style={{ ...centered, gap: 5, marginTop: 18 }}><MiniQr value={qr} size={66} /><strong style={{ fontFamily: FONT_DISPLAY, fontSize: 10 }}>{name}</strong></div>
-      </div>
-    );
+    overlay = { ...overlayBase, left: "50%", top: "52%", transform: "translate(-50%,-50%)", gap: 4 };
+    qrSize = 58;
   } else if (kind === "mug") {
-    object = (
-      <div style={{ position: "relative", width: 170, height: 132 }}>
-        <div style={{ ...centered, position: "absolute", inset: "8px 24px 8px 0", border: `2.5px solid ${INK}`, borderRadius: "8px 8px 28px 28px", background: "#fff" }}><MiniQr value={qr} size={72} /></div>
-        <div style={{ position: "absolute", right: 0, top: 32, width: 44, height: 58, border: `9px solid ${INK}`, borderLeft: 0, borderRadius: "0 30px 30px 0" }} />
-      </div>
-    );
+    overlay = { ...overlayBase, left: "41%", top: "53%", transform: "translate(-50%,-50%)" };
+    qrSize = 68;
   } else if (kind === "poster") {
-    object = (
-      <div style={{ display: "grid", justifyItems: "center", alignContent: "center", gap: 9, width: 132, height: 184, padding: 12, border: `8px solid ${INK}`, background: CREAM, boxShadow: `7px 7px 0 ${CORAL}` }}>
-        <strong style={{ fontFamily: FONT_DISPLAY, fontSize: 13, textAlign: "center", lineHeight: 1.1 }}>{name}</strong><MiniQr value={qr} size={84} />
-      </div>
-    );
+    overlay = { ...overlayBase, left: "50%", top: "52%", transform: "translate(-50%,-50%)", gap: 7 };
+    qrSize = 78;
   } else if (kind === "plaque") {
-    object = (
-      <div style={{ display: "grid", gridTemplateColumns: "1fr auto", alignItems: "center", gap: 14, width: 220, minHeight: 105, padding: 16, border: `3px solid ${INK}`, borderRadius: 8, background: "#D9DEE5", boxShadow: `0 10px 0 ${INK}` }}>
-        <strong style={{ fontFamily: FONT_DISPLAY, fontSize: 16, lineHeight: 1.05 }}>{name}</strong><MiniQr value={qr} size={72} />
-      </div>
-    );
+    overlay = { ...overlayBase, left: "54%", top: "48%", transform: "translate(-50%,-50%)", gridTemplateColumns: "1fr auto", gap: 10, width: 166 };
+    qrSize = 62;
   } else if (kind === "magnet") {
-    object = (
-      <div style={{ ...centered, gap: 8, width: 150, height: 150, padding: 13, border: `3px solid ${INK}`, borderRadius: 22, background: YELLOW, transform: "rotate(-2deg)", boxShadow: `6px 6px 0 ${INK}` }}>
-        <strong style={{ fontFamily: FONT_DISPLAY, fontSize: 13 }}>{name}</strong><MiniQr value={qr} size={88} />
-      </div>
-    );
+    overlay = { ...overlayBase, left: "50%", top: "51%", transform: "translate(-50%,-50%)", gap: 6 };
+    qrSize = 78;
   } else {
-    object = (
-      <div style={{ display: "grid", gridTemplateColumns: "1fr auto", alignItems: "center", gap: 14, width: 238, height: 136, padding: 18, border: `2px solid ${INK}`, borderRadius: 12, background: "linear-gradient(135deg,#EDF0F3,#BFC7D2)", boxShadow: `6px 6px 0 ${INK}` }}>
-        <div><strong style={{ display: "block", fontFamily: FONT_DISPLAY, fontSize: 16, lineHeight: 1.05 }}>{name}</strong><span style={{ display: "block", marginTop: 8, fontSize: 9, letterSpacing: ".12em" }}>PLACET · HORIZON</span></div><MiniQr value={qr} size={78} />
-      </div>
-    );
+    overlay = { ...overlayBase, left: "52%", top: "50%", transform: "translate(-50%,-50%)", gridTemplateColumns: "1fr auto", gap: 10, width: 174 };
+    qrSize = 64;
   }
-  return <div style={{ ...centered, minHeight: 250, padding: 24, background: CREAM, borderBottom: `2px solid ${INK}`, overflow: "hidden" }}>{object}</div>;
+
+  return (
+    <div style={{ ...centered, minHeight: 270, padding: 14, background: CREAM, borderBottom: `2px solid ${INK}`, overflow: "hidden" }}>
+      <div style={{ position: "relative", width: 250, height: 250 }}>
+        <Image src={src} alt="" fill sizes="250px" style={{ objectFit: "contain" }} />
+        <div style={overlay}>
+          {(kind === "shirt" || kind === "poster" || kind === "magnet") && (
+            <strong style={{ maxWidth: 104, fontFamily: FONT_DISPLAY, fontSize: kind === "shirt" ? 9 : 11, lineHeight: 1.05, textAlign: "center" }}>{name}</strong>
+          )}
+          {(kind === "plaque" || kind === "card") && (
+            <strong style={{ fontFamily: FONT_DISPLAY, fontSize: 11, lineHeight: 1.05 }}>{name}</strong>
+          )}
+          <MiniQr value={qr} size={qrSize} />
+        </div>
+      </div>
+    </div>
+  );
 }
 
 export default function HorizonObjectsClient() {
