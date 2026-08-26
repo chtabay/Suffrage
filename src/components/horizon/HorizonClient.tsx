@@ -113,10 +113,14 @@ function Field({ label, hint, children }: { label: string; hint?: string; childr
   );
 }
 
-function CountdownCell({ value, label }: { value: string; label: string }) {
+function CountdownCell({ value, label, tick = false }: { value: string; label: string; tick?: boolean }) {
   return (
     <div style={{ textAlign: "center", minWidth: 0 }}>
-      <strong style={{ display: "block", fontFamily: FONT_DISPLAY, fontSize: "clamp(24px, 6vw, 38px)", lineHeight: 1 }}>
+      <strong
+        key={tick ? value : undefined}
+        className={tick ? "horizon-seconds-tick" : undefined}
+        style={{ display: "block", fontFamily: FONT_DISPLAY, fontSize: "clamp(24px, 6vw, 38px)", lineHeight: 1 }}
+      >
         {value}
       </strong>
       <span style={{ display: "block", marginTop: 6, color: MUTED, fontSize: 11, fontWeight: 700, textTransform: "uppercase" }}>
@@ -408,7 +412,7 @@ function ResultView({
             <CountdownCell value={integer.format(countdown.days)} label={t("days")} />
             <CountdownCell value={String(countdown.hours).padStart(2, "0")} label={t("hours")} />
             <CountdownCell value={String(countdown.minutes).padStart(2, "0")} label={t("minutes")} />
-            <CountdownCell value={String(countdown.seconds).padStart(2, "0")} label={t("seconds")} />
+            <CountdownCell value={String(countdown.seconds).padStart(2, "0")} label={t("seconds")} tick />
           </div>
         </Card>
       </section>
