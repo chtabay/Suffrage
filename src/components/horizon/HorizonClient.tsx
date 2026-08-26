@@ -497,6 +497,13 @@ function ResultView({
       <div className="horizon-actions" style={{ display: "flex", flexWrap: "wrap", gap: 10, marginTop: 26 }}>
         <Btn onClick={onEdit} variant="cream">{t("edit")}</Btn>
         <Btn onClick={onCreateAnother} variant="primary">{t("createAnother")}</Btn>
+        <Link
+          href={`/horizon/objets#${encodeHorizonFragment(payload)}`}
+          className="dc-lift"
+          style={{ display: "inline-flex", alignItems: "center", padding: "11px 18px", border: `2.5px solid ${INK}`, borderRadius: 11, background: YELLOW, color: INK, fontFamily: FONT_DISPLAY, fontSize: 14.5, fontWeight: 700, textDecoration: "none", boxShadow: `4px 4px 0 ${INK}` }}
+        >
+          {t("objectsLink")}
+        </Link>
       </div>
 
       <HorizonPlacet />
