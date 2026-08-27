@@ -92,6 +92,7 @@ import {
   acheter,
   agiterLaSoupe,
   cequiManque,
+  bassinGagne,
   ciblesDuBassin,
   changerGabarit,
   collectionPleine,
@@ -325,7 +326,11 @@ export default function LaSoupe() {
   // et il ne lui reste qu'à l'alimenter et à juger.
   // Le bassin bat comme l'atelier battait : le temps y passe sans le joueur, et
   // il ne lui reste qu'à semer, retirer et juger.
-  const ouvert = (partie?.panneaux.includes("atelier") || partie?.panneaux.includes("bassin")) ?? false;
+  // ⚠️ ET ELLE S'ARRÊTE QUAND C'EST TENU. Sans ça le compteur montait à 62, 63,
+  // 64 tours sur 60 pendant que l'écran annonçait la victoire : la fin était
+  // écrite, et le monde continuait de la démentir.
+  const tenu = (partie?.acte === 3 && partie ? bassinGagne(partie) : false) as boolean;
+  const ouvert = ((partie?.panneaux.includes("atelier") || partie?.panneaux.includes("bassin")) ?? false) && !tenu;
   const acte = partie?.acte ?? 1;
   const battement = useRef<ReturnType<typeof setInterval> | null>(null);
   useEffect(() => {
@@ -337,7 +342,7 @@ export default function LaSoupe() {
     return () => {
       if (battement.current) clearInterval(battement.current);
     };
-  }, [ouvert, acte]);
+  }, [ouvert, acte, tenu]);
 
   const agiter = useCallback((force: number) => {
     setDerniereForce(force);
@@ -1472,6 +1477,24 @@ export default function LaSoupe() {
                 </p>
               ) : null;
             })()}
+            {/* ⚠️ UNE FIN QUI NE FINIT RIEN N'EST PAS UNE FIN. Le bassin
+                continuait de battre après la victoire, et l'écran ordonnait
+                toujours de faire une place dont plus personne n'avait besoin.
+                On offre donc la seule suite qui ait un sens. */}
+            <div style={{ marginTop: 10 }}>
+              <GBtn
+                skin={skin}
+                size="sm"
+                variant="accent"
+                title={t("uneAutreEauTitre")}
+                onClick={() => {
+                  setDerniereForce(null);
+                  setPartie(nouvellePartie(1 + Math.floor(Math.random() * 999999)));
+                }}
+              >
+                {t("uneAutreEau")}
+              </GBtn>
+            </div>
           </div>
         ) : null}
 
@@ -1537,13 +1560,18 @@ export default function LaSoupe() {
           {conseilBassin.voies.map((voie, i) => ligneVoie(voie, i))}
         </div>
 
-        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+        {/* Tout ce qui suit est un geste ou un ordre. Une fois gagné, il n'en
+            reste qu'un état : on montre le bassin, on ne le commande plus. */}
+        <div style={{ display: conseilBassin.gagne ? "none" : "flex", gap: 8, flexWrap: "wrap" }}>
           {/* ⚠️ LE BOUTON DIT CE QU'IL FERA, PAS CE QU'ON AURAIT VOULU. Il
               annonçait « ×10 » et déposait 1,7 exemplaire en moyenne : 63 % des
               semis conseillés étaient refusés faute d'atomes, les autres tronqués
               en silence, et le joueur ne pouvait pas savoir que c'était la matière
               qu'on lui refusait. */}
-          {conseilBassin.aider.slice(0, 3).map((aide) => {
+          {/* ⚠️ TOUTES, PLUS SEULEMENT TROIS : c'est désormais le seul endroit
+              où l'on sème, donc en tronquer la liste retirerait des gestes au
+              joueur — et le moteur de référence, lui, les montrait toutes. */}
+          {conseilBassin.aider.map((aide) => {
             const piece = partie.collection.find((x) => x.visage === aide.visage);
             if (!piece) return null;
             const lot = lotPayable(partie, piece.grille);
@@ -1592,7 +1620,7 @@ export default function LaSoupe() {
             PHRASE. L'écran annonçait la première au moment où le bon gabarit
             tournait dans le bassin. Une explication fausse est pire qu'une
             explication absente. */}
-        {conseilBassin.aider.length === 0 ? (
+        {conseilBassin.aider.length === 0 && !conseilBassin.gagne ? (
           <p style={{ margin: 0, fontSize: 13, color: skin.muted, lineHeight: 1.45 }}>
             {/* ⚠️ CE PARAGRAPHE DISAIT « IL N'Y A PLUS QU'À LAISSER FAIRE » PENDANT
                 QUE LE CONSEIL DISAIT « RETIREZ », sur le même écran — un testeur
@@ -1624,10 +1652,12 @@ export default function LaSoupe() {
             près de quatre cents fois par partie. Sans retirer, 13 parties sur 60
             sont gagnées ; en retirant chaque tour, 48 à 51. */}
         <p style={{ margin: 0, fontSize: 13, color: skin.muted }}>
-          {t(conseilBassin.plein ? "ceQuiEstFabriquePlein" : "ceQuiEstFabrique", {
-            n: partie.bassin.especes.filter((e) => !nourriture(e)).length,
-            places: ESPECES_MAX,
-          })}
+          {conseilBassin.gagne
+            ? t("bassinFiniPlaces")
+            : t(conseilBassin.plein ? "ceQuiEstFabriquePlein" : "ceQuiEstFabrique", {
+                n: partie.bassin.especes.filter((e) => !nourriture(e)).length,
+                places: ESPECES_MAX,
+              })}
         </p>
         <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
           {partie.bassin.especes
@@ -1655,7 +1685,11 @@ export default function LaSoupe() {
                   laVotre={cible}
                   etiquette={t("laVotre")}
                   motRetirer={t("motRetirer")}
-                  onRetirer={cible ? undefined : () => setPartie((p) => (p ? retirerDuBassin(p, e.empreinte) : p))}
+                  onRetirer={
+                    cible || conseilBassin.gagne
+                      ? undefined
+                      : () => setPartie((p) => (p ? retirerDuBassin(p, e.empreinte) : p))
+                  }
                 />
               );
             })}
