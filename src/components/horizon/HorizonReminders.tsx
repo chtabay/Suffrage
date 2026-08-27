@@ -125,15 +125,15 @@ export default function HorizonReminders({ payload, result }: { payload: Horizon
     <section aria-labelledby="reminders-title" style={{ marginTop: 34 }}>
       <Card accent={YELLOW} padding="clamp(20px, 5vw, 28px)">
         <h2 id="reminders-title" style={{ margin: 0, fontFamily: FONT_DISPLAY, fontSize: 24 }}>{t("reminderTitle")}</h2>
-        <p style={{ margin: "9px 0 17px", color: MUTED, fontSize: 14.5, lineHeight: 1.55 }}>{t("reminderIntro")}</p>
+        {nextLabel ? <p style={{ margin: "9px 0 5px", color: MUTED, fontSize: 14.5, lineHeight: 1.55 }}>{t("reminderNext", { date: nextLabel })}</p> : null}
+        {!loading && !user ? <p style={{ margin: "0 0 17px", color: MUTED, fontSize: 12.5, fontWeight: 700 }}>{t("reminderAccountRequired")}</p> : <div style={{ height: 12 }} />}
         {reminderId && subscribedHere ? (
           <div>
             <p role="status" style={{ margin: 0, color: "#1c7f45", fontWeight: 800 }}>{t("reminderActive")}</p>
-            {nextLabel ? <p style={{ margin: "7px 0 15px", color: MUTED, fontSize: 14 }}>{t("reminderNext", { date: nextLabel })}</p> : null}
-            <Btn onClick={() => setOpen(true)} variant="cream">{t("reminderEdit")}</Btn>
+            <Btn onClick={() => setOpen(true)} variant="cream" style={{ marginTop: 13 }}>{t("reminderEdit")}</Btn>
           </div>
         ) : (
-          <Btn onClick={() => setOpen(true)} variant="primary" disabled={loading}>{t("reminderActivate")}</Btn>
+          <Btn onClick={() => setOpen(true)} variant="primary" disabled={loading}>{t("reminderReceive")}</Btn>
         )}
       </Card>
 

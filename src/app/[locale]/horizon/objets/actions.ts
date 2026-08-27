@@ -26,6 +26,10 @@ function escapeHtml(value: string): string {
   })[char] ?? char);
 }
 
+function euros(cents: number): string {
+  return new Intl.NumberFormat("fr-FR", { style: "currency", currency: "EUR", maximumFractionDigits: 0 }).format(cents / 100);
+}
+
 export async function submitHorizonOrder(input: HorizonOrderInput): Promise<HorizonOrderResult> {
   // Champ leurre : un humain ne le voit jamais. Répondre comme si tout allait
   // bien évite de donner au robot un signal pour ajuster son envoi.
@@ -44,6 +48,8 @@ export async function submitHorizonOrder(input: HorizonOrderInput): Promise<Hori
     ["Variante", order.variant],
     ["Option", order.option || "—"],
     ["Quantité", String(order.quantity)],
+    ["Prix unitaire TTC", euros(order.unitPriceCents)],
+    ["Total produits TTC", euros(order.totalPriceCents)],
     ["Nom", order.name],
     ["E-mail", order.email],
     ["Adresse de livraison", order.address],

@@ -9,6 +9,21 @@ export const HORIZON_ORDER_VARIANTS = {
 
 export type HorizonOrderProduct = keyof typeof HORIZON_ORDER_VARIANTS;
 
+export const HORIZON_ORDER_PRICES_CENTS: Record<HorizonOrderProduct, Readonly<Record<string, number>>> = {
+  shirt: { default: 3900 },
+  mug: { default: 2400 },
+  poster: { A3: 5900, A2: 7900 },
+  plaque: { default: 7900 },
+  magnet: { default: 1200 },
+  card: { default: 2900 },
+};
+
+export function getHorizonOrderUnitPriceCents(product: HorizonOrderProduct, option = ""): number | null {
+  const prices = HORIZON_ORDER_PRICES_CENTS[product];
+  const priceKey = product === "poster" ? option : "default";
+  return prices[priceKey] ?? null;
+}
+
 export interface HorizonAddressSuggestion {
   fulltext: string;
   street?: string;
@@ -71,6 +86,8 @@ export interface ValidHorizonOrder {
   note: string;
   horizonUrl: string;
   locale: "fr" | "en" | "es" | "pcm";
+  unitPriceCents: number;
+  totalPriceCents: number;
 }
 
 export type HorizonOrderValidation =
@@ -119,6 +136,8 @@ export function validateHorizonOrder(input: unknown): HorizonOrderValidation {
   if (product === "poster" && !POSTER_FORMATS.has(option)) return { ok: false, error: "invalid" };
   if (product !== "shirt" && product !== "poster" && option) return { ok: false, error: "invalid" };
   if (locale !== "fr" && locale !== "en" && locale !== "es" && locale !== "pcm") return { ok: false, error: "invalid" };
+  const unitPriceCents = getHorizonOrderUnitPriceCents(product, option);
+  if (unitPriceCents === null) return { ok: false, error: "invalid" };
 
-  return { ok: true, value: { product, variant, quantity, option, name, email, address, country, note, horizonUrl, locale } };
+  return { ok: true, value: { product, variant, quantity, option, name, email, address, country, note, horizonUrl, locale, unitPriceCents, totalPriceCents: unitPriceCents * quantity } };
 }

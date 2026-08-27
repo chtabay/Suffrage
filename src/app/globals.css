@@ -171,15 +171,23 @@ input {
 
 @keyframes horizon-second-tick {
   0% {
-    color: #e23e3b;
-    transform: translateY(-2px) scale(1.1);
-  }
-  45% {
     color: #16213a;
-    transform: translateY(1px) scale(0.97);
+    text-shadow: 0 0 0 rgb(226 62 59 / 0%);
+    transform: translateY(0) scale(1);
+  }
+  18% {
+    color: #e23e3b;
+    text-shadow: 0 0 15px rgb(226 62 59 / 55%);
+    transform: translateY(-4px) scale(1.3);
+  }
+  58% {
+    color: #16213a;
+    text-shadow: 0 0 2px rgb(226 62 59 / 10%);
+    transform: translateY(1px) scale(0.94);
   }
   100% {
     color: #16213a;
+    text-shadow: 0 0 0 rgb(226 62 59 / 0%);
     transform: translateY(0) scale(1);
   }
 }
@@ -187,7 +195,8 @@ input {
 @media (prefers-reduced-motion: no-preference) {
   .horizon-seconds-tick {
     transform-origin: center;
-    animation: horizon-second-tick 420ms cubic-bezier(0.2, 0.8, 0.2, 1);
+    will-change: color, text-shadow, transform;
+    animation: horizon-second-tick 560ms cubic-bezier(0.2, 0.8, 0.2, 1);
   }
 }
 

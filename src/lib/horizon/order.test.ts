@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { isFrenchDeliveryCountry, parseHorizonAddressSuggestions, validateHorizonOrder } from "./order";
+import { getHorizonOrderUnitPriceCents, isFrenchDeliveryCountry, parseHorizonAddressSuggestions, validateHorizonOrder } from "./order";
 
 const VALID = {
   product: "shirt",
@@ -19,7 +19,19 @@ const VALID = {
 test("une demande Horizon valide est normalisée", () => {
   const result = validateHorizonOrder({ ...VALID, email: " CAMILLE@EXAMPLE.COM " });
   assert.equal(result.ok, true);
-  if (result.ok) assert.equal(result.value.email, "camille@example.com");
+  if (result.ok) {
+    assert.equal(result.value.email, "camille@example.com");
+    assert.equal(result.value.unitPriceCents, 3900);
+    assert.equal(result.value.totalPriceCents, 7800);
+  }
+});
+
+test("les prix sont déterminés par le produit et le format, jamais par le client", () => {
+  assert.equal(getHorizonOrderUnitPriceCents("shirt", "M"), 3900);
+  assert.equal(getHorizonOrderUnitPriceCents("mug"), 2400);
+  assert.equal(getHorizonOrderUnitPriceCents("poster", "A3"), 5900);
+  assert.equal(getHorizonOrderUnitPriceCents("poster", "A2"), 7900);
+  assert.equal(getHorizonOrderUnitPriceCents("poster", "M"), null);
 });
 
 test("une variante étrangère au produit est refusée", () => {
