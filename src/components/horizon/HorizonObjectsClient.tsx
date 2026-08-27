@@ -1,6 +1,6 @@
 "use client";
 
-import type { CSSProperties, FormEvent } from "react";
+import type { CSSProperties, FormEvent, KeyboardEvent as ReactKeyboardEvent } from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { useLocale, useTranslations } from "next-intl";
@@ -10,7 +10,7 @@ import PlacetMark from "@/components/scrutin/PlacetMark";
 import { Btn, Card } from "@/components/ui/kit";
 import { CORAL, CREAM, FONT_DISPLAY, INK, MUTED, YELLOW } from "@/components/scrutin/theme";
 import { encodeHorizonFragment, parseHorizonFragment, type HorizonPayload } from "@/lib/horizon/horizon";
-import type { HorizonOrderProduct } from "@/lib/horizon/order";
+import { isFrenchDeliveryCountry, parseHorizonAddressSuggestions, type HorizonAddressSuggestion, type HorizonOrderProduct } from "@/lib/horizon/order";
 
 type OptionKind = "size" | "format" | null;
 type Variant = { id: string; label: string; src: string; color: string };
@@ -48,6 +48,109 @@ function ProductVisual({ product, variant, onOrder }: { product: Product; varian
   );
 }
 
+function AddressField({ address, country, onChange }: { address: string; country: string; onChange: (value: string) => void }) {
+  const t = useTranslations("Horizon");
+  const [suggestions, setSuggestions] = useState<HorizonAddressSuggestion[]>([]);
+  const [active, setActive] = useState(-1);
+  const selected = useRef("");
+  const inputId = "horizon-order-address";
+  const listId = "horizon-address-suggestions";
+  const france = isFrenchDeliveryCountry(country);
+
+  useEffect(() => {
+    const query = address.trim();
+    if (!france || query.length < 3 || query === selected.current) {
+      setSuggestions([]);
+      setActive(-1);
+      return;
+    }
+
+    const controller = new AbortController();
+    const timer = window.setTimeout(async () => {
+      try {
+        const params = new URLSearchParams({ text: query, type: "StreetAddress", maximumResponses: "6" });
+        const response = await fetch(`https://data.geopf.fr/geocodage/completion/?${params}`, { signal: controller.signal });
+        if (!response.ok) throw new Error("address lookup failed");
+        const next = parseHorizonAddressSuggestions(await response.json());
+        setSuggestions(next);
+        setActive(-1);
+      } catch (error) {
+        if (!(error instanceof DOMException && error.name === "AbortError")) setSuggestions([]);
+      }
+    }, 300);
+
+    return () => {
+      window.clearTimeout(timer);
+      controller.abort();
+    };
+  }, [address, france]);
+
+  const choose = (item: HorizonAddressSuggestion) => {
+    selected.current = item.fulltext;
+    onChange(item.fulltext);
+    setSuggestions([]);
+    setActive(-1);
+  };
+
+  const onKeyDown = (event: ReactKeyboardEvent<HTMLInputElement>) => {
+    if (!suggestions.length) return;
+    if (event.key === "ArrowDown") {
+      event.preventDefault();
+      setActive((current) => (current + 1) % suggestions.length);
+    } else if (event.key === "ArrowUp") {
+      event.preventDefault();
+      setActive((current) => (current - 1 + suggestions.length) % suggestions.length);
+    } else if (event.key === "Enter" && active >= 0) {
+      event.preventDefault();
+      choose(suggestions[active]);
+    } else if (event.key === "Escape") {
+      setSuggestions([]);
+      setActive(-1);
+    }
+  };
+
+  return (
+    <div style={{ position: "relative", display: "grid", gridColumn: "1 / -1", gap: 6 }}>
+      <label htmlFor={inputId} style={{ fontWeight: 800 }}>{t("objectsOrderAddress")}</label>
+      <input
+        id={inputId}
+        name="address"
+        required
+        value={address}
+        maxLength={240}
+        autoComplete="street-address"
+        role="combobox"
+        aria-autocomplete="list"
+        aria-expanded={suggestions.length > 0}
+        aria-controls={listId}
+        aria-activedescendant={active >= 0 ? `${listId}-${active}` : undefined}
+        onChange={(event) => { selected.current = ""; onChange(event.target.value); }}
+        onKeyDown={onKeyDown}
+        style={inputStyle}
+      />
+      {suggestions.length > 0 && (
+        <span id={listId} role="listbox" style={{ position: "absolute", zIndex: 5, top: 74, left: 0, right: 0, display: "grid", padding: 5, border: `2px solid ${INK}`, borderRadius: 10, background: "#fff", boxShadow: `5px 5px 0 ${INK}` }}>
+          {suggestions.map((item, index) => (
+            <button
+              key={`${item.fulltext}-${index}`}
+              id={`${listId}-${index}`}
+              type="button"
+              role="option"
+              aria-selected={active === index}
+              onMouseDown={(event) => event.preventDefault()}
+              onClick={() => choose(item)}
+              style={{ padding: "10px 11px", border: 0, borderRadius: 7, background: active === index ? YELLOW : "transparent", color: INK, font: "inherit", fontWeight: 700, textAlign: "left", cursor: "pointer" }}
+            >
+              {item.fulltext}
+            </button>
+          ))}
+        </span>
+      )}
+      <small style={{ color: MUTED, fontSize: 12, fontWeight: 500, lineHeight: 1.4 }}>{france ? t("objectsOrderAddressHint") : t("objectsOrderAddressManual")}</small>
+    </div>
+  );
+}
+
 function OrderDialog({ product, initialVariant, horizonUrl, onClose }: { product: Product; initialVariant: Variant; horizonUrl: string; onClose: () => void }) {
   const t = useTranslations("Horizon");
   const locale = useLocale();
@@ -58,6 +161,8 @@ function OrderDialog({ product, initialVariant, horizonUrl, onClose }: { product
   const [pending, setPending] = useState(false);
   const [error, setError] = useState("");
   const [reference, setReference] = useState("");
+  const [country, setCountry] = useState(t("objectsOrderCountryDefault"));
+  const [address, setAddress] = useState("");
   const variant = product.variants.find((item) => item.id === variantId) ?? initialVariant;
 
   useEffect(() => {
@@ -81,6 +186,7 @@ function OrderDialog({ product, initialVariant, horizonUrl, onClose }: { product
       option,
       name: String(form.get("name") ?? ""),
       email: String(form.get("email") ?? ""),
+      address,
       country: String(form.get("country") ?? ""),
       note: String(form.get("note") ?? ""),
       horizonUrl,
@@ -127,7 +233,8 @@ function OrderDialog({ product, initialVariant, horizonUrl, onClose }: { product
             <div className="horizon-form-grid" style={{ display: "grid", gridTemplateColumns: "repeat(2,minmax(0,1fr))", gap: 15, marginTop: 20 }}>
               <label style={{ display: "grid", gap: 6, fontWeight: 800 }}>{t("objectsOrderName")}<input name="name" required maxLength={80} autoComplete="name" style={inputStyle} /></label>
               <label style={{ display: "grid", gap: 6, fontWeight: 800 }}>{t("objectsOrderEmail")}<input name="email" type="email" required maxLength={160} autoComplete="email" style={inputStyle} /></label>
-              <label style={{ display: "grid", gap: 6, fontWeight: 800 }}>{t("objectsOrderCountry")}<input name="country" required maxLength={80} autoComplete="country-name" style={inputStyle} /></label>
+              <AddressField address={address} country={country} onChange={setAddress} />
+              <label style={{ display: "grid", gap: 6, fontWeight: 800 }}>{t("objectsOrderCountry")}<input name="country" required value={country} maxLength={80} autoComplete="country-name" onChange={(event) => setCountry(event.target.value)} style={inputStyle} /></label>
               <label style={{ display: "grid", gap: 6, fontWeight: 800 }}>{t("objectsOrderNote")}<input name="note" maxLength={500} style={inputStyle} /></label>
             </div>
             <label aria-hidden="true" style={{ position: "absolute", left: -10000, width: 1, height: 1, overflow: "hidden" }}>Website<input name="website" tabIndex={-1} autoComplete="off" /></label>
@@ -164,8 +271,8 @@ export default function HorizonObjectsClient() {
   // Clés littérales : le contrôle de parité i18n doit pouvoir voir chaque texte.
   const products: Product[] = [
     { kind: "shirt", title: t("objectsShirtTitle"), text: t("objectsShirtText"), optionKind: "size", variants: [
-      { id: "cream", label: t("objectsVariantCream"), src: "/horizon/objects/shirt-cream.webp", color: "#F7EEDC" },
-      { id: "navy", label: t("objectsVariantNavy"), src: "/horizon/objects/shirt-navy.webp", color: INK },
+      { id: "cream", label: t("objectsVariantCream"), src: "/horizon/objects/shirt-cream-v2.webp", color: "#F7EEDC" },
+      { id: "navy", label: t("objectsVariantNavy"), src: "/horizon/objects/shirt-navy-v2.webp", color: INK },
     ] },
     { kind: "mug", title: t("objectsMugTitle"), text: t("objectsMugText"), optionKind: null, variants: [
       { id: "cream", label: t("objectsVariantCream"), src: "/horizon/objects/mug-cream.webp", color: "#F7EEDC" },
