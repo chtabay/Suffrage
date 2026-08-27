@@ -252,9 +252,33 @@ export function bassinVide(libres: Compte = { C: 0, N: 0, S: 0 }): EtatBassin {
   };
 }
 
-/** DÉSIGNER la molécule qu'on veut faire tenir. Le compte repart de zéro. */
+/**
+ * DÉSIGNER la molécule qu'on veut faire tenir. Le compte repart de zéro.
+ *
+ * ⚠️ CE QUI SE COMPTAIT POUR L'ANCIENNE CIBLE N'A PLUS COURS. Depuis qu'on peut
+ * changer d'avis en cours de partie, `refusCible` et `entreeAu` doivent repartir
+ * avec elle : sans ça le bilan de fin additionnait les refus de DEUX molécules
+ * et annonçait « entrée au tour null » sur une partie gagnée — une histoire
+ * fausse, ce qui est pire qu'une histoire absente.
+ *
+ * ⚠️ ET SI LA NOUVELLE EST DÉJÀ LÀ, ELLE EST ENTRÉE MAINTENANT. Le bassin ne
+ * signale une entrée que sur la bascule absente → présente ; viser une espèce
+ * qui tourne déjà ne déclenche rien, et son heure d'arrivée resterait vide.
+ *
+ * Les totaux du BASSIN — refusées, expulsées — ne bougent pas : ce sont les
+ * siens, pas ceux de la cible, et ils racontent le monde, pas notre espoir.
+ */
 export function viser(etat: EtatBassin, grilleCible: Grille): EtatBassin {
-  return { ...etat, cible: empreinte(grilleCible), tenue: 0, record: 0 };
+  const cible = empreinte(grilleCible);
+  const dejaLa = (etat.especes ?? []).some((e) => e.empreinte === cible);
+  return {
+    ...etat,
+    cible,
+    tenue: 0,
+    record: 0,
+    refusCible: 0,
+    entreeAu: dejaLa ? (etat.tours ?? 0) : null,
+  };
 }
 
 function verser(libres: Compte, compte: Compte): void {
