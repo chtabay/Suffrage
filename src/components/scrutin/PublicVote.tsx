@@ -130,9 +130,20 @@ function pingPollEvent(token: string) {
   }).catch(() => {});
 }
 
-// Marqueur local « déjà voté » des scrutins PUBLICS : la dédup serveur (empreinte
-// IP) est la vraie garde ; ce marqueur évite juste de représenter un bulletin
-// inutile au retour sur la page.
+// Marqueur local « déjà voté », posé sur TOUS les votes en accès ouvert — et il
+// ne joue pas le même rôle des deux côtés.
+//
+// Sur un scrutin PUBLIC, la dédup serveur (empreinte IP dans `cast_public_ballot`)
+// est la vraie garde ; le marqueur évite juste de représenter un bulletin inutile.
+//
+// Sur un vote rapide PRIVÉ, il n'y a AUCUNE garde serveur : `addBallot` est un
+// insert nu, et la policy RLS ne vérifie que l'état du scrutin, jamais la
+// personne. Le marqueur y est donc la seule mémoire — et il ne prétend pas
+// être une sécurité : quelqu'un de déterminé vide son stockage ou change
+// d'appareil, et « Vote vérifié » reste la seule réponse à ça. Ce qu'il ferme
+// est le double vote ACCIDENTEL : rouvrir le lien depuis une conversation et
+// retrouver un bulletin vierge, sans se souvenir qu'on a déjà voté. À douze
+// votants, c'est ça qui fausse un compte, pas un tricheur.
 const votedKey = (token: string) => `scrutin.voted.${token}`;
 const hasVotedLocally = (token: string) => {
   try {
@@ -1192,6 +1203,15 @@ export default function PublicVote({
   const [working, setWorking] = useState(false);
   // Bandeau d'info (ex. « déjà voté » sur un scrutin public) affiché sur les résultats.
   const [notice, setNotice] = useState<string | null>(null);
+  // Vote rapide PRIVÉ : ce marqueur local a détourné l'écran vers les résultats,
+  // mais la base accepterait encore un bulletin. On offre donc le retour au vote
+  // — un téléphone qui circule autour d'une table est le cas NORMAL ici, et le
+  // refuser au nom d'une garde qui n'existe pas priverait de vote quelqu'un de
+  // légitime. Jamais sur un scrutin public, où le serveur, lui, refuserait.
+  const [revotePossible, setRevotePossible] = useState(false);
+  // Posé au CHARGEMENT seulement : on arrive sur un scrutin déjà voté ici. Après
+  // un envoi, c'est « ✓ vote enregistré » qu'il faut lire, pas « déjà voté ».
+  const [votedOnThisDevice, setVotedOnThisDevice] = useState(false);
   // Retour de la publication/dépublication côté organisateur (ex. rate-limit).
   const [pubNotice, setPubNotice] = useState<string | null>(null);
   // Commentaire de proposition en cours d'édition par l'organisateur.
@@ -1297,9 +1317,19 @@ export default function PublicVote({
           if (alive) setView("proposals");
         } else if (phase === "scheduled") {
           if (alive) setView("scheduled");
-        } else if (p.visibility === "public" && hasVotedLocally(token)) {
-          // Scrutin public déjà voté sur cet appareil : droit aux résultats
-          // (ou au merci si l'organisateur les cache), pas de second bulletin.
+        } else if (hasVotedLocally(token)) {
+          // Déjà voté sur cet appareil : droit aux résultats (ou au merci si
+          // l'organisateur les cache) plutôt qu'un bulletin vierge, qui se lit
+          // comme une invitation à revoter. On l'ANNONCE — une redirection
+          // muette vers les résultats se lit comme « mon vote n'est pas passé ».
+          // Sur un scrutin public c'est définitif (le serveur refuserait) ; sur
+          // un vote rapide privé, le retour au bulletin reste offert.
+          // Un DRAPEAU, pas `setNotice(t(…))` : `t` n'est pas dans les
+          // dépendances de cet effet, et l'y mettre le ferait rejouer à chaque
+          // rendu — son ménage (`alive = false`) coupant alors la réponse en
+          // cours. Le texte se calcule au rendu.
+          setVotedOnThisDevice(true);
+          if (p.visibility !== "public") setRevotePossible(true);
           if (voterCanSeeResults(p)) {
             await loadResults(p);
             if (alive) setView("results");
@@ -1393,6 +1423,40 @@ export default function PublicVote({
   const showMsgOrga = Boolean(poll.created_by) && !adminKey;
   // Signalement : réservé aux scrutins publics, jamais montré à l'organisateur.
   const showReport = poll.visibility === "public" && !adminKey;
+  // Bandeau d'info des vues « merci » et « résultats ». Le message posé par un
+  // envoi l'emporte sur le constat d'arrivée : après une action, c'est son
+  // issue qu'on lit.
+  const infoNotice = notice ?? (votedOnThisDevice ? t("voteAlreadyDevice") : null);
+  // Retour au bulletin, vote rapide privé uniquement. En `ghost` (contour, pas
+  // de fond plein) : le geste attendu sur cet écran est de LIRE le résultat, et
+  // un bouton plein en ferait l'action principale — on inviterait à revoter au
+  // lieu de le permettre.
+  const revoteBlock = revotePossible ? (
+    <div style={{ marginTop: 14, textAlign: "center" }}>
+      <div style={{ fontSize: 12.5, color: MUTED, lineHeight: 1.45, marginBottom: 8 }}>{t("revoteHint")}</div>
+      <button
+        onClick={() => {
+          setRevotePossible(false);
+          setVotedOnThisDevice(false);
+          setNotice(null);
+          setView("vote");
+        }}
+        style={{
+          fontFamily: FONT_BODY,
+          fontWeight: 700,
+          fontSize: 13.5,
+          cursor: "pointer",
+          border: `2px solid ${INK}`,
+          borderRadius: 10,
+          background: "none",
+          color: INK,
+          padding: "9px 14px",
+        }}
+      >
+        {t("revoteLabel")}
+      </button>
+    </div>
+  ) : null;
 
   const phase = pollPhase(poll);
   // Vote de dates clos → créneau gagnant (option .at) pour proposer un .ics.
@@ -2087,13 +2151,14 @@ export default function PublicVote({
     return (
       <Shell brand={brand}>
         <div style={{ ...card, textAlign: "center" }}>
-          {/* « Déjà voté » (scrutin public) : on ne prétend pas avoir enregistré un bulletin. */}
-          <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 24, color: notice ? INK : "#1f6b34" }}>
-            {notice ? `ℹ️ ${notice}` : `✓ ${t("voteRecorded")}`}
+          {/* « Déjà voté » : on ne prétend pas avoir enregistré un bulletin. */}
+          <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 24, color: infoNotice ? INK : "#1f6b34" }}>
+            {infoNotice ? `ℹ️ ${infoNotice}` : `✓ ${t("voteRecorded")}`}
           </div>
           <p style={{ color: MUTED, marginTop: 8, lineHeight: 1.5 }}>
             {t("thanksHiddenResults", { name: voter ? ` ${voter.label}` : "" })}
           </p>
+          {revoteBlock}
         </div>
         {poll.access_mode === "open" && <InviteMoreVoters question={poll.question} url={voteShareUrl} />}
         {showMsgOrga && <MessageToOrganizer token={token} />}
@@ -2245,7 +2310,7 @@ export default function PublicVote({
     );
     return (
       <Shell brand={brand}>
-        {notice && (
+        {infoNotice && (
           <div
             style={{
               background: "#fff4e0",
@@ -2258,11 +2323,14 @@ export default function PublicVote({
               marginBottom: 14,
             }}
           >
-            ℹ️ {notice}
+            ℹ️ {infoNotice}
           </div>
         )}
         {poll.quorum != null && <QuorumBanner quorum={poll.quorum} count={ballotCount} />}
         <ResultCard result={result} question={poll.question} ballotCount={ballotCount} footer={footer} calendarSlot={winnerSlot} calendarEnd={winnerEnd} calendarUrl={voteShareUrl} calendarDuration={poll.slot_minutes ?? undefined} survey={isSurvey} decided={phase === "closed"} />
+        {/* Sous le résultat et AVANT l'invitation : « quelqu'un d'autre vote ici »
+            s'adresse à la personne présente, inviter des absents vient après. */}
+        {phase !== "closed" && revoteBlock}
         {/* Scrutin encore ouvert : inviter à amener d'autres votants (partage du SCRUTIN). */}
         {phase !== "closed" && poll.access_mode === "open" && <InviteMoreVoters question={poll.question} url={voteShareUrl} />}
         <PollMap options={poll.options} />
@@ -2372,7 +2440,16 @@ export default function PublicVote({
           setError(t("ballotSaveError"));
         }
       } else {
+        // Vote rapide PRIVÉ : `addBallot` est un insert nu, la base ne déduplique
+        // rien. Le marqueur local est donc la seule mémoire du bulletin — sans
+        // lui, rouvrir le lien resservait un bulletin vierge, ce qui se lit
+        // comme une invitation à revoter.
         await addBallot(poll.id, ballot);
+        markVotedLocally(token);
+        // …et on annonce tout de suite comment faire voter la personne suivante :
+        // sur ce mode, l'appareil qui circule est le cas normal, et c'est ici
+        // qu'on vient de le rendre moins évident.
+        setRevotePossible(true);
         markMyVote(token);
         // Le « mot au groupe » part dans une table dédiée, détaché du bulletin.
         if (comment.trim()) await addComment(token, comment, pseudo).catch(() => {});
