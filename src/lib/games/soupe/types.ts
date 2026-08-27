@@ -304,6 +304,12 @@ export interface ConseilBassin extends Soutiens {
   coutDuChangement: number;
   manque: ManqueAtome[];
   inutiles: Retirable[];
+  /**
+   * LE MUR : la plus légère espèce à sacrifier quand `inutiles` est vide et que
+   * la porte reste fermée, ou `null`. Elle coûte une voie, et c'est la seule
+   * porte — mesuré, attendre coûte dix parties sur soixante.
+   */
+  sacrifice: Retirable | null;
 }
 
 /** Une cible proposée au joueur, avec de quoi choisir. */

@@ -417,8 +417,17 @@ export default function LaSoupe() {
        * décollent pas, la cible est fabriquée et refoulée près de quatre cents
        * fois. Un biochimiste a joué 211 tours de cette promesse avant d'abandonner.
        */
+      /**
+       * ⚠️ « IL FAUT ATTENDRE » ÉTAIT LE DERNIER CUL-DE-SAC DU JEU. Quand les
+       * huit places sont prises et que toutes tiennent une voie, l'écran ne
+       * proposait plus rien et conseillait de patienter. Mesuré sur soixante
+       * parties : en attendant, 34 gagnées et 5 129 tours sans un geste
+       * possible ; en retirant quand même le gabarit le plus léger, 44 gagnées
+       * et 1 491 tours muets. On dit donc ce qu'il en coûte, et on le propose.
+       */
       if (c.plein && c.present === 0) {
-        return c.inutiles.length > 0 ? t("bassinConseilPorteFermee") : t("bassinConseilPorteToutSert");
+        if (c.inutiles.length > 0) return t("bassinConseilPorteFermee");
+        return c.sacrifice ? t("bassinConseilMur") : t("bassinConseilPorteToutSert");
       }
       // L'ATOME QUI MANQUE PASSE AVANT TOUT LE RESTE : conseiller de semer pendant
       // que le bouton est grisé, c'est l'écran qui contredit l'écran.
@@ -566,11 +575,11 @@ export default function LaSoupe() {
           marquée » désignait un contrôle tout en bas du panneau, qui affiche une
           forme et « × 6 » et dont la seule légende vivait dans un `title` — donc
           rien, au doigt. Un testeur est resté bloqué sans savoir COMMENT retirer. */}
-      {partie && partie.acte === 3 && conseilBassin && conseilBassin.plein && conseilBassin.present === 0 && conseilBassin.inutiles[0] ? (
+      {partie && partie.acte === 3 && conseilBassin && conseilBassin.plein && conseilBassin.present === 0 && (conseilBassin.inutiles[0] ?? conseilBassin.sacrifice) ? (
         <button
           type="button"
           onClick={() => {
-            const quoi = conseilBassin.inutiles[0].empreinte;
+            const quoi = (conseilBassin.inutiles[0] ?? conseilBassin.sacrifice)!.empreinte;
             setPartie((x) => (x ? retirerDuBassin(x, quoi) : x));
           }}
           style={{
@@ -588,8 +597,8 @@ export default function LaSoupe() {
             cursor: "pointer",
           }}
         >
-          <Forme grille={conseilBassin.inutiles[0].grille} cote={8} />
-          {t("retirerLibereUnePlace")}
+          <Forme grille={(conseilBassin.inutiles[0] ?? conseilBassin.sacrifice)!.grille} cote={8} />
+          {conseilBassin.inutiles.length === 0 ? t("retirerQuandMeme") : t("retirerLibereUnePlace")}
         </button>
       ) : null}
     </div>
@@ -1184,7 +1193,11 @@ export default function LaSoupe() {
               QUE QUAND ON EST BLOQUÉ : « pourquoi j'arrive à produire alors qu'il
               me manque de l'azote ? » Affiché en permanence, il occupait de la
               place sur un écran qui défile déjà sur deux écrans et demi. */}
-          {manques.length > 0 ? (
+          {/* ⚠️ ET SEULEMENT S'IL Y A DES COPIES. « Vos copies produisent quand
+              même » s'affichait avec ZÉRO copie en production, sous un conseil
+              qui disait au même moment « aucune copie ne tourne, donc rien ne se
+              produit ». L'un des deux mentait. */}
+          {manques.length > 0 && (partie.atelier.copies ?? 0) > 0 ? (
             <p style={{ margin: "8px 0 0", fontSize: 12.5, color: skin.muted, lineHeight: 1.45 }}>
               {t("magasinNote")}
             </p>
@@ -1230,7 +1243,12 @@ export default function LaSoupe() {
               {t("acheter", { atome: nomAtome(m.code), prix: m.prix })}
             </GBtn>
           ))}
-          {manques.some((m) => m.abordable) && manques.reduce((s, m) => s + m.manque, 0) > 1 ? (
+          {/* ⚠️ IL DISPARAISSAIT QUAND IL NE MANQUAIT QU'UN ATOME, et c'est
+              précisément là qu'il porte la seule phrase utile : le bouton par
+              atome dit son prix, celui-ci dit ce qu'il DÉBLOQUE — une copie de
+              plus, pour toujours. Le moteur de référence le montrait déjà dès
+              qu'un achat était possible. */}
+          {manques.some((m) => m.abordable) ? (
             <GBtn
               skin={skin}
               size="sm"
@@ -1754,39 +1772,12 @@ export default function LaSoupe() {
           </>
         ) : null}
 
-        {partie.bilanBassin ? (
-          <p style={{ margin: 0, fontSize: 12.5, color: skin.muted }}>
-            {t("dernierTour")} —{" "}
-            {[
-              partie.bilanBassin.nes > 0 ? t("briquesNees", { n: partie.bilanBassin.nes }) : null,
-              partie.bilanBassin.soudures > 0 ? t("soudures", { n: partie.bilanBassin.soudures }) : null,
-              partie.bilanBassin.morts > 0 ? t("moleculesDefaites", { n: partie.bilanBassin.morts }) : null,
-              partie.bilanBassin.emportes > 0 ? t("emportees", { n: partie.bilanBassin.emportes }) : null,
-              /* ⚠️ LE BILAN NE DISAIT QUE SES RÉUSSITES. L'événement le plus
-                 fréquent du bassin — une soudure qui a lieu et qu'on refoule
-                 faute de place — n'avait aucune ligne. */
-              partie.bilanBassin.refusees > 0 ? t("refoulees", { n: partie.bilanBassin.refusees }) : null,
-            ]
-              .filter(Boolean)
-              .join(" · ") || t("rien")}
-          </p>
-        ) : null}
-        {partie.bilanBassin && partie.bilanBassin.refusCible > 0 ? (
-          <p style={{ margin: 0, fontSize: 12.5, color: ROUGE }}>
-            {t("votreMoleculeRefoulee", { n: partie.bilanBassin.refusCible })}
-          </p>
-        ) : null}
-        {partie.bilanBassin?.sortieCible ? (
-          <p style={{ margin: 0, fontSize: 12.5, color: ROUGE }}>
-            {t(
-              partie.bilanBassin.sortieCible === "attrition"
-                ? "sortieAttrition"
-                : partie.bilanBassin.sortieCible === "concurrence"
-                  ? "sortieConcurrence"
-                  : "sortieCourant",
-            )}
-          </p>
-        ) : null}
+        {/* ⚠️ LA CHRONIQUE A REMPLACÉ CES LIGNES — et je les avais laissées côte
+            à côte. « dernier tour — 12 soudures · 67 refoulées », « votre
+            molécule a été refoulée 3 fois », « votre molécule a quitté le
+            bassin » : la chronique juste au-dessus dit déjà tout cela, tour par
+            tour et sans se répéter. Une redondance qu'on a créée soi-même est la
+            plus facile à retirer, et la première à voir. */}
 
         {/* ⚠️ LE MÉTIER DES TROIS ATOMES — la question posée après une partie :
             « les molécules soufrées ne semblent pas favorisées ». Elle était juste

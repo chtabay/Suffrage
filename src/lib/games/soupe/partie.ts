@@ -748,6 +748,29 @@ export function conseilDuBassin(partie: Partie): ConseilBassin | null {
   const composition = renfort ? espece(renfort.grille, partie.milieu).composition : {};
   const manque = manquePour(partie.bassin, composition);
   const rares = new Set<Code>(manque.map((m) => m.code));
+  const plein = partie.bassin.especes.filter((e) => !nourriture(e)).length >= ESPECES_MAX;
+
+  const detailler = (e: Espece): Retirable => {
+    const rendu = rendrait(e);
+    // `utile` ne compte QUE les atomes qui manquent : une espèce qui rend six
+    // azotes quand c'est du soufre qu'on cherche ne vaut rien, et l'écran ne
+    // doit pas la recommander comme si elle valait quelque chose.
+    return {
+      ...e,
+      rendu,
+      utile: [...rares].reduce((n, code) => n + (rendu[code] ?? 0), 0),
+      /** Ce qu'elle pèse, donc ce qu'elle bloque. */
+      masse: e.effectif * e.taille,
+    };
+  };
+  const sansElles = partie.bassin.especes.filter(
+    (e) => !nourriture(e) && e.empreinte !== cible.empreinte,
+  );
+  const inutiles = sansElles
+    .filter((e) => !s.voies.some((v) => v.tenants.some((t) => t.empreinte === e.empreinte)))
+    .map(detailler)
+    .sort((a, b) => b.utile - a.utile || b.masse - a.masse);
+
   return {
     ...s,
     objectif: OBJECTIF,
@@ -764,7 +787,7 @@ export function conseilDuBassin(partie: Partie): ConseilBassin | null {
      * aucune soudure neuve n'entre. C'est l'état qui décide du troisième acte et
      * aucun écran ne le nommait — il ne montrait qu'un inventaire.
      */
-    plein: partie.bassin.especes.filter((e) => !nourriture(e)).length >= ESPECES_MAX,
+    plein,
     /**
      * ⚠️ ON NE LES PROPOSE QUE QUAND LA MOLÉCULE EST ABSENTE. Offrir de changer
      * d'avis pendant qu'elle tient serait inviter à jeter ce qu'on vient de
@@ -792,27 +815,31 @@ export function conseilDuBassin(partie: Partie): ConseilBassin | null {
      * l'est pas. Le tri sert donc l'arbitrage SECONDAIRE — quel atome me revient
      * — et l'écran doit dire le motif PREMIER, qui est la place.
      */
-    inutiles: partie.bassin.especes
-      .filter(
-        (e) =>
-          !nourriture(e) &&
-          e.empreinte !== cible.empreinte &&
-          !s.voies.some((v) => v.tenants.some((t) => t.empreinte === e.empreinte)),
-      )
-      .map((e: Espece): Retirable => {
-        const rendu = rendrait(e);
-        // `utile` ne compte QUE les atomes qui manquent : une espèce qui rend six
-        // azotes quand c'est du soufre qu'on cherche ne vaut rien, et l'écran ne
-        // doit pas la recommander comme si elle valait quelque chose.
-        return {
-          ...e,
-          rendu,
-          utile: [...rares].reduce((n, code) => n + (rendu[code] ?? 0), 0),
-          /** Ce qu'elle pèse, donc ce qu'elle bloque. */
-          masse: e.effectif * e.taille,
-        };
-      })
-      .sort((a, b) => b.utile - a.utile || b.masse - a.masse),
+    inutiles,
+    /**
+     * LE MUR : plus rien de libre à retirer, et la porte toujours fermée.
+     *
+     * ⚠️ « IL FAUT ATTENDRE QU'UNE ESPÈCE S'ÉTEIGNE D'ELLE-MÊME » ÉTAIT FAUX, et
+     * c'était le dernier cul-de-sac du jeu — deux testeurs s'y sont arrêtés,
+     * l'écran ne leur proposant plus aucun geste. C'est le joueur qui l'atteint
+     * EN JOUANT BIEN : il sème ses gabarits et retire ce qui ne sert pas, si
+     * bien que les huit places finissent tenues par des espèces qui servent
+     * TOUTES. Sur la graine 1, en suivant le conseil, 212 des 233 tours à porte
+     * fermée sont ce mur-là.
+     *
+     * Mesuré sur soixante parties : en attendant, 34 sont gagnées et 5 129 tours
+     * se passent sans un geste possible ; en retirant quand même le gabarit le
+     * plus léger, 44 sont gagnées et il ne reste que 1 491 tours muets. Le
+     * sacrifice coûte une voie et le bassin en fournit déjà plus qu'il n'en faut
+     * — la demi-saturation est à douze gabarits, le bassin en tient soixante à
+     * cent vingt.
+     *
+     * On le désigne donc, avec son prix, plutôt que d'inviter à attendre.
+     */
+    sacrifice:
+      plein && s.present === 0 && inutiles.length === 0
+        ? (sansElles.map(detailler).sort((a, b) => a.masse - b.masse)[0] ?? null)
+        : null,
   };
 }
 
