@@ -3279,18 +3279,18 @@
     "toutAcheterBatit": "Comprar todo — construye una copia, {gain}/turno",
     "semerEtChange": "Sembrar {quoi} ×{n} — suelda 1 de {avant} → 1 de {apres}",
     "semerSansEffet": "Sembrar {quoi} ×{n} — no cambiará nada: ya es 1 de {sur}",
-    "recours": "La charca no quiere esta. Puedes apuntar a una de las otras dos del paso — te quedan {n} cambio(s) de idea.",
-    "recoursAvecPrix": "La charca no quiere esta. Puedes apuntar a una de las otras dos del paso — te quedan {n} cambio(s) de idea, y perderás tu mejor estancia de {perdu} turnos.",
+    "recours": "La charca no quiere esta. Puedes apuntar a una de las otras dos del paso — te {n, plural, one {queda # cambio de idea} other {quedan # cambios de idea}}.",
+    "recoursAvecPrix": "La charca no quiere esta. Puedes apuntar a una de las otras dos del paso — te {n, plural, one {queda # cambio de idea} other {quedan # cambios de idea}}, y perderás tu mejor estancia de {perdu, plural, one {# turno} other {# turnos}}.",
     "viserAucuneAide": "Apuntar a esta — ninguna de tus moléculas la ayuda",
     "viserUneAide": "Apuntar a esta — una de tus moléculas la ayuda",
     "viserDesAides": "Apuntar a esta — {n} de tus moléculas la ayudan",
     "journalRevise": "Cambiada la molécula objetivo.",
-    "journalReviseAvecPrix": "Cambiada la molécula objetivo — se pierde la mejor estancia de {n} turnos.",
+    "journalReviseAvecPrix": "Cambiada la molécula objetivo — se pierde la mejor estancia de {n, plural, one {# turno} other {# turnos}}.",
     "bilanTitre": "Lo que habrá hecho esta charca:",
     "bilanEntree": "entró en el turno {n}",
-    "bilanRefusCible": "la charca la fabricó y la rechazó {n} veces antes de darle una plaza",
+    "bilanRefusCible": "la charca la fabricó y la rechazó {n, plural, one {# vez} other {# veces}} antes de darle una plaza",
     "bilanPartRefusee": "el {n} % de su química acertada fue rechazada por falta de sitio",
-    "bilanExpulsees": "{n} especies cedieron su plaza"
+    "bilanExpulsees": "{n, plural, one {# especie cedió su plaza} other {# especies cedieron su plaza}}"
   },
   "Horizon": {
     "metaTitle": "Horizonte estadístico — Placet",
