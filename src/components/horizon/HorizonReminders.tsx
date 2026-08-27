@@ -4,8 +4,8 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import AideModale from "@/components/games/Modale";
 import ConnexionJeux from "@/components/games/ConnexionJeux";
-import { Btn, Card } from "@/components/ui/kit";
-import { CORAL, FONT_DISPLAY, INK, MUTED, YELLOW } from "@/components/scrutin/theme";
+import { Btn } from "@/components/ui/kit";
+import { CORAL, INK, MUTED, YELLOW } from "@/components/scrutin/theme";
 import { PLACET_GAMES_SKIN as skin } from "@/lib/games/skin";
 import { useAuth } from "@/lib/auth/useAuth";
 import { deleteHorizonReminder, readHorizonReminder, saveHorizonReminder } from "@/lib/db/horizon";
@@ -120,22 +120,40 @@ export default function HorizonReminders({ payload, result }: { payload: Horizon
 
   const title = !user ? t("reminderAccountTitle") : t("reminderSettingsTitle");
   const text = !user ? t("reminderAccountText") : t("reminderSettingsText");
+  const compactLabel = reminderId && subscribedHere
+    ? nextLabel ? t("reminderNext", { date: nextLabel }) : t("reminderActive")
+    : t("reminderReceive");
 
   return (
-    <section aria-labelledby="reminders-title" style={{ marginTop: 34 }}>
-      <Card accent={YELLOW} padding="clamp(20px, 5vw, 28px)">
-        <h2 id="reminders-title" style={{ margin: 0, fontFamily: FONT_DISPLAY, fontSize: 24 }}>{t("reminderTitle")}</h2>
-        {nextLabel ? <p style={{ margin: "9px 0 5px", color: MUTED, fontSize: 14.5, lineHeight: 1.55 }}>{t("reminderNext", { date: nextLabel })}</p> : null}
-        {!loading && !user ? <p style={{ margin: "0 0 17px", color: MUTED, fontSize: 12.5, fontWeight: 700 }}>{t("reminderAccountRequired")}</p> : <div style={{ height: 12 }} />}
-        {reminderId && subscribedHere ? (
-          <div>
-            <p role="status" style={{ margin: 0, color: "#1c7f45", fontWeight: 800 }}>{t("reminderActive")}</p>
-            <Btn onClick={() => setOpen(true)} variant="cream" style={{ marginTop: 13 }}>{t("reminderEdit")}</Btn>
-          </div>
-        ) : (
-          <Btn onClick={() => setOpen(true)} variant="primary" disabled={loading}>{t("reminderReceive")}</Btn>
-        )}
-      </Card>
+    <section aria-label={t("reminderTitle")} style={{ marginTop: 18 }}>
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        disabled={loading}
+        style={{
+          display: "flex",
+          width: "100%",
+          minHeight: 54,
+          alignItems: "center",
+          gap: 12,
+          padding: "11px 14px",
+          border: `2px solid ${INK}`,
+          borderRadius: 12,
+          background: YELLOW,
+          color: INK,
+          textAlign: "left",
+          cursor: loading ? "wait" : "pointer",
+          opacity: loading ? .7 : 1,
+        }}
+      >
+        <span aria-hidden="true" style={{ display: "grid", placeItems: "center", flex: "0 0 30px", width: 30, height: 30, border: `2px solid ${INK}`, borderRadius: "50%", background: "#fff" }}>
+          <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9" /><path d="M10 21h4" />
+          </svg>
+        </span>
+        <span role={reminderId && subscribedHere ? "status" : undefined} style={{ flex: 1, fontSize: 14.5, fontWeight: 800, lineHeight: 1.35 }}>{compactLabel}</span>
+        <span aria-hidden="true" style={{ fontSize: 23, fontWeight: 800, lineHeight: 1 }}>›</span>
+      </button>
 
       {open ? (
         <AideModale skin={skin} titre={title} texte={text} fermer={() => setOpen(false)} fermerLabel={t("close")} fermerDiscret>
