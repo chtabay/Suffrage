@@ -3235,7 +3235,7 @@
     "regle7": "A template does not enter what it makes and gives it no atoms: it brings the two pieces together, then leaves intact. So the useful one is whichever contour can hold your target's two bricks — the screen tells you for each. The others only cost atoms and a place. And the pool cannot remake your molecules: the current carries them off, and you must sow more.",
     "regle8Titre": "8. The three atoms do different jobs",
     "regle8": "Carbon binds strongest and takes four neighbours: it is the frame. Nitrogen is what this water pays for, and the priciest atom to buy back. Sulfur takes only two neighbours and binds weakest — a hinge, not a beam: a molecule carrying two of them comes apart five times faster, and the pool never keeps it.",
-    "gabaritsDejaLa": "Your templates are already in the pool ({quoi}). Nothing left but to let it run — and sow more once the current has carried them off.",
+    "gabaritsDejaLa": "Your templates are already in the pool ({quoi}). There is nothing left to do but let it work — and seed more when the pool has lost them.",
     "semerGabaritLot": "Sow {quoi} (×{n})",
     "semerImpossible": "Not enough free atoms: {quoi} needed per copy.",
     "neServiraitARien": "— would serve nothing here —",
@@ -3254,7 +3254,10 @@
     "laVotre": "yours",
     "bassinConseilPorteFermee": "The pool is full: every slot is taken and nothing new gets in — not even your molecule, which the chemistry keeps making. Remove the marked molecule to open a slot for it.",
     "bassinConseilPorteToutSert": "The pool is full and nothing new gets in. Everything it holds is useful to you: you must wait for a species to die out on its own before yours can take its slot.",
-    "bassinConseilUnePlaceLibre": "{n} templates hold its two bricks, and a slot is free: the next weld can take it. The pool makes it, not you."
+    "bassinConseilUnePlaceLibre": "{n} templates hold its two bricks, and a slot is free: the next weld can take it. The pool makes it, not you.",
+    "motRetirer": "remove",
+    "retirerLibereUnePlace": "Remove — frees a slot",
+    "gabaritsDejaLaPorteFermee": "Your templates are already in the pool ({quoi}) and they are doing their job: the welding does happen. But while the slots are taken, what they make is turned away at once — it is room that is missing, not chemistry."
   },
   "Horizon": {
     "metaTitle": "Statistical horizon — Placet",

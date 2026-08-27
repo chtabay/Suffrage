@@ -238,6 +238,7 @@ function Habitant({
   onRetirer,
   laVotre,
   etiquette,
+  motRetirer,
 }: {
   esp: Espece;
   cote?: number;
@@ -251,6 +252,14 @@ function Habitant({
    */
   laVotre?: boolean;
   etiquette?: string;
+  /**
+   * ⚠️ UN BOUTON QUI NE RESSEMBLE PAS À UN BOUTON N'EST PAS UN BOUTON. Les tuiles
+   * retirables et les briques, qui ne le sont pas, se ressemblaient trait pour
+   * trait, et ce qu'on pouvait en faire ne vivait que dans un `title` — donc nulle
+   * part au doigt. Un testeur est resté bloqué devant huit boutons sans savoir
+   * qu'il en avait sous les yeux.
+   */
+  motRetirer?: string;
 }) {
   const contenu = (
     <>
@@ -259,6 +268,11 @@ function Habitant({
       {laVotre && etiquette ? (
         <span style={{ fontSize: 9, letterSpacing: "0.04em", textTransform: "uppercase", color: skin.good }}>
           {etiquette}
+        </span>
+      ) : null}
+      {!laVotre && onRetirer && motRetirer ? (
+        <span style={{ fontSize: 9, letterSpacing: "0.04em", textTransform: "uppercase", color: OR }}>
+          {motRetirer}
         </span>
       ) : null}
     </>
@@ -270,8 +284,9 @@ function Habitant({
     gap: 3,
     padding: "5px 6px",
     borderRadius: 8,
-    border: `2px solid ${laVotre ? skin.good : `${skin.ink}18`}`,
-    background: skin.paper,
+    border: laVotre ? `2px solid ${skin.good}` : onRetirer ? `2px dashed ${OR}` : `2px solid ${skin.ink}18`,
+    background: onRetirer && !laVotre ? `${OR}14` : skin.paper,
+    cursor: onRetirer ? "pointer" : "default",
   };
   if (!onRetirer) {
     return (
@@ -288,6 +303,8 @@ function Habitant({
 }
 
 const ROUGE = "#A2402F";
+/** L'ambre du projet : ce que le conseil désigne, et ce qui se clique. */
+const OR = "#B07A1E";
 
 export default function LaSoupe() {
   const t = useTranslations("Soupe");
@@ -538,7 +555,37 @@ export default function LaSoupe() {
       }}
     >
       <span aria-hidden style={{ fontWeight: 800, color: skin.accent }}>→</span>
-      <span>{conseil()}</span>
+      <span style={{ flex: 1 }}>{conseil()}</span>
+      {/* ⚠️ UN CONSEIL IMPÉRATIF DOIT PORTER SON BOUTON. « Retirez la molécule
+          marquée » désignait un contrôle tout en bas du panneau, qui affiche une
+          forme et « × 6 » et dont la seule légende vivait dans un `title` — donc
+          rien, au doigt. Un testeur est resté bloqué sans savoir COMMENT retirer. */}
+      {partie && partie.acte === 3 && conseilBassin && conseilBassin.plein && conseilBassin.present === 0 && conseilBassin.inutiles[0] ? (
+        <button
+          type="button"
+          onClick={() => {
+            const quoi = conseilBassin.inutiles[0].empreinte;
+            setPartie((x) => (x ? retirerDuBassin(x, quoi) : x));
+          }}
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 6,
+            flex: "0 0 auto",
+            padding: "6px 10px",
+            borderRadius: 8,
+            border: `2px solid ${OR}`,
+            background: `${OR}14`,
+            color: skin.ink,
+            fontSize: 12.5,
+            fontWeight: 600,
+            cursor: "pointer",
+          }}
+        >
+          <Forme grille={conseilBassin.inutiles[0].grille} cote={8} />
+          {t("retirerLibereUnePlace")}
+        </button>
+      ) : null}
     </div>
   );
 
@@ -1368,9 +1415,15 @@ export default function LaSoupe() {
             explication absente. */}
         {conseilBassin.aider.length === 0 ? (
           <p style={{ margin: 0, fontSize: 13, color: skin.muted, lineHeight: 1.45 }}>
-            {conseilBassin.dejaLa.length > 0
-              ? t("gabaritsDejaLa", { quoi: conseilBassin.dejaLa.map((x) => nomLisible(x.visage)).join(", ") })
-              : t("aucunOutil")}
+            {/* ⚠️ CE PARAGRAPHE DISAIT « IL N'Y A PLUS QU'À LAISSER FAIRE » PENDANT
+                QUE LE CONSEIL DISAIT « RETIREZ », sur le même écran — un testeur
+                s'y est bloqué. Quand les places sont prises, les gabarits
+                travaillent pour rien : la soudure a lieu et le bassin la refoule. */}
+            {conseilBassin.dejaLa.length === 0
+              ? t("aucunOutil")
+              : t(conseilBassin.plein && conseilBassin.present === 0 ? "gabaritsDejaLaPorteFermee" : "gabaritsDejaLa", {
+                  quoi: conseilBassin.dejaLa.map((x) => nomLisible(x.visage)).join(", "),
+                })}
           </p>
         ) : null}
 
@@ -1422,6 +1475,7 @@ export default function LaSoupe() {
                   }
                   laVotre={cible}
                   etiquette={t("laVotre")}
+                  motRetirer={t("motRetirer")}
                   onRetirer={cible ? undefined : () => setPartie((p) => (p ? retirerDuBassin(p, e.empreinte) : p))}
                 />
               );
