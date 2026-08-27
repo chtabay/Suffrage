@@ -423,7 +423,7 @@ export default function LaSoupe() {
        * proposait plus rien et conseillait de patienter. Mesuré sur soixante
        * parties : en attendant, 34 gagnées et 5 129 tours sans un geste
        * possible ; en retirant quand même le gabarit le plus léger, 44 gagnées
-       * et 1 491 tours muets. On dit donc ce qu'il en coûte, et on le propose.
+       * et plus un seul tour muet. On dit ce qu'il en coûte, et on le propose.
        */
       if (c.plein && c.present === 0) {
         if (c.inutiles.length > 0) return t("bassinConseilPorteFermee");

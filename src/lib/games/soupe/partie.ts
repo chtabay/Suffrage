@@ -829,7 +829,7 @@ export function conseilDuBassin(partie: Partie): ConseilBassin | null {
      *
      * Mesuré sur soixante parties : en attendant, 34 sont gagnées et 5 129 tours
      * se passent sans un geste possible ; en retirant quand même le gabarit le
-     * plus léger, 44 sont gagnées et il ne reste que 1 491 tours muets. Le
+     * plus léger, 44 sont gagnées et il ne reste AUCUN tour muet. Le
      * sacrifice coûte une voie et le bassin en fournit déjà plus qu'il n'en faut
      * — la demi-saturation est à douze gabarits, le bassin en tient soixante à
      * cent vingt.
