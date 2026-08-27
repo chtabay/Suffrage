@@ -310,6 +310,13 @@ export default function HorizonClient() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
+  const revealQr = () => {
+    const details = document.getElementById("horizon-share");
+    if (!(details instanceof HTMLDetailsElement)) return;
+    details.open = true;
+    details.scrollIntoView({ behavior: "smooth", block: "center" });
+  };
+
   return (
     <div style={{ minHeight: "100vh" }}>
       <header style={{ position: "sticky", top: 0, zIndex: 20, background: "rgba(251,246,236,.94)", borderBottom: `2px solid ${INK}`, backdropFilter: "blur(8px)" }}>
@@ -318,7 +325,28 @@ export default function HorizonClient() {
             <PlacetMark size={36} />
             <strong style={{ fontFamily: FONT_DISPLAY, fontSize: 22, letterSpacing: "-.04em" }}>Placet</strong>
           </Link>
-          <span style={{ fontSize: 12, fontWeight: 800, letterSpacing: ".09em", textTransform: "uppercase" }}>{t("eyebrow")}</span>
+          {mode === "result" && shareUrl ? (
+            <div style={{ display: "flex", alignItems: "center", gap: 9 }}>
+              <button
+                type="button"
+                onClick={revealQr}
+                aria-label={t("qrReveal")}
+                title={t("qrReveal")}
+                style={{ display: "grid", placeItems: "center", width: 40, height: 40, padding: 4, border: `2px solid ${INK}`, borderRadius: 9, background: "#fff", cursor: "pointer" }}
+              >
+                <QRCodeSVG value={shareUrl} size={28} level="M" bgColor="#ffffff" fgColor={INK} />
+              </button>
+              <button
+                type="button"
+                onClick={createAnother}
+                style={{ minHeight: 40, padding: "8px 12px", border: `2px solid ${INK}`, borderRadius: 9, background: YELLOW, color: INK, fontFamily: FONT_DISPLAY, fontSize: 14, fontWeight: 800, cursor: "pointer" }}
+              >
+                {t("createShort")}
+              </button>
+            </div>
+          ) : (
+            <span style={{ fontSize: 12, fontWeight: 800, letterSpacing: ".09em", textTransform: "uppercase" }}>{t("eyebrow")}</span>
+          )}
         </div>
       </header>
 
@@ -328,10 +356,7 @@ export default function HorizonClient() {
         ) : mode === "form" ? (
           <>
             <div style={{ marginBottom: 30 }}>
-              <span style={{ display: "inline-block", padding: "6px 10px", border: `2px solid ${INK}`, borderRadius: 999, background: YELLOW, fontSize: 12, fontWeight: 800, textTransform: "uppercase" }}>
-                {t("badge")}
-              </span>
-              <h1 className="hero" style={{ margin: "18px 0 12px", maxWidth: 680, fontFamily: FONT_DISPLAY, fontSize: "clamp(42px, 8vw, 70px)", lineHeight: .96, letterSpacing: "-.055em" }}>
+              <h1 className="hero" style={{ margin: "0 0 12px", maxWidth: 680, fontFamily: FONT_DISPLAY, fontSize: "clamp(42px, 8vw, 70px)", lineHeight: .96, letterSpacing: "-.055em" }}>
                 {t("formTitle")}
               </h1>
               <p style={{ maxWidth: 650, margin: 0, color: MUTED, fontSize: 17, lineHeight: 1.65 }}>{t("formIntro")}</p>
@@ -440,10 +465,7 @@ function ResultView({
   return (
     <>
       <div style={{ marginBottom: 28 }}>
-        <span style={{ display: "inline-block", padding: "6px 10px", border: `2px solid ${INK}`, borderRadius: 999, background: YELLOW, fontSize: 12, fontWeight: 800, textTransform: "uppercase" }}>
-          {t("badge")}
-        </span>
-        <h1 className="hero" style={{ margin: "18px 0 12px", fontFamily: FONT_DISPLAY, fontSize: "clamp(42px, 8vw, 68px)", lineHeight: 1, letterSpacing: "-.055em", overflowWrap: "anywhere" }}>
+        <h1 className="hero" style={{ margin: "0 0 12px", fontFamily: FONT_DISPLAY, fontSize: "clamp(42px, 8vw, 68px)", lineHeight: 1, letterSpacing: "-.055em", overflowWrap: "anywhere" }}>
           {payload.title ?? t("defaultTitle", { name: payload.firstName })}
         </h1>
         {payload.comment ? <p style={{ margin: 0, maxWidth: 660, color: MUTED, fontSize: 18, lineHeight: 1.65, whiteSpace: "pre-wrap", overflowWrap: "anywhere" }}>{payload.comment}</p> : null}
@@ -496,7 +518,7 @@ function ResultView({
         </Card>
       </section>
 
-      <details style={{ marginTop: 18, border: `2px solid ${INK}`, borderRadius: 13, background: "#fff", overflow: "hidden" }}>
+      <details id="horizon-share" style={{ marginTop: 18, border: `2px solid ${INK}`, borderRadius: 13, background: "#fff", overflow: "hidden", scrollMarginTop: 84 }}>
         <summary style={{ padding: "14px 17px", cursor: "pointer", fontFamily: FONT_DISPLAY, fontWeight: 800 }}>{t("qrReveal")}</summary>
         <div className="horizon-share-grid" style={{ display: "grid", gridTemplateColumns: "210px minmax(0, 1fr)", alignItems: "center", gap: 22, padding: "4px 18px 20px", borderTop: `1px solid ${INK}22` }}>
           <div style={{ display: "grid", placeItems: "center", padding: 10, border: `2px solid ${INK}`, borderRadius: 11, background: "#fff" }}>
