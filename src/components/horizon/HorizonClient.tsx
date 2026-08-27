@@ -576,7 +576,6 @@ function ResultView({
         </section>
       ) : null}
 
-      <p style={{ margin: "8px 4px 0", color: MUTED, fontSize: 13, lineHeight: 1.65 }}>{t("privacyResult")}</p>
       <button type="button" onClick={onEdit} style={{ margin: "16px 3px 0", padding: 0, border: 0, background: "none", color: MUTED, font: "inherit", fontSize: 13, fontWeight: 700, textDecoration: "underline", textUnderlineOffset: 3, cursor: "pointer" }}>{t("edit")}</button>
 
       <section aria-labelledby="objects-strip-title" style={{ marginTop: 34 }}>

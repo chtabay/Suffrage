@@ -3348,7 +3348,6 @@
     "sourceLink": "View the Insee source",
     "calculatedOn": "Calculated on {date}. The statistical reference itself is not updated.",
     "disclaimer": "This horizon describes a population average, not one person's lifespan. Health, living conditions and individual chance are not taken into account.",
-    "privacyResult": "The first name, birth date, title and comment are held in the link fragment after #: they are not sent to the server, but remain visible in browser history and to anyone who receives the QR code or link.",
     "reminderTitle": "Receive what comes next",
     "reminderIntro": "Get a reminder on each birthday and when the horizon falls below 30, 20, 10, 5 and 1 year.",
     "reminderActivate": "Turn on reminders",
