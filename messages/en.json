@@ -3286,7 +3286,7 @@
     "bilanExpulsees": "{n, plural, one {# species gave up its slot} other {# species gave up their slot}}"
   },
   "Horizon": {
-    "metaTitle": "Statistical horizon — Placet",
+    "metaTitle": "Placet",
     "metaDescription": "Placet",
     "backHome": "Back to the Placet home page",
     "eyebrow": "Horizon",
@@ -3339,8 +3339,8 @@
     "copied": "Link copied.",
     "shared": "Share sheet opened.",
     "copyFailed": "Could not copy automatically. Select the link above.",
-    "shareTitle": "{name}'s horizon",
-    "shareText": "Here is {name}'s statistical horizon.",
+    "shareTitle": "{name} — Placet",
+    "shareText": "For {name}.",
     "methodTitle": "Where does this figure come from?",
     "referenceFemale": "female",
     "referenceMale": "male",

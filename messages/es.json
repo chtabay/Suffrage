@@ -3286,7 +3286,7 @@
     "bilanExpulsees": "{n, plural, one {# especie cedió su plaza} other {# especies cedieron su plaza}}"
   },
   "Horizon": {
-    "metaTitle": "Horizonte estadístico — Placet",
+    "metaTitle": "Placet",
     "metaDescription": "Placet",
     "backHome": "Volver al inicio de Placet",
     "eyebrow": "Horizonte",
@@ -3339,8 +3339,8 @@
     "copied": "Enlace copiado.",
     "shared": "Ventana para compartir abierta.",
     "copyFailed": "No se ha podido copiar automáticamente. Selecciona el enlace de arriba.",
-    "shareTitle": "El horizonte de {name}",
-    "shareText": "Aquí está el horizonte estadístico de {name}.",
+    "shareTitle": "{name} — Placet",
+    "shareText": "Para {name}.",
     "methodTitle": "¿De dónde sale esta cifra?",
     "referenceFemale": "femenina",
     "referenceMale": "masculina",

@@ -3286,7 +3286,7 @@
     "bilanExpulsees": "{n, plural, one {# species give up im space} other {# species dem give up dia space}}"
   },
   "Horizon": {
-    "metaTitle": "Statistical horizon — Placet",
+    "metaTitle": "Placet",
     "metaDescription": "Placet",
     "backHome": "Go back to Placet home",
     "eyebrow": "Horizon",
@@ -3339,8 +3339,8 @@
     "copied": "Link don copy.",
     "shared": "Share window don open.",
     "copyFailed": "E no fit copy by itself. Select the link wey dey up.",
-    "shareTitle": "{name} horizon",
-    "shareText": "See {name} statistical horizon.",
+    "shareTitle": "{name} — Placet",
+    "shareText": "For {name}.",
     "methodTitle": "Where this number come from?",
     "referenceFemale": "woman",
     "referenceMale": "man",

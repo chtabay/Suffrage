@@ -521,7 +521,7 @@ function ResultView({
     <>
       <div style={{ marginBottom: 28 }}>
         {payload.title ? (
-          <p style={{ margin: "0 0 8px", color: CORAL, fontFamily: FONT_DISPLAY, fontSize: 17, fontWeight: 800 }}>
+          <p style={{ margin: "0 0 9px", color: CORAL, fontFamily: FONT_DISPLAY, fontSize: "clamp(24px, 5vw, 32px)", fontWeight: 800, lineHeight: 1 }}>
             {payload.firstName}
           </p>
         ) : null}
