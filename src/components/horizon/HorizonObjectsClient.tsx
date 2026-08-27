@@ -1,67 +1,141 @@
 "use client";
 
-import type { CSSProperties } from "react";
-import { useEffect, useState } from "react";
+import type { CSSProperties, FormEvent } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
-import { useTranslations } from "next-intl";
-import { QRCodeSVG } from "qrcode.react";
+import { useLocale, useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
+import { submitHorizonOrder } from "@/app/[locale]/horizon/objets/actions";
 import PlacetMark from "@/components/scrutin/PlacetMark";
-import { Card } from "@/components/ui/kit";
+import { Btn, Card } from "@/components/ui/kit";
 import { CORAL, CREAM, FONT_DISPLAY, INK, MUTED, YELLOW } from "@/components/scrutin/theme";
 import { encodeHorizonFragment, parseHorizonFragment, type HorizonPayload } from "@/lib/horizon/horizon";
+import type { HorizonOrderProduct } from "@/lib/horizon/order";
 
-type ProductKind = "shirt" | "mug" | "poster" | "plaque" | "magnet" | "card";
+type OptionKind = "size" | "format" | null;
+type Variant = { id: string; label: string; src: string; color: string };
+type Product = { kind: HorizonOrderProduct; title: string; text: string; optionKind: OptionKind; variants: Variant[] };
 
-const centered: CSSProperties = { display: "grid", placeItems: "center" };
+const inputStyle: CSSProperties = {
+  width: "100%",
+  minHeight: 44,
+  padding: "10px 12px",
+  border: `2px solid ${INK}`,
+  borderRadius: 9,
+  background: "#fff",
+  color: INK,
+  font: "inherit",
+  boxSizing: "border-box",
+};
 
-function MiniQr({ value, size }: { value: string; size: number }) {
+function ProductVisual({ product, variant, onOrder }: { product: Product; variant: Variant; onOrder: () => void }) {
+  const t = useTranslations("Horizon");
   return (
-    <div style={{ ...centered, padding: Math.max(4, Math.round(size * .08)), background: "#fff" }}>
-      <QRCodeSVG value={value} size={size} level="M" bgColor="#ffffff" fgColor={INK} />
-    </div>
+    <button
+      type="button"
+      onClick={onOrder}
+      aria-label={t("objectsOrderOpen", { product: product.title })}
+      className="dc-lift"
+      style={{ position: "relative", display: "block", width: "100%", padding: 0, border: 0, borderBottom: `2px solid ${INK}`, background: CREAM, cursor: "pointer", overflow: "hidden" }}
+    >
+      <span style={{ display: "block", position: "relative", width: "100%", aspectRatio: "1 / 1" }}>
+        <Image src={variant.src} alt={t("objectsImageAlt", { product: product.title, variant: variant.label })} fill sizes="(max-width:600px) 100vw, 500px" style={{ objectFit: "cover" }} />
+      </span>
+      <span style={{ position: "absolute", right: 14, bottom: 14, padding: "8px 12px", border: `2px solid ${INK}`, borderRadius: 999, background: YELLOW, color: INK, fontFamily: FONT_DISPLAY, fontSize: 13, fontWeight: 800, boxShadow: `3px 3px 0 ${INK}` }}>
+        {t("objectsOrder")}
+      </span>
+    </button>
   );
 }
 
-function ProductVisual({ kind, qr, name }: { kind: ProductKind; qr: string; name: string }) {
-  const src = `/horizon/objects/${kind === "card" ? "metal-card" : kind}.webp`;
-  const overlayBase: CSSProperties = { position: "absolute", zIndex: 2, display: "grid", placeItems: "center" };
-  let overlay: CSSProperties;
-  let qrSize: number;
+function OrderDialog({ product, initialVariant, horizonUrl, onClose }: { product: Product; initialVariant: Variant; horizonUrl: string; onClose: () => void }) {
+  const t = useTranslations("Horizon");
+  const locale = useLocale();
+  const closeRef = useRef<HTMLButtonElement>(null);
+  const [variantId, setVariantId] = useState(initialVariant.id);
+  const [quantity, setQuantity] = useState(1);
+  const [option, setOption] = useState(product.optionKind === "size" ? "M" : product.optionKind === "format" ? "A3" : "");
+  const [pending, setPending] = useState(false);
+  const [error, setError] = useState("");
+  const [reference, setReference] = useState("");
+  const variant = product.variants.find((item) => item.id === variantId) ?? initialVariant;
 
-  if (kind === "shirt") {
-    overlay = { ...overlayBase, left: "50%", top: "52%", transform: "translate(-50%,-50%)", gap: 4 };
-    qrSize = 58;
-  } else if (kind === "mug") {
-    overlay = { ...overlayBase, left: "41%", top: "53%", transform: "translate(-50%,-50%)" };
-    qrSize = 68;
-  } else if (kind === "poster") {
-    overlay = { ...overlayBase, left: "50%", top: "52%", transform: "translate(-50%,-50%)", gap: 7 };
-    qrSize = 78;
-  } else if (kind === "plaque") {
-    overlay = { ...overlayBase, left: "54%", top: "48%", transform: "translate(-50%,-50%)", gridTemplateColumns: "1fr auto", gap: 10, width: 166 };
-    qrSize = 62;
-  } else if (kind === "magnet") {
-    overlay = { ...overlayBase, left: "50%", top: "51%", transform: "translate(-50%,-50%)", gap: 6 };
-    qrSize = 78;
-  } else {
-    overlay = { ...overlayBase, left: "52%", top: "50%", transform: "translate(-50%,-50%)", gridTemplateColumns: "1fr auto", gap: 10, width: 174 };
-    qrSize = 64;
+  useEffect(() => {
+    closeRef.current?.focus();
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") onClose();
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [onClose]);
+
+  async function onSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const form = new FormData(event.currentTarget);
+    setPending(true);
+    setError("");
+    const result = await submitHorizonOrder({
+      product: product.kind,
+      variant: variant.id,
+      quantity,
+      option,
+      name: String(form.get("name") ?? ""),
+      email: String(form.get("email") ?? ""),
+      country: String(form.get("country") ?? ""),
+      note: String(form.get("note") ?? ""),
+      horizonUrl,
+      locale,
+      website: String(form.get("website") ?? ""),
+    });
+    setPending(false);
+    if (result.ok) setReference(result.reference);
+    else setError(t(result.error === "invalid" ? "objectsOrderInvalid" : result.error === "unavailable" ? "objectsOrderUnavailable" : "objectsOrderError"));
   }
 
   return (
-    <div style={{ ...centered, minHeight: 270, padding: 14, background: CREAM, borderBottom: `2px solid ${INK}`, overflow: "hidden" }}>
-      <div style={{ position: "relative", width: 250, height: 250 }}>
-        <Image src={src} alt="" fill sizes="250px" style={{ objectFit: "contain" }} />
-        <div style={overlay}>
-          {(kind === "shirt" || kind === "poster" || kind === "magnet") && (
-            <strong style={{ maxWidth: 104, fontFamily: FONT_DISPLAY, fontSize: kind === "shirt" ? 9 : 11, lineHeight: 1.05, textAlign: "center" }}>{name}</strong>
-          )}
-          {(kind === "plaque" || kind === "card") && (
-            <strong style={{ fontFamily: FONT_DISPLAY, fontSize: 11, lineHeight: 1.05 }}>{name}</strong>
-          )}
-          <MiniQr value={qr} size={qrSize} />
+    <div role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) onClose(); }} style={{ position: "fixed", inset: 0, zIndex: 80, display: "grid", placeItems: "center", padding: 16, background: "rgba(22,33,58,.72)", backdropFilter: "blur(5px)" }}>
+      <div role="dialog" aria-modal="true" aria-labelledby="order-title" style={{ width: "min(720px,100%)", maxHeight: "calc(100vh - 32px)", overflowY: "auto", border: `3px solid ${INK}`, borderRadius: 20, background: CREAM, boxShadow: `9px 9px 0 ${CORAL}` }}>
+        <div style={{ position: "sticky", top: 0, zIndex: 2, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16, padding: "16px 18px", borderBottom: `2px solid ${INK}`, background: CREAM }}>
+          <h2 id="order-title" style={{ margin: 0, fontFamily: FONT_DISPLAY, fontSize: 27 }}>{t("objectsOrderTitle", { product: product.title })}</h2>
+          <button ref={closeRef} type="button" onClick={onClose} aria-label={t("close")} style={{ width: 38, height: 38, border: `2px solid ${INK}`, borderRadius: 10, background: "#fff", color: INK, fontSize: 21, fontWeight: 900, cursor: "pointer" }}>×</button>
         </div>
+
+        {reference ? (
+          <div style={{ padding: "34px 24px 38px", textAlign: "center" }}>
+            <span style={{ display: "inline-block", padding: "7px 11px", border: `2px solid ${INK}`, borderRadius: 999, background: YELLOW, fontWeight: 900 }}>{reference}</span>
+            <h3 style={{ margin: "20px 0 8px", fontFamily: FONT_DISPLAY, fontSize: 34 }}>{t("objectsOrderSuccessTitle")}</h3>
+            <p style={{ maxWidth: 480, margin: "0 auto 24px", color: MUTED, lineHeight: 1.6 }}>{t("objectsOrderSuccessText")}</p>
+            <Btn onClick={onClose} variant="primary">{t("close")}</Btn>
+          </div>
+        ) : (
+          <form onSubmit={onSubmit} style={{ padding: 22 }}>
+            <div className="horizon-order-grid" style={{ display: "grid", gridTemplateColumns: "190px minmax(0,1fr)", gap: 22, alignItems: "start" }}>
+              <div style={{ position: "relative", width: "100%", aspectRatio: "1 / 1", border: `2px solid ${INK}`, borderRadius: 12, overflow: "hidden", background: "#fff" }}>
+                <Image src={variant.src} alt="" fill sizes="190px" style={{ objectFit: "cover" }} />
+              </div>
+              <div style={{ display: "grid", gap: 15 }}>
+                <label style={{ display: "grid", gap: 6, fontWeight: 800 }}>
+                  {t("objectsOrderVariant")}
+                  <select value={variantId} onChange={(event) => setVariantId(event.target.value)} style={inputStyle}>{product.variants.map((item) => <option key={item.id} value={item.id}>{item.label}</option>)}</select>
+                </label>
+                {product.optionKind === "size" && <label style={{ display: "grid", gap: 6, fontWeight: 800 }}>{t("objectsOrderSize")}<select value={option} onChange={(event) => setOption(event.target.value)} style={inputStyle}>{["XS", "S", "M", "L", "XL", "XXL"].map((size) => <option key={size} value={size}>{size}</option>)}</select></label>}
+                {product.optionKind === "format" && <label style={{ display: "grid", gap: 6, fontWeight: 800 }}>{t("objectsOrderFormat")}<select value={option} onChange={(event) => setOption(event.target.value)} style={inputStyle}><option value="A3">A3</option><option value="A2">A2</option></select></label>}
+                <label style={{ display: "grid", gap: 6, fontWeight: 800 }}>{t("objectsOrderQuantity")}<input type="number" min={1} max={10} value={quantity} onChange={(event) => setQuantity(Number(event.target.value))} style={inputStyle} /></label>
+              </div>
+            </div>
+
+            <div className="horizon-form-grid" style={{ display: "grid", gridTemplateColumns: "repeat(2,minmax(0,1fr))", gap: 15, marginTop: 20 }}>
+              <label style={{ display: "grid", gap: 6, fontWeight: 800 }}>{t("objectsOrderName")}<input name="name" required maxLength={80} autoComplete="name" style={inputStyle} /></label>
+              <label style={{ display: "grid", gap: 6, fontWeight: 800 }}>{t("objectsOrderEmail")}<input name="email" type="email" required maxLength={160} autoComplete="email" style={inputStyle} /></label>
+              <label style={{ display: "grid", gap: 6, fontWeight: 800 }}>{t("objectsOrderCountry")}<input name="country" required maxLength={80} autoComplete="country-name" style={inputStyle} /></label>
+              <label style={{ display: "grid", gap: 6, fontWeight: 800 }}>{t("objectsOrderNote")}<input name="note" maxLength={500} style={inputStyle} /></label>
+            </div>
+            <label aria-hidden="true" style={{ position: "absolute", left: -10000, width: 1, height: 1, overflow: "hidden" }}>Website<input name="website" tabIndex={-1} autoComplete="off" /></label>
+            <p style={{ margin: "18px 0 0", color: MUTED, fontSize: 13.5, lineHeight: 1.55 }}>{t("objectsOrderPrivacy")}</p>
+            {error && <p role="alert" style={{ margin: "12px 0 0", color: CORAL, fontWeight: 800 }}>{error}</p>}
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 10, marginTop: 20 }}><Btn type="submit" variant="primary" disabled={pending}>{pending ? t("objectsOrderSending") : t("objectsOrderSend")}</Btn><Btn type="button" onClick={onClose} variant="cream">{t("close")}</Btn></div>
+          </form>
+        )}
       </div>
     </div>
   );
@@ -71,6 +145,9 @@ export default function HorizonObjectsClient() {
   const t = useTranslations("Horizon");
   const [payload, setPayload] = useState<HorizonPayload | null>(null);
   const [ready, setReady] = useState(false);
+  const [variantByProduct, setVariantByProduct] = useState<Record<HorizonOrderProduct, string>>({ shirt: "cream", mug: "cream", poster: "cream", plaque: "brass", magnet: "yellow", card: "navy" });
+  const [orderProduct, setOrderProduct] = useState<Product | null>(null);
+  const closeOrder = useCallback(() => setOrderProduct(null), []);
 
   useEffect(() => {
     const read = () => {
@@ -83,68 +160,75 @@ export default function HorizonObjectsClient() {
   }, []);
 
   const fragment = payload ? encodeHorizonFragment(payload) : "";
-  const horizonUrl = payload && typeof window !== "undefined"
-    ? `${window.location.origin}${window.location.pathname.replace(/\/objets$/, "")}#${fragment}`
-    : "";
-  const productTitle = payload ? (payload.title ?? t("defaultTitle", { name: payload.firstName })) : "";
+  const horizonUrl = payload && typeof window !== "undefined" ? `${window.location.origin}${window.location.pathname.replace(/\/objets$/, "")}#${fragment}` : "";
   // Clés littérales : le contrôle de parité i18n doit pouvoir voir chaque texte.
-  const products: Array<{ kind: ProductKind; title: string; text: string }> = [
-    { kind: "shirt", title: t("objectsShirtTitle"), text: t("objectsShirtText") },
-    { kind: "mug", title: t("objectsMugTitle"), text: t("objectsMugText") },
-    { kind: "poster", title: t("objectsPosterTitle"), text: t("objectsPosterText") },
-    { kind: "plaque", title: t("objectsPlaqueTitle"), text: t("objectsPlaqueText") },
-    { kind: "magnet", title: t("objectsMagnetTitle"), text: t("objectsMagnetText") },
-    { kind: "card", title: t("objectsMetalCardTitle"), text: t("objectsMetalCardText") },
+  const products: Product[] = [
+    { kind: "shirt", title: t("objectsShirtTitle"), text: t("objectsShirtText"), optionKind: "size", variants: [
+      { id: "cream", label: t("objectsVariantCream"), src: "/horizon/objects/shirt-cream.webp", color: "#F7EEDC" },
+      { id: "navy", label: t("objectsVariantNavy"), src: "/horizon/objects/shirt-navy.webp", color: INK },
+    ] },
+    { kind: "mug", title: t("objectsMugTitle"), text: t("objectsMugText"), optionKind: null, variants: [
+      { id: "cream", label: t("objectsVariantCream"), src: "/horizon/objects/mug-cream.webp", color: "#F7EEDC" },
+      { id: "navy", label: t("objectsVariantNavy"), src: "/horizon/objects/mug-navy.webp", color: INK },
+    ] },
+    { kind: "poster", title: t("objectsPosterTitle"), text: t("objectsPosterText"), optionKind: "format", variants: [
+      { id: "cream", label: t("objectsVariantCream"), src: "/horizon/objects/poster-cream.webp", color: "#F7EEDC" },
+      { id: "coral", label: t("objectsVariantCoral"), src: "/horizon/objects/poster-coral.webp", color: CORAL },
+    ] },
+    { kind: "plaque", title: t("objectsPlaqueTitle"), text: t("objectsPlaqueText"), optionKind: null, variants: [
+      { id: "brass", label: t("objectsVariantBrass"), src: "/horizon/objects/plaque-brass.webp", color: "#C79A45" },
+      { id: "navy", label: t("objectsVariantNavy"), src: "/horizon/objects/plaque-navy.webp", color: INK },
+    ] },
+    { kind: "magnet", title: t("objectsMagnetTitle"), text: t("objectsMagnetText"), optionKind: null, variants: [
+      { id: "yellow", label: t("objectsVariantYellow"), src: "/horizon/objects/magnet-yellow.webp", color: YELLOW },
+    ] },
+    { kind: "card", title: t("objectsMetalCardTitle"), text: t("objectsMetalCardText"), optionKind: null, variants: [
+      { id: "navy", label: t("objectsVariantNavy"), src: "/horizon/objects/metal-card-navy.webp", color: INK },
+    ] },
   ];
 
   return (
     <div style={{ minHeight: "100vh" }}>
       <header style={{ position: "sticky", top: 0, zIndex: 20, background: "rgba(251,246,236,.94)", borderBottom: `2px solid ${INK}`, backdropFilter: "blur(8px)" }}>
         <div className="pad" style={{ maxWidth: 1040, margin: "0 auto", padding: "12px 24px", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 18 }}>
-          <Link href="/" aria-label={t("backHome")} style={{ display: "inline-flex", alignItems: "center", gap: 11, color: INK, textDecoration: "none" }}>
-            <PlacetMark size={36} /><strong style={{ fontFamily: FONT_DISPLAY, fontSize: 22, letterSpacing: "-.04em" }}>Placet</strong>
-          </Link>
+          <Link href="/" aria-label={t("backHome")} style={{ display: "inline-flex", alignItems: "center", gap: 11, color: INK, textDecoration: "none" }}><PlacetMark size={36} /><strong style={{ fontFamily: FONT_DISPLAY, fontSize: 22, letterSpacing: "-.04em" }}>Placet</strong></Link>
           <span style={{ fontSize: 12, fontWeight: 800, letterSpacing: ".09em", textTransform: "uppercase" }}>{t("objectsEyebrow")}</span>
         </div>
       </header>
 
       <main className="pad" style={{ maxWidth: 1040, margin: "0 auto", padding: "54px 24px 84px" }}>
         {!ready ? <Card><p style={{ margin: 0 }}>{t("loading")}</p></Card> : !payload ? (
-          <Card accent={CORAL} padding="clamp(22px,5vw,34px)">
-            <h1 style={{ margin: 0, fontFamily: FONT_DISPLAY, fontSize: 34 }}>{t("objectsInvalidTitle")}</h1>
-            <p style={{ margin: "10px 0 22px", color: MUTED }}>{t("objectsInvalidText")}</p>
-            <Link href="/horizon" style={{ color: INK, fontWeight: 800, textUnderlineOffset: 3 }}>{t("objectsCreate")}</Link>
-          </Card>
+          <Card accent={CORAL} padding="clamp(22px,5vw,34px)"><h1 style={{ margin: 0, fontFamily: FONT_DISPLAY, fontSize: 34 }}>{t("objectsInvalidTitle")}</h1><p style={{ margin: "10px 0 22px", color: MUTED }}>{t("objectsInvalidText")}</p><Link href="/horizon" style={{ color: INK, fontWeight: 800, textUnderlineOffset: 3 }}>{t("objectsCreate")}</Link></Card>
         ) : (
           <>
             <div style={{ maxWidth: 780, marginBottom: 34 }}>
               <span style={{ display: "inline-block", padding: "6px 10px", border: `2px solid ${INK}`, borderRadius: 999, background: YELLOW, fontSize: 12, fontWeight: 800, textTransform: "uppercase" }}>{t("objectsBadge")}</span>
               <h1 style={{ margin: "18px 0 12px", fontFamily: FONT_DISPLAY, fontSize: "clamp(42px,8vw,70px)", lineHeight: .96, letterSpacing: "-.055em" }}>{t("objectsTitle")}</h1>
-              <p style={{ margin: 0, color: MUTED, fontSize: 17, lineHeight: 1.6 }}>{t("objectsIntro", { name: payload.firstName })}</p>
+              <p style={{ margin: 0, color: MUTED, fontSize: 17, lineHeight: 1.6 }}>{t("objectsIntro")}</p>
             </div>
 
             <div className="horizon-products-grid" style={{ display: "grid", gridTemplateColumns: "repeat(2,minmax(0,1fr))", gap: 24 }}>
-              {products.map((product) => (
-                <Card key={product.kind} padding={0} accent={product.kind === "poster" || product.kind === "magnet" ? YELLOW : undefined} style={{ overflow: "hidden" }}>
-                  <ProductVisual kind={product.kind} qr={horizonUrl} name={productTitle} />
-                  <div style={{ padding: "20px 22px 22px" }}>
-                    <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 12 }}>
-                      <h2 style={{ margin: 0, fontFamily: FONT_DISPLAY, fontSize: 23 }}>{product.title}</h2>
-                      <span style={{ color: MUTED, fontSize: 10.5, fontWeight: 800, letterSpacing: ".08em", textTransform: "uppercase" }}>{t("objectsMock")}</span>
+              {products.map((product) => {
+                const variant = product.variants.find((item) => item.id === variantByProduct[product.kind]) ?? product.variants[0];
+                return (
+                  <Card key={product.kind} padding={0} accent={product.kind === "poster" || product.kind === "magnet" ? YELLOW : undefined} style={{ overflow: "hidden" }}>
+                    <ProductVisual product={product} variant={variant} onOrder={() => setOrderProduct(product)} />
+                    <div style={{ padding: "20px 22px 22px" }}>
+                      <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 12 }}><h2 style={{ margin: 0, fontFamily: FONT_DISPLAY, fontSize: 23 }}>{product.title}</h2><span style={{ color: MUTED, fontSize: 10.5, fontWeight: 800, letterSpacing: ".08em", textTransform: "uppercase" }}>{t("objectsOnRequest")}</span></div>
+                      <p style={{ margin: "8px 0 14px", color: MUTED, fontSize: 14, lineHeight: 1.55 }}>{product.text}</p>
+                      {product.variants.length > 1 && <div role="group" aria-label={t("objectsVariants")} style={{ display: "flex", gap: 9 }}>{product.variants.map((item) => <button key={item.id} type="button" aria-label={item.label} aria-pressed={variant.id === item.id} onClick={() => setVariantByProduct((current) => ({ ...current, [product.kind]: item.id }))} title={item.label} style={{ width: 28, height: 28, border: `2px solid ${INK}`, borderRadius: 999, background: item.color, cursor: "pointer", boxShadow: variant.id === item.id ? `0 0 0 3px ${CREAM}, 0 0 0 5px ${INK}` : "none" }} />)}</div>}
                     </div>
-                    <p style={{ margin: "8px 0 0", color: MUTED, fontSize: 14, lineHeight: 1.55 }}>{product.text}</p>
-                  </div>
-                </Card>
-              ))}
+                  </Card>
+                );
+              })}
             </div>
 
-            <div style={{ display: "flex", flexWrap: "wrap", gap: 18, alignItems: "center", marginTop: 34 }}>
-              <Link href={`/horizon#${fragment}`} style={{ display: "inline-flex", padding: "11px 18px", border: `2.5px solid ${INK}`, borderRadius: 11, background: INK, color: "#fff", fontFamily: FONT_DISPLAY, fontWeight: 700, textDecoration: "none", boxShadow: `4px 4px 0 ${CORAL}` }}>{t("objectsBack")}</Link>
-              <p style={{ margin: 0, color: MUTED, fontSize: 13 }}>{t("objectsFootnote")}</p>
-            </div>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 18, alignItems: "center", marginTop: 34 }}><Link href={`/horizon#${fragment}`} style={{ display: "inline-flex", padding: "11px 18px", border: `2.5px solid ${INK}`, borderRadius: 11, background: INK, color: "#fff", fontFamily: FONT_DISPLAY, fontWeight: 700, textDecoration: "none", boxShadow: `4px 4px 0 ${CORAL}` }}>{t("objectsBack")}</Link><p style={{ margin: 0, color: MUTED, fontSize: 13 }}>{t("objectsFootnote")}</p></div>
           </>
         )}
       </main>
+
+      {orderProduct && horizonUrl && <OrderDialog product={orderProduct} initialVariant={orderProduct.variants.find((item) => item.id === variantByProduct[orderProduct.kind]) ?? orderProduct.variants[0]} horizonUrl={horizonUrl} onClose={closeOrder} />}
     </div>
   );
 }

@@ -154,7 +154,8 @@ input {
   }
   .horizon-form-grid,
   .horizon-share-grid,
-  .horizon-products-grid {
+  .horizon-products-grid,
+  .horizon-order-grid {
     grid-template-columns: minmax(0, 1fr) !important;
   }
   .horizon-countdown {
