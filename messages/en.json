@@ -3257,7 +3257,20 @@
     "bassinConseilUnePlaceLibre": "{n} templates hold its two bricks, and a slot is free: the next weld can take it. The pool makes it, not you.",
     "motRetirer": "remove",
     "retirerLibereUnePlace": "Remove — frees a slot",
-    "gabaritsDejaLaPorteFermee": "Your templates are already in the pool ({quoi}) and they are doing their job: the welding does happen. But while the slots are taken, what they make is turned away at once — it is room that is missing, not chemistry."
+    "gabaritsDejaLaPorteFermee": "Your templates are already in the pool ({quoi}) and they are doing their job: the welding does happen. But while the slots are taken, what they make is turned away at once — it is room that is missing, not chemistry.",
+    "chroniqueTitre": "What the pool did",
+    "chroniqueTour": "turn {n} —",
+    "chroniqueTours": "turns {a} to {b} —",
+    "chroniqueCibleEntre": "your molecule entered the pool",
+    "chroniqueCibleSort_attrition": "your molecule left after {n} turns — it fell apart",
+    "chroniqueCibleSort_concurrence": "your molecule left after {n} turns — another took its slot",
+    "chroniqueCibleSort_courant": "your molecule left after {n} turns — the current carried it off",
+    "chroniqueCibleRefoulee": "your molecule was made {n} times, and turned away as often",
+    "chroniqueRemplacement": "a <venue></venue> took the slot of a <partie></partie> that was down to {n}",
+    "chroniqueRemplacements": "{fois} slots changed hands, the last one: a <venue></venue> took the slot of a <partie></partie> that was down to {n}",
+    "chroniqueRefoulees": "{n} welds installed, {r} turned away",
+    "chroniqueBriques": "{n} bricks born of blind chemistry",
+    "chroniqueCalme": "nothing of note"
   },
   "Horizon": {
     "metaTitle": "Statistical horizon — Placet",

@@ -177,7 +177,33 @@ export interface BilanBassin {
   plein: boolean;
   /** Pourquoi la cible a quitté le bassin ce tour-ci, ou `null`. */
   sortieCible: "attrition" | "concurrence" | "courant" | null;
+  /** La cible vient-elle d'entrer dans le bassin ? */
+  entreeCible: boolean;
+  /**
+   * LE DERNIER REMPLACEMENT DU TOUR : qui est arrivé, qui a cédé la place.
+   *
+   * ⚠️ UN COMPTEUR N'EST PAS UN RÉCIT. Le bilan savait qu'il y avait eu deux
+   * mille expulsions et jamais lesquelles. Deux formes suffisent à faire un
+   * événement — et la forme est ce que l'écran sait déjà dessiner.
+   */
+  remplacement: { grillePartie: Grille; taille: number; effectif: number; grilleVenue?: Grille } | null;
 }
+
+/**
+ * CE QUE LE MONDE A FAIT, tour par tour.
+ *
+ * ⚠️ DES ÉVÉNEMENTS, PAS DES PHRASES — comme le journal, et pour la même raison :
+ * les quatre langues doivent pouvoir le dire chacune à sa façon. Du français
+ * ici le rendrait intraduisible.
+ */
+export type EvenementMonde =
+  | { quoi: "cibleEntre"; tour: number; fois?: number; jusqua?: number }
+  | { quoi: "cibleSort"; cause: "attrition" | "concurrence" | "courant"; apres: number; tour: number; fois?: number; jusqua?: number }
+  | { quoi: "cibleRefoulee"; combien: number; tour: number; fois?: number; jusqua?: number }
+  | { quoi: "remplacement"; grilleVenue: Grille; grillePartie: Grille; effectif: number; tour: number; fois?: number; jusqua?: number }
+  | { quoi: "refoulees"; combien: number; soudures: number; tour: number; fois?: number; jusqua?: number }
+  | { quoi: "briques"; combien: number; tour: number; fois?: number; jusqua?: number }
+  | { quoi: "calme"; tour: number; fois?: number; jusqua?: number };
 
 /** Une soudure possible, telle que l'écran doit la montrer. */
 export interface Fabrication {
@@ -309,6 +335,8 @@ export interface Partie {
   prochainePiece: number;
   bilanAtelier: BilanAtelier | null;
   bilanBassin: BilanBassin | null;
+  /** Ce que le monde a fait, tour par tour. Voir `evenementDuTour`. */
+  chronique: EvenementMonde[];
 }
 
 /** Ce qui s'est passé, sous une forme que l'écran traduira. */

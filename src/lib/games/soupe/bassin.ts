@@ -314,7 +314,11 @@ function chasserLaPlusFaible(especes: Espece[], libres: Compte, bilan: BilanBass
   let faible = candidates[0];
   for (const e of candidates) if (masse(e) < masse(faible)) faible = e;
   for (let i = 0; i < faible.effectif; i++) verser(libres, faible.composition);
-  if (bilan) bilan.expulsees += 1;
+  if (bilan) {
+    bilan.expulsees += 1;
+    // La FORME, pas le contour : « CCCNS » est un code, pas un nom.
+    bilan.remplacement = { grillePartie: faible.grille, taille: faible.taille, effectif: faible.effectif };
+  }
   return especes.filter((e) => e.empreinte !== faible.empreinte);
 }
 
@@ -352,6 +356,7 @@ function installer(
     const faible = liste.filter((e) => !nourriture(e)).reduce((x, y) => (masse(y) < masse(x) ? y : x));
     if (!force && combien * neuve.taille < masse(faible)) return { especes, entree: false };
     liste = chasserLaPlusFaible(liste, libres, bilan);
+    if (bilan && bilan.remplacement) bilan.remplacement.grilleVenue = neuve.grille;
   }
   return { especes: [...liste, { ...neuve, effectif: combien }], entree: true };
 }
@@ -767,6 +772,8 @@ export function tourDeBassin(
     expulsees: 0,
     plein: false,
     sortieCible: null,
+    entreeCible: false,
+    remplacement: null,
   };
   const libres = { ...etat.libres };
   const cible = etat.cible;
@@ -908,6 +915,7 @@ export function tourDeBassin(
   // Ce que le courant a emporté. Mesuré : c'est la plus RARE des trois causes,
   // et c'était pourtant la seule que l'écran nommait.
   if (avantLeCourant && !laCible(especes) && bilan.sortieCible === null) bilan.sortieCible = "courant";
+  bilan.entreeCible = !cibleAuDepart && laCible(especes);
   bilan.plein = especes.filter((e) => !nourriture(e)).length >= ESPECES_MAX;
 
   // LA TENUE DE LA CIBLE : un séjour ininterrompu, remis à zéro dès qu'elle sort.

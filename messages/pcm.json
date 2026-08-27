@@ -3257,7 +3257,20 @@
     "bassinConseilUnePlaceLibre": "{n} template dey hold im two brick, and one space dey free: di next weld fit take am. Na di pond dey make am, no be you.",
     "motRetirer": "comot am",
     "retirerLibereUnePlace": "Comot am — e go free space",
-    "gabaritsDejaLaPorteFermee": "Your template dem don dey inside di pond ({quoi}) and dem dey do dia work: di welding dey happen. But as long as di space dey occupied, wetin dem make dey push comot sharp sharp — na space no dey, no be chemistry."
+    "gabaritsDejaLaPorteFermee": "Your template dem don dey inside di pond ({quoi}) and dem dey do dia work: di welding dey happen. But as long as di space dey occupied, wetin dem make dey push comot sharp sharp — na space no dey, no be chemistry.",
+    "chroniqueTitre": "Wetin di pond do",
+    "chroniqueTour": "turn {n} —",
+    "chroniqueTours": "turn {a} go {b} —",
+    "chroniqueCibleEntre": "your molecule don enta di pond",
+    "chroniqueCibleSort_attrition": "your molecule comot afta {n} turns — e scatter",
+    "chroniqueCibleSort_concurrence": "your molecule comot afta {n} turns — anoda one take im space",
+    "chroniqueCibleSort_courant": "your molecule comot afta {n} turns — di water carry am go",
+    "chroniqueCibleRefoulee": "dem make your molecule {n} times, and push am comot di same number of times",
+    "chroniqueRemplacement": "one <venue></venue> take di space of one <partie></partie> wey remain {n} only",
+    "chroniqueRemplacements": "{fois} space don change hand, di last one: one <venue></venue> take di space of one <partie></partie> wey remain {n} only",
+    "chroniqueRefoulees": "{n} weld enta, {r} dem push comot",
+    "chroniqueBriques": "{n} brick wey blind chemistry born",
+    "chroniqueCalme": "notin serious"
   },
   "Horizon": {
     "metaTitle": "Statistical horizon — Placet",

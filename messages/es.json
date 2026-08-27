@@ -3257,7 +3257,20 @@
     "bassinConseilUnePlaceLibre": "{n} plantillas sujetan sus dos ladrillos, y hay una plaza libre: la próxima soldadura puede ocuparla. La hace la charca, no tú.",
     "motRetirer": "retirar",
     "retirerLibereUnePlace": "Retirar — libera una plaza",
-    "gabaritsDejaLaPorteFermee": "Tus plantillas ya están en la charca ({quoi}) y hacen su trabajo: la soldadura ocurre. Pero mientras las plazas estén ocupadas, lo que fabrican es rechazado al instante — falta sitio, no química."
+    "gabaritsDejaLaPorteFermee": "Tus plantillas ya están en la charca ({quoi}) y hacen su trabajo: la soldadura ocurre. Pero mientras las plazas estén ocupadas, lo que fabrican es rechazado al instante — falta sitio, no química.",
+    "chroniqueTitre": "Lo que hizo la charca",
+    "chroniqueTour": "turno {n} —",
+    "chroniqueTours": "turnos {a} a {b} —",
+    "chroniqueCibleEntre": "tu molécula entró en la charca",
+    "chroniqueCibleSort_attrition": "tu molécula salió tras {n} turnos — se deshizo",
+    "chroniqueCibleSort_concurrence": "tu molécula salió tras {n} turnos — otra le quitó la plaza",
+    "chroniqueCibleSort_courant": "tu molécula salió tras {n} turnos — la corriente se la llevó",
+    "chroniqueCibleRefoulee": "tu molécula se hizo {n} veces, y otras tantas fue rechazada",
+    "chroniqueRemplacement": "una <venue></venue> ocupó la plaza de una <partie></partie> que ya solo era {n}",
+    "chroniqueRemplacements": "{fois} plazas cambiaron de mano, la última: una <venue></venue> ocupó la plaza de una <partie></partie> que ya solo era {n}",
+    "chroniqueRefoulees": "{n} soldaduras instaladas, {r} rechazadas",
+    "chroniqueBriques": "{n} ladrillos nacidos de la química ciega",
+    "chroniqueCalme": "nada destacable"
   },
   "Horizon": {
     "metaTitle": "Horizonte estadístico — Placet",

@@ -111,7 +111,7 @@ import {
   ticLatelier,
 } from "@/lib/games/soupe/partie";
 import { ESPECES_MAX, OBJECTIF as OBJECTIF_BASSIN, TAILLE_MAX, nourriture } from "@/lib/games/soupe/bassin";
-import type { Code, Espece, EvenementJournal, Grille, Partie, Piece, Voie } from "@/lib/games/soupe/types";
+import type { Code, Espece, EvenementJournal, EvenementMonde, Grille, Partie, Piece, Voie } from "@/lib/games/soupe/types";
 
 /**
  * LES COULEURS DE LA MATIÈRE — le seul endroit du jeu où la couleur porte du sens.
@@ -688,6 +688,35 @@ export default function LaSoupe() {
     if (e.quoi === "retire") return t("journalRetire");
     if (e.quoi === "cibleNonSemable") return t("journalCibleNonSemable");
     return t("journalSansAtomes");
+  }
+
+  /**
+   * Met un événement du MONDE en mots — la chronique, distincte du journal.
+   *
+   * ⚠️ `t.rich` POUR LA LIGNE QUI MÊLE TEXTE ET FORMES. « une ▣ a pris la place
+   * d'une ▤ » ne se découpe pas en fragments : l'espagnol et le pidgin n'ont pas
+   * l'ordre du français. La traduction garde donc la phrase entière et reçoit
+   * les deux formes comme des balises, à placer où sa grammaire l'exige.
+   */
+  function raconterLeMonde(e: EvenementMonde): React.ReactNode {
+    if (e.quoi === "cibleEntre") return <span>{t("chroniqueCibleEntre")}</span>;
+    if (e.quoi === "cibleSort")
+      return <span>{t(`chroniqueCibleSort_${e.cause}` as "chroniqueCibleSort_attrition", { n: e.apres })}</span>;
+    if (e.quoi === "cibleRefoulee") return <span>{t("chroniqueCibleRefoulee", { n: e.combien })}</span>;
+    if (e.quoi === "remplacement")
+      return (
+        <span style={{ display: "inline-flex", alignItems: "center", gap: 4, flexWrap: "wrap" }}>
+          {t.rich(e.fois && e.fois > 1 ? "chroniqueRemplacements" : "chroniqueRemplacement", {
+            fois: e.fois ?? 1,
+            n: e.effectif,
+            venue: () => <Forme grille={e.grilleVenue} cote={7} />,
+            partie: () => <Forme grille={e.grillePartie} cote={7} />,
+          })}
+        </span>
+      );
+    if (e.quoi === "refoulees") return <span>{t("chroniqueRefoulees", { n: e.soudures, r: e.combien })}</span>;
+    if (e.quoi === "briques") return <span>{t("chroniqueBriques", { n: e.combien })}</span>;
+    return <span>{t("chroniqueCalme")}</span>;
   }
 
   // ── Le panneau de la collection ──────────────────────────────────────────
@@ -1509,6 +1538,37 @@ export default function LaSoupe() {
             );
           })}
         </div>
+
+        {/* LA CHRONIQUE DU MONDE — ce que le bassin vient de faire, tour par tour.
+            ⚠️ S'IL N'Y A RIEN À FAIRE, IL FAUT QUELQUE CHOSE À REGARDER. Mesuré :
+            43 % des tours passés à attendre que la cible entre n'offrent aucun
+            bouton, et pendant ce temps le bassin fait naître, souder, refouler et
+            remplacer par dizaines. Tout était compté et rien n'était dit. */}
+        {partie.chronique && partie.chronique.length > 0 ? (
+          <>
+            <p style={{ margin: 0, fontSize: 13, color: skin.muted }}>{t("chroniqueTitre")}</p>
+            <ul style={{ listStyle: "none", margin: 0, padding: 0, display: "flex", flexDirection: "column", gap: 3 }}>
+              {[...partie.chronique].reverse().map((e, i) => (
+                <li
+                  key={`${e.tour}-${e.quoi}-${i}`}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 4,
+                    flexWrap: "wrap",
+                    fontSize: 12,
+                    lineHeight: 1.35,
+                    color:
+                      e.quoi === "cibleEntre" ? skin.good : e.quoi === "cibleSort" || e.quoi === "cibleRefoulee" ? ROUGE : skin.muted,
+                  }}
+                >
+                  <span>{e.jusqua ? t("chroniqueTours", { a: e.tour, b: e.jusqua }) : t("chroniqueTour", { n: e.tour })}</span>
+                  {raconterLeMonde(e)}
+                </li>
+              ))}
+            </ul>
+          </>
+        ) : null}
 
         {partie.bilanBassin ? (
           <p style={{ margin: 0, fontSize: 12.5, color: skin.muted }}>

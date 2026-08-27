@@ -3257,7 +3257,20 @@
     "bassinConseilUnePlaceLibre": "{n} gabarits tiennent ses deux briques, et une place est libre : la prochaine soudure peut la prendre. C'est le bassin qui la fait, pas vous.",
     "motRetirer": "retirer",
     "retirerLibereUnePlace": "Retirer — libère une place",
-    "gabaritsDejaLaPorteFermee": "Vos gabarits sont déjà dans le bassin ({quoi}) et ils font leur travail : la soudure a bien lieu. Mais tant que les places sont prises, ce qu'ils fabriquent est refoulé aussitôt — c'est la place qui manque, pas la chimie."
+    "gabaritsDejaLaPorteFermee": "Vos gabarits sont déjà dans le bassin ({quoi}) et ils font leur travail : la soudure a bien lieu. Mais tant que les places sont prises, ce qu'ils fabriquent est refoulé aussitôt — c'est la place qui manque, pas la chimie.",
+    "chroniqueTitre": "Ce que le bassin a fait",
+    "chroniqueTour": "tour {n} —",
+    "chroniqueTours": "tours {a} à {b} —",
+    "chroniqueCibleEntre": "votre molécule est entrée dans le bassin",
+    "chroniqueCibleSort_attrition": "votre molécule est sortie après {n} tours — elle s'est défaite",
+    "chroniqueCibleSort_concurrence": "votre molécule est sortie après {n} tours — une autre lui a pris sa place",
+    "chroniqueCibleSort_courant": "votre molécule est sortie après {n} tours — le courant l'a emportée",
+    "chroniqueCibleRefoulee": "votre molécule a été faite {n} fois, et refoulée autant",
+    "chroniqueRemplacement": "une <venue></venue> a pris la place d'une <partie></partie> qui n'était plus que {n}",
+    "chroniqueRemplacements": "{fois} places ont changé de main, la dernière : une <venue></venue> a pris la place d'une <partie></partie> qui n'était plus que {n}",
+    "chroniqueRefoulees": "{n} soudures installées, {r} refoulées",
+    "chroniqueBriques": "{n} briques nées de la chimie aveugle",
+    "chroniqueCalme": "rien de notable"
   },
   "Horizon": {
     "metaTitle": "Horizon statistique — Placet",

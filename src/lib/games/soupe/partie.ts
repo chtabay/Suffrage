@@ -28,7 +28,9 @@ import type {
   Code,
   Compte,
   ConseilBassin,
+  BilanBassin,
   EvenementJournal,
+  EvenementMonde,
   Espece,
   Grille,
   Manque,
@@ -122,6 +124,7 @@ export function nouvellePartie(graine = 1): Partie {
     cible: null,
     panneaux: ["milieu", "soupe", "collection"],
     journal: [],
+    chronique: [],
     prochainePiece: 1,
     bilanAtelier: null,
     bilanBassin: null,
@@ -567,10 +570,78 @@ export function retirerDuBassin(partie: Partie, empreinteCible: string): Partie 
 }
 
 /** UN TOUR DE BASSIN : le temps qui passe au troisième acte. */
+/**
+ * L'ÉVÉNEMENT DU TOUR — ce que le monde vient de faire.
+ *
+ * ⚠️ UN SEUL PAR TOUR, LE PLUS LOURD. Le bassin fait quatre-vingts choses par
+ * tour ; les énumérer serait un vidage de compteurs. L'ordre est celui de ce qui
+ * décide de la partie : la cible d'abord, la concurrence ensuite, le train-train
+ * en dernier.
+ */
+export function evenementDuTour(bilan: BilanBassin | null, avant: number): EvenementMonde | null {
+  if (!bilan) return null;
+  if (bilan.sortieCible) return { quoi: "cibleSort", cause: bilan.sortieCible, apres: avant, tour: 0 };
+  if (bilan.entreeCible) return { quoi: "cibleEntre", tour: 0 };
+  if (bilan.refusCible > 0) return { quoi: "cibleRefoulee", combien: bilan.refusCible, tour: 0 };
+  if (bilan.remplacement && bilan.remplacement.grilleVenue) {
+    return {
+      quoi: "remplacement",
+      grilleVenue: bilan.remplacement.grilleVenue,
+      grillePartie: bilan.remplacement.grillePartie,
+      effectif: bilan.remplacement.effectif,
+      tour: 0,
+    };
+  }
+  if (bilan.refusees > 0) return { quoi: "refoulees", combien: bilan.refusees, soudures: bilan.soudures, tour: 0 };
+  if (bilan.nes > 0) return { quoi: "briques", combien: bilan.nes, tour: 0 };
+  return { quoi: "calme", tour: 0 };
+}
+
+/** Combien d'événements du monde on garde sous les yeux. */
+export const CHRONIQUE = 6;
+
+/**
+ * REPLIE UN ÉVÉNEMENT DANS LE PRÉCÉDENT S'IL EST DE MÊME NATURE.
+ *
+ * ⚠️ CE QUI SE RÉPÈTE SE REPLIE — SANS EXCEPTION, et l'absence d'exception est
+ * la règle. Une première version exemptait les natures qu'on avait décrétées
+ * « notables », et l'écran a aussitôt affiché quatre lignes identiques : la
+ * catégorie décrétée à la main était le problème. Ce qui est notable ressort
+ * parce que ça CHANGE. Une molécule refusée cinq tours d'affilée est une seule
+ * nouvelle, pas cinq.
+ */
+function replier(chronique: EvenementMonde[], arrivant: EvenementMonde): EvenementMonde[] | null {
+  const dernier = chronique[chronique.length - 1];
+  if (!dernier || dernier.quoi !== arrivant.quoi) return null;
+  const cumul: Record<string, unknown> = { ...dernier, fois: (dernier.fois ?? 1) + 1, jusqua: arrivant.tour };
+  for (const [cle, valeur] of Object.entries(arrivant)) {
+    if (cle === "quoi" || cle === "tour") continue;
+    cumul[cle] = typeof valeur === "number" ? ((dernier as Record<string, unknown>)[cle] as number ?? 0) + valeur : valeur;
+  }
+  return [...chronique.slice(0, -1), cumul as unknown as EvenementMonde];
+}
+
 export function ticDuBassin(partie: Partie): Partie {
   if (!partie.panneaux.includes("bassin")) return partie;
+  const tenueAvant = partie.bassin.tenue ?? 0;
   const { etat, bilan } = tourDeBassin(partie.bassin, partie.milieu, rngDe(partie));
-  return { ...partie, bassin: etat, bilanBassin: bilan };
+  const brut = evenementDuTour(bilan, tenueAvant);
+  const evenement = brut ? ({ ...brut, tour: etat.tours } as EvenementMonde) : null;
+  return {
+    ...partie,
+    bassin: etat,
+    bilanBassin: bilan,
+    /**
+     * LA CHRONIQUE DU MONDE, distincte du journal. Le journal enregistre ce que
+     * le JOUEUR décide ; rien ne disait ce que le bassin fait, alors qu'il fait
+     * quatre-vingts choses par tour et que 43 % des tours passés à attendre que
+     * la cible entre n'offrent aucun bouton.
+     */
+    chronique: evenement
+      ? replier(partie.chronique ?? [], evenement) ??
+        [...(partie.chronique ?? []).slice(-(CHRONIQUE - 1)), evenement]
+      : partie.chronique,
+  };
 }
 
 /**
