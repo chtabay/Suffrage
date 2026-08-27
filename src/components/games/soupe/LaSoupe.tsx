@@ -106,6 +106,7 @@ import {
   preleverMolecule,
   rejeterPiece,
   retirerDuBassin,
+  reviserLaCible,
   semerDansLeBassin,
   ticDuBassin,
   ticLatelier,
@@ -687,6 +688,7 @@ export default function LaSoupe() {
     if (e.quoi === "seme") return t("journalSeme", { n: e.combien, quoi: nomLisible(e.visage) });
     if (e.quoi === "retire") return t("journalRetire");
     if (e.quoi === "cibleNonSemable") return t("journalCibleNonSemable");
+    if (e.quoi === "revise") return e.perdu > 0 ? t("journalReviseAvecPrix", { n: e.perdu }) : t("journalRevise");
     return t("journalSansAtomes");
   }
 
@@ -1447,6 +1449,29 @@ export default function LaSoupe() {
           >
             <b>{t("bassinGagneTitre")}</b>{" "}
             {t("bassinGagneTexte", { objectif: conseilBassin.objectif })}
+            {/* ⚠️ UN BILAN, PAS UNE RÉCOMPENSE. Les cinq testeurs ont réclamé un
+                écran de fin, refusé cinq fois parce qu'il donnait sur un couloir
+                cassé. Le couloir est réparé. Mais le jeu dit lui-même « c'est le
+                bassin qui la fait, pas vous » : le trophée mentirait sur son
+                propos. On rend donc ce que le bassin a VRAIMENT fait, tiré de ses
+                totaux — et le chiffre qui frappe est celui des refus, parce qu'il
+                dit combien de fois la chimie a réussi pendant qu'on croyait qu'il
+                ne se passait rien. */}
+            {(() => {
+              const b = partie.bassin;
+              const dit: string[] = [];
+              if (b.entreeAu) dit.push(t("bilanEntree", { n: b.entreeAu }));
+              if ((b.refusCible ?? 0) > 0) dit.push(t("bilanRefusCible", { n: b.refusCible }));
+              if ((b.refusees ?? 0) > 0 && (b.soudures ?? 0) > 0) {
+                dit.push(t("bilanPartRefusee", { n: Math.round((100 * b.refusees) / (b.refusees + b.soudures)) }));
+              }
+              if ((b.expulsees ?? 0) > 0) dit.push(t("bilanExpulsees", { n: b.expulsees }));
+              return dit.length > 0 ? (
+                <p style={{ margin: "8px 0 0", fontSize: 12.5, lineHeight: 1.45 }}>
+                  <strong>{t("bilanTitre")}</strong> {dit.join(", ")}.
+                </p>
+              ) : null;
+            })()}
           </div>
         ) : null}
 
@@ -1456,6 +1481,50 @@ export default function LaSoupe() {
             au trentième, pour 3 583 caractères d'écran. Ces deux-là décrivent les
             deux gestes de l'acte et s'effacent dès que le joueur en a fait un :
             il l'a alors VU, et les mots deviennent du bruit devant la chose. */}
+        {/* CHANGER D'AVIS — le recours, là où le blocage se ressent.
+            ⚠️ IL NE PARAÎT QUE QUAND LA PORTE EST FERMÉE ET LA MOLÉCULE ABSENTE.
+            Le proposer pendant qu'elle tient serait inviter à jeter ce qu'on
+            vient de gagner. Et il annonce son prix avant le clic. */}
+        {conseilBassin.autresCibles.length > 0 && conseilBassin.plein ? (
+          <div
+            style={{
+              border: `1px dashed ${OR}`,
+              borderRadius: 8,
+              padding: 10,
+              display: "flex",
+              flexDirection: "column",
+              gap: 8,
+              background: `${OR}0F`,
+            }}
+          >
+            <p style={{ margin: 0, fontSize: 13, color: skin.muted, lineHeight: 1.45 }}>
+              {conseilBassin.coutDuChangement > 0
+                ? t("recoursAvecPrix", { n: conseilBassin.revisions, perdu: conseilBassin.coutDuChangement })
+                : t("recours", { n: conseilBassin.revisions })}
+            </p>
+            <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+              {conseilBassin.autresCibles.map((autre) => (
+                <GBtn
+                  key={autre.empreinte}
+                  skin={skin}
+                  size="sm"
+                  variant={autre.outils > 0 ? "accent" : "ghost"}
+                  onClick={() => setPartie((x) => (x ? reviserLaCible(x, autre.empreinte) : x))}
+                >
+                  <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+                    <Forme grille={autre.grille} cote={9} />
+                    {autre.outils === 0
+                      ? t("viserAucuneAide")
+                      : autre.outils === 1
+                        ? t("viserUneAide")
+                        : t("viserDesAides", { n: autre.outils })}
+                  </span>
+                </GBtn>
+              ))}
+            </div>
+          </div>
+        ) : null}
+
         {(partie.bassin.nes ?? 0) <= 6 && (partie.chronique?.length ?? 0) <= 2 ? (
           <>
             <p style={{ margin: 0, fontSize: 13, color: skin.muted, lineHeight: 1.45 }}>{t("cibleNonSemable")}</p>

@@ -3278,7 +3278,19 @@
     "chroniqueAttente": "rien de bâti, faute d'atomes",
     "toutAcheterBatit": "Tout acheter — bâtit une copie, {gain}/tour",
     "semerEtChange": "Semer {quoi} ×{n} — se soude sur {avant} → sur {apres}",
-    "semerSansEffet": "Semer {quoi} ×{n} — ne changera rien : sur {sur} déjà"
+    "semerSansEffet": "Semer {quoi} ×{n} — ne changera rien : sur {sur} déjà",
+    "recours": "Le bassin ne veut pas de celle-ci. Vous pouvez viser l'une des deux autres du passage — il vous reste {n} changement(s) d'avis.",
+    "recoursAvecPrix": "Le bassin ne veut pas de celle-ci. Vous pouvez viser l'une des deux autres du passage — il vous reste {n} changement(s) d'avis, et vous perdrez votre meilleur séjour de {perdu} tours.",
+    "viserAucuneAide": "Viser celle-ci — aucune de vos molécules ne l'aide",
+    "viserUneAide": "Viser celle-ci — une de vos molécules l'aide",
+    "viserDesAides": "Viser celle-ci — {n} de vos molécules l'aident",
+    "journalRevise": "Changé de cible.",
+    "journalReviseAvecPrix": "Changé de cible — le meilleur séjour de {n} tours est perdu.",
+    "bilanTitre": "Ce que ce bassin aura fait :",
+    "bilanEntree": "elle est entrée au tour {n}",
+    "bilanRefusCible": "le bassin l'a fabriquée puis refoulée {n} fois avant de lui laisser une place",
+    "bilanPartRefusee": "{n} % de sa chimie réussie a été refoulée faute de place",
+    "bilanExpulsees": "{n} espèces ont cédé leur place"
   },
   "Horizon": {
     "metaTitle": "Horizon statistique — Placet",

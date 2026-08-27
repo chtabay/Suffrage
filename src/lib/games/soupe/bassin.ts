@@ -244,6 +244,11 @@ export function bassinVide(libres: Compte = { C: 0, N: 0, S: 0 }): EtatBassin {
     tenue: 0,
     /** Le plus long séjour qu'elle ait obtenu. */
     record: 0,
+    // Les totaux de la partie : c'est d'eux que se tire son récit.
+    refusees: 0,
+    refusCible: 0,
+    expulsees: 0,
+    entreeAu: null,
   };
 }
 
@@ -933,6 +938,10 @@ export function tourDeBassin(
       nes: etat.nes + bilan.nes,
       morts: etat.morts + bilan.morts,
       soudures: (etat.soudures ?? 0) + bilan.soudures,
+      refusees: (etat.refusees ?? 0) + bilan.refusees,
+      refusCible: (etat.refusCible ?? 0) + bilan.refusCible,
+      expulsees: (etat.expulsees ?? 0) + bilan.expulsees,
+      entreeAu: etat.entreeAu ?? (bilan.entreeCible ? etat.tours + 1 : null),
     },
     bilan,
   };

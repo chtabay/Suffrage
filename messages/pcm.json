@@ -3278,7 +3278,19 @@
     "chroniqueAttente": "notin build, atom no dey",
     "toutAcheterBatit": "Buy everytin — e go build one copy, {gain}/turn",
     "semerEtChange": "Plant {quoi} ×{n} — e go weld 1 for {avant} → 1 for {apres}",
-    "semerSansEffet": "Plant {quoi} ×{n} — e no go change anytin: na 1 for {sur} already"
+    "semerSansEffet": "Plant {quoi} ×{n} — e no go change anytin: na 1 for {sur} already",
+    "recours": "Di pond no want dis one. You fit aim one of di two others from di passage — you get {n} change of mind remain.",
+    "recoursAvecPrix": "Di pond no want dis one. You fit aim one of di two others from di passage — you get {n} change of mind remain, and you go lose your best stay of {perdu} turns.",
+    "viserAucuneAide": "Aim dis one — none of your molecule dey help am",
+    "viserUneAide": "Aim dis one — one of your molecule dey help am",
+    "viserDesAides": "Aim dis one — {n} of your molecule dem dey help am",
+    "journalRevise": "You don change di molecule wey you dey target.",
+    "journalReviseAvecPrix": "You don change di molecule wey you dey target — di best stay of {n} turns don lost.",
+    "bilanTitre": "Wetin dis pond do:",
+    "bilanEntree": "e enta for turn {n}",
+    "bilanRefusCible": "di pond make am and push am comot {n} times before e give am space",
+    "bilanPartRefusee": "{n}% of im chemistry wey work dem push comot bicos space no dey",
+    "bilanExpulsees": "{n} species give up dia space"
   },
   "Horizon": {
     "metaTitle": "Statistical horizon — Placet",

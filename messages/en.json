@@ -3278,7 +3278,19 @@
     "chroniqueAttente": "nothing built, for lack of atoms",
     "toutAcheterBatit": "Buy all — builds a copy, {gain}/turn",
     "semerEtChange": "Seed {quoi} ×{n} — welds at 1 in {avant} → 1 in {apres}",
-    "semerSansEffet": "Seed {quoi} ×{n} — will change nothing: 1 in {sur} already"
+    "semerSansEffet": "Seed {quoi} ×{n} — will change nothing: 1 in {sur} already",
+    "recours": "The pool will not have this one. You may aim at one of the two others from the passage — you have {n} change(s) of mind left.",
+    "recoursAvecPrix": "The pool will not have this one. You may aim at one of the two others from the passage — you have {n} change(s) of mind left, and you will lose your best stay of {perdu} turns.",
+    "viserAucuneAide": "Aim at this one — none of your molecules helps",
+    "viserUneAide": "Aim at this one — one of your molecules helps",
+    "viserDesAides": "Aim at this one — {n} of your molecules help",
+    "journalRevise": "Changed target.",
+    "journalReviseAvecPrix": "Changed target — the best stay of {n} turns is lost.",
+    "bilanTitre": "What this pool will have done:",
+    "bilanEntree": "it entered on turn {n}",
+    "bilanRefusCible": "the pool made it and turned it away {n} times before giving it a slot",
+    "bilanPartRefusee": "{n}% of its successful chemistry was turned away for lack of room",
+    "bilanExpulsees": "{n} species gave up their slot"
   },
   "Horizon": {
     "metaTitle": "Statistical horizon — Placet",

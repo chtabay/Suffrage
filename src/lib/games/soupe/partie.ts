@@ -127,6 +127,8 @@ export function nouvellePartie(graine = 1): Partie {
     panneaux: ["milieu", "soupe", "collection"],
     journal: [],
     chronique: [],
+    cibles: [],
+    revisions: 0,
     prochainePiece: 1,
     bilanAtelier: null,
     bilanBassin: null,
@@ -527,6 +529,19 @@ export function ouvrirLeBassin(partie: Partie, cibleGrille: Grille): Partie {
   let bassin = viser(bassinVide(libres), choisie.grille);
   for (const brique of BRIQUES) bassin = ensemencer(bassin, brique, partie.milieu);
 
+  /**
+   * ⚠️ LES TROIS CIBLES DU PASSAGE SONT RETENUES, ET DEUX CHANGEMENTS D'AVIS
+   * OUVERTS. Mesuré : l'acte se décidait au douzième tour et durait quatre
+   * cents, et 43 % des tours passés à attendre n'offraient aucun bouton. Pouvoir
+   * revenir sur son choix fait passer 12 parties gagnées sur 60 à 28, et les
+   * tours sans bouton de 29 % à 18 %.
+   *
+   * ⚠️ MAIS DEUX, PAS UNE INFINITÉ : sans borne, la conduite optimale devient
+   * « re-viser jusqu'à tomber sur une cible facile » — 47 sur 60, et le jeu
+   * n'est plus qu'un tirage qu'on relance.
+   */
+  const REVISIONS = 2;
+
   return {
     ...partie,
     // Le monde change : la chronique du précédent n'a plus cours.
@@ -535,6 +550,8 @@ export function ouvrirLeBassin(partie: Partie, cibleGrille: Grille): Partie {
     atelier: { ...partie.atelier, copies: 0, atomes: { C: 0, N: 0, S: 0 } },
     bassin,
     cible: { grille: choisie.grille, visage: choisie.visage, empreinte: choisie.empreinte },
+    cibles: proposees.map((c) => ({ grille: c.grille, visage: c.visage, empreinte: c.empreinte, outils: c.outils })),
+    revisions: REVISIONS,
     panneaux,
     journal: noter(partie, { quoi: "bassin", visage: choisie.visage, objectif: OBJECTIF }),
   };
@@ -655,6 +672,33 @@ function replier(chronique: EvenementMonde[], arrivant: EvenementMonde): Eveneme
   return [...chronique.slice(0, -1), cumul as unknown as EvenementMonde];
 }
 
+/**
+ * CHANGER D'AVIS SUR LA CIBLE — le troisième geste du bassin.
+ *
+ * ⚠️ IL COÛTE LE RECORD, ET C'EST LE PRIX JUSTE. `viser` remet le séjour et le
+ * meilleur séjour à zéro. Qui tient déjà quarante tours y réfléchira ; qui n'est
+ * jamais entré ne perd rien — la situation même où l'on veut qu'il puisse bouger.
+ *
+ * ⚠️ LE BASSIN, LUI, NE REPART PAS. On ne change que ce qu'on vise ; espèces,
+ * gabarits et matière demeurent. Le monde ne se soucie pas de ce qu'on espère
+ * de lui, et la chronique continue puisque c'est son histoire, pas la nôtre.
+ */
+export function reviserLaCible(partie: Partie, empreinteVoulue: string): Partie {
+  if (partie.acte !== 3 || !partie.cible) return partie;
+  if ((partie.revisions ?? 0) <= 0) return partie;
+  if (empreinteVoulue === partie.cible.empreinte) return partie;
+  const voulue = (partie.cibles ?? []).find((c) => c.empreinte === empreinteVoulue);
+  if (!voulue) return partie;
+
+  return {
+    ...partie,
+    bassin: viser(partie.bassin, voulue.grille),
+    cible: { grille: voulue.grille, visage: voulue.visage, empreinte: voulue.empreinte },
+    revisions: partie.revisions - 1,
+    journal: noter(partie, { quoi: "revise", visage: voulue.visage, perdu: partie.bassin.record ?? 0 }),
+  };
+}
+
 export function ticDuBassin(partie: Partie): Partie {
   if (!partie.panneaux.includes("bassin")) return partie;
   const tenueAvant = partie.bassin.tenue ?? 0;
@@ -721,6 +765,17 @@ export function conseilDuBassin(partie: Partie): ConseilBassin | null {
      * aucun écran ne le nommait — il ne montrait qu'un inventaire.
      */
     plein: partie.bassin.especes.filter((e) => !nourriture(e)).length >= ESPECES_MAX,
+    /**
+     * ⚠️ ON NE LES PROPOSE QUE QUAND LA MOLÉCULE EST ABSENTE. Offrir de changer
+     * d'avis pendant qu'elle tient serait inviter à jeter ce qu'on vient de
+     * gagner : ce geste est un recours, pas une option permanente.
+     */
+    revisions: partie.revisions ?? 0,
+    autresCibles:
+      (partie.revisions ?? 0) > 0 && s.present === 0
+        ? (partie.cibles ?? []).filter((c) => c.empreinte !== partie.cible!.empreinte)
+        : [],
+    coutDuChangement: partie.bassin.record ?? 0,
     /**
      * LES ESPÈCES QU'ON PEUT RETIRER SANS SE PRIVER : ni la cible, ni un gabarit
      * qui sert. Chacune porte ce qu'elle RENDRAIT, et surtout LA PLACE qu'elle

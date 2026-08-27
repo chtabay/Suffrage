@@ -156,6 +156,18 @@ export interface EtatBassin {
   tenue: number;
   /** Le plus long séjour qu'elle ait obtenu. */
   record: number;
+  /**
+   * CE QUE LA PARTIE AURA FAIT, EN ENTIER.
+   *
+   * ⚠️ LE TOUR SE COMPTAIT, LA PARTIE NON — on ne pouvait donc rien raconter
+   * d'elle, alors que c'est là qu'est l'histoire : une molécule fabriquée quatre
+   * cents fois et refusée quatre cents fois, ce n'est pas un tour, c'est un destin.
+   */
+  refusees: number;
+  refusCible: number;
+  expulsees: number;
+  /** Le tour où la cible est entrée pour la première fois, ou `null`. */
+  entreeAu: number | null;
 }
 
 /** Ce qu'un tour de bassin a produit. */
@@ -284,6 +296,12 @@ export interface ConseilBassin extends Soutiens {
   gagne: boolean;
   /** Le bassin est-il plein ? Alors rien de neuf n'y entre. */
   plein: boolean;
+  /** Combien de changements d'avis il reste sur la cible. */
+  revisions: number;
+  /** Les deux autres cibles du passage, quand le recours est ouvert. */
+  autresCibles: { grille: Grille; visage: string; empreinte: string; outils: number }[];
+  /** Ce que le changement d'avis coûterait : le meilleur séjour obtenu. */
+  coutDuChangement: number;
   manque: ManqueAtome[];
   inutiles: Retirable[];
 }
@@ -350,6 +368,10 @@ export interface Partie {
   bilanBassin: BilanBassin | null;
   /** Ce que le monde a fait, tour par tour. Voir `evenementDuTour`. */
   chronique: EvenementMonde[];
+  /** Les trois cibles proposées au passage : on peut encore passer aux autres. */
+  cibles: { grille: Grille; visage: string; empreinte: string; outils: number }[];
+  /** Combien de changements d'avis il reste. */
+  revisions: number;
 }
 
 /** Ce qui s'est passé, sous une forme que l'écran traduira. */
@@ -362,4 +384,6 @@ export type EvenementJournal =
   | { quoi: "seme"; visage: string; combien: number; remisAZero: boolean }
   | { quoi: "sansAtomes" }
   | { quoi: "retire"; visage: string }
-  | { quoi: "cibleNonSemable" };
+  | { quoi: "cibleNonSemable" }
+  /** Le joueur a changé d'avis sur la cible — et ce que ça lui a coûté. */
+  | { quoi: "revise"; visage: string; perdu: number };
