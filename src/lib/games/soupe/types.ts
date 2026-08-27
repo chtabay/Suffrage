@@ -299,7 +299,7 @@ export interface ConseilBassin extends Soutiens {
   /** Combien de changements d'avis il reste sur la cible. */
   revisions: number;
   /** Les deux autres cibles du passage, quand le recours est ouvert. */
-  autresCibles: { grille: Grille; visage: string; empreinte: string; outils: number }[];
+  autresCibles: { grille: Grille; visage: string; empreinte: string; outils: number; composition: Compte }[];
   /** Ce que le changement d'avis coûterait : le meilleur séjour obtenu. */
   coutDuChangement: number;
   manque: ManqueAtome[];
@@ -375,7 +375,7 @@ export interface Partie {
   /** Ce que le monde a fait, tour par tour. Voir `evenementDuTour`. */
   chronique: EvenementMonde[];
   /** Les trois cibles proposées au passage : on peut encore passer aux autres. */
-  cibles: { grille: Grille; visage: string; empreinte: string; outils: number }[];
+  cibles: { grille: Grille; visage: string; empreinte: string; outils: number; composition: Compte }[];
   /** Combien de changements d'avis il reste. */
   revisions: number;
 }

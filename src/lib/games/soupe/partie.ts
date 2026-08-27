@@ -550,7 +550,18 @@ export function ouvrirLeBassin(partie: Partie, cibleGrille: Grille): Partie {
     atelier: { ...partie.atelier, copies: 0, atomes: { C: 0, N: 0, S: 0 } },
     bassin,
     cible: { grille: choisie.grille, visage: choisie.visage, empreinte: choisie.empreinte },
-    cibles: proposees.map((c) => ({ grille: c.grille, visage: c.visage, empreinte: c.empreinte, outils: c.outils })),
+    /**
+     * ⚠️ ON GARDE AUSSI LA COMPOSITION. Le recours doit pouvoir signaler les deux
+     * soufres — le seul chiffre du passage qui prédise quelque chose : 87 % de
+     * réussite à zéro ou un soufre, 45 % à deux, sur 450 cibles menées au bout.
+     */
+    cibles: proposees.map((c) => ({
+      grille: c.grille,
+      visage: c.visage,
+      empreinte: c.empreinte,
+      outils: c.outils,
+      composition: c.composition,
+    })),
     revisions: REVISIONS,
     panneaux,
     journal: noter(partie, { quoi: "bassin", visage: choisie.visage, objectif: OBJECTIF }),

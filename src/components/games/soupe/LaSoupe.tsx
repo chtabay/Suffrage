@@ -1045,7 +1045,14 @@ export default function LaSoupe() {
                 pour la faire » ; mesuré sur l'univers entier, les cent quatre
                 tétramères ont exactement UNE voie. On montre donc l'atome rare
                 qu'elle réclame face à ce que le milieu verse. */}
-            <Chiffre teinte={c.tension > 0.25 ? ROUGE : skin.good}>
+            {/* ⚠️ CE BADGE ÉTAIT TOUJOURS VERT. La règle disait `tension > 0,25`, et
+                la tension d'une cible à deux soufres vaut exactement 2/8 = 0,25 dans
+                cette eau : le seuil ratait le seul cas qu'il devait signaler. Et on
+                ne se rattrape pas en abaissant le seuil — 3 azotes valent aussi 0,25
+                et gagnent 20 fois sur 20. C'est le SOUFRE qui décide : mesuré sur
+                450 cibles menées de bout en bout, 87 % de réussite à zéro ou un
+                soufre, 45 % à deux. */}
+            <Chiffre>
               {c.plusRare
                 ? t("cibleRarete", {
                     n: c.plusRare.requis,
@@ -1054,9 +1061,12 @@ export default function LaSoupe() {
                   })
                 : ""}
             </Chiffre>
-            <Chiffre teinte={c.outils > 0 ? skin.good : ROUGE}>
-              {c.outils > 0 ? t("cibleOutils", { n: c.outils }) : t("cibleSansOutil")}
-            </Chiffre>
+            {(c.composition.S ?? 0) >= 2 ? <Chiffre teinte={ROUGE}>{t("cibleDeuxSoufres")}</Chiffre> : null}
+            {/* ⚠️ ET CELUI-CI N'EST PLUS VERT NON PLUS. C'est sur ce chiffre que le
+                joueur choisissait. Mesuré sur les mêmes 450 cibles, SANS SEMER : à un
+                soufre, 93 % avec 0-1 gabarit et 93 % avec deux ou plus. Le chiffre ne
+                prédit rien — et coloré, il recommandait. C'est un fait, pas un conseil. */}
+            <Chiffre>{c.outils > 0 ? t("cibleOutils", { n: c.outils }) : t("cibleSansOutil")}</Chiffre>
           </button>
         ))}
       </div>
@@ -1537,26 +1547,32 @@ export default function LaSoupe() {
             }}
           >
             <p style={{ margin: 0, fontSize: 13, color: skin.muted, lineHeight: 1.45 }}>
+              {/* ⚠️ « LE BASSIN NE VEUT PAS DE CELLE-CI » ÉTAIT UN VERDICT, ET IL ÉTAIT
+                  FAUX. Cette phrase paraît dès que le bassin est plein et la cible
+                  dehors — donc 99 % du temps, dès le premier tour. Mesuré sur 304
+                  parties gagnées : la cible entre au tour 13 en médiane, une sur dix
+                  après le soixantième, la dernière au 228e. */}
               {conseilBassin.coutDuChangement > 0
                 ? t("recoursAvecPrix", { n: conseilBassin.revisions, perdu: conseilBassin.coutDuChangement })
                 : t("recours", { n: conseilBassin.revisions })}
             </p>
             <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+              {/* ⚠️ ON NE VEND PLUS LE COMPTE DE GABARITS. Le bouton doré disait
+                  « 2 de vos molécules l'aident », le gris « aucune ne l'aide », et le
+                  joueur choisissait là-dessus. Mesuré sans semer : à un soufre, 93 %
+                  avec 0-1 gabarit, 93 % avec deux ou plus. Les deux boutons se valent
+                  donc, et seul le soufre mérite d'être signalé. */}
               {conseilBassin.autresCibles.map((autre) => (
                 <GBtn
                   key={autre.empreinte}
                   skin={skin}
                   size="sm"
-                  variant={autre.outils > 0 ? "accent" : "ghost"}
+                  variant="ghost"
                   onClick={() => setPartie((x) => (x ? reviserLaCible(x, autre.empreinte) : x))}
                 >
                   <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
                     <Forme grille={autre.grille} cote={9} />
-                    {autre.outils === 0
-                      ? t("viserAucuneAide")
-                      : autre.outils === 1
-                        ? t("viserUneAide")
-                        : t("viserDesAides", { n: autre.outils })}
+                    {(autre.composition.S ?? 0) >= 2 ? t("viserDeuxSoufres") : t("viserCelleCi")}
                   </span>
                 </GBtn>
               ))}
@@ -1587,6 +1603,11 @@ export default function LaSoupe() {
           {/* ⚠️ TOUTES, PLUS SEULEMENT TROIS : c'est désormais le seul endroit
               où l'on sème, donc en tronquer la liste retirerait des gestes au
               joueur — et le moteur de référence, lui, les montrait toutes. */}
+          {/* ⚠️ SEMER N'EST PLUS LE GESTE DORÉ. `installer(..., force)` CHASSE la
+              population la plus faible pour faire entrer le gabarit : le geste dépense
+              une des huit places. Mesuré, apparié, 360 cibles menées deux fois chacune :
+              vos molécules occupent 1,12 place sur 8 en semant contre 0,07 sans, pour
+              296 parties tenues contre 304. */}
           {conseilBassin.aider.map((aide) => {
             const piece = partie.collection.find((x) => x.visage === aide.visage);
             if (!piece) return null;
@@ -1596,7 +1617,7 @@ export default function LaSoupe() {
                 key={aide.visage}
                 skin={skin}
                 size="sm"
-                variant={aide === conseilBassin.aider[0] && lot > 0 ? "accent" : "ghost"}
+                variant="ghost"
                 disabled={lot === 0}
                 onClick={() => setPartie((p) => (p ? semerDansLeBassin(p, piece.grille) : p))}
                 title={
