@@ -46,6 +46,7 @@ export async function submitHorizonOrder(input: HorizonOrderInput): Promise<Hori
     ["Quantité", String(order.quantity)],
     ["Nom", order.name],
     ["E-mail", order.email],
+    ["Adresse de livraison", order.address],
     ["Pays", order.country],
     ["Langue", order.locale],
     ["Précision", order.note || "—"],
