@@ -558,6 +558,10 @@ export default function LaSoupe() {
       role="status"
       style={{
         display: "flex",
+        // ⚠️ LE BOUTON DOIT POUVOIR PASSER À LA LIGNE. Sans ça, un intitulé un
+        // peu long — « Retirer quand même — coûte une voie » — écrase la phrase
+        // à un mot par ligne et déborde de l'écran sur 390 px.
+        flexWrap: "wrap",
         alignItems: "flex-start",
         gap: 9,
         marginBottom: 14,
@@ -570,7 +574,7 @@ export default function LaSoupe() {
       }}
     >
       <span aria-hidden style={{ fontWeight: 800, color: skin.accent }}>→</span>
-      <span style={{ flex: 1 }}>{conseil()}</span>
+      <span style={{ flex: "1 1 14rem", minWidth: "12rem" }}>{conseil()}</span>
       {/* ⚠️ UN CONSEIL IMPÉRATIF DOIT PORTER SON BOUTON. « Retirez la molécule
           marquée » désignait un contrôle tout en bas du panneau, qui affiche une
           forme et « × 6 » et dont la seule légende vivait dans un `title` — donc
