@@ -3270,7 +3270,8 @@
     "chroniqueRemplacements": "{fois} slots changed hands, the last one: a <venue></venue> took the slot of a <partie></partie> that was down to {n}",
     "chroniqueRefoulees": "{n} welds installed, {r} turned away",
     "chroniqueBriques": "{n} bricks born of blind chemistry",
-    "chroniqueCalme": "nothing of note"
+    "chroniqueCalme": "nothing of note",
+    "seRembourseEn": "a copy pays for itself in {n} turns"
   },
   "Horizon": {
     "metaTitle": "Statistical horizon — Placet",

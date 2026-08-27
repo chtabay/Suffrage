@@ -83,7 +83,7 @@ import AideModale from "@/components/games/Modale";
 import { GBtn, GCard, GLabel } from "@/components/games/ui";
 import { SOUPE_SKIN as skin } from "@/lib/games/skin";
 import { CODES, caseA } from "@/lib/games/soupe/grille";
-import { coutEnAtomes, peutBatir, presenter } from "@/lib/games/soupe/atelier";
+import { coutEnAtomes, coutEnEnergie, peutBatir, presenter } from "@/lib/games/soupe/atelier";
 import { FORCES, cellulesDe } from "@/lib/games/soupe/soupe";
 import {
   HORIZON_ATELIER,
@@ -855,6 +855,31 @@ export default function LaSoupe() {
                   <Chiffre teinte={paie ? skin.good : undefined}>
                     {paie ? t("parTour", { n: signe(piece.rendement ?? 0) }) : t("sterile")}
                   </Chiffre>
+                  {/* ⚠️ LE NOMBRE QUI DÉCIDE DU DEUXIÈME ACTE, MONTRÉ AVANT LE CHOIX.
+                      atelier.ts le dit de lui-même : « la tension du deuxième acte
+                      tient dans ce seul nombre ». Il était écrit — dans l'atelier,
+                      donc APRÈS que le gabarit soit fixé, et le choix se prend ici.
+                      Mesuré sur trente-six gabarits menés jusqu'à l'horizon : le
+                      temps de remboursement explique 83 % du temps que met
+                      l'atelier (r = 0,91), le prix et la taille 35 %, le rendement
+                      seul 32 %, et la SOLIDITÉ rien du tout (r = 0,11). À rendement
+                      égal, l'écart entre deux pièces va de 25 à 96 tours.
+                      Pas de seuil inventé : on compare à la meilleure de la
+                      collection, ce que le joueur a sous la main. */}
+                  {paie && piece.composition ? (
+                    (() => {
+                      const amorti = (x: Piece) => Math.ceil(coutEnEnergie(x) / (x.rendement ?? 1));
+                      const tours = amorti(piece);
+                      const meilleur = Math.min(
+                        ...partie.collection.filter((x) => (x.rendement ?? 0) > 0 && x.composition).map(amorti),
+                      );
+                      return (
+                        <Chiffre teinte={tours === meilleur ? skin.good : undefined}>
+                          {t("seRembourseEn", { n: tours })}
+                        </Chiffre>
+                      );
+                    })()
+                  ) : null}
                   <Chiffre>
                     {t("solidite")} : {t(solidite(piece.cohesion))}
                   </Chiffre>

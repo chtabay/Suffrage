@@ -3270,7 +3270,8 @@
     "chroniqueRemplacements": "{fois} plazas cambiaron de mano, la última: una <venue></venue> ocupó la plaza de una <partie></partie> que ya solo era {n}",
     "chroniqueRefoulees": "{n} soldaduras instaladas, {r} rechazadas",
     "chroniqueBriques": "{n} ladrillos nacidos de la química ciega",
-    "chroniqueCalme": "nada destacable"
+    "chroniqueCalme": "nada destacable",
+    "seRembourseEn": "una copia se amortiza en {n} turnos"
   },
   "Horizon": {
     "metaTitle": "Horizonte estadístico — Placet",

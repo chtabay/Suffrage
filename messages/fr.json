@@ -3270,7 +3270,8 @@
     "chroniqueRemplacements": "{fois} places ont changé de main, la dernière : une <venue></venue> a pris la place d'une <partie></partie> qui n'était plus que {n}",
     "chroniqueRefoulees": "{n} soudures installées, {r} refoulées",
     "chroniqueBriques": "{n} briques nées de la chimie aveugle",
-    "chroniqueCalme": "rien de notable"
+    "chroniqueCalme": "rien de notable",
+    "seRembourseEn": "une copie se rembourse en {n} tours"
   },
   "Horizon": {
     "metaTitle": "Horizon statistique — Placet",
