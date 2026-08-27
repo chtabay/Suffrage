@@ -1193,19 +1193,13 @@ export default function LaSoupe() {
               );
             })}
           </div>
-          {/* ⚠️ CE PARAGRAPHE NE RÉPOND QU'À UNE QUESTION, ET ELLE N'EST POSÉE
-              QUE QUAND ON EST BLOQUÉ : « pourquoi j'arrive à produire alors qu'il
-              me manque de l'azote ? » Affiché en permanence, il occupait de la
-              place sur un écran qui défile déjà sur deux écrans et demi. */}
-          {/* ⚠️ ET SEULEMENT S'IL Y A DES COPIES. « Vos copies produisent quand
-              même » s'affichait avec ZÉRO copie en production, sous un conseil
-              qui disait au même moment « aucune copie ne tourne, donc rien ne se
-              produit ». L'un des deux mentait. */}
-          {manques.length > 0 && (partie.atelier.copies ?? 0) > 0 ? (
-            <p style={{ margin: "8px 0 0", fontSize: 12.5, color: skin.muted, lineHeight: 1.45 }}>
-              {t("magasinNote")}
-            </p>
-          ) : null}
+          {/* ⚠️ CE PARAGRAPHE DISAIT MOT POUR MOT CE QUE LA LIGNE DE CONSEIL
+              VENAIT DE DIRE, CINQ LIGNES PLUS HAUT : « Vos copies produisent
+              quand même — les atomes ne servent qu'à en bâtir d'AUTRES » sous
+              « Vos copies produisent +6 par tour et continueront quoi qu'il
+              arrive ; les atomes ne servent qu'à en bâtir de NOUVELLES ». Il
+              répondait à une bonne question, mais le conseil y répond déjà, en
+              premier, et c'est lui qu'on lit. */}
         </div>
       ) : null}
 

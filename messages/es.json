@@ -3158,7 +3158,6 @@
     "conseilProduitEtManque": "Tus copias producen {gain} de energía por turno, y seguirán haciéndolo pase lo que pase. Los átomos solo sirven para construir NUEVAS: compra lo que falta para ir más rápido.",
     "conseilProduitEtAttend": "Tus copias producen {gain} de energía por turno, y seguirán haciéndolo pase lo que pase. Construir una más necesita átomos: deja que suba la energía.",
     "conseilArrete": "Ninguna copia funciona, así que no se produce nada. Hacen falta átomos para construir una.",
-    "magasinNote": "Tus copias producen igualmente — los átomos solo sirven para construir OTRAS.",
     "pourGrandir": "Para construir una copia más",
     "coutCopie": "una copia cuesta {n} de energía en átomos",
     "amortie": "se amortiza en {n, plural, one {# turno} other {# turnos}}",

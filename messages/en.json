@@ -3158,7 +3158,6 @@
     "conseilProduitEtManque": "Your copies produce {gain} energy a turn, and will keep doing so whatever happens. Atoms only serve to build NEW ones: buy what is missing to go faster.",
     "conseilProduitEtAttend": "Your copies produce {gain} energy a turn, and will keep doing so whatever happens. Building one more needs atoms — let the energy build up.",
     "conseilArrete": "No copy is running, so nothing is produced. Atoms are needed to build one.",
-    "magasinNote": "Your copies produce anyway — atoms only serve to build OTHERS.",
     "pourGrandir": "To build one more copy",
     "coutCopie": "one copy costs {n} energy in atoms",
     "amortie": "pays for itself in {n, plural, one {# turn} other {# turns}}",

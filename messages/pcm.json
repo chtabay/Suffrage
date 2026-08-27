@@ -3158,7 +3158,6 @@
     "conseilProduitEtManque": "Your copy dem dey produce {gain} energy every turn, and dem go continue no matter wetin. Atom na only to build NEW ones: buy wetin dey miss make e fast.",
     "conseilProduitEtAttend": "Your copy dem dey produce {gain} energy every turn, and dem go continue no matter wetin. To build one more need atom — allow di energy climb.",
     "conseilArrete": "No copy dey run, so nothing dey produce. You need atom to build one.",
-    "magasinNote": "Your copy dem still dey produce — atom na only to build OTHER ones.",
     "pourGrandir": "To build one more copy",
     "coutCopie": "one copy dey cost {n} energy for atom",
     "amortie": "e go pay imsef back for {n, plural, one {# turn} other {# turns}}",

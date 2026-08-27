@@ -3158,7 +3158,6 @@
     "conseilProduitEtManque": "Vos copies produisent {gain} d'énergie par tour, et continueront quoi qu'il arrive. Les atomes ne servent qu'à en bâtir de NOUVELLES : achetez ce qui manque pour aller plus vite.",
     "conseilProduitEtAttend": "Vos copies produisent {gain} d'énergie par tour, et continueront quoi qu'il arrive. Pour en bâtir une de plus il manque des atomes — laissez l'énergie monter.",
     "conseilArrete": "Aucune copie ne tourne, donc rien ne se produit. Il faut des atomes pour en bâtir une.",
-    "magasinNote": "Vos copies produisent quand même — les atomes ne servent qu'à en bâtir d'AUTRES.",
     "pourGrandir": "Pour bâtir une copie de plus",
     "coutCopie": "une copie coûte {n} d'énergie en atomes",
     "amortie": "remboursée en {n, plural, one {# tour} other {# tours}}",
