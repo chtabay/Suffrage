@@ -110,7 +110,7 @@ import {
   ticDuBassin,
   ticLatelier,
 } from "@/lib/games/soupe/partie";
-import { ESPECES_MAX, OBJECTIF as OBJECTIF_BASSIN, TAILLE_MAX, nourriture } from "@/lib/games/soupe/bassin";
+import { ESPECES_MAX, OBJECTIF as OBJECTIF_BASSIN, TAILLE_MAX, chanceDeSouder, espece, nourriture } from "@/lib/games/soupe/bassin";
 import type { Code, Espece, EvenementJournal, EvenementMonde, Grille, Partie, Piece, Voie } from "@/lib/games/soupe/types";
 
 /**
@@ -1450,12 +1450,18 @@ export default function LaSoupe() {
           </div>
         ) : null}
 
-        {/* ⚠️ LA RÈGLE QUI DÉCIDE DE TOUT L'ACTE DOIT ÊTRE ÉCRITE, pas devinée
-            après coup en voyant un compteur retomber à zéro. */}
-        {/* ⚠️ LA RÈGLE QUI DÉCIDE DE TOUT L'ACTE, ÉCRITE LÀ OÙ ON LA LIT — et la
-            seule réponse honnête à « qu'est-ce que je fais, au juste ? ». */}
-        <p style={{ margin: 0, fontSize: 13, color: skin.muted, lineHeight: 1.45 }}>{t("cibleNonSemable")}</p>
-        <p style={{ margin: 0, fontSize: 13, color: skin.muted, lineHeight: 1.45 }}>{t("ceQuFaitUnGabarit")}</p>
+        {/* ⚠️ LA RÈGLE QUI DÉCIDE DE TOUT L'ACTE, ÉCRITE LÀ OÙ ON LA LIT — mais
+            PAS indéfiniment. Mesuré sur 390×844 : le panneau portait 1 738
+            caractères de prose en six paragraphes, identiques au premier tour et
+            au trentième, pour 3 583 caractères d'écran. Ces deux-là décrivent les
+            deux gestes de l'acte et s'effacent dès que le joueur en a fait un :
+            il l'a alors VU, et les mots deviennent du bruit devant la chose. */}
+        {(partie.bassin.nes ?? 0) <= 6 && (partie.chronique?.length ?? 0) <= 2 ? (
+          <>
+            <p style={{ margin: 0, fontSize: 13, color: skin.muted, lineHeight: 1.45 }}>{t("cibleNonSemable")}</p>
+            <p style={{ margin: 0, fontSize: 13, color: skin.muted, lineHeight: 1.45 }}>{t("ceQuFaitUnGabarit")}</p>
+          </>
+        ) : null}
 
         <p style={{ margin: 0, fontSize: 13, color: skin.muted }}>{t("parQuoiElleSeFabrique")}</p>
         <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
@@ -1492,9 +1498,22 @@ export default function LaSoupe() {
               >
                 <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
                   <Forme grille={piece.grille} cote={7} />
-                  {lot > 0
-                    ? t("semerGabaritLot", { quoi: nomLisible(aide.visage), n: lot })
-                    : t("semerImpossibleCourt", { quoi: nomLisible(aide.visage) })}
+                  {/* ⚠️ ET CE QUE ÇA CHANGE, PAS SEULEMENT COMBIEN. Le bouton disait
+                      le geste et jamais son effet. La chance après le semis se
+                      calcule exactement — même courbe, gabarits en plus. Et quand
+                      elle ne bouge pas, on l'écrit : le bassin fournit à lui seul
+                      une soixantaine de gabarits pour une demi-saturation à douze.
+                      Deux testeurs ont semé quarante tours pour rien faute de le voir. */}
+                  {(() => {
+                    if (lot === 0) return t("semerImpossibleCourt", { quoi: nomLisible(aide.visage) });
+                    const voie = conseilBassin.voies[0];
+                    if (!voie) return t("semerGabaritLot", { quoi: nomLisible(aide.visage), n: lot });
+                    const avant = Math.max(1, Math.round(1 / voie.chance));
+                    const apres = Math.max(1, Math.round(1 / chanceDeSouder(voie.gabarits + lot)));
+                    return avant === apres
+                      ? t("semerSansEffet", { quoi: nomLisible(aide.visage), n: lot, sur: avant })
+                      : t("semerEtChange", { quoi: nomLisible(aide.visage), n: lot, avant, apres });
+                  })()}
                 </span>
               </GBtn>
             );
@@ -1671,11 +1690,21 @@ export default function LaSoupe() {
             et mesurable : le soufre ne prend que deux voisins et lie le plus
             faiblement, si bien qu'une molécule qui en porte deux se défait 5,4 fois
             plus vite. On a cessé d'en proposer comme cible ; restait à le DIRE. */}
-        <p style={{ margin: 0, fontSize: 13, color: skin.muted, lineHeight: 1.45 }}>
-          <strong style={{ color: skin.ink, fontWeight: 700 }}>{t("metierDesAtomesTitre")}</strong>{" "}
-          {t("metierDesAtomes")}
-        </p>
-        <p style={{ margin: 0, fontSize: 13, color: skin.muted, lineHeight: 1.45 }}>{t("bassinAide")}</p>
+        {/* ⚠️ 384 CARACTÈRES DE CHIMIE À CHAQUE TOUR POUR UNE QUESTION QUI NE SE
+            POSE PAS TOUJOURS. Le paragraphe parle aux trois quarts du soufre ;
+            cette question ne se pose que si la cible en contient. Sinon, c'est
+            une leçon sans élève. */}
+        {partie.cible && Object.keys(espece(partie.cible.grille, partie.milieu).composition).includes("S") ? (
+          <p style={{ margin: 0, fontSize: 13, color: skin.muted, lineHeight: 1.45 }}>
+            <strong style={{ color: skin.ink, fontWeight: 700 }}>{t("metierDesAtomesTitre")}</strong>{" "}
+            {t("metierDesAtomes")}
+          </p>
+        ) : null}
+        {/* La prémisse de l'acte s'efface dès qu'une molécule fabriquée existe :
+            la chose vaut mieux que ses 307 caractères. */}
+        {partie.bassin.especes.filter((e) => e.taille > 2).length === 0 ? (
+          <p style={{ margin: 0, fontSize: 13, color: skin.muted, lineHeight: 1.45 }}>{t("bassinAide")}</p>
+        ) : null}
       </GCard>
     ) : null;
 

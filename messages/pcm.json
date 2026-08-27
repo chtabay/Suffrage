@@ -3186,8 +3186,8 @@
     "semerGabarit": "Sow {quoi}",
     "semerGabaritAide": "One of your molecules. E dey hold di two pieces of one route: di weld go fast as long as e dey.",
     "aucunOutil": "None of your molecules sabi hold dis two pieces side by side. You go depend on wetin di pool dey make by imsef.",
-    "lesBriques": "Di bricks — wetin blind chemistry dey make by imsef, without decide anything. Di number na how many dey ALIVE: di pool dey hold plenty copies of each species.",
-    "ceQuiEstFabrique": "Wetin dem dey make — {n} species for {places} space. One space still dey, and di next molecule wey dem weld go take am. Touch one molecule make you comot am — e go give back all im atom and free im space.",
+    "lesBriques": "Di brick dem, wey blind chemistry dey make by imself. Di number na how many dey alive.",
+    "ceQuiEstFabrique": "One space still dey: di next molecule wey dem weld go take am. Touch one molecule make you comot am — e go give back im atom.",
     "retirerRend": "Remove {quoi} — e go return {rendu} to di pool, and free im place.",
     "retirerSimple": "Remove {quoi} from di pool — im atoms go return, and im place go free.",
     "cestLaCible": "Na di target: you no fit remove am.",
@@ -3244,7 +3244,7 @@
     "semerImpossibleCourt": "{quoi}: atoms no reach",
     "bassinPlein": "{n} species for {places} space — di pond don full, notin new fit enta",
     "bassinUnePlace": "{n} species for {places} space — space still dey for one more",
-    "ceQuiEstFabriquePlein": "Wetin dem dey make — {n} species for {places} space. All di space don full, and as e full so, NOTIN NEW FIT ENTA: di chemistry dey work but di pond dey push am comot. Touch one molecule make you comot am and open space — e go still give back all im atom.",
+    "ceQuiEstFabriquePlein": "All space don full: di chemistry dey work but di pond dey push am comot. Touch one molecule make space open — e go still give back im atom.",
     "refoulees": "dem push {n} comot bicos space no dey",
     "votreMoleculeRefoulee": "dem make your molecule {n} times dis turn — and push am comot {n} times, bicos space no dey",
     "sortieAttrition": "your molecule don comot for di pond: e scatter",
@@ -3276,7 +3276,9 @@
     "chroniqueReamorce": "no copy remain: di cupboard open again, you start from one",
     "chroniqueProduit": "{n} energy, e no chop anytin",
     "chroniqueAttente": "notin build, atom no dey",
-    "toutAcheterBatit": "Buy everytin — e go build one copy, {gain}/turn"
+    "toutAcheterBatit": "Buy everytin — e go build one copy, {gain}/turn",
+    "semerEtChange": "Plant {quoi} ×{n} — e go weld 1 for {avant} → 1 for {apres}",
+    "semerSansEffet": "Plant {quoi} ×{n} — e no go change anytin: na 1 for {sur} already"
   },
   "Horizon": {
     "metaTitle": "Statistical horizon — Placet",

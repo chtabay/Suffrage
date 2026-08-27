@@ -3186,8 +3186,8 @@
     "semerGabarit": "Sow {quoi}",
     "semerGabaritAide": "One of your molecules. It holds both pieces of a route: the weld will go faster while it lasts.",
     "aucunOutil": "None of your molecules can hold these two pieces side by side. You will have to rely on what the pool makes by itself.",
-    "lesBriques": "The bricks — what blind chemistry makes on its own, deciding nothing. The number is how many are ALIVE: the pool holds several copies of each species.",
-    "ceQuiEstFabrique": "What is being made — {n} species in {places} slots. One slot is free, and the next welded molecule will take it. Tap a molecule to remove it — it gives back all its atoms and frees its slot.",
+    "lesBriques": "The bricks, which blind chemistry makes on its own. The number is how many are alive.",
+    "ceQuiEstFabrique": "One slot is free: the next welded molecule takes it. Tap a molecule to remove it — it gives back its atoms.",
     "retirerRend": "Remove {quoi} — returns {rendu} to the pool, and frees its place.",
     "retirerSimple": "Remove {quoi} from the pool — its atoms return, and its place is freed.",
     "cestLaCible": "This is the target: it cannot be removed.",
@@ -3244,7 +3244,7 @@
     "semerImpossibleCourt": "{quoi}: not enough atoms",
     "bassinPlein": "{n} species in {places} slots — the pool is full, nothing new gets in",
     "bassinUnePlace": "{n} species in {places} slots — there is still room for one more",
-    "ceQuiEstFabriquePlein": "What is being made — {n} species in {places} slots. The slots are taken, and while they are, NOTHING NEW GETS IN: the chemistry succeeds and the pool turns it away. Tap a molecule to remove it and open a slot — it also gives back all its atoms.",
+    "ceQuiEstFabriquePlein": "Slots taken: the chemistry succeeds and the pool turns it away. Tap a molecule to open a slot — it also gives back its atoms.",
     "refoulees": "{n} turned away for lack of room",
     "votreMoleculeRefoulee": "your molecule was made {n} times this turn — and turned away {n} times, for lack of room",
     "sortieAttrition": "your molecule left the pool: it fell apart",
@@ -3276,7 +3276,9 @@
     "chroniqueReamorce": "not one copy left: the cupboard reopens, you start again from one",
     "chroniqueProduit": "{n} energy, consuming nothing",
     "chroniqueAttente": "nothing built, for lack of atoms",
-    "toutAcheterBatit": "Buy all — builds a copy, {gain}/turn"
+    "toutAcheterBatit": "Buy all — builds a copy, {gain}/turn",
+    "semerEtChange": "Seed {quoi} ×{n} — welds at 1 in {avant} → 1 in {apres}",
+    "semerSansEffet": "Seed {quoi} ×{n} — will change nothing: 1 in {sur} already"
   },
   "Horizon": {
     "metaTitle": "Statistical horizon — Placet",

@@ -3186,8 +3186,8 @@
     "semerGabarit": "Semer {quoi}",
     "semerGabaritAide": "Une de vos molécules. Elle tient les deux morceaux d'une voie : la soudure ira plus vite tant qu'elle sera là.",
     "aucunOutil": "Aucune de vos molécules ne sait tenir ces deux morceaux côte à côte. Il faudra compter sur ce que le bassin fabrique lui-même.",
-    "lesBriques": "Les briques — ce que la chimie aveugle fait toute seule, sans rien décider. Le chiffre est le nombre d'EXEMPLAIRES vivants : le bassin porte plusieurs copies de chaque espèce.",
-    "ceQuiEstFabrique": "Ce qui est fabriqué — {n} espèces sur {places} places. Il reste une place, et la prochaine molécule soudée la prendra. Touchez une molécule pour la retirer — elle rend tous ses atomes et libère sa place.",
+    "lesBriques": "Les briques, que la chimie aveugle fait seule. Le chiffre est le nombre d'exemplaires vivants.",
+    "ceQuiEstFabrique": "Il reste une place : la prochaine molécule soudée la prendra. Touchez une molécule pour la retirer — elle rend ses atomes.",
     "retirerRend": "Retirer {quoi} — rend {rendu} au bassin, et libère sa place.",
     "retirerSimple": "Retirer {quoi} du bassin — ses atomes y retournent, et sa place se libère.",
     "cestLaCible": "C'est la cible : on ne la retire pas.",
@@ -3244,7 +3244,7 @@
     "semerImpossibleCourt": "{quoi} : pas assez d'atomes",
     "bassinPlein": "{n} espèces sur {places} places — le bassin est plein, rien de neuf n'y entre",
     "bassinUnePlace": "{n} espèces sur {places} places — il reste de la place pour une nouvelle",
-    "ceQuiEstFabriquePlein": "Ce qui est fabriqué — {n} espèces sur {places} places. Les places sont prises, et tant qu'elles le sont, RIEN DE NEUF N'ENTRE : la chimie a beau réussir, le bassin refoule. Touchez une molécule pour la retirer et lui faire une place — elle rend aussi tous ses atomes.",
+    "ceQuiEstFabriquePlein": "Places prises : la chimie a beau réussir, le bassin refoule. Touchez une molécule pour lui faire une place — elle rend aussi ses atomes.",
     "refoulees": "{n} refoulées faute de place",
     "votreMoleculeRefoulee": "votre molécule a été faite {n} fois ce tour-ci — et refoulée {n} fois, faute de place",
     "sortieAttrition": "votre molécule a quitté le bassin : elle s'est défaite",
@@ -3276,7 +3276,9 @@
     "chroniqueReamorce": "plus une copie : l'armoire se rouvre, vous repartez d'une",
     "chroniqueProduit": "{n} d'énergie, sans rien consommer",
     "chroniqueAttente": "rien de bâti, faute d'atomes",
-    "toutAcheterBatit": "Tout acheter — bâtit une copie, {gain}/tour"
+    "toutAcheterBatit": "Tout acheter — bâtit une copie, {gain}/tour",
+    "semerEtChange": "Semer {quoi} ×{n} — se soude sur {avant} → sur {apres}",
+    "semerSansEffet": "Semer {quoi} ×{n} — ne changera rien : sur {sur} déjà"
   },
   "Horizon": {
     "metaTitle": "Horizon statistique — Placet",

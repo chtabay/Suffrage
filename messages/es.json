@@ -3186,8 +3186,8 @@
     "semerGabarit": "Sembrar {quoi}",
     "semerGabaritAide": "Una de tus moléculas. Sujeta las dos piezas de una vía: la soldadura irá más rápido mientras esté ahí.",
     "aucunOutil": "Ninguna de tus moléculas sabe sujetar estas dos piezas lado a lado. Habrá que contar con lo que la charca fabrique por sí misma.",
-    "lesBriques": "Los ladrillos — lo que la química ciega hace sola, sin decidir nada. La cifra es el número de EJEMPLARES vivos: la charca lleva varias copias de cada especie.",
-    "ceQuiEstFabrique": "Lo que se fabrica — {n} especies en {places} plazas. Queda una plaza, y la próxima molécula soldada la ocupará. Toca una molécula para retirarla — devuelve todos sus átomos y libera su plaza.",
+    "lesBriques": "Los ladrillos, que la química ciega hace sola. La cifra es cuántos viven.",
+    "ceQuiEstFabrique": "Queda una plaza: la próxima molécula soldada la ocupará. Toca una molécula para retirarla — devuelve sus átomos.",
     "retirerRend": "Retirar {quoi} — devuelve {rendu} a la charca y libera su plaza.",
     "retirerSimple": "Retirar {quoi} de la charca — sus átomos vuelven y su plaza se libera.",
     "cestLaCible": "Es la diana: no se retira.",
@@ -3244,7 +3244,7 @@
     "semerImpossibleCourt": "{quoi}: faltan átomos",
     "bassinPlein": "{n} especies en {places} plazas — la charca está llena, nada nuevo entra",
     "bassinUnePlace": "{n} especies en {places} plazas — aún queda sitio para una más",
-    "ceQuiEstFabriquePlein": "Lo que se fabrica — {n} especies en {places} plazas. Las plazas están ocupadas, y mientras lo estén, NADA NUEVO ENTRA: la química acierta y la charca lo rechaza. Toca una molécula para retirarla y abrirle una plaza — también devuelve todos sus átomos.",
+    "ceQuiEstFabriquePlein": "Plazas ocupadas: la química acierta y la charca lo rechaza. Toca una molécula para abrir una plaza — también devuelve sus átomos.",
     "refoulees": "{n} rechazadas por falta de sitio",
     "votreMoleculeRefoulee": "tu molécula se hizo {n} veces en este turno — y fue rechazada {n} veces, por falta de sitio",
     "sortieAttrition": "tu molécula salió de la charca: se deshizo",
@@ -3276,7 +3276,9 @@
     "chroniqueReamorce": "ni una copia: el armario se reabre, vuelves a empezar con una",
     "chroniqueProduit": "{n} de energía, sin consumir nada",
     "chroniqueAttente": "nada construido, por falta de átomos",
-    "toutAcheterBatit": "Comprar todo — construye una copia, {gain}/turno"
+    "toutAcheterBatit": "Comprar todo — construye una copia, {gain}/turno",
+    "semerEtChange": "Sembrar {quoi} ×{n} — suelda 1 de {avant} → 1 de {apres}",
+    "semerSansEffet": "Sembrar {quoi} ×{n} — no cambiará nada: ya es 1 de {sur}"
   },
   "Horizon": {
     "metaTitle": "Horizonte estadístico — Placet",
