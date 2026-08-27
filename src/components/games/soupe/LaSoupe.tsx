@@ -719,6 +719,15 @@ export default function LaSoupe() {
     return <span>{t("chroniqueCalme")}</span>;
   }
 
+  /** Met un événement d'ATELIER en mots. Même chronique, autre acte. */
+  function raconterLatelier(e: EvenementMonde): string {
+    if (e.quoi === "batie") return t("chroniqueBatie", { n: e.combien, gain: signe(e.gagne) });
+    if (e.quoi === "perdue") return t("chroniquePerdue", { n: e.combien, perte: signe(-e.perd) });
+    if (e.quoi === "reamorce") return t("chroniqueReamorce");
+    if (e.quoi === "produit") return t("chroniqueProduit", { n: signe(e.combien) });
+    return t("chroniqueAttente");
+  }
+
   // ── Le panneau de la collection ──────────────────────────────────────────
   const panneauCollection = (
     <GCard skin={skin} key="collection">
@@ -951,7 +960,7 @@ export default function LaSoupe() {
   );
 
   // ── Le panneau de l'atelier ──────────────────────────────────────────────
-  const bilan = partie.bilanAtelier;
+  // Le bilan du tour n'est plus lu ici : la chronique a remplacé sa ligne.
   const cout = gabarit ? coutEnAtomes(gabarit) : {};
   const bloque =
     !!gabarit && partie.atelier.copies === 0 && !peutBatir(partie.atelier) && manques.every((m) => !m.abordable);
@@ -1164,29 +1173,40 @@ export default function LaSoupe() {
               );
             })}
           </div>
-          {/* La distinction en une phrase, sous les chiffres qui la posent. */}
-          <p style={{ margin: "8px 0 0", fontSize: 12.5, color: skin.muted, lineHeight: 1.45 }}>
-            {t("magasinNote")}
-          </p>
+          {/* ⚠️ CE PARAGRAPHE NE RÉPOND QU'À UNE QUESTION, ET ELLE N'EST POSÉE
+              QUE QUAND ON EST BLOQUÉ : « pourquoi j'arrive à produire alors qu'il
+              me manque de l'azote ? » Affiché en permanence, il occupait de la
+              place sur un écran qui défile déjà sur deux écrans et demi. */}
+          {manques.length > 0 ? (
+            <p style={{ margin: "8px 0 0", fontSize: 12.5, color: skin.muted, lineHeight: 1.45 }}>
+              {t("magasinNote")}
+            </p>
+          ) : null}
         </div>
       ) : null}
 
-      {/* CE QUI VIENT DE SE PASSER. Sans cette ligne, le joueur voit des
-          compteurs bouger sans pouvoir attribuer leur mouvement — et surtout
-          sans distinguer « je manque d'atomes » de « mes copies se défont ». */}
-      {bilan ? (
-        <p style={{ margin: 0, fontSize: 12, color: skin.muted }}>
-          {t("dernierTour")} —{" "}
-          {bilan.baties === 0 && bilan.perdues === 0 && bilan.produit === 0
-            ? t("rienFauteAtomes")
-            : [
-                bilan.baties > 0 ? t("baties", { n: bilan.baties }) : null,
-                bilan.perdues > 0 ? t("defaites", { n: bilan.perdues }) : null,
-                bilan.produit !== 0 ? t("enReserve", { n: signe(bilan.produit) }) : null,
-              ]
-                .filter(Boolean)
-                .join(" · ")}
-        </p>
+      {/* CE QUE L'ATELIER A FAIT — et surtout QUAND on a fait quelque chose d'utile.
+          ⚠️ « JE NE SAIS PAS QUAND J'AI FAIT QUELQUE CHOSE DE PRODUCTIF », a dit
+          un testeur. Le seul signal était « dernier tour — 1 bâtie », en gris, et
+          il s'effaçait au tour suivant : le moment où le geste porte n'était marqué
+          nulle part. La chronique le garde sous les yeux et replie l'attente au
+          lieu de la répéter. */}
+      {partie.chronique && partie.chronique.length > 0 ? (
+        <ul style={{ listStyle: "none", margin: 0, padding: 0, display: "flex", flexDirection: "column", gap: 3 }}>
+          {[...partie.chronique].reverse().map((e, i) => (
+            <li
+              key={`${e.tour}-${e.quoi}-${i}`}
+              style={{
+                fontSize: 12,
+                lineHeight: 1.35,
+                color: e.quoi === "batie" ? skin.good : e.quoi === "perdue" ? ROUGE : skin.muted,
+              }}
+            >
+              {e.jusqua ? t("chroniqueTours", { a: e.tour, b: e.jusqua }) : t("chroniqueTour", { n: e.tour })}{" "}
+              {raconterLatelier(e)}
+            </li>
+          ))}
+        </ul>
       ) : null}
 
       {manques.length > 0 ? (
@@ -1225,7 +1245,24 @@ export default function LaSoupe() {
                 })
               }
             >
-              {t("toutAcheter")}
+              {/* ⚠️ LE BOUTON DOIT DIRE CE QU'IL DÉBLOQUE. « Tout acheter » ne
+                  disait que son geste, jamais son effet — « peu de compréhension
+                  des conséquences de ce qu'on fait ». La conséquence se calcule
+                  exactement : on simule l'achat et on regarde si l'atelier peut
+                  alors bâtir. Ce qu'on annonce est le gain PERMANENT, qui est le
+                  vrai enjeu : une copie de plus rapporte à chaque tour, pour
+                  toujours. */}
+              {(() => {
+                let apres = partie;
+                for (let garde = 0; garde < 200; garde++) {
+                  const encore = cequiManque(apres).find((m) => m.abordable);
+                  if (!encore) break;
+                  apres = acheter(apres, encore.code);
+                }
+                return peutBatir(apres.atelier)
+                  ? t("toutAcheterBatit", { gain: signe(partie.atelier.gabarit?.rendement ?? 0) })
+                  : t("toutAcheter");
+              })()}
             </GBtn>
           ) : null}
         </div>
@@ -1261,18 +1298,18 @@ export default function LaSoupe() {
         </div>
       ) : null}
 
-      <p style={{ margin: 0, fontSize: 13, color: skin.muted, lineHeight: 1.45 }}>{t("atelierAide")}</p>
-
-      {/* ⚠️ CE QUE L'ATELIER N'EST PAS, ET IL FAUT LE DIRE.
-          Chimiquement, une molécule ne se recopie pas toute seule : c'est LE
-          problème difficile de l'origine de la vie, et l'atelier l'escamotait en
-          l'offrant au deuxième acte. Le corriger ne demande pas de casser une
-          mécanique qui fonctionne — il suffit de nommer ce qu'elle est. Ici,
-          c'est VOUS qui recopiez, à la main. Rien n'est vivant.
-          Et ça pose les enjeux de la suite : trouver ce qui se refait sans vous. */}
-      <p style={{ margin: 0, fontSize: 13, color: skin.muted, lineHeight: 1.45, fontStyle: "italic" }}>
-        {t("paillasseNote")}
-      </p>
+      {/* ⚠️ UNE EXPLICATION NE SE LIT QU'UNE FOIS. Ces deux paragraphes se
+          recouvraient — l'un disait « c'est vous qui injectez », l'autre « c'est
+          vous qui recopiez » — pour 382 caractères permanents sur un écran qui en
+          portait 1 701 : « beaucoup de texte à plat pleine page à tout moment ».
+          Une seule voix, la moitié des mots, et seulement tant que le joueur n'a
+          pas fait la boucle. Dès la deuxième copie il a VU ce qu'ils décrivent.
+          Le seuil n'est pas inventé : c'est le geste expliqué, accompli. */}
+      {partie.atelier.copies < 2 ? (
+        <p style={{ margin: 0, fontSize: 13, color: skin.muted, lineHeight: 1.45, fontStyle: "italic" }}>
+          {t("paillasseNote")}
+        </p>
+      ) : null}
 
     </GCard>
   );

@@ -28,10 +28,12 @@ import type {
   Code,
   Compte,
   ConseilBassin,
+  BilanAtelier,
   BilanBassin,
   EvenementJournal,
   EvenementMonde,
   Espece,
+  Gabarit,
   Grille,
   Manque,
   NomPanneau,
@@ -280,6 +282,8 @@ export function ouvrirLatelier(partie: Partie, piece: number): Partie {
 
   return {
     ...partie,
+    // Le monde change : la chronique du précédent n'a plus cours.
+    chronique: [],
     acte: 2,
     atelier: fixerGabarit(partie.atelier, choisie.grille, partie.milieu),
     panneaux,
@@ -324,10 +328,38 @@ export function changerGabarit(partie: Partie, piece: number): Partie {
  * et n'apprend jamais à quoi attribuer leur mouvement — en particulier il ne
  * distingue pas « je manque d'atomes » de « mes copies se défont ».
  */
+/**
+ * L'ÉVÉNEMENT DU TOUR D'ATELIER — le pendant de `evenementDuTour` pour l'acte 2.
+ *
+ * L'ordre suit ce que le joueur cherche : ce qu'il vient d'obtenir d'abord, ce
+ * qu'il vient de perdre ensuite, l'attente en dernier.
+ */
+export function evenementDatelier(bilan: BilanAtelier | null, gabarit: Gabarit | null): EvenementMonde | null {
+  if (!bilan) return null;
+  const rendement = gabarit?.rendement ?? 0;
+  if (bilan.baties > 0) return { quoi: "batie", combien: bilan.baties, gagne: bilan.baties * rendement, tour: 0 };
+  if (bilan.reamorce) return { quoi: "reamorce", tour: 0 };
+  if (bilan.perdues > 0) return { quoi: "perdue", combien: bilan.perdues, perd: bilan.perdues * rendement, tour: 0 };
+  if (bilan.produit > 0) return { quoi: "produit", combien: bilan.produit, tour: 0 };
+  return { quoi: "attente", tour: 0 };
+}
+
 export function ticLatelier(partie: Partie): Partie {
   if (!partie.panneaux.includes("atelier")) return partie;
   const { etat, bilan } = tic(partie.atelier, partie.milieu, rngDe(partie));
-  return { ...partie, atelier: etat, bilanAtelier: bilan };
+  const brut = evenementDatelier(bilan, etat.gabarit);
+  const evenement = brut ? ({ ...brut, tour: etat.tics } as EvenementMonde) : null;
+  return {
+    ...partie,
+    atelier: etat,
+    bilanAtelier: bilan,
+    // La même chronique qu'au bassin, et pour la même raison : le monde fait des
+    // choses et l'écran n'en disait qu'une ligne, effacée au tour suivant.
+    chronique: evenement
+      ? replier(partie.chronique ?? [], evenement) ??
+        [...(partie.chronique ?? []).slice(-(CHRONIQUE - 1)), evenement]
+      : partie.chronique,
+  };
 }
 
 /** Acheter un atome sur la réserve. */
@@ -497,6 +529,8 @@ export function ouvrirLeBassin(partie: Partie, cibleGrille: Grille): Partie {
 
   return {
     ...partie,
+    // Le monde change : la chronique du précédent n'a plus cours.
+    chronique: [],
     acte: 3,
     atelier: { ...partie.atelier, copies: 0, atomes: { C: 0, N: 0, S: 0 } },
     bassin,

@@ -203,7 +203,20 @@ export type EvenementMonde =
   | { quoi: "remplacement"; grilleVenue: Grille; grillePartie: Grille; effectif: number; tour: number; fois?: number; jusqua?: number }
   | { quoi: "refoulees"; combien: number; soudures: number; tour: number; fois?: number; jusqua?: number }
   | { quoi: "briques"; combien: number; tour: number; fois?: number; jusqua?: number }
-  | { quoi: "calme"; tour: number; fois?: number; jusqua?: number };
+  | { quoi: "calme"; tour: number; fois?: number; jusqua?: number }
+  /**
+   * ET CE QUE L'ATELIER FAIT — même chronique, même raison.
+   *
+   * ⚠️ « JE NE SAIS PAS QUAND J'AI FAIT QUELQUE CHOSE DE PRODUCTIF. » Le seul
+   * signal était « dernier tour — 1 bâtie », en gris, effacé au tour suivant.
+   * L'atelier comptait déjà ses copies bâties, ses copies perdues et son
+   * réamorçage : tout était calculé et rien n'était dit.
+   */
+  | { quoi: "batie"; combien: number; gagne: number; tour: number; fois?: number; jusqua?: number }
+  | { quoi: "perdue"; combien: number; perd: number; tour: number; fois?: number; jusqua?: number }
+  | { quoi: "reamorce"; tour: number; fois?: number; jusqua?: number }
+  | { quoi: "produit"; combien: number; tour: number; fois?: number; jusqua?: number }
+  | { quoi: "attente"; tour: number; fois?: number; jusqua?: number };
 
 /** Une soudure possible, telle que l'écran doit la montrer. */
 export interface Fabrication {
