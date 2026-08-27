@@ -3,6 +3,7 @@
 import type { CSSProperties, FormEvent, ReactNode } from "react";
 import { useEffect, useMemo, useState } from "react";
 import dynamic from "next/dynamic";
+import Image from "next/image";
 import { useLocale, useTranslations } from "next-intl";
 import { QRCodeSVG } from "qrcode.react";
 import { Link } from "@/i18n/navigation";
@@ -424,6 +425,15 @@ function ResultView({
     minutes: duration.minutes,
     seconds: duration.seconds,
   });
+  const objectsHref = `/horizon/objets#${encodeHorizonFragment(payload)}`;
+  const objectPreviews = [
+    { title: t("objectsShirtTitle"), src: "/horizon/objects/shirt-cream-v2.webp", variant: t("objectsVariantCream") },
+    { title: t("objectsMugTitle"), src: "/horizon/objects/mug-navy.webp", variant: t("objectsVariantNavy") },
+    { title: t("objectsPosterTitle"), src: "/horizon/objects/poster-coral.webp", variant: t("objectsVariantCoral") },
+    { title: t("objectsPlaqueTitle"), src: "/horizon/objects/plaque-brass.webp", variant: t("objectsVariantBrass") },
+    { title: t("objectsMagnetTitle"), src: "/horizon/objects/magnet-yellow.webp", variant: t("objectsVariantYellow") },
+    { title: t("objectsMetalCardTitle"), src: "/horizon/objects/metal-card-navy.webp", variant: t("objectsVariantNavy") },
+  ];
 
   return (
     <>
@@ -497,16 +507,43 @@ function ResultView({
       <div className="horizon-actions" style={{ display: "flex", flexWrap: "wrap", gap: 10, marginTop: 26 }}>
         <Btn onClick={onEdit} variant="cream">{t("edit")}</Btn>
         <Btn onClick={onCreateAnother} variant="primary">{t("createAnother")}</Btn>
-        <Link
-          href={`/horizon/objets#${encodeHorizonFragment(payload)}`}
-          className="dc-lift"
-          style={{ display: "inline-flex", alignItems: "center", padding: "11px 18px", border: `2.5px solid ${INK}`, borderRadius: 11, background: YELLOW, color: INK, fontFamily: FONT_DISPLAY, fontSize: 14.5, fontWeight: 700, textDecoration: "none", boxShadow: `4px 4px 0 ${INK}` }}
-        >
-          {t("objectsLink")}
-        </Link>
       </div>
 
       <HorizonPlacet />
+
+      <section aria-labelledby="objects-strip-title" style={{ marginTop: 34 }}>
+        <Card accent={YELLOW} padding="clamp(16px, 4vw, 22px)">
+          <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 16, marginBottom: 14 }}>
+            <h2 id="objects-strip-title" style={{ margin: 0, fontFamily: FONT_DISPLAY, fontSize: 23 }}>{t("objectsStripTitle")}</h2>
+            <Link href={objectsHref} style={{ flexShrink: 0, color: INK, fontSize: 13, fontWeight: 800, textUnderlineOffset: 3 }}>
+              {t("objectsStripCta")}
+            </Link>
+          </div>
+          <div style={{ display: "flex", gap: 10, overflowX: "auto", padding: "2px 2px 8px", scrollbarWidth: "thin", scrollSnapType: "x proximity" }}>
+            {objectPreviews.map((object) => (
+              <Link
+                key={object.src}
+                href={objectsHref}
+                className="dc-lift"
+                style={{ flex: "1 0 104px", minWidth: 104, overflow: "hidden", border: `2px solid ${INK}`, borderRadius: 10, background: "#fff", color: INK, textDecoration: "none", scrollSnapAlign: "start" }}
+              >
+                <div style={{ position: "relative", aspectRatio: "1 / 1", borderBottom: `2px solid ${INK}`, background: CREAM }}>
+                  <Image
+                    src={object.src}
+                    alt={t("objectsImageAlt", { product: object.title, variant: object.variant })}
+                    fill
+                    sizes="(max-width: 600px) 110px, 120px"
+                    style={{ objectFit: "cover" }}
+                  />
+                </div>
+                <span style={{ display: "block", padding: "8px 8px 9px", fontFamily: FONT_DISPLAY, fontSize: 13, fontWeight: 700, lineHeight: 1.1 }}>
+                  {object.title}
+                </span>
+              </Link>
+            ))}
+          </div>
+        </Card>
+      </section>
     </>
   );
 }
