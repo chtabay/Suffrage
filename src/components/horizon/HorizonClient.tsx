@@ -11,6 +11,7 @@ import PlacetMark from "@/components/scrutin/PlacetMark";
 import { CORAL, CREAM, FONT_DISPLAY, INK, MUTED, YELLOW } from "@/components/scrutin/theme";
 import { Btn, Card } from "@/components/ui/kit";
 import { restoreHorizonAfterAuth } from "@/lib/horizon/auth-restore";
+import { getHorizonOrderUnitPriceCents } from "@/lib/horizon/order";
 import {
   calculateHorizon,
   calculateMilestones,
@@ -417,6 +418,7 @@ function ResultView({
   const ehpad = milestones ? preciseCalendarDuration(now, milestones.ehpadDate) : null;
   const integer = new Intl.NumberFormat(locale);
   const decimal = new Intl.NumberFormat(locale, { maximumFractionDigits: 1 });
+  const euros = new Intl.NumberFormat(locale, { style: "currency", currency: "EUR", maximumFractionDigits: 0 });
   const longDate = new Intl.DateTimeFormat(locale, { month: "long", year: "numeric", timeZone: "UTC" });
   const precise = (duration: NonNullable<typeof retirement>) => t("milestoneDuration", {
     years: duration.years,
@@ -427,12 +429,12 @@ function ResultView({
   });
   const objectsHref = `/horizon/objets#${encodeHorizonFragment(payload)}`;
   const objectPreviews = [
-    { title: t("objectsShirtTitle"), src: "/horizon/objects/shirt-cream-v2.webp", variant: t("objectsVariantCream") },
-    { title: t("objectsMugTitle"), src: "/horizon/objects/mug-navy.webp", variant: t("objectsVariantNavy") },
-    { title: t("objectsPosterTitle"), src: "/horizon/objects/poster-coral.webp", variant: t("objectsVariantCoral") },
-    { title: t("objectsPlaqueTitle"), src: "/horizon/objects/plaque-brass.webp", variant: t("objectsVariantBrass") },
-    { title: t("objectsMagnetTitle"), src: "/horizon/objects/magnet-yellow.webp", variant: t("objectsVariantYellow") },
-    { title: t("objectsMetalCardTitle"), src: "/horizon/objects/metal-card-navy.webp", variant: t("objectsVariantNavy") },
+    { title: t("objectsShirtTitle"), src: "/horizon/objects/shirt-cream-v2.webp", variant: t("objectsVariantCream"), price: getHorizonOrderUnitPriceCents("shirt") ?? 0 },
+    { title: t("objectsMugTitle"), src: "/horizon/objects/mug-navy.webp", variant: t("objectsVariantNavy"), price: getHorizonOrderUnitPriceCents("mug") ?? 0 },
+    { title: t("objectsPosterTitle"), src: "/horizon/objects/poster-coral.webp", variant: t("objectsVariantCoral"), price: getHorizonOrderUnitPriceCents("poster", "A3") ?? 0, from: true },
+    { title: t("objectsPlaqueTitle"), src: "/horizon/objects/plaque-brass.webp", variant: t("objectsVariantBrass"), price: getHorizonOrderUnitPriceCents("plaque") ?? 0 },
+    { title: t("objectsMagnetTitle"), src: "/horizon/objects/magnet-yellow.webp", variant: t("objectsVariantYellow"), price: getHorizonOrderUnitPriceCents("magnet") ?? 0 },
+    { title: t("objectsMetalCardTitle"), src: "/horizon/objects/metal-card-navy.webp", variant: t("objectsVariantNavy"), price: getHorizonOrderUnitPriceCents("card") ?? 0 },
   ];
 
   return (
@@ -481,35 +483,34 @@ function ResultView({
         </section>
       ) : null}
 
-      <HorizonReminders payload={payload} result={result} />
-
-      <section aria-labelledby="share-title" style={{ marginTop: 34 }}>
-        <h2 id="share-title" style={{ margin: "0 0 14px", fontFamily: FONT_DISPLAY, fontSize: 25 }}>{t("qrTitle")}</h2>
-        <Card accent={YELLOW} padding="clamp(20px, 5vw, 30px)">
-          <div className="horizon-share-grid" style={{ display: "grid", gridTemplateColumns: "272px minmax(0, 1fr)", alignItems: "center", gap: 28 }}>
-            <div style={{ display: "grid", placeItems: "center", padding: 12, border: `2px solid ${INK}`, borderRadius: 13, background: "#fff" }}>
-              <QRCodeSVG value={shareUrl} size={248} level="M" bgColor="#ffffff" fgColor={INK} title={t("qrAlt", { name: payload.firstName })} style={{ width: "100%", height: "auto" }} />
-            </div>
-            <div style={{ minWidth: 0 }}>
-              <p style={{ margin: "0 0 12px", color: MUTED, fontSize: 14, lineHeight: 1.55 }}>{t("qrHint")}</p>
-              <p style={{ margin: "0 0 18px", padding: "9px 10px", borderRadius: 8, background: CREAM, fontSize: 11, lineHeight: 1.5, overflowWrap: "anywhere" }}>{shareUrl}</p>
-              <div className="horizon-actions" style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
-                <Btn onClick={onShare} variant="primary">{t("share")}</Btn>
-                <Btn onClick={onCopy}>{t("copy")}</Btn>
-              </div>
-              <p aria-live="polite" style={{ minHeight: 20, margin: "9px 0 0", color: MUTED, fontSize: 13, fontWeight: 700 }}>{shareStatus}</p>
-            </div>
+      <section aria-labelledby="create-for-someone-title" style={{ marginTop: 34 }}>
+        <Card accent={CORAL} padding="clamp(20px, 5vw, 28px)">
+          <h2 id="create-for-someone-title" style={{ margin: 0, fontFamily: FONT_DISPLAY, fontSize: 25 }}>{t("createForSomeoneTitle")}</h2>
+          <p style={{ margin: "9px 0 17px", color: MUTED, fontSize: 14.5, lineHeight: 1.55 }}>{t("createForSomeoneText")}</p>
+          <div className="horizon-actions" style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
+            <Btn onClick={onCreateAnother} variant="cta">{t("createForSomeone")}</Btn>
+            <Btn onClick={onShare} variant="primary">{t("share")}</Btn>
+            <Btn onClick={onCopy}>{t("copy")}</Btn>
           </div>
+          <p aria-live="polite" style={{ minHeight: 20, margin: "9px 0 0", color: MUTED, fontSize: 13, fontWeight: 700 }}>{shareStatus}</p>
         </Card>
       </section>
 
-      <p style={{ margin: "8px 4px 0", color: MUTED, fontSize: 13, lineHeight: 1.65 }}>{t("privacyResult")}</p>
-      <div className="horizon-actions" style={{ display: "flex", flexWrap: "wrap", gap: 10, marginTop: 26 }}>
-        <Btn onClick={onEdit} variant="cream">{t("edit")}</Btn>
-        <Btn onClick={onCreateAnother} variant="primary">{t("createAnother")}</Btn>
-      </div>
+      <details style={{ marginTop: 18, border: `2px solid ${INK}`, borderRadius: 13, background: "#fff", overflow: "hidden" }}>
+        <summary style={{ padding: "14px 17px", cursor: "pointer", fontFamily: FONT_DISPLAY, fontWeight: 800 }}>{t("qrReveal")}</summary>
+        <div className="horizon-share-grid" style={{ display: "grid", gridTemplateColumns: "210px minmax(0, 1fr)", alignItems: "center", gap: 22, padding: "4px 18px 20px", borderTop: `1px solid ${INK}22` }}>
+          <div style={{ display: "grid", placeItems: "center", padding: 10, border: `2px solid ${INK}`, borderRadius: 11, background: "#fff" }}>
+            <QRCodeSVG value={shareUrl} size={188} level="M" bgColor="#ffffff" fgColor={INK} title={t("qrAlt", { name: payload.firstName })} style={{ width: "100%", height: "auto" }} />
+          </div>
+          <div style={{ minWidth: 0 }}>
+            <p style={{ margin: "0 0 12px", color: MUTED, fontSize: 14, lineHeight: 1.55 }}>{t("qrHint")}</p>
+            <p style={{ margin: 0, padding: "9px 10px", borderRadius: 8, background: CREAM, fontSize: 11, lineHeight: 1.5, overflowWrap: "anywhere" }}>{shareUrl}</p>
+          </div>
+        </div>
+      </details>
 
-      <HorizonPlacet />
+      <p style={{ margin: "8px 4px 0", color: MUTED, fontSize: 13, lineHeight: 1.65 }}>{t("privacyResult")}</p>
+      <button type="button" onClick={onEdit} style={{ margin: "16px 3px 0", padding: 0, border: 0, background: "none", color: MUTED, font: "inherit", fontSize: 13, fontWeight: 700, textDecoration: "underline", textUnderlineOffset: 3, cursor: "pointer" }}>{t("edit")}</button>
 
       <section aria-labelledby="objects-strip-title" style={{ marginTop: 34 }}>
         <Card accent={YELLOW} padding="clamp(16px, 4vw, 22px)">
@@ -536,14 +537,19 @@ function ResultView({
                     style={{ objectFit: "cover" }}
                   />
                 </div>
-                <span style={{ display: "block", padding: "8px 8px 9px", fontFamily: FONT_DISPLAY, fontSize: 13, fontWeight: 700, lineHeight: 1.1 }}>
-                  {object.title}
+                <span style={{ display: "grid", gap: 4, padding: "8px 8px 9px", fontFamily: FONT_DISPLAY, fontSize: 13, fontWeight: 700, lineHeight: 1.1 }}>
+                  <span>{object.title}</span>
+                  <span style={{ color: MUTED, fontFamily: "inherit", fontSize: 11.5 }}>{object.from ? t("objectsPriceFrom", { price: euros.format(object.price / 100) }) : euros.format(object.price / 100)}</span>
                 </span>
               </Link>
             ))}
           </div>
         </Card>
       </section>
+
+      <HorizonReminders payload={payload} result={result} />
+
+      <HorizonPlacet />
     </>
   );
 }

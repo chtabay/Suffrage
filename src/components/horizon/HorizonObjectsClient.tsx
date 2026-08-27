@@ -10,7 +10,7 @@ import PlacetMark from "@/components/scrutin/PlacetMark";
 import { Btn, Card } from "@/components/ui/kit";
 import { CORAL, CREAM, FONT_DISPLAY, INK, MUTED, YELLOW } from "@/components/scrutin/theme";
 import { encodeHorizonFragment, parseHorizonFragment, type HorizonPayload } from "@/lib/horizon/horizon";
-import { isFrenchDeliveryCountry, parseHorizonAddressSuggestions, type HorizonAddressSuggestion, type HorizonOrderProduct } from "@/lib/horizon/order";
+import { getHorizonOrderUnitPriceCents, isFrenchDeliveryCountry, parseHorizonAddressSuggestions, type HorizonAddressSuggestion, type HorizonOrderProduct } from "@/lib/horizon/order";
 
 type OptionKind = "size" | "format" | null;
 type Variant = { id: string; label: string; src: string; color: string };
@@ -158,12 +158,15 @@ function OrderDialog({ product, initialVariant, horizonUrl, onClose }: { product
   const [variantId, setVariantId] = useState(initialVariant.id);
   const [quantity, setQuantity] = useState(1);
   const [option, setOption] = useState(product.optionKind === "size" ? "M" : product.optionKind === "format" ? "A3" : "");
+  const [step, setStep] = useState<1 | 2>(1);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState("");
   const [reference, setReference] = useState("");
   const [country, setCountry] = useState(t("objectsOrderCountryDefault"));
   const [address, setAddress] = useState("");
   const variant = product.variants.find((item) => item.id === variantId) ?? initialVariant;
+  const unitPriceCents = getHorizonOrderUnitPriceCents(product.kind, option) ?? 0;
+  const price = (cents: number) => new Intl.NumberFormat(locale, { style: "currency", currency: "EUR", maximumFractionDigits: 0 }).format(cents / 100);
 
   useEffect(() => {
     closeRef.current?.focus();
@@ -213,11 +216,11 @@ function OrderDialog({ product, initialVariant, horizonUrl, onClose }: { product
             <p style={{ maxWidth: 480, margin: "0 auto 24px", color: MUTED, lineHeight: 1.6 }}>{t("objectsOrderSuccessText")}</p>
             <Btn onClick={onClose} variant="primary">{t("close")}</Btn>
           </div>
-        ) : (
-          <form onSubmit={onSubmit} style={{ padding: 22 }}>
+        ) : step === 1 ? (
+          <div style={{ padding: 22 }}>
             <div className="horizon-order-grid" style={{ display: "grid", gridTemplateColumns: "190px minmax(0,1fr)", gap: 22, alignItems: "start" }}>
-              <div style={{ position: "relative", width: "100%", aspectRatio: "1 / 1", border: `2px solid ${INK}`, borderRadius: 12, overflow: "hidden", background: "#fff" }}>
-                <Image src={variant.src} alt="" fill sizes="190px" style={{ objectFit: "cover" }} />
+              <div style={{ position: "relative", width: "100%", aspectRatio: "1 / 1", border: `2px solid ${INK}`, borderRadius: 12, overflow: "hidden", background: YELLOW }}>
+                <Image src={variant.src} alt="" fill sizes="190px" loading="eager" style={{ objectFit: "cover" }} />
               </div>
               <div style={{ display: "grid", gap: 15 }}>
                 <label style={{ display: "grid", gap: 6, fontWeight: 800 }}>
@@ -229,7 +232,19 @@ function OrderDialog({ product, initialVariant, horizonUrl, onClose }: { product
                 <label style={{ display: "grid", gap: 6, fontWeight: 800 }}>{t("objectsOrderQuantity")}<input type="number" min={1} max={10} value={quantity} onChange={(event) => setQuantity(Number(event.target.value))} style={inputStyle} /></label>
               </div>
             </div>
-
+            <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 18, marginTop: 22, padding: "15px 17px", border: `2px solid ${INK}`, borderRadius: 11, background: "#fff" }}>
+              <strong>{t("objectsOrderTotal")}</strong>
+              <strong style={{ fontFamily: FONT_DISPLAY, fontSize: 28 }}>{price(unitPriceCents * quantity)}</strong>
+            </div>
+            <p style={{ margin: "9px 2px 0", color: MUTED, fontSize: 12.5 }}>{t("objectsPriceShipping")}</p>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 10, marginTop: 20 }}><Btn type="button" variant="primary" onClick={() => setStep(2)}>{t("objectsOrderContinue")}</Btn><Btn type="button" onClick={onClose} variant="cream">{t("close")}</Btn></div>
+          </div>
+        ) : (
+          <form onSubmit={onSubmit} style={{ padding: 22 }}>
+            <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 18, marginBottom: 20, padding: "13px 15px", border: `2px solid ${INK}`, borderRadius: 11, background: "#fff" }}>
+              <span style={{ fontWeight: 800 }}>{product.title} · {variant.label}{option ? ` · ${option}` : ""} · × {quantity}</span>
+              <strong style={{ flexShrink: 0, fontFamily: FONT_DISPLAY, fontSize: 22 }}>{price(unitPriceCents * quantity)}</strong>
+            </div>
             <div className="horizon-form-grid" style={{ display: "grid", gridTemplateColumns: "repeat(2,minmax(0,1fr))", gap: 15, marginTop: 20 }}>
               <label style={{ display: "grid", gap: 6, fontWeight: 800 }}>{t("objectsOrderName")}<input name="name" required maxLength={80} autoComplete="name" style={inputStyle} /></label>
               <label style={{ display: "grid", gap: 6, fontWeight: 800 }}>{t("objectsOrderEmail")}<input name="email" type="email" required maxLength={160} autoComplete="email" style={inputStyle} /></label>
@@ -240,7 +255,7 @@ function OrderDialog({ product, initialVariant, horizonUrl, onClose }: { product
             <label aria-hidden="true" style={{ position: "absolute", left: -10000, width: 1, height: 1, overflow: "hidden" }}>Website<input name="website" tabIndex={-1} autoComplete="off" /></label>
             <p style={{ margin: "18px 0 0", color: MUTED, fontSize: 13.5, lineHeight: 1.55 }}>{t("objectsOrderPrivacy")}</p>
             {error && <p role="alert" style={{ margin: "12px 0 0", color: CORAL, fontWeight: 800 }}>{error}</p>}
-            <div style={{ display: "flex", flexWrap: "wrap", gap: 10, marginTop: 20 }}><Btn type="submit" variant="primary" disabled={pending}>{pending ? t("objectsOrderSending") : t("objectsOrderSend")}</Btn><Btn type="button" onClick={onClose} variant="cream">{t("close")}</Btn></div>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 10, marginTop: 20 }}><Btn type="submit" variant="primary" disabled={pending}>{pending ? t("objectsOrderSending") : t("objectsOrderSend")}</Btn><Btn type="button" onClick={() => setStep(1)} variant="cream">{t("objectsOrderBack")}</Btn></div>
           </form>
         )}
       </div>
@@ -250,11 +265,13 @@ function OrderDialog({ product, initialVariant, horizonUrl, onClose }: { product
 
 export default function HorizonObjectsClient() {
   const t = useTranslations("Horizon");
+  const locale = useLocale();
   const [payload, setPayload] = useState<HorizonPayload | null>(null);
   const [ready, setReady] = useState(false);
   const [variantByProduct, setVariantByProduct] = useState<Record<HorizonOrderProduct, string>>({ shirt: "cream", mug: "cream", poster: "cream", plaque: "brass", magnet: "yellow", card: "navy" });
   const [orderProduct, setOrderProduct] = useState<Product | null>(null);
   const closeOrder = useCallback(() => setOrderProduct(null), []);
+  const price = (cents: number) => new Intl.NumberFormat(locale, { style: "currency", currency: "EUR", maximumFractionDigits: 0 }).format(cents / 100);
 
   useEffect(() => {
     const read = () => {
@@ -321,7 +338,7 @@ export default function HorizonObjectsClient() {
                   <Card key={product.kind} padding={0} accent={product.kind === "poster" || product.kind === "magnet" ? YELLOW : undefined} style={{ overflow: "hidden" }}>
                     <ProductVisual product={product} variant={variant} onOrder={() => setOrderProduct(product)} />
                     <div style={{ padding: "20px 22px 22px" }}>
-                      <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 12 }}><h2 style={{ margin: 0, fontFamily: FONT_DISPLAY, fontSize: 23 }}>{product.title}</h2><span style={{ color: MUTED, fontSize: 10.5, fontWeight: 800, letterSpacing: ".08em", textTransform: "uppercase" }}>{t("objectsOnRequest")}</span></div>
+                      <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 12 }}><h2 style={{ margin: 0, fontFamily: FONT_DISPLAY, fontSize: 23 }}>{product.title}</h2><span style={{ color: INK, fontFamily: FONT_DISPLAY, fontSize: 17, fontWeight: 800 }}>{product.kind === "poster" ? t("objectsPriceFrom", { price: price(getHorizonOrderUnitPriceCents(product.kind, "A3") ?? 0) }) : price(getHorizonOrderUnitPriceCents(product.kind) ?? 0)}</span></div>
                       <p style={{ margin: "8px 0 14px", color: MUTED, fontSize: 14, lineHeight: 1.55 }}>{product.text}</p>
                       {product.variants.length > 1 && <div role="group" aria-label={t("objectsVariants")} style={{ display: "flex", gap: 9 }}>{product.variants.map((item) => <button key={item.id} type="button" aria-label={item.label} aria-pressed={variant.id === item.id} onClick={() => setVariantByProduct((current) => ({ ...current, [product.kind]: item.id }))} title={item.label} style={{ width: 28, height: 28, border: `2px solid ${INK}`, borderRadius: 999, background: item.color, cursor: "pointer", boxShadow: variant.id === item.id ? `0 0 0 3px ${CREAM}, 0 0 0 5px ${INK}` : "none" }} />)}</div>}
                     </div>
@@ -329,6 +346,8 @@ export default function HorizonObjectsClient() {
                 );
               })}
             </div>
+
+            <p style={{ margin: "18px 0 0", color: MUTED, fontSize: 13 }}>{t("objectsPriceShipping")}</p>
 
             <div style={{ display: "flex", flexWrap: "wrap", gap: 18, alignItems: "center", marginTop: 34 }}><Link href={`/horizon#${fragment}`} style={{ display: "inline-flex", padding: "11px 18px", border: `2.5px solid ${INK}`, borderRadius: 11, background: INK, color: "#fff", fontFamily: FONT_DISPLAY, fontWeight: 700, textDecoration: "none", boxShadow: `4px 4px 0 ${CORAL}` }}>{t("objectsBack")}</Link><p style={{ margin: 0, color: MUTED, fontSize: 13 }}>{t("objectsFootnote")}</p></div>
           </>
