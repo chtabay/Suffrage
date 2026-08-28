@@ -1,7 +1,7 @@
 "use client";
 
 import type { CSSProperties, FormEvent, ReactNode } from "react";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import dynamic from "next/dynamic";
 import Image from "next/image";
 import { useLocale, useTranslations } from "next-intl";
@@ -110,6 +110,66 @@ async function copyText(value: string): Promise<void> {
   textarea.remove();
 }
 
+function HorizonUtilityModal({
+  kind,
+  shareUrl,
+  name,
+  shareStatus,
+  onShare,
+  onCopy,
+  onClose,
+  t,
+}: {
+  kind: "qr" | "share";
+  shareUrl: string;
+  name: string;
+  shareStatus: string;
+  onShare: () => void;
+  onCopy: () => void;
+  onClose: () => void;
+  t: ReturnType<typeof useTranslations<"Horizon">>;
+}) {
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") onClose();
+    };
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, [onClose]);
+
+  return (
+    <div
+      role="presentation"
+      onMouseDown={(event) => { if (event.target === event.currentTarget) onClose(); }}
+      style={{ position: "fixed", inset: 0, zIndex: 90, display: "grid", placeItems: "center", padding: 18, background: "rgba(22,33,58,.72)", backdropFilter: "blur(5px)" }}
+    >
+      <div role="dialog" aria-modal="true" aria-labelledby="horizon-utility-title" style={{ width: "min(520px, 100%)", overflow: "hidden", border: `3px solid ${INK}`, borderRadius: 18, background: CREAM, boxShadow: `8px 8px 0 ${CORAL}` }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16, padding: "15px 17px", borderBottom: `2px solid ${INK}` }}>
+          <h2 id="horizon-utility-title" style={{ margin: 0, fontFamily: FONT_DISPLAY, fontSize: 25 }}>{kind === "qr" ? t("qrTitle") : t("share")}</h2>
+          <button autoFocus type="button" onClick={onClose} aria-label={t("close")} style={{ width: 38, height: 38, border: `2px solid ${INK}`, borderRadius: 9, background: "#fff", color: INK, fontSize: 21, fontWeight: 900, cursor: "pointer" }}>×</button>
+        </div>
+        {kind === "qr" ? (
+          <div style={{ display: "grid", justifyItems: "center", gap: 16, padding: "24px 22px 26px", textAlign: "center" }}>
+            <div style={{ display: "grid", placeItems: "center", width: "min(280px, 100%)", padding: 12, border: `2px solid ${INK}`, borderRadius: 12, background: "#fff" }}>
+              <QRCodeSVG value={shareUrl} size={256} level="M" bgColor="#ffffff" fgColor={INK} title={t("qrAlt", { name })} style={{ width: "100%", height: "auto" }} />
+            </div>
+            <p style={{ margin: 0, color: MUTED, fontSize: 14, lineHeight: 1.55 }}>{t("qrHint")}</p>
+            <p style={{ width: "100%", margin: 0, padding: "9px 10px", borderRadius: 8, background: "#fff", fontSize: 11, lineHeight: 1.5, overflowWrap: "anywhere" }}>{shareUrl}</p>
+          </div>
+        ) : (
+          <div style={{ padding: "24px 22px 26px" }}>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
+              <Btn onClick={onShare} variant="primary">{t("share")}</Btn>
+              <Btn onClick={onCopy}>{t("copy")}</Btn>
+            </div>
+            <p aria-live="polite" style={{ minHeight: 20, margin: "12px 0 0", color: MUTED, fontSize: 13, fontWeight: 700 }}>{shareStatus}</p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 function Field({ label, hint, children }: { label: string; hint?: string; children: ReactNode }) {
   return (
     <label style={{ display: "grid", gap: 7, fontSize: 14, fontWeight: 700 }}>
@@ -165,6 +225,8 @@ export default function HorizonClient() {
   const [shareUrl, setShareUrl] = useState("");
   const [error, setError] = useState("");
   const [shareStatus, setShareStatus] = useState("");
+  const [utilityModal, setUtilityModal] = useState<"qr" | "share" | null>(null);
+  const closeUtilityModal = useCallback(() => setUtilityModal(null), []);
 
   useEffect(() => {
     const readHash = () => {
@@ -290,14 +352,8 @@ export default function HorizonClient() {
     }
   };
 
-  const edit = () => {
-    setMode("form");
-    setError("");
-    setShareStatus("");
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
-
   const createAnother = () => {
+    setUtilityModal(null);
     setForm(EMPTY_FORM);
     setPayload(null);
     setCalculatedAt(null);
@@ -318,7 +374,39 @@ export default function HorizonClient() {
             <PlacetMark size={36} />
             <strong style={{ fontFamily: FONT_DISPLAY, fontSize: 22, letterSpacing: "-.04em" }}>Placet</strong>
           </Link>
-          <span style={{ fontSize: 12, fontWeight: 800, letterSpacing: ".09em", textTransform: "uppercase" }}>{t("eyebrow")}</span>
+          {mode === "result" && shareUrl ? (
+            <div style={{ display: "flex", alignItems: "center", gap: 9 }}>
+              <button
+                type="button"
+                onClick={() => setUtilityModal("qr")}
+                aria-label={t("qrReveal")}
+                title={t("qrReveal")}
+                style={{ display: "grid", placeItems: "center", width: 40, height: 40, padding: 4, border: `2px solid ${INK}`, borderRadius: 9, background: "#fff", cursor: "pointer" }}
+              >
+                <QRCodeSVG value={shareUrl} size={28} level="M" bgColor="#ffffff" fgColor={INK} />
+              </button>
+              <button
+                type="button"
+                onClick={() => { setShareStatus(""); setUtilityModal("share"); }}
+                aria-label={t("share")}
+                title={t("share")}
+                style={{ display: "grid", placeItems: "center", width: 40, height: 40, padding: 0, border: `2px solid ${INK}`, borderRadius: 9, background: "#fff", color: INK, cursor: "pointer" }}
+              >
+                <svg aria-hidden="true" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="18" cy="5" r="3" /><circle cx="6" cy="12" r="3" /><circle cx="18" cy="19" r="3" /><path d="m8.6 10.6 6.8-4.2M8.6 13.4l6.8 4.2" />
+                </svg>
+              </button>
+              <button
+                type="button"
+                onClick={createAnother}
+                style={{ minHeight: 40, padding: "8px 12px", border: `2px solid ${INK}`, borderRadius: 9, background: YELLOW, color: INK, fontFamily: FONT_DISPLAY, fontSize: 14, fontWeight: 800, cursor: "pointer" }}
+              >
+                {t("createShort")}
+              </button>
+            </div>
+          ) : (
+            <span style={{ fontSize: 12, fontWeight: 800, letterSpacing: ".09em", textTransform: "uppercase" }}>{t("eyebrow")}</span>
+          )}
         </div>
       </header>
 
@@ -328,10 +416,7 @@ export default function HorizonClient() {
         ) : mode === "form" ? (
           <>
             <div style={{ marginBottom: 30 }}>
-              <span style={{ display: "inline-block", padding: "6px 10px", border: `2px solid ${INK}`, borderRadius: 999, background: YELLOW, fontSize: 12, fontWeight: 800, textTransform: "uppercase" }}>
-                {t("badge")}
-              </span>
-              <h1 className="hero" style={{ margin: "18px 0 12px", maxWidth: 680, fontFamily: FONT_DISPLAY, fontSize: "clamp(42px, 8vw, 70px)", lineHeight: .96, letterSpacing: "-.055em" }}>
+              <h1 className="hero" style={{ margin: "0 0 12px", maxWidth: 680, fontFamily: FONT_DISPLAY, fontSize: "clamp(42px, 8vw, 70px)", lineHeight: .96, letterSpacing: "-.055em" }}>
                 {t("formTitle")}
               </h1>
               <p style={{ maxWidth: 650, margin: 0, color: MUTED, fontSize: 17, lineHeight: 1.65 }}>{t("formIntro")}</p>
@@ -372,16 +457,23 @@ export default function HorizonClient() {
             result={calculation.value}
             now={now}
             locale={locale}
-            shareUrl={shareUrl}
-            shareStatus={shareStatus}
-            onCopy={copyLink}
-            onShare={share}
-            onEdit={edit}
-            onCreateAnother={createAnother}
             t={t}
           />
         ) : null}
       </main>
+
+      {utilityModal && payload ? (
+        <HorizonUtilityModal
+          kind={utilityModal}
+          shareUrl={shareUrl}
+          name={payload.firstName}
+          shareStatus={shareStatus}
+          onShare={share}
+          onCopy={copyLink}
+          onClose={closeUtilityModal}
+          t={t}
+        />
+      ) : null}
     </div>
   );
 }
@@ -391,24 +483,12 @@ function ResultView({
   result,
   now,
   locale,
-  shareUrl,
-  shareStatus,
-  onCopy,
-  onShare,
-  onEdit,
-  onCreateAnother,
   t,
 }: {
   payload: HorizonPayload;
   result: HorizonResult;
   now: Date;
   locale: string;
-  shareUrl: string;
-  shareStatus: string;
-  onCopy: () => void;
-  onShare: () => void;
-  onEdit: () => void;
-  onCreateAnother: () => void;
   t: ReturnType<typeof useTranslations<"Horizon">>;
 }) {
   const remaining = remainingParts(result.remainingYears);
@@ -440,10 +520,12 @@ function ResultView({
   return (
     <>
       <div style={{ marginBottom: 28 }}>
-        <span style={{ display: "inline-block", padding: "6px 10px", border: `2px solid ${INK}`, borderRadius: 999, background: YELLOW, fontSize: 12, fontWeight: 800, textTransform: "uppercase" }}>
-          {t("badge")}
-        </span>
-        <h1 className="hero" style={{ margin: "18px 0 12px", fontFamily: FONT_DISPLAY, fontSize: "clamp(42px, 8vw, 68px)", lineHeight: 1, letterSpacing: "-.055em", overflowWrap: "anywhere" }}>
+        {payload.title ? (
+          <p style={{ margin: "0 0 9px", color: CORAL, fontFamily: FONT_DISPLAY, fontSize: "clamp(24px, 5vw, 32px)", fontWeight: 800, lineHeight: 1 }}>
+            {payload.firstName}
+          </p>
+        ) : null}
+        <h1 className="hero" style={{ margin: "0 0 12px", fontFamily: FONT_DISPLAY, fontSize: "clamp(42px, 8vw, 68px)", lineHeight: 1, letterSpacing: "-.055em", overflowWrap: "anywhere" }}>
           {payload.title ?? t("defaultTitle", { name: payload.firstName })}
         </h1>
         {payload.comment ? <p style={{ margin: 0, maxWidth: 660, color: MUTED, fontSize: 18, lineHeight: 1.65, whiteSpace: "pre-wrap", overflowWrap: "anywhere" }}>{payload.comment}</p> : null}
@@ -483,34 +565,7 @@ function ResultView({
         </section>
       ) : null}
 
-      <section aria-labelledby="create-for-someone-title" style={{ marginTop: 34 }}>
-        <Card accent={CORAL} padding="clamp(20px, 5vw, 28px)">
-          <h2 id="create-for-someone-title" style={{ margin: 0, fontFamily: FONT_DISPLAY, fontSize: 25 }}>{t("createForSomeoneTitle")}</h2>
-          <p style={{ margin: "9px 0 17px", color: MUTED, fontSize: 14.5, lineHeight: 1.55 }}>{t("createForSomeoneText")}</p>
-          <div className="horizon-actions" style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
-            <Btn onClick={onCreateAnother} variant="cta">{t("createForSomeone")}</Btn>
-            <Btn onClick={onShare} variant="primary">{t("share")}</Btn>
-            <Btn onClick={onCopy}>{t("copy")}</Btn>
-          </div>
-          <p aria-live="polite" style={{ minHeight: 20, margin: "9px 0 0", color: MUTED, fontSize: 13, fontWeight: 700 }}>{shareStatus}</p>
-        </Card>
-      </section>
-
-      <details style={{ marginTop: 18, border: `2px solid ${INK}`, borderRadius: 13, background: "#fff", overflow: "hidden" }}>
-        <summary style={{ padding: "14px 17px", cursor: "pointer", fontFamily: FONT_DISPLAY, fontWeight: 800 }}>{t("qrReveal")}</summary>
-        <div className="horizon-share-grid" style={{ display: "grid", gridTemplateColumns: "210px minmax(0, 1fr)", alignItems: "center", gap: 22, padding: "4px 18px 20px", borderTop: `1px solid ${INK}22` }}>
-          <div style={{ display: "grid", placeItems: "center", padding: 10, border: `2px solid ${INK}`, borderRadius: 11, background: "#fff" }}>
-            <QRCodeSVG value={shareUrl} size={188} level="M" bgColor="#ffffff" fgColor={INK} title={t("qrAlt", { name: payload.firstName })} style={{ width: "100%", height: "auto" }} />
-          </div>
-          <div style={{ minWidth: 0 }}>
-            <p style={{ margin: "0 0 12px", color: MUTED, fontSize: 14, lineHeight: 1.55 }}>{t("qrHint")}</p>
-            <p style={{ margin: 0, padding: "9px 10px", borderRadius: 8, background: CREAM, fontSize: 11, lineHeight: 1.5, overflowWrap: "anywhere" }}>{shareUrl}</p>
-          </div>
-        </div>
-      </details>
-
-      <p style={{ margin: "8px 4px 0", color: MUTED, fontSize: 13, lineHeight: 1.65 }}>{t("privacyResult")}</p>
-      <button type="button" onClick={onEdit} style={{ margin: "16px 3px 0", padding: 0, border: 0, background: "none", color: MUTED, font: "inherit", fontSize: 13, fontWeight: 700, textDecoration: "underline", textUnderlineOffset: 3, cursor: "pointer" }}>{t("edit")}</button>
+      <HorizonReminders payload={payload} result={result} />
 
       <section aria-labelledby="objects-strip-title" style={{ marginTop: 34 }}>
         <Card accent={YELLOW} padding="clamp(16px, 4vw, 22px)">
@@ -546,8 +601,6 @@ function ResultView({
           </div>
         </Card>
       </section>
-
-      <HorizonReminders payload={payload} result={result} />
 
       <HorizonPlacet />
     </>

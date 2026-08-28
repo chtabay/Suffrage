@@ -693,6 +693,17 @@ export function soutiens(etat: EtatBassin, grilleCible: Grille, catalogue: Grill
  * lieu de laisser le joueur le découvrir par l'échec.
  */
 export function tenable(grille: Grille, milieu: Milieu): boolean {
+  /**
+   * ⚠️ ET LE SEUIL DE CASSE NE SUFFIT PAS : IL EN LAISSE PASSER. Deux cibles à
+   * deux soufres tiennent sous les 4 % de casse et sont donc proposées — et ce
+   * sont des pièges. Mesuré sur 450 cibles menées de bout en bout : 87 % de
+   * réussite à zéro ou un soufre, 45 % à deux.
+   *
+   * Les écarter coûte DEUX cibles sur soixante et rend 154 → 168 victoires sur
+   * soixante parties menées trois fois chacune, et vingt tours de moins.
+   */
+  const composition = espece(grille, milieu).composition;
+  if ((composition.S ?? 0) >= 2) return false;
   return fragilite(espece(grille, milieu), milieu) <= LAVAGE;
 }
 

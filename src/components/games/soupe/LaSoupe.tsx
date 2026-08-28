@@ -417,8 +417,17 @@ export default function LaSoupe() {
        * décollent pas, la cible est fabriquée et refoulée près de quatre cents
        * fois. Un biochimiste a joué 211 tours de cette promesse avant d'abandonner.
        */
+      /**
+       * ⚠️ « IL FAUT ATTENDRE » ÉTAIT LE DERNIER CUL-DE-SAC DU JEU. Quand les
+       * huit places sont prises et que toutes tiennent une voie, l'écran ne
+       * proposait plus rien et conseillait de patienter. Mesuré sur soixante
+       * parties : en attendant, 34 gagnées et 5 129 tours sans un geste
+       * possible ; en retirant quand même le gabarit le plus léger, 44 gagnées
+       * et plus un seul tour muet. On dit ce qu'il en coûte, et on le propose.
+       */
       if (c.plein && c.present === 0) {
-        return c.inutiles.length > 0 ? t("bassinConseilPorteFermee") : t("bassinConseilPorteToutSert");
+        if (c.inutiles.length > 0) return t("bassinConseilPorteFermee");
+        return c.sacrifice ? t("bassinConseilMur") : t("bassinConseilPorteToutSert");
       }
       // L'ATOME QUI MANQUE PASSE AVANT TOUT LE RESTE : conseiller de semer pendant
       // que le bouton est grisé, c'est l'écran qui contredit l'écran.
@@ -549,6 +558,10 @@ export default function LaSoupe() {
       role="status"
       style={{
         display: "flex",
+        // ⚠️ LE BOUTON DOIT POUVOIR PASSER À LA LIGNE. Sans ça, un intitulé un
+        // peu long — « Retirer quand même — coûte une voie » — écrase la phrase
+        // à un mot par ligne et déborde de l'écran sur 390 px.
+        flexWrap: "wrap",
         alignItems: "flex-start",
         gap: 9,
         marginBottom: 14,
@@ -561,16 +574,16 @@ export default function LaSoupe() {
       }}
     >
       <span aria-hidden style={{ fontWeight: 800, color: skin.accent }}>→</span>
-      <span style={{ flex: 1 }}>{conseil()}</span>
+      <span style={{ flex: "1 1 14rem", minWidth: "12rem" }}>{conseil()}</span>
       {/* ⚠️ UN CONSEIL IMPÉRATIF DOIT PORTER SON BOUTON. « Retirez la molécule
           marquée » désignait un contrôle tout en bas du panneau, qui affiche une
           forme et « × 6 » et dont la seule légende vivait dans un `title` — donc
           rien, au doigt. Un testeur est resté bloqué sans savoir COMMENT retirer. */}
-      {partie && partie.acte === 3 && conseilBassin && conseilBassin.plein && conseilBassin.present === 0 && conseilBassin.inutiles[0] ? (
+      {partie && partie.acte === 3 && conseilBassin && conseilBassin.plein && conseilBassin.present === 0 && (conseilBassin.inutiles[0] ?? conseilBassin.sacrifice) ? (
         <button
           type="button"
           onClick={() => {
-            const quoi = conseilBassin.inutiles[0].empreinte;
+            const quoi = (conseilBassin.inutiles[0] ?? conseilBassin.sacrifice)!.empreinte;
             setPartie((x) => (x ? retirerDuBassin(x, quoi) : x));
           }}
           style={{
@@ -588,8 +601,8 @@ export default function LaSoupe() {
             cursor: "pointer",
           }}
         >
-          <Forme grille={conseilBassin.inutiles[0].grille} cote={8} />
-          {t("retirerLibereUnePlace")}
+          <Forme grille={(conseilBassin.inutiles[0] ?? conseilBassin.sacrifice)!.grille} cote={8} />
+          {conseilBassin.inutiles.length === 0 ? t("retirerQuandMeme") : t("retirerLibereUnePlace")}
         </button>
       ) : null}
     </div>
@@ -1032,7 +1045,14 @@ export default function LaSoupe() {
                 pour la faire » ; mesuré sur l'univers entier, les cent quatre
                 tétramères ont exactement UNE voie. On montre donc l'atome rare
                 qu'elle réclame face à ce que le milieu verse. */}
-            <Chiffre teinte={c.tension > 0.25 ? ROUGE : skin.good}>
+            {/* ⚠️ CE BADGE ÉTAIT TOUJOURS VERT. La règle disait `tension > 0,25`, et
+                la tension d'une cible à deux soufres vaut exactement 2/8 = 0,25 dans
+                cette eau : le seuil ratait le seul cas qu'il devait signaler. Et on
+                ne se rattrape pas en abaissant le seuil — 3 azotes valent aussi 0,25
+                et gagnent 20 fois sur 20. C'est le SOUFRE qui décide : mesuré sur
+                450 cibles menées de bout en bout, 87 % de réussite à zéro ou un
+                soufre, 45 % à deux. */}
+            <Chiffre>
               {c.plusRare
                 ? t("cibleRarete", {
                     n: c.plusRare.requis,
@@ -1041,9 +1061,12 @@ export default function LaSoupe() {
                   })
                 : ""}
             </Chiffre>
-            <Chiffre teinte={c.outils > 0 ? skin.good : ROUGE}>
-              {c.outils > 0 ? t("cibleOutils", { n: c.outils }) : t("cibleSansOutil")}
-            </Chiffre>
+            {(c.composition.S ?? 0) >= 2 ? <Chiffre teinte={ROUGE}>{t("cibleDeuxSoufres")}</Chiffre> : null}
+            {/* ⚠️ ET CELUI-CI N'EST PLUS VERT NON PLUS. C'est sur ce chiffre que le
+                joueur choisissait. Mesuré sur les mêmes 450 cibles, SANS SEMER : à un
+                soufre, 93 % avec 0-1 gabarit et 93 % avec deux ou plus. Le chiffre ne
+                prédit rien — et coloré, il recommandait. C'est un fait, pas un conseil. */}
+            <Chiffre>{c.outils > 0 ? t("cibleOutils", { n: c.outils }) : t("cibleSansOutil")}</Chiffre>
           </button>
         ))}
       </div>
@@ -1180,15 +1203,13 @@ export default function LaSoupe() {
               );
             })}
           </div>
-          {/* ⚠️ CE PARAGRAPHE NE RÉPOND QU'À UNE QUESTION, ET ELLE N'EST POSÉE
-              QUE QUAND ON EST BLOQUÉ : « pourquoi j'arrive à produire alors qu'il
-              me manque de l'azote ? » Affiché en permanence, il occupait de la
-              place sur un écran qui défile déjà sur deux écrans et demi. */}
-          {manques.length > 0 ? (
-            <p style={{ margin: "8px 0 0", fontSize: 12.5, color: skin.muted, lineHeight: 1.45 }}>
-              {t("magasinNote")}
-            </p>
-          ) : null}
+          {/* ⚠️ CE PARAGRAPHE DISAIT MOT POUR MOT CE QUE LA LIGNE DE CONSEIL
+              VENAIT DE DIRE, CINQ LIGNES PLUS HAUT : « Vos copies produisent
+              quand même — les atomes ne servent qu'à en bâtir d'AUTRES » sous
+              « Vos copies produisent +6 par tour et continueront quoi qu'il
+              arrive ; les atomes ne servent qu'à en bâtir de NOUVELLES ». Il
+              répondait à une bonne question, mais le conseil y répond déjà, en
+              premier, et c'est lui qu'on lit. */}
         </div>
       ) : null}
 
@@ -1230,7 +1251,12 @@ export default function LaSoupe() {
               {t("acheter", { atome: nomAtome(m.code), prix: m.prix })}
             </GBtn>
           ))}
-          {manques.some((m) => m.abordable) && manques.reduce((s, m) => s + m.manque, 0) > 1 ? (
+          {/* ⚠️ IL DISPARAISSAIT QUAND IL NE MANQUAIT QU'UN ATOME, et c'est
+              précisément là qu'il porte la seule phrase utile : le bouton par
+              atome dit son prix, celui-ci dit ce qu'il DÉBLOQUE — une copie de
+              plus, pour toujours. Le moteur de référence le montrait déjà dès
+              qu'un achat était possible. */}
+          {manques.some((m) => m.abordable) ? (
             <GBtn
               skin={skin}
               size="sm"
@@ -1521,26 +1547,32 @@ export default function LaSoupe() {
             }}
           >
             <p style={{ margin: 0, fontSize: 13, color: skin.muted, lineHeight: 1.45 }}>
+              {/* ⚠️ « LE BASSIN NE VEUT PAS DE CELLE-CI » ÉTAIT UN VERDICT, ET IL ÉTAIT
+                  FAUX. Cette phrase paraît dès que le bassin est plein et la cible
+                  dehors — donc 99 % du temps, dès le premier tour. Mesuré sur 304
+                  parties gagnées : la cible entre au tour 13 en médiane, une sur dix
+                  après le soixantième, la dernière au 228e. */}
               {conseilBassin.coutDuChangement > 0
                 ? t("recoursAvecPrix", { n: conseilBassin.revisions, perdu: conseilBassin.coutDuChangement })
                 : t("recours", { n: conseilBassin.revisions })}
             </p>
             <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+              {/* ⚠️ ON NE VEND PLUS LE COMPTE DE GABARITS. Le bouton doré disait
+                  « 2 de vos molécules l'aident », le gris « aucune ne l'aide », et le
+                  joueur choisissait là-dessus. Mesuré sans semer : à un soufre, 93 %
+                  avec 0-1 gabarit, 93 % avec deux ou plus. Les deux boutons se valent
+                  donc, et seul le soufre mérite d'être signalé. */}
               {conseilBassin.autresCibles.map((autre) => (
                 <GBtn
                   key={autre.empreinte}
                   skin={skin}
                   size="sm"
-                  variant={autre.outils > 0 ? "accent" : "ghost"}
+                  variant="ghost"
                   onClick={() => setPartie((x) => (x ? reviserLaCible(x, autre.empreinte) : x))}
                 >
                   <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
                     <Forme grille={autre.grille} cote={9} />
-                    {autre.outils === 0
-                      ? t("viserAucuneAide")
-                      : autre.outils === 1
-                        ? t("viserUneAide")
-                        : t("viserDesAides", { n: autre.outils })}
+                    {(autre.composition.S ?? 0) >= 2 ? t("viserDeuxSoufres") : t("viserCelleCi")}
                   </span>
                 </GBtn>
               ))}
@@ -1571,6 +1603,11 @@ export default function LaSoupe() {
           {/* ⚠️ TOUTES, PLUS SEULEMENT TROIS : c'est désormais le seul endroit
               où l'on sème, donc en tronquer la liste retirerait des gestes au
               joueur — et le moteur de référence, lui, les montrait toutes. */}
+          {/* ⚠️ SEMER N'EST PLUS LE GESTE DORÉ. `installer(..., force)` CHASSE la
+              population la plus faible pour faire entrer le gabarit : le geste dépense
+              une des huit places. Mesuré, apparié, 360 cibles menées deux fois chacune :
+              vos molécules occupent 1,12 place sur 8 en semant contre 0,07 sans, pour
+              296 parties tenues contre 304. */}
           {conseilBassin.aider.map((aide) => {
             const piece = partie.collection.find((x) => x.visage === aide.visage);
             if (!piece) return null;
@@ -1580,7 +1617,7 @@ export default function LaSoupe() {
                 key={aide.visage}
                 skin={skin}
                 size="sm"
-                variant={aide === conseilBassin.aider[0] && lot > 0 ? "accent" : "ghost"}
+                variant="ghost"
                 disabled={lot === 0}
                 onClick={() => setPartie((p) => (p ? semerDansLeBassin(p, piece.grille) : p))}
                 title={
@@ -1754,39 +1791,12 @@ export default function LaSoupe() {
           </>
         ) : null}
 
-        {partie.bilanBassin ? (
-          <p style={{ margin: 0, fontSize: 12.5, color: skin.muted }}>
-            {t("dernierTour")} —{" "}
-            {[
-              partie.bilanBassin.nes > 0 ? t("briquesNees", { n: partie.bilanBassin.nes }) : null,
-              partie.bilanBassin.soudures > 0 ? t("soudures", { n: partie.bilanBassin.soudures }) : null,
-              partie.bilanBassin.morts > 0 ? t("moleculesDefaites", { n: partie.bilanBassin.morts }) : null,
-              partie.bilanBassin.emportes > 0 ? t("emportees", { n: partie.bilanBassin.emportes }) : null,
-              /* ⚠️ LE BILAN NE DISAIT QUE SES RÉUSSITES. L'événement le plus
-                 fréquent du bassin — une soudure qui a lieu et qu'on refoule
-                 faute de place — n'avait aucune ligne. */
-              partie.bilanBassin.refusees > 0 ? t("refoulees", { n: partie.bilanBassin.refusees }) : null,
-            ]
-              .filter(Boolean)
-              .join(" · ") || t("rien")}
-          </p>
-        ) : null}
-        {partie.bilanBassin && partie.bilanBassin.refusCible > 0 ? (
-          <p style={{ margin: 0, fontSize: 12.5, color: ROUGE }}>
-            {t("votreMoleculeRefoulee", { n: partie.bilanBassin.refusCible })}
-          </p>
-        ) : null}
-        {partie.bilanBassin?.sortieCible ? (
-          <p style={{ margin: 0, fontSize: 12.5, color: ROUGE }}>
-            {t(
-              partie.bilanBassin.sortieCible === "attrition"
-                ? "sortieAttrition"
-                : partie.bilanBassin.sortieCible === "concurrence"
-                  ? "sortieConcurrence"
-                  : "sortieCourant",
-            )}
-          </p>
-        ) : null}
+        {/* ⚠️ LA CHRONIQUE A REMPLACÉ CES LIGNES — et je les avais laissées côte
+            à côte. « dernier tour — 12 soudures · 67 refoulées », « votre
+            molécule a été refoulée 3 fois », « votre molécule a quitté le
+            bassin » : la chronique juste au-dessus dit déjà tout cela, tour par
+            tour et sans se répéter. Une redondance qu'on a créée soi-même est la
+            plus facile à retirer, et la première à voir. */}
 
         {/* ⚠️ LE MÉTIER DES TROIS ATOMES — la question posée après une partie :
             « les molécules soufrées ne semblent pas favorisées ». Elle était juste
