@@ -550,6 +550,10 @@ export default function PaysDuJour({ jour }: { jour: number }) {
       backLabel={t("back")}
       poweredBy={t("poweredBy")}
       maxWidth={860}
+      // ⚠️ L'EN-TÊTE RESTE (décision n°3 de `GameShell`) : l'après-partie de ce
+      // jeu dépasse deux mille pixels, et sans ça le retour vers /games ET le
+      // choix de la langue disparaissent au premier défilement.
+      collant
       aside={
         <span style={{ display: "inline-flex", alignItems: "center", gap: 9 }}>
           {/* La série se montre dès qu'elle vaut quelque chose, et ne demande
