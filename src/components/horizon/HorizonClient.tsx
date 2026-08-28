@@ -352,14 +352,6 @@ export default function HorizonClient() {
     }
   };
 
-  const edit = () => {
-    setUtilityModal(null);
-    setMode("form");
-    setError("");
-    setShareStatus("");
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
-
   const createAnother = () => {
     setUtilityModal(null);
     setForm(EMPTY_FORM);
@@ -465,7 +457,6 @@ export default function HorizonClient() {
             result={calculation.value}
             now={now}
             locale={locale}
-            onEdit={edit}
             t={t}
           />
         ) : null}
@@ -492,14 +483,12 @@ function ResultView({
   result,
   now,
   locale,
-  onEdit,
   t,
 }: {
   payload: HorizonPayload;
   result: HorizonResult;
   now: Date;
   locale: string;
-  onEdit: () => void;
   t: ReturnType<typeof useTranslations<"Horizon">>;
 }) {
   const remaining = remainingParts(result.remainingYears);
@@ -532,7 +521,7 @@ function ResultView({
     <>
       <div style={{ marginBottom: 28 }}>
         {payload.title ? (
-          <p style={{ margin: "0 0 8px", color: CORAL, fontFamily: FONT_DISPLAY, fontSize: 17, fontWeight: 800 }}>
+          <p style={{ margin: "0 0 9px", color: CORAL, fontFamily: FONT_DISPLAY, fontSize: "clamp(24px, 5vw, 32px)", fontWeight: 800, lineHeight: 1 }}>
             {payload.firstName}
           </p>
         ) : null}
@@ -576,8 +565,7 @@ function ResultView({
         </section>
       ) : null}
 
-      <p style={{ margin: "8px 4px 0", color: MUTED, fontSize: 13, lineHeight: 1.65 }}>{t("privacyResult")}</p>
-      <button type="button" onClick={onEdit} style={{ margin: "16px 3px 0", padding: 0, border: 0, background: "none", color: MUTED, font: "inherit", fontSize: 13, fontWeight: 700, textDecoration: "underline", textUnderlineOffset: 3, cursor: "pointer" }}>{t("edit")}</button>
+      <HorizonReminders payload={payload} result={result} />
 
       <section aria-labelledby="objects-strip-title" style={{ marginTop: 34 }}>
         <Card accent={YELLOW} padding="clamp(16px, 4vw, 22px)">
@@ -613,8 +601,6 @@ function ResultView({
           </div>
         </Card>
       </section>
-
-      <HorizonReminders payload={payload} result={result} />
 
       <HorizonPlacet />
     </>
