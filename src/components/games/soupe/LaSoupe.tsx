@@ -1359,6 +1359,8 @@ export default function LaSoupe() {
    */
   function ligneVoie(voie: Voie, rang: number) {
     const forte = rang === 0;
+    const cible = partie?.cible;
+    if (!cible) return null;
     return (
       <div
         key={`${voie.a.empreinte}+${voie.b.empreinte}`}
@@ -1386,18 +1388,35 @@ export default function LaSoupe() {
             </div>
           ))}
         </div>
-        <div style={{ display: "flex", flexDirection: "column", gap: 2, minWidth: 0 }}>
-          <Chiffre teinte={voie.gabarits > 0 ? skin.good : ROUGE}>
-            {voie.gabarits > 0 ? t("gabaritsTiennent", { n: voie.gabarits }) : t("aucunGabarit")}
-          </Chiffre>
-          <Chiffre>{t("seSoude", { sur: Math.max(1, Math.round(1 / voie.chance)) })}</Chiffre>
-          {voie.tenants.length > 0 ? (
-            <div style={{ display: "flex", gap: 5, flexWrap: "wrap", marginTop: 3 }}>
-              {voie.tenants.slice(0, 4).map((x) => (
-                <Habitant key={x.empreinte} esp={x} cote={8} />
-              ))}
-            </div>
-          ) : null}
+        {/* ⚠️ LA RÉACTION ÉTAIT RACONTÉE, ET AVEC UN MOT QUE PERSONNE NE CONNAÎT.
+            « 34 gabarits tiennent les deux · se soude : une chance sur 50 » — trois
+            notions à apprendre pour une chose qui se dessine. Ce que « gabarit »
+            désigne est simple depuis que le bassin ne se catalyse plus lui-même :
+            ce sont VOS molécules. Elles n'ont pas besoin d'un nom, il suffit de les
+            montrer POSÉES SUR LA FLÈCHE — c'est exactement ce qu'est un catalyseur,
+            et le dessin le dit tout seul. */}
+        <div style={{ flex: "1 1 auto", minWidth: 56, display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}>
+          <div style={{ display: "flex", gap: 4, alignItems: "flex-end", justifyContent: "center", minHeight: 14 }}>
+            {voie.tenants.slice(0, 2).map((x) => (
+              <Forme key={x.empreinte} grille={x.grille} cote={6} />
+            ))}
+          </div>
+          <div style={{ position: "relative", width: "100%", height: 1, background: forte ? skin.accent : `${skin.ink}44` }}>
+            <span
+              style={{
+                position: "absolute",
+                right: -1,
+                top: -3,
+                borderLeft: `5px solid ${forte ? skin.accent : `${skin.ink}44`}`,
+                borderTop: "3.5px solid transparent",
+                borderBottom: "3.5px solid transparent",
+              }}
+            />
+          </div>
+          <Chiffre>{t("uneChanceSur", { sur: Math.max(1, Math.round(1 / voie.chance)) })}</Chiffre>
+        </div>
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 3 }}>
+          <Forme grille={cible.grille} cote={9} />
         </div>
       </div>
     );
@@ -1580,11 +1599,11 @@ export default function LaSoupe() {
           </div>
         ) : null}
 
+        {/* ⚠️ LE SECOND PARAGRAPHE EXPLIQUAIT CE QUE LA FLÈCHE MONTRE. « Un gabarit
+            n'entre pas dans ce qu'il fabrique : il approche les deux morceaux, puis
+            repart intact » — c'est le dessin de la réaction, en quarante mots. */}
         {(partie.bassin.nes ?? 0) <= 6 && (partie.chronique?.length ?? 0) <= 2 ? (
-          <>
-            <p style={{ margin: 0, fontSize: 13, color: skin.muted, lineHeight: 1.45 }}>{t("cibleNonSemable")}</p>
-            <p style={{ margin: 0, fontSize: 13, color: skin.muted, lineHeight: 1.45 }}>{t("ceQuFaitUnGabarit")}</p>
-          </>
+          <p style={{ margin: 0, fontSize: 13, color: skin.muted, lineHeight: 1.45 }}>{t("cibleNonSemable")}</p>
         ) : null}
 
         <p style={{ margin: 0, fontSize: 13, color: skin.muted }}>{t("parQuoiElleSeFabrique")}</p>
