@@ -32,6 +32,7 @@ import ComparaisonAmi from "@/components/games/ComparaisonAmi";
 import { litDefi, type Defi } from "@/lib/games/comparaison";
 import { POINTS_MAX, VOTANTS_MIN } from "@/lib/games/banalo/bareme";
 import InstallJeu from "@/components/games/InstallJeu";
+import { useProchaineCharniere } from "@/lib/games/banalo/prochaine";
 import CompteBanalo from "./CompteBanalo";
 import TableauDuJour from "@/components/games/TableauDuJour";
 import MaTablee from "./MaTablee";
@@ -69,6 +70,9 @@ export default function NombreDuJour({
   veille?: ReactNode;
 }) {
   const t = useTranslations("BanaloJour");
+  // Vide au premier rendu (calculée après le montage) : la barre retombe alors
+  // sur sa formule sans heure, jamais sur une heure fausse.
+  const charniere = useProchaineCharniere();
   const locale = useLocale();
   const question = questionDe(jour);
 
@@ -587,7 +591,7 @@ export default function NombreDuJour({
               />
             ) : null}
             {/* Une seule offre à la fois — voir `CompteBanalo`. */}
-            <CompteBanalo jour={jour} install={<InstallJeu skin={skin} />} />
+            <CompteBanalo jour={jour} install={<InstallJeu skin={skin} quand={charniere ? t("prevenuQuand", { heure: charniere }) : undefined} fermerLabel={t("qrFermer")} />} />
           </div>
         </div>
       ) : null}

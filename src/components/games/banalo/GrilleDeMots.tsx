@@ -32,6 +32,7 @@ import InviterBanalo from "./InviterBanalo";
 import ComparaisonAmi from "@/components/games/ComparaisonAmi";
 import { litDefi, type Defi } from "@/lib/games/comparaison";
 import InstallJeu from "@/components/games/InstallJeu";
+import { useProchaineCharniere } from "@/lib/games/banalo/prochaine";
 import CompteBanalo from "./CompteBanalo";
 import TableauDuJour from "@/components/games/TableauDuJour";
 import MaTablee from "./MaTablee";
@@ -68,6 +69,9 @@ export default function GrilleDeMots({
   veille?: ReactNode;
 }) {
   const t = useTranslations("BanaloJour");
+  // Vide au premier rendu (calculée après le montage) : la barre retombe alors
+  // sur sa formule sans heure, jamais sur une heure fausse.
+  const charniere = useProchaineCharniere();
   const locale = useLocale();
 
   const [saisies, setSaisies] = useState<string[]>(() => Array(cases).fill(""));
@@ -550,7 +554,7 @@ export default function GrilleDeMots({
               place, et empiler l'installation sous le compte les fait se
               cannibaliser — deux demandes molles valent moins qu'une nette.
               L'installation ne sort donc que pour qui a déjà un compte. */}
-          <CompteBanalo jour={jour} install={<InstallJeu skin={skin} />} />
+          <CompteBanalo jour={jour} install={<InstallJeu skin={skin} quand={charniere ? t("prevenuQuand", { heure: charniere }) : undefined} fermerLabel={t("qrFermer")} />} />
         </div>
       ) : null}
 

@@ -1683,6 +1683,7 @@
     "goSpaces": "Mis grupos"
   },
   "Games": {
+    "installTitre": "En tu pantalla de inicio",
     "apresSalleAttente": "El anfitrión puede lanzar otra partida.",
     "apresSalleLabel": "El juego del día",
     "apresSalleBanalo": "El mismo juego del acuerdo, en solitario y en dos minutos. Uno nuevo cada día.",
@@ -2756,6 +2757,7 @@
     "navDescend": "Estás en el puesto {place} de la clasificación de los juegos diarios: {n, plural, one {# puesto perdido} other {# puestos perdidos}} en una semana."
   },
   "BanaloJour": {
+    "prevenuQuand": "a las {heure}",
     "detailBouton": "Ver el detalle",
     "metaTitle": "Banalo del día — responde como la mayoría",
     "metaDescription": "Cada día, una pregunta o un tema. No se trata de acertar, sino de responder como la mayoría de los demás jugadores. Dos minutos, sin cuenta.",
@@ -2899,6 +2901,7 @@
     }
   },
   "Pays": {
+    "prevenuQuand": "mañana",
     "dejaAilleurs": "Ya encontraste el país del día, en {n, plural, one {# intento} other {# intentos}}, desde otro aparato. Volver a jugar aquí no cambiará tu resultado.",
     "demainPays": "Un país nuevo mañana.",
     "derniereTitre": "Tu última jornada",
@@ -3003,6 +3006,8 @@
     }
   },
   "NotifsJeux": {
+    "barreQuand": "Recibir aviso {quand}",
+    "barreOffre": "Recibir aviso del resultado",
     "titre": "Notificaciones",
     "offreTexte": "Una jornada termina, tu resultado queda fijado y nada te lo dice. Las notificaciones te lo traen — a este aparato, cuando ya es definitivo.",
     "ailleursTexte": "{n, plural, one {# aparato de tu cuenta está suscrito} other {# aparatos de tu cuenta están suscritos}}, pero este no.",

@@ -1683,6 +1683,7 @@
     "goSpaces": "Mes groupes"
   },
   "Games": {
+    "installTitre": "Sur votre écran d'accueil",
     "apresSalleAttente": "L'hôte peut relancer une partie.",
     "apresSalleLabel": "Le jeu du jour",
     "apresSalleBanalo": "Le même jeu de l'accord, seul et en deux minutes. Un nouveau chaque jour.",
@@ -2756,6 +2757,7 @@
     "navDescend": "Vous êtes {place, selectordinal, one {#er} other {#e}} au classement des jeux quotidiens : {n, plural, one {# place perdue} other {# places perdues}} en une semaine."
   },
   "BanaloJour": {
+    "prevenuQuand": "à {heure}",
     "detailBouton": "Voir le détail",
     "metaTitle": "Banalo du jour — répondez comme la foule",
     "metaDescription": "Chaque jour, une question ou un thème. Le but n'est pas d'avoir raison : c'est de répondre comme la plupart des autres joueurs. Deux minutes, sans compte.",
@@ -2899,6 +2901,7 @@
     }
   },
   "Pays": {
+    "prevenuQuand": "demain",
     "dejaAilleurs": "Vous avez déjà trouvé le pays du jour, en {n, plural, one {# essai} other {# essais}}, depuis un autre appareil. Rejouer ici ne changera pas votre résultat.",
     "demainPays": "Un nouveau pays demain.",
     "derniereTitre": "Votre dernière journée",
@@ -3003,6 +3006,8 @@
     }
   },
   "NotifsJeux": {
+    "barreQuand": "Être prévenu {quand}",
+    "barreOffre": "Être prévenu du résultat",
     "titre": "Notifications",
     "offreTexte": "Une journée se termine, votre résultat se fige, et rien ne vient vous le dire. Les notifications vous le rendent — sur cet appareil, quand c'est arrêté.",
     "ailleursTexte": "{n, plural, one {# appareil de votre compte est abonné} other {# appareils de votre compte sont abonnés}}, mais pas celui-ci.",

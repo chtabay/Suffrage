@@ -1683,6 +1683,7 @@
     "goSpaces": "My groups"
   },
   "Games": {
+    "installTitre": "For your home screen",
     "apresSalleAttente": "Di host fit start anoda game.",
     "apresSalleLabel": "Today game",
     "apresSalleBanalo": "Na di same agreement game, you alone, for two minutes. New one dey come every day.",
@@ -2756,6 +2757,7 @@
     "navDescend": "You dey number {place} for di daily-games ranking: you go down {n, plural, one {# place} other {# places}} for one week."
   },
   "BanaloJour": {
+    "prevenuQuand": "for {heure}",
     "detailBouton": "See di detail",
     "metaTitle": "Banalo of di day — answer like di crowd",
     "metaDescription": "Every day, one question or one theme. Di point no be to dey correct: na to answer like most of di other players. Two minutes, no account.",
@@ -2899,6 +2901,7 @@
     }
   },
   "Pays": {
+    "prevenuQuand": "tomorrow",
     "dejaAilleurs": "You don already find di country of di day, for {n, plural, one {# try} other {# tries}}, for anoda device. To play again here no go change your result.",
     "demainPays": "New country tomorrow.",
     "derniereTitre": "Your last day",
@@ -3003,6 +3006,8 @@
     }
   },
   "NotifsJeux": {
+    "barreQuand": "Make dem tell you {quand}",
+    "barreOffre": "Make dem tell you your result",
     "titre": "Notifications",
     "offreTexte": "Di day go end, your result go set, and nothing go tell you. Notifications go bring am give you — for dis device, wen e don final.",
     "ailleursTexte": "{n, plural, one {# device for your account don subscribe} other {# devices for your account don subscribe}}, but no be dis one.",

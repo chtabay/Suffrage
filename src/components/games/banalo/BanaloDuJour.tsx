@@ -18,37 +18,21 @@
 // fait ses propres appels ; celui qui n'est pas affiché n'en fait aucun. Une
 // première version gardait tout dans un seul composant, et les crochets du
 // format chiffré appelaient la RPC des nombres même les jours de mots.
-import { useEffect, useState } from "react";
-import { useLocale, useTranslations } from "next-intl";
+import { useTranslations } from "next-intl";
 import GameShell from "@/components/games/GameShell";
 import { UNANIMO_SKIN as skin } from "@/lib/games/skin";
-import { finDeJournee } from "@/lib/games/banalo/jour";
 import { programmeDe } from "@/lib/games/banalo/programme";
+import { useProchaineCharniere } from "@/lib/games/banalo/prochaine";
 import NombreDuJour from "./NombreDuJour";
 import GrilleDeMots from "./GrilleDeMots";
 import JourneePrecedente from "./JourneePrecedente";
 
-const bcp = (locale: string) => (locale === "pcm" ? "en" : locale);
-
 export default function BanaloDuJour({ jour }: { jour: number }) {
   const t = useTranslations("BanaloJour");
-  const locale = useLocale();
   const prog = programmeDe(jour);
 
-  // L'heure de la prochaine question, dans le fuseau du LECTEUR.
-  //
-  // ⚠️ « 11 H 30 » EST UNE HEURE DE PARIS, ET L'ÉCRIRE TEL QUEL SERAIT FAUX
-  // PARTOUT AILLEURS : c'est 10 h 30 à Lagos l'été et 5 h 30 à New York. On
-  // formate donc l'instant réel, et chacun lit son heure. Calculé après le
-  // montage : le rendu serveur et le rendu client n'ont pas le même fuseau.
-  const [prochaine, setProchaine] = useState("");
-  useEffect(() => {
-    setProchaine(
-      new Intl.DateTimeFormat(bcp(locale), { hour: "2-digit", minute: "2-digit" }).format(
-        new Date(finDeJournee()),
-      ),
-    );
-  }, [locale]);
+  // L'heure de la prochaine question, dans le fuseau du LECTEUR (voir le hook).
+  const prochaine = useProchaineCharniere();
 
   return (
     <GameShell

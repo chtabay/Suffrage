@@ -36,8 +36,23 @@ import { useAuth } from "@/lib/auth/useAuth";
 import { useInstall } from "@/lib/pwa/install";
 import { abonnementDIci, notifyDeployed, subscribeNotifications } from "@/lib/pwa/notify";
 import type { GameSkin } from "@/lib/games/skin";
+import AideModale from "@/components/games/Modale";
+import { GBtn } from "@/components/games/ui";
 
-export default function InstallJeu({ skin }: { skin: GameSkin }) {
+export default function InstallJeu({ skin, quand, fermerLabel }: {
+  skin: GameSkin;
+  /**
+   * Quand la prochaine notification arriverait, en clair — « demain à 11 h 30 ».
+   *
+   * ⚠️ ELLE VIENT DE L'APPELANT PARCE QUE LES DEUX JEUX N'ONT PAS LA MÊME
+   * CHARNIÈRE : 11 h 30 pour Banalo, minuit pour Cinq sur cinq. La calculer ici
+   * demanderait une quatrième copie de l'origine du calendrier. Absente, la
+   * barre dit la promesse sans l'heure — jamais une heure inventée.
+   */
+  quand?: string;
+  /** Libellé de fermeture du tiroir, dans le vocabulaire de l'appelant. */
+  fermerLabel: string;
+}) {
   const t = useTranslations("Games");
   // ⚠️ LES PHRASES DE NOTIFICATION VIENNENT DE LEUR NAMESPACE, PAS D'UNE COPIE.
   // Elles sont déjà écrites pour l'écran de réglages ; les redire ici en
@@ -51,6 +66,12 @@ export default function InstallJeu({ skin }: { skin: GameSkin }) {
   const [ici, setIci] = useState<boolean | null>(null);
   const [envoi, setEnvoi] = useState(false);
   const [rate, setRate] = useState<"denied" | "erreur" | null>(null);
+  const [ouvert, setOuvert] = useState(false);
+  // ⚠️ LA RÉUSSITE SE DIT, ELLE NE FAIT PAS DISPARAÎTRE LA BOÎTE. Une fois
+  // abonné, `demande` retombe à null et tout ce composant s'effacerait : le
+  // joueur presserait un bouton et verrait le bloc s'évanouir, ce qui est
+  // indiscernable d'une panne — le défaut déjà payé sur le dépôt du pseudo.
+  const [succes, setSucces] = useState(false);
 
   useEffect(() => {
     let vivant = true;
@@ -69,6 +90,7 @@ export default function InstallJeu({ skin }: { skin: GameSkin }) {
     setEnvoi(false);
     if (r === "ok") {
       setIci(true);
+      setSucces(true);
       return;
     }
     // ⚠️ UN REFUS DE PERMISSION N'EST PAS UNE PANNE : il ne se redemande pas
@@ -93,97 +115,147 @@ export default function InstallJeu({ skin }: { skin: GameSkin }) {
   // une carte « installer » affichée une demi-seconde puis remplacée par
   // « être prévenu » clignote à l'endroit exact où l'œil se pose.
   if (ici === null && notifyDeployed() && user) return null;
-  if (!demande && rate !== "denied") return null;
+  if (!demande && rate !== "denied" && !succes) return null;
 
   const surIos = demande === "installe" && ios;
 
+  // ⚠️ ABONNEMENT POSÉ : ON LE CONFIRME, ET ON S'ARRÊTE LÀ. `demande` vient de
+  // retomber, donc sans ce retour le composant s'effacerait sous le doigt — ou
+  // pire, enchaînerait sur « Installer », c'est-à-dire une deuxième demande
+  // dans un créneau que §0 n'accorde qu'une fois.
+  if (succes) {
+    return ouvert ? (
+      <AideModale
+        skin={skin}
+        titre={tn("titre")}
+        texte={tn("activee")}
+        fermer={() => setOuvert(false)}
+        fermerLabel={fermerLabel}
+      />
+    ) : null;
+  }
+
+  // ⚠️ UN REFUS DE PERMISSION NE MÉRITE PAS UNE BARRE : il n'y a plus aucun
+  // geste à faire ici (le navigateur ne redemandera pas), donc une barre qui
+  // ouvre une boîte pour annoncer un refus serait une accroche sans bouton —
+  // la règle de ce fichier. Il reste la phrase, et rien d'autre.
+  if (!demande) {
+    return (
+      <p role="alert" style={{ margin: "4px 0 0", fontSize: 13, fontWeight: 700, lineHeight: 1.45, color: skin.muted }}>
+        {tn("refusee")}
+      </p>
+    );
+  }
+
+  // Le libellé de la barre porte la PROMESSE, pas l'organe. « Être prévenu
+  // demain à 11 h 30 » se décide ; « Notifications » se subit. Sans charnière
+  // fournie par l'appelant, on retombe sur la formule sans heure — jamais sur
+  // une heure inventée, les deux jeux n'ayant pas la même (11 h 30 et minuit).
+  const libelle =
+    demande === "notif"
+      ? quand
+        ? tn("barreQuand", { quand })
+        : tn("barreOffre")
+      : t("installCta");
+
   return (
-    <div
-      style={{
-        marginTop: 4,
-        padding: 14,
-        border: `2px dashed ${skin.ink}33`,
-        borderRadius: skin.radius,
-        display: "grid",
-        gap: 10,
-      }}
-    >
-      {/* ⚠️ PAS D'ACCROCHE SANS BOUTON. Quand la permission vient d'être
-          refusée et qu'il n'y a rien à installer, `demande` vaut `null` : la
-          carte ne garde que la phrase qui explique le refus. Vu à l'écran — la
-          première version servait « Placet sur votre écran d'accueil » sous un
-          refus de notification, sans le moindre geste à faire.
-
-          Chaque branche porte sa clé EN CLAIR. Sur iOS non installé, la phrase
-          dit la RAISON d'installer — être prévenu — au lieu de demander un
-          geste sans contrepartie. */}
-      {demande ? (
-        <p style={{ margin: 0, fontSize: 13.5, color: skin.muted, lineHeight: 1.45 }}>
-          {demande === "notif"
-            ? tn("offreTexte")
-            : surIos && notifyDeployed() && user
-              ? t("installPourNotif")
-              : t("installTexte")}
-        </p>
-      ) : null}
-
-      {demande === "notif" ? (
-        <button
-          type="button"
-          onClick={() => void abonne()}
-          disabled={envoi}
-          style={{
-            fontFamily: skin.fontDisplay,
-            fontWeight: 800,
-            fontSize: 14.5,
-            cursor: envoi ? "default" : "pointer",
-            border: `${skin.border}px solid ${skin.ink}`,
-            background: skin.paper,
-            color: skin.ink,
-            padding: "11px 15px",
-            borderRadius: skin.radius - 4,
-            justifySelf: "start",
-            opacity: envoi ? 0.5 : 1,
-          }}
+    <>
+      {/* La barre : une seule ligne, tout le reste dans le tiroir. Elle remplace
+          une carte à cadre pointillé de quatre éléments empilés — sur un écran
+          d'après-partie qui fait plus de deux mille pixels, ce qui se répète à
+          l'identique chaque jour doit tenir en une ligne. */}
+      <button
+        type="button"
+        onClick={() => setOuvert(true)}
+        style={{
+          display: "flex",
+          width: "100%",
+          minHeight: 54,
+          alignItems: "center",
+          gap: 12,
+          marginTop: 4,
+          padding: "11px 14px",
+          border: `${skin.border}px solid ${skin.ink}`,
+          borderRadius: skin.radius,
+          // ⚠️ `paper`, PAS `accent` : le cadre pointillé qu'elle remplace était
+          // la matière des offres discrètes, et §0 ne lui accorde qu'un barreau.
+          // En accent elle rivaliserait avec l'offre de compte, qui le porte.
+          background: skin.paper,
+          color: skin.ink,
+          textAlign: "left",
+          cursor: "pointer",
+          fontFamily: skin.fontBody,
+        }}
+      >
+        <span
+          aria-hidden="true"
+          style={{ display: "grid", placeItems: "center", flex: "0 0 30px", width: 30, height: 30, border: `2px solid ${skin.ink}`, borderRadius: "50%", background: skin.bg }}
         >
-          {envoi ? "…" : tn("activer")}
-        </button>
-      ) : demande === "installe" ? (
-        <button
-          type="button"
-          onClick={() => (ios ? setModeEmploi((v) => !v) : void promptInstall())}
-          aria-expanded={ios ? modeEmploi : undefined}
-          style={{
-            fontFamily: skin.fontDisplay,
-            fontWeight: 800,
-            fontSize: 14.5,
-            cursor: "pointer",
-            border: `${skin.border}px solid ${skin.ink}`,
-            background: skin.paper,
-            color: skin.ink,
-            padding: "11px 15px",
-            borderRadius: skin.radius - 4,
-            justifySelf: "start",
-          }}
+          {demande === "notif" ? (
+            <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9" />
+              <path d="M10 21h4" />
+            </svg>
+          ) : (
+            <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M12 3v12" />
+              <path d="m7 11 5 5 5-5" />
+              <path d="M4 20h16" />
+            </svg>
+          )}
+        </span>
+        <span style={{ flex: 1, fontFamily: skin.fontDisplay, fontSize: 14.5, fontWeight: 800, lineHeight: 1.35 }}>{libelle}</span>
+        <span aria-hidden="true" style={{ fontSize: 23, fontWeight: 800, lineHeight: 1 }}>›</span>
+      </button>
+
+      {ouvert ? (
+        <AideModale
+          skin={skin}
+          // ⚠️ LE TITRE DIT LE BUT, LE BOUTON DIT LE GESTE. Titrer le tiroir
+          // « Installer Placet » au-dessus d'un bouton « Installer Placet »
+          // imprimait deux fois la même phrase à trois lignes d'écart — et une
+          // troisième dans la barre qu'on vient de toucher. Vu à l'écran.
+          titre={demande === "notif" ? tn("titre") : t("installTitre")}
+          texte={
+            demande === "notif"
+              ? tn("offreTexte")
+              : surIos && notifyDeployed() && user
+                ? t("installPourNotif")
+                : t("installTexte")
+          }
+          fermer={() => setOuvert(false)}
+          fermerLabel={fermerLabel}
+          fermerDiscret
         >
-          {t("installCta")}
-        </button>
-      ) : null}
+          <div style={{ display: "grid", gap: 10 }}>
+            <GBtn
+              skin={skin}
+              variant="accent"
+              size="lg"
+              onClick={() => (demande === "notif" ? void abonne() : ios ? setModeEmploi((v) => !v) : void promptInstall())}
+              disabled={envoi}
+              style={{ width: "100%" }}
+            >
+              {envoi ? "…" : demande === "notif" ? tn("activer") : t("installCta")}
+            </GBtn>
 
-      {surIos && modeEmploi ? (
-        // ⚠️ TRADUIT, contrairement au conseil iOS de la coquille Placet qui est
-        // écrit en dur en français sur toutes les pages. Les noms des deux
-        // boutons de Safari changent avec la langue du téléphone.
-        <p style={{ margin: 0, fontSize: 12.5, color: skin.muted, lineHeight: 1.45 }}>
-          {t.rich("installIos", { b: (c) => <b style={{ color: skin.ink }}>{c}</b> })}
-        </p>
-      ) : null}
+            {surIos && modeEmploi ? (
+              // ⚠️ TRADUIT, contrairement au conseil iOS de la coquille Placet qui est
+              // écrit en dur en français sur toutes les pages. Les noms des deux
+              // boutons de Safari changent avec la langue du téléphone.
+              <p style={{ margin: 0, fontSize: 12.5, color: skin.muted, lineHeight: 1.45 }}>
+                {t.rich("installIos", { b: (c) => <b style={{ color: skin.ink }}>{c}</b> })}
+              </p>
+            ) : null}
 
-      {rate ? (
-        <p role="alert" style={{ margin: 0, fontSize: 13, fontWeight: 700, lineHeight: 1.45 }}>
-          {rate === "denied" ? tn("refusee") : tn("echec")}
-        </p>
+            {rate ? (
+              <p role="alert" style={{ margin: 0, fontSize: 13, fontWeight: 700, lineHeight: 1.45 }}>
+                {rate === "denied" ? tn("refusee") : tn("echec")}
+              </p>
+            ) : null}
+          </div>
+        </AideModale>
       ) : null}
-    </div>
+    </>
   );
 }

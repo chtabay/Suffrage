@@ -1683,6 +1683,7 @@
     "goSpaces": "My groups"
   },
   "Games": {
+    "installTitre": "On your home screen",
     "apresSalleAttente": "The host can start another game.",
     "apresSalleLabel": "Today's game",
     "apresSalleBanalo": "The same game of agreement, on your own, in two minutes. A new one every day.",
@@ -2756,6 +2757,7 @@
     "navDescend": "You're {place, selectordinal, one {#st} two {#nd} few {#rd} other {#th}} in the daily-games ranking: {n, plural, one {# place down} other {# places down}} in a week."
   },
   "BanaloJour": {
+    "prevenuQuand": "at {heure}",
     "detailBouton": "See the detail",
     "metaTitle": "Banalo of the day — answer like the crowd",
     "metaDescription": "Every day, one question or one theme. The point is not to be right: it is to answer like most other players. Two minutes, no account.",
@@ -2899,6 +2901,7 @@
     }
   },
   "Pays": {
+    "prevenuQuand": "tomorrow",
     "dejaAilleurs": "You already found today's country, in {n, plural, one {# guess} other {# guesses}}, on another device. Playing again here won't change your result.",
     "demainPays": "A new country tomorrow.",
     "derniereTitre": "Your last day",
@@ -3003,6 +3006,8 @@
     }
   },
   "NotifsJeux": {
+    "barreQuand": "Get notified {quand}",
+    "barreOffre": "Get notified of your result",
     "titre": "Notifications",
     "offreTexte": "A day ends, your result is settled, and nothing tells you. Notifications bring it to you — on this device, once it's final.",
     "ailleursTexte": "{n, plural, one {# device on your account is subscribed} other {# devices on your account are subscribed}}, but not this one.",

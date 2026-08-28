@@ -757,7 +757,7 @@ export default function PaysDuJour({ jour }: { jour: number }) {
             elle demande un engagement à quelqu'un à qui le jeu n'a encore rien
             donné. Le FAB de Placet ne flotte plus ici : c'est le jeu qui
             invite, à ses couleurs et en vouvoyant comme le reste de l'écran. */}
-        {gagne && <InstallJeu skin={skin} />}
+        {gagne && <InstallJeu skin={skin} quand={t("prevenuQuand")} fermerLabel={t("derniereFermer")} />}
 
         {/* L'HISTORIQUE — et le vrai retour du jeu.
             
