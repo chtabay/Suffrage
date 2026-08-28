@@ -1603,11 +1603,12 @@ export default function LaSoupe() {
           {/* ⚠️ TOUTES, PLUS SEULEMENT TROIS : c'est désormais le seul endroit
               où l'on sème, donc en tronquer la liste retirerait des gestes au
               joueur — et le moteur de référence, lui, les montrait toutes. */}
-          {/* ⚠️ SEMER N'EST PLUS LE GESTE DORÉ. `installer(..., force)` CHASSE la
-              population la plus faible pour faire entrer le gabarit : le geste dépense
-              une des huit places. Mesuré, apparié, 360 cibles menées deux fois chacune :
-              vos molécules occupent 1,12 place sur 8 en semant contre 0,07 sans, pour
-              296 parties tenues contre 304. */}
+          {/* SEMER EST LE GESTE QUI DÉCIDE — et il ne l'a pas toujours été. Tant
+              que le bassin se catalysait lui-même, il fournissait 60 à 120 gabarits
+              tout seul pour une demi-saturation à 12 : semer n'ajoutait rien et
+              dépensait une place, et suivre ce conseil faisait passer de 55 à 46
+              parties sur 60. Depuis que seules les formes du joueur catalysent :
+              3 molécules sans semer 33/60, en semant 46/60 ; 4 en semant 59/60. */}
           {conseilBassin.aider.map((aide) => {
             const piece = partie.collection.find((x) => x.visage === aide.visage);
             if (!piece) return null;
@@ -1617,7 +1618,7 @@ export default function LaSoupe() {
                 key={aide.visage}
                 skin={skin}
                 size="sm"
-                variant="ghost"
+                variant={aide === conseilBassin.aider[0] && lot > 0 ? "accent" : "ghost"}
                 disabled={lot === 0}
                 onClick={() => setPartie((p) => (p ? semerDansLeBassin(p, piece.grille) : p))}
                 title={

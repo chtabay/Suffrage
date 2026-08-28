@@ -234,6 +234,8 @@ export function bassinVide(libres: Compte = { C: 0, N: 0, S: 0 }): EtatBassin {
   return {
     libres: { ...libres },
     especes: [],
+    /** Les visages de la collection du joueur : les seuls qui catalysent. */
+    catalogue: [],
     tours: 0,
     nes: 0,
     morts: 0,
@@ -461,9 +463,22 @@ function souduresDe(a: Espece, b: Espece): Produit[] {
  * s'exclure lui-même : une molécule ne catalyse pas sa propre fabrication, sans
  * quoi la règle redevient la tautologie mesurée et rejetée dans `soudure.js`.
  */
-function vivier(especes: Espece[], a: Espece, b: Espece) {
+/**
+ * ⚠️ ET SEULES LES MOLÉCULES DU JOUEUR CATALYSENT. Tant que le bassin se
+ * catalysait lui-même, il fournissait soixante à cent vingt gabarits tout seul
+ * pour une demi-saturation à douze : rien de ce que le joueur apportait ne
+ * déplaçait la chance de soudure. Mesuré sur soixante graines : une partie menée
+ * avec UNE molécule gardée donnait 59/60, contre 55 avec six molécules et trois
+ * cent soixante secousses — et 46 en suivant le conseil de semer.
+ *
+ * Le bassin ne sait donc plus se catalyser seul. Mesuré, même protocole :
+ * 1 molécule 29/60 · 3 sans semer 33/60 · 3 en semant 46/60 · 4 en semant 59/60
+ * en 2 min 07 pour cinq clics d'acte 1.
+ */
+function vivier(especes: Espece[], a: Espece, b: Espece, duJoueur: Set<string> | null = null) {
   const pool = new Map<string, number>();
   for (const x of especes) {
+    if (duJoueur && !duJoueur.has(x.visage)) continue;
     if (tientEnsemble(x.visage, a.visage, b.visage)) {
       pool.set(x.visage, (pool.get(x.visage) ?? 0) + x.effectif);
     }
@@ -472,6 +487,9 @@ function vivier(especes: Espece[], a: Espece, b: Espece) {
   for (const n of pool.values()) total += n;
   return { total, parVisage: pool };
 }
+
+/** Les formes que le joueur a pêchées : les seules qui reconnaissent. */
+const catalyseurs = (etat: { catalogue?: string[] }) => (etat.catalogue ? new Set(etat.catalogue) : null);
 
 const gabaritsPour = (
   vv: { total: number; parVisage: Map<string, number> },
@@ -488,7 +506,7 @@ const gabaritsPour = (
  * n'importe quel compteur.
  *
  */
-export function fabrications(etat: { especes: Espece[] }): Fabrication[] {
+export function fabrications(etat: { especes: Espece[]; catalogue?: string[] }): Fabrication[] {
   const liste: Fabrication[] = [];
   for (let i = 0; i < etat.especes.length; i++) {
     for (let j = i; j < etat.especes.length; j++) {
@@ -497,7 +515,7 @@ export function fabrications(etat: { especes: Espece[] }): Fabrication[] {
       if (i === j && a.effectif < 2) continue;
       const produits = souduresDe(a, b);
       if (produits.length === 0) continue;
-      const vv = vivier(etat.especes, a, b);
+      const vv = vivier(etat.especes, a, b, catalyseurs(etat));
       for (const p of produits) {
         const gabarits = gabaritsPour(vv, p.visage);
         liste.push({
@@ -608,12 +626,13 @@ export function soutiens(etat: EtatBassin, grilleCible: Grille, catalogue: Grill
   const vCible = visageDe(grilleCible);
   const dans = new Map(etat.especes.map((e) => [e.empreinte, e]));
 
+  const duJoueur = catalyseurs(etat);
   const voies = voiesVers(grilleCible).map(({ a, b }) => {
     // Sans milieu : un réactif absent existe et tient, mais on ne prétend pas
     // savoir ce qu'il vaut ici — on n'a besoin que de son contour.
     const ea = dans.get(empreinte(a)) ?? espece(a, undefined, 0);
     const eb = dans.get(empreinte(b)) ?? espece(b, undefined, 0);
-    const vv = vivier(etat.especes, ea, eb);
+    const vv = vivier(etat.especes, ea, eb, duJoueur);
     const gabarits = gabaritsPour(vv, vCible);
     return {
       a: ea,
@@ -621,8 +640,17 @@ export function soutiens(etat: EtatBassin, grilleCible: Grille, catalogue: Grill
       gabarits,
       chance: chanceDeSouder(gabarits),
       // Les espèces présentes qui tiennent les deux réactifs, la plus nombreuse d'abord.
+      /**
+       * ⚠️ SEULEMENT CELLES QUI CATALYSENT VRAIMENT. `tenants` sert à bâtir la
+       * liste des retirables : une espèce qui « tient la cible » en est écartée.
+       * Depuis que seules les formes du joueur catalysent, une espèce du bassin
+       * a beau reconnaître les deux briques, elle n'accélère rien — la garder au
+       * nom d'un service qu'elle ne rend pas vidait la liste et dressait un mur
+       * 212 tours sur 225.
+       */
       tenants: etat.especes
-        .filter((x) => x.visage !== vCible && tientEnsemble(x.visage, ea.visage, eb.visage))
+        .filter((x) => x.visage !== vCible && (!duJoueur || duJoueur.has(x.visage)))
+        .filter((x) => tientEnsemble(x.visage, ea.visage, eb.visage))
         .sort((x, y) => y.effectif - x.effectif),
     };
   });
@@ -887,7 +915,7 @@ export function tourDeBassin(
       const essais = rencontres(debut[i], debut[j]);
       if (essais < 1) continue;
 
-      const vv = vivier(debut, debut[i], debut[j]);
+      const vv = vivier(debut, debut[i], debut[j], catalyseurs(etat));
       for (let k = 0; k < essais; k++) {
         const a = especes.find((e) => e.empreinte === debut[i].empreinte);
         const b = especes.find((e) => e.empreinte === debut[j].empreinte);

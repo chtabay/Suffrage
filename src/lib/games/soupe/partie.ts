@@ -526,7 +526,13 @@ export function ouvrirLeBassin(partie: Partie, cibleGrille: Grille): Partie {
   }
 
   // Les six briques amorcent le bassin : c'est ce que la chimie aveugle sait faire.
+  /**
+   * ⚠️ LE BASSIN REÇOIT LE CATALOGUE DU JOUEUR, et c'est ce qui donne enfin une
+   * raison d'être aux deux premiers actes : seules ces formes-là reconnaissent
+   * les briques et accélèrent une soudure.
+   */
   let bassin = viser(bassinVide(libres), choisie.grille);
+  bassin = { ...bassin, catalogue: partie.collection.map((piece) => visageDe(piece.grille)) };
   for (const brique of BRIQUES) bassin = ensemencer(bassin, brique, partie.milieu);
 
   /**

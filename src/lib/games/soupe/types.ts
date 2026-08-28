@@ -146,6 +146,8 @@ export interface Espece {
 export interface EtatBassin {
   libres: Compte;
   especes: Espece[];
+  /** Les visages de la collection du joueur : les seuls qui catalysent. */
+  catalogue: string[];
   tours: number;
   nes: number;
   morts: number;
