@@ -96,10 +96,12 @@ function IntentArt({ kind }: { kind: IntentKind }) {
 /**
  * Accueil décroissant : mode « pédagogie » pour un nouveau visiteur, ses 3
  * premières visites, ou un retour après >1 mois ; sinon « lean » (droit au but).
- * Défaut = lean (pas de flash pour un habitué) ; on développe vers pédagogie au montage.
+ * Défaut = learn : un nouveau visiteur reçoit immédiatement la landing courte,
+ * sans voir pendant l'hydratation les blocs réservés aux habitués. Un habitué
+ * repasse en lean après lecture de son historique local.
  */
 function useHomeMode(): "learn" | "lean" {
-  const [mode, setMode] = useState<"learn" | "lean">("lean");
+  const [mode, setMode] = useState<"learn" | "lean">("learn");
   useEffect(() => {
     try {
       const count = parseInt(localStorage.getItem("scrutin_seen") || "0", 10) || 0;
