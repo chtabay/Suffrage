@@ -118,9 +118,9 @@
     "partnerLead": "Essayez le jugement majoritaire, Condorcet et le vote par approbation sur trois questions de campagne — sans inscription, et sans un mot sur les candidats.",
     "partnerCta": "Voir les démonstrations",
     "badge": "Décider à plusieurs, simplement",
-    "heroA": "La bonne décision,",
-    "heroB": "prise ensemble.",
-    "subtitle": "Choisir une option, trouver une date, attribuer des bureaux, former des binômes : chaque décision a sa méthode — et le résultat est calculé selon ses règles exactes, pas un sondage de plus.",
+    "heroA": "La bonne méthode",
+    "heroB": "pour décider ensemble.",
+    "subtitle": "Choisir une option, trouver une date, attribuer des bureaux, former des binômes : Placet vous aide à poser la décision, puis applique les règles exactes de la méthode choisie.",
     "createCta": "Prendre une décision →",
     "createAssignCta": "Créer mon affectation →",
     "askLabel": "Posez votre question",
@@ -843,7 +843,9 @@
   },
   "AiRail": {
     "title": "✨ Préparer avec une IA",
-    "prepareWith": "Préparer avec {name}"
+    "prepareWith": "Préparer avec {name}",
+    "helpCta": "M’aider à préparer cette décision avec une IA",
+    "helpText": "La question saisie ci-dessus est incluse dans le prompt. Choisissez l’assistant avec lequel la préparer."
   },
   "Install": {
     "installButton": "📲 Installer Placet sur ton écran d'accueil",
@@ -1564,7 +1566,7 @@
     "privacyNote": "Votre email sert uniquement à vous envoyer votre lien de vote personnel."
   },
   "Meta": {
-    "title": "Placet — La bonne décision, prise ensemble",
+    "title": "Placet — La bonne méthode pour décider ensemble",
     "description": "Votes et affectations avec de vraies méthodes — majoritaire, Condorcet, jugement majoritaire, tour de choix, binômes stables, façon Parcoursup… Comparez les biais, puis comptez pour de vrai."
   },
   "Share": {

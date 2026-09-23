@@ -6,8 +6,7 @@ import { SYSTEMS } from "@/lib/voting/systems";
 import { systemToPublicMethod } from "@/lib/voting/methods";
 import { ASSIGN_METHODS, ASSIGN_METHOD_KEYS, type AssignMethodKey } from "@/lib/assign/methods";
 import type { ScrutinController } from "@/lib/voting/useScrutin";
-import AiSideRail from "./AiSideRail";
-import AiHelper from "./AiHelper";
+import AiQuestionHelper from "./AiSideRail";
 import PublicFeedStrip from "./PublicFeedStrip";
 import SlackMark from "@/components/SlackMark";
 import NextLink from "next/link";
@@ -97,10 +96,12 @@ function IntentArt({ kind }: { kind: IntentKind }) {
 /**
  * Accueil décroissant : mode « pédagogie » pour un nouveau visiteur, ses 3
  * premières visites, ou un retour après >1 mois ; sinon « lean » (droit au but).
- * Défaut = lean (pas de flash pour un habitué) ; on développe vers pédagogie au montage.
+ * Défaut = learn : un nouveau visiteur reçoit immédiatement la landing courte,
+ * sans voir pendant l'hydratation les blocs réservés aux habitués. Un habitué
+ * repasse en lean après lecture de son historique local.
  */
 function useHomeMode(): "learn" | "lean" {
-  const [mode, setMode] = useState<"learn" | "lean">("lean");
+  const [mode, setMode] = useState<"learn" | "lean">("learn");
   useEffect(() => {
     try {
       const count = parseInt(localStorage.getItem("scrutin_seen") || "0", 10) || 0;
@@ -261,8 +262,6 @@ export default function HomeScreen({ ctrl }: { ctrl: ScrutinController }) {
 
   return (
     <div className="pad" style={{ maxWidth: 1120, margin: "0 auto", padding: `${learn ? 38 : 16}px 24px 90px` }}>
-      <AiSideRail />
-
       {/* hero : pitch en pédagogie, compact en lean — une seule action primaire */}
       <div style={{ animation: "popIn 0.5s ease both" }}>
         {learn && (
@@ -344,6 +343,7 @@ export default function HomeScreen({ ctrl }: { ctrl: ScrutinController }) {
             }}
           />
         </div>
+        <AiQuestionHelper question={q} />
 
         {/* Les 4 intentions — chacune illustre sa mécanique. Étape 2 du parcours. */}
         <div style={{ marginTop: 18, fontWeight: 700, fontSize: 13, color: SUBINK }}>{t("intentLabel")}</div>
@@ -515,14 +515,11 @@ export default function HomeScreen({ ctrl }: { ctrl: ScrutinController }) {
         </div>
       )}
 
-      {/* IA — après le choix de méthode (mobile ; desktop = rail latéral) */}
-      <div className="ai-home-inline" style={{ marginTop: 28 }}>
-        <AiHelper ctrl={ctrl} />
-      </div>
-
       {/* Feed public — bande des derniers scrutins publiés (rien si <3 entrées) */}
       <PublicFeedStrip />
 
+      {!learn && (
+        <>
       {/* Les jeux — l'autre usage du moteur. Bande discrète, au même rang que
           l'intégration Slack : on ne détourne pas quelqu'un venu décider, mais
           c'est bien ici qu'on découvre qu'il y a des jeux. */}
@@ -708,6 +705,8 @@ export default function HomeScreen({ ctrl }: { ctrl: ScrutinController }) {
           </a>
         </div>
       </div>
+        </>
+      )}
     </div>
   );
 }
