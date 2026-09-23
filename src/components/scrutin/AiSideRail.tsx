@@ -1,79 +1,105 @@
 "use client";
 
+import { useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { RAIL_ASSISTANTS, openAssistant } from "@/lib/ai/assistants";
 import BrandIcon, { hasBrandIcon } from "@/components/ai/BrandIcon";
-import { FONT_DISPLAY, INK, MUTED } from "./theme";
+import { CREAM, FONT_BODY, FONT_DISPLAY, INK, MUTED, PAPER, lift } from "./theme";
 
-// Rail latéral (desktop) : lancer la préparation du vote avec une IA dès l'accueil.
-export default function AiSideRail() {
+/**
+ * Une seule porte IA sur l'accueil. La question saisie dans le hero est passée
+ * au prompt : l'aide ne repart donc plus d'un contexte vide.
+ *
+ * Les marques n'occupent l'écran qu'après une demande explicite. Placet reste
+ * la destination principale ; l'assistant sert seulement à préparer la décision.
+ */
+export default function AiQuestionHelper({ question }: { question: string }) {
   const t = useTranslations("AiRail");
   const locale = useLocale();
+  const [open, setOpen] = useState(false);
+
   return (
-    <div
-      className="ai-side-rail"
-      style={{
-        position: "fixed",
-        right: 12,
-        top: "50%",
-        transform: "translateY(-50%)",
-        zIndex: 60,
-        background: "#fff",
-        border: `2.5px solid ${INK}`,
-        borderRadius: 16,
-        boxShadow: `4px 4px 0 ${INK}`,
-        padding: "12px 8px",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        gap: 12,
-        width: 80,
-      }}
-    >
-      <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 11, color: MUTED, textAlign: "center", lineHeight: 1.2 }}>
-        {t("title")}
-      </div>
-      {RAIL_ASSISTANTS.map((a) => (
-        <button
-          key={a.key}
-          onClick={() => openAssistant(a, "", [], locale)}
-          title={t("prepareWith", { name: a.label })}
-          aria-label={t("prepareWith", { name: a.label })}
+    <div style={{ marginTop: 12, maxWidth: 640 }}>
+      <button
+        type="button"
+        onClick={() => setOpen((value) => !value)}
+        aria-expanded={open}
+        style={{
+          display: "inline-flex",
+          alignItems: "center",
+          gap: 8,
+          fontFamily: FONT_BODY,
+          fontWeight: 700,
+          fontSize: 13,
+          cursor: "pointer",
+          border: `2px solid ${INK}`,
+          borderRadius: 10,
+          padding: "8px 12px",
+          background: CREAM,
+          color: INK,
+          ...lift(`2px 2px 0 ${INK}`, `4px 4px 0 ${INK}`),
+        }}
+        className="dc-lift"
+      >
+        <span aria-hidden>✨</span>
+        {t("helpCta")}
+        <span aria-hidden style={{ fontSize: 10 }}>{open ? "▲" : "▼"}</span>
+      </button>
+
+      {open && (
+        <div
           style={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            gap: 4,
-            background: "none",
-            border: "none",
-            cursor: "pointer",
-            padding: 0,
+            marginTop: 10,
+            background: PAPER,
+            border: `2px solid ${INK}`,
+            borderRadius: 12,
+            padding: "12px 14px",
+            boxShadow: `3px 3px 0 ${INK}`,
           }}
         >
-          {hasBrandIcon(a.key) ? (
-            <BrandIcon brandKey={a.key} size={40} ring />
-          ) : (
-            <span
-              style={{
-                width: 40,
-                height: 40,
-                borderRadius: "50%",
-                border: `2.5px solid ${INK}`,
-                background: a.color,
-                boxShadow: `2px 2px 0 ${INK}`,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                color: "#fff",
-                fontSize: 17,
-              }}
-            >
-              ✨
-            </span>
-          )}
-          <span style={{ fontSize: 10, fontWeight: 700, color: INK }}>{a.label}</span>
-        </button>
-      ))}
+          <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 13.5, color: INK }}>
+            {t("title")}
+          </div>
+          <div style={{ marginTop: 4, fontSize: 12, lineHeight: 1.45, color: MUTED }}>
+            {t("helpText")}
+          </div>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 10 }}>
+            {RAIL_ASSISTANTS.map((assistant) => (
+              <button
+                key={assistant.key}
+                type="button"
+                onClick={() => openAssistant(assistant, question.trim(), [], locale)}
+                title={t("prepareWith", { name: assistant.label })}
+                aria-label={t("prepareWith", { name: assistant.label })}
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 7,
+                  fontFamily: FONT_BODY,
+                  fontWeight: 700,
+                  fontSize: 12.5,
+                  cursor: "pointer",
+                  border: `2px solid ${INK}`,
+                  borderRadius: 9,
+                  padding: "7px 10px",
+                  background: "#fff",
+                  color: INK,
+                }}
+              >
+                {hasBrandIcon(assistant.key) ? (
+                  <BrandIcon brandKey={assistant.key} size={18} />
+                ) : (
+                  <span
+                    aria-hidden
+                    style={{ width: 10, height: 10, borderRadius: "50%", background: assistant.color }}
+                  />
+                )}
+                {assistant.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
